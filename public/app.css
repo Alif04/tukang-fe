@@ -37,3 +37,7 @@ h6 {
   background-color: #E2E2E2 !important;
   border-right: 4px solid #009ef7 !important;
 }
+
+.aside-logo{
+  min-height: 175px !important;
+}
