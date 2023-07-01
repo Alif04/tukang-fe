@@ -1,0 +1,39 @@
+p,
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 0 !important;
+}
+
+#kt_aside_toggle {
+  display: none;
+}
+
+.ReactQueryDevtools {
+  display: none;
+}
+
+.engage-toolbar {
+  display: none;
+}
+
+#topbar .btn .svg-icon{
+  color: white !important;
+}
+
+#topbar .btn.show .svg-icon{
+  color: #009ef7 !important;
+}
+
+#topbar .btn:hover .svg-icon{
+  color: #009ef7 !important;
+}
+
+.menu-link.active{
+  background-color: #E2E2E2 !important;
+  border-right: 4px solid #009ef7 !important;
+}
