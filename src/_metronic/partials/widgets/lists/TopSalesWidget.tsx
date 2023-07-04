@@ -7,14 +7,13 @@ type Props = {
   className: string
 }
 
-const ListsWidget2: React.FC<Props> = ({className}) => {
+const TopSalesWidget: React.FC<Props> = ({className}) => {
   return (
     <div className={`card ${className}`}>
       {/* begin::Header */}
       <div className='card-header border-0'>
         <h3 className='card-title fw-bold text-dark'>Top 5 Best Sales</h3>
         <div className='card-toolbar'>
-          {/* begin::Menu */}
           <button
             type='button'
             className='btn btn-sm btn-icon btn-color-primary btn-active-light-primary'
@@ -25,101 +24,91 @@ const ListsWidget2: React.FC<Props> = ({className}) => {
             <KTSVG path='/media/icons/duotune/general/gen024.svg' className='svg-icon-2' />
           </button>
           <Dropdown1 />
-          {/* end::Menu */}
         </div>
       </div>
       {/* end::Header */}
+
       {/* begin::Body */}
       <div className='card-body pt-2'>
-        {/* begin::Item */}
         <div className='d-flex align-items-center mb-7'>
-          {/* begin::Avatar */}
           <div className='symbol symbol-50px me-5'>
-            <img src={toAbsoluteUrl('/media/avatars/300-6.jpg')} className='' alt='' />
+            <img
+              src={toAbsoluteUrl('/media/avatars/300-6.jpg')}
+              className='rounded-circle'
+              alt=''
+            />
           </div>
-          {/* end::Avatar */}
-          {/* begin::Text */}
           <div className='flex-grow-1'>
-            <a href='#' className='text-dark fw-bold text-hover-primary fs-6'>
-              Sandra
-            </a>
+            <div className='text-dark fw-bold fs-6'>Sandra</div>
             <span className='text-muted d-block fw-semibold'>Keramik</span>
           </div>
-          {/* end::Text */}
         </div>
-        {/* end::Item */}
-        {/* begin::Item */}
+
         <div className='d-flex align-items-center mb-7'>
-          {/* begin::Avatar */}
           <div className='symbol symbol-50px me-5'>
-            <img src={toAbsoluteUrl('/media/avatars/300-5.jpg')} className='' alt='' />
+            <img
+              src={toAbsoluteUrl('/media/avatars/300-2.jpg')}
+              className='rounded-circle'
+              alt=''
+            />
           </div>
-          {/* end::Avatar */}
-          {/* begin::Text */}
           <div className='flex-grow-1'>
-            <a href='#' className='text-dark fw-bold text-hover-primary fs-6'>
-              Nur Amalia
-            </a>
+            <div className='text-dark fw-bold fs-6'>Nur Amalia</div>
             <span className='text-muted d-block fw-semibold'>Cat</span>
           </div>
-          {/* end::Text */}
         </div>
-        {/* end::Item */}
-        {/* begin::Item */}
+
         <div className='d-flex align-items-center mb-7'>
-          {/* begin::Avatar */}
           <div className='symbol symbol-50px me-5'>
-            <img src={toAbsoluteUrl('/media/avatars/300-11.jpg')} className='' alt='' />
+            <img
+              src={toAbsoluteUrl('/media/avatars/300-7.jpg')}
+              className='rounded-circle'
+              alt=''
+            />
           </div>
-          {/* end::Avatar */}
-          {/* begin::Text */}
           <div className='flex-grow-1'>
-            <a href='#' className='text-dark fw-bold text-hover-primary fs-6'>
-              Paulus
-            </a>
+            <div className='text-dark fw-bold fs-6'>Paulus</div>
             <span className='text-muted d-block fw-semibold'>Water Heater</span>
           </div>
-          {/* end::Text */}
         </div>
-        {/* end::Item */}
-        {/* begin::Item */}
+
         <div className='d-flex align-items-center mb-7'>
-          {/* begin::Avatar */}
           <div className='symbol symbol-50px me-5'>
-            <img src={toAbsoluteUrl('/media/avatars/300-9.jpg')} className='' alt='' />
+            <img
+              src={toAbsoluteUrl('/media/avatars/300-9.jpg')}
+              className='rounded-circle'
+              alt=''
+            />
           </div>
-          {/* end::Avatar */}
-          {/* begin::Text */}
           <div className='flex-grow-1'>
-            <a href='#' className='text-dark fw-bold text-hover-primary fs-6'>
-              Anton
-            </a>
+            <div className='text-dark fw-bold fs-6'>Anton</div>
             <span className='text-muted d-block fw-semibold'>Gypsum</span>
           </div>
-          {/* end::Text */}
         </div>
-        {/* end::Item */}
-        {/* begin::Item */}
-        <div className='d-flex align-items-center'>
-          {/* begin::Avatar */}
+
+        <div className='d-flex align-items-center mb-7'>
           <div className='symbol symbol-50px me-5'>
-            <img src={toAbsoluteUrl('/media/avatars/300-23.jpg')} className='' alt='' />
+            <img
+              src={toAbsoluteUrl('/media/avatars/300-11.jpg')}
+              className='rounded-circle'
+              alt=''
+            />
           </div>
-          {/* end::Avatar */}
-          {/* begin::Text */}
           <div className='flex-grow-1'>
-            <a href='#' className='text-dark fw-bold text-hover-primary fs-6'>
-              Sudirman
-            </a>
+            <div className='text-dark fw-bold fs-6'>Sudirman</div>
             <span className='text-muted d-block fw-semibold'>Ubin</span>
           </div>
-          {/* end::Text */}
         </div>
-        {/* end::Item */}
       </div>
       {/* end::Body */}
+
+      {/* begin::Footer */}
+      <div className='card-footer pt-1 pb-1'>
+        <p className='text-muted'>Total Sales person : 45 Sales person</p>
+      </div>
+      {/* end::Footer */}
     </div>
   )
 }
 
-export {ListsWidget2}
+export {TopSalesWidget}

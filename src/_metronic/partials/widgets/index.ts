@@ -1,3 +1,6 @@
+// calendar
+export * from './calendar/CalendarWidget'
+
 // charts
 export * from './feeds/FeedsWidget2'
 export * from './feeds/FeedsWidget3'
@@ -20,6 +23,10 @@ export * from './mixed/MixedWidget11'
 export * from './mixed/MixedWidget13'
 export * from './mixed/MixedWidget14'
 export * from './mixed/MixedWidget15'
+export * from './mixed/TotalOrder'
+export * from './mixed/TotalComplaint'
+export * from './mixed/TotalFinishedJob'
+export * from './mixed/TotalReschedule'
 
 // lists
 export * from './lists/ListsWidget1'
@@ -31,6 +38,9 @@ export * from './lists/ListsWidget6'
 export * from './lists/ListsWidget7'
 export * from './lists/ListsWidget8'
 export * from './lists/ListsWidget9'
+export * from './lists/TransactionWidget'
+export * from './lists/TopSalesWidget'
+export * from './lists/RecentEventWidget'
 
 // statistics
 export * from './statistics/StatisticsWidget1'

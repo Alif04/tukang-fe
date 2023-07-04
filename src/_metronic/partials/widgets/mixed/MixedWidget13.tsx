@@ -36,44 +36,28 @@ const MixedWidget13: React.FC<Props> = ({className, backGroundColor, chartHeight
       chart.render()
     }
 
-    return chart;
+    return chart
   }
 
   return (
-    <div className={`card ${className} theme-dark-bg-body`} style={{backgroundColor: backGroundColor}}>
-      {/* begin::Body */}
-      <div className='card-body d-flex flex-column'>
-        {/* begin::Wrapper */}
-        <div className='d-flex flex-column flex-grow-1'>
-          {/* begin::Title                    */}
-          <a href='#' className='text-dark text-hover-primary fw-bolder fs-3'>
-            Earnings
-          </a>
-          {/* end::Title */}
+    <div
+      className={`card ${className} theme-dark-bg-body`}
+      style={{backgroundColor: backGroundColor}}
+    >
+      <div className='card-body d-flex flex-column p-5'>
+        <div className='d-flex flex-stack flex-wrap flex-grow-1 align-items-start'>
+          <div className='me-2'>
+            <span className='fw-bold text-gray-800 d-block fs-3'>Order Sales Report</span>
+          </div>
 
-          <div
-            ref={chartRef}
-            className='mixed-widget-13-chart'
-            style={{height: chartHeight, minHeight: chartHeight}}
-          ></div>
+          <div className={`fw-bold fs-3`}>$15,300</div>
         </div>
-        {/* end::Wrapper */}
 
-        {/* begin::Stats */}
-        <div className='pt-5'>
-          {/* begin::Symbol */}
-          <span className='text-dark fw-bolder fs-2x lh-0'>$</span>
-          {/* end::Symbol */}
-
-          {/* begin::Number */}
-          <span className='text-dark fw-bolder fs-3x me-2 lh-0'>560</span>
-          {/* end::Number */}
-
-          {/* begin::Text */}
-          <span className='text-dark fw-bolder fs-6 lh-0'>+ 28% this week</span>
-          {/* end::Text */}
-        </div>
-        {/* end::Stats */}
+        <div
+          ref={chartRef}
+          className='mixed-widget-13-chart'
+          style={{height: chartHeight, minHeight: chartHeight}}
+        ></div>
       </div>
     </div>
   )
@@ -87,7 +71,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     series: [
       {
         name: 'Net Profit',
-        data: [15, 25, 15, 40, 20, 50],
+        data: [40, 50, 25, 35, 45, 20, 30],
       },
     ],
     grid: {
@@ -123,7 +107,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     fill: {
       type: 'gradient',
       gradient: {
-        opacityFrom: 0.4,
+        opacityFrom: 0.7,
         opacityTo: 0,
         stops: [20, 120, 120, 120],
       },
@@ -132,10 +116,10 @@ const chartOptions = (chartHeight: string): ApexOptions => {
       curve: 'smooth',
       show: true,
       width: 3,
-      colors: ['#FFFFFF'],
+      colors: ['#605BDA'],
     },
     xaxis: {
-      categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fr', 'Sat', 'Sun'],
       axisBorder: {
         show: false,
       },
@@ -209,7 +193,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
         },
       },
     },
-    colors: ['#ffffff'],
+    colors: ['#605BDA'],
     markers: {
       colors: [labelColor],
       strokeColor: [strokeColor],
