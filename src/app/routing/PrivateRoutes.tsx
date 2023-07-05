@@ -6,9 +6,14 @@ import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
 import {MenuTestPage} from '../pages/MenuTestPage'
 import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
-import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
+// import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 
 const PrivateRoutes = () => {
+  // Store Dashboard
+  const OrderPage = lazy(() => import('../modules/order/OrderPage'))
+  const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
+  const CostumersPage = lazy(() => import('../modules/costumers/CostumersPage'))
+
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const WizardsPage = lazy(() => import('../modules/wizards/WizardsPage'))
   const AccountPage = lazy(() => import('../modules/accounts/AccountPage'))
@@ -21,11 +26,41 @@ const PrivateRoutes = () => {
       <Route element={<MasterLayout />}>
         {/* Redirect to Dashboard after success login/registartion */}
         <Route path='auth/*' element={<Navigate to='/dashboard' />} />
+
         {/* Pages */}
         <Route path='dashboard' element={<DashboardWrapper />} />
-        <Route path='builder' element={<BuilderPageWrapper />} />
+
+        {/* <Route path='builder' element={<BuilderPageWrapper />} /> */}
         <Route path='menu-test' element={<MenuTestPage />} />
+
         {/* Lazy Modules */}
+        <Route
+          path='order/*'
+          element={
+            <SuspensedView>
+              <OrderPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='costumers/*'
+          element={
+            <SuspensedView>
+              <CostumersPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='complaint/*'
+          element={
+            <SuspensedView>
+              <ComplaintPage />
+            </SuspensedView>
+          }
+        />
+
         <Route
           path='crafted/pages/profile/*'
           element={
@@ -74,6 +109,7 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
+
         {/* Page Not Found */}
         <Route path='*' element={<Navigate to='/error/404' />} />
       </Route>

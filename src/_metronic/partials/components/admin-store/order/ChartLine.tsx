@@ -1,24 +1,26 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSSVariableValue} from '../../../../assets/ts/_utils'
+import {getCSS, getCSSVariableValue} from '../../../../assets/ts/_utils'
 import {useThemeMode} from '../../../layout/theme-mode/ThemeModeProvider'
+import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  chartColor: string
-  chartHeight: string
 }
 
-const TotalComplaint: React.FC<Props> = ({className, chartColor, chartHeight}) => {
+const ChartLine: React.FC<Props> = ({className}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
+
   const refreshChart = () => {
     if (!chartRef.current) {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartColor, chartHeight))
+    const height = parseInt(getCSS(chartRef.current, 'height'))
+
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
     if (chart) {
       chart.render()
     }
@@ -34,68 +36,64 @@ const TotalComplaint: React.FC<Props> = ({className, chartColor, chartHeight}) =
         chart.destroy()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartRef, mode])
 
   return (
     <div className={`card ${className}`}>
-      <div className='card-body p-2 d-flex justify-content-center'>
-        <div className='d-flex align-items-center gap-4'>
-          <div className='d-flex flex-column gap-4'>
-            <div className='fs-5 text-danger'>Total Complaint</div>
-            <div className='fs-1 d-block m-auto'>24</div>
-            <div className='fs-5 text-muted'>Complaint bulan ini</div>
-          </div>
-
-          <div ref={chartRef} className='mixed-widget-10-chart'></div>
-        </div>
+      <div className='card-body'>
+        <div ref={chartRef} id='kt_charts_widget_4_chart' style={{height: '350px'}}></div>
       </div>
     </div>
   )
 }
 
-const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
+export {ChartLine}
+
+function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const secondaryColor = getCSSVariableValue('--kt-gray-300')
-  const baseColor = getCSSVariableValue('--kt-' + chartColor)
+
+  const baseColor = getCSSVariableValue('--kt-primary')
+  const baseLightColor = getCSSVariableValue('--kt-primary-light')
+  const secondaryColor = getCSSVariableValue('--kt-info')
+  const secondaryLightColor = getCSSVariableValue('--kt-info-light')
 
   return {
     series: [
       {
-        name: '',
-        data: [50, 60, 70, 80, 60, 50],
+        name: 'Survey',
+        data: [60, 50, 80, 40, 100, 60],
+      },
+      {
+        name: 'Work Done',
+        data: [70, 60, 110, 40, 50, 70],
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'bar',
-      width: '200px',
-      height: chartHeight,
+      type: 'area',
+      height: 350,
       toolbar: {
         show: false,
       },
     },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        columnWidth: '100%',
-        borderRadius: 0,
-      },
-    },
+    plotOptions: {},
     legend: {
-      show: false,
+      show: true,
+      position: bottom,
     },
     dataLabels: {
       enabled: false,
     },
+    fill: {
+      type: 'solid',
+      opacity: 0.4,
+    },
     stroke: {
-      show: true,
-      width: 2,
-      colors: ['transparent'],
+      curve: 'straight',
     },
     xaxis: {
-      categories: ['Refund', 'Reject', 'Done', 'Reschedule', 'Rework', 'Accept'],
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
       axisBorder: {
         show: false,
       },
@@ -108,6 +106,22 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
           fontSize: '12px',
         },
       },
+      crosshairs: {
+        position: 'front',
+        stroke: {
+          color: labelColor,
+          width: 1,
+          dashArray: 3,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        formatter: undefined,
+        offsetY: 0,
+        style: {
+          fontSize: '12px',
+        },
+      },
     },
     yaxis: {
       labels: {
@@ -116,9 +130,6 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
           fontSize: '12px',
         },
       },
-    },
-    fill: {
-      type: 'solid',
     },
     states: {
       normal: {
@@ -147,15 +158,12 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
       },
       y: {
         formatter: function (val) {
-          return val + ' Complaint'
+          return '$' + val + ' thousands'
         },
       },
     },
     colors: [baseColor, secondaryColor],
     grid: {
-      padding: {
-        top: 10,
-      },
       borderColor: borderColor,
       strokeDashArray: 4,
       yaxis: {
@@ -164,7 +172,10 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
         },
       },
     },
+    markers: {
+      colors: [baseLightColor, secondaryLightColor],
+      strokeColors: [baseLightColor, secondaryLightColor],
+      strokeWidth: 3,
+    },
   }
 }
-
-export {TotalComplaint}

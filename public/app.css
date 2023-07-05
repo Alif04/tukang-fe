@@ -21,23 +21,23 @@ h6 {
   display: none;
 }
 
-#topbar .btn .svg-icon{
+#topbar .btn .svg-icon {
   color: white !important;
 }
 
-#topbar .btn.show .svg-icon{
+#topbar .btn.show .svg-icon {
   color: #009ef7 !important;
 }
 
-#topbar .btn:hover .svg-icon{
+#topbar .btn:hover .svg-icon {
   color: #009ef7 !important;
 }
 
-.menu-link.active{
-  background-color: #E2E2E2 !important;
+.menu-link.active {
+  background-color: #e2e2e2 !important;
   border-right: 4px solid #009ef7 !important;
 }
 
-.aside-logo{
+.aside-logo {
   min-height: 175px !important;
 }

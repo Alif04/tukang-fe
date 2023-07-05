@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import {FC} from 'react'
-import {useIntl} from 'react-intl'
 import {PageTitle} from '../../../_metronic/layout/core'
 import {TablesWidget5} from '../../../_metronic/partials/widgets'
 
@@ -82,10 +81,9 @@ const DashboardPage: FC = () => (
 )
 
 const DashboardWrapper: FC = () => {
-  const intl = useIntl()
   return (
     <>
-      <PageTitle breadcrumbs={[]}>{intl.formatMessage({id: 'MENU.DASHBOARD'})}</PageTitle>
+      <PageTitle>STORE DASHBOARD</PageTitle>
       <DashboardPage />
     </>
   )

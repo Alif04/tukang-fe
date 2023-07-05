@@ -17,7 +17,7 @@ const DefaultTitle: FC = () => {
     >
       {/* begin::Title */}
       {pageTitle && (
-        <h1 className='d-flex align-items-center text-light fw-bolder my-1 fs-3'>
+        <h1 className='d-flex align-items-center text-light fw-bolder my-1 fs-1'>
           {pageTitle}
           {pageDescription && config.pageTitle && config.pageTitle.description && (
             <>
@@ -47,7 +47,7 @@ const DefaultTitle: FC = () => {
                   key={`${item.path}${index}`}
                 >
                   {!item.isSeparator ? (
-                    <Link className='text-muted text-hover-primary' to={item.path}>
+                    <Link className='text-black text-hover-white' to={item.path}>
                       {item.title}
                     </Link>
                   ) : (
@@ -55,7 +55,7 @@ const DefaultTitle: FC = () => {
                   )}
                 </li>
               ))}
-              <li className='breadcrumb-item text-dark'>{pageTitle}</li>
+              <li className='breadcrumb-item text-white'>{pageTitle}</li>
             </ul>
           </>
         )}

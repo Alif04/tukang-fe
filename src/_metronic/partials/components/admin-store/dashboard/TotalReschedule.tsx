@@ -55,7 +55,6 @@ const TotalReschedule: React.FC<Props> = ({className, chartColor, chartHeight}) 
 }
 
 const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
-  const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
   const secondaryColor = getCSSVariableValue('--kt-gray-300')
   const baseColor = getCSSVariableValue('--kt-' + chartColor)
@@ -63,7 +62,7 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
   return {
     series: [
       {
-        name: 'Net Profit',
+        name: '',
         data: [50, 60, 70, 80, 60, 50, 70, 60],
       },
     ],
@@ -141,7 +140,7 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
       },
       y: {
         formatter: function (val) {
-          return '$' + val + ' revenue'
+          return val + ' Resechedule'
         },
       },
     },

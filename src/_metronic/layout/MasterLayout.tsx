@@ -1,14 +1,11 @@
-import { useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
-import { AsideDefault } from './components/aside/AsideDefault'
-import { Footer } from './components/Footer'
-import { HeaderWrapper } from './components/header/HeaderWrapper'
-import { Toolbar } from './components/toolbar/Toolbar'
-import { RightToolbar } from '../partials/layout/RightToolbar'
-import { ScrollTop } from './components/ScrollTop'
-import { Content } from './components/Content'
-import { PageDataProvider } from './core'
-import { useLocation } from 'react-router-dom'
+import {useEffect} from 'react'
+import {Outlet} from 'react-router-dom'
+import {AsideDefault} from './components/aside/AsideDefault'
+import {HeaderWrapper} from './components/header/HeaderWrapper'
+import {ScrollTop} from './components/ScrollTop'
+import {Content} from './components/Content'
+import {PageDataProvider} from './core'
+import {useLocation} from 'react-router-dom'
 import {
   DrawerMessenger,
   ActivityDrawer,
@@ -16,7 +13,7 @@ import {
   UpgradePlan,
   ThemeModeProvider,
 } from '../partials'
-import { MenuComponent } from '../assets/ts/components'
+import {MenuComponent} from '../assets/ts/components'
 
 const MasterLayout = () => {
   const location = useLocation()
@@ -40,7 +37,11 @@ const MasterLayout = () => {
           <div className='wrapper d-flex flex-column flex-row-fluid' id='kt_wrapper'>
             <HeaderWrapper />
 
-            <div id='kt_content' className='content d-flex flex-column flex-column-fluid' style={{ marginTop: '-3.5rem' }}>
+            <div
+              id='kt_content'
+              className='content d-flex flex-column flex-column-fluid'
+              style={{marginTop: '-3.5rem'}}
+            >
               <Content>
                 <Outlet />
               </Content>
@@ -51,7 +52,6 @@ const MasterLayout = () => {
                 </Content>
               </div> */}
             </div>
-            <Footer />
           </div>
         </div>
 
@@ -71,4 +71,4 @@ const MasterLayout = () => {
   )
 }
 
-export { MasterLayout }
+export {MasterLayout}
