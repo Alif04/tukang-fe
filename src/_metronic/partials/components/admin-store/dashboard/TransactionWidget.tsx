@@ -1,13 +1,13 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
-import {KTSVG} from '../../../helpers'
-import {Dropdown1} from '../../content/dropdown/Dropdown1'
+import {KTSVG} from '../../../../helpers'
+import {Dropdown1} from '../../../content/dropdown/Dropdown1'
 
 type Props = {
   className: string
 }
 
-const TransactionWidget: React.FC<Props> = ({className}) => {
+const TransactionWidget: React.FC<Props> = () => {
   return (
     <div className='card card-xl-stretch mb-5 mb-xl-8'>
       <div className='card-header border-0'>

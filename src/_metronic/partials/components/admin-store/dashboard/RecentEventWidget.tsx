@@ -1,14 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
-import {KTSVG, toAbsoluteUrl} from '../../../helpers'
-import {Dropdown1} from '../../content/dropdown/Dropdown1'
+import {KTSVG} from '../../../../helpers'
+import {Dropdown1} from '../../../content/dropdown/Dropdown1'
 
 type Props = {
   className: string
   items?: number
 }
 
-const RecentEventWidget: React.FC<Props> = ({className, items = 6}) => {
+const RecentEventWidget: React.FC<Props> = () => {
   return (
     <div className='card card-xl-stretch mb-xl-8'>
       {/* begin::Header */}

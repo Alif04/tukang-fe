@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSSVariableValue} from '../../../assets/ts/_utils'
-import {useThemeMode} from '../../layout/theme-mode/ThemeModeProvider'
+import {getCSSVariableValue} from '../../../../assets/ts/_utils'
+import {useThemeMode} from '../../../layout/theme-mode/ThemeModeProvider'
 
 type Props = {
   className: string
@@ -10,7 +10,7 @@ type Props = {
   chartHeight: string
 }
 
-const TotalComplaint: React.FC<Props> = ({className, chartColor, chartHeight}) => {
+const TotalReschedule: React.FC<Props> = ({className, chartColor, chartHeight}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
   const refreshChart = () => {
@@ -42,9 +42,9 @@ const TotalComplaint: React.FC<Props> = ({className, chartColor, chartHeight}) =
       <div className='card-body p-2 d-flex justify-content-center'>
         <div className='d-flex align-items-center gap-4'>
           <div className='d-flex flex-column gap-4'>
-            <div className='fs-5 text-danger'>Total Complaint</div>
-            <div className='fs-1 d-block m-auto'>24</div>
-            <div className='fs-5 text-muted'>Complaint bulan ini</div>
+            <div className='fs-5 text-muted'>Total Reschedule</div>
+            <div className='fs-1 d-block m-auto'>4</div>
+            <div className='fs-5 text-muted'>Reschedule bulan ini</div>
           </div>
 
           <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -64,7 +64,7 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
     series: [
       {
         name: 'Net Profit',
-        data: [50, 60, 70, 80, 60, 50],
+        data: [50, 60, 70, 80, 60, 50, 70, 60],
       },
     ],
     chart: {
@@ -78,8 +78,8 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
     },
     plotOptions: {
       bar: {
-        horizontal: true,
-        columnWidth: '100%',
+        horizontal: false,
+        columnWidth: '50%',
         borderRadius: 0,
       },
     },
@@ -95,7 +95,7 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: ['Refund', 'Reject', 'Refund', 'Reject', 'Refund', 'Reject'],
+      categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
       axisBorder: {
         show: false,
       },
@@ -103,18 +103,12 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
         show: false,
       },
       labels: {
-        style: {
-          colors: labelColor,
-          fontSize: '12px',
-        },
+        show: false,
       },
     },
     yaxis: {
       labels: {
-        style: {
-          colors: labelColor,
-          fontSize: '12px',
-        },
+        show: false,
       },
     },
     fill: {
@@ -167,4 +161,4 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
   }
 }
 
-export {TotalComplaint}
+export {TotalReschedule}

@@ -2,44 +2,26 @@
 import {FC} from 'react'
 import {useIntl} from 'react-intl'
 import {PageTitle} from '../../../_metronic/layout/core'
+import {TablesWidget5} from '../../../_metronic/partials/widgets'
+
 import {
+  SalesReportWidget,
   CalendarWidget,
-  MixedWidget1,
-  MixedWidget2,
-  MixedWidget3,
-  MixedWidget4,
-  MixedWidget5,
-  MixedWidget6,
-  MixedWidget7,
-  MixedWidget8,
-  MixedWidget9,
-  MixedWidget10,
-  MixedWidget11,
-  MixedWidget13,
-  MixedWidget14,
-  MixedWidget15,
+  TransactionWidget,
+  TopSalesWidget,
+  RecentEventWidget,
   TotalOrder,
   TotalComplaint,
   TotalFinishedJob,
   TotalReschedule,
-  ListsWidget2,
-  ListsWidget3,
-  ListsWidget4,
-  ListsWidget5,
-  ListsWidget6,
-  TransactionWidget,
-  TopSalesWidget,
-  RecentEventWidget,
-  TablesWidget5,
-  TablesWidget10,
-} from '../../../_metronic/partials/widgets'
+} from '../../../_metronic/partials/components'
 
 const DashboardPage: FC = () => (
   <>
     {/* begin::Row */}
     <div className='row gy-5 g-xl-8'>
       <div className='col-xxl-4'>
-        <MixedWidget13
+        <SalesReportWidget
           className='card-xl-stretch mb-xl-8'
           backGroundColor='white'
           chartHeight='250px'
