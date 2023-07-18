@@ -2,6 +2,11 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {ViewComplaint} from './components/ViewComplaint'
+import {NewComplaint} from './components/NewComplaint'
+import {UpdateComplaint} from './components/UpdateComplaint'
+import {ReportComplaint} from './components/ReportComplaint'
+
 const complaintBreadCrumbs: Array<PageLink> = [
   {
     title: 'Complaint',
@@ -25,7 +30,7 @@ const ComplaintPage: React.FC = () => {
         element={
           <>
             <PageTitle breadcrumbs={complaintBreadCrumbs}>COMPLAINT LIST</PageTitle>
-            {/* <Overview /> */}
+            <ViewComplaint />
           </>
         }
       />
@@ -34,7 +39,16 @@ const ComplaintPage: React.FC = () => {
         element={
           <>
             <PageTitle breadcrumbs={complaintBreadCrumbs}>NEW COMPLAINT FORM</PageTitle>
-            {/* <Settings /> */}
+            <NewComplaint />
+          </>
+        }
+      />
+      <Route
+        path='update-complaint'
+        element={
+          <>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>UPDATE COMPLAINT FORM</PageTitle>
+            <UpdateComplaint />
           </>
         }
       />
@@ -43,7 +57,7 @@ const ComplaintPage: React.FC = () => {
         element={
           <>
             <PageTitle breadcrumbs={complaintBreadCrumbs}>COMPLAINT DASHBOARD</PageTitle>
-            {/* <Settings /> */}
+            <ReportComplaint />
           </>
         }
       />

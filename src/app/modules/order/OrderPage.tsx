@@ -2,9 +2,11 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
-import {OrderDataTable} from './components/OrderDataTable'
+import {ViewOrder} from './components/ViewOrder'
 import {NewOrder} from './components/NewOrder'
-import {OrderDashboard} from './components/OrderDashboard'
+import {UpdateOrder} from './components/UpdateOrder'
+import {DetailOrder} from './components/DetailOrder'
+import {ReportOrder} from './components/ReportOrder'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -29,7 +31,7 @@ const OrderPage: React.FC = () => {
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
-            <OrderDataTable className='' />
+            <ViewOrder />
           </>
         }
       />
@@ -43,11 +45,29 @@ const OrderPage: React.FC = () => {
         }
       />
       <Route
+        path='update-order'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE ORDER FORM</PageTitle>
+            <UpdateOrder />
+          </>
+        }
+      />
+      <Route
+        path='detail-order'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>Detail ORDER</PageTitle>
+            <DetailOrder />
+          </>
+        }
+      />
+      <Route
         path='report-order'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
-            <OrderDashboard />
+            <ReportOrder />
           </>
         }
       />

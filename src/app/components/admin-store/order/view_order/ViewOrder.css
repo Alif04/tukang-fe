@@ -1,0 +1,17 @@
+.table-view-order {
+  margin: 20px 20px 20px 20px;
+}
+
+.table-view-order .ant-table-fixed {
+  table-layout: fixed;
+}
+
+.table-view-order .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* .table-view-order .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+} */

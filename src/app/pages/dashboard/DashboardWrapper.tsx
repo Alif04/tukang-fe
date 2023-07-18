@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import {FC} from 'react'
 import {PageTitle} from '../../../_metronic/layout/core'
-import {TablesWidget5} from '../../../_metronic/partials/widgets'
 
 import {
   SalesReportWidget,
@@ -13,9 +12,10 @@ import {
   TotalComplaint,
   TotalFinishedJob,
   TotalReschedule,
-} from '../../../_metronic/partials/components'
+  OrderTracking,
+} from '../../components'
 
-const DashboardPage: FC = () => (
+const DashboardStore: FC = () => (
   <>
     {/* begin::Row */}
     <div className='row gy-5 g-xl-8'>
@@ -61,7 +61,6 @@ const DashboardPage: FC = () => (
       </div>
       <div className='col-xl-5'>
         <RecentEventWidget className='card-xl-stretch mb-5 mb-xl-8' items={5} />
-        {/* partials/widgets/lists/_widget-4', 'class' => 'card-xl-stretch mb-5 mb-xl-8', 'items' => '5' */}
       </div>
     </div>
     {/* end::Row */}
@@ -69,7 +68,7 @@ const DashboardPage: FC = () => (
     {/* begin::Row */}
     <div className='row g-5 gx-xxl-8'>
       <div className='col-xxl-7'>
-        <TablesWidget5 className='card-xxl-stretch mb-5 mb-xxl-8' />
+        <OrderTracking className='card-xxl-stretch mb-5 mb-xxl-8' />
       </div>
 
       <div className='col-xxl-5'>
@@ -84,7 +83,7 @@ const DashboardWrapper: FC = () => {
   return (
     <>
       <PageTitle>STORE DASHBOARD</PageTitle>
-      <DashboardPage />
+      <DashboardStore />
     </>
   )
 }

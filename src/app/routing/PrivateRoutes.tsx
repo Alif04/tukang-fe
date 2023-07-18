@@ -12,7 +12,7 @@ const PrivateRoutes = () => {
   // Store Dashboard
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
-  const CostumersPage = lazy(() => import('../modules/costumers/CostumersPage'))
+  const CostumersPage = lazy(() => import('../modules/customers/CostumersPage'))
 
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const WizardsPage = lazy(() => import('../modules/wizards/WizardsPage'))
