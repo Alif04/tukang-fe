@@ -39,7 +39,7 @@ const OrderPage: React.FC = () => {
         path='new-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW ORDER FORM</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW PICKLIST FORM</PageTitle>
             <NewOrder />
           </>
         }

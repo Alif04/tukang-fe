@@ -31,6 +31,9 @@ export * from './admin-store/order/report_order/ReportOrder'
 // View Costumers
 export * from './admin-store/costumers/view_costumers/ViewCostumer'
 
+// Detail Costumers
+export * from './admin-store/costumers/detail_costumers/DetailCostumers'
+
 // Report Costumers
 export * from './admin-store/costumers/report_costumers/ReportCostumers'
 
@@ -43,6 +46,9 @@ export * from './admin-store/complaint/new_complaint/NewComplaint'
 
 // Update Complaint
 export * from './admin-store/complaint/update_complaint/UpdateComplaint'
+
+// Detail Complaint
+export * from './admin-store/complaint/detail_complaint/DetailComplaint'
 
 // Report Complaint
 export * from './admin-store/complaint/report_complaint/ReportComplaint'

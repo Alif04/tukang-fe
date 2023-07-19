@@ -1,6 +1,10 @@
+/* Card */
+
 .card-body.order-tracking {
   padding: 20px 40px 0px 40px;
 }
+
+/* Search Bar */
 
 .searchbar {
   display: flex;
@@ -47,6 +51,8 @@
   border-color: none !important;
   box-shadow: none !important;
 }
+
+/* Timeline */
 
 .timeline {
   margin: 20px 0 20px 0;
@@ -156,6 +162,45 @@
   border-radius: 0;
 }
 
+/* Table */
+
 .order-tracking-table {
   padding: 0px 15px 10px 15px !important;
+}
+
+.order-tracking-table .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #99a0cf;
+  font-weight: 700;
+  background-color: transparent;
+}
+
+.order-tracking-table td.ant-table-cell.ant-table-cell {
+  color: #7e96ff;
+  font-weight: 500;
+}
+
+.order-tracking-table
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.order-tracking-table .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+.table-view-order .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+.order-tracking-table .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+.order-tracking-table .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
 }

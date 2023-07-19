@@ -1,12 +1,96 @@
-/* Form Header */
-
-.form-header {
-  margin-bottom: 5px;
+#update-complaint .costumer-information {
+  width: 345px;
 }
 
-/* Button Picklist */
+#update-complaint .costumer-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 60px;
+}
+
+#update-complaint .costumer-information .form-body {
+  margin-bottom: 50px;
+}
+
+#update-complaint .costumer-information .form-body .field-alamat {
+  min-height: 172px;
+}
+
+#update-complaint .costumer-information .form-body .field-reason-complaint {
+  min-height: 130px;
+}
+
+#update-complaint .costumer-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#update-complaint .costumer-information .form-body .service-information {
+  margin: 30px 0 30px 0;
+}
+
+#update-complaint .costumer-information .form-body .service-information .service-detail h1 {
+  padding: 10px 0 10px 0;
+}
+
+#update-complaint .costumer-information .form-body .request-information {
+  margin: 25px 0 25px 0;
+}
+
+#update-complaint .costumer-information .form-body .request-information .request-detail h1 {
+  padding: 10px 0 10px 0;
+}
+
+#update-complaint
+  .costumer-information
+  .form-body
+  .request-information
+  .request-detail
+  .form-control.request-date {
+  border: none;
+}
+
+#update-complaint
+  .costumer-information
+  .form-body
+  .request-information
+  .request-detail
+  .form-control.survey-date {
+  border: none;
+}
+
+#update-complaint .costumer-information .form-body .work-information {
+  margin: 25px 0 25px 0;
+}
+
+#update-complaint .costumer-information .form-body .work-information .work-detail h1 {
+  padding: 10px 0 10px 0;
+}
+
+#update-complaint
+  .costumer-information
+  .form-body
+  .work-information
+  .work-detail
+  .form-control.work-start {
+  border: none;
+}
+
+#update-complaint
+  .costumer-information
+  .form-body
+  .work-information
+  .work-detail
+  .form-control.work-finish {
+  border: none;
+}
+
+/* Button */
 
 .btn.btn-light-dark {
+  width: 150px;
+  height: 50px;
   color: white !important;
   border-color: transparent !important;
   background-color: #7f7f7f !important;
@@ -14,15 +98,70 @@
 }
 
 .btn.btn-light-dark:hover:not(.btn-active) {
-  background-color: #605bda !important;
+  background-color: rgb(57, 57, 59) !important;
 }
 
-/* Form Table */
+.btn.btn-dark-danger {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
 
-.form-table .table tr,
+.btn.btn-dark-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+.btn.btn-dark-primary {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300b5 !important;
+}
+
+.btn.btn-dark-success {
+  width: 180px;
+  height: 50px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #7cb920 !important;
+}
+
+.button-add button {
+  width: 70px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #0f4cff;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+/* Table Picklist*/
+
+#update-complaint .table-picklist .table tr,
 .table th,
 .table td {
   border: 1px solid gray;
+}
+
+.table-picklist th {
+  text-align: center;
 }
 
 /* Form Input Image */
@@ -34,6 +173,7 @@ form.form-input-image {
   align-items: center;
   border: 2px dashed #858585;
   width: 100%;
+  min-height: 110px;
   cursor: pointer;
   border-radius: 5px;
 }

@@ -1,62 +1,93 @@
 /* Card */
 
-#detail-order .card .card-body .information-wrapper {
+#detail-complaint .card .card-body .information-wrapper {
   width: 330px;
 }
 
-#detail-order .information-wrapper .detail-header {
+#detail-complaint .information-wrapper .detail-header {
   min-height: 70px;
 }
 
-#detail-order .order-history {
-  margin-top: 50px;
+#detail-complaint .order-history {
+  margin-top: 20px;
   margin-bottom: 50px;
 }
 
-#detail-order .order-history .title h1 {
+#detail-complaint .order-history .title h1 {
   font-size: 22.5px;
   padding: 0 0 20px 0;
 }
 
+/* Detail Complaint */
+
+#detail-complaint .complaint-information h4 {
+  padding-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#detail-complaint .complaint-detail h4 {
+  padding-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#detail-complaint .complaint-detail p {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+#detail-complaint .complaint-evidence h4 {
+  padding-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#detail-complaint .table .detail-complaint-table tr,
+.table .detail-complaint-table th,
+.table .detail-complaint-table td {
+  border: none;
+}
+
 /* Timeline */
 
-#detail-order .anticon svg {
+#detail-complaint .anticon svg {
   color: white;
 }
 
-#detail-order .ant-steps.ant-steps-small .ant-steps-item-icon {
+#detail-complaint .ant-steps.ant-steps-small .ant-steps-item-icon {
   line-height: 20px;
 }
 
-#detail-order .ant-steps .ant-steps-item-wait .ant-steps-item-icon {
+#detail-complaint .ant-steps .ant-steps-item-wait .ant-steps-item-icon {
   background-color: #ee480a !important;
   opacity: 0.3;
 }
 
-#detail-order .ant-steps .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+#detail-complaint .ant-steps .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
   color: #ffff;
 }
 
-#detail-order .ant-steps .ant-steps-item-process .ant-steps-item-icon {
+#detail-complaint .ant-steps .ant-steps-item-process .ant-steps-item-icon {
   background-color: #ee480a !important;
   border-color: #ffff;
   border-width: 2px;
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
 }
 
-#detail-order .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
+#detail-complaint .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
   background-color: #ee480a !important;
   border-color: #ffff;
   border-width: 2px;
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
 }
 
-#detail-order .ant-steps-item-title {
+#detail-complaint .ant-steps-item-title {
   margin: 0 20px 0 20px;
   font-weight: 600;
 }
 
-#detail-order
+#detail-complaint
   .ant-steps
   .ant-steps-item-wait
   > .ant-steps-item-container
@@ -66,12 +97,12 @@
   font-weight: 400;
 }
 
-#detail-order .ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
+#detail-complaint .ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
   margin: 0 0 0 56px;
   padding: 3px 16px;
 }
 
-#detail-order
+#detail-complaint
   .ant-steps
   .ant-steps-item-process
   > .ant-steps-item-container
@@ -82,7 +113,7 @@
   border-radius: 0;
 }
 
-#detail-order
+#detail-complaint
   .ant-steps
   .ant-steps-item-wait
   > .ant-steps-item-container
@@ -93,7 +124,7 @@
   border-radius: 0;
 }
 
-#detail-order
+#detail-complaint
   .ant-steps
   .ant-steps-item-finish
   > .ant-steps-item-container
@@ -105,7 +136,7 @@
 
 /* Button */
 
-.btn.btn-dark-danger {
+#detail-complaint .btn.btn-dark-danger {
   width: 100px;
   height: 50px;
   margin: 0 10px 0 10px;
@@ -119,8 +150,8 @@
   background-color: #d80019 !important;
 }
 
-.btn.btn-dark-primary {
-  width: 100px;
+#detail-complaint .btn.btn-dark-primary {
+  width: 180px;
   height: 50px;
   margin: 0 10px 0 10px;
   color: white !important;

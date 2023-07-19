@@ -2,287 +2,471 @@ import React, {FC} from 'react'
 import {useState} from 'react'
 
 import './UpdateOrder.css'
-import Button from 'react-bootstrap/Button'
-import Form from 'react-bootstrap/Form'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Table from 'react-bootstrap/Table'
-import InputGroup from 'react-bootstrap/InputGroup'
+
+import {Table} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
+import {Form, Button, InputGroup} from 'react-bootstrap'
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faTrash, faSearch, faPlus} from '@fortawesome/free-solid-svg-icons'
 
-const UpdateOrderStore: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+import {useNavigate} from 'react-router-dom'
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setFileName(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
-    }
-  }
+interface DataType {
+  key: string
+  order_id: string
+  date_order: string
+  item_name: string
+  installation_type: string
+  payment_status: string
+  costumer_id: string
+  costumer_name: string
+  phone_number: string
+  vendor_name: string
+  installer_name: string
+  order_status: string
+}
 
-  const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
-    inputField.click()
-  }
+const AddOrderButton = () => {
+  const navigate = useNavigate()
 
-  const handleRemoveFile = () => {
-    setFileName('No selected file')
-    setImage(null)
+  const handleAddOrder = () => {
+    navigate('/order/new-order')
   }
 
   return (
-    <>
-      <div className='card'>
+    <button className='button-add-order' onClick={handleAddOrder}>
+      Add Order <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
+    </button>
+  )
+}
+
+const DetailButton = () => {
+  const navigate = useNavigate()
+
+  const handleDetail = () => {
+    navigate('/order/detail-order')
+  }
+
+  return (
+    <a className='button-detail' onClick={handleDetail}>
+      <FontAwesomeIcon icon={faBook} size='sm' />
+    </a>
+  )
+}
+
+const EditButton = () => {
+  const navigate = useNavigate()
+
+  const handleEdit = () => {
+    navigate('/order/update-order')
+  }
+
+  return (
+    <a className='button-edit' onClick={handleEdit}>
+      <FontAwesomeIcon icon={faPen} size='sm' />
+    </a>
+  )
+}
+
+const DeleteButton = () => (
+  <a className='button-delete'>
+    <FontAwesomeIcon icon={faTrash} size='sm' />
+  </a>
+)
+
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'Order ID',
+    dataIndex: 'order_id',
+    key: 'order_id',
+    align: 'center',
+    width: 100,
+    className: 'col_order_id',
+  },
+  {
+    title: 'Date Order',
+    dataIndex: 'date_order',
+    key: 'date_order',
+    align: 'center',
+    width: 110,
+  },
+  {
+    title: 'Item Name',
+    dataIndex: 'item_name',
+    key: 'item_name',
+    align: 'left',
+    width: 120,
+  },
+  {
+    title: 'Installation Type',
+    dataIndex: 'installation_type',
+    key: 'installation_type',
+    align: 'left',
+    width: 140,
+  },
+  {
+    title: 'Payment Status',
+    dataIndex: 'payment_status',
+    key: 'payment_status',
+    align: 'left',
+    width: 150,
+  },
+  {
+    title: 'Customer ID',
+    dataIndex: 'costumer_id',
+    key: 'costumer_id',
+    align: 'center',
+    width: 120,
+  },
+  {
+    title: 'Customer Name',
+    dataIndex: 'costumer_name',
+    key: 'costumer_name',
+    align: 'left',
+    width: 140,
+  },
+  {
+    title: 'Phone Number',
+    dataIndex: 'phone_number',
+    key: 'phone_number',
+    align: 'center',
+    width: 150,
+  },
+  {
+    title: 'Vendor Name',
+    dataIndex: 'vendor_name',
+    key: 'vendor_name',
+    align: 'center',
+    width: 135,
+  },
+  {
+    title: 'Installer Name',
+    dataIndex: 'installer_name',
+    key: 'installer_name',
+    align: 'left',
+    width: 130,
+  },
+  {
+    title: 'Order Status',
+    dataIndex: 'order_status',
+    key: 'order_status',
+    align: 'left',
+    width: 140,
+  },
+  {
+    title: 'Action',
+    key: 'action',
+    render: () => (
+      <div className='button-wrapper'>
+        <DetailButton />
+        <EditButton />
+        <DeleteButton />
+      </div>
+    ),
+    fixed: 'right',
+    width: 115,
+  },
+]
+
+const data: DataType[] = [
+  {
+    key: '1',
+    order_id: '78453992',
+    date_order: '10/2/2023',
+    item_name: 'Water Heater',
+    installation_type: 'New set up',
+    payment_status: 'PAID',
+    costumer_id: '8986747',
+    costumer_name: 'Alia',
+    phone_number: '08158374638',
+    vendor_name: 'PT.ABC',
+    installer_name: 'Patric',
+    order_status: 'DONE',
+  },
+  {
+    key: '2',
+    order_id: '78453993',
+    date_order: '13/2/2023',
+    item_name: 'AC',
+    installation_type: 'New set up',
+    payment_status: 'PAID',
+    costumer_id: '8986748',
+    costumer_name: 'Abdulah',
+    phone_number: '08158376565',
+    vendor_name: 'PT.ABC',
+    installer_name: 'Jonas',
+    order_status: 'DONE',
+  },
+  {
+    key: '3',
+    order_id: '78453994',
+    date_order: '14/2/2023',
+    item_name: 'Water Heater',
+    installation_type: 'New set up',
+    payment_status: 'PAID',
+    costumer_id: '8986710',
+    costumer_name: 'Alice',
+    phone_number: '08158300987',
+    vendor_name: 'PT.ABC',
+    installer_name: 'Patric',
+    order_status: 'ON PROGRESS',
+  },
+  {
+    key: '4',
+    order_id: '78453995',
+    date_order: '15/2/2023',
+    item_name: 'AC',
+    installation_type: 'New set up',
+    payment_status: 'PAID',
+    costumer_id: '8986123',
+    costumer_name: 'Kobe',
+    phone_number: '0815833346',
+    vendor_name: 'PT.ABC',
+    installer_name: 'Jonas',
+    order_status: 'ON PROGRESS',
+  },
+  {
+    key: '5',
+    order_id: '78453996',
+    date_order: '10/3/2023',
+    item_name: 'AC',
+    installation_type: 'New set up',
+    payment_status: 'PAID',
+    costumer_id: '8986123',
+    costumer_name: 'Kobe',
+    phone_number: '0815833346',
+    vendor_name: 'PT.ABC',
+    installer_name: 'Jonas',
+    order_status: 'ON PROGRESS',
+  },
+  {
+    key: '6',
+    order_id: '78453997',
+    date_order: '12/3/2023',
+    item_name: 'AC',
+    installation_type: 'New set up',
+    payment_status: 'PAID',
+    costumer_id: '8986123',
+    costumer_name: 'Kobe',
+    phone_number: '0815833346',
+    vendor_name: 'PT.ABC',
+    installer_name: 'Jonas',
+    order_status: 'ON PROGRESS',
+  },
+  {
+    key: '7',
+    order_id: '78453998',
+    date_order: '15/2/2023',
+    item_name: 'AC',
+    installation_type: 'New set up',
+    payment_status: 'PAID',
+    costumer_id: '8986123',
+    costumer_name: 'Kobe',
+    phone_number: '0815833346',
+    vendor_name: 'PT.ABC',
+    installer_name: 'Jonas',
+    order_status: 'ON PROGRESS',
+  },
+]
+
+const UpdateOrderStore: FC = () => {
+  return (
+    <section id='update-order'>
+      <div className='card mb-5'>
         <div className='card-body'>
-          <div className='row g-5 g-xl-8'>
-            <div className='col-xl-4'>
-              <Form>
-                <div className='form-header d-flex gap-10'>
-                  <Form.Label className='fw-bold'>
-                    Nama Toko <span className='ms-2 bg-secondary'>MITRA 10 - BSD</span>
-                  </Form.Label>
+          <div className='d-flex justify-content-between'>
+            <div className='costumer-information'>
+              <div className='form-header'>
+                <Form.Label className='fw-bold'>
+                  Nama Toko
+                  <span className='fs-6 ms-2 pt-2 pb-2 fw-normal bg-secondary'>MITRA 10 - BSD</span>
+                </Form.Label>
 
-                  <div className=''>
-                    <Form.Check reverse type='switch' id='custom-switch' label='Payment Type :' />
-                    <Form.Label className='fw-bold d-flex justify-content-end me-2'>
-                      Free
-                    </Form.Label>
-                  </div>
+                <div className=''>
+                  <Form.Check reverse type='switch' id='custom-switch' label='Payment Type :' />
+                  <Form.Label className='fw-bold d-flex justify-content-end me-2'>Free</Form.Label>
                 </div>
+              </div>
 
-                <Form.Label>Costumer ID</Form.Label>
-                <InputGroup className='mb-3'>
-                  <InputGroup.Text id='basic-addon1'>
-                    <i className='bi bi-search'></i>
-                  </InputGroup.Text>
-                  <Form.Control
-                    aria-label='Username'
-                    aria-describedby='basic-addon1'
-                    placeholder='Search'
-                  />
-                </InputGroup>
-
-                <Form.Group className='mb-3' controlId='formBasicEmail'>
-                  <Form.Label>Costumer Name</Form.Label>
-                  <Form.Control type='text' />
+              <div className='form-body'>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Customer ID</Form.Label>
+                  <Form.Control type='text' placeholder='CUST001' />
                 </Form.Group>
 
-                <Form.Group className='mb-3' controlId='formBasicEmail'>
-                  <Form.Label>WA / Phone Number</Form.Label>
-                  <Form.Control type='number' />
+                <Form.Group className='mb-5'>
+                  <Form.Label>Nama Customer</Form.Label>
+                  <Form.Control type='text' placeholder='John Doe' />
                 </Form.Group>
 
-                <Form.Group className='mb-3' controlId='formBasicEmail'>
-                  <Form.Label>Email Address</Form.Label>
-                  <Form.Control type='email' />
-                </Form.Group>
-
-                <Form.Group className='mb-5' controlId='exampleForm.ControlTextarea1'>
-                  <Form.Label>Address</Form.Label>
-                  <Form.Control as='textarea' rows={3} />
-                </Form.Group>
-
-                <Button variant='success' type='submit'>
-                  Print Picklist
-                </Button>
-              </Form>
-            </div>
-
-            <div className='col-xl-4'>
-              <Form>
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
-                  <Form.Label column sm='4'>
-                    Receipt Number
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='text' />
-                  </Col>
-                </Form.Group>
-
-                <Form.Group className='mb-3' controlId='formBasicEmail'>
+                <Form.Group className='mb-5'>
                   <Form.Label>Order ID</Form.Label>
                   <Form.Control type='text' />
                 </Form.Group>
+              </div>
 
-                <Form.Group className='mb-3' controlId='formBasicEmail'>
-                  <Form.Label>Nama Jasa Pemasangan</Form.Label>
-                  <Form.Control type='text' />
+              <div className='btn-wrapper d-flex align-items-end'>
+                <Button variant='light-dark' type='submit'>
+                  Print Picklist
+                </Button>
+              </div>
+            </div>
+
+            <div className='costumer-information'>
+              <div className='form-header'></div>
+
+              <div className='form-body'>
+                <Form.Group className='mb-5'>
+                  <Form.Label>WA / Phone Number</Form.Label>
+                  <Form.Control type='number' placeholder='0855 1234 5768' />
                 </Form.Group>
 
-                <Form.Group className='mb-5 ' controlId='formBasicEmail'>
-                  <Form.Label>Item Name - Item ID</Form.Label>
-                  <Form.Control type='text' />
+                <Form.Group className='mb-5'>
+                  <Form.Label>Alamat Email</Form.Label>
+                  <Form.Control type='email' placeholder='john.doe@gmail.com' />
                 </Form.Group>
 
-                <Table hover className='mb-3'>
-                  <thead>
-                    <tr>
-                      <th>Harga Jasa</th>
-                      <th>Quantity</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-
-                <Form.Group className='mb-5' controlId='formBasicEmail'>
+                <Form.Group className='mb-5'>
                   <div className='d-flex justify-content-between'>
                     <Form.Label>Tanggal Request</Form.Label>
 
-                    <div className=''>
-                      <Form.Check inline checked label='Survey' name='group1' type='radio' />
-                      <Form.Check inline label='Kerja Jasa' name='group2' type='radio' />
+                    <div className='form-check-request'>
+                      <Form.Check inline label='Survey' name='group1' type='radio' />
+                      <Form.Check inline label='Kerja Jasa' name='group1' type='radio' />
                     </div>
                   </div>
                   <Form.Control type='date' />
                 </Form.Group>
+              </div>
 
-                <div className='d-flex justify-content-center'>
-                  <Button className='w-25 me-5' variant='danger' type='submit'>
-                    Cancel
-                  </Button>
+              <div className='d-flex justify-content-center'>
+                <Button variant='dark-danger' type='submit'>
+                  Cancel
+                </Button>
 
-                  <Button className='w-25 ms-5' variant='primary' type='submit'>
-                    Save
-                  </Button>
-                </div>
-              </Form>
+                <Button variant='dark-primary' type='submit'>
+                  Save
+                </Button>
+              </div>
             </div>
 
-            <div className='col-xl-4'>
-              <Form>
-                <div className='d-flex justify-content-between mb-5'>
-                  <h1 className='fw-bold'>ORDER STATUS: </h1>
-                  <h1 className='fw-bold text-success'>BOOK</h1>
-                </div>
+            <div className='costumer-information'>
+              <div className='form-header'>
+                <h1 className='fw-bold'>ORDER STATUS: </h1>
+                <h1 className='fw-bold text-success'>PICKLIST</h1>
+              </div>
 
-                <h2 className='d-flex justify-content-end mb-5'>Sales Information</h2>
-
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
-                  <Form.Label column sm='4'>
-                    Sales Person
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='text' placeholder='nama harus sama dengan nama ktp' />
-                  </Col>
+              <div className='form-body'>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Alamat</Form.Label>
+                  <Form.Control as='textarea' className='field-alamat' placeholder='Jl. Pahlawan' />
                 </Form.Group>
+              </div>
 
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
-                  <Form.Label column sm='4'>
-                    NIK
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='number' placeholder='nomor KTP' />
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
-                  <Form.Label column sm='4'>
-                    Brand/Division
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Select>
-                      <option>Default select</option>
-                    </Form.Select>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
-                  <Form.Label column sm='4'>
-                    Nama Bank
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Select>
-                      <option>Default select</option>
-                    </Form.Select>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
-                  <Form.Label column sm='4'>
-                    Account Number
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='text' />
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
-                  <Form.Label column sm='4'>
-                    Account Name
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='number' />
-                  </Col>
-                </Form.Group>
-
-                <Form.Group controlId='formFile' className='mb-3'>
-                  <Form.Label>Upload Receipt</Form.Label>
-                  <Form className='form-input-image' onClick={handleImageClick}>
-                    <Form.Control
-                      type='file'
-                      accept='image/*'
-                      className='input-field-image'
-                      hidden
-                      onChange={handleFileChange}
-                    />
-
-                    {image ? (
-                      <img src={image} alt={fileName} className='image-preview' />
-                    ) : (
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    )}
-                  </Form>
-
-                  <div className='uploaded-row'>
-                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                    <span className='upload-content'>{fileName}</span>
-
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      size='sm'
-                      color='#ed2b2a'
-                      style={{cursor: 'pointer'}}
-                      onClick={handleRemoveFile}
-                    />
-                  </div>
-                </Form.Group>
-
-                <div className='d-flex justify-content-center'>
-                  <Button className='w-50 ms-5' variant='success' type='submit'>
-                    Email Order
-                  </Button>
-                </div>
-              </Form>
+              <div className='d-flex justify-content-center'>
+                <Button variant='dark-success' type='submit'>
+                  Email Order
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+
+      <div className='card mb-5'>
+        <div className='card-body'>
+          <div className='button-add text-end'>
+            <button>Add</button>
+          </div>
+
+          <div className='table-picklist'>
+            <table className='table table-hover'>
+              <thead className='table-picklist-head'>
+                <tr>
+                  <th>Item Code</th>
+                  <th>Item Name</th>
+                  <th>Group Item</th>
+                  <th>Harga Jasa</th>
+                  <th>Jumlah</th>
+                  <th>Total</th>
+                  <th>Sales Person</th>
+                  <th>Division</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div className='card'>
+        <div className='card-body table-view-order'>
+          <div className='table-head-wrapper'>
+            <div className='left'></div>
+
+            <div className='middle'>
+              <div className='filter-search'>
+                <InputGroup>
+                  <Form.Control placeholder='Filter' className='filter-rtl' />
+
+                  <InputGroup.Text className='filter-rtl'>
+                    <FontAwesomeIcon icon={faSearch} size='sm' />
+                  </InputGroup.Text>
+                </InputGroup>
+              </div>
+            </div>
+
+            <div className='right'>
+              <AddOrderButton />
+            </div>
+          </div>
+
+          <Table
+            className='table-striped-rows'
+            bordered
+            columns={columns}
+            dataSource={data}
+            rowKey={(record) => record.key}
+            scroll={{x: 1500}}
+            pagination={{position: ['bottomRight']}}
+          />
+        </div>
+      </div>
+    </section>
   )
 }
 

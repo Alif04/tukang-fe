@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 import {useState} from 'react'
-import {KTSVG, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
-import {Space, Table, Tag, Steps, Input} from 'antd'
+import {Table, Steps, Input} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 
 import './OrderTracking.css'
@@ -135,6 +134,7 @@ const OrderTracking: React.FC<Props> = ({className}) => {
 
         <div className='order-tracking-table'>
           <Table
+            className='table-striped-rows'
             columns={columns}
             dataSource={tableData}
             size='small'

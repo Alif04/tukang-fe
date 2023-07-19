@@ -6,7 +6,6 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Table from 'react-bootstrap/Table'
 import InputGroup from 'react-bootstrap/InputGroup'
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -35,19 +34,19 @@ const NewComplaintStore: FC = () => {
   }
 
   return (
-    <>
+    <section id='new-complaint'>
       <div className='card'>
         <div className='card-body'>
-          <div className='row g-5 g-xl-8'>
-            <div className='col-xl-4'>
-              <Form className='h-100'>
-                <div className='form-header d-flex gap-10'>
-                  <Form.Label className='fw-bold'>
-                    Nama Toko
-                    <span className='ps-4 fs-4 fw-bolder'>MITRA 10 - BSD</span>
-                  </Form.Label>
-                </div>
+          <div className='d-flex justify-content-between'>
+            <div className='costumer-information'>
+              <div className='form-header'>
+                <Form.Label className='fw-bold'>
+                  Nama Toko
+                  <span className='ps-4 fs-4 fw-bolder'>MITRA 10 - BSD</span>
+                </Form.Label>
+              </div>
 
+              <div className='form-body'>
                 <Form.Label>Customer ID</Form.Label>
                 <InputGroup className='mb-5'>
                   <InputGroup.Text>
@@ -71,21 +70,15 @@ const NewComplaintStore: FC = () => {
                   <Form.Control type='email' placeholder='john.doe@gmail.com' />
                 </Form.Group>
 
-                <Form.Group className='mb-5' controlId='exampleForm.ControlTextarea1'>
+                <Form.Group className='mb-5'>
                   <Form.Label>Alamat Pemasangan</Form.Label>
-                  <Form.Control as='textarea' rows={3} placeholder='Jl. Pahlawan' />
+                  <Form.Control as='textarea' className='field-alamat' placeholder='Jl. Pahlawan' />
                 </Form.Group>
-
-                <div className='btn-wrapper d-flex align-items-end'>
-                  <Button variant='light-dark' type='submit'>
-                    Print Picklist
-                  </Button>
-                </div>
-              </Form>
+              </div>
             </div>
 
-            <div className='col-xl-4'>
-              <Form>
+            <div className='costumer-information'>
+              <div className='form-header'>
                 <Form.Group as={Row} className='mb-3'>
                   <Form.Label column sm='4'>
                     Complaint ID :
@@ -94,7 +87,9 @@ const NewComplaintStore: FC = () => {
                     <Form.Control type='text' />
                   </Col>
                 </Form.Group>
+              </div>
 
+              <div className='form-body'>
                 <Form.Label>Order ID : </Form.Label>
                 <InputGroup className='mb-5'>
                   <InputGroup.Text>
@@ -113,96 +108,104 @@ const NewComplaintStore: FC = () => {
                   <Form.Control type='text' />
                 </Form.Group>
 
-                <div className='d-flex justify-content-between mb-5'>
-                  <div className='text-center'>
+                <div className='service-information d-flex justify-content-between'>
+                  <div className='service-detail text-center'>
                     <h1 className='fs-6'>Harga Jasa</h1>
                     <p>1.000.000</p>
                   </div>
 
-                  <div className='text-center'>
+                  <div className='service-detail text-center'>
                     <h1 className='fs-6'>Quantity</h1>
                     <p>1</p>
                   </div>
 
-                  <div className='text-center'>
+                  <div className='service-detail text-center'>
                     <h1 className='fs-6'>Total Harga Jasa</h1>
                     <p>1.000.000</p>
                   </div>
                 </div>
 
-                <div className='d-flex justify-content-between mb-5'>
-                  <Form.Group className='mb-5' controlId='formBasicEmail'>
+                <div className='request-information d-flex justify-content-between'>
+                  <Form.Group className='request-detail'>
                     <div className='d-flex justify-content-between'>
                       <h1 className='fs-6'>Tanggal Request Survey</h1>
                     </div>
-                    <Form.Control type='date' />
+                    <Form.Control type='date' className='request-date' />
                   </Form.Group>
 
-                  <Form.Group className='mb-5' controlId='formBasicEmail'>
+                  <Form.Group className='request-detail'>
                     <div className='d-flex justify-content-between'>
-                      <h1 className='fs-6'>Tanggal Survey</h1>
+                      <h1 className='fs-6 d-block m-auto'>Tanggal Survey</h1>
                     </div>
-                    <Form.Control type='date' />
+                    <Form.Control type='date' className='survey-date' />
                   </Form.Group>
                 </div>
 
-                <div className='d-flex justify-content-between mb-5'>
-                  <Form.Group className='mb-5' controlId='formBasicEmail'>
+                <div className='work-information d-flex justify-content-between'>
+                  <Form.Group className='work-detail'>
                     <div className='d-flex justify-content-between'>
-                      <h1 className='fs-6 text-center'>Tanggal Work Start</h1>
+                      <h1 className='fs-6'>Tanggal Work Start</h1>
                     </div>
-                    <Form.Control type='date' />
+                    <Form.Control type='date' className='work-start' />
                   </Form.Group>
 
-                  <Form.Group className='mb-5' controlId='formBasicEmail'>
+                  <Form.Group className='work-detail'>
                     <div className='d-flex justify-content-between'>
-                      <h1 className='fs-6'>Tanggal Work Finish</h1>
+                      <h1 className='fs-6 d-block m-auto'>Tanggal Work Finish</h1>
                     </div>
-                    <Form.Control type='date' />
+                    <Form.Control type='date' className='work-finish' />
                   </Form.Group>
                 </div>
+              </div>
 
-                <div className='d-flex justify-content-center'>
-                  <Button className='w-25 me-5' variant='danger' type='submit'>
-                    Cancel
-                  </Button>
+              <div className='d-flex justify-content-center'>
+                <Button variant='dark-danger' type='submit'>
+                  Cancel
+                </Button>
 
-                  <Button className='w-25 ms-5' variant='primary' type='submit'>
-                    Save
-                  </Button>
-                </div>
-              </Form>
+                <Button variant='dark-primary' type='submit'>
+                  Save
+                </Button>
+              </div>
             </div>
 
-            <div className='col-xl-4'>
-              <Form>
-                <div className='d-flex justify-content-between mb-5'>
-                  <h1 className='fw-bold'>ORDER STATUS: </h1>
-                  <h1 className='fw-bold text-danger'>COMPLAINT</h1>
-                </div>
+            <div className='costumer-information'>
+              <div className='form-header'>
+                <h1 className='fw-bold'>ORDER STATUS: </h1>
+                <h1 className='fw-bold text-danger'>COMPLAINT</h1>
+              </div>
 
-                <Form.Group className='mb-5' controlId='exampleForm.ControlTextarea1'>
-                  <Form.Label>Reason For Complaint</Form.Label>
-                  <Form.Control as='textarea' rows={3} placeholder='Write a message' />
+              <div className='form-body'>
+                <Form.Group className='mb-5'>
+                  <h1>Reason For Complaint</h1>
+                  <Form.Control
+                    as='textarea'
+                    rows={3}
+                    className='field-reason-complaint'
+                    placeholder='Write a message'
+                  />
                 </Form.Group>
 
-                <Form.Group as={Row} className='mb-3' controlId='formPlaintextPassword'>
+                <Form.Group as={Row} className='mb-5' controlId='formPlaintextPassword'>
                   <Form.Label>Komplain melalui : </Form.Label>
                   <Col>
                     <Form.Select>
-                      <option>Default select</option>
+                      <option>Telpon</option>
+                      <option>Datang</option>
+                      <option>WA</option>
+                      <option>Email</option>
                     </Form.Select>
                   </Col>
                 </Form.Group>
 
-                <Form.Group className='mb-5' controlId='formBasicEmail'>
+                <Form.Group className='mb-5'>
                   <div className='d-flex justify-content-between'>
                     <Form.Label>Tanggal Komplain :</Form.Label>
                   </div>
                   <Form.Control type='date' />
                 </Form.Group>
 
-                <Form.Group controlId='formFile' className='mb-3'>
+                <Form.Group controlId='formFile' className='mb-5'>
                   <Form.Label>Upload Receipt</Form.Label>
                   <Form className='form-input-image' onClick={handleImageClick}>
                     <Form.Control
@@ -237,18 +240,22 @@ const NewComplaintStore: FC = () => {
                     />
                   </div>
                 </Form.Group>
+              </div>
 
-                <div className='d-flex justify-content-center'>
-                  <Button className='w-50 ms-5' variant='success' type='submit'>
-                    Email Order
-                  </Button>
-                </div>
-              </Form>
+              <div className='d-flex justify-content-center'>
+                <Button variant='light-dark' type='submit'>
+                  Print Picklist
+                </Button>
+
+                <Button variant='dark-success' type='submit'>
+                  Email Complaint
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </section>
   )
 }
 

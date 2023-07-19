@@ -3,6 +3,7 @@ import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {ViewCostumer} from '../customers/components/ViewCostumers'
+import {DetailCostumer} from './components/DetailCostumers'
 import {ReportCostumer} from './components/ReportCostumers'
 
 const costumersBreadCrumbs: Array<PageLink> = [
@@ -32,6 +33,17 @@ const CostumersPage: React.FC = () => {
           </>
         }
       />
+
+      <Route
+        path='detail-costumers'
+        element={
+          <>
+            <PageTitle breadcrumbs={costumersBreadCrumbs}>DETAIL COSTUMER</PageTitle>
+            <DetailCostumer />
+          </>
+        }
+      />
+
       <Route
         path='report-costumers'
         element={

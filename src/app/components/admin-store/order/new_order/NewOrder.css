@@ -1,12 +1,32 @@
-/* Form Header */
-
-.form-header {
-  margin-bottom: 5px;
+#new-order .costumer-information {
+  width: 345px;
 }
 
-/* Button Picklist */
+#new-order .costumer-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 70px;
+}
+
+#new-order .costumer-information .form-body {
+  margin-bottom: 50px;
+}
+
+#new-order .costumer-information .form-body .field-alamat {
+  min-height: 215px;
+}
+
+#new-order .costumer-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+/* Button */
 
 .btn.btn-light-dark {
+  width: 150px;
+  height: 50px;
   color: white !important;
   border-color: transparent !important;
   background-color: #7f7f7f !important;
@@ -14,73 +34,69 @@
 }
 
 .btn.btn-light-dark:hover:not(.btn-active) {
-  background-color: #605bda !important;
+  background-color: rgb(57, 57, 59) !important;
 }
 
-/* Form Table */
+.btn.btn-dark-danger {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
 
-.form-table .table tr,
+.btn.btn-dark-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+.btn.btn-dark-primary {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300b5 !important;
+}
+
+.btn.btn-dark-success {
+  width: 130px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #7cb920 !important;
+}
+
+.button-add button {
+  width: 70px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #0f4cff;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+/* Table Picklist*/
+
+#new-order .table-picklist .table tr,
 .table th,
 .table td {
   border: 1px solid gray;
 }
 
-/* Form Input Image */
-
-form.form-input-image {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 2px dashed #858585;
-  width: 100%;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.input-image-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 10px;
-}
-
-.input-image-text p {
-  margin: 10px 10px;
-  padding: 5px 10px !important;
-  border: 1px solid;
-  border-radius: 5px;
-  color: #858585;
-}
-
-.uploaded-row {
-  margin: 10px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-radius: 5px;
-  background-color: #f4f7fe;
-}
-
-.upload-content {
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.image-preview {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-svg.svg-inline--fa.fa-file-image.fa-sm {
-  margin: 0 10px 0 0;
-}
-
-svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0 0 0 10px;
+.table-picklist th {
+  text-align: center;
 }
