@@ -42,6 +42,10 @@ h6 {
   min-height: 175px !important;
 }
 
+.apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
+  height: 100px !important;
+}
+
 /* .form-check-input {
   width: 1.1rem !important;
   height: 1.1rem !important;

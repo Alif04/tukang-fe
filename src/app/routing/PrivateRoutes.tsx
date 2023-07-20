@@ -13,6 +13,12 @@ const PrivateRoutes = () => {
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
   const CostumersPage = lazy(() => import('../modules/customers/CostumersPage'))
+  const CSIpage = lazy(() => import('../modules/csi/CSIpage'))
+  const VendorPage = lazy(() => import('../modules/vendor/VendorPage'))
+  const QuotationPage = lazy(() => import('../modules/quotation/QuotationPage'))
+  const PaymentPage = lazy(() => import('../modules/payment/PaymentPage'))
+  const InvoicePage = lazy(() => import('../modules/invoice/InvoicePage'))
+  const RefundPage = lazy(() => import('../modules/refund/RefundPage'))
 
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const WizardsPage = lazy(() => import('../modules/wizards/WizardsPage'))
@@ -57,6 +63,60 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <ComplaintPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='csi/*'
+          element={
+            <SuspensedView>
+              <CSIpage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='vendor/*'
+          element={
+            <SuspensedView>
+              <VendorPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='quotation/*'
+          element={
+            <SuspensedView>
+              <QuotationPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='payment/*'
+          element={
+            <SuspensedView>
+              <PaymentPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='invoice/*'
+          element={
+            <SuspensedView>
+              <InvoicePage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='refund/*'
+          element={
+            <SuspensedView>
+              <RefundPage />
             </SuspensedView>
           }
         />

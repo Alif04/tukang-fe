@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import {FC} from 'react'
+import {FC, useState} from 'react'
 import {PageTitle} from '../../../_metronic/layout/core'
+
+import {Form, InputGroup} from 'react-bootstrap'
 
 import {
   SalesReportWidget,
@@ -8,12 +10,28 @@ import {
   TransactionWidget,
   TopSalesWidget,
   RecentEventWidget,
-  TotalOrder,
+  TotalOrderStore,
   TotalComplaint,
   TotalFinishedJob,
   TotalReschedule,
   OrderTracking,
 } from '../../components'
+
+import {
+  ChartBarOrder,
+  ChartBarPerformance,
+  ChartDonutQuotation,
+  ChartDonutWork,
+  ChartLineComplaint,
+  ChartLineSurvey,
+  TotalComplaintHO,
+  TotalOrderHO,
+  TotalWorkOrder,
+  DateRange,
+} from '../../components'
+
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const DashboardStore: FC = () => (
   <>
@@ -28,7 +46,7 @@ const DashboardStore: FC = () => (
       </div>
 
       <div className='col-xxl-4'>
-        <TotalOrder className='card-xxl-stretch-50 mb-5 mb-xl-8' chartHeight='200px' />
+        <TotalOrderStore className='card-xxl-stretch-50 mb-5 mb-xl-8' chartHeight='200px' />
         <TotalComplaint
           className='card-xxl-stretch-50 mb-5 mb-xl-8'
           chartColor='danger'
@@ -79,11 +97,91 @@ const DashboardStore: FC = () => (
   </>
 )
 
+const DashboardHO: FC = () => (
+  <>
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xxl-4 mb-5'>
+        <div className='d-flex justify-content-between'>
+          <h3 className='d-flex align-items-center fs-7 w-100 fw-normal'>Lihat Store Dashboard</h3>
+
+          <Form.Select>
+            <option value='1' selected>
+              All
+            </option>
+            <option value='2'>DKI JAKARTA</option>
+            <option value='3'>JABODETABEK</option>
+            <option value='3'>001 - Mitra10 BSD </option>
+            <option value='3'>002 - Mitra10 Tanggerang </option>
+            <option value='3'>003 - Mitra10 Bekasi </option>
+          </Form.Select>
+        </div>
+      </div>
+
+      <div className='col-xxl-4 mb-5'>
+        <div className='d-flex justify-content-between'>
+          <h3 className='d-flex align-items-center fs-7 w-100 fw-normal'>Pilih rentang waktu</h3>
+
+          <DateRange className='date-range' />
+        </div>
+      </div>
+
+      <div className='col-xxl-4 mb-5'>
+        <div className='d-flex justify-content-between'>
+          <h3 className='d-flex align-items-center fs-7 w-100 fw-normal'>Track order/Complaint</h3>
+
+          <div className='filter-search w-100'>
+            <Form.Control placeholder='Masukkan Order ID' className='filter' />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xxl-4'>
+        <TotalOrderHO className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
+      </div>
+
+      <div className='col-xxl-4'>
+        <TotalWorkOrder className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
+      </div>
+
+      <div className='col-xxl-4'>
+        <TotalComplaintHO className='card-xl-stretch mb-5 mb-xl-8' chartHeight='270px' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineSurvey className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineComplaint className='card-xl-stretch mb-5 mb-xl-8' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartDonutQuotation className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartDonutWork className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartBarPerformance className='card-xl-stretch mb-5 mb-xl-8' />
+      </div>
+    </div>
+  </>
+)
+
 const DashboardWrapper: FC = () => {
   return (
     <>
       <PageTitle>STORE DASHBOARD</PageTitle>
       <DashboardStore />
+      {/* <DashboardHO /> */}
     </>
   )
 }

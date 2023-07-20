@@ -9,7 +9,7 @@ type Props = {
   chartHeight: string
 }
 
-const TotalOrder: React.FC<Props> = ({className, chartHeight}) => {
+const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -91,4 +91,4 @@ const chartOptions = (chartHeight: string): ApexOptions => {
   }
 }
 
-export {TotalOrder}
+export {TotalOrderStore}

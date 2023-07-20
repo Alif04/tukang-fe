@@ -1,0 +1,79 @@
+import React from 'react'
+import {Navigate, Route, Routes} from 'react-router-dom'
+import {PageLink, PageTitle} from '../../../_metronic/layout/core'
+
+import {ViewQuotation} from './components/ViewQuotation'
+import {NewQuotation} from './components/NewQuotation'
+import {UpdateQuotation} from './components/UpdateQuotation'
+import {DetailQuotation} from './components/DetailQuotation'
+import {DashboardFinance} from './components/DashboardFinance'
+
+const orderBreadCrumbs: Array<PageLink> = [
+  {
+    title: 'Quotation',
+    path: '/quotation/view-quotation',
+    isSeparator: false,
+    isActive: false,
+  },
+  {
+    title: '',
+    path: '',
+    isSeparator: true,
+    isActive: false,
+  },
+]
+
+const VendorPage: React.FC = () => {
+  return (
+    <Routes>
+      <Route
+        path='view-quotation'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR LIST</PageTitle>
+            <ViewQuotation />
+          </>
+        }
+      />
+      <Route
+        path='new-quotation'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW VENDOR FORM</PageTitle>
+            <NewQuotation />
+          </>
+        }
+      />
+      <Route
+        path='update-quotation'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE VENDOR</PageTitle>
+            <UpdateQuotation />
+          </>
+        }
+      />
+      <Route
+        path='detail-quotation'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL VENDOR</PageTitle>
+            <DetailQuotation />
+          </>
+        }
+      />
+      <Route
+        path='dashboard-finance'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR DASHBOARD</PageTitle>
+            <DashboardFinance />
+          </>
+        }
+      />
+      <Route index element={<Navigate to='/quotation/view-quotation' />} />
+    </Routes>
+  )
+}
+
+export default VendorPage

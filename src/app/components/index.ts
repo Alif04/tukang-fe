@@ -1,5 +1,5 @@
-// DASHBOARD PAGE
-export * from './admin-store/dashboard/TotalOrder'
+// DASHBOARD PAGE ( Admin Store )
+export * from './admin-store/dashboard/TotalOrderStore'
 export * from './admin-store/dashboard/TotalComplaint'
 export * from './admin-store/dashboard/TotalFinishedJob'
 export * from './admin-store/dashboard/TotalReschedule'
@@ -10,6 +10,18 @@ export * from './admin-store/dashboard/TopSalesWidget'
 export * from './admin-store/dashboard/RecentEventWidget'
 export * from './admin-store/dashboard/calendar/CalendarWidget'
 export * from './admin-store/dashboard/order-tracking/OrderTracking'
+
+// DASHBOARD PAGE ( Admin HO )
+export * from './admin-ho/dashboard/TotalOrderHO'
+export * from './admin-ho/dashboard/TotalWorkOrder'
+export * from './admin-ho/dashboard/TotalComplaintHO'
+export * from './admin-ho/dashboard/ChartBarOrder'
+export * from './admin-ho/dashboard/ChartBarPerformance'
+export * from './admin-ho/dashboard/ChartLineSurvey'
+export * from './admin-ho/dashboard/ChartLineComplaint'
+export * from './admin-ho/dashboard/ChartDonutQuotation'
+export * from './admin-ho/dashboard/ChartDonutWork'
+export * from './admin-ho/dashboard/DateRange'
 
 // ORDER
 // View Order
@@ -52,3 +64,13 @@ export * from './admin-store/complaint/detail_complaint/DetailComplaint'
 
 // Report Complaint
 export * from './admin-store/complaint/report_complaint/ReportComplaint'
+
+// CSI
+// View CSI
+export * from './admin-ho/csi/view_csi/ViewCSI'
+
+// Report CSI
+export * from './admin-ho/csi/report_csi/ReportCSI'
+
+// Update CSI
+export * from './admin-ho/csi/update_csi/UpdateCSI'

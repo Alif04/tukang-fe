@@ -21,6 +21,7 @@ export function AsideMenuMain() {
       >
         <AsideMenuItem to='/order/view-order' title='View Order' hasBullet={true} />
         <AsideMenuItem to='/order/new-order' title='New Order' hasBullet={true} />
+        <AsideMenuItem to='/order/update-order' title='Update Order' hasBullet={true} />
         <AsideMenuItem to='/order/report-order' title='Report Order' hasBullet={true} />
       </AsideMenuItemWithSub>
 
@@ -43,6 +44,77 @@ export function AsideMenuMain() {
         <AsideMenuItem to='/complaint/view-complaint' title='View Complaint' hasBullet={true} />
         <AsideMenuItem to='/complaint/new-complaint' title='New Complaint' hasBullet={true} />
         <AsideMenuItem to='/complaint/report-complaint' title='Report Complaint' hasBullet={true} />
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
+        to='/cis'
+        title='CSI'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/csi/view-csi' title='View CSI' hasBullet={true} />
+        {/* <AsideMenuItem to='/csi/new-csi' title='New CSI' hasBullet={true} /> */}
+        <AsideMenuItem to='/csi/update-csi' title='Update CSI' hasBullet={true} />
+        <AsideMenuItem to='/csi/report-csi' title='Report CSI' hasBullet={true} />
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
+        to='/vendor'
+        title='Vendor'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/vendor/view-vendor' title='View Vendor' hasBullet={true} />
+        <AsideMenuItem to='/vendor/new-vendor' title='New Vendor' hasBullet={true} />
+        <AsideMenuItem to='/vendor/update-vendor' title='Update Vendor' hasBullet={true} />
+        <AsideMenuItem to='/vendor/detail-vendor' title='Detail Vendor' hasBullet={true} />
+        <AsideMenuItem to='/vendor/report-vendor' title='Report Vendor' hasBullet={true} />
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
+        to='/quotation'
+        title='Quotation'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/quotation/view-quotation' title='View Quotation' hasBullet={true} />
+        <AsideMenuItem to='/quotation/new-quotation' title='New Quotation' hasBullet={true} />
+        <AsideMenuItem to='/quotation/update-quotation' title='Update Quotation' hasBullet={true} />
+        <AsideMenuItem to='/quotation/detail-quotation' title='Detail Quotation' hasBullet={true} />
+        <AsideMenuItem
+          to='/quotation/dashboard-finance'
+          title='Dashboard Finance'
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
+        to='/payment'
+        title='Payment'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/payment/view-payment' title='View Payment' hasBullet={true} />
+        <AsideMenuItem to='/payment/new-payment' title='New Payment' hasBullet={true} />
+        <AsideMenuItem to='/payment/detail-payment' title='Detail Payment' hasBullet={true} />
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
+        to='/invoice'
+        title='Invoice'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/invoice/view-invoice' title='View Invoice' hasBullet={true} />
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
+        to='/refund'
+        title='Refund'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/refund/view-refund' title='View Refund' hasBullet={true} />
       </AsideMenuItemWithSub>
 
       <AsideMenuItem
