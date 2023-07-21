@@ -1,27 +1,33 @@
 /* Table */
-#view-csi .table-head-wrapper {
+#view-vendor .table-head-wrapper {
   display: flex;
   justify-content: space-between;
   margin: 20px 0;
 }
 
-#view-csi .table-head-wrapper .left {
+#view-vendor .table-head-wrapper .left {
   display: flex;
   align-items: center;
 }
 
-#view-csi .table-head-wrapper .middle {
+#view-vendor .table-head-wrapper .middle {
   display: flex;
   justify-content: space-between;
 }
 
-#view-csi .ant-table-wrapper .ant-table-thead > tr > th {
+#view-vendor .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
   font-weight: 500;
   background-color: #183383;
 }
 
-#view-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child {
+#view-vendor
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
   border-start-start-radius: 0;
 }
 
@@ -29,84 +35,84 @@
   border-start-end-radius: 0;
 }
 
-#view-csi .table-head-wrapper {
+#view-vendor .table-head-wrapper {
   margin-bottom: 20px;
 }
 
-#view-csi .ant-table-fixed {
+#view-vendor .ant-table-fixed {
   table-layout: fixed;
 }
 
-#view-csi .ant-table-tbody > tr.ant-table-row:hover > td {
+#view-vendor .ant-table-tbody > tr.ant-table-row:hover > td {
   background-color: #dcdcdc;
 }
 
-#view-csi .ant-table-tbody > tr > td {
+#view-vendor .ant-table-tbody > tr > td {
   word-wrap: break-word;
   word-break: break-word;
 }
 
-#view-csi .table-striped-rows tr:nth-child(even) td {
+#view-vendor .table-striped-rows tr:nth-child(even) td {
   background-color: #ffff;
 }
 
-#view-csi .table-striped-rows tr:nth-child(odd) td {
+#view-vendor .table-striped-rows tr:nth-child(odd) td {
   background-color: #e4e9f7;
 }
 
-#view-csi .ant-table-thead > tr > th.col-work-status {
+#view-vendor .ant-table-thead > tr > th.col-work-status {
   background-color: #a30014 !important;
 }
 
-#view-csi .ant-table-thead > tr > th.col-complaint-date {
+#view-vendor .ant-table-thead > tr > th.col-complaint-date {
   background-color: #a30014 !important;
 }
 
-#view-csi .ant-table-thead > tr > th.col-complaint-status {
+#view-vendor .ant-table-thead > tr > th.col-complaint-status {
   background-color: #a30014 !important;
 }
 
 /* Searchbar */
 
-#view-csi .filter-search {
+#view-vendor .filter-search {
   display: flex;
   justify-content: center;
 }
 
-#view-csi .filter-search .input-group {
+#view-vendor .filter-search .input-group {
   width: 80%;
   height: 45px;
 }
 
-#view-csi .filter-search .input-group .form-control.filter-rtl {
+#view-vendor .filter-search .input-group .form-control.filter-rtl {
   border-right: none;
 }
 
-#view-csi .filter-search .input-group-text.filter-rtl {
+#view-vendor .filter-search .input-group-text.filter-rtl {
   background-color: transparent;
 }
 
 /* Date Filter */
 
-#view-csi .date-filter {
+#view-vendor .date-filter {
   margin: 0 10px;
   display: flex;
   align-items: center;
 }
 
-#view-csi .date-filter h3 {
+#view-vendor .date-filter h3 {
   width: 100%;
   font-weight: 400;
   font-size: 14px;
 }
 
-#view-csi .date-filter .start-date {
+#view-vendor .date-filter .start-date {
   margin: 0 10px;
   display: flex;
   align-items: center;
 }
 
-#view-csi .date-filter .end-date {
+#view-vendor .date-filter .end-date {
   margin: 0 10px;
   display: flex;
   align-items: center;
@@ -114,19 +120,19 @@
 
 /* Select Filter */
 
-#view-csi .select-filter {
+#view-vendor .select-filter {
   width: 100%;
   display: flex;
   align-items: center;
 }
 
-#view-csi .select-filter h3 {
+#view-vendor .select-filter h3 {
   width: 100%;
   font-size: 14px;
   font-weight: 400;
 }
 
-#view-csi .select-filter select.form-select.filter.filter-order {
+#view-vendor .select-filter select.form-select.filter.filter-order {
   height: 42px;
   border-radius: 5px;
 }
@@ -142,7 +148,7 @@
   color: black;
 }
 
-#view-csi .button-add svg.svg-inline--fa.fa-plus.fa-sm {
+#view-vendor .button-add svg.svg-inline--fa.fa-plus.fa-sm {
   color: black;
 }
 
@@ -155,7 +161,7 @@
   color: #d50119;
 }
 
-#view-csi .button-export {
+#view-vendor .button-export {
   padding: 0;
   width: 100%;
   height: 45px;
@@ -179,4 +185,26 @@
 
 svg.svg-inline--fa.fa-fire.fa-lg.plus-icon {
   margin: 5px;
+}
+
+.button-new-vendor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 125px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 5px;
+}
+
+svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
+  margin: 5px;
+}
+
+svg.svg-inline--fa.fa-user-plus.fa-sm {
+  color: black;
 }
