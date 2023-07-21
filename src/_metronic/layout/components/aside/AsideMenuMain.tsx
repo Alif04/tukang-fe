@@ -95,7 +95,7 @@ export function AsideMenuMain() {
         fontIcon='bi-person'
       >
         <AsideMenuItem to='/payment/view-payment' title='View Payment' hasBullet={true} />
-        <AsideMenuItem to='/payment/new-payment' title='New Payment' hasBullet={true} />
+        {/* <AsideMenuItem to='/payment/new-payment' title='New Payment' hasBullet={true} /> */}
         <AsideMenuItem to='/payment/detail-payment' title='Detail Payment' hasBullet={true} />
       </AsideMenuItemWithSub>
 

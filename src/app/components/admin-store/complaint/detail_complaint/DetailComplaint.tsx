@@ -73,7 +73,7 @@ const DetailComplaintStore: FC = () => {
               <h1 className='text-uppercase text-decoration-underline'>Costumer Information</h1>
             </div>
 
-            <Table responsive='md' className='detail-complaint-table'>
+            <Table responsive='md' className='detail-complaint-table' borderless>
               <thead>
                 <tr>
                   <th>Customer ID : </th>

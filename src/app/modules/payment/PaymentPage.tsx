@@ -28,7 +28,7 @@ const PaymentPage: React.FC = () => {
         path='view-payment'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR LIST</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>PAYMENT LIST</PageTitle>
             <ViewPayment />
           </>
         }
@@ -46,7 +46,7 @@ const PaymentPage: React.FC = () => {
         path='detail-payment'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL VENDOR</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>PAYMENT REQUEST</PageTitle>
             <DetailPayment />
           </>
         }

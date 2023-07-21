@@ -298,7 +298,7 @@ const rowSelection = {
 
 const ViewVendorHO: React.FC<Props> = ({className}) => {
   return (
-    <section id='view-refund'>
+    <section id='view-vendor'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <div className='table-head-wrapper'>

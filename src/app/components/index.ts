@@ -86,6 +86,13 @@ export * from './admin-ho/vendor/report_vendor/ReportVendor'
 // View Quotation
 export * from './admin-ho/quotation/view_quotation/ViewQuotation'
 
+// Payment
+// View Payment
+export * from './admin-ho/payment/view_payment/ViewPayment'
+
+// Detail Payment
+export * from './admin-ho/payment/detail_payment/DetailPayment'
+
 // Invoice
 // View Invoice
 export * from './admin-ho/invoice/view_invoice/ViewInvoice'
