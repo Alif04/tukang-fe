@@ -26,6 +26,17 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       <AsideMenuItemWithSub
+        to='/work-order'
+        title='Work Order'
+        icon='/media/icons/duotune/art/art002.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/work-order/view-work_order' title='View Work Order' hasBullet={true} />
+        <AsideMenuItem to='/work-order/Report-work_order' title='Report Work Order' hasBullet={true} />
+        {/* <AsideMenuItem to='/work-order/update-order' title='Update Order' hasBullet={true} /> */}
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
         to='/costumers'
         title='Costumers'
         icon='/media/icons/duotune/communication/com006.svg'

@@ -15,6 +15,7 @@ const PrivateRoutes = () => {
   const CostumersPage = lazy(() => import('../modules/customers/CostumersPage'))
   const CSIpage = lazy(() => import('../modules/csi/CSIpage'))
   const VendorPage = lazy(() => import('../modules/vendor/VendorPage'))
+  const WorkOrderPage = lazy(() => import('../modules/work-order/WorkOrderPage'))
   const QuotationPage = lazy(() => import('../modules/quotation/QuotationPage'))
   const PaymentPage = lazy(() => import('../modules/payment/PaymentPage'))
   const InvoicePage = lazy(() => import('../modules/invoice/InvoicePage'))
@@ -54,6 +55,15 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <CostumersPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='work-order/*'
+          element={
+            <SuspensedView>
+              <WorkOrderPage />
             </SuspensedView>
           }
         />
