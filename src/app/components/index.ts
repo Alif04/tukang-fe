@@ -79,6 +79,9 @@ export * from './admin-ho/csi/update_csi/UpdateCSI'
 // View Vendor
 export * from './admin-ho/vendor/view_vendor/ViewVendor'
 
+// New Vendor
+export * from './admin-ho/vendor/new_vendor/NewVendor'
+
 // Report Vendor
 export * from './admin-ho/vendor/report_vendor/ReportVendor'
 
