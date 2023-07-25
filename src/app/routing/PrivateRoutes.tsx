@@ -15,10 +15,12 @@ const PrivateRoutes = () => {
   const CostumersPage = lazy(() => import('../modules/customers/CostumersPage'))
   const CSIpage = lazy(() => import('../modules/csi/CSIpage'))
   const VendorPage = lazy(() => import('../modules/vendor/VendorPage'))
+  const WorkOrderPage = lazy(() => import('../modules/work-order/WorkOrderPage'))
   const QuotationPage = lazy(() => import('../modules/quotation/QuotationPage'))
   const PaymentPage = lazy(() => import('../modules/payment/PaymentPage'))
   const InvoicePage = lazy(() => import('../modules/invoice/InvoicePage'))
   const RefundPage = lazy(() => import('../modules/refund/RefundPage'))
+  const TukangPage = lazy(() => import('../modules/tukang/TukangPage'))
 
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const WizardsPage = lazy(() => import('../modules/wizards/WizardsPage'))
@@ -54,6 +56,24 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <CostumersPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='work-order/*'
+          element={
+            <SuspensedView>
+              <WorkOrderPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='tukang/*'
+          element={
+            <SuspensedView>
+              <TukangPage />
             </SuspensedView>
           }
         />
