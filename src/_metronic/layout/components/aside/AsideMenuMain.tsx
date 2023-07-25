@@ -81,11 +81,7 @@ export function AsideMenuMain() {
         <AsideMenuItem to='/quotation/new-quotation' title='New Quotation' hasBullet={true} />
         <AsideMenuItem to='/quotation/update-quotation' title='Update Quotation' hasBullet={true} />
         <AsideMenuItem to='/quotation/detail-quotation' title='Detail Quotation' hasBullet={true} />
-        <AsideMenuItem
-          to='/quotation/dashboard-finance'
-          title='Dashboard Finance'
-          hasBullet={true}
-        />
+        <AsideMenuItem to='/quotation/report-finance' title='Dashboard Finance' hasBullet={true} />
       </AsideMenuItemWithSub>
 
       <AsideMenuItemWithSub

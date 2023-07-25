@@ -1,11 +1,11 @@
 import React, {FC} from 'react'
 
-import {DetailOrderStore} from '../../../components'
+import {DetailVendorHO} from '../../../components'
 
 const DetailVendor: FC = () => {
   return (
     <>
-      <DetailOrderStore />
+      <DetailVendorHO />
     </>
   )
 }

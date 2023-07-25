@@ -1,13 +1,294 @@
 import React, {FC} from 'react'
 import {useState} from 'react'
 
-import './NewVendor.css'
+import './UpdateVendor.css'
 
-import {Form, Row, Col, Button} from 'react-bootstrap'
+import {Table} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
+import {Form, Button, InputGroup, Row, Col} from 'react-bootstrap'
+
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {
+  faBook,
+  faPen,
+  faTrash,
+  faSearch,
+  faPlus,
+  faImage,
+  faFileImage,
+  faUserPlus,
+} from '@fortawesome/free-solid-svg-icons'
 
-const NewVendorHO: FC = () => {
+import {useNavigate} from 'react-router-dom'
+
+interface DataType {
+  key: React.Key
+  id: string
+  date_join: string
+  company_name: string
+  phone_number: string
+  email_address: string
+  service_type: string
+  serving_area: string
+  total_amount_paid: string
+  work_done: string
+  complaint: string
+  rating: string
+}
+
+const AddVendorButton = () => {
+  const navigate = useNavigate()
+
+  const handleAddVendor = () => {
+    navigate('/order/new-order')
+  }
+
+  return (
+    <button className='button-add-order' onClick={handleAddVendor}>
+      New Vendor <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
+    </button>
+  )
+}
+
+const DetailButton = () => {
+  const navigate = useNavigate()
+
+  const handleDetail = () => {
+    navigate('/order/detail-order')
+  }
+
+  return (
+    <a className='button-detail' onClick={handleDetail}>
+      <FontAwesomeIcon icon={faBook} size='sm' />
+    </a>
+  )
+}
+
+const AddButton = () => {
+  const navigate = useNavigate()
+
+  const handleAdd = () => {
+    navigate('/order/detail-order')
+  }
+
+  return (
+    <a className='button-add' onClick={handleAdd}>
+      <FontAwesomeIcon icon={faUserPlus} size='sm' />
+    </a>
+  )
+}
+
+const EditButton = () => {
+  const navigate = useNavigate()
+
+  const handleEdit = () => {
+    navigate('/order/update-order')
+  }
+
+  return (
+    <a className='button-edit' onClick={handleEdit}>
+      <FontAwesomeIcon icon={faPen} size='sm' />
+    </a>
+  )
+}
+
+const DeleteButton = () => (
+  <a className='button-delete'>
+    <FontAwesomeIcon icon={faTrash} size='sm' />
+  </a>
+)
+
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'ID',
+    dataIndex: 'id',
+    key: 'id',
+    align: 'center',
+    width: 90,
+    className: 'col_order_id',
+  },
+  {
+    title: 'Date Join',
+    dataIndex: 'date_join',
+    key: 'date_join',
+    align: 'center',
+    width: 90,
+  },
+  {
+    title: 'Company Name',
+    dataIndex: 'company_name',
+    key: 'company_name',
+    align: 'left',
+    width: 140,
+  },
+  {
+    title: 'Phone Number',
+    dataIndex: 'phone_number',
+    key: 'phone_number',
+    align: 'left',
+    width: 110,
+  },
+  {
+    title: 'Email Address',
+    dataIndex: 'email_address',
+    key: 'email_address',
+    align: 'left',
+    width: 110,
+  },
+
+  {
+    title: 'Service Type',
+    dataIndex: 'service_type',
+    key: 'service_type',
+    align: 'left',
+    width: 160,
+  },
+  {
+    title: 'Total Amount Paid',
+    dataIndex: 'total_amount_paid',
+    key: 'total_amount_paid',
+    align: 'left',
+    width: 140,
+  },
+  {
+    title: 'Work Done ',
+    dataIndex: 'work_done',
+    key: 'work_done',
+    align: 'left',
+    width: 110,
+  },
+  {
+    title: 'Complaint',
+    dataIndex: 'complaint',
+    key: 'complaint',
+    align: 'center',
+    width: 110,
+  },
+  {
+    title: 'Rating',
+    dataIndex: 'rating',
+    key: 'rating',
+    align: 'center',
+    width: 110,
+  },
+  {
+    title: 'Action',
+    key: 'action',
+    render: () => (
+      <div className='button-wrapper'>
+        <AddButton />
+        <DetailButton />
+        <EditButton />
+        <DeleteButton />
+      </div>
+    ),
+    fixed: 'right',
+    width: 100,
+  },
+]
+
+const data: DataType[] = [
+  {
+    key: '1',
+    id: '78453992',
+    date_join: '10/2/2023',
+    company_name: 'PT.ABC',
+    phone_number: '(021) 5445080',
+    email_address: 'abc@gmail.com',
+    service_type: 'Water Heater Installation, Service AC',
+    serving_area: 'JABODETABEK',
+    total_amount_paid: '58,000,000    ',
+    work_done: '300',
+    complaint: '1',
+    rating: '5',
+  },
+  {
+    key: '2',
+    id: '78453993',
+    date_join: '10/2/2023',
+    company_name: 'PT.ABC',
+    phone_number: '(021) 5445080',
+    email_address: 'abc@gmail.com',
+    service_type: 'Water Heater Installation, Service AC',
+    serving_area: 'JABODETABEK',
+    total_amount_paid: '58,000,000    ',
+    work_done: '300',
+    complaint: '1',
+    rating: '5',
+  },
+  {
+    key: '3',
+    id: '78453994',
+    date_join: '10/2/2023',
+    company_name: 'PT.ABC',
+    phone_number: '(021) 5445080',
+    email_address: 'abc@gmail.com',
+    service_type: 'Water Heater Installation, Service AC',
+    serving_area: 'JABODETABEK',
+    total_amount_paid: '58,000,000    ',
+    work_done: '300',
+    complaint: '1',
+    rating: '5',
+  },
+  {
+    key: '4',
+    id: '78453995',
+    date_join: '10/2/2023',
+    company_name: 'PT.ABC',
+    phone_number: '(021) 5445080',
+    email_address: 'abc@gmail.com',
+    service_type: 'Water Heater Installation, Service AC',
+    serving_area: 'JABODETABEK',
+    total_amount_paid: '58,000,000    ',
+    work_done: '300',
+    complaint: '1',
+    rating: '5',
+  },
+  {
+    key: '5',
+    id: '78453996',
+    date_join: '10/2/2023',
+    company_name: 'PT.ABC',
+    phone_number: '(021) 5445080',
+    email_address: 'abc@gmail.com',
+    service_type: 'Water Heater Installation, Service AC',
+    serving_area: 'JABODETABEK',
+    total_amount_paid: '58,000,000    ',
+    work_done: '300',
+    complaint: '1',
+    rating: '5',
+  },
+  {
+    key: '6',
+    id: '78453997',
+    date_join: '10/2/2023',
+    company_name: 'PT.ABC',
+    phone_number: '(021) 5445080',
+    email_address: 'abc@gmail.com',
+    service_type: 'Water Heater Installation, Service AC',
+    serving_area: 'JABODETABEK',
+    total_amount_paid: '58,000,000    ',
+    work_done: '300',
+    complaint: '1',
+    rating: '5',
+  },
+  {
+    key: '7',
+    id: '78453998',
+    date_join: '10/2/2023',
+    company_name: 'PT.ABC',
+    phone_number: '(021) 5445080',
+    email_address: 'abc@gmail.com',
+    service_type: 'Water Heater Installation, Service AC',
+    serving_area: 'JABODETABEK',
+    total_amount_paid: '58,000,000    ',
+    work_done: '300',
+    complaint: '1',
+    rating: '5',
+  },
+]
+
+const UpdateVendorHO: FC = () => {
   const [fileName, setFileName] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
 
@@ -30,7 +311,7 @@ const NewVendorHO: FC = () => {
   }
 
   return (
-    <section id='new-vendor'>
+    <section id='update-vendor'>
       <div className='card mb-5'>
         <div className='card-body'>
           <div className='d-flex justify-content-between'>
@@ -227,8 +508,42 @@ const NewVendorHO: FC = () => {
           </div>
         </div>
       </div>
+
+      <div className='card'>
+        <div className='card-body table-view-order'>
+          <div className='table-head-wrapper'>
+            <div className='left'></div>
+
+            <div className='middle'>
+              <div className='filter-search'>
+                <InputGroup>
+                  <Form.Control placeholder='Filter' className='filter-rtl' />
+
+                  <InputGroup.Text className='filter-rtl'>
+                    <FontAwesomeIcon icon={faSearch} size='sm' />
+                  </InputGroup.Text>
+                </InputGroup>
+              </div>
+            </div>
+
+            <div className='right'>
+              <AddVendorButton />
+            </div>
+          </div>
+
+          <Table
+            className='table-striped-rows'
+            bordered
+            columns={columns}
+            dataSource={data}
+            rowKey={(record) => record.key}
+            scroll={{x: 1800}}
+            pagination={{position: ['bottomRight']}}
+          />
+        </div>
+      </div>
     </section>
   )
 }
 
-export {NewVendorHO}
+export {UpdateVendorHO}

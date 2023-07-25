@@ -65,8 +65,12 @@ function getChartOptions(height: number): ApexOptions {
         data: [60, 50, 80, 40, 100, 60],
       },
       {
-        name: 'Cancel',
-        data: [70, 60, 110, 40, 50, 70],
+        name: 'Refund',
+        data: [70, 60, 110, 80, 50, 70],
+      },
+      {
+        name: 'Reschedule',
+        data: [40, 30, 50, 30, 70, 30],
       },
     ],
     chart: {

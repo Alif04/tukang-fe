@@ -1,23 +1,55 @@
-#new-vendor .costumer-information {
-  width: 345px;
+#new-vendor .vendor-information {
+  width: 500px;
 }
 
-#new-vendor .costumer-information .form-header {
+#new-vendor .bank-information {
+  width: 300px;
+}
+
+#new-vendor .service-information {
+  width: 300px;
+}
+
+#new-vendor .vendor-information .form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 70px;
 }
 
-#new-vendor .costumer-information .form-body {
+#new-vendor .vendor-information .form-header select.form-select-area.form-select {
+  margin-left: 10px;
+}
+
+#new-vendor .bank-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+}
+
+#new-vendor .service-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+}
+
+#new-vendor .vendor-information .form-body {
   margin-bottom: 50px;
 }
 
-#new-vendor .costumer-information .form-body .field-alamat {
-  min-height: 215px;
+#new-vendor .vendor-information .form-body .field-alamat {
+  min-height: 130px;
 }
 
-#new-vendor .costumer-information .form-body .form-check-request .form-check-input {
+#new-vendor .bank-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#new-vendor .service-information .form-body .form-check-request .form-check-input {
   margin-top: 0;
   width: 15px;
   height: 15px;

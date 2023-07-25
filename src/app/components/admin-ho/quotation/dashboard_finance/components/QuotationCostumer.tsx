@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
-import {useThemeMode} from '../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import {getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
+import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 
 type Props = {
   className: string
   chartHeight: string
 }
 
-const ChartDonutWork: React.FC<Props> = ({className, chartHeight}) => {
+const QoutationCostumer: React.FC<Props> = ({className, chartHeight}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -39,12 +39,14 @@ const ChartDonutWork: React.FC<Props> = ({className, chartHeight}) => {
 
   return (
     <div className={`card ${className}`}>
-      <div className='card-body p-2'>
-        <div className='d-flex flex-column'>
-          <h1 className='fs-1 text-success'>Work</h1>
+      <div className='card-body p-2 d-flex justify-content-center'>
+        <div className='d-flex align-items-center'>
+          <div ref={chartRef} className='mixed-widget-10-chart'></div>
 
-          <div className='d-flex justify-content-center'>
-            <div ref={chartRef} className='mixed-widget-10-chart'></div>
+          <div className='d-flex flex-column gap-4'>
+            <div className='fs-5 text-dark text-muted text-center'>Quotation For Costumer</div>
+            <div className='fs-1 d-block m-auto'>58</div>
+            <div className='fs-5 text-muted text-center'>Payment Order bulan ini</div>
           </div>
         </div>
       </div>
@@ -54,20 +56,16 @@ const ChartDonutWork: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-info')
-  const pendingColor = getCSSVariableValue('--kt-primary')
-  const cancelColor = getCSSVariableValue('--kt-dark')
-  const ReworkColor = getCSSVariableValue('--kt-success')
-  const refundColor = getCSSVariableValue('--kt-danger')
+  const processColor = getCSSVariableValue('--kt-success')
+  const pendingColor = getCSSVariableValue('--kt-warning')
 
   return {
-    series: [44, 55, 13, 30, 2],
+    series: [44, 55],
     chart: {
-      width: 500,
-      height: chartHeight,
-      type: 'donut',
+      width: chartHeight,
+      type: 'pie',
     },
-    labels: ['On Progress', 'Done', 'Reschedule', 'Rework', 'Refund'],
+    labels: ['OUT', 'PAID'],
     legend: {
       show: true,
       height: 20,
@@ -76,7 +74,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor, ReworkColor, refundColor],
+    colors: [processColor, pendingColor],
     grid: {
       padding: {
         top: 10,
@@ -92,4 +90,4 @@ const chartOptions = (chartHeight: string): ApexOptions => {
   }
 }
 
-export {ChartDonutWork}
+export {QoutationCostumer}

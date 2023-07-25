@@ -63,10 +63,10 @@ const VendorPage: React.FC = () => {
         }
       />
       <Route
-        path='dashboard-finance'
+        path='report-finance'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR DASHBOARD</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FINANCIAL DASHBOARD</PageTitle>
             <DashboardFinance />
           </>
         }

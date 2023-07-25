@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import {FC, useState} from 'react'
+import {FC} from 'react'
 import {PageTitle} from '../../../_metronic/layout/core'
 
-import {Form, InputGroup} from 'react-bootstrap'
+import {Form} from 'react-bootstrap'
 
 import {
   SalesReportWidget,
@@ -18,20 +18,26 @@ import {
 } from '../../components'
 
 import {
-  ChartBarOrder,
+  ChartBarOrderHO,
   ChartBarPerformance,
-  ChartDonutQuotation,
-  ChartDonutWork,
-  ChartLineComplaint,
-  ChartLineSurvey,
+  ChartDonutQuotationHO,
+  ChartDonutWorkHO,
+  ChartLineComplaintHO,
+  ChartLineSurveyHO,
   TotalComplaintHO,
   TotalOrderHO,
   TotalWorkOrder,
   DateRange,
 } from '../../components'
 
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch} from '@fortawesome/free-solid-svg-icons'
+import {
+  CardItem,
+  ChartBarOrderTukang,
+  ChartLineSurveyTukang,
+  ChartLineComplaintTukang,
+  ChartDonutWorkTukang,
+  ChartDonutQuotationTukang,
+} from '../../components'
 
 const DashboardStore: FC = () => (
   <>
@@ -152,25 +158,54 @@ const DashboardHO: FC = () => (
 
     <div className='row gy-5 g-xl-8'>
       <div className='col-xl-4'>
-        <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+        <ChartBarOrderHO className='card-xl-stretch mb-xl-8' />
       </div>
       <div className='col-xl-4'>
-        <ChartLineSurvey className='card-xl-stretch mb-xl-8' />
+        <ChartLineSurveyHO className='card-xl-stretch mb-xl-8' />
       </div>
       <div className='col-xl-4'>
-        <ChartLineComplaint className='card-xl-stretch mb-5 mb-xl-8' />
+        <ChartLineComplaintHO className='card-xl-stretch mb-5 mb-xl-8' />
       </div>
     </div>
 
     <div className='row gy-5 g-xl-8'>
       <div className='col-xl-4'>
-        <ChartDonutQuotation className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+        <ChartDonutQuotationHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
       </div>
       <div className='col-xl-4'>
-        <ChartDonutWork className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+        <ChartDonutWorkHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
       </div>
       <div className='col-xl-4'>
         <ChartBarPerformance className='card-xl-stretch mb-5 mb-xl-8' />
+      </div>
+    </div>
+  </>
+)
+
+const DashboardTukang: FC = () => (
+  <>
+    <div className='row-gy-5 g-xl-8 mb-5'>
+      <CardItem className='' />
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartBarOrderTukang className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineSurveyTukang className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineComplaintTukang className='card-xl-stretch mb-5 mb-xl-8' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartDonutQuotationTukang className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartDonutWorkTukang className='card-xl-stretch mb-xl-8' chartHeight='300px' />
       </div>
     </div>
   </>
@@ -180,8 +215,9 @@ const DashboardWrapper: FC = () => {
   return (
     <>
       <PageTitle>STORE DASHBOARD</PageTitle>
-      <DashboardStore />
+      {/* <DashboardStore /> */}
       {/* <DashboardHO /> */}
+      <DashboardTukang />
     </>
   )
 }

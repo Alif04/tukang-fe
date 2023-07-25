@@ -15,13 +15,21 @@ export * from './admin-store/dashboard/order-tracking/OrderTracking'
 export * from './admin-ho/dashboard/TotalOrderHO'
 export * from './admin-ho/dashboard/TotalWorkOrder'
 export * from './admin-ho/dashboard/TotalComplaintHO'
-export * from './admin-ho/dashboard/ChartBarOrder'
+export * from './admin-ho/dashboard/ChartBarOrderHO'
 export * from './admin-ho/dashboard/ChartBarPerformance'
-export * from './admin-ho/dashboard/ChartLineSurvey'
-export * from './admin-ho/dashboard/ChartLineComplaint'
-export * from './admin-ho/dashboard/ChartDonutQuotation'
-export * from './admin-ho/dashboard/ChartDonutWork'
+export * from './admin-ho/dashboard/ChartLineSurveyHO'
+export * from './admin-ho/dashboard/ChartLineComplaintHO'
+export * from './admin-ho/dashboard/ChartDonutQuotationHO'
+export * from './admin-ho/dashboard/ChartDonutWorkHO'
 export * from './admin-ho/dashboard/DateRange'
+
+// DASHBOARD PAGE ( TUKANG )
+export * from './tukang/dashboard/card_item/CardItem'
+export * from './tukang/dashboard/ChartBarOrderTukang'
+export * from './tukang/dashboard/ChartLineSurveyTukang'
+export * from './tukang/dashboard/ChartLineComplaintTukang'
+export * from './tukang/dashboard/ChartDonutWorkTukang'
+export * from './tukang/dashboard/ChartDonutQuotationTukang'
 
 // ORDER
 // View Order
@@ -82,12 +90,27 @@ export * from './admin-ho/vendor/view_vendor/ViewVendor'
 // New Vendor
 export * from './admin-ho/vendor/new_vendor/NewVendor'
 
+// Update Vendor
+export * from './admin-ho/vendor/update_vendor/UpdateVendor'
+
+// Detail Vendor
+export * from './admin-ho/vendor/detail_vendor/DetailVendor'
+
 // Report Vendor
 export * from './admin-ho/vendor/report_vendor/ReportVendor'
 
 // Quotation
 // View Quotation
 export * from './admin-ho/quotation/view_quotation/ViewQuotation'
+
+// New Quotation
+export * from './admin-ho/quotation/new_quotation/NewQuotation'
+
+// Update Quotation
+export * from './admin-ho/quotation/update_quotation/UpdateQuotation'
+
+// Dashboard Finance
+export * from './admin-ho/quotation/dashboard_finance/DashboardFinance'
 
 // Payment
 // View Payment

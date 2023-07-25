@@ -9,7 +9,7 @@ type Props = {
   className: string
 }
 
-const ChartLineComplaint: React.FC<Props> = ({className}) => {
+const ChartLineComplaintHO: React.FC<Props> = ({className}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -47,7 +47,7 @@ const ChartLineComplaint: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ChartLineComplaint}
+export {ChartLineComplaintHO}
 
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')

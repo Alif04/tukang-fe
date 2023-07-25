@@ -9,19 +9,9 @@ type Props = {
   className: string
 }
 
-const ChartBarOrder: React.FC<Props> = ({className}) => {
+const ChartLineSurveyHO: React.FC<Props> = ({className}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
-
-  useEffect(() => {
-    const chart = refreshChart()
-
-    return () => {
-      if (chart) {
-        chart.destroy()
-      }
-    }
-  }, [chartRef, mode])
 
   const refreshChart = () => {
     if (!chartRef.current) {
@@ -38,49 +28,56 @@ const ChartBarOrder: React.FC<Props> = ({className}) => {
     return chart
   }
 
+  useEffect(() => {
+    const chart = refreshChart()
+
+    return () => {
+      if (chart) {
+        chart.destroy()
+      }
+    }
+  }, [chartRef, mode])
+
   return (
     <div className={`card ${className}`}>
       <div className='card-body'>
-        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '350px'}} />
+        <div ref={chartRef} id='kt_charts_widget_4_chart' style={{height: '350px'}}></div>
       </div>
     </div>
   )
 }
 
-export {ChartBarOrder}
+export {ChartLineSurveyHO}
 
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
+
   const baseColor = getCSSVariableValue('--kt-primary')
+  const baseLightColor = getCSSVariableValue('--kt-primary-light')
   const secondaryColor = getCSSVariableValue('--kt-info')
+  const secondaryLightColor = getCSSVariableValue('--kt-info-light')
 
   return {
     series: [
       {
-        name: 'Order Done',
-        data: [44, 55, 57, 56, 61, 58],
+        name: 'Survey',
+        data: [60, 50, 80, 40, 100, 60],
       },
       {
-        name: 'Order In',
-        data: [76, 85, 101, 98, 87, 105],
+        name: 'Work Done',
+        data: [70, 60, 110, 40, 50, 70],
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'bar',
-      height: height,
+      type: 'area',
+      height: 350,
       toolbar: {
         show: false,
       },
     },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: '75%',
-        borderRadius: 0,
-      },
-    },
+    plotOptions: {},
     legend: {
       show: true,
       position: bottom,
@@ -88,10 +85,12 @@ function getChartOptions(height: number): ApexOptions {
     dataLabels: {
       enabled: false,
     },
+    fill: {
+      type: 'solid',
+      opacity: 0.4,
+    },
     stroke: {
-      show: true,
-      width: 2,
-      colors: ['transparent'],
+      curve: 'straight',
     },
     xaxis: {
       categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -107,6 +106,22 @@ function getChartOptions(height: number): ApexOptions {
           fontSize: '12px',
         },
       },
+      crosshairs: {
+        position: 'front',
+        stroke: {
+          color: labelColor,
+          width: 1,
+          dashArray: 3,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        formatter: undefined,
+        offsetY: 0,
+        style: {
+          fontSize: '12px',
+        },
+      },
     },
     yaxis: {
       labels: {
@@ -115,9 +130,6 @@ function getChartOptions(height: number): ApexOptions {
           fontSize: '12px',
         },
       },
-    },
-    fill: {
-      opacity: 1,
     },
     states: {
       normal: {
@@ -146,7 +158,7 @@ function getChartOptions(height: number): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return val + ''
+          return '$' + val + ' thousands'
         },
       },
     },
@@ -159,6 +171,11 @@ function getChartOptions(height: number): ApexOptions {
           show: true,
         },
       },
+    },
+    markers: {
+      colors: [baseLightColor, secondaryLightColor],
+      strokeColors: [baseLightColor, secondaryLightColor],
+      strokeWidth: 3,
     },
   }
 }

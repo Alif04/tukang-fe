@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
-import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import {getCSS, getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
+import {useThemeMode} from '../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
 }
 
-const ChartLine: React.FC<Props> = ({className}) => {
+const ChartLineComplaintTukang: React.FC<Props> = ({className}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -47,7 +47,7 @@ const ChartLine: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ChartLine}
+export {ChartLineComplaintTukang}
 
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
@@ -61,12 +61,12 @@ function getChartOptions(height: number): ApexOptions {
   return {
     series: [
       {
-        name: 'Work Done',
-        data: [70, 60, 110, 70, 50, 70],
+        name: 'Complaint',
+        data: [60, 50, 80, 40, 100, 60],
       },
       {
-        name: 'Work Complaint',
-        data: [60, 50, 80, 40, 100, 60],
+        name: 'Cancel',
+        data: [70, 60, 110, 40, 50, 70],
       },
     ],
     chart: {
@@ -87,7 +87,7 @@ function getChartOptions(height: number): ApexOptions {
     },
     fill: {
       type: 'solid',
-      opacity: 0.4,
+      opacity: 0,
     },
     stroke: {
       curve: 'straight',
