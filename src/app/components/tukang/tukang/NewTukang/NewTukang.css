@@ -31,10 +31,67 @@
     margin: -35px 0 20px 0;
 }
 
-.form-button-request{
-    margin-top: -17px;
+.mb-5 .form-input-image{
+    height: 250px;
 }
 
-.form-button-request i{
-    font-size: 35px !important;
+.mb-5 .form-input-image.diri{
+    height: 130px;
 }
+
+.mb-5 .form-input-image i{
+    font-size: 40px;
+}
+
+    .parent {
+      border-radius: 15px;
+    }
+    .file-upload {
+      text-align: center;
+      border: 3px solid rgb(210, 227, 244);
+      padding: 1.5rem;
+      position: relative;
+      cursor: pointer;
+      height: 100px;
+    }
+    .file-upload i {
+      font-size: 40px;
+    }
+
+    .file-upload input {
+      display: block;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .file-upload2 {
+      border: 3px solid rgb(210, 227, 244);
+      padding: 1.5rem;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+    }
+    .file-upload2 i {
+      font-size: 40px;
+    }
+    .file-upload2 input {
+      display: block;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      cursor: pointer;
+    }

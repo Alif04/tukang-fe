@@ -42,9 +42,9 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
       >
-        <AsideMenuItem to='/tukang/NewTukangin' title='New Tukang' hasBullet={true} />
-        <AsideMenuItem to='/tukang/DetailTukang' title='Detail Tukang' hasBullet={true} />
-        <AsideMenuItem to='/tukang/UpdateTukang' title='Update Tukang' hasBullet={true} />
+        <AsideMenuItem to='/tukang/New-Tukang' title='New Tukang' hasBullet={true} />
+        <AsideMenuItem to='/tukang/Detail-Tukang' title='Detail Tukang' hasBullet={true} />
+        <AsideMenuItem to='/tukang/Update-Tukang' title='Update Tukang' hasBullet={true} />
       </AsideMenuItemWithSub>
 
       <AsideMenuItemWithSub
