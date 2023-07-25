@@ -1,13 +1,13 @@
 import React, {FC} from 'react'
 
-import {ReportOrderStore} from '../../../components'
+import {ReportWorkOrder} from '../../../components/admin-vendor/work-order/report_order/ReportOrder'
 
-const ReportWorkOrder: FC = () => {
+const ReportWork: FC = () => {
   return (
     <>
-      <ReportOrderStore />
+      <ReportWorkOrder />
     </>
   )
 }
 
-export {ReportWorkOrder}
+export {ReportWork}

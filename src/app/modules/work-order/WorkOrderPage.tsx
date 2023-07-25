@@ -2,8 +2,10 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
-import {ViewWorkOrder} from './components/ViewWorkOrder'
-import { ReportWorkOrder } from './components/ReportWorkOrder'
+import { ViewWork } from './components/ViewWork'
+import { ReportWork } from './components/ReportWorkOrder'
+// import { DetailWork } from './components/DetailWork'
+import { UpdateWork } from './components/UpdateWork'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -24,11 +26,11 @@ const WorkOrderPage: React.FC = () => {
   return (
     <Routes>
       <Route
-        path='view-work_order'
+        path='View-work_order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>View Work Order</PageTitle>
-            <ViewWorkOrder className="your-class-name-here"/>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER LIST</PageTitle>
+            <ViewWork />
           </>
         }
       />
@@ -36,35 +38,26 @@ const WorkOrderPage: React.FC = () => {
         path='Report-work_order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW VENDOR FORM</PageTitle>
-            <ReportWorkOrder />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER DASHBOARD</PageTitle>
+            <ReportWork />
+          </>
+        }
+      />
+      <Route
+        path='Update-work_order'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE WORK ORDER V2.</PageTitle>
+            <UpdateWork />
           </>
         }
       />
       {/* <Route
-        path='update-vendor'
+        path='Detail-work_order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE VENDOR</PageTitle>
-            <UpdateVendor />
-          </>
-        }
-      />
-      <Route
-        path='detail-vendor'
-        element={
-          <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL VENDOR</PageTitle>
-            <DetailVendor />
-          </>
-        }
-      />
-      <Route
-        path='report-vendor'
-        element={
-          <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR DASHBOARD</PageTitle>
-            <ReportVendor />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL WORK ORDER</PageTitle>
+            <DetailWork />
           </>
         }
       /> */}

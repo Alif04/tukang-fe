@@ -26,7 +26,7 @@ const InvoicePage: React.FC = () => {
         path='view-invoice'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR LIST</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>INVOICE LIST</PageTitle>
             <ViewInvoice />
           </>
         }

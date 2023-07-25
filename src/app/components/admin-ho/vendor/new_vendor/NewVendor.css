@@ -1,0 +1,24 @@
+#new-vendor .costumer-information {
+  width: 345px;
+}
+
+#new-vendor .costumer-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+}
+
+#new-vendor .costumer-information .form-body {
+  margin-bottom: 50px;
+}
+
+#new-vendor .costumer-information .form-body .field-alamat {
+  min-height: 215px;
+}
+
+#new-vendor .costumer-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}

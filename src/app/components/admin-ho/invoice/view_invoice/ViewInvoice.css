@@ -1,121 +1,90 @@
-/* Header */
-#update-csi .header-information {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-#update-csi .header-information .information-detail {
-  width: 270px;
-}
-
-#update-csi .header-information .information-detail h3 {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: normal;
-}
-
-#update-csi .question {
-  margin: 30px 0 30px 0;
-}
-
-#update-csi .question .list-question .list-item {
-  margin: 10px 0 10px;
-}
-
-#update-csi .question .list-question .list-item h3 {
-  font-size: 16px;
-  font-weight: normal;
-}
-
-#update-csi .question .list-question .list-item .form-check-question .form-check-input {
-  margin-top: 0;
-  width: 15px;
-  height: 15px;
-}
-
-#update-csi .notes h3 {
-  font-size: 16px;
-  text-decoration: underline;
-  font-weight: normal;
-}
-
 /* Table */
-#update-csi .table-head-wrapper {
+#view-invoice .table-head-wrapper {
   display: flex;
   justify-content: space-between;
   margin: 20px 0;
 }
 
-#update-csi .table-head-wrapper .left {
+#view-invoice .table-head-wrapper .left {
   display: flex;
   align-items: center;
 }
 
-#update-csi .table-head-wrapper .middle {
+#view-invoice .table-head-wrapper .middle {
   display: flex;
   justify-content: space-between;
 }
 
-#update-csi .ant-table-wrapper .ant-table-thead > tr > th {
+#view-invoice .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
   font-weight: 500;
-  background-color: #183383;
+  background-color: #398318;
 }
 
-#update-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child {
+#view-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
   border-start-start-radius: 0;
 }
 
-#update-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+#view-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
   border-start-end-radius: 0;
 }
 
-#update-csi .table-head-wrapper {
+#view-invoice .table-head-wrapper {
   margin-bottom: 20px;
 }
 
-#update-csi .ant-table-fixed {
+#view-invoice .ant-table-fixed {
   table-layout: fixed;
 }
 
-#update-csi .ant-table-tbody > tr.ant-table-row:hover > td {
+#view-invoice .ant-table-tbody > tr.ant-table-row:hover > td {
   background-color: #dcdcdc;
 }
 
-#update-csi .ant-table-tbody > tr > td {
+#view-invoice .ant-table-tbody > tr > td {
   word-wrap: break-word;
   word-break: break-word;
 }
 
-#update-csi .table-striped-rows tr:nth-child(even) td {
+#view-invoice .table-striped-rows tr:nth-child(even) td {
   background-color: #ffff;
 }
 
-#update-csi .table-striped-rows tr:nth-child(odd) td {
+#view-invoice .table-striped-rows tr:nth-child(odd) td {
   background-color: #e4e9f7;
 }
 
-#update-csi .ant-table-thead > tr > th.col-work-status {
+#view-invoice .ant-table-thead > tr > th.col-work-status {
   background-color: #a30014 !important;
 }
 
-#update-csi .ant-table-thead > tr > th.col-complaint-date {
+#view-invoice .ant-table-thead > tr > th.col-complaint-date {
   background-color: #a30014 !important;
 }
 
-#update-csi .ant-table-thead > tr > th.col-complaint-status {
+#view-invoice .ant-table-thead > tr > th.col-complaint-status {
   background-color: #a30014 !important;
 }
 
 /* Searchbar */
 
-#update-csi .filter-search .input-group .form-control.filter-ltr {
+#view-invoice .filter-search .input-group .form-control.filter-ltr {
   border-left: none;
 }
 
-#update-csi .filter-search .input-group-text.filter-ltr {
+#view-invoice .filter-search .input-group-text.filter-ltr {
   background-color: transparent;
   border-right: none;
 }
@@ -152,7 +121,7 @@
 
 /* Button Action */
 
-#update-csi .button-wrapper {
+#view-invoice .button-wrapper {
   display: flex;
   justify-content: space-between;
 }
@@ -188,7 +157,7 @@ svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
   margin: 5px;
 }
 
-#update-csi svg.svg-inline--fa.fa-plus.fa-sm {
+#view-invoice svg.svg-inline--fa.fa-plus.fa-sm {
   color: black;
   margin: 5px;
 }

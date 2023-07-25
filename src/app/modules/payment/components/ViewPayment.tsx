@@ -1,12 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
-import {ViewOrderStore} from '../../../components'
+import {ViewPaymentHO} from '../../../components'
 
 const ViewPayment: React.FC = () => {
   return (
     <>
-      <ViewOrderStore className='' />
+      <ViewPaymentHO className='' />
     </>
   )
 }

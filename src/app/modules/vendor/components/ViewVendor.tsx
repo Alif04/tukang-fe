@@ -1,12 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
-import {ViewOrderStore} from '../../../components'
+import {ViewVendorHO} from '../../../components'
 
 const ViewVendor: React.FC = () => {
   return (
     <>
-      <ViewOrderStore className='' />
+      <ViewVendorHO className='' />
     </>
   )
 }

@@ -31,9 +31,20 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
       >
-        <AsideMenuItem to='/work-order/view-work_order' title='View Work Order' hasBullet={true} />
+        <AsideMenuItem to='/work-order/View-work_order' title='View Work Order' hasBullet={true} />
         <AsideMenuItem to='/work-order/Report-work_order' title='Report Work Order' hasBullet={true} />
-        {/* <AsideMenuItem to='/work-order/update-order' title='Update Order' hasBullet={true} /> */}
+        <AsideMenuItem to='/work-order/Update-work_order' title='Update Order' hasBullet={true} />
+      </AsideMenuItemWithSub>
+
+      <AsideMenuItemWithSub
+        to='/tukang'
+        title='Tukang'
+        icon='/media/icons/duotune/art/art002.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem to='/tukang/NewTukangin' title='New Tukang' hasBullet={true} />
+        <AsideMenuItem to='/tukang/DetailTukang' title='Detail Tukang' hasBullet={true} />
+        <AsideMenuItem to='/tukang/UpdateTukang' title='Update Tukang' hasBullet={true} />
       </AsideMenuItemWithSub>
 
       <AsideMenuItemWithSub
@@ -106,7 +117,7 @@ export function AsideMenuMain() {
         fontIcon='bi-person'
       >
         <AsideMenuItem to='/payment/view-payment' title='View Payment' hasBullet={true} />
-        <AsideMenuItem to='/payment/new-payment' title='New Payment' hasBullet={true} />
+        {/* <AsideMenuItem to='/payment/new-payment' title='New Payment' hasBullet={true} /> */}
         <AsideMenuItem to='/payment/detail-payment' title='Detail Payment' hasBullet={true} />
       </AsideMenuItemWithSub>
 

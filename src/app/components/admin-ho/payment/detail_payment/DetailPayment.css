@@ -1,93 +1,103 @@
 /* Card */
-
-#detail-complaint .card .card-body .information-wrapper {
-  width: 330px;
+#detail-payment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-#detail-complaint .information-wrapper .detail-header {
-  min-height: 70px;
+#detail-payment .card {
+  width: 900px;
 }
 
-#detail-complaint .order-history {
-  margin-top: 20px;
-  margin-bottom: 50px;
+#detail-payment .card .card-body {
+  min-height: 100vh;
+  padding: 3rem 3rem !important;
 }
 
-#detail-complaint .order-history .title h1 {
-  font-size: 22.5px;
-  padding: 0 0 20px 0;
+#detail-payment .receiver-information .receiver-detail h1 {
+  font-size: 18px;
 }
 
-/* Detail Complaint */
+#detail-payment .receiver-information .receiver-detail .address {
+  margin: 15px 0;
+}
 
-#detail-complaint .complaint-information h4 {
-  padding-bottom: 15px;
+#detail-payment .receiver-information .receiver-detail h3 {
+  padding: 4px 0;
+  font-size: 16px;
+}
+
+#detail-payment .payment-request h1 {
+  font-size: 41px;
+}
+
+#detail-payment .payment-request h3 {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+#detail-payment .detail-table table tr th {
   font-size: 16px;
   font-weight: 600;
+  color: white;
+  background-color: #183383;
 }
 
-#detail-complaint .complaint-detail h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#detail-payment
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(even)
+  td {
+  background-color: #e4e9f7;
 }
 
-#detail-complaint .complaint-detail p {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-#detail-complaint .complaint-evidence h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-#detail-complaint .table.detail-complaint-table tr,
-.table.detail-complaint-table th,
-.table.detail-complaint-table td {
-  border: none;
+#detail-payment
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(odd)
+  td {
+  background-color: #ffff;
 }
 
 /* Timeline */
 
-#detail-complaint .anticon svg {
+#detail-payment .anticon svg {
   color: white;
 }
 
-#detail-complaint .ant-steps.ant-steps-small .ant-steps-item-icon {
+#detail-payment .ant-steps.ant-steps-small .ant-steps-item-icon {
   line-height: 20px;
 }
 
-#detail-complaint .ant-steps .ant-steps-item-wait .ant-steps-item-icon {
+#detail-payment .ant-steps .ant-steps-item-wait .ant-steps-item-icon {
   background-color: #ee480a !important;
   opacity: 0.3;
 }
 
-#detail-complaint .ant-steps .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+#detail-payment .ant-steps .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
   color: #ffff;
 }
 
-#detail-complaint .ant-steps .ant-steps-item-process .ant-steps-item-icon {
+#detail-payment .ant-steps .ant-steps-item-process .ant-steps-item-icon {
   background-color: #ee480a !important;
   border-color: #ffff;
   border-width: 2px;
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
 }
 
-#detail-complaint .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
+#detail-payment .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
   background-color: #ee480a !important;
   border-color: #ffff;
   border-width: 2px;
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
 }
 
-#detail-complaint .ant-steps-item-title {
+#detail-payment .ant-steps-item-title {
   margin: 0 20px 0 20px;
   font-weight: 600;
 }
 
-#detail-complaint
+#detail-payment
   .ant-steps
   .ant-steps-item-wait
   > .ant-steps-item-container
@@ -97,12 +107,12 @@
   font-weight: 400;
 }
 
-#detail-complaint .ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
+#detail-payment .ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
   margin: 0 0 0 56px;
   padding: 3px 16px;
 }
 
-#detail-complaint
+#detail-payment
   .ant-steps
   .ant-steps-item-process
   > .ant-steps-item-container
@@ -113,7 +123,7 @@
   border-radius: 0;
 }
 
-#detail-complaint
+#detail-payment
   .ant-steps
   .ant-steps-item-wait
   > .ant-steps-item-container
@@ -124,7 +134,7 @@
   border-radius: 0;
 }
 
-#detail-complaint
+#detail-payment
   .ant-steps
   .ant-steps-item-finish
   > .ant-steps-item-container
@@ -136,7 +146,7 @@
 
 /* Button */
 
-#detail-complaint .btn.btn-dark-danger {
+.btn.btn-dark-danger {
   width: 100px;
   height: 50px;
   margin: 0 10px 0 10px;
@@ -150,8 +160,8 @@
   background-color: #d80019 !important;
 }
 
-#detail-complaint .btn.btn-dark-primary {
-  width: 180px;
+.btn.btn-dark-primary {
+  width: 100px;
   height: 50px;
   margin: 0 10px 0 10px;
   color: white !important;

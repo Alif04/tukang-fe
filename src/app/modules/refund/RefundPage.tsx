@@ -26,7 +26,7 @@ const RefundPage: React.FC = () => {
         path='view-refund'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR LIST</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>REFUND LIST</PageTitle>
             <ViewRefund />
           </>
         }

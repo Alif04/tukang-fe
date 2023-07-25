@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
-import '../../../../app/components/admin-store/order/view_order/ViewOrder.css'
+import './ViewWorkOrder.css'
 
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -54,7 +54,7 @@ const DetailButton = () => {
   const navigate = useNavigate()
 
   const handleDetail = () => {
-    navigate('/order/detail-order')
+    navigate('/work-order/Detail-work_order')
   }
 
   return (
@@ -153,7 +153,7 @@ const columns: ColumnsType<DataType> = [
     title: 'Work Order Status',
     dataIndex: 'order_status',
     key: 'order_status',
-    align: 'center',
+    align: 'left',
     width: 140,
   },
   {
@@ -166,7 +166,7 @@ const columns: ColumnsType<DataType> = [
         <DeleteButton />
       </div>
     ),
-    align: 'center',
+    fixed: 'right',
     width: 115,
   },
 ]
