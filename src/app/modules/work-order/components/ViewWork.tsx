@@ -1,11 +1,10 @@
 import React, {FC} from 'react'
-import { ViewWorkOrder } from '../../../components/admin-vendor/work-order/ViewWorkOrder/ViewWorkOrder'
-
+import {ViewWorkVendor} from '../../../components'
 
 const ViewWork: FC = () => {
   return (
     <>
-      <ViewWorkOrder className=""/>
+      <ViewWorkVendor className='' />
     </>
   )
 }

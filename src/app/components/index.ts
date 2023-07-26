@@ -23,6 +23,16 @@ export * from './admin-ho/dashboard/ChartDonutQuotationHO'
 export * from './admin-ho/dashboard/ChartDonutWorkHO'
 export * from './admin-ho/dashboard/DateRange'
 
+// DASHBOARD PAGE ( Admin Vendor )
+export * from './admin-vendor/dashboard/TotalOrderVendor'
+export * from './admin-vendor/dashboard/TotalWorkVendor'
+export * from './admin-vendor/dashboard/TotalComplaintVendor'
+export * from './admin-vendor/dashboard/ChartBarOrderVendor'
+export * from './admin-vendor/dashboard/ChartLineSurveyVendor'
+export * from './admin-vendor/dashboard/ChartLineComplaintVendor'
+export * from './admin-vendor/dashboard/ChartDonutComplaintVendor'
+export * from './admin-vendor/dashboard/ChartDonutWorkVendor'
+
 // DASHBOARD PAGE ( TUKANG )
 export * from './tukang/dashboard/card_item/CardItem'
 export * from './tukang/dashboard/ChartBarOrderTukang'
@@ -46,6 +56,19 @@ export * from './admin-store/order/detail_order/DetailOrder'
 
 // Report Order
 export * from './admin-store/order/report_order/ReportOrder'
+
+// Work Order
+// View Work Order
+export * from './admin-vendor/work-order/view_work_order/ViewWorkVendor'
+
+// Update Work Order
+export * from './admin-vendor/work-order/update_work_order/UpdateWorkOrder'
+
+// Report Work Order
+export * from './admin-vendor/work-order/report_work_order/ReportWorkOrder'
+
+// Detail Work Order
+export * from './admin-vendor/work-order/detail_work_order/DetailWorkOrder'
 
 // Costumers
 // View Costumers

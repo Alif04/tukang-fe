@@ -31,9 +31,22 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
       >
-        <AsideMenuItem to='/work-order/View-work_order' title='View Work Order' hasBullet={true} />
-        <AsideMenuItem to='/work-order/Report-work_order' title='Report Work Order' hasBullet={true} />
-        <AsideMenuItem to='/work-order/Update-work_order' title='Update Order' hasBullet={true} />
+        <AsideMenuItem to='/work-order/view-work-order' title='View Work Order' hasBullet={true} />
+        <AsideMenuItem
+          to='/work-order/report-work-order'
+          title='Report Work Order'
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/work-order/update-work-order'
+          title='Update Work Order'
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/work-order/detail-work-order'
+          title='Detail Work Order'
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
       <AsideMenuItemWithSub

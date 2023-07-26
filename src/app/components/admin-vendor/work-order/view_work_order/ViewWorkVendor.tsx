@@ -36,20 +36,6 @@ interface DataType {
   order_status: string
 }
 
-const NewOrderButton = () => {
-  const navigate = useNavigate()
-
-  const handleNewOrder = () => {
-    navigate('/order/new-order')
-  }
-
-  return (
-    <button className='button-new-order' onClick={handleNewOrder}>
-      New Order <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
-    </button>
-  )
-}
-
 const DetailButton = () => {
   const navigate = useNavigate()
 
@@ -265,16 +251,12 @@ const data: DataType[] = [
   },
 ]
 
-const ViewWorkOrder: React.FC<Props> = ({className}) => {
+const ViewWorkVendor: React.FC<Props> = ({className}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body table-view-order'>
         <div className='table-head-wrapper'>
           <div className='left'>
-            <NewOrderButton />
-          </div>
-
-          <div className='right'>
             <div className='filter-search'>
               <InputGroup>
                 <InputGroup.Text className='filter-ltr'>
@@ -284,7 +266,9 @@ const ViewWorkOrder: React.FC<Props> = ({className}) => {
                 <Form.Control placeholder='Filter' className='filter-ltr' />
               </InputGroup>
             </div>
+          </div>
 
+          <div className='right'>
             <div className='select-filter'>
               <select className='form-select filter filter-one'>
                 <option selected>All</option>
@@ -328,7 +312,7 @@ const ViewWorkOrder: React.FC<Props> = ({className}) => {
           columns={columns}
           dataSource={data}
           rowKey={(record) => record.key}
-          scroll={{x: 1500}}
+          scroll={{x: 1800}}
           pagination={{position: ['bottomCenter']}}
         />
       </div>
@@ -336,4 +320,4 @@ const ViewWorkOrder: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ViewWorkOrder}
+export {ViewWorkVendor}

@@ -4,6 +4,7 @@ import {PageTitle} from '../../../_metronic/layout/core'
 
 import {Form} from 'react-bootstrap'
 
+// Dashboard Store
 import {
   SalesReportWidget,
   CalendarWidget,
@@ -17,6 +18,7 @@ import {
   OrderTracking,
 } from '../../components'
 
+// Dashboard HO
 import {
   ChartBarOrderHO,
   ChartBarPerformance,
@@ -30,6 +32,19 @@ import {
   DateRange,
 } from '../../components'
 
+// Dashboard Vendor
+import {
+  TotalOrderVendor,
+  TotalWorkVendor,
+  TotalComplaintVendor,
+  ChartBarOrderVendor,
+  ChartLineSurveyVendor,
+  ChartLineComplaintVendor,
+  ChartDonutComplaintVendor,
+  ChartDonutWorkVendor,
+} from '../../components'
+
+// Dashboard Tukang
 import {
   CardItem,
   ChartBarOrderTukang,
@@ -182,6 +197,45 @@ const DashboardHO: FC = () => (
   </>
 )
 
+const DashboardVendor: FC = () => (
+  <>
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xxl-4'>
+        <TotalOrderVendor className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
+      </div>
+
+      <div className='col-xxl-4'>
+        <TotalWorkVendor className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
+      </div>
+
+      <div className='col-xxl-4'>
+        <TotalComplaintVendor className='card-xl-stretch mb-5 mb-xl-8' chartHeight='270px' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartBarOrderVendor className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineSurveyVendor className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineComplaintVendor className='card-xl-stretch mb-5 mb-xl-8' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartDonutComplaintVendor className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartDonutWorkVendor className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+    </div>
+  </>
+)
+
 const DashboardTukang: FC = () => (
   <>
     <div className='row-gy-5 g-xl-8 mb-5'>
@@ -215,9 +269,10 @@ const DashboardWrapper: FC = () => {
   return (
     <>
       <PageTitle>STORE DASHBOARD</PageTitle>
-      {/* <DashboardStore /> */}
+      <DashboardStore />
       {/* <DashboardHO /> */}
-      <DashboardTukang />
+      {/* <DashboardVendor /> */}
+      {/* <DashboardTukang /> */}
     </>
   )
 }
