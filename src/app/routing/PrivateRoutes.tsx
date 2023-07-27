@@ -12,6 +12,7 @@ const PrivateRoutes = () => {
   // Store Dashboard
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
+  const ReportPage = lazy(() => import('../modules/reports/ReportPage'))
   const CostumersPage = lazy(() => import('../modules/customers/CostumersPage'))
   const CSIpage = lazy(() => import('../modules/csi/CSIpage'))
   const VendorPage = lazy(() => import('../modules/vendor/VendorPage'))
@@ -83,6 +84,15 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <ComplaintPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='reports/*'
+          element={
+            <SuspensedView>
+              <ReportPage />
             </SuspensedView>
           }
         />

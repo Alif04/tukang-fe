@@ -266,13 +266,33 @@ const DashboardTukang: FC = () => (
 )
 
 const DashboardWrapper: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <PageTitle>STORE DASHBOARD</PageTitle>
-      <DashboardStore />
-      {/* <DashboardHO /> */}
-      {/* <DashboardVendor /> */}
-      {/* <DashboardTukang /> */}
+      {userRole == 'admin-store' ? (
+        <>
+          <PageTitle>STORE DASHBOARD</PageTitle>
+          <DashboardStore />
+        </>
+      ) : userRole == 'admin-ho' ? (
+        <>
+          <PageTitle>HO DASHBOARD</PageTitle>
+          <DashboardHO />
+        </>
+      ) : userRole == 'admin-vendor' ? (
+        <>
+          <PageTitle>VENDOR DASHBOARD</PageTitle>
+          <DashboardVendor />
+        </>
+      ) : userRole == 'admin-tukang' ? (
+        <>
+          <PageTitle>TUKANG DASHBOARD</PageTitle>
+          <DashboardTukang />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

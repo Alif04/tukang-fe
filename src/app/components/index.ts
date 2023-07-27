@@ -96,6 +96,10 @@ export * from './admin-store/complaint/detail_complaint/DetailComplaint'
 // Report Complaint
 export * from './admin-store/complaint/report_complaint/ReportComplaint'
 
+// Report
+// View Report
+export * from './admin-store/reports/view_reports/ViewReport'
+
 // CSI
 // View CSI
 export * from './admin-ho/csi/view_csi/ViewCSI'
