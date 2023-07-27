@@ -15,13 +15,31 @@ export * from './admin-store/dashboard/order-tracking/OrderTracking'
 export * from './admin-ho/dashboard/TotalOrderHO'
 export * from './admin-ho/dashboard/TotalWorkOrder'
 export * from './admin-ho/dashboard/TotalComplaintHO'
-export * from './admin-ho/dashboard/ChartBarOrder'
+export * from './admin-ho/dashboard/ChartBarOrderHO'
 export * from './admin-ho/dashboard/ChartBarPerformance'
-export * from './admin-ho/dashboard/ChartLineSurvey'
-export * from './admin-ho/dashboard/ChartLineComplaint'
-export * from './admin-ho/dashboard/ChartDonutQuotation'
-export * from './admin-ho/dashboard/ChartDonutWork'
+export * from './admin-ho/dashboard/ChartLineSurveyHO'
+export * from './admin-ho/dashboard/ChartLineComplaintHO'
+export * from './admin-ho/dashboard/ChartDonutQuotationHO'
+export * from './admin-ho/dashboard/ChartDonutWorkHO'
 export * from './admin-ho/dashboard/DateRange'
+
+// DASHBOARD PAGE ( Admin Vendor )
+export * from './admin-vendor/dashboard/TotalOrderVendor'
+export * from './admin-vendor/dashboard/TotalWorkVendor'
+export * from './admin-vendor/dashboard/TotalComplaintVendor'
+export * from './admin-vendor/dashboard/ChartBarOrderVendor'
+export * from './admin-vendor/dashboard/ChartLineSurveyVendor'
+export * from './admin-vendor/dashboard/ChartLineComplaintVendor'
+export * from './admin-vendor/dashboard/ChartDonutComplaintVendor'
+export * from './admin-vendor/dashboard/ChartDonutWorkVendor'
+
+// DASHBOARD PAGE ( TUKANG )
+export * from './tukang/dashboard/card_item/CardItem'
+export * from './tukang/dashboard/ChartBarOrderTukang'
+export * from './tukang/dashboard/ChartLineSurveyTukang'
+export * from './tukang/dashboard/ChartLineComplaintTukang'
+export * from './tukang/dashboard/ChartDonutWorkTukang'
+export * from './tukang/dashboard/ChartDonutQuotationTukang'
 
 // ORDER
 // View Order
@@ -38,6 +56,19 @@ export * from './admin-store/order/detail_order/DetailOrder'
 
 // Report Order
 export * from './admin-store/order/report_order/ReportOrder'
+
+// Work Order
+// View Work Order
+export * from './admin-vendor/work-order/view_work_order/ViewWorkVendor'
+
+// Update Work Order
+export * from './admin-vendor/work-order/update_work_order/UpdateWorkOrder'
+
+// Report Work Order
+export * from './admin-vendor/work-order/report_work_order/ReportWorkOrder'
+
+// Detail Work Order
+export * from './admin-vendor/work-order/detail_work_order/DetailWorkOrder'
 
 // Costumers
 // View Costumers
@@ -65,6 +96,10 @@ export * from './admin-store/complaint/detail_complaint/DetailComplaint'
 // Report Complaint
 export * from './admin-store/complaint/report_complaint/ReportComplaint'
 
+// Report
+// View Report
+export * from './admin-store/reports/view_reports/ViewReport'
+
 // CSI
 // View CSI
 export * from './admin-ho/csi/view_csi/ViewCSI'
@@ -82,12 +117,27 @@ export * from './admin-ho/vendor/view_vendor/ViewVendor'
 // New Vendor
 export * from './admin-ho/vendor/new_vendor/NewVendor'
 
+// Update Vendor
+export * from './admin-ho/vendor/update_vendor/UpdateVendor'
+
+// Detail Vendor
+export * from './admin-ho/vendor/detail_vendor/DetailVendor'
+
 // Report Vendor
 export * from './admin-ho/vendor/report_vendor/ReportVendor'
 
 // Quotation
 // View Quotation
 export * from './admin-ho/quotation/view_quotation/ViewQuotation'
+
+// New Quotation
+export * from './admin-ho/quotation/new_quotation/NewQuotation'
+
+// Update Quotation
+export * from './admin-ho/quotation/update_quotation/UpdateQuotation'
+
+// Dashboard Finance
+export * from './admin-ho/quotation/dashboard_finance/DashboardFinance'
 
 // Payment
 // View Payment

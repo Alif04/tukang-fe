@@ -2,15 +2,15 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
-import { ViewWork } from './components/ViewWork'
-import { ReportWork } from './components/ReportWorkOrder'
-// import { DetailWork } from './components/DetailWork'
-import { UpdateWork } from './components/UpdateWork'
+import {ViewWork} from './components/ViewWork'
+import {ReportWork} from './components/ReportWorkOrder'
+import {UpdateWork} from './components/UpdateWork'
+import {DetailWorkOrder} from './components/DetailWorkOrder'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
     title: 'Order',
-    path: '/Work-Order/view-Work',
+    path: '/work-order/view-work-order',
     isSeparator: false,
     isActive: false,
   },
@@ -26,7 +26,7 @@ const WorkOrderPage: React.FC = () => {
   return (
     <Routes>
       <Route
-        path='View-work_order'
+        path='view-work-order'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER LIST</PageTitle>
@@ -35,7 +35,7 @@ const WorkOrderPage: React.FC = () => {
         }
       />
       <Route
-        path='Report-work_order'
+        path='report-work-order'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER DASHBOARD</PageTitle>
@@ -44,24 +44,24 @@ const WorkOrderPage: React.FC = () => {
         }
       />
       <Route
-        path='Update-work_order'
+        path='update-work-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE WORK ORDER V2.</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE WORK ORDER</PageTitle>
             <UpdateWork />
           </>
         }
       />
-      {/* <Route
-        path='Detail-work_order'
+      <Route
+        path='detail-work-order'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL WORK ORDER</PageTitle>
-            <DetailWork />
+            <DetailWorkOrder />
           </>
         }
-      /> */}
-      <Route index element={<Navigate to='/work-order/view-Work_order' />} />
+      />
+      <Route index element={<Navigate to='/work-order/view-work-order' />} />
     </Routes>
   )
 }

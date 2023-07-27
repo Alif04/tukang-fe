@@ -1,0 +1,62 @@
+#update-quotation .bank-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 70px;
+}
+
+#update-quotation .quotation-information .form-body {
+  margin-bottom: 50px;
+}
+
+#update-quotation .quotation-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 45px;
+}
+
+#update-quotation .quotation-information .form-body {
+  margin-bottom: 50px;
+}
+
+#update-quotation .bank-information .form-body .field-alamat {
+  min-height: 100px;
+}
+
+#update-quotation .bank-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#update-quotation button.btn.btn-dark-success {
+  margin: 0;
+  width: 250px;
+}
+
+#update-quotation .table-item .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+#update-quotation .table-item th {
+  background-color: #555555;
+  color: #ffff;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Searchbar */
+
+#update-quotation .table-head-wrapper .filter-search .input-group {
+  width: 600px;
+  height: 45px;
+}
+
+#update-quotation .table-head-wrapper .filter-search .input-group .form-control.filter-rtl {
+  border-right: none;
+}
+
+#update-quotation .table-head-wrapper .filter-search .input-group-text.filter-rtl {
+  background-color: transparent;
+}

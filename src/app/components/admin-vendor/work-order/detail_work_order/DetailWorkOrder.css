@@ -1,0 +1,54 @@
+/* Card */
+
+#detail-work-order .card .card-body .information-wrapper {
+  width: 370px;
+}
+
+#detail-work-order .information-wrapper .detail-header {
+  min-height: 70px;
+}
+
+#detail-work-order .information-wrapper .detail-header .order-id h3 {
+  font-weight: 600;
+}
+
+#detail-work-order .information-wrapper .detail-header h1 {
+  font-weight: 600;
+}
+
+#detail-work-order .information-wrapper .detail-header h1 span {
+  color: #055900;
+  font-weight: 600;
+}
+
+#detail-work-order .information-wrapper .detail-header .order-status h3 {
+  text-align: end;
+  font-weight: 400;
+}
+
+#detail-work-order .information-wrapper .detail-header .order-status h3 span {
+  color: #131313;
+  font-weight: 600;
+}
+
+#detail-work-order .information-wrapper .detail-information p span {
+  color: #131313;
+  font-weight: 600;
+}
+
+#detail-work-order .table-item {
+  margin: 30px 0 30px 0;
+}
+
+#detail-work-order .table-item .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+#detail-work-order .table-item th {
+  background-color: #555555;
+  color: #ffff;
+  font-weight: 400;
+  text-align: center;
+}

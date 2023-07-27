@@ -45,6 +45,23 @@ export function Login() {
         saveAuth(auth)
         const {data: user} = await getUserByToken(auth.api_token)
         setCurrentUser(user)
+
+        // Separator
+        // if (values.email === 'admin@demo.com') {
+        //   localStorage.setItem('userRole', 'admin-store')
+        // }
+
+        // if (values.email === 'admin@demo.com') {
+        //   localStorage.setItem('userRole', 'admin-ho')
+        // }
+
+        // if (values.email === 'admin@demo.com') {
+        //   localStorage.setItem('userRole', 'admin-vendor')
+        // }
+
+        if (values.email === 'admin@demo.com') {
+          localStorage.setItem('userRole', 'admin-tukang')
+        }
       } catch (error) {
         console.error(error)
         saveAuth(undefined)
@@ -131,6 +148,7 @@ export function Login() {
           </div>
         </div>
         <input
+          placeholder='Password'
           type='password'
           autoComplete='off'
           {...formik.getFieldProps('password')}

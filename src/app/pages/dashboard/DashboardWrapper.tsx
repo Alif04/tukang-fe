@@ -1,9 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import {FC, useState} from 'react'
+import {FC} from 'react'
 import {PageTitle} from '../../../_metronic/layout/core'
 
-import {Form, InputGroup} from 'react-bootstrap'
+import {Form} from 'react-bootstrap'
 
+// Dashboard Store
 import {
   SalesReportWidget,
   CalendarWidget,
@@ -17,21 +18,41 @@ import {
   OrderTracking,
 } from '../../components'
 
+// Dashboard HO
 import {
-  ChartBarOrder,
+  ChartBarOrderHO,
   ChartBarPerformance,
-  ChartDonutQuotation,
-  ChartDonutWork,
-  ChartLineComplaint,
-  ChartLineSurvey,
+  ChartDonutQuotationHO,
+  ChartDonutWorkHO,
+  ChartLineComplaintHO,
+  ChartLineSurveyHO,
   TotalComplaintHO,
   TotalOrderHO,
   TotalWorkOrder,
   DateRange,
 } from '../../components'
 
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch} from '@fortawesome/free-solid-svg-icons'
+// Dashboard Vendor
+import {
+  TotalOrderVendor,
+  TotalWorkVendor,
+  TotalComplaintVendor,
+  ChartBarOrderVendor,
+  ChartLineSurveyVendor,
+  ChartLineComplaintVendor,
+  ChartDonutComplaintVendor,
+  ChartDonutWorkVendor,
+} from '../../components'
+
+// Dashboard Tukang
+import {
+  CardItem,
+  ChartBarOrderTukang,
+  ChartLineSurveyTukang,
+  ChartLineComplaintTukang,
+  ChartDonutWorkTukang,
+  ChartDonutQuotationTukang,
+} from '../../components'
 
 const DashboardStore: FC = () => (
   <>
@@ -152,22 +173,22 @@ const DashboardHO: FC = () => (
 
     <div className='row gy-5 g-xl-8'>
       <div className='col-xl-4'>
-        <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+        <ChartBarOrderHO className='card-xl-stretch mb-xl-8' />
       </div>
       <div className='col-xl-4'>
-        <ChartLineSurvey className='card-xl-stretch mb-xl-8' />
+        <ChartLineSurveyHO className='card-xl-stretch mb-xl-8' />
       </div>
       <div className='col-xl-4'>
-        <ChartLineComplaint className='card-xl-stretch mb-5 mb-xl-8' />
+        <ChartLineComplaintHO className='card-xl-stretch mb-5 mb-xl-8' />
       </div>
     </div>
 
     <div className='row gy-5 g-xl-8'>
       <div className='col-xl-4'>
-        <ChartDonutQuotation className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+        <ChartDonutQuotationHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
       </div>
       <div className='col-xl-4'>
-        <ChartDonutWork className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+        <ChartDonutWorkHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
       </div>
       <div className='col-xl-4'>
         <ChartBarPerformance className='card-xl-stretch mb-5 mb-xl-8' />
@@ -176,12 +197,102 @@ const DashboardHO: FC = () => (
   </>
 )
 
+const DashboardVendor: FC = () => (
+  <>
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xxl-4'>
+        <TotalOrderVendor className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
+      </div>
+
+      <div className='col-xxl-4'>
+        <TotalWorkVendor className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
+      </div>
+
+      <div className='col-xxl-4'>
+        <TotalComplaintVendor className='card-xl-stretch mb-5 mb-xl-8' chartHeight='270px' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartBarOrderVendor className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineSurveyVendor className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineComplaintVendor className='card-xl-stretch mb-5 mb-xl-8' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartDonutComplaintVendor className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartDonutWorkVendor className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+    </div>
+  </>
+)
+
+const DashboardTukang: FC = () => (
+  <>
+    <div className='row-gy-5 g-xl-8 mb-5'>
+      <CardItem className='' />
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartBarOrderTukang className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineSurveyTukang className='card-xl-stretch mb-xl-8' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartLineComplaintTukang className='card-xl-stretch mb-5 mb-xl-8' />
+      </div>
+    </div>
+
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xl-4'>
+        <ChartDonutQuotationTukang className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+      <div className='col-xl-4'>
+        <ChartDonutWorkTukang className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+      </div>
+    </div>
+  </>
+)
+
 const DashboardWrapper: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <PageTitle>STORE DASHBOARD</PageTitle>
-      <DashboardStore />
-      {/* <DashboardHO /> */}
+      {userRole == 'admin-store' ? (
+        <>
+          <PageTitle>STORE DASHBOARD</PageTitle>
+          <DashboardStore />
+        </>
+      ) : userRole == 'admin-ho' ? (
+        <>
+          <PageTitle>HO DASHBOARD</PageTitle>
+          <DashboardHO />
+        </>
+      ) : userRole == 'admin-vendor' ? (
+        <>
+          <PageTitle>VENDOR DASHBOARD</PageTitle>
+          <DashboardVendor />
+        </>
+      ) : userRole == 'admin-tukang' ? (
+        <>
+          <PageTitle>TUKANG DASHBOARD</PageTitle>
+          <DashboardTukang />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

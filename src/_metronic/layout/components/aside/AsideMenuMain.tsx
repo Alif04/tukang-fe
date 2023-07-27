@@ -6,153 +6,357 @@ import {AsideMenuItem} from './AsideMenuItem'
 export function AsideMenuMain() {
   return (
     <>
+      {/* Halaman Home */}
       <AsideMenuItem
         to='/dashboard'
         icon='/media/icons/duotune/art/art002.svg'
         title='Home'
         fontIcon='bi-app-indicator'
+        role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
       />
 
+      {/* Halaman Order */}
       <AsideMenuItemWithSub
         to='/order'
         title='Order'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
+        role={['admin-store', 'admin-ho']}
       >
-        <AsideMenuItem to='/order/view-order' title='View Order' hasBullet={true} />
-        <AsideMenuItem to='/order/new-order' title='New Order' hasBullet={true} />
-        <AsideMenuItem to='/order/update-order' title='Update Order' hasBullet={true} />
-        <AsideMenuItem to='/order/report-order' title='Report Order' hasBullet={true} />
+        <AsideMenuItem
+          to='/order/view-order'
+          title='View Order'
+          role={['admin-store', 'admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/order/new-order'
+          title='New Order'
+          role={['admin-store', 'admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/order/update-order'
+          title='Update Order'
+          role={['admin-store', 'admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/order/report-order'
+          title='Report Order'
+          role={['admin-store', 'admin-ho']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Work Order */}
       <AsideMenuItemWithSub
         to='/work-order'
         title='Work Order'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
+        role={['admin-vendor', 'admin-tukang']}
       >
-        <AsideMenuItem to='/work-order/View-work_order' title='View Work Order' hasBullet={true} />
-        <AsideMenuItem to='/work-order/Report-work_order' title='Report Work Order' hasBullet={true} />
-        <AsideMenuItem to='/work-order/Update-work_order' title='Update Order' hasBullet={true} />
+        <AsideMenuItem
+          to='/work-order/view-work-order'
+          title='View Work Order'
+          role={['admin-vendor', 'admin-tukang']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/work-order/report-work-order'
+          title='Report Work Order'
+          hasBullet={true}
+          role={['admin-vendor', 'admin-tukang']}
+        />
+        <AsideMenuItem
+          to='/work-order/update-work-order'
+          title='Update Work Order'
+          hasBullet={true}
+          role={['admin-vendor', 'admin-tukang']}
+        />
+        <AsideMenuItem
+          to='/work-order/detail-work-order'
+          title='Detail Work Order'
+          hasBullet={true}
+          role={['admin-vendor', 'admin-tukang']}
+        />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Tukang */}
       <AsideMenuItemWithSub
         to='/tukang'
         title='Tukang'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
+        role={['admin-vendor', 'admin-tukang']}
       >
-        <AsideMenuItem to='/tukang/New-Tukang' title='New Tukang' hasBullet={true} />
-        <AsideMenuItem to='/tukang/Detail-Tukang' title='Detail Tukang' hasBullet={true} />
-        <AsideMenuItem to='/tukang/Update-Tukang' title='Update Tukang' hasBullet={true} />
+        <AsideMenuItem
+          to='/tukang/NewTukangin'
+          title='New Tukang'
+          role={['admin-vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/tukang/DetailTukang'
+          title='Detail Tukang'
+          role={['admin-vendor', 'admin-tukang']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/tukang/UpdateTukang'
+          title='Update Tukang'
+          role={['admin-vendor', 'admin-tukang']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
-
-
+      {/* Halaman Costumers */}
       <AsideMenuItemWithSub
         to='/costumers'
         title='Costumers'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
+        role={['admin-ho']}
       >
-        <AsideMenuItem to='/costumers/view-costumers' title='View Costumers' hasBullet={true} />
-        <AsideMenuItem to='/costumers/report-costumers' title='Report Costumers' hasBullet={true} />
+        <AsideMenuItem
+          to='/costumers/view-costumers'
+          title='View Costumers'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/costumers/report-costumers'
+          title='Report Costumers'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
-      <AsideMenuItemWithSub
-        to='/complaint'
-        title='Complaint'
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-      >
-        <AsideMenuItem to='/complaint/view-complaint' title='View Complaint' hasBullet={true} />
-        <AsideMenuItem to='/complaint/new-complaint' title='New Complaint' hasBullet={true} />
-        <AsideMenuItem to='/complaint/report-complaint' title='Report Complaint' hasBullet={true} />
-      </AsideMenuItemWithSub>
-
+      {/* Halaman CSI */}
       <AsideMenuItemWithSub
         to='/cis'
         title='CSI'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
+        role={['admin-ho']}
       >
-        <AsideMenuItem to='/csi/view-csi' title='View CSI' hasBullet={true} />
-        {/* <AsideMenuItem to='/csi/new-csi' title='New CSI' hasBullet={true} /> */}
-        <AsideMenuItem to='/csi/update-csi' title='Update CSI' hasBullet={true} />
-        <AsideMenuItem to='/csi/report-csi' title='Report CSI' hasBullet={true} />
+        <AsideMenuItem to='/csi/view-csi' title='View CSI' role={['admin-ho']} hasBullet={true} />
+        <AsideMenuItem to='/csi/new-csi' title='New CSI' role={['admin-ho']} hasBullet={true} />
+        <AsideMenuItem
+          to='/csi/update-csi'
+          title='Update CSI'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/csi/report-csi'
+          title='Report CSI'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Vendor */}
       <AsideMenuItemWithSub
         to='/vendor'
         title='Vendor'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
+        role={['admin-ho']}
       >
-        <AsideMenuItem to='/vendor/view-vendor' title='View Vendor' hasBullet={true} />
-        <AsideMenuItem to='/vendor/new-vendor' title='New Vendor' hasBullet={true} />
-        <AsideMenuItem to='/vendor/update-vendor' title='Update Vendor' hasBullet={true} />
-        <AsideMenuItem to='/vendor/detail-vendor' title='Detail Vendor' hasBullet={true} />
-        <AsideMenuItem to='/vendor/report-vendor' title='Report Vendor' hasBullet={true} />
+        <AsideMenuItem
+          to='/vendor/view-vendor'
+          title='View Vendor'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/vendor/new-vendor'
+          title='New Vendor'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/vendor/update-vendor'
+          title='Update Vendor'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/vendor/detail-vendor'
+          title='Detail Vendor'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/vendor/report-vendor'
+          title='Report Vendor'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Quotation */}
       <AsideMenuItemWithSub
         to='/quotation'
         title='Quotation'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
+        role={['admin-ho', 'admin-vendor']}
       >
-        <AsideMenuItem to='/quotation/view-quotation' title='View Quotation' hasBullet={true} />
-        <AsideMenuItem to='/quotation/new-quotation' title='New Quotation' hasBullet={true} />
-        <AsideMenuItem to='/quotation/update-quotation' title='Update Quotation' hasBullet={true} />
-        <AsideMenuItem to='/quotation/detail-quotation' title='Detail Quotation' hasBullet={true} />
         <AsideMenuItem
-          to='/quotation/dashboard-finance'
+          to='/quotation/view-quotation'
+          title='View Quotation'
+          role={['admin-ho', 'admin-vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/new-quotation'
+          title='New Quotation'
+          role={['admin-ho', 'admin-vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/update-quotation'
+          title='Update Quotation'
+          role={['admin-ho', 'admin-vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/detail-quotation'
+          title='Detail Quotation'
+          role={['admin-ho', 'admin-vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/report-finance'
           title='Dashboard Finance'
+          role={['admin-ho']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
 
-      <AsideMenuItemWithSub
-        to='/payment'
-        title='Payment'
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-      >
-        <AsideMenuItem to='/payment/view-payment' title='View Payment' hasBullet={true} />
-        {/* <AsideMenuItem to='/payment/new-payment' title='New Payment' hasBullet={true} /> */}
-        <AsideMenuItem to='/payment/detail-payment' title='Detail Payment' hasBullet={true} />
-      </AsideMenuItemWithSub>
-
+      {/* Halaman Invoice */}
       <AsideMenuItemWithSub
         to='/invoice'
         title='Invoice'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
+        role={['admin-ho', 'admin-vendor']}
       >
-        <AsideMenuItem to='/invoice/view-invoice' title='View Invoice' hasBullet={true} />
+        <AsideMenuItem
+          to='/invoice/view-invoice'
+          title='View Invoice'
+          role={['admin-ho', 'admin-vendor']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Complaint */}
+      <AsideMenuItemWithSub
+        to='/complaint'
+        title='Complaint'
+        role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem
+          to='/complaint/view-complaint'
+          title='View Complaint'
+          role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/complaint/new-complaint'
+          title='New Complaint'
+          role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/complaint/report-complaint'
+          title='Report Complaint'
+          role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Reports */}
+      <AsideMenuItemWithSub
+        to='/reports'
+        title='Reports'
+        role={['admin-store']}
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem
+          to='/reports/view-report'
+          title='Report List'
+          role={['admin-store']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Payment */}
+      <AsideMenuItemWithSub
+        to='/payment'
+        title='Payment'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+        role={['admin-ho']}
+      >
+        <AsideMenuItem
+          to='/payment/view-payment'
+          title='View Payment'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/payment/new-payment'
+          title='New Payment'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/payment/detail-payment'
+          title='Detail Payment'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Refund */}
       <AsideMenuItemWithSub
         to='/refund'
         title='Refund'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
+        role={['admin-ho']}
       >
-        <AsideMenuItem to='/refund/view-refund' title='View Refund' hasBullet={true} />
+        <AsideMenuItem
+          to='/refund/view-refund'
+          title='View Refund'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Setting */}
       <AsideMenuItem
         to='/setting'
         icon='/media/icons/duotune/art/art002.svg'
         title='Setting'
         fontIcon='bi-app-indicator'
+        role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
       />
 
+      {/* Logout */}
       <AsideMenuItem
         to='/logout'
         icon='/media/icons/duotune/art/art002.svg'
         title='Logout'
         fontIcon='bi-app-indicator'
+        role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
       />
 
       {/* <AsideMenuItemWithSub

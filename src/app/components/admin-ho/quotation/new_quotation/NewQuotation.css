@@ -1,0 +1,47 @@
+#new-quotation .bank-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 70px;
+}
+
+#new-quotation .quotation-information .form-body {
+  margin-bottom: 50px;
+}
+
+#new-quotation .quotation-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 45px;
+}
+
+#new-quotation .quotation-information .form-body {
+  margin-bottom: 50px;
+}
+
+#new-quotation .bank-information .form-body .field-alamat {
+  min-height: 100px;
+}
+
+#new-quotation .bank-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#new-quotation button.btn.btn-dark-success {
+  margin: 0;
+  width: 250px;
+}
+
+#new-quotation .table-item .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+#new-quotation .table-item th {
+  background-color: #555555;
+  color: #ffff;
+  font-weight: 400;
+  text-align: center;
+}

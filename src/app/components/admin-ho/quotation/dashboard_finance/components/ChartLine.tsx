@@ -61,12 +61,12 @@ function getChartOptions(height: number): ApexOptions {
   return {
     series: [
       {
-        name: 'Survey',
-        data: [60, 50, 80, 40, 100, 60],
+        name: 'Work Done',
+        data: [70, 60, 110, 70, 50, 70],
       },
       {
-        name: 'Work Done',
-        data: [70, 60, 110, 40, 50, 70],
+        name: 'Work Complaint',
+        data: [60, 50, 80, 40, 100, 60],
       },
     ],
     chart: {

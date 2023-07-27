@@ -8,6 +8,7 @@ import {useLayout} from '../../core'
 type Props = {
   to: string
   title: string
+  role: string[]
   icon?: string
   fontIcon?: string
   hasBullet?: boolean
@@ -17,6 +18,7 @@ const AsideMenuItem: FC<Props & WithChildren> = ({
   children,
   to,
   title,
+  role,
   icon,
   fontIcon,
   hasBullet = false,
@@ -25,6 +27,14 @@ const AsideMenuItem: FC<Props & WithChildren> = ({
   const isActive = checkIsActive(pathname, to)
   const {config} = useLayout()
   const {aside} = config
+
+  const userRoles = localStorage.getItem('userRole') || ''
+  const userRolesArray = userRoles.split(',')
+
+  const roleMatches = role.some((r) => userRolesArray.includes(r))
+  if (!roleMatches) {
+    return null
+  }
 
   return (
     <div className='menu-item'>

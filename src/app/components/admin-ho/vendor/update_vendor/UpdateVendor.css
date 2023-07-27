@@ -1,0 +1,224 @@
+#update-vendor .vendor-information {
+  width: 500px;
+}
+
+#update-vendor .bank-information {
+  width: 300px;
+}
+
+#update-vendor .service-information {
+  width: 300px;
+}
+
+#update-vendor .vendor-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+}
+
+#update-vendor .vendor-information .form-header select.form-select-area.form-select {
+  margin-left: 10px;
+}
+
+#update-vendor .bank-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+}
+
+#update-vendor .service-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+}
+
+#update-vendor .vendor-information .form-body {
+  margin-bottom: 50px;
+}
+
+#update-vendor .vendor-information .form-body .field-alamat {
+  min-height: 130px;
+}
+
+#update-vendor .bank-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#update-vendor .service-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+/* Button */
+
+.btn.btn-light-dark {
+  width: 150px;
+  height: 50px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #7f7f7f !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-light-dark:hover:not(.btn-active) {
+  background-color: rgb(57, 57, 59) !important;
+}
+
+.btn.btn-dark-danger {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+.btn.btn-dark-primary {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300b5 !important;
+}
+
+.btn.btn-dark-success {
+  width: 130px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #7cb920 !important;
+}
+
+.button-add button {
+  width: 70px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #0f4cff;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+.button-add-order {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 125px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 5px;
+}
+
+svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
+  margin: 5px;
+}
+
+/* Table Picklist*/
+
+#update-vendor .table-picklist .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+.table-picklist th {
+  text-align: center;
+}
+
+/* Table Order List */
+.table-head-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.table-head-wrapper .right {
+  display: flex;
+  justify-content: space-between;
+}
+
+#update-vendor .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#update-vendor
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#update-vendor .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#update-vendor .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#update-vendor .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#update-vendor .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+.table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+/* Searchbar */
+
+#update-vendor .table-head-wrapper .filter-search .input-group {
+  width: 600px;
+  height: 45px;
+}
+
+#update-vendor .table-head-wrapper .filter-search .input-group .form-control.filter-rtl {
+  border-right: none;
+}
+
+#update-vendor .table-head-wrapper .filter-search .input-group-text.filter-rtl {
+  background-color: transparent;
+}

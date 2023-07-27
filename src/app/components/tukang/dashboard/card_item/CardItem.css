@@ -1,0 +1,22 @@
+#card-item .card.item .card-body {
+  width: 80px;
+  margin: 0 15px;
+}
+
+#card-item .card.item .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#card-item .card.item .card-body h1.title {
+  min-height: 50px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+#card-item .card.item .card-body h1.content-item {
+  font-size: 20px;
+  font-weight: 600;
+}
