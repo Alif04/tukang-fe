@@ -150,6 +150,12 @@ export * from './admin-ho/payment/detail_payment/DetailPayment'
 // View Invoice
 export * from './admin-ho/invoice/view_invoice/ViewInvoice'
 
+// New Invoice
+export * from './admin-vendor/invoice/new_invoice/NewInvoice'
+
+// Detail Invoice
+export * from './admin-vendor/invoice/detail_invoice/DetailInvoice'
+
 // Refund
 // View Refund
 export * from './admin-ho/refund/view_refund/ViewRefund'

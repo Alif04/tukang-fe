@@ -9,7 +9,6 @@ import {WithChildren} from '../../_metronic/helpers'
 // import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 
 const PrivateRoutes = () => {
-  // Store Dashboard
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
   const ReportPage = lazy(() => import('../modules/reports/ReportPage'))

@@ -3,6 +3,8 @@ import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {ViewInvoice} from './components/ViewInvoice'
+import {NewInvoice} from './components/NewInvoice'
+import {DetailInvoice} from './components/DetailInvoice'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -28,6 +30,24 @@ const InvoicePage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>INVOICE LIST</PageTitle>
             <ViewInvoice />
+          </>
+        }
+      />
+      <Route
+        path='new-invoice'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW INVOICE</PageTitle>
+            <NewInvoice />
+          </>
+        }
+      />
+      <Route
+        path='detail-invoice'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL INVOICE</PageTitle>
+            <DetailInvoice />
           </>
         }
       />

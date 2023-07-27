@@ -1,9 +1,30 @@
 /* eslint-disable react/jsx-no-target-blank */
 import React from 'react'
+import {KTSVG} from '../../../helpers'
 import {AsideMenuItemWithSub} from './AsideMenuItemWithSub'
 import {AsideMenuItem} from './AsideMenuItem'
+import {useNavigate} from 'react-router-dom'
+import Swal from 'sweetalert2'
 
 export function AsideMenuMain() {
+  const navigate = useNavigate()
+
+  const logoutHandler = () => {
+    localStorage.clear()
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Logout Success',
+      text: 'You have been logged out successfully.',
+      showConfirmButton: false,
+      timer: 2000,
+    }).then(() => {
+      navigate('/auth')
+    })
+
+    console.log('Logout Successful')
+  }
+
   return (
     <>
       {/* Halaman Home */}
@@ -251,6 +272,18 @@ export function AsideMenuMain() {
           role={['admin-ho', 'admin-vendor']}
           hasBullet={true}
         />
+        <AsideMenuItem
+          to='/invoice/new-invoice'
+          title='New Invoice'
+          role={['admin-vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/invoice/detail-invoice'
+          title='Detail Invoice'
+          role={['admin-vendor']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
       {/* Halaman Complaint */}
@@ -351,13 +384,14 @@ export function AsideMenuMain() {
       />
 
       {/* Logout */}
-      <AsideMenuItem
-        to='/logout'
-        icon='/media/icons/duotune/art/art002.svg'
-        title='Logout'
-        fontIcon='bi-app-indicator'
-        role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
-      />
+      <div className='menu-item'>
+        <a className='menu-link' onClick={logoutHandler}>
+          <span className='menu-icon'>
+            <KTSVG path='/media/icons/duotune/general/gen005.svg' className='svg-icon-2' />
+          </span>
+          <span className='menu-title'>Logout</span>
+        </a>
+      </div>
 
       {/* <AsideMenuItemWithSub
         to='/crafted/pages'
@@ -441,24 +475,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/general/gen051.svg'
         title='User management'
         fontIcon='bi-layers'
-      />
-      <div className='menu-item'>
-        <div className='menu-content'>
-          <div className='separator mx-1 my-4'></div>
-        </div>
-      </div>
-      <div className='menu-item'>
-        <a
-          target='_blank'
-          className='menu-link'
-          href={process.env.REACT_APP_PREVIEW_DOCS_URL + '/docs/changelog'}
-        >
-          <span className='menu-icon'>
-            <KTSVG path='/media/icons/duotune/general/gen005.svg' className='svg-icon-2' />
-          </span>
-          <span className='menu-title'>Changelog {process.env.REACT_APP_VERSION}</span>
-        </a>
-      </div> */}
+      /> */}
     </>
   )
 }
