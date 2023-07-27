@@ -1,22 +1,22 @@
-#update-order .costumer-information {
+#update-tukang .costumer-information {
   width: 345px;
 }
 
-#update-order .costumer-information .form-header {
+#update-tukang .costumer-information .form-header {
   display: flex;
   justify-content: space-between;
   min-height: 70px;
 }
 
-#update-order .costumer-information .form-body {
+#update-tukang .costumer-information .form-body {
   margin-bottom: 50px;
 }
 
-#update-order .costumer-information .form-body .field-alamat {
+#update-tukang .costumer-information .form-body .field-alamat {
   min-height: 215px;
 }
 
-#update-order .costumer-information .form-body .form-check-request .form-check-input {
+#update-tukang .costumer-information .form-body .form-check-request .form-check-input {
   margin-top: 0;
   width: 15px;
   height: 15px;
@@ -109,7 +109,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 /* Table Picklist*/
 
-#update-order .table-picklist .table tr,
+#update-tukang .table-picklist .table tr,
 .table th,
 .table td {
   border: 1px solid gray;
@@ -130,7 +130,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   justify-content: space-between;
 }
 
-#update-order .ant-table-wrapper .ant-table-thead > tr > th {
+#update-tukang .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
   font-weight: 500;
   background-color: #183383;
@@ -150,20 +150,20 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   border-start-end-radius: 0;
 }
 
-#update-order .table-head-wrapper {
+#update-tukang .table-head-wrapper {
   margin-bottom: 20px;
   justify-content: center;
 }
 
-#update-order .ant-table-fixed {
+#update-tukang .ant-table-fixed {
   table-layout: fixed;
 }
 
-#update-order .ant-table-tbody > tr.ant-table-row:hover > td {
+#update-tukang .ant-table-tbody > tr.ant-table-row:hover > td {
   background-color: #dcdcdc;
 }
 
-#update-order .ant-table-tbody > tr > td {
+#update-tukang .ant-table-tbody > tr > td {
   word-wrap: break-word;
   word-break: break-word;
 }
@@ -178,84 +178,84 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 /* Searchbar */
 
-#update-order .table-head-wrapper .filter-search .input-group {
+#update-tukang .table-head-wrapper .filter-search .input-group {
   width: 600px;
   height: 45px;
   border-radius: 20px;
 }
 
-#update-order .table-head-wrapper .filter-search .input-group .form-control.filter-rtl {
+#update-tukang .table-head-wrapper .filter-search .input-group .form-control.filter-rtl {
   border-right: none;
 }
 
-#update-order .table-head-wrapper .filter-search .input-group-text.filter-rtl {
+#update-tukang .table-head-wrapper .filter-search .input-group-text.filter-rtl {
   background-color: transparent;
 }
 
 /* top */
-#new-vendor .costumer-information {
+#update-tukang .costumer-information {
   width: 345px;
 }
 
-#new-vendor .costumer-information .form-header {
+#update-tukang .costumer-information .form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 70px;
 }
 
-#new-vendor .costumer-information .form-body {
+#update-tukang .costumer-information .form-body {
   margin-bottom: 50px;
 }
 
-#new-vendor .costumer-information .form-body .field-alamat {
+#update-tukang .costumer-information .form-body .field-alamat {
   min-height: 215px;
 }
 
-#new-vendor .costumer-information .form-body .form-check-request .form-check-input {
+#update-tukang .costumer-information .form-body .form-check-request .form-check-input {
   margin-top: 0;
   width: 15px;
   height: 15px;
 }
 
-.col-8.d-flex.justify-content-between{
+#update-tukang .col-8.d-flex.justify-content-between{
     flex-wrap: wrap;
 }
 
-.col-8.d-flex.justify-content-between .col-12{
+#update-tukang .col-8.d-flex.justify-content-between .col-12{
     margin: -35px 0 20px 0;
 }
 
-.button-right{
+#update-tukang .button-right{
     float: right;
     margin-top: -50px;
 }
 
-.form-button-request{
+#update-tukang .form-button-request{
     display: flex;
 }
 
-.form-button-request i{
+#update-tukang .form-button-request i{
     font-size: 35px !important;
     margin-top: -8px;
 }
 
-.mb-5 .form-input-image{
+#update-tukang .mb-5 .form-input-image{
     height: 250px;
 }
 
-.mb-5 .form-input-image.diri{
+#update-tukang .mb-5 .form-input-image.diri{
     height: 130px;
 }
 
-.mb-5 .form-input-image i{
+#update-tukang .mb-5 .form-input-image i{
     font-size: 40px;
 }
 
-    .parent {
+    #update-tukang .parent {
       border-radius: 15px;
     }
-    .file-upload {
+    #update-tukang .file-upload {
       text-align: center;
       border: 3px solid rgb(210, 227, 244);
       padding: 1.5rem;
@@ -263,11 +263,11 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
       cursor: pointer;
       height: 100px;
     }
-    .file-upload i {
+    #update-tukang .file-upload i {
       font-size: 40px;
     }
 
-    .file-upload input {
+    #update-tukang .file-upload input {
       display: block;
       height: 100%;
       width: 100%;
@@ -279,7 +279,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
       opacity: 0;
       cursor: pointer;
     }
-    .file-upload2 {
+    #update-tukang .file-upload2 {
       border: 3px solid rgb(210, 227, 244);
       padding: 1.5rem;
       position: relative;
@@ -289,10 +289,10 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
       justify-content: center;
       height: 300px;
     }
-    .file-upload2 i {
+    #update-tukang .file-upload2 i {
       font-size: 40px;
     }
-    .file-upload2 input {
+    #update-tukang .file-upload2 input {
       display: block;
       height: 100%;
       width: 100%;

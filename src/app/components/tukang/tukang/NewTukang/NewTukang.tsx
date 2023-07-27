@@ -51,7 +51,7 @@ const NewTukang: FC = () => {
   }
 
   return (
-    <section id='new-vendor'>
+    <section id='new-tukang'>
       <div className='card mb-5'>
         <div className='card-body'>
           <div className='d-flex justify-content-between'>
@@ -151,7 +151,7 @@ const NewTukang: FC = () => {
                 {imageDiri ? (
                   <div className='uploaded-row'>
                     <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-                    <span className='upload-content'>{fileName}</span>
+                    <span className='upload-content'>{fileNameDiri}</span>
                     <FontAwesomeIcon
                       icon={faTrash}
                       size='sm'

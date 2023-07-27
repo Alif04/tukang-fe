@@ -4,6 +4,7 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import { NewTukangin } from './components/NewTukangin'
 import { UpdateTukangin } from './components/UpdateTukangin'
+import { DetailTukangin } from './components/DetailTukangin'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -38,6 +39,15 @@ const TukangPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>Update Tukang</PageTitle>
             <UpdateTukangin />
+          </>
+        }
+      />
+      <Route
+        path='Detail-Tukang'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>Detail Tukang</PageTitle>
+            <DetailTukangin />
           </>
         }
       />
