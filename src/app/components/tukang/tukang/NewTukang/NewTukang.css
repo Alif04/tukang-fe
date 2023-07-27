@@ -1,40 +1,106 @@
-#new-vendor .costumer-information {
+#new-tukang .costumer-information {
   width: 345px;
 }
 
-#new-vendor .costumer-information .form-header {
+#new-tukang .costumer-information .form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 70px;
 }
 
-#new-vendor .costumer-information .form-body {
+#new-tukang .costumer-information .form-body {
   margin-bottom: 50px;
 }
 
-#new-vendor .costumer-information .form-body .field-alamat {
+#new-tukang .costumer-information .form-body .field-alamat {
   min-height: 215px;
 }
 
-#new-vendor .costumer-information .form-body .form-check-request .form-check-input {
+#new-tukang .costumer-information .form-body .form-check-request .form-check-input {
   margin-top: 0;
   width: 15px;
   height: 15px;
 }
 
-.col-8.d-flex.justify-content-between{
+#new-tukang .col-8.d-flex.justify-content-between{
     flex-wrap: wrap;
 }
 
-.col-8.d-flex.justify-content-between .col-12{
+#new-tukang .col-8.d-flex.justify-content-between .col-12{
     margin: -35px 0 20px 0;
 }
 
-.form-button-request{
-    margin-top: -17px;
+#new-tukang .mb-5 .form-input-image{
+    height: 250px;
 }
 
-.form-button-request i{
-    font-size: 35px !important;
+#new-tukang .form-button-request{
+  display: flex;
 }
+
+#new-tukang .form-button-request i{
+  font-size: 25px;
+  margin-top: -4px;
+}
+
+#new-tukang .mb-5 .form-input-image.diri{
+    height: 130px;
+}
+
+#new-tukang .mb-5 .form-input-image i{
+    font-size: 40px;
+}
+
+    #new-tukang .parent {
+      border-radius: 15px;
+    }
+    #new-tukang .file-upload {
+      text-align: center;
+      border: 3px solid rgb(210, 227, 244);
+      padding: 1.5rem;
+      position: relative;
+      cursor: pointer;
+      height: 100px;
+    }
+    #new-tukang .file-upload i {
+      font-size: 40px;
+    }
+
+    #new-tukang .file-upload input {
+      display: block;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    #new-tukang .file-upload2 {
+      border: 3px solid rgb(210, 227, 244);
+      padding: 1.5rem;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+    }
+    #new-tukang .file-upload2 i {
+      font-size: 40px;
+    }
+    #new-tukang .file-upload2 input {
+      display: block;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      cursor: pointer;
+    }

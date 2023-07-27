@@ -3,6 +3,8 @@ import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import { NewTukangin } from './components/NewTukangin'
+import { UpdateTukangin } from './components/UpdateTukangin'
+import { DetailTukangin } from './components/DetailTukangin'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -23,7 +25,7 @@ const TukangPage: React.FC = () => {
   return (
     <Routes>
       <Route
-        path='NewTukangin'
+        path='New-Tukang'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>New Tukang</PageTitle>
@@ -31,15 +33,24 @@ const TukangPage: React.FC = () => {
           </>
         }
       />
-      {/* <Route
-        path='Report-work_order'
+      <Route
+        path='Update-Tukang'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER DASHBOARD</PageTitle>
-            <ReportWork />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>Update Tukang</PageTitle>
+            <UpdateTukangin />
           </>
         }
-      /> */}
+      />
+      <Route
+        path='Detail-Tukang'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>Detail Tukang</PageTitle>
+            <DetailTukangin />
+          </>
+        }
+      />
       <Route index element={<Navigate to='/work-order/view-Work_order' />} />
     </Routes>
   )
