@@ -57,7 +57,7 @@ export * from './admin-store/order/detail_order/DetailOrder'
 // Report Order
 export * from './admin-store/order/report_order/ReportOrder'
 
-// Work Order
+// WORK ORDER
 // View Work Order
 export * from './admin-vendor/work-order/view_work_order/ViewWorkVendor'
 
@@ -70,7 +70,20 @@ export * from './admin-vendor/work-order/report_work_order/ReportWorkOrder'
 // Detail Work Order
 export * from './admin-vendor/work-order/detail_work_order/DetailWorkOrder'
 
-// Costumers
+// TUKANG
+// View Tukang
+export * from './tukang/tukang/view_tukang/ViewTukang'
+
+// New Tukang
+export * from './tukang/tukang/new_tukang/NewTukang'
+
+// Update Tukang
+export * from './tukang/tukang/update_tukang/UpdateTukang'
+
+// Detail Tukang
+export * from './tukang/tukang/detail_tukang/DetailTukang'
+
+// COSTUMER
 // View Costumers
 export * from './admin-store/costumers/view_costumers/ViewCostumer'
 
@@ -80,7 +93,7 @@ export * from './admin-store/costumers/detail_costumers/DetailCostumers'
 // Report Costumers
 export * from './admin-store/costumers/report_costumers/ReportCostumers'
 
-// Complaint
+// COMPLAINT
 // View Complaint
 export * from './admin-store/complaint/view_complaint/ViewComplaint'
 
@@ -96,7 +109,7 @@ export * from './admin-store/complaint/detail_complaint/DetailComplaint'
 // Report Complaint
 export * from './admin-store/complaint/report_complaint/ReportComplaint'
 
-// Report
+// REPORT
 // View Report
 export * from './admin-store/reports/view_reports/ViewReport'
 
@@ -110,7 +123,7 @@ export * from './admin-ho/csi/report_csi/ReportCSI'
 // Update CSI
 export * from './admin-ho/csi/update_csi/UpdateCSI'
 
-// Vendor
+// VENDOR
 // View Vendor
 export * from './admin-ho/vendor/view_vendor/ViewVendor'
 
@@ -126,7 +139,7 @@ export * from './admin-ho/vendor/detail_vendor/DetailVendor'
 // Report Vendor
 export * from './admin-ho/vendor/report_vendor/ReportVendor'
 
-// Quotation
+// QUOTATION
 // View Quotation
 export * from './admin-ho/quotation/view_quotation/ViewQuotation'
 
@@ -139,14 +152,17 @@ export * from './admin-ho/quotation/update_quotation/UpdateQuotation'
 // Dashboard Finance
 export * from './admin-ho/quotation/dashboard_finance/DashboardFinance'
 
-// Payment
+// Detail Quotation
+export * from './admin-ho/quotation/detail_quotation/DetailQuotation'
+
+// PAYMENT
 // View Payment
 export * from './admin-ho/payment/view_payment/ViewPayment'
 
 // Detail Payment
 export * from './admin-ho/payment/detail_payment/DetailPayment'
 
-// Invoice
+// INVOICE
 // View Invoice
 export * from './admin-ho/invoice/view_invoice/ViewInvoice'
 
@@ -156,6 +172,6 @@ export * from './admin-vendor/invoice/new_invoice/NewInvoice'
 // Detail Invoice
 export * from './admin-vendor/invoice/detail_invoice/DetailInvoice'
 
-// Refund
+// REFUND
 // View Refund
 export * from './admin-ho/refund/view_refund/ViewRefund'

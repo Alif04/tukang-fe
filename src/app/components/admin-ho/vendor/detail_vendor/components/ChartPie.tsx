@@ -40,14 +40,9 @@ const ChartPie: React.FC<Props> = ({className, chartHeight}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body p-2 d-flex justify-content-center'>
-        <div className='d-flex align-items-center'>
+        <div className='d-flex flex-column align-items-start'>
+          <h3 className='text-uppercase'>PEKERJAAN</h3>
           <div ref={chartRef} className='mixed-widget-10-chart'></div>
-
-          <div className='d-flex flex-column gap-4'>
-            <div className='fs-5 text-dark text-muted text-center'>Order</div>
-            <div className='fs-1 d-block m-auto'>104</div>
-            <div className='fs-5 text-muted'>Order bulan ini</div>
-          </div>
         </div>
       </div>
     </div>
@@ -56,17 +51,19 @@ const ChartPie: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-danger')
+  const doneColor = getCSSVariableValue('--kt-primary')
+  const progressColor = getCSSVariableValue('--kt-info')
+  const pendingColor = getCSSVariableValue('--kt-danger')
+  const complaintColor = getCSSVariableValue('--kt-warning')
+  const Reschedule = getCSSVariableValue('--kt-danger')
 
   return {
-    series: [44, 55, 13],
+    series: [44, 55, 13, 43, 55],
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['PAID', 'RESCHEDULE', 'CANCEL'],
+    labels: ['DONE', 'PROGRESS', 'PENDING', 'COMPLAINT', 'RESCHEDULE'],
     legend: {
       show: true,
       height: 20,
@@ -75,7 +72,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
+    colors: [doneColor, progressColor, pendingColor, complaintColor, Reschedule],
     grid: {
       padding: {
         top: 10,

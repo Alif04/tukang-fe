@@ -8,7 +8,15 @@ import type {ColumnsType} from 'antd/es/table'
 import {Form, Button, InputGroup, FormControl} from 'react-bootstrap'
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faSearch, faPlus, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {
+  faBook,
+  faPen,
+  faTrash,
+  faSearch,
+  faPlus,
+  faImage,
+  faFileImage,
+} from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -63,7 +71,6 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'tukang_id',
     key: 'tukang_id',
     align: 'center',
-    width: 70,
     className: 'col_tukang_id',
   },
   {
@@ -71,42 +78,36 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'tanggal_join',
     key: 'tanggal_join',
     align: 'center',
-    width: 80,
   },
   {
     title: 'Nama Lengkap',
     dataIndex: 'nama_lengkap',
     key: 'nama_lengkap',
     align: 'left',
-    width: 120,
   },
   {
     title: 'Tanggal Lahir',
     dataIndex: 'tanggal_lahir',
     key: 'tanggal_lahir',
     align: 'left',
-    width: 80,
   },
   {
     title: 'Keahlian',
     dataIndex: 'keahlian',
     key: 'keahlian',
     align: 'left',
-    width: 120,
   },
   {
     title: 'KTP',
     dataIndex: 'KTP',
     key: 'KTP',
     align: 'center',
-    width: 120,
   },
   {
     title: 'Nomor',
     dataIndex: 'nomor',
     key: 'nomor',
     align: 'left',
-    width: 120,
   },
   {
     title: 'Action',
@@ -119,7 +120,6 @@ const columns: ColumnsType<DataType> = [
       </div>
     ),
     fixed: 'right',
-    width: 115,
   },
 ]
 
@@ -240,67 +240,64 @@ const UpdateTukang: FC = () => {
 
   return (
     <section id='update-tukang'>
-       <div className='card mb-5'>
+      <div className='card mb-5'>
         <div className='card-body'>
           <div className='d-flex justify-content-between'>
             <div className='col-8 d-flex justify-content-between'>
-            <div className='costumer-information'>
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                      <Form.Label>Tukang ID</Form.Label>
-                      <Form.Control type='text' className='filter-rtl'/>
-                </Form.Group>
+              <div className='costumer-information'>
+                <div className='form-body'>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Tukang ID</Form.Label>
+                    <Form.Control type='text' className='filter-rtl' />
+                  </Form.Group>
 
-                <Form.Group className='mb-5'>
-                      <Form.Label>Tanggal Lahir</Form.Label>
-                      <Form.Control type='text' />
-                </Form.Group>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Tanggal Lahir</Form.Label>
+                    <Form.Control type='text' />
+                  </Form.Group>
 
-                <Form.Group className='mb-5'>
-                      <Form.Label>WA/Phone Number</Form.Label>
-                      <Form.Control type='number' />
-                </Form.Group>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>WA/Phone Number</Form.Label>
+                    <Form.Control type='number' />
+                  </Form.Group>
 
-                <Form.Group className='mb-5'>
+                  <Form.Group className='mb-5'>
                     <Form.Label>Keahlian</Form.Label>
                     <Form.Control type='text' />
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className='costumer-information'>
-
-              <div className='form-body'>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Nama Tukang</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Umur</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Nomor KTP</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Harga Jasa</Form.Label>
-                  <Form.Control type='number' />
-                </Form.Group>
-              </div>
-            </div>
-                <div className='col-12'>
-                    <Form.Label>Alamat</Form.Label>
-                    <Form.Control as="textarea" rows={3} />
+                  </Form.Group>
                 </div>
+              </div>
+
+              <div className='costumer-information'>
+                <div className='form-body'>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Nama Tukang</Form.Label>
+                    <Form.Control type='text' />
+                  </Form.Group>
+
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Umur</Form.Label>
+                    <Form.Control type='text' />
+                  </Form.Group>
+
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Nomor KTP</Form.Label>
+                    <Form.Control type='text' />
+                  </Form.Group>
+
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Harga Jasa</Form.Label>
+                    <Form.Control type='number' />
+                  </Form.Group>
+                </div>
+              </div>
+              <div className='col-12'>
+                <Form.Label>Alamat</Form.Label>
+                <Form.Control as='textarea' rows={3} />
+              </div>
             </div>
 
             <div className='costumer-information'>
-
               <div className='form-body'>
                 <Form.Group controlId='formFile' className='mb-5'>
                   <Form.Label>Upload Photo Diri</Form.Label>
@@ -316,21 +313,21 @@ const UpdateTukang: FC = () => {
                     {imageDiri ? (
                       <img src={imageDiri} alt={fileNameDiri} className='image-preview' />
                     ) : (
-                      <i className="bi bi-upload"></i> 
+                      <i className='bi bi-upload'></i>
                     )}
                   </Form>
-                {imageDiri ? (
-                  <div className='uploaded-row'>
-                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-                    <span className='upload-content'>{fileNameDiri}</span>
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      size='sm'
-                      color='#ed2b2a'
-                      style={{cursor: 'pointer'}}
-                      onClick={handleRemoveFileDiri}
-                    />
-                  </div>
+                  {imageDiri ? (
+                    <div className='uploaded-row'>
+                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <span className='upload-content'>{fileNameDiri}</span>
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        size='sm'
+                        color='#ed2b2a'
+                        style={{cursor: 'pointer'}}
+                        onClick={handleRemoveFileDiri}
+                      />
+                    </div>
                   ) : (
                     <div></div>
                   )}
@@ -350,21 +347,21 @@ const UpdateTukang: FC = () => {
                     {image ? (
                       <img src={image} alt={fileName} className='image-preview' />
                     ) : (
-                      <i className="bi bi-upload"></i> 
+                      <i className='bi bi-upload'></i>
                     )}
                   </Form>
                   {image ? (
-                  <div className='uploaded-row'>
-                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-                    <span className='upload-content'>{fileName}</span>
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      size='sm'
-                      color='#ed2b2a'
-                      style={{cursor: 'pointer'}}
-                      onClick={handleRemoveFile}
-                    />
-                  </div>
+                    <div className='uploaded-row'>
+                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <span className='upload-content'>{fileName}</span>
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        size='sm'
+                        color='#ed2b2a'
+                        style={{cursor: 'pointer'}}
+                        onClick={handleRemoveFile}
+                      />
+                    </div>
                   ) : (
                     <div></div>
                   )}
@@ -391,7 +388,7 @@ const UpdateTukang: FC = () => {
             <div className='middle'>
               <div className='filter-search'>
                 <InputGroup>
-                  <Form.Control placeholder='Search Work Order' className='filter-rtl' />
+                  <Form.Control placeholder='Search Tukang' className='filter-rtl' />
 
                   <InputGroup.Text className='filter-rtl'>
                     <FontAwesomeIcon icon={faSearch} size='sm' />
@@ -400,12 +397,12 @@ const UpdateTukang: FC = () => {
               </div>
             </div>
           </div>
-            <div className='button-right'>
-              <a className='form-button-request'>
-                <Form.Label>New Tukang</Form.Label>
-                <i className="bi bi-plus"></i>
-              </a>
-            </div>
+          <div className='button-right'>
+            <a className='form-button-request'>
+              <Form.Label>New Tukang</Form.Label>
+              <i className='bi bi-plus'></i>
+            </a>
+          </div>
 
           <Table
             className='table-striped-rows'
@@ -413,7 +410,6 @@ const UpdateTukang: FC = () => {
             columns={columns}
             dataSource={data}
             rowKey={(record) => record.key}
-            scroll={{x: 1500}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

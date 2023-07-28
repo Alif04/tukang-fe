@@ -1,6 +1,5 @@
 import React, {FC} from 'react'
-import { UpdateTukang } from '../../../components/tukang/tukang/UpdateTukang/UpdateTukang'
-
+import {UpdateTukang} from '../../../components/tukang/tukang/update_tukang/UpdateTukang'
 
 const UpdateTukangin: FC = () => {
   return (

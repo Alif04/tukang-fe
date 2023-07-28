@@ -113,20 +113,26 @@ export function AsideMenuMain() {
         role={['admin-vendor', 'admin-tukang']}
       >
         <AsideMenuItem
-          to='/tukang/NewTukangin'
+          to='/tukang/view-tukang'
+          title='View Tukang'
+          role={['admin-vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/tukang/new-tukang'
           title='New Tukang'
           role={['admin-vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
-          to='/tukang/DetailTukang'
-          title='Detail Tukang'
+          to='/tukang/update-tukang'
+          title='Update Tukang'
           role={['admin-vendor', 'admin-tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
-          to='/tukang/UpdateTukang'
-          title='Update Tukang'
+          to='/tukang/detail-tukang'
+          title='Detail Tukang'
           role={['admin-vendor', 'admin-tukang']}
           hasBullet={true}
         />
@@ -204,12 +210,12 @@ export function AsideMenuMain() {
           role={['admin-ho']}
           hasBullet={true}
         />
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/vendor/detail-vendor'
           title='Detail Vendor'
           role={['admin-ho']}
           hasBullet={true}
-        />
+        /> */}
         <AsideMenuItem
           to='/vendor/report-vendor'
           title='Report Vendor'
