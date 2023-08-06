@@ -19,7 +19,8 @@ export function AsideMenuMain() {
       showConfirmButton: false,
       timer: 2000,
     }).then(() => {
-      navigate('/auth')
+      // navigate('/auth')
+      document.location.href = '/auth'
     })
 
     console.log('Logout Successful')

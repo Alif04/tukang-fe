@@ -20,6 +20,7 @@ export function Login() {
           if (password == 'store50') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-store')
+            successMessage = 'success'
           }
           break
 
@@ -27,6 +28,7 @@ export function Login() {
           if (password == 'ho82') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-ho')
+            successMessage = 'success'
           }
           break
 
@@ -34,6 +36,7 @@ export function Login() {
           if (password == 'vendor70') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-vendor')
+            successMessage = 'success'
           }
           break
 
@@ -41,6 +44,7 @@ export function Login() {
           if (password == 'tukang133') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-tukang')
+            successMessage = 'success'
           }
           break
 
@@ -60,7 +64,8 @@ export function Login() {
         })
       }
 
-      navigate('/dashboard')
+      // navigate('/dashboard')
+      document.location.href = '/dashboard'
 
       // console.log(email)
       // console.log(password)
