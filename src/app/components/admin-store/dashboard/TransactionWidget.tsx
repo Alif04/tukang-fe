@@ -12,18 +12,6 @@ const TransactionWidget: React.FC<Props> = () => {
     <div className='card card-xl-stretch mb-5 mb-xl-8'>
       <div className='card-header border-0'>
         <h3 className='card-title fw-bold text-dark'>Transaction</h3>
-        <div className='card-toolbar'>
-          <button
-            type='button'
-            className='btn btn-sm btn-icon btn-color-primary btn-active-light-primary'
-            data-kt-menu-trigger='click'
-            data-kt-menu-placement='bottom-end'
-            data-kt-menu-flip='top-end'
-          >
-            <KTSVG path='/media/icons/duotune/general/gen024.svg' className='svg-icon-2' />
-          </button>
-          <Dropdown1 />
-        </div>
       </div>
 
       <div className='card-body pt-2'>

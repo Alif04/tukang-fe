@@ -65,7 +65,7 @@ export function Login() {
       }
 
       // navigate('/dashboard')
-      document.location.href = '/dashboard'
+      document.location.href = '/home'
 
       // console.log(email)
       // console.log(password)

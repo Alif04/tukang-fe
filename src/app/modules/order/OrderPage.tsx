@@ -2,6 +2,7 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
 import {NewOrder} from './components/NewOrder'
 import {UpdateOrder} from './components/UpdateOrder'
@@ -26,6 +27,15 @@ const orderBreadCrumbs: Array<PageLink> = [
 const OrderPage: React.FC = () => {
   return (
     <Routes>
+      <Route
+        path='dashboard-order'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DASHBOARD ORDER</PageTitle>
+            <DashboardOrder />
+          </>
+        }
+      />
       <Route
         path='view-order'
         element={

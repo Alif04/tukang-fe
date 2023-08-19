@@ -56,6 +56,16 @@ import {
 
 const DashboardStore: FC = () => (
   <>
+    <div className='row gy-5 g-xl-8'>
+      <div className='col-xxl-4 mb-5'>
+        <div className='d-flex justify-content-between'>
+          <h3 className='d-flex align-items-center fs-5 w-50 fw-bold'>Pilih Periode :</h3>
+
+          <DateRange className='date-range' />
+        </div>
+      </div>
+    </div>
+
     {/* begin::Row */}
     <div className='row gy-5 g-xl-8'>
       <div className='col-xxl-4'>
@@ -67,12 +77,8 @@ const DashboardStore: FC = () => (
       </div>
 
       <div className='col-xxl-4'>
-        <TotalOrderStore className='card-xxl-stretch-50 mb-5 mb-xl-8' chartHeight='200px' />
-        <TotalComplaint
-          className='card-xxl-stretch-50 mb-5 mb-xl-8'
-          chartColor='danger'
-          chartHeight='175px'
-        />
+        <TotalOrderStore className='card-xxl-stretch-50 mb-5 mb-xl-8' chartHeight='220px' />
+        <TotalComplaint className='card-xxl-stretch-50 mb-5 mb-xl-8' />
       </div>
 
       <div className='col-xxl-4'>
@@ -81,11 +87,7 @@ const DashboardStore: FC = () => (
           chartColor='success'
           chartHeight='150px'
         />
-        <TotalReschedule
-          className='card-xxl-stretch-50 mb-5 mb-xl-8'
-          chartColor='success'
-          chartHeight='175px'
-        />
+        <TotalReschedule className='card-xxl-stretch-50 mb-5 mb-xl-8' />
       </div>
     </div>
     {/* end::Row */}
@@ -95,17 +97,17 @@ const DashboardStore: FC = () => (
       <div className='col-xl-4'>
         <TransactionWidget className='card-xl-stretch mb-xl-8' />
       </div>
-      <div className='col-xl-3'>
+      <div className='col-xl-4'>
         <TopSalesWidget className='card-xl-stretch mb-xl-8' />
       </div>
-      <div className='col-xl-5'>
+      {/* <div className='col-xl-5'>
         <RecentEventWidget className='card-xl-stretch mb-5 mb-xl-8' items={5} />
-      </div>
+      </div> */}
     </div>
     {/* end::Row */}
 
     {/* begin::Row */}
-    <div className='row g-5 gx-xxl-8'>
+    {/* <div className='row g-5 gx-xxl-8'>
       <div className='col-xxl-7'>
         <OrderTracking className='card-xxl-stretch mb-5 mb-xxl-8' />
       </div>
@@ -113,7 +115,7 @@ const DashboardStore: FC = () => (
       <div className='col-xxl-5'>
         <CalendarWidget className='card-xxl-stretch mb-xl-3' />
       </div>
-    </div>
+    </div> */}
     {/* end::Row */}
   </>
 )
@@ -272,7 +274,7 @@ const DashboardWrapper: FC = () => {
     <>
       {userRole == 'admin-store' ? (
         <>
-          <PageTitle>STORE DASHBOARD</PageTitle>
+          <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />
         </>
       ) : userRole == 'admin-ho' ? (

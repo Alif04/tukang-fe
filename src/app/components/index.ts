@@ -42,6 +42,9 @@ export * from './tukang/dashboard/ChartDonutWorkTukang'
 export * from './tukang/dashboard/ChartDonutQuotationTukang'
 
 // ORDER
+// Dashboard Order
+export * from './admin-store/order/dashboard_order/DashboardOrder'
+
 // View Order
 export * from './admin-store/order/view_order/ViewOrder'
 

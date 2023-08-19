@@ -9,6 +9,8 @@ h6 {
   margin-bottom: 0 !important;
 }
 
+/* Sidebar */
+
 #kt_aside_toggle {
   display: none;
 }
@@ -42,8 +44,19 @@ h6 {
   min-height: 175px !important;
 }
 
+/* Apex Chart Legend */
+
 .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
   height: 100px !important;
+}
+
+/* Date Range */
+
+.ant-picker.ant-picker-range.css-dev-only-do-not-override-1m62vyb.date-range {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 45px;
 }
 
 /* .form-check-input {

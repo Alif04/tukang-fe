@@ -54,7 +54,7 @@ const AsideDefault: FC = () => {
             />
           </Link>
         )} */}
-        <Link to='/dashboard'>
+        <Link to='/home'>
           <img alt='Logo' className='h-50px logo mb-3' src={toAbsoluteUrl('/logo-mitra.png')} />
         </Link>
         <div className='d-flex justify-content-center align-items-center flex-column'>

@@ -49,8 +49,6 @@ const SalesReportWidget: React.FC<Props> = ({className, backGroundColor, chartHe
           <div className='me-2'>
             <span className='fw-bold text-gray-800 d-block fs-3'>Order Sales Report</span>
           </div>
-
-          <div className={`fw-bold fs-3`}>$15,300</div>
         </div>
 
         <div
@@ -64,62 +62,41 @@ const SalesReportWidget: React.FC<Props> = ({className, backGroundColor, chartHe
 }
 
 const chartOptions = (chartHeight: string): ApexOptions => {
-  const labelColor = getCSSVariableValue('--kt-gray-800')
-  const strokeColor = getCSSVariableValue('--kt-gray-300') as string
+  const borderColor = getCSSVariableValue('--kt-gray-200')
+  const baseColor = getCSSVariableValue('--kt-primary')
+  const secondaryColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [
       {
-        name: 'Net Profit',
-        data: [40, 50, 25, 35, 45, 20, 30],
+        name: 'Jumlah Order',
+        data: [10, 20, 30, 40, 50, 60],
+      },
+      {
+        name: 'Grand Total Value',
+        data: [20, 25, 50, 45, 30, 100],
       },
     ],
-    grid: {
-      show: false,
-      padding: {
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-      },
-    },
     chart: {
       fontFamily: 'inherit',
-      type: 'area',
+      type: 'bar',
       height: chartHeight,
       toolbar: {
         show: false,
       },
-      zoom: {
-        enabled: false,
-      },
-      sparkline: {
-        enabled: true,
-      },
     },
-    plotOptions: {},
     legend: {
-      show: false,
+      show: true,
     },
     dataLabels: {
-      enabled: false,
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        opacityFrom: 0.7,
-        opacityTo: 0,
-        stops: [20, 120, 120, 120],
+      enabled: true,
+      style: {
+        fontSize: '8px',
+        colors: ['#fff'],
       },
     },
-    stroke: {
-      curve: 'smooth',
-      show: true,
-      width: 3,
-      colors: ['#605BDA'],
-    },
     xaxis: {
-      categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fr', 'Sat', 'Sun'],
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
       axisBorder: {
         show: false,
       },
@@ -128,60 +105,15 @@ const chartOptions = (chartHeight: string): ApexOptions => {
       },
       labels: {
         show: false,
-        style: {
-          colors: labelColor,
-          fontSize: '12px',
-        },
-      },
-      crosshairs: {
-        show: false,
-        position: 'front',
-        stroke: {
-          color: strokeColor,
-          width: 1,
-          dashArray: 3,
-        },
-      },
-      tooltip: {
-        enabled: true,
-        formatter: undefined,
-        offsetY: 0,
-        style: {
-          fontSize: '12px',
-        },
       },
     },
     yaxis: {
-      min: 0,
-      max: 60,
       labels: {
         show: false,
-        style: {
-          colors: labelColor,
-          fontSize: '12px',
-        },
       },
     },
-    states: {
-      normal: {
-        filter: {
-          type: 'none',
-          value: 0,
-        },
-      },
-      hover: {
-        filter: {
-          type: 'none',
-          value: 0,
-        },
-      },
-      active: {
-        allowMultipleDataPointsSelection: false,
-        filter: {
-          type: 'none',
-          value: 0,
-        },
-      },
+    fill: {
+      opacity: 1,
     },
     tooltip: {
       style: {
@@ -189,15 +121,19 @@ const chartOptions = (chartHeight: string): ApexOptions => {
       },
       y: {
         formatter: function (val) {
-          return '$' + val + ' thousands'
+          return val + ''
         },
       },
     },
-    colors: ['#605BDA'],
-    markers: {
-      colors: [labelColor],
-      strokeColor: [strokeColor],
-      strokeWidth: 3,
+    colors: [baseColor, secondaryColor],
+    grid: {
+      borderColor: borderColor,
+      strokeDashArray: 4,
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
     },
   }
 }

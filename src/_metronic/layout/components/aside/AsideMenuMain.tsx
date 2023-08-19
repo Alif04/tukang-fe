@@ -30,7 +30,7 @@ export function AsideMenuMain() {
     <>
       {/* Halaman Home */}
       <AsideMenuItem
-        to='/dashboard'
+        to='/home'
         icon='/media/icons/duotune/art/art002.svg'
         title='Home'
         fontIcon='bi-app-indicator'
@@ -45,6 +45,12 @@ export function AsideMenuMain() {
         fontIcon='bi-person'
         role={['admin-store', 'admin-ho']}
       >
+        <AsideMenuItem
+          to='/order/dashboard-order'
+          title='Dashboard Order'
+          role={['admin-store']}
+          hasBullet={true}
+        />
         <AsideMenuItem
           to='/order/view-order'
           title='View Order'

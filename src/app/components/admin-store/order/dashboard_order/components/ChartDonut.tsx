@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
-import {useThemeMode} from '../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
+import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 
 type Props = {
   className: string
   chartHeight: string
 }
 
-const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
+const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -39,14 +39,13 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
 
   return (
     <div className={`card ${className}`}>
-      <div className='card-body p-2 d-flex justify-content-center'>
-        <div className='d-flex align-items-center gap-4'>
-          <div className='d-flex flex-column gap-4'>
-            <div className='fs-5 text-dark text-muted'>Jumlah Order</div>
-            <div className='fs-1 d-block m-auto'>20</div>
-          </div>
+      <div className='card-body p-2'>
+        <div className='d-flex flex-column'>
+          <h1 className='fs-1 text-danger'>Complaint</h1>
 
-          <div ref={chartRef} className='mixed-widget-10-chart'></div>
+          <div className='d-flex justify-content-center'>
+            <div ref={chartRef} className='mixed-widget-10-chart'></div>
+          </div>
         </div>
       </div>
     </div>
@@ -55,21 +54,21 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-danger')
+  const processColor = getCSSVariableValue('--kt-primary')
+  const pendingColor = getCSSVariableValue('--kt-gray-800')
+  const cancelColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [44, 55, 13],
     chart: {
-      width: chartHeight,
-      type: 'pie',
+      width: 500,
+      height: chartHeight,
+      type: 'donut',
     },
-    labels: ['Complete', 'Refund', 'Cancel'],
+    labels: ['Investigated', 'Rejected', 'Solved'],
     legend: {
       show: true,
-      height: 35,
-      offsetY: 0,
+      height: 20,
       position: 'bottom',
     },
     dataLabels: {
@@ -91,4 +90,4 @@ const chartOptions = (chartHeight: string): ApexOptions => {
   }
 }
 
-export {TotalOrderStore}
+export {ChartDonut}

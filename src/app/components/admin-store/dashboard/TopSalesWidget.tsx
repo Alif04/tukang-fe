@@ -10,103 +10,125 @@ type Props = {
 const TopSalesWidget: React.FC<Props> = ({className}) => {
   return (
     <div className={`card ${className}`}>
-      {/* begin::Header */}
       <div className='card-header border-0'>
         <h3 className='card-title fw-bold text-dark'>Top 5 Best Sales</h3>
-        <div className='card-toolbar'>
-          <button
-            type='button'
-            className='btn btn-sm btn-icon btn-color-primary btn-active-light-primary'
-            data-kt-menu-trigger='click'
-            data-kt-menu-placement='bottom-end'
-            data-kt-menu-flip='top-end'
-          >
-            <KTSVG path='/media/icons/duotune/general/gen024.svg' className='svg-icon-2' />
-          </button>
-          <Dropdown1 />
-        </div>
       </div>
-      {/* end::Header */}
 
-      {/* begin::Body */}
       <div className='card-body pt-2'>
-        <div className='d-flex align-items-center mb-7'>
-          <div className='symbol symbol-50px me-5'>
-            <img
-              src={toAbsoluteUrl('/media/avatars/300-6.jpg')}
-              className='rounded-circle'
-              alt=''
-            />
+        <div className='list-item d-flex justify-content-between mb-7'>
+          <div className='d-flex align-items-center'>
+            <div className='symbol symbol-50px me-5'>
+              <img
+                src={toAbsoluteUrl('/media/avatars/300-6.jpg')}
+                className='rounded-circle'
+                alt=''
+              />
+            </div>
+
+            <div className='flex-grow-1 me-2'>
+              <div className='text-dark fw-bold fs-6'>Sandra</div>
+              <span className='text-muted d-block fw-semibold'>Keramik</span>
+            </div>
           </div>
-          <div className='flex-grow-1'>
-            <div className='text-dark fw-bold fs-6'>Sandra</div>
-            <span className='text-muted d-block fw-semibold'>Keramik</span>
+
+          <div className='d-flex flex-column justify-content-center align-items-end'>
+            <span className='fw-bold text-success'>Rp. 12.000.000</span>
+            <span className='text-muted'>6 Invoices</span>
           </div>
         </div>
 
-        <div className='d-flex align-items-center mb-7'>
-          <div className='symbol symbol-50px me-5'>
-            <img
-              src={toAbsoluteUrl('/media/avatars/300-2.jpg')}
-              className='rounded-circle'
-              alt=''
-            />
+        <div className='list-item d-flex justify-content-between mb-7'>
+          <div className='d-flex align-items-center'>
+            <div className='symbol symbol-50px me-5'>
+              <img
+                src={toAbsoluteUrl('/media/avatars/300-2.jpg')}
+                className='rounded-circle'
+                alt=''
+              />
+            </div>
+
+            <div className='flex-grow-1'>
+              <div className='text-dark fw-bold fs-6'>Nur Amalia</div>
+              <span className='text-muted d-block fw-semibold'>Cat</span>
+            </div>
           </div>
-          <div className='flex-grow-1'>
-            <div className='text-dark fw-bold fs-6'>Nur Amalia</div>
-            <span className='text-muted d-block fw-semibold'>Cat</span>
+
+          <div className='d-flex flex-column justify-content-center align-items-end'>
+            <span className='fw-bold text-success'>Rp. 10.000.000</span>
+            <span className='text-muted'>11 Invoices</span>
           </div>
         </div>
 
-        <div className='d-flex align-items-center mb-7'>
-          <div className='symbol symbol-50px me-5'>
-            <img
-              src={toAbsoluteUrl('/media/avatars/300-7.jpg')}
-              className='rounded-circle'
-              alt=''
-            />
+        <div className='list-item d-flex justify-content-between mb-7'>
+          <div className='d-flex align-items-center'>
+            <div className='symbol symbol-50px me-5'>
+              <img
+                src={toAbsoluteUrl('/media/avatars/300-9.jpg')}
+                className='rounded-circle'
+                alt=''
+              />
+            </div>
+
+            <div className='flex-grow-1'>
+              <div className='text-dark fw-bold fs-6'>Paulus</div>
+              <span className='text-muted d-block fw-semibold'>Water Heater</span>
+            </div>
           </div>
-          <div className='flex-grow-1'>
-            <div className='text-dark fw-bold fs-6'>Paulus</div>
-            <span className='text-muted d-block fw-semibold'>Water Heater</span>
+
+          <div className='d-flex flex-column justify-content-center align-items-end'>
+            <span className='fw-bold text-success'>Rp. 7.000.000</span>
+            <span className='text-muted'>9 Invoices</span>
           </div>
         </div>
 
-        <div className='d-flex align-items-center mb-7'>
-          <div className='symbol symbol-50px me-5'>
-            <img
-              src={toAbsoluteUrl('/media/avatars/300-9.jpg')}
-              className='rounded-circle'
-              alt=''
-            />
+        <div className='list-item d-flex justify-content-between mb-7'>
+          <div className='d-flex align-items-center'>
+            <div className='symbol symbol-50px me-5'>
+              <img
+                src={toAbsoluteUrl('/media/avatars/300-7.jpg')}
+                className='rounded-circle'
+                alt=''
+              />
+            </div>
+
+            <div className='flex-grow-1'>
+              <div className='text-dark fw-bold fs-6'>Anton</div>
+              <span className='text-muted d-block fw-semibold'>Gypsum</span>
+            </div>
           </div>
-          <div className='flex-grow-1'>
-            <div className='text-dark fw-bold fs-6'>Anton</div>
-            <span className='text-muted d-block fw-semibold'>Gypsum</span>
+
+          <div className='d-flex flex-column justify-content-center align-items-end'>
+            <span className='fw-bold text-success'>Rp. 5.000.000</span>
+            <span className='text-muted'>7 Invoices</span>
           </div>
         </div>
 
-        <div className='d-flex align-items-center mb-7'>
-          <div className='symbol symbol-50px me-5'>
-            <img
-              src={toAbsoluteUrl('/media/avatars/300-11.jpg')}
-              className='rounded-circle'
-              alt=''
-            />
+        <div className='list-item d-flex justify-content-between mb-7'>
+          <div className='d-flex align-items-center'>
+            <div className='symbol symbol-50px me-5'>
+              <img
+                src={toAbsoluteUrl('/media/avatars/300-3.jpg')}
+                className='rounded-circle'
+                alt=''
+              />
+            </div>
+
+            <div className='flex-grow-1'>
+              <div className='text-dark fw-bold fs-6'>Sudirman</div>
+              <span className='text-muted d-block fw-semibold'>Ubin</span>
+            </div>
           </div>
-          <div className='flex-grow-1'>
-            <div className='text-dark fw-bold fs-6'>Sudirman</div>
-            <span className='text-muted d-block fw-semibold'>Ubin</span>
+
+          <div className='d-flex flex-column justify-content-center align-items-end'>
+            <span className='fw-bold text-success'>Rp. 5.000.000</span>
+            <span className='text-muted'>9 Invoices</span>
           </div>
         </div>
       </div>
-      {/* end::Body */}
 
-      {/* begin::Footer */}
       <div className='card-footer pt-1 pb-1'>
-        <p className='text-muted'>Total Sales person : 45 Sales person</p>
+        <p className='text-muted'>Total costumer : 45 person</p>
       </div>
-      {/* end::Footer */}
     </div>
   )
 }
