@@ -20,11 +20,7 @@ export function AsideMenuMain() {
       timer: 2000,
     }).then(() => {
       // navigate('/auth')
-<<<<<<< HEAD
-      document.location.href='';
-=======
       document.location.href = '/auth'
->>>>>>> 6aad3f44f967bd4c9387a301bc6cf9aaf52c311d
     })
 
     console.log('Logout Successful')
