@@ -20,7 +20,11 @@ export function Login() {
           if (password == 'store50') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-store')
+<<<<<<< HEAD
+            successMessage = 'success';
+=======
             successMessage = 'success'
+>>>>>>> 6aad3f44f967bd4c9387a301bc6cf9aaf52c311d
           }
           break
 
@@ -28,7 +32,12 @@ export function Login() {
           if (password == 'ho82') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-ho')
+<<<<<<< HEAD
+            successMessage = 'success';
+
+=======
             successMessage = 'success'
+>>>>>>> 6aad3f44f967bd4c9387a301bc6cf9aaf52c311d
           }
           break
 
@@ -36,7 +45,12 @@ export function Login() {
           if (password == 'vendor70') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-vendor')
+<<<<<<< HEAD
+            successMessage = 'success';
+
+=======
             successMessage = 'success'
+>>>>>>> 6aad3f44f967bd4c9387a301bc6cf9aaf52c311d
           }
           break
 
@@ -44,7 +58,12 @@ export function Login() {
           if (password == 'tukang133') {
             localStorage.setItem('email', email)
             localStorage.setItem('userRole', 'admin-tukang')
+<<<<<<< HEAD
+            successMessage = 'success';
+
+=======
             successMessage = 'success'
+>>>>>>> 6aad3f44f967bd4c9387a301bc6cf9aaf52c311d
           }
           break
 
@@ -64,9 +83,14 @@ export function Login() {
         })
       }
 
+<<<<<<< HEAD
+      //navigate('/dashboard')
+      document.location.href='/dashboard';
+=======
       // navigate('/dashboard')
       document.location.href = '/home'
 
+>>>>>>> 6aad3f44f967bd4c9387a301bc6cf9aaf52c311d
       // console.log(email)
       // console.log(password)
     } catch (error) {
