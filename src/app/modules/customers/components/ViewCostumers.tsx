@@ -2,11 +2,24 @@
 import React from 'react'
 
 import {ViewCostumerStore} from '../../../components'
+import {ViewCostumerHO} from '../../../components'
 
 const ViewCostumer: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ViewCostumerStore className='' />
+      {userRole == 'admin-store' ? (
+        <>
+          <ViewCostumerStore className='' />
+        </>
+      ) : userRole == 'admin-ho' ? (
+        <>
+          <ViewCostumerHO className='' />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

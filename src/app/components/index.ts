@@ -87,14 +87,23 @@ export * from './tukang/tukang/update_tukang/UpdateTukang'
 export * from './tukang/tukang/detail_tukang/DetailTukang'
 
 // COSTUMER
-// View Costumers
+// View Costumers Store
 export * from './admin-store/costumers/view_costumers/ViewCostumer'
 
-// Detail Costumers
+// View Costumers HO
+export * from './admin-ho/costumers/view_costumers/ViewCostumer'
+
+// Detail Costumers Store
 export * from './admin-store/costumers/detail_costumers/DetailCostumers'
 
-// Report Costumers
+// Detail Costumers HO
+export * from './admin-ho/costumers/detail_costumers/DetailCostumers'
+
+// Report Costumers Store
 export * from './admin-store/costumers/report_costumers/ReportCostumers'
+
+// Report Costumers HO
+export * from './admin-ho/costumers/report_costumers/ReportCostumers'
 
 // COMPLAINT
 // View Complaint

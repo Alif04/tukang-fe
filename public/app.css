@@ -47,7 +47,8 @@ h6 {
 /* Apex Chart Legend */
 
 .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
-  height: 100px !important;
+  height: 120px !important;
+  top: 0px !important;
 }
 
 /* Date Range */
