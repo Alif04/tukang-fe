@@ -17,7 +17,7 @@ const ReportVendorHO: FC = () => {
         <div className='col-xl-4'>
           <Card className='mb-5'>
             <Card.Body>
-              <div className='fs-5 fw-normal mb-5'>Order bulan ini</div>
+              <div className='fs-5 fw-normal mb-5'>Pekerjaan bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
                 <div className='order-in'>
@@ -99,7 +99,7 @@ const ReportVendorHO: FC = () => {
                 <div className='order-cancel'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
                     <h1 className='fw-normal'>02</h1>
-                    <p className='text-success'>Done</p>
+                    <p className='text-success'>DONE</p>
                   </div>
                 </div>
               </div>
