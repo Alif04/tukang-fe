@@ -174,6 +174,10 @@ export * from './admin-ho/payment/view_payment/ViewPayment'
 // Detail Payment
 export * from './admin-ho/payment/detail_payment/DetailPayment'
 
+// SALES
+// New Sales
+export * from './admin-ho/sales/new_sales/NewSales'
+
 // INVOICE
 // View Invoice
 export * from './admin-ho/invoice/view_invoice/ViewInvoice'

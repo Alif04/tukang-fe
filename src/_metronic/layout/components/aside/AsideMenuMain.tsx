@@ -357,15 +357,31 @@ export function AsideMenuMain() {
           role={['admin-ho']}
           hasBullet={true}
         />
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/payment/new-payment'
           title='New Payment'
           role={['admin-ho']}
           hasBullet={true}
-        />
-        <AsideMenuItem
+        /> */}
+        {/* <AsideMenuItem
           to='/payment/detail-payment'
           title='Detail Payment'
+          role={['admin-ho']}
+          hasBullet={true}
+        /> */}
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Sales */}
+      <AsideMenuItemWithSub
+        to='/sales'
+        title='Sales'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+        role={['admin-ho']}
+      >
+        <AsideMenuItem
+          to='/sales/new-sales'
+          title='New Sales'
           role={['admin-ho']}
           hasBullet={true}
         />
