@@ -1,0 +1,124 @@
+/* Table */
+#new-payment .table-head-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+#new-payment .table-head-wrapper .left {
+  display: flex;
+  align-items: center;
+}
+
+#new-payment .table-head-wrapper .middle {
+  display: flex;
+  justify-content: space-between;
+}
+
+#new-payment .table-striped-rows.table-payment-list.ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#new-payment
+  .table-striped-rows.table-new-payment.ant-table-wrapper.ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #398318;
+}
+
+#new-payment
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#new-payment .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#new-payment .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#new-payment .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#new-payment .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#new-payment .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#new-payment .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#new-payment .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+#new-payment .ant-table-thead > tr > th.col-work-status {
+  background-color: #a30014 !important;
+}
+
+#new-payment .ant-table-thead > tr > th.col-complaint-date {
+  background-color: #a30014 !important;
+}
+
+#new-payment .ant-table-thead > tr > th.col-complaint-status {
+  background-color: #a30014 !important;
+}
+
+/* Searchbar */
+
+#new-payment .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+#new-payment .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
+}
+
+/* Select Filter */
+
+.select-filter {
+  display: flex;
+  margin: 0 10px 0 10px;
+}
+
+.select-filter select.form-select.filter {
+  height: 45px;
+}
+
+.select-filter select.form-select.filter.filter-one {
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+}
+
+.select-filter select.form-select.filter.filter-two {
+  border-right: none;
+  border-radius: 0;
+}
+
+.select-filter select.form-select.filter.filter-three {
+  border-radius: 0;
+}
+
+.select-filter select.form-select.filter.filter-four {
+  border-left: none;
+  border-radius: 0 5px 5px 0;
+}

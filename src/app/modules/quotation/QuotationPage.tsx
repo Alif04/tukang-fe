@@ -30,7 +30,7 @@ const VendorPage: React.FC = () => {
         path='view-quotation'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR LIST</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>QUOTATION LIST</PageTitle>
             <ViewQuotation />
           </>
         }
@@ -39,7 +39,7 @@ const VendorPage: React.FC = () => {
         path='new-quotation'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW VENDOR FORM</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW QUOTATION FORM</PageTitle>
             <NewQuotation />
           </>
         }
@@ -48,7 +48,7 @@ const VendorPage: React.FC = () => {
         path='update-quotation'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE VENDOR</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE QUOTATION</PageTitle>
             <UpdateQuotation />
           </>
         }
@@ -57,7 +57,7 @@ const VendorPage: React.FC = () => {
         path='detail-quotation'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL VENDOR</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL QUOTATION</PageTitle>
             <DetailQuotation />
           </>
         }

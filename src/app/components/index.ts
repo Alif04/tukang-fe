@@ -152,26 +152,44 @@ export * from './admin-ho/vendor/detail_vendor/DetailVendor'
 export * from './admin-ho/vendor/report_vendor/ReportVendor'
 
 // QUOTATION
-// View Quotation
+// View Quotation HO
 export * from './admin-ho/quotation/view_quotation/ViewQuotation'
 
-// New Quotation
+// View Quotation Vendor
+export * from './admin-vendor/quotation/view_quotation/ViewQuotation'
+
+// New Quotation HO
 export * from './admin-ho/quotation/new_quotation/NewQuotation'
 
-// Update Quotation
+// New Quotation Vendor
+export * from './admin-vendor/quotation/new_quotation/NewQuotation'
+
+// Update Quotation HO
 export * from './admin-ho/quotation/update_quotation/UpdateQuotation'
 
-// Dashboard Finance
+// Update Quotation Vendor
+export * from './admin-vendor/quotation/update_quotation/UpdateQuotation'
+
+// Dashboard Finance HO
 export * from './admin-ho/quotation/dashboard_finance/DashboardFinance'
 
-// Detail Quotation
+// Dashboard Finance Vendor
+export * from './admin-vendor/quotation/dashboard_finance/DashboardFinance'
+
+// Detail Quotation HO
 export * from './admin-ho/quotation/detail_quotation/DetailQuotation'
 
+// Detail Quotation Vendor
+export * from './admin-vendor/quotation/detail_quotation/DetailQuotation'
+
 // PAYMENT
-// View Payment
+// View Payment HO
 export * from './admin-ho/payment/view_payment/ViewPayment'
 
-// Detail Payment
+// New Payment HO
+export * from './admin-ho/payment/new_payment/NewPayment'
+
+// Detail Payment HO
 export * from './admin-ho/payment/detail_payment/DetailPayment'
 
 // SALES
@@ -191,3 +209,6 @@ export * from './admin-vendor/invoice/detail_invoice/DetailInvoice'
 // REFUND
 // View Refund
 export * from './admin-ho/refund/view_refund/ViewRefund'
+
+// New Refund
+export * from './admin-ho/refund/new_refund/NewRefund'

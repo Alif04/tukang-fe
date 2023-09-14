@@ -2,11 +2,24 @@
 import React from 'react'
 
 import {ViewQuotationHO} from '../../../components'
+import {ViewQuotationVendor} from '../../../components'
 
 const ViewQuotation: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ViewQuotationHO className='' />
+      {userRole == 'admin-ho' ? (
+        <>
+          <ViewQuotationHO className='' />
+        </>
+      ) : userRole == 'admin-vendor' ? (
+        <>
+          <ViewQuotationVendor className='' />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

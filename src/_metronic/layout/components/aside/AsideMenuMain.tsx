@@ -357,18 +357,18 @@ export function AsideMenuMain() {
           role={['admin-ho']}
           hasBullet={true}
         />
-        {/* <AsideMenuItem
+        <AsideMenuItem
           to='/payment/new-payment'
           title='New Payment'
           role={['admin-ho']}
           hasBullet={true}
-        /> */}
-        {/* <AsideMenuItem
+        />
+        <AsideMenuItem
           to='/payment/detail-payment'
           title='Detail Payment'
           role={['admin-ho']}
           hasBullet={true}
-        /> */}
+        />
       </AsideMenuItemWithSub>
 
       {/* Halaman Sales */}
@@ -398,6 +398,12 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/refund/view-refund'
           title='View Refund'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/refund/new-refund'
+          title='New Refund'
           role={['admin-ho']}
           hasBullet={true}
         />

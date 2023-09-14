@@ -33,11 +33,11 @@ const PaymentPage: React.FC = () => {
           </>
         }
       />
-      {/* <Route
+      <Route
         path='new-payment'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW VENDOR FORM</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW PAYMENT</PageTitle>
             <NewPayment />
           </>
         }
@@ -50,7 +50,7 @@ const PaymentPage: React.FC = () => {
             <DetailPayment />
           </>
         }
-      /> */}
+      />
       <Route index element={<Navigate to='/payment/view-payment' />} />
     </Routes>
   )

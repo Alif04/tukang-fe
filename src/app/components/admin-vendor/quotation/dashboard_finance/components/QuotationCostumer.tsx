@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
-import {useThemeMode} from '../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import {getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
+import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 
 type Props = {
   className: string
   chartHeight: string
 }
 
-const TotalWorkOrder: React.FC<Props> = ({className, chartHeight}) => {
+const QoutationCostumer: React.FC<Props> = ({className, chartHeight}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -44,9 +44,9 @@ const TotalWorkOrder: React.FC<Props> = ({className, chartHeight}) => {
           <div ref={chartRef} className='mixed-widget-10-chart'></div>
 
           <div className='d-flex flex-column gap-4'>
-            <div className='fs-5 text-dark text-muted text-center'>Work</div>
+            <div className='fs-5 text-dark text-muted text-center'>Quotation For Costumer</div>
             <div className='fs-1 d-block m-auto'>58</div>
-            <div className='fs-5 text-muted'>Work bulan ini</div>
+            <div className='fs-5 text-muted text-center'>Payment Order bulan ini</div>
           </div>
         </div>
       </div>
@@ -58,24 +58,23 @@ const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
   const processColor = getCSSVariableValue('--kt-success')
   const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-info')
 
   return {
-    series: [44, 55, 13],
+    series: [44, 55],
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['W.Req', 'WIP', 'DONE'],
+    labels: ['OUT', 'PAID'],
     legend: {
       show: true,
       height: 20,
-      position: 'left',
+      position: 'bottom',
     },
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
+    colors: [processColor, pendingColor],
     grid: {
       padding: {
         top: 10,
@@ -88,60 +87,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
         },
       },
     },
-    responsive: [
-      {
-        breakpoint: 1400,
-        options: {
-          chart: {
-            width: '150px',
-            type: 'pie',
-          },
-          legend: {
-            show: false,
-            height: 20,
-            position: 'bottom',
-          },
-          dataLabels: {
-            enabled: false,
-          },
-        },
-      },
-      {
-        breakpoint: 1200,
-        options: {
-          chart: {
-            width: '250px',
-            type: 'pie',
-          },
-          legend: {
-            show: true,
-            height: 20,
-            position: 'left',
-          },
-          dataLabels: {
-            enabled: false,
-          },
-        },
-      },
-      {
-        breakpoint: 576,
-        options: {
-          chart: {
-            width: '240px',
-            type: 'pie',
-          },
-          legend: {
-            show: true,
-            height: 20,
-            position: 'bottom',
-          },
-          dataLabels: {
-            enabled: false,
-          },
-        },
-      },
-    ],
   }
 }
 
-export {TotalWorkOrder}
+export {QoutationCostumer}

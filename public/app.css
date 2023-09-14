@@ -73,3 +73,9 @@ h6 {
   margin-top: 0.1rem;
   border-radius: 50%;
 } */
+
+@media screen and (max-width: 1200px) {
+  .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
+    top: 25px !important;
+  }
+}

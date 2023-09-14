@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
-
-import './ViewOrder.css'
+import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import './NewPayment.css'
 
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup} from 'react-bootstrap'
+import {Button, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
@@ -14,6 +14,9 @@ import {
   faFileExcel,
   faSearch,
   faPlus,
+  faUserPlus,
+  faEnvelope,
+  faArrowsUpDown,
 } from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
@@ -23,46 +26,16 @@ type Props = {
 }
 
 interface DataType {
-  key: string
+  key: React.Key
   order_id: string
   date_order: string
-  item_name: string
-  installation_type: string
-  payment_status: string
-  costumer_id: string
-  costumer_name: string
-  phone_number: string
+  quotation_id: string
+  invoice_id: string
+  invoice_date: string
   vendor_name: string
-  installer_name: string
+  amount: string
+  payment_status: string
   order_status: string
-}
-
-const NewOrderButton = () => {
-  const navigate = useNavigate()
-
-  const handleNewOrder = () => {
-    navigate('/order/new-order')
-  }
-
-  return (
-    <button className='button-new-order' onClick={handleNewOrder}>
-      New Order <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
-    </button>
-  )
-}
-
-const DetailButton = () => {
-  const navigate = useNavigate()
-
-  const handleDetail = () => {
-    navigate('/order/detail-order')
-  }
-
-  return (
-    <a className='button-detail' onClick={handleDetail}>
-      <FontAwesomeIcon icon={faBook} size='sm' />
-    </a>
-  )
 }
 
 const EditButton = () => {
@@ -91,91 +64,75 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_id',
     key: 'order_id',
     align: 'center',
-    width: 100,
-    className: 'col_order_id',
+    width: 90,
   },
   {
     title: 'Date Order',
     dataIndex: 'date_order',
     key: 'date_order',
     align: 'center',
+    width: 90,
+  },
+  {
+    title: 'Quotation ID',
+    dataIndex: 'quotation_id',
+    key: 'quotation_id',
+    align: 'left',
+    width: 90,
+  },
+  {
+    title: 'Invoice ID',
+    dataIndex: 'invoice_id',
+    key: 'invoice_id',
+    align: 'left',
+    width: 70,
+  },
+  {
+    title: 'Invoice Date',
+    dataIndex: 'invoice_date',
+    key: 'invoice_date',
+    align: 'center',
+    width: 90,
+  },
+  {
+    title: 'Vendor Name',
+    dataIndex: 'vendor_name',
+    key: 'vendor_name',
+    align: 'left',
+    width: 130,
+  },
+  {
+    title: 'Amount',
+    dataIndex: 'amount',
+    key: 'amount',
+    align: 'left',
     width: 110,
-  },
-  {
-    title: 'Item Name',
-    dataIndex: 'item_name',
-    key: 'item_name',
-    align: 'left',
-    width: 120,
-  },
-  {
-    title: 'Installation Type',
-    dataIndex: 'installation_type',
-    key: 'installation_type',
-    align: 'left',
-    width: 140,
   },
   {
     title: 'Payment Status',
     dataIndex: 'payment_status',
     key: 'payment_status',
     align: 'left',
-    width: 150,
-  },
-  {
-    title: 'Customer ID',
-    dataIndex: 'costumer_id',
-    key: 'costumer_id',
-    align: 'center',
-    width: 120,
-  },
-  {
-    title: 'Customer Name',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
-    align: 'center',
-    width: 150,
-  },
-  {
-    title: 'Vendor Name',
-    dataIndex: 'vendor_name',
-    key: 'vendor_name',
-    align: 'center',
-    width: 135,
-  },
-  {
-    title: 'Installer Name',
-    dataIndex: 'installer_name',
-    key: 'installer_name',
-    align: 'left',
-    width: 130,
+    width: 110,
   },
   {
     title: 'Order Status',
     dataIndex: 'order_status',
     key: 'order_status',
     align: 'left',
-    width: 140,
+    width: 110,
   },
   {
     title: 'Action',
     key: 'action',
     render: () => (
       <div className='button-wrapper'>
-        <DetailButton />
         <EditButton />
         <DeleteButton />
       </div>
     ),
     fixed: 'right',
-    width: 115,
+    width: 50,
   },
 ]
 
@@ -184,113 +141,101 @@ const data: DataType[] = [
     key: '1',
     order_id: '78453992',
     date_order: '10/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    phone_number: '08158374638',
+    quotation_id: '898393',
+    invoice_id: 'YA',
+    invoice_date: '10/2/2023',
     vendor_name: 'PT.ABC',
-    installer_name: 'Patric',
+    amount: '500.000',
+    payment_status: 'NONE',
     order_status: 'DONE',
   },
   {
     key: '2',
-    order_id: '78453993',
-    date_order: '13/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986748',
-    costumer_name: 'Abdulah',
-    phone_number: '08158376565',
+    order_id: '78453992',
+    date_order: '10/2/2023',
+    quotation_id: '898393',
+    invoice_id: 'YA',
+    invoice_date: '10/2/2023',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
+    amount: '500.000',
+    payment_status: 'NONE',
     order_status: 'DONE',
   },
   {
     key: '3',
-    order_id: '78453994',
-    date_order: '14/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986710',
-    costumer_name: 'Alice',
-    phone_number: '08158300987',
+    order_id: '78453992',
+    date_order: '10/2/2023',
+    quotation_id: '898393',
+    invoice_id: 'YA',
+    invoice_date: '10/2/2023',
     vendor_name: 'PT.ABC',
-    installer_name: 'Patric',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'DONE',
   },
   {
     key: '4',
-    order_id: '78453995',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    order_id: '78453992',
+    date_order: '10/2/2023',
+    quotation_id: '898393',
+    invoice_id: 'YA',
+    invoice_date: '10/2/2023',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'DONE',
   },
   {
     key: '5',
-    order_id: '78453996',
-    date_order: '10/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    order_id: '78453992',
+    date_order: '10/2/2023',
+    quotation_id: '898393',
+    invoice_id: 'YA',
+    invoice_date: '10/2/2023',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'DONE',
   },
   {
     key: '6',
-    order_id: '78453997',
-    date_order: '12/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    order_id: '78453992',
+    date_order: '10/2/2023',
+    quotation_id: '898393',
+    invoice_id: 'YA',
+    invoice_date: '10/2/2023',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'DONE',
   },
   {
     key: '7',
-    order_id: '78453998',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    order_id: '78453992',
+    date_order: '10/2/2023',
+    quotation_id: '898393',
+    invoice_id: 'YA',
+    invoice_date: '10/2/2023',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'DONE',
   },
 ]
 
-const ViewOrderStore: React.FC<Props> = ({className}) => {
+const rowSelection = {
+  onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+  },
+}
+
+const NewPaymentHO: React.FC<Props> = ({className}) => {
   return (
-    <section id='view-order'>
+    <section id='new-payment'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <div className='table-head-wrapper'>
             <div className='left'>
-              <NewOrderButton />
-            </div>
-
-            <div className='right'>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -300,7 +245,9 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
                   <Form.Control placeholder='Filter' className='filter-ltr' />
                 </InputGroup>
               </div>
+            </div>
 
+            <div className='right'>
               <div className='select-filter'>
                 <select className='form-select filter filter-one'>
                   <option selected>All</option>
@@ -339,13 +286,59 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
           </div>
 
           <Table
-            className='table-striped-rows'
+            className='table-striped-rows table-payment-list'
             bordered
             columns={columns}
             dataSource={data}
+            rowSelection={{
+              type: 'checkbox',
+              ...rowSelection,
+            }}
             rowKey={(record) => record.key}
-            scroll={{x: 1500}}
-            pagination={{position: ['bottomCenter']}}
+            scroll={{x: 1800}}
+            pagination={{position: ['bottomRight']}}
+          />
+
+          <div className='d-flex justify-content-between'>
+            <div className='content-1'></div>
+
+            <div className='content-2'>
+              <Button variant='danger' className='me-1'>
+                Cancel Payment Req ( 5 )
+              </Button>
+
+              <img
+                alt=''
+                src={toAbsoluteUrl('/media/tukangin/arrow-updown.png')}
+                width={50}
+                height={50}
+              />
+
+              <Button variant='success' className=' ms-1'>
+                Create Payment Req ( 5 )
+              </Button>
+            </div>
+
+            <div className='content-3'>
+              <Button variant='primary'>
+                Save & Email Payment Request
+                <FontAwesomeIcon icon={faEnvelope} size='lg' className='excel-icon ms-2' />
+              </Button>
+            </div>
+          </div>
+
+          <Table
+            className='table-striped-rows table-new-payment mt-5'
+            bordered
+            columns={columns}
+            dataSource={data}
+            rowSelection={{
+              type: 'checkbox',
+              ...rowSelection,
+            }}
+            rowKey={(record) => record.key}
+            scroll={{x: 1800}}
+            pagination={{position: ['bottomRight']}}
           />
         </div>
       </div>
@@ -353,4 +346,4 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ViewOrderStore}
+export {NewPaymentHO}

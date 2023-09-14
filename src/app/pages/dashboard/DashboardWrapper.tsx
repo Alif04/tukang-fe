@@ -19,6 +19,7 @@ import {
 } from '../../components'
 
 // Dashboard HO
+import '../../components/admin-ho/dashboard/DashboardHO.css'
 import {
   ChartBarOrderHO,
   ChartBarPerformance,
@@ -121,54 +122,66 @@ const DashboardStore: FC = () => (
 )
 
 const DashboardHO: FC = () => (
-  <>
-    <div className='row gy-5 g-xl-8'>
-      <div className='col-xxl-4 mb-5'>
-        <div className='d-flex justify-content-between'>
-          <h3 className='d-flex align-items-center fs-7 w-100 fw-normal'>Lihat Store Dashboard</h3>
+  <section id='dashboard-ho'>
+    <div className='row'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12 mb-5'>
+        <div className='row'>
+          <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center '>
+            <h3 className='title-header fs-7 fw-normal'>Lihat Store Dashboard</h3>
+          </div>
 
-          <Form.Select>
-            <option value='1' selected>
-              All
-            </option>
-            <option value='2'>DKI JAKARTA</option>
-            <option value='3'>JABODETABEK</option>
-            <option value='3'>001 - Mitra10 BSD </option>
-            <option value='3'>002 - Mitra10 Tanggerang </option>
-            <option value='3'>003 - Mitra10 Bekasi </option>
-          </Form.Select>
+          <div className='col-xxl-8 col-xl-8 col-lg-8'>
+            <Form.Select>
+              <option value='1' selected>
+                All
+              </option>
+              <option value='2'>DKI JAKARTA</option>
+              <option value='3'>JABODETABEK</option>
+              <option value='3'>001 - Mitra10 BSD </option>
+              <option value='3'>002 - Mitra10 Tanggerang </option>
+              <option value='3'>003 - Mitra10 Bekasi </option>
+            </Form.Select>
+          </div>
         </div>
       </div>
 
-      <div className='col-xxl-4 mb-5'>
-        <div className='d-flex justify-content-between'>
-          <h3 className='d-flex align-items-center fs-7 w-100 fw-normal'>Pilih rentang waktu</h3>
+      <div className='col-xxl-4 col-xl-4 col-lg-12 mb-5'>
+        <div className='row'>
+          <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center'>
+            <h3 className='title-header fs-7 fw-normal'>Pilih rentang waktu</h3>
+          </div>
 
-          <DateRange className='date-range' />
+          <div className='col-xxl-8 col-xl-8 col-lg-8'>
+            <DateRange className='date-range' />
+          </div>
         </div>
       </div>
 
-      <div className='col-xxl-4 mb-5'>
-        <div className='d-flex justify-content-between'>
-          <h3 className='d-flex align-items-center fs-7 w-100 fw-normal'>Track order/Complaint</h3>
+      <div className='col-xxl-4 col-xl-4 col-lg-12 mb-5'>
+        <div className='row'>
+          <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center'>
+            <h3 className='title-header fs-7 fw-normal'>Track Order</h3>
+          </div>
 
-          <div className='filter-search w-100'>
-            <Form.Control placeholder='Masukkan Order ID' className='filter' />
+          <div className='col-xxl-8 col-xl-8 col-lg-8 d-flex align-items-center'>
+            <div className='filter-search w-100'>
+              <Form.Control placeholder='Masukkan Order ID' className='filter' />
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div className='row gy-5 g-xl-8'>
-      <div className='col-xxl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <TotalOrderHO className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
       </div>
 
-      <div className='col-xxl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <TotalWorkOrder className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
       </div>
 
-      <div className='col-xxl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <TotalComplaintHO className='card-xl-stretch mb-5 mb-xl-8' chartHeight='270px' />
       </div>
     </div>
@@ -196,7 +209,7 @@ const DashboardHO: FC = () => (
         <ChartBarPerformance className='card-xl-stretch mb-5 mb-xl-8' />
       </div>
     </div>
-  </>
+  </section>
 )
 
 const DashboardVendor: FC = () => (
