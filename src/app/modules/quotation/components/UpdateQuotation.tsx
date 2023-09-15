@@ -1,11 +1,24 @@
 import React, {FC} from 'react'
 
 import {UpdateQuotationHO} from '../../../components'
+import {UpdateQuotationVendor} from '../../../components'
 
 const UpdateQuotation: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <UpdateQuotationHO />
+      {userRole == 'admin-ho' ? (
+        <>
+          <UpdateQuotationHO />
+        </>
+      ) : userRole == 'admin-vendor' ? (
+        <>
+          <UpdateQuotationVendor />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

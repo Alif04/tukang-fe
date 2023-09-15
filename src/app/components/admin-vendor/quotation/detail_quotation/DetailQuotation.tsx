@@ -3,7 +3,7 @@ import React, {FC} from 'react'
 import './DetailQuotation.css'
 import {Table, Button, Row, Col} from 'react-bootstrap'
 
-const DetailQuotationHO: FC = () => {
+const DetailQuotationVendor: FC = () => {
   return (
     <section id='detail-quotation'>
       <div className='card'>
@@ -148,4 +148,4 @@ const DetailQuotationHO: FC = () => {
   )
 }
 
-export {DetailQuotationHO}
+export {DetailQuotationVendor}

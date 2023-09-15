@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
-import './ViewOrder.css'
+import './ViewQuotation.css'
 
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -23,30 +23,30 @@ type Props = {
 }
 
 interface DataType {
-  key: string
+  key: React.Key
   order_id: string
   date_order: string
-  item_name: string
+  product_name: string
   installation_type: string
-  payment_status: string
   costumer_id: string
   costumer_name: string
-  phone_number: string
+  quotation_id: string
   vendor_name: string
-  installer_name: string
+  amount: string
+  payment_status: string
   order_status: string
 }
 
-const NewOrderButton = () => {
+const NewQuotation = () => {
   const navigate = useNavigate()
 
-  const handleNewOrder = () => {
+  const handleNewQuotation = () => {
     navigate('/order/new-order')
   }
 
   return (
-    <button className='button-new-order' onClick={handleNewOrder}>
-      New Order <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
+    <button className='button-new-quotation' onClick={handleNewQuotation}>
+      New Quotation <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
     </button>
   )
 }
@@ -102,16 +102,51 @@ const columns: ColumnsType<DataType> = [
     width: 110,
   },
   {
-    title: 'Item Name',
-    dataIndex: 'item_name',
-    key: 'item_name',
+    title: 'Product Name',
+    dataIndex: 'product_name',
+    key: 'product_name',
     align: 'left',
-    width: 120,
+    width: 110,
   },
   {
     title: 'Installation Type',
     dataIndex: 'installation_type',
     key: 'installation_type',
+    align: 'left',
+    width: 110,
+  },
+  {
+    title: 'Costumer ID',
+    dataIndex: 'costumer_id',
+    key: 'costumer_id',
+    align: 'center',
+    width: 110,
+  },
+  {
+    title: 'Costumer Name',
+    dataIndex: 'costumer_name',
+    key: 'costumer_name',
+    align: 'left',
+    width: 140,
+  },
+  {
+    title: 'Quotation ID',
+    dataIndex: 'quotation_id',
+    key: 'quotation_id',
+    align: 'center',
+    width: 110,
+  },
+  {
+    title: 'Vendor Name',
+    dataIndex: 'vendor_name',
+    key: 'vendor_name',
+    align: 'left',
+    width: 140,
+  },
+  {
+    title: 'Amount',
+    dataIndex: 'amount',
+    key: 'amount',
     align: 'left',
     width: 140,
   },
@@ -120,42 +155,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'payment_status',
     key: 'payment_status',
     align: 'left',
-    width: 150,
-  },
-  {
-    title: 'Customer ID',
-    dataIndex: 'costumer_id',
-    key: 'costumer_id',
-    align: 'center',
-    width: 120,
-  },
-  {
-    title: 'Customer Name',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
     width: 140,
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
-    align: 'center',
-    width: 150,
-  },
-  {
-    title: 'Vendor Name',
-    dataIndex: 'vendor_name',
-    key: 'vendor_name',
-    align: 'center',
-    width: 135,
-  },
-  {
-    title: 'Installer Name',
-    dataIndex: 'installer_name',
-    key: 'installer_name',
-    align: 'left',
-    width: 130,
   },
   {
     title: 'Order Status',
@@ -175,7 +175,7 @@ const columns: ColumnsType<DataType> = [
       </div>
     ),
     fixed: 'right',
-    width: 115,
+    width: 90,
   },
 ]
 
@@ -184,110 +184,110 @@ const data: DataType[] = [
     key: '1',
     order_id: '78453992',
     date_order: '10/2/2023',
-    item_name: 'Water Heater',
+    product_name: 'Water Heater',
     installation_type: 'New set up',
-    payment_status: 'PAID',
     costumer_id: '8986747',
     costumer_name: 'Alia',
-    phone_number: '08158374638',
+    quotation_id: '12877450',
     vendor_name: 'PT.ABC',
-    installer_name: 'Patric',
-    order_status: 'DONE',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'QUOTEIN',
   },
   {
     key: '2',
     order_id: '78453993',
-    date_order: '13/2/2023',
-    item_name: 'AC',
+    date_order: '10/2/2023',
+    product_name: 'Water Heater',
     installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986748',
-    costumer_name: 'Abdulah',
-    phone_number: '08158376565',
+    costumer_id: '8986747',
+    costumer_name: 'Alia',
+    quotation_id: '12877450',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'DONE',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'QUOTEIN',
   },
   {
     key: '3',
     order_id: '78453994',
-    date_order: '14/2/2023',
-    item_name: 'Water Heater',
+    date_order: '10/2/2023',
+    product_name: 'Water Heater',
     installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986710',
-    costumer_name: 'Alice',
-    phone_number: '08158300987',
+    costumer_id: '8986747',
+    costumer_name: 'Alia',
+    quotation_id: '12877450',
     vendor_name: 'PT.ABC',
-    installer_name: 'Patric',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'QUOTEIN',
   },
   {
     key: '4',
     order_id: '78453995',
-    date_order: '15/2/2023',
-    item_name: 'AC',
+    date_order: '10/2/2023',
+    product_name: 'Water Heater',
     installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    costumer_id: '8986747',
+    costumer_name: 'Alia',
+    quotation_id: '12877450',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'QUOTEIN',
   },
   {
     key: '5',
     order_id: '78453996',
-    date_order: '10/3/2023',
-    item_name: 'AC',
+    date_order: '10/2/2023',
+    product_name: 'Water Heater',
     installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    costumer_id: '8986747',
+    costumer_name: 'Alia',
+    quotation_id: '12877450',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'QUOTEIN',
   },
   {
     key: '6',
     order_id: '78453997',
-    date_order: '12/3/2023',
-    item_name: 'AC',
+    date_order: '10/2/2023',
+    product_name: 'Water Heater',
     installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    costumer_id: '8986747',
+    costumer_name: 'Alia',
+    quotation_id: '12877450',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'QUOTEIN',
   },
   {
     key: '7',
     order_id: '78453998',
-    date_order: '15/2/2023',
-    item_name: 'AC',
+    date_order: '10/2/2023',
+    product_name: 'Water Heater',
     installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
+    costumer_id: '8986747',
+    costumer_name: 'Alia',
+    quotation_id: '12877450',
     vendor_name: 'PT.ABC',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
+    amount: '500.000',
+    payment_status: 'NONE',
+    order_status: 'QUOTEIN',
   },
 ]
 
-const ViewOrderStore: React.FC<Props> = ({className}) => {
+const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   return (
-    <section id='view-order'>
+    <section id='view-quotation'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <div className='table-head-wrapper'>
             <div className='left'>
-              <NewOrderButton />
+              <NewQuotation />
             </div>
 
             <div className='right'>
@@ -344,8 +344,8 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={data}
             rowKey={(record) => record.key}
-            scroll={{x: 1500}}
-            pagination={{position: ['bottomCenter']}}
+            scroll={{x: 1800}}
+            pagination={{position: ['bottomRight']}}
           />
         </div>
       </div>
@@ -353,4 +353,4 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ViewOrderStore}
+export {ViewQuotationVendor}

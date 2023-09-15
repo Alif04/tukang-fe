@@ -1,11 +1,24 @@
 import React, {FC} from 'react'
 
 import {DashboardFinanceHO} from '../../../components'
+import {DashboardFinanceVendor} from '../../../components'
 
 const DashboardFinance: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <DashboardFinanceHO />
+      {userRole == 'admin-ho' ? (
+        <>
+          <DashboardFinanceHO />
+        </>
+      ) : userRole == 'admin-vendor' ? (
+        <>
+          <DashboardFinanceVendor />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

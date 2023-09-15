@@ -1,11 +1,11 @@
 import React, {FC} from 'react'
 
-import {NewOrderStore} from '../../../components'
+import {NewPaymentHO} from '../../../components'
 
 const NewPayment: FC = () => {
   return (
     <>
-      <NewOrderStore />
+      <NewPaymentHO className='' />
     </>
   )
 }

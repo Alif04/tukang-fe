@@ -90,6 +90,59 @@ const chartOptions = (chartHeight: string): ApexOptions => {
         },
       },
     },
+    responsive: [
+      {
+        breakpoint: 1400,
+        options: {
+          chart: {
+            width: '150px',
+            type: 'pie',
+          },
+          legend: {
+            show: false,
+            height: 20,
+            position: 'bottom',
+          },
+          dataLabels: {
+            enabled: false,
+          },
+        },
+      },
+      {
+        breakpoint: 1200,
+        options: {
+          chart: {
+            width: '280px',
+            type: 'pie',
+          },
+          legend: {
+            show: true,
+            height: 20,
+            position: 'left',
+          },
+          dataLabels: {
+            enabled: false,
+          },
+        },
+      },
+      {
+        breakpoint: 576,
+        options: {
+          chart: {
+            width: '240px',
+            type: 'pie',
+          },
+          legend: {
+            show: true,
+            height: 20,
+            position: 'bottom',
+          },
+          dataLabels: {
+            enabled: false,
+          },
+        },
+      },
+    ],
   }
 }
 
