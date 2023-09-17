@@ -6,7 +6,7 @@ import {ViewReportStore} from '../../../components'
 const ViewReport: React.FC = () => {
   return (
     <>
-      <ViewReportStore className='' />
+      <ViewReportStore />
     </>
   )
 }

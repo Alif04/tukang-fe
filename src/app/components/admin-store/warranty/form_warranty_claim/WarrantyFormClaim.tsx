@@ -1,49 +1,12 @@
-import React, {FC} from 'react'
+import React from 'react'
 
-import './DetailOrder.css'
+import './WarrantyFormClaim.css'
+import {Form, Row, Col, Table, Button} from 'react-bootstrap'
 
-import {Row, Col, Form, InputGroup, ListGroup, Table, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
-import {Steps} from 'antd'
-
-const orderHistory = [
-  {
-    title: 'Booking Process',
-  },
-  {
-    title: 'Survey Process',
-  },
-  {
-    title: 'Work in Progress',
-  },
-  {
-    title: 'Work Done',
-  },
-  {
-    title: 'Work Done',
-  },
-]
-
-const complaintHistory = [
-  {
-    title: 'Complaint Received',
-  },
-  {
-    title: 'Investigation Proccess',
-  },
-  {
-    title: 'Remedial Progress',
-  },
-  {
-    title: 'Complaint Done',
-  },
-]
-
-const DetailOrderStore: FC = () => {
+const WarrantyFormClaim = () => {
   return (
-    <section id='detail-order'>
-      <div className='card'>
+    <section id='warranty-form'>
+      <div className='card mb-5'>
         <div className='card-body'>
           <div className='form-wrapper'>
             <Row className='form-header'>
@@ -65,13 +28,13 @@ const DetailOrderStore: FC = () => {
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order Status : <span className='fs-4 ms-2 fw-bold text-success'>BOOKED</span>
+                  Order Status : <span className='fs-4 ms-2 fw-bold text-success'>PAID</span>
                 </Form.Label>
               </Col>
             </Row>
 
             <Row className='information-detail'>
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info'>
                 <div className='fs-3 fw-bold'>Informasi Pembeli</div>
                 <Row>
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
@@ -131,7 +94,7 @@ const DetailOrderStore: FC = () => {
                 </Row>
               </Col>
 
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info'>
                 <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
                 <Form.Group as={Row} className='detail-info'>
@@ -225,81 +188,24 @@ const DetailOrderStore: FC = () => {
             </div>
           </Row>
 
-          <div className='order-history mt-3 mb-3'>
-            <div className='fs-3 fw-bold text-success mb-4'>Order History</div>
-            <Steps
-              className='order-history-timeline'
-              current={0}
-              labelPlacement='vertical'
-              items={orderHistory}
-            />
-          </div>
+          <hr />
 
-          <div className='complaint-history  mt-3 mb-3'>
-            <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
-            <Steps
-              className='complaint-history-timeline'
-              current={2}
-              labelPlacement='vertical'
-              items={complaintHistory}
-            />
-          </div>
+          <Row className='claim-warranty-form d-flex align-items-start mt-5 mb-5'>
+            <div className='fs-3 fw-bold text-uppercase mb-3'>Formulir Claim</div>
 
-          <div className='card'>
-            <div className='card-body'>
-              <Row>
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      Complaint Date :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control type='date' plaintext readOnly />
-                    </Col>
-                  </Form.Group>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
+              <Form.Control type='date' />
+            </Col>
 
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      PIC Complaint :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='Call' />
-                    </Col>
-                  </Form.Group>
+            <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
+              <div className='fs-5 fw-normal'>Alasan Claim</div>
+              <Form.Control as='textarea' rows={3} defaultValue='...' />
+            </Col>
+          </Row>
 
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      PIC Complaint :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='Nuning' />
-                    </Col>
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Label className='mt-3'>Complaint Detail :</Form.Label>
-                  <Form.Control
-                    style={{minHeight: '200px'}}
-                    as='textarea'
-                    plaintext
-                    readOnly
-                    defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
-                  ></Form.Control>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
-                  <ListGroup>
-                    <ListGroup.Item>342344.png</ListGroup.Item>
-                    <ListGroup.Item>848735.png</ListGroup.Item>
-                    <ListGroup.Item>Complaint.png</ListGroup.Item>
-                  </ListGroup>
-                </Col>
-              </Row>
-            </div>
+          <div className='button-submit d-flex justify-content-center align-items-center'>
+            <Button variant='dark-primary'>Ajukan Claim</Button>
           </div>
         </div>
       </div>
@@ -307,4 +213,4 @@ const DetailOrderStore: FC = () => {
   )
 }
 
-export {DetailOrderStore}
+export {WarrantyFormClaim}

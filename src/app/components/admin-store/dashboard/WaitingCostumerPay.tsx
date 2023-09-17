@@ -10,7 +10,7 @@ type Props = {
   chartHeight: string
 }
 
-const TotalFinishedJob: React.FC<Props> = ({className, chartColor, chartHeight}) => {
+const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
   const refreshChart = () => {
@@ -42,9 +42,9 @@ const TotalFinishedJob: React.FC<Props> = ({className, chartColor, chartHeight})
       <div className='card-body p-2 d-flex justify-content-center'>
         <div className='d-flex align-items-center gap-5'>
           <div className='d-flex flex-column gap-5'>
-            <div className='fs-6 text-dark text-muted'>Menunggu Bayar</div>
+            <div className='fs-5 text-dark text-muted'>Menunggu Bayar</div>
             <div className='fs-1 d-block m-auto'>17</div>
-            <div className='fs-6 text-muted'>Menunggu pembayaran Customer</div>
+            <div className='fs-5 text-muted'>Menunggu pembayaran Customer</div>
           </div>
 
           <div ref={chartRef} className='mixed-widget-4-chart'></div>
@@ -103,4 +103,4 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
   }
 }
 
-export {TotalFinishedJob}
+export {WaitingCostumerPay}

@@ -1,92 +1,98 @@
-#new-order .costumer-information {
-  width: 345px;
-}
+/* Form Layout */
 
-#new-order .costumer-information .form-header {
+#new-order .form-wrapper {
   display: flex;
-  justify-content: space-between;
-  min-height: 70px;
+  gap: 50px;
+  margin-bottom: 30px;
 }
 
-#new-order .costumer-information .form-body {
-  margin-bottom: 50px;
+#new-order .form-costumer {
+  width: 70%;
 }
 
-#new-order .costumer-information .form-body .field-alamat {
-  min-height: 215px;
+#new-order .form-sales {
+  width: 30%;
 }
 
-#new-order .costumer-information .form-body .form-check-request .form-check-input {
+#new-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  padding: 0 70px 0 10px;
+}
+
+#new-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  padding: 0 70px 0 10px;
+}
+
+#new-order .alamat-order.row .col {
+  padding: 0 70px 0 10px;
+}
+
+#new-order .form-check-request .form-check-input {
   margin-top: 0;
   width: 15px;
   height: 15px;
 }
 
+/* Form Header */
+
+#new-order .form-header.row {
+  margin-bottom: 30px;
+}
+
+#new-order .form-header label.payment-type.form-label {
+  width: 230px;
+}
+
+#new-order .form-header .form-check-request label.form-check-label {
+  font-size: 11px;
+}
+
+/* Form Sales */
+
+#new-order .form-sales .form-header {
+  margin-bottom: 30px;
+}
+
+/* Table Order */
+
+#new-order .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
+#new-order .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 30px 0 30px;
+}
+
+#new-order .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 10px 0 100px;
+}
+
+#new-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
 /* Button */
 
-.btn.btn-light-dark {
-  width: 150px;
-  height: 50px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #7f7f7f !important;
-  transition: 0.3s ease-in-out;
+#new-order .button-add button {
+  width: 130px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #04562b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
 }
 
-.btn.btn-light-dark:hover:not(.btn-active) {
-  background-color: rgb(57, 57, 59) !important;
-}
-
-.btn.btn-dark-danger {
-  width: 100px;
-  height: 50px;
-  margin: 0 10px 0 10px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #a30014 !important;
-  transition: 0.3s ease-in-out;
-}
-
-.btn.btn-dark-danger:hover:not(.btn-active) {
-  background-color: #d80019 !important;
-}
-
-.btn.btn-dark-primary {
-  width: 100px;
-  height: 50px;
+#new-order .btn.btn-dark-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;
   background-color: #020080 !important;
   transition: 0.3s ease-in-out;
-}
-
-.btn.btn-dark-primary:hover:not(.btn-active) {
-  background-color: #0300b5 !important;
-}
-
-.btn.btn-dark-success {
-  width: 130px;
-  height: 50px;
-  margin: 0 10px 0 10px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #6b9230 !important;
-  transition: 0.3s ease-in-out;
-}
-
-.btn.btn-dark-success:hover:not(.btn-active) {
-  background-color: #7cb920 !important;
-}
-
-.button-add button {
-  width: 70px;
-  height: 30px;
-  margin-bottom: 10px;
-  background-color: #0f4cff;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
 }
 
 /* Table Picklist*/
@@ -99,4 +105,99 @@
 
 .table-picklist th {
   text-align: center;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #new-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #new-order .form-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #new-order .form-costumer {
+    width: 100%;
+  }
+
+  #new-order .form-sales {
+    width: 100%;
+  }
+
+  #new-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+
+  /* Form Sales */
+
+  #new-order .form-sales .form-header {
+    margin-bottom: 20px;
+  }
+
+  #new-order .form-sales .form-header h1 {
+    text-align: start !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+  /* Table Order */
+
+  #new-order .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #new-order .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #new-order .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    margin-top: 20px;
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+
+  #new-order .button-add button {
+    width: 100%;
+  }
+
+  #new-order .btn.btn-dark-primary {
+    width: 100%;
+    margin: 0;
+    height: 40px;
+  }
 }

@@ -1,14 +1,4 @@
 /* Table */
-#view-order .table-head-wrapper {
-  display: flex;
-  justify-content: space-between;
-}
-
-#view-order .table-head-wrapper .right {
-  display: flex;
-  justify-content: space-between;
-}
-
 #view-order .table-view-order {
   margin: 20px 20px 20px 20px;
 }
@@ -59,103 +49,14 @@
   background-color: #e4e9f7;
 }
 
-/* Searchbar */
+/* Filter Search */
 
-.table-view-order .table-head-wrapper .filter-search .input-group {
-  height: 45px;
+#view-order .filter-search {
+  width: 370px;
 }
 
-.table-view-order .table-head-wrapper .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
-}
-
-.table-view-order .table-head-wrapper .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
-}
-
-/* Select Filter */
-
-.select-filter {
-  display: flex;
-  margin: 0 10px 0 10px;
-}
-
-.select-filter select.form-select.filter {
-  height: 45px;
-}
-
-.select-filter select.form-select.filter.filter-one {
-  border-right: none;
-  border-radius: 5px 0 0 5px;
-}
-
-.select-filter select.form-select.filter.filter-two {
-  border-right: none;
-  border-radius: 0;
-}
-
-.select-filter select.form-select.filter.filter-three {
-  border-radius: 0;
-}
-
-.select-filter select.form-select.filter.filter-four {
-  border-left: none;
-  border-radius: 0 5px 5px 0;
-}
-
-/* Button Action */
-
-.button-wrapper {
-  display: flex;
-  justify-content: space-between;
-}
-
-.button-detail svg.svg-inline--fa.fa-book.fa-sm {
-  color: black;
-}
-
-.button-edit svg.svg-inline--fa.fa-pen.fa-sm {
-  color: black;
-}
-
-.button-delete svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0;
-  color: #d50119;
-}
-
-.button-export {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 165px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #04844b;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
-  margin: 5px;
-}
-
-.button-new-order {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 125px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #548a03;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
-  margin: 5px;
+@media screen and (max-width: 1200px) {
+  #view-order .filter-search {
+    width: 100%;
+  }
 }

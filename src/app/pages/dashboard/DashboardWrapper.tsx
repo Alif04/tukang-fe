@@ -13,7 +13,7 @@ import {
   RecentEventWidget,
   TotalOrderStore,
   TotalComplaint,
-  TotalFinishedJob,
+  WaitingCostumerPay,
   TotalReschedule,
   OrderTracking,
 } from '../../components'
@@ -57,19 +57,23 @@ import {
 
 const DashboardStore: FC = () => (
   <>
-    <div className='row gy-5 g-xl-8'>
-      <div className='col-xxl-4 mb-5'>
-        <div className='d-flex justify-content-between'>
-          <h3 className='d-flex align-items-center fs-5 w-50 fw-bold'>Pilih Periode :</h3>
+    <div className='row'>
+      <div className='col-xxl-4 col-xl-6 col-lg-12 mb-5'>
+        <div className='row'>
+          <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center '>
+            <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
+          </div>
 
-          <DateRange className='date-range' />
+          <div className='col-xxl-8 col-xl-8 col-lg-8'>
+            <DateRange className='date-range' />
+          </div>
         </div>
       </div>
     </div>
 
-    {/* begin::Row */}
+    {/* begin::Row 1 */}
     <div className='row gy-5 g-xl-8'>
-      <div className='col-xxl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <SalesReportWidget
           className='card-xl-stretch mb-xl-8'
           backGroundColor='white'
@@ -77,47 +81,36 @@ const DashboardStore: FC = () => (
         />
       </div>
 
-      <div className='col-xxl-4'>
-        <TotalOrderStore className='card-xxl-stretch-50 mb-5 mb-xl-8' chartHeight='220px' />
-        <TotalComplaint className='card-xxl-stretch-50 mb-5 mb-xl-8' />
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
+        <TotalOrderStore
+          className='card-xxl-stretch-50 card-xl-stretch-50  mb-xl-8 mb-5'
+          chartHeight='220px'
+        />
+        <TotalComplaint className='card-xxl-stretch-50 card-xl-stretch-50  mb-xl-8 mb-5' />
       </div>
 
-      <div className='col-xxl-4'>
-        <TotalFinishedJob
-          className='card-xxl-stretch-50 mb-5 mb-xl-8'
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
+        <WaitingCostumerPay
+          className='card-xxl-stretch-50 mb-xl-8  mb-5'
           chartColor='success'
           chartHeight='150px'
         />
-        <TotalReschedule className='card-xxl-stretch-50 mb-5 mb-xl-8' />
+        <TotalReschedule className='card-xxl-stretch-50 card-xl-stretch-50  mb-xl-8 mb-5' />
       </div>
     </div>
-    {/* end::Row */}
+    {/* end::Row 2*/}
 
-    {/* begin::Row */}
+    {/* begin::Row 3 */}
     <div className='row gy-5 g-xl-8'>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <TransactionWidget className='card-xl-stretch mb-xl-8' />
       </div>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <TopSalesWidget className='card-xl-stretch mb-xl-8' />
       </div>
-      {/* <div className='col-xl-5'>
-        <RecentEventWidget className='card-xl-stretch mb-5 mb-xl-8' items={5} />
-      </div> */}
+      <div className='col-xxl-4 col-xl-4 col-lg-12'></div>
     </div>
-    {/* end::Row */}
-
-    {/* begin::Row */}
-    {/* <div className='row g-5 gx-xxl-8'>
-      <div className='col-xxl-7'>
-        <OrderTracking className='card-xxl-stretch mb-5 mb-xxl-8' />
-      </div>
-
-      <div className='col-xxl-5'>
-        <CalendarWidget className='card-xxl-stretch mb-xl-3' />
-      </div>
-    </div> */}
-    {/* end::Row */}
+    {/* end::Row 3*/}
   </>
 )
 
@@ -187,25 +180,25 @@ const DashboardHO: FC = () => (
     </div>
 
     <div className='row gy-5 g-xl-8'>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <ChartBarOrderHO className='card-xl-stretch mb-xl-8' />
       </div>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <ChartLineSurveyHO className='card-xl-stretch mb-xl-8' />
       </div>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <ChartLineComplaintHO className='card-xl-stretch mb-5 mb-xl-8' />
       </div>
     </div>
 
     <div className='row gy-5 g-xl-8'>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <ChartDonutQuotationHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
       </div>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <ChartDonutWorkHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
       </div>
-      <div className='col-xl-4'>
+      <div className='col-xxl-4 col-xl-4 col-lg-12'>
         <ChartBarPerformance className='card-xl-stretch mb-5 mb-xl-8' />
       </div>
     </div>

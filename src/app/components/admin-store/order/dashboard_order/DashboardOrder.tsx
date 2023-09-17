@@ -1,99 +1,102 @@
 import React, {FC} from 'react'
 
+import './DashboardOrder.css'
 import {DateRange} from './components/DateRange'
 import {ChartBar} from './components/ChartBar'
 import {ChartLine} from './components/ChartLine'
-import {ChartLine2} from './components/ChartLine2'
-import {ChartDonut} from './components/ChartDonut'
-import {ChartDonut2} from './components/ChartDonut2'
+import {MoreInformation} from './components/MoreInformation'
 import {TableList} from './components/TableList'
 
-import Card from 'react-bootstrap/Card'
+import {Card, Row, Col} from 'react-bootstrap'
 
 const DashboardOrderStore: FC = () => {
   return (
-    <>
-      <div className='row gy-5 g-xl-8'>
-        <div className='col-xxl-4 mb-5'>
-          <div className='d-flex justify-content-between'>
-            <h3 className='d-flex align-items-center fs-5 w-50 fw-bold'>Pilih Periode :</h3>
+    <section id='dashboard-order'>
+      <div className='row'>
+        <div className='col-xxl-4 col-xl-6 col-lg-12 mb-5'>
+          <div className='row'>
+            <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center '>
+              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
+            </div>
 
-            <DateRange className='date-range' />
+            <div className='col-xxl-8 col-xl-8 col-lg-8'>
+              <DateRange className='date-range' />
+            </div>
           </div>
         </div>
       </div>
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
+      <div className='row g-5 g-xl-8 mb-5'>
         <div className='col-xl-12'>
-          <Card className='mb-5'>
+          <Card>
             <Card.Body>
               <div className='fs-5 fw-normal mb-5'>Order bulan ini</div>
 
-              <div className='d-flex justify-content-between mb-5'>
-                <div className='order-total'>
-                  <div className='d-flex flex-column align-items-center ms-5 gap-2'>
+              <Row className='justify-content-md-center'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>20</h1>
-                    <p>Total Order</p>
+                    <p className='text-center'>Total Order</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-survey'>
-                  <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>18</h1>
-                    <p>Survey</p>
+                    <p className='text-center'>Survey</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-progress'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>02</h1>
-                    <p>On Progress</p>
+                    <p className='text-center'>On Progress</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-complete'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>18</h1>
-                    <p>Complete</p>
+                    <p className='text-center'>Complete</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-reschedule'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>12</h1>
-                    <p className='text-danger'>Reschedule</p>
+                    <p className='text-danger text-center'>Reschedule</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-cancel'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>05</h1>
-                    <p className='text-danger'>Cancel</p>
+                    <p className='text-danger text-center'>Cancel</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-refund'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>01</h1>
-                    <p className='text-danger'>Refund</p>
+                    <p className='text-danger text-center'>Refund</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-waiting-survey'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>18</h1>
-                    <p className='text-gray-800 fw-bold'>Menunggu Survey</p>
+                    <p className='text-brown fw-bold text-center'>Menunggu Survey</p>
                   </div>
-                </div>
+                </Col>
 
-                <div className='order-waiting-payment'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>01</h1>
-                    <p className='text-gray-800 fw-bold'>Menunggu Bayar</p>
+                    <p className='text-brown fw-bold text-center'>Menunggu Bayar</p>
                   </div>
-                </div>
-              </div>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
         </div>
@@ -101,9 +104,9 @@ const DashboardOrderStore: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
+      <div className='row g-5 g-xl-8 mb-5'>
         <div className='col-xl-4'>
-          <ChartLine2 className='card-xl-stretch mb-xl-8' />
+          <MoreInformation className='card-xl-stretch mb-xl-8' />
         </div>
         <div className='col-xl-4'>
           <ChartBar className='card-xl-stretch mb-xl-8' />
@@ -121,7 +124,7 @@ const DashboardOrderStore: FC = () => {
         </div>
       </div>
       {/* end::Row */}
-    </>
+    </section>
   )
 }
 

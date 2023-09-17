@@ -135,6 +135,83 @@ const chartOptions = (chartHeight: string): ApexOptions => {
         },
       },
     },
+    responsive: [
+      {
+        breakpoint: 1400,
+        options: {
+          chart: {
+            fontFamily: 'inherit',
+            type: 'bar',
+            height: '250px',
+            toolbar: {
+              show: false,
+            },
+          },
+          legend: {
+            show: true,
+            height: 20,
+            position: 'bottom',
+          },
+          dataLabels: {
+            enabled: true,
+            style: {
+              fontSize: '8px',
+              colors: ['#fff'],
+            },
+          },
+        },
+      },
+      {
+        breakpoint: 1200,
+        options: {
+          chart: {
+            fontFamily: 'inherit',
+            type: 'bar',
+            height: '300px',
+            toolbar: {
+              show: false,
+            },
+          },
+          legend: {
+            show: true,
+            height: 20,
+            position: 'left',
+          },
+          dataLabels: {
+            enabled: true,
+            style: {
+              fontSize: '8px',
+              colors: ['#fff'],
+            },
+          },
+        },
+      },
+      {
+        breakpoint: 576,
+        options: {
+          chart: {
+            fontFamily: 'inherit',
+            type: 'bar',
+            height: chartHeight,
+            toolbar: {
+              show: false,
+            },
+          },
+          legend: {
+            show: true,
+            height: 20,
+            position: 'bottom',
+          },
+          dataLabels: {
+            enabled: true,
+            style: {
+              fontSize: '8px',
+              colors: ['#fff'],
+            },
+          },
+        },
+      },
+    ],
   }
 }
 

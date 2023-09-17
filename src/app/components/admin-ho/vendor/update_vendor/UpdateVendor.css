@@ -153,12 +153,13 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 }
 
 /* Table Order List */
-.table-head-wrapper {
+
+#update-vendor .table-head-wrapper {
   display: flex;
   justify-content: space-between;
 }
 
-.table-head-wrapper .right {
+#update-vendor .table-head-wrapper .right {
   display: flex;
   justify-content: space-between;
 }

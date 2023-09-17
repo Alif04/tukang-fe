@@ -9,6 +9,11 @@ h6 {
   margin-bottom: 0 !important;
 }
 
+/* Body Content*/
+div#kt_content {
+  background-color: white;
+}
+
 /* Sidebar */
 
 #kt_aside_toggle {
@@ -44,6 +49,16 @@ h6 {
   min-height: 175px !important;
 }
 
+/* Card */
+.card {
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Text */
+.text-brown {
+  color: brown;
+}
+
 /* Apex Chart Legend */
 
 .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
@@ -56,7 +71,7 @@ h6 {
 .ant-picker.ant-picker-range.css-dev-only-do-not-override-1m62vyb.date-range {
   display: flex;
   align-items: center;
-  width: 100%;
+  width: 200px;
   height: 45px;
 }
 
@@ -73,6 +88,142 @@ h6 {
   margin-top: 0.1rem;
   border-radius: 50%;
 } */
+
+/* Modal */
+
+.modal-dialog {
+  max-width: 1250px !important;
+}
+
+/* Button Action */
+
+.button-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-new-claim-garansi-form svg.svg-inline--fa.fa-ticket.fa-sm {
+  color: black;
+}
+
+.button-detail svg.svg-inline--fa.fa-book.fa-sm {
+  color: black;
+}
+
+.button-edit svg.svg-inline--fa.fa-pen.fa-sm {
+  color: black;
+}
+
+.button-delete svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0;
+  color: #d50119;
+}
+
+.button-export {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 165px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #04844b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
+  margin: 5px;
+}
+
+.button-new-order {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 125px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #548a03;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
+  margin: 5px;
+}
+
+.btn.btn-light-dark {
+  width: 150px;
+  height: 50px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #7f7f7f !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-light-dark:hover:not(.btn-active) {
+  background-color: rgb(57, 57, 59) !important;
+}
+
+.btn.btn-dark-danger {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+.btn.btn-dark-primary {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300b5 !important;
+}
+
+.btn.btn-dark-success {
+  width: 130px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #7cb920 !important;
+}
+
+/* Searchbar */
+
+.table-view-order .table-head-wrapper .filter-search .input-group {
+  height: 45px;
+}
+
+.table-view-order .table-head-wrapper .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+.table-view-order .table-head-wrapper .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
+}
 
 @media screen and (max-width: 1200px) {
   .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {

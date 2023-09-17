@@ -1,16 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
+import './MoreInformation.css'
+
 type Props = {
   className: string
 }
 
-const ChartLine2: React.FC<Props> = ({className}) => {
+const MoreInformation: React.FC<Props> = ({className}) => {
   return (
-    <div className={`card ${className}`}>
+    <div className={`card ${className}`} id='more-information'>
       <div className='card-body'>
         <div className='row mb-5 h-50'>
-          <h1 className='text-gray-800'>Informasi Lainnya</h1>
+          <div className='fs-1 text-gray-800'>Informasi Lainnya</div>
 
           <div className='col-xl-6 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
@@ -28,7 +30,7 @@ const ChartLine2: React.FC<Props> = ({className}) => {
         </div>
 
         <div className='row mt-5 h-50'>
-          <h1 className='text-danger'>Complaint</h1>
+          <div className='fs-1 text-danger'>Complaint List</div>
 
           <div className='col-xl-6 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
@@ -49,4 +51,4 @@ const ChartLine2: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ChartLine2}
+export {MoreInformation}

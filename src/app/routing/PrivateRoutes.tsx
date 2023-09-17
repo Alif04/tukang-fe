@@ -11,6 +11,7 @@ import {WithChildren} from '../../_metronic/helpers'
 const PrivateRoutes = () => {
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
+  const WarrantyPage = lazy(() => import('../modules/warranty/WarrantyPage'))
   const ReportPage = lazy(() => import('../modules/reports/ReportPage'))
   const CostumersPage = lazy(() => import('../modules/customers/CostumersPage'))
   const CSIpage = lazy(() => import('../modules/csi/CSIpage'))
@@ -84,6 +85,15 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <ComplaintPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='warranty/*'
+          element={
+            <SuspensedView>
+              <WarrantyPage />
             </SuspensedView>
           }
         />

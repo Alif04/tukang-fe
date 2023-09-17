@@ -1,0 +1,149 @@
+/* Form Layout */
+
+#warranty-form .form-wrapper {
+  margin-bottom: 30px;
+}
+
+#warranty-form .form-wrapper .form-header {
+  margin-bottom: 30px;
+}
+
+#warranty-form .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 60%;
+}
+
+#warranty-form .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#warranty-form .costumer-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#warranty-form .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 40%;
+}
+
+#warranty-form .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#warranty-form .sales-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+/* Table Order */
+
+#warranty-form .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
+#warranty-form .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 30px 0 30px;
+}
+
+#warranty-form .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 10px 0 100px;
+}
+
+#warranty-form .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
+/* Button */
+
+#warranty-form .btn.btn-dark-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+/* Table Picklist*/
+
+#warranty-form .table-picklist .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+.table-picklist th {
+  text-align: center;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #warranty-form .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 70%;
+  }
+
+  #warranty-form .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 30%;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #warranty-form .form-wrapper {
+    margin-bottom: 30px;
+  }
+
+  #warranty-form .form-wrapper .form-header {
+    margin-bottom: 30px;
+  }
+
+  #warranty-form .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #warranty-form .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+    padding: 3px 9.75px;
+  }
+
+  #warranty-form .costumer-info .detail-info.row input.form-control-plaintext {
+    padding: 3px 0px;
+  }
+
+  #warranty-form .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #warranty-form .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+    padding: 3px 9.75px;
+  }
+
+  #warranty-form .sales-info .detail-info.row input.form-control-plaintext {
+    padding: 3px 0px;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+  #warranty-form .information-detail .costumer-info {
+    margin-bottom: 30px;
+  }
+
+  #warranty-form .information-detail .sales-info {
+    margin-bottom: 30px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+
+  #warranty-form .btn.btn-dark-primary {
+    width: 100%;
+    margin: 0;
+    height: 40px;
+  }
+}

@@ -1,0 +1,9 @@
+#view-report .row-1 .content-card.card {
+  min-height: 150px;
+  margin-bottom: 20px;
+}
+
+#view-report .row-2 .content-card.card {
+  min-height: 150px;
+  margin-top: 20px;
+}

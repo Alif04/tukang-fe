@@ -1,7 +1,7 @@
 // DASHBOARD PAGE ( Admin Store )
 export * from './admin-store/dashboard/TotalOrderStore'
 export * from './admin-store/dashboard/TotalComplaint'
-export * from './admin-store/dashboard/TotalFinishedJob'
+export * from './admin-store/dashboard/WaitingCostumerPay'
 export * from './admin-store/dashboard/TotalReschedule'
 
 export * from './admin-store/dashboard/SalesReportWidget'
@@ -51,14 +51,18 @@ export * from './admin-store/order/view_order/ViewOrder'
 // New Order Order
 export * from './admin-store/order/new_order/NewOrder'
 
-// Update Order
-export * from './admin-store/order/update_order/UpdateOrder'
-
 // Detail Order
 export * from './admin-store/order/detail_order/DetailOrder'
 
 // Report Order
 export * from './admin-store/order/report_order/ReportOrder'
+
+// CLAIM WARRANTY
+// List Claim Warranty
+export * from './admin-store/warranty/list_claim_warranty/WarrantyClaimList'
+
+// Form Claim Warranty
+export * from './admin-store/warranty/form_warranty_claim/WarrantyFormClaim'
 
 // WORK ORDER
 // View Work Order
@@ -112,9 +116,6 @@ export * from './admin-store/complaint/view_complaint/ViewComplaint'
 // New Complaint
 export * from './admin-store/complaint/new_complaint/NewComplaint'
 
-// Update Complaint
-export * from './admin-store/complaint/update_complaint/UpdateComplaint'
-
 // Detail Complaint
 export * from './admin-store/complaint/detail_complaint/DetailComplaint'
 
@@ -123,7 +124,13 @@ export * from './admin-store/complaint/report_complaint/ReportComplaint'
 
 // REPORT
 // View Report
-export * from './admin-store/reports/view_reports/ViewReport'
+export * from './admin-store/reports/view_report/ViewReport'
+
+// View Report Performance
+export * from './admin-store/reports/report_performance/ReportPerformance'
+
+// View Report Insentif
+export * from './admin-store/reports/report_insentif/ReportInsentif'
 
 // CSI
 // View CSI

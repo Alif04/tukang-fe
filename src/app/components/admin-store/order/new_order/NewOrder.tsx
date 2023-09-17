@@ -1,131 +1,196 @@
-import React, {FC} from 'react'
+import React, {FC, useState} from 'react'
 
 import './NewOrder.css'
 
-import {Form, Table, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 const NewOrderStore: FC = () => {
+  const [isChecked, setIsChecked] = useState(false)
+  const [fileName, setFileName] = useState<string>('No selected file')
+  const [image, setImage] = useState<string | null>(null)
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files && files[0]) {
+      setFileName(files[0].name)
+      setImage(URL.createObjectURL(files[0]))
+    }
+  }
+
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleRemoveFile = () => {
+    setFileName('No selected file')
+    setImage(null)
+  }
+
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked)
+  }
+
   return (
     <section id='new-order'>
       <div className='card mb-5'>
         <div className='card-body'>
-          <div className='d-flex justify-content-between'>
-            <div className='costumer-information'>
-              <div className='form-header'>
-                <Form.Label className='fw-bold'>
-                  Nama Toko
-                  <span className='fs-6 ms-2 pt-2 pb-2 fw-normal bg-secondary'>MITRA 10 - BSD</span>
-                </Form.Label>
+          <div className='form-wrapper'>
+            <div className='form-costumer'>
+              <Row className='form-header'>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                  <Form.Label className='fw-bold'>
+                    Nama Toko
+                    <span className='fs-6 ms-2 pt-2 pb-2 fw-normal bg-secondary'>
+                      MITRA 10 - BSD
+                    </span>
+                  </Form.Label>
+                </Col>
 
-                <div className=''>
-                  <Form.Check reverse type='switch' id='custom-switch' label='Payment Type :' />
-                  <Form.Label className='fw-bold d-flex justify-content-end me-2'>Free</Form.Label>
-                </div>
-              </div>
-
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Customer ID</Form.Label>
-                  <Form.Control type='text' placeholder='CUST001' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Nama Customer</Form.Label>
-                  <Form.Control type='text' placeholder='John Doe' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Order ID</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-              </div>
-
-              <div className='btn-wrapper d-flex align-items-end'>
-                <Button variant='light-dark' type='submit'>
-                  Print Picklist
-                </Button>
-              </div>
-            </div>
-
-            <div className='costumer-information'>
-              <div className='form-header'></div>
-
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                  <Form.Label>WA / Phone Number</Form.Label>
-                  <Form.Control type='number' placeholder='0855 1234 5768' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Alamat Email</Form.Label>
-                  <Form.Control type='email' placeholder='john.doe@gmail.com' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <div className='d-flex justify-content-between'>
-                    <Form.Label>Tanggal Request</Form.Label>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                  <div className='d-flex'>
+                    <Form.Label className='payment-type'>Payment Type :</Form.Label>
 
                     <div className='form-check-request'>
+                      <Form.Check inline label='Gratis' name='group1' type='radio' />
                       <Form.Check inline label='Survey' name='group1' type='radio' />
-                      <Form.Check inline label='Kerja Jasa' name='group1' type='radio' />
+                      <Form.Check inline label='Berbayar' name='group1' type='radio' />
+                      <Form.Check
+                        inline
+                        label='Pemasangan Tanpa Survey'
+                        name='group1'
+                        type='radio'
+                      />
                     </div>
                   </div>
-                  <Form.Control type='date' />
-                </Form.Group>
-              </div>
+                </Col>
+              </Row>
 
-              <div className='d-flex justify-content-center'>
-                <Button variant='dark-danger' type='submit'>
-                  Cancel
-                </Button>
+              <Row className='input-order'>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>No Member</Form.Label>
+                    <Form.Control type='text' readOnly defaultValue='CUST001' />
+                  </Form.Group>
+                </Col>
 
-                <Button variant='dark-primary' type='submit'>
-                  Save
-                </Button>
-              </div>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group className='mb-5'>
+                    <div className='d-flex justify-content-between'>
+                      <Form.Label>WA / Phone Number</Form.Label>
+
+                      <div className='form-check-request'>
+                        <Form.Check
+                          inline
+                          label={isChecked ? 'Whatsapp' : 'Bukan Whatsapp'}
+                          name='group1'
+                          type='checkbox'
+                          onChange={handleCheckboxChange}
+                        />
+                      </div>
+                    </div>
+                    <InputGroup className='mb-5'>
+                      <InputGroup.Text>+ 62</InputGroup.Text>
+                      <Form.Control type='number' placeholder='857 7777 7777' />
+                    </InputGroup>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='input-order'>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Nama Customer</Form.Label>
+                    <Form.Control type='text' readOnly defaultValue='John' />
+                  </Form.Group>
+                </Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control type='email' defaultValue='john.doe@gmail.com' />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='alamat-order'>
+                <Col>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Alamat</Form.Label>
+                    <Form.Control
+                      as='textarea'
+                      className='field-alamat'
+                      defaultValue='Jl. Pahlawan'
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
             </div>
 
-            <div className='costumer-information'>
+            <div className='form-sales'>
               <div className='form-header'>
-                <h1 className='fw-bold'>ORDER STATUS: </h1>
-                <h1 className='fw-bold text-success'>PICKLIST</h1>
+                <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
               </div>
 
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Alamat</Form.Label>
-                  <Form.Control as='textarea' className='field-alamat' placeholder='Jl. Pahlawan' />
-                </Form.Group>
-              </div>
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label column sm='4'>
+                  Sales ID :
+                </Form.Label>
 
-              <div className='d-flex justify-content-center'>
-                <Button variant='dark-success' type='submit'>
-                  Email Order
-                </Button>
-              </div>
+                <Col sm='8'>
+                  <Form.Control defaultValue='SALES001' />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label column sm='4'>
+                  Nama Sales :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control defaultValue='Artur' />
+                </Col>
+              </Form.Group>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className='card'>
-        <div className='card-body'>
-          <div className='button-add text-end'>
-            <button>Add</button>
-          </div>
+          <Row className='table-order-header d-flex align-items-center mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
+              <Form.Group>
+                <Form.Label>Tanggal Request</Form.Label>
+                <Form.Control type='date' />
+              </Form.Group>
+            </Col>
 
-          <div className='table-picklist'>
-            <Table hover>
-              <thead className='table-picklist-head'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='order-status order-1 order-md-2'>
+              <h1 className='fw-bold'>
+                ORDER STATUS : <span className='fw-bold text-success'>PICKLIST</span>
+              </h1>
+            </Col>
+
+            <Col
+              xs={12}
+              md={4}
+              lg={4}
+              xl={4}
+              xxl={4}
+              className='button-add text-end order-3 order-md-3'
+            >
+              <button>Tambah Order</button>
+            </Col>
+          </Row>
+
+          <div className='table-order-content'>
+            <Table hover responsive='md'>
+              <thead className='table-order-head'>
                 <tr>
                   <th>Item Code</th>
                   <th>Item Name</th>
-                  <th>Group Item</th>
+                  <th>Nama Pemasangan</th>
+                  <th>QTY Pemasangan</th>
                   <th>Harga Jasa</th>
                   <th>Jumlah</th>
-                  <th>Total</th>
-                  <th>Sales Person</th>
-                  <th>Division</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,9 +200,7 @@ const NewOrderStore: FC = () => {
                   <td></td>
                   <td></td>
                   <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td>500.00</td>
                 </tr>
 
                 <tr>
@@ -146,23 +209,78 @@ const NewOrderStore: FC = () => {
                   <td></td>
                   <td></td>
                   <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td>500.00</td>
                 </tr>
 
                 <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td colSpan={5} className='text-end fw-bolder'>
+                    Total
+                  </td>
+                  <td className=' fw-bolder'>1.000.000</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={5} className='text-end fw-bolder'>
+                    Biaya Survey
+                  </td>
+                  <td className=' fw-bolder'>700.000</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={5} className='text-end fw-bolder'>
+                    Grand Total
+                  </td>
+                  <td className=' fw-bolder'>1.700.000</td>
                 </tr>
               </tbody>
             </Table>
+          </div>
+
+          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Form.Group controlId='formFile'>
+                <Form.Label>Upload Receipt</Form.Label>
+                <Form className='form-input-image' onClick={handleImageClick}>
+                  <Form.Control
+                    type='file'
+                    accept='image/*'
+                    className='input-field-image'
+                    hidden
+                    onChange={handleFileChange}
+                  />
+
+                  {image ? (
+                    <img src={image} alt={fileName} className='image-preview' />
+                  ) : (
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  )}
+                </Form>
+
+                <div className='uploaded-row'>
+                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                  <span className='upload-content'>{fileName}</span>
+
+                  <FontAwesomeIcon
+                    icon={faTrash}
+                    size='sm'
+                    color='#ed2b2a'
+                    style={{cursor: 'pointer'}}
+                    onClick={handleRemoveFile}
+                  />
+                </div>
+              </Form.Group>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+          </Row>
+
+          <div className='button-submit d-flex justify-content-center align-items-center'>
+            <Button variant='dark-primary'>Submit Order & Print</Button>
           </div>
         </div>
       </div>

@@ -47,32 +47,26 @@ export function AsideMenuMain() {
       >
         <AsideMenuItem
           to='/order/dashboard-order'
-          title='Dashboard Order'
+          title='Dashboard'
           role={['admin-store']}
           hasBullet={true}
         />
         <AsideMenuItem
-          to='/order/view-order'
-          title='View Order'
-          role={['admin-store', 'admin-ho']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
           to='/order/new-order'
-          title='New Order'
+          title='Order Baru'
           role={['admin-store', 'admin-ho']}
           hasBullet={true}
         />
         <AsideMenuItem
-          to='/order/update-order'
-          title='Update Order'
+          to='/order/view-order'
+          title='List Order'
           role={['admin-store', 'admin-ho']}
           hasBullet={true}
         />
         <AsideMenuItem
-          to='/order/report-order'
-          title='Report Order'
-          role={['admin-store', 'admin-ho']}
+          to='/warranty/claim-warranty-list'
+          title='Claim Garansi'
+          role={['admin-store']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -299,29 +293,29 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
-      {/* Halaman Complaint */}
+      {/* Halaman Pengaduan */}
       <AsideMenuItemWithSub
         to='/complaint'
-        title='Complaint'
+        title='Pengaduan'
         role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
       >
         <AsideMenuItem
-          to='/complaint/view-complaint'
-          title='View Complaint'
+          to='/complaint/report-complaint'
+          title='Pengaduan Konsumen Dashboard'
           role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/complaint/new-complaint'
-          title='New Complaint'
+          title='Request Pengaduan'
           role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
-          to='/complaint/report-complaint'
-          title='Report Complaint'
+          to='/complaint/view-complaint'
+          title='List Pengaduan'
           role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
           hasBullet={true}
         />
@@ -330,14 +324,26 @@ export function AsideMenuMain() {
       {/* Halaman Reports */}
       <AsideMenuItemWithSub
         to='/reports'
-        title='Reports'
+        title='Laporan'
         role={['admin-store']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
       >
         <AsideMenuItem
           to='/reports/view-report'
-          title='Report List'
+          title='List Laporan'
+          role={['admin-store']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/reports/report-insentif'
+          title='Insentif'
+          role={['admin-store']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/reports/report-performance'
+          title='Performance'
           role={['admin-store']}
           hasBullet={true}
         />
@@ -410,13 +416,20 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       {/* Halaman Setting */}
-      <AsideMenuItem
+      <AsideMenuItemWithSub
         to='/setting'
         icon='/media/icons/duotune/art/art002.svg'
-        title='Setting'
+        title='Pengaturan'
         fontIcon='bi-app-indicator'
         role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
-      />
+      >
+        <AsideMenuItem
+          to='/setting/register-sales'
+          title='Register Sales'
+          role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
 
       {/* Logout */}
       <div className='menu-item'>

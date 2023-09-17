@@ -5,7 +5,6 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
 import {NewOrder} from './components/NewOrder'
-import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {ReportOrder} from './components/ReportOrder'
 
@@ -31,7 +30,9 @@ const OrderPage: React.FC = () => {
         path='dashboard-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DASHBOARD ORDER</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              INSTALASI & SERVICE MITRA10 DASHBOARD
+            </PageTitle>
             <DashboardOrder />
           </>
         }
@@ -49,17 +50,8 @@ const OrderPage: React.FC = () => {
         path='new-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW PICKLIST FORM</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PESANAN BARU</PageTitle>
             <NewOrder />
-          </>
-        }
-      />
-      <Route
-        path='update-order'
-        element={
-          <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE ORDER FORM</PageTitle>
-            <UpdateOrder />
           </>
         }
       />
@@ -67,7 +59,7 @@ const OrderPage: React.FC = () => {
         path='detail-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>Detail ORDER</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER - 78453992 ALIA</PageTitle>
             <DetailOrder />
           </>
         }
@@ -76,7 +68,9 @@ const OrderPage: React.FC = () => {
         path='report-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              INSTALASI & SERVICE MITRA10 DASHBOARD
+            </PageTitle>
             <ReportOrder />
           </>
         }

@@ -1,89 +1,53 @@
-#new-complaint .costumer-information {
-  width: 345px;
+/* Form Layout */
+
+#new-complaint .form-wrapper {
+  margin-bottom: 30px;
 }
 
-#new-complaint .costumer-information .form-header {
-  display: flex;
-  justify-content: space-between;
-  min-height: 60px;
+#new-complaint .form-wrapper .form-header {
+  margin-bottom: 30px;
 }
 
-#new-complaint .costumer-information .form-body {
-  margin-bottom: 50px;
+#new-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 60%;
 }
 
-#new-complaint .costumer-information .form-body .field-alamat {
-  min-height: 172px;
+#new-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
 }
 
-#new-complaint .costumer-information .form-body .field-reason-complaint {
-  min-height: 130px;
+#new-complaint .costumer-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
 }
 
-#new-complaint .costumer-information .form-body .form-check-request .form-check-input {
-  margin-top: 0;
-  width: 15px;
-  height: 15px;
+#new-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 40%;
 }
 
-#new-complaint .costumer-information .form-body .service-information {
-  margin: 30px 0 30px 0;
+#new-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
 }
 
-#new-complaint .costumer-information .form-body .service-information .service-detail h1 {
-  padding: 10px 0 10px 0;
+#new-complaint .sales-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
 }
 
-#new-complaint .costumer-information .form-body .request-information {
-  margin: 25px 0 25px 0;
+/* Table Order */
+
+#new-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
 }
 
-#new-complaint .costumer-information .form-body .request-information .request-detail h1 {
-  padding: 10px 0 10px 0;
+#new-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 30px 0 30px;
 }
 
-#new-complaint
-  .costumer-information
-  .form-body
-  .request-information
-  .request-detail
-  .form-control.request-date {
-  border: none;
+#new-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 10px 0 100px;
 }
 
-#new-complaint
-  .costumer-information
-  .form-body
-  .request-information
-  .request-detail
-  .form-control.survey-date {
-  border: none;
-}
-
-#new-complaint .costumer-information .form-body .work-information {
-  margin: 25px 0 25px 0;
-}
-
-#new-complaint .costumer-information .form-body .work-information .work-detail h1 {
-  padding: 10px 0 10px 0;
-}
-
-#new-complaint
-  .costumer-information
-  .form-body
-  .work-information
-  .work-detail
-  .form-control.work-start {
-  border: none;
-}
-
-#new-complaint
-  .costumer-information
-  .form-body
-  .work-information
-  .work-detail
-  .form-control.work-finish {
-  border: none;
+#new-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
 }
 
 /* Button */
@@ -223,4 +187,97 @@ svg.svg-inline--fa.fa-file-image.fa-sm {
 
 svg.svg-inline--fa.fa-trash.fa-sm {
   margin: 0 0 0 10px;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #new-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-complaint .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #new-complaint .form-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #new-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #new-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #new-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-complaint .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+
+  /* Form Sales */
+
+  #new-complaint .form-sales .form-header {
+    margin-bottom: 20px;
+  }
+
+  #new-complaint .form-sales .form-header h1 {
+    text-align: start !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+  /* Table Order */
+
+  #new-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #new-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #new-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    margin-top: 20px;
+    padding: 0 10px 0 10px;
+  }
+
+  #new-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+
+  #new-complaint .btn.btn-dark-primary {
+    height: 40px;
+  }
+
+  #new-complaint .btn.btn-dark-danger {
+    height: 40px;
+  }
 }

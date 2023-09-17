@@ -4,7 +4,6 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {ViewComplaint} from './components/ViewComplaint'
 import {NewComplaint} from './components/NewComplaint'
-import {UpdateComplaint} from './components/UpdateComplaint'
 import {DetailComplaint} from './components/DetailComplaint'
 import {ReportComplaint} from './components/ReportComplaint'
 
@@ -30,7 +29,7 @@ const ComplaintPage: React.FC = () => {
         path='view-complaint'
         element={
           <>
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>COMPLAINT LIST</PageTitle>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>LIST PENGADUAN</PageTitle>
             <ViewComplaint />
           </>
         }
@@ -39,17 +38,8 @@ const ComplaintPage: React.FC = () => {
         path='new-complaint'
         element={
           <>
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>NEW COMPLAINT FORM</PageTitle>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>FORMULIR PENGADUAN</PageTitle>
             <NewComplaint />
-          </>
-        }
-      />
-      <Route
-        path='update-complaint'
-        element={
-          <>
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>UPDATE COMPLAINT FORM</PageTitle>
-            <UpdateComplaint />
           </>
         }
       />
@@ -58,7 +48,9 @@ const ComplaintPage: React.FC = () => {
         path='detail-complaint'
         element={
           <>
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>Detail COMPLAINT FORM</PageTitle>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>
+              DETAIL PENGADUAN 873487923 - Ryan Filbert
+            </PageTitle>
             <DetailComplaint />
           </>
         }
@@ -68,7 +60,7 @@ const ComplaintPage: React.FC = () => {
         path='report-complaint'
         element={
           <>
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>COMPLAINT DASHBOARD</PageTitle>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>PENGADUAN KONSUMEN DASHBOARD</PageTitle>
             <ReportComplaint />
           </>
         }

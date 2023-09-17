@@ -120,12 +120,12 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 }
 
 /* Table Order List */
-.table-head-wrapper {
+#update-tukang .table-head-wrapper {
   display: flex;
   justify-content: space-between;
 }
 
-.table-head-wrapper .right {
+#update-tukang .table-head-wrapper .right {
   display: flex;
   justify-content: space-between;
 }
@@ -218,89 +218,89 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   height: 15px;
 }
 
-#update-tukang .col-8.d-flex.justify-content-between{
-    flex-wrap: wrap;
+#update-tukang .col-8.d-flex.justify-content-between {
+  flex-wrap: wrap;
 }
 
-#update-tukang .col-8.d-flex.justify-content-between .col-12{
-    margin: -35px 0 20px 0;
+#update-tukang .col-8.d-flex.justify-content-between .col-12 {
+  margin: -35px 0 20px 0;
 }
 
-#update-tukang .button-right{
-    float: right;
-    margin-top: -50px;
+#update-tukang .button-right {
+  float: right;
+  margin-top: -50px;
 }
 
-#update-tukang .form-button-request{
-    display: flex;
+#update-tukang .form-button-request {
+  display: flex;
 }
 
-#update-tukang .form-button-request i{
-    font-size: 35px !important;
-    margin-top: -8px;
+#update-tukang .form-button-request i {
+  font-size: 35px !important;
+  margin-top: -8px;
 }
 
-#update-tukang .mb-5 .form-input-image{
-    height: 250px;
+#update-tukang .mb-5 .form-input-image {
+  height: 250px;
 }
 
-#update-tukang .mb-5 .form-input-image.diri{
-    height: 130px;
+#update-tukang .mb-5 .form-input-image.diri {
+  height: 130px;
 }
 
-#update-tukang .mb-5 .form-input-image i{
-    font-size: 40px;
+#update-tukang .mb-5 .form-input-image i {
+  font-size: 40px;
 }
 
-    #update-tukang .parent {
-      border-radius: 15px;
-    }
-    #update-tukang .file-upload {
-      text-align: center;
-      border: 3px solid rgb(210, 227, 244);
-      padding: 1.5rem;
-      position: relative;
-      cursor: pointer;
-      height: 100px;
-    }
-    #update-tukang .file-upload i {
-      font-size: 40px;
-    }
+#update-tukang .parent {
+  border-radius: 15px;
+}
+#update-tukang .file-upload {
+  text-align: center;
+  border: 3px solid rgb(210, 227, 244);
+  padding: 1.5rem;
+  position: relative;
+  cursor: pointer;
+  height: 100px;
+}
+#update-tukang .file-upload i {
+  font-size: 40px;
+}
 
-    #update-tukang .file-upload input {
-      display: block;
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-    #update-tukang .file-upload2 {
-      border: 3px solid rgb(210, 227, 244);
-      padding: 1.5rem;
-      position: relative;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 300px;
-    }
-    #update-tukang .file-upload2 i {
-      font-size: 40px;
-    }
-    #update-tukang .file-upload2 input {
-      display: block;
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
+#update-tukang .file-upload input {
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+#update-tukang .file-upload2 {
+  border: 3px solid rgb(210, 227, 244);
+  padding: 1.5rem;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+}
+#update-tukang .file-upload2 i {
+  font-size: 40px;
+}
+#update-tukang .file-upload2 input {
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  cursor: pointer;
+}

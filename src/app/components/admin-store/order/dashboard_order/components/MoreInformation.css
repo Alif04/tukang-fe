@@ -1,0 +1,9 @@
+@media screen and (max-width: 1200px) {
+  #more-information .fs-1.text-gray-800 {
+    text-align: center;
+  }
+
+  #more-information .fs-1.text-danger {
+    text-align: center;
+  }
+}

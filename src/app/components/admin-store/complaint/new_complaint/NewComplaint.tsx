@@ -2,14 +2,10 @@ import React, {FC} from 'react'
 import {useState} from 'react'
 
 import './NewComplaint.css'
-import Button from 'react-bootstrap/Button'
-import Form from 'react-bootstrap/Form'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import InputGroup from 'react-bootstrap/InputGroup'
 
+import {Row, Col, Form, InputGroup, ListGroup, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 const NewComplaintStore: FC = () => {
   const [fileName, setFileName] = useState<string>('No selected file')
@@ -37,221 +33,274 @@ const NewComplaintStore: FC = () => {
     <section id='new-complaint'>
       <div className='card'>
         <div className='card-body'>
-          <div className='d-flex justify-content-between'>
-            <div className='costumer-information'>
-              <div className='form-header'>
-                <Form.Label className='fw-bold'>
-                  Nama Toko
-                  <span className='ps-4 fs-4 fw-bolder'>MITRA 10 - BSD</span>
+          <div className='form-wrapper'>
+            <Row className='form-header'>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 - BSD</span>
                 </Form.Label>
-              </div>
 
-              <div className='form-body'>
-                <Form.Label>Customer ID</Form.Label>
-                <InputGroup className='mb-5'>
-                  <InputGroup.Text>
-                    <i className='bi bi-search' style={{fontSize: '15px'}}></i>
-                  </InputGroup.Text>
-                  <Form.Control aria-label='Username' placeholder='Search' />
-                </InputGroup>
+                <Form.Label className='fs-4 fw-bold'>
+                  Complaint ID : <span className='fs-4 ms-2 fw-normal'>873487923</span>
+                </Form.Label>
+              </Col>
 
-                <Form.Group className='mb-5'>
-                  <Form.Label>Nama Customer</Form.Label>
-                  <Form.Control type='text' placeholder='John Doe' />
-                </Form.Group>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Order ID : <span className='fs-4 ms-2 fw-normal'>77652739</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-4 fw-bold'>
+                  LAST ORDER STATUS : <span className='fs-4 ms-2 fw-bold text-success'>BOOKED</span>
+                </Form.Label>
+              </Col>
 
-                <Form.Group className='mb-5'>
-                  <Form.Label>WA / Phone Number</Form.Label>
-                  <Form.Control type='number' placeholder='0855 1234 5768' />
-                </Form.Group>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Receipt Number : <span className='fs-4 ms-2 fw-normal'>898823469121</span>
+                </Form.Label>
+              </Col>
+            </Row>
 
-                <Form.Group className='mb-5'>
-                  <Form.Label>Alamat Email</Form.Label>
-                  <Form.Control type='email' placeholder='john.doe@gmail.com' />
-                </Form.Group>
+            <Row className='information-detail'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
+                <div className='fs-3 fw-bold'>Informasi Pembeli</div>
+                <Row>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        No Member :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='876992300239' />
+                      </Col>
+                    </Form.Group>
 
-                <Form.Group className='mb-5'>
-                  <Form.Label>Alamat Pemasangan</Form.Label>
-                  <Form.Control as='textarea' className='field-alamat' placeholder='Jl. Pahlawan' />
-                </Form.Group>
-              </div>
-            </div>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Customer Name :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='Ryan Filbert' />
+                      </Col>
+                    </Form.Group>
 
-            <div className='costumer-information'>
-              <div className='form-header'>
-                <Form.Group as={Row} className='mb-3'>
-                  <Form.Label column sm='4'>
-                    Complaint ID :
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Alamat Pemasangan :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control
+                          as='textarea'
+                          plaintext
+                          readOnly
+                          rows={3}
+                          defaultValue='Jl. Kijang no.9, Jakarta Timur DKI Jakarta, Indonesia'
+                        />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Nomor Telp/WA :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='08126768945' />
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Alamat Email :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='ryan.filbert@gmail.com' />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Col>
+
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+                <div className='fs-3 fw-bold'>Informasi Penjual</div>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Sales ID :
                   </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='text' />
+                  <Col sm='6'>
+                    <Form.Control plaintext readOnly defaultValue='876123887787' />
                   </Col>
                 </Form.Group>
-              </div>
 
-              <div className='form-body'>
-                <Form.Label>Order ID : </Form.Label>
-                <InputGroup className='mb-5'>
-                  <InputGroup.Text>
-                    <i className='bi bi-search' style={{fontSize: '15px'}}></i>
-                  </InputGroup.Text>
-                  <Form.Control aria-label='Username' placeholder='Search' />
-                </InputGroup>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Nama Jasa Pemasangan</Form.Label>
-                  <Form.Control type='text' />
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Sales Person :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Control plaintext readOnly defaultValue='Wendy Silitonga' />
+                  </Col>
                 </Form.Group>
+              </Col>
+            </Row>
+          </div>
 
-                <Form.Group className='mb-5 '>
-                  <Form.Label>Nama Lengkap Barang</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
+          <Row className='table-warranty d-flex align-items-center mb-5'>
+            <div className='table-title-warranty'>
+              <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
 
-                <div className='service-information d-flex justify-content-between'>
-                  <div className='service-detail text-center'>
-                    <h1 className='fs-6'>Harga Jasa</h1>
-                    <p>1.000.000</p>
-                  </div>
-
-                  <div className='service-detail text-center'>
-                    <h1 className='fs-6'>Quantity</h1>
-                    <p>1</p>
-                  </div>
-
-                  <div className='service-detail text-center'>
-                    <h1 className='fs-6'>Total Harga Jasa</h1>
-                    <p>1.000.000</p>
-                  </div>
-                </div>
-
-                <div className='request-information d-flex justify-content-between'>
-                  <Form.Group className='request-detail'>
-                    <div className='d-flex justify-content-between'>
-                      <h1 className='fs-6'>Tanggal Request Survey</h1>
-                    </div>
-                    <Form.Control type='date' className='request-date' />
-                  </Form.Group>
-
-                  <Form.Group className='request-detail'>
-                    <div className='d-flex justify-content-between'>
-                      <h1 className='fs-6 d-block m-auto'>Tanggal Survey</h1>
-                    </div>
-                    <Form.Control type='date' className='survey-date' />
-                  </Form.Group>
-                </div>
-
-                <div className='work-information d-flex justify-content-between'>
-                  <Form.Group className='work-detail'>
-                    <div className='d-flex justify-content-between'>
-                      <h1 className='fs-6'>Tanggal Work Start</h1>
-                    </div>
-                    <Form.Control type='date' className='work-start' />
-                  </Form.Group>
-
-                  <Form.Group className='work-detail'>
-                    <div className='d-flex justify-content-between'>
-                      <h1 className='fs-6 d-block m-auto'>Tanggal Work Finish</h1>
-                    </div>
-                    <Form.Control type='date' className='work-finish' />
-                  </Form.Group>
-                </div>
-              </div>
-
-              <div className='d-flex justify-content-center'>
-                <Button variant='dark-danger' type='submit'>
-                  Cancel
-                </Button>
-
-                <Button variant='dark-primary' type='submit'>
-                  Save
-                </Button>
-              </div>
+              <Form.Group as={Row} className='mb-3' controlId='formPlaintextEmail'>
+                <Form.Label column sm='3'>
+                  Tanggal request pemasangan :
+                </Form.Label>
+                <Col sm='9'>
+                  <Form.Control type='date' plaintext readOnly />
+                </Col>
+              </Form.Group>
             </div>
 
-            <div className='costumer-information'>
-              <div className='form-header'>
-                <h1 className='fw-bold'>ORDER STATUS: </h1>
-                <h1 className='fw-bold text-danger'>COMPLAINT</h1>
-              </div>
+            <div className='table-warranty-content'>
+              <Table hover responsive='md'>
+                <thead className='table-warranty-head'>
+                  <tr>
+                    <th>Item Code</th>
+                    <th>Item Name</th>
+                    <th>Nama Pemasangan</th>
+                    <th>QTY Pemasangan</th>
+                    <th>Harga Jasa</th>
+                    <th>Jumlah</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>500.00</td>
+                  </tr>
 
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                  <h1>Reason For Complaint</h1>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>500.00</td>
+                  </tr>
+
+                  <tr>
+                    <td colSpan={5} className='text-end fw-bolder'>
+                      Total
+                    </td>
+                    <td className=' fw-bolder'>1.000.000</td>
+                  </tr>
+
+                  <tr>
+                    <td colSpan={5} className='text-end fw-bolder'>
+                      Biaya Survey
+                    </td>
+                    <td className=' fw-bolder'>700.000</td>
+                  </tr>
+
+                  <tr>
+                    <td colSpan={5} className='text-end fw-bolder'>
+                      Grand Total
+                    </td>
+                    <td className=' fw-bolder'>1.700.000</td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          </Row>
+
+          <Row className='mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Group className='mb-3'>
+                <Form.Label>Tanggal Komplain :</Form.Label>
+                <Form.Control type='date' />
+              </Form.Group>
+
+              <Form.Group className='mb-3'>
+                <Form.Label>Komplain melalui : </Form.Label>
+                <Form.Select>
+                  <option value='telepon'>Telepon</option>
+                  <option value='datang'>Datang</option>
+                  <option value='wa'>WA</option>
+                  <option value='email'>Email</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Label>Alasan :</Form.Label>
+              <Form.Control
+                style={{minHeight: '250px'}}
+                as='textarea'
+                defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
+                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
+              ></Form.Control>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Group controlId='formFile'>
+                <Form.Label>Upload Receipt</Form.Label>
+                <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
-                    as='textarea'
-                    rows={3}
-                    className='field-reason-complaint'
-                    placeholder='Write a message'
+                    type='file'
+                    accept='image/*'
+                    className='input-field-image'
+                    hidden
+                    onChange={handleFileChange}
                   />
-                </Form.Group>
 
-                <Form.Group as={Row} className='mb-5' controlId='formPlaintextPassword'>
-                  <Form.Label>Komplain melalui : </Form.Label>
-                  <Col>
-                    <Form.Select>
-                      <option>Telpon</option>
-                      <option>Datang</option>
-                      <option>WA</option>
-                      <option>Email</option>
-                    </Form.Select>
-                  </Col>
-                </Form.Group>
+                  {image ? (
+                    <img src={image} alt={fileName} className='image-preview' />
+                  ) : (
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  )}
+                </Form>
 
-                <Form.Group className='mb-5'>
-                  <div className='d-flex justify-content-between'>
-                    <Form.Label>Tanggal Komplain :</Form.Label>
-                  </div>
-                  <Form.Control type='date' />
-                </Form.Group>
+                <div className='uploaded-row'>
+                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                <Form.Group controlId='formFile' className='mb-5'>
-                  <Form.Label>Upload Receipt</Form.Label>
-                  <Form className='form-input-image' onClick={handleImageClick}>
-                    <Form.Control
-                      type='file'
-                      accept='image/*'
-                      className='input-field-image'
-                      hidden
-                      onChange={handleFileChange}
-                    />
+                  <span className='upload-content'>{fileName}</span>
 
-                    {image ? (
-                      <img src={image} alt={fileName} className='image-preview' />
-                    ) : (
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    )}
-                  </Form>
+                  <FontAwesomeIcon
+                    icon={faTrash}
+                    size='sm'
+                    color='#ed2b2a'
+                    style={{cursor: 'pointer'}}
+                    onClick={handleRemoveFile}
+                  />
+                </div>
+              </Form.Group>
+            </Col>
+          </Row>
 
-                  <div className='uploaded-row'>
-                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+          <div className='d-flex justify-content-center align-items-center mt-5'>
+            <Button
+              variant='dark-danger'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+            >
+              Cancel
+            </Button>
 
-                    <span className='upload-content'>{fileName}</span>
-
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      size='sm'
-                      color='#ed2b2a'
-                      style={{cursor: 'pointer'}}
-                      onClick={handleRemoveFile}
-                    />
-                  </div>
-                </Form.Group>
-              </div>
-
-              <div className='d-flex justify-content-center'>
-                <Button variant='light-dark' type='submit'>
-                  Print Picklist
-                </Button>
-
-                <Button variant='dark-success' type='submit'>
-                  Email Complaint
-                </Button>
-              </div>
-            </div>
+            <Button
+              variant='dark-primary'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+            >
+              Submit
+            </Button>
           </div>
         </div>
       </div>

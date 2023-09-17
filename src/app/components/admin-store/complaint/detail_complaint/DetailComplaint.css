@@ -1,165 +1,229 @@
-/* Card */
+/* Form Layout */
 
-#detail-complaint .card .card-body .information-wrapper {
-  width: 330px;
+#detail-complaint .form-wrapper {
+  margin-bottom: 30px;
 }
 
-#detail-complaint .information-wrapper .detail-header {
-  min-height: 70px;
+#detail-complaint .form-wrapper .form-header {
+  margin-bottom: 30px;
 }
 
-#detail-complaint .order-history {
-  margin-top: 20px;
-  margin-bottom: 50px;
+#detail-complaint .form-wrapper .form-header label.form-label.col-form-label.col-sm-4 {
+  padding: 3px 9.75px;
 }
 
-#detail-complaint .order-history .title h1 {
-  font-size: 22.5px;
-  padding: 0 0 20px 0;
+#detail-complaint .form-wrapper .form-header input.form-control-plaintext {
+  padding: 3px 0px;
 }
 
-/* Detail Complaint */
-
-#detail-complaint .complaint-information h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#detail-complaint .form-wrapper .form-header label.fs-4.fw-bold.form-label {
+  margin: 0 !important;
 }
 
-#detail-complaint .complaint-detail h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#detail-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 60%;
 }
 
-#detail-complaint .complaint-detail p {
-  font-size: 14px;
-  font-weight: 400;
+#detail-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
 }
 
-#detail-complaint .complaint-evidence h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#detail-complaint .costumer-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
 }
 
-#detail-complaint .table.detail-complaint-table tr,
-.table.detail-complaint-table th,
-.table.detail-complaint-table td {
-  border: none;
+#detail-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 40%;
 }
 
-/* Timeline */
-
-#detail-complaint .anticon svg {
-  color: white;
+#detail-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
 }
 
-#detail-complaint .ant-steps.ant-steps-small .ant-steps-item-icon {
-  line-height: 20px;
+#detail-complaint .sales-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
 }
 
-#detail-complaint .ant-steps .ant-steps-item-wait .ant-steps-item-icon {
-  background-color: #ee480a !important;
-  opacity: 0.3;
+/* Table Order */
+
+#detail-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
 }
 
-#detail-complaint .ant-steps .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
-  color: #ffff;
+#detail-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 30px 0 30px;
 }
 
-#detail-complaint .ant-steps .ant-steps-item-process .ant-steps-item-icon {
-  background-color: #ee480a !important;
-  border-color: #ffff;
-  border-width: 2px;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+#detail-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 10px 0 100px;
 }
 
-#detail-complaint .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
-  background-color: #ee480a !important;
-  border-color: #ffff;
-  border-width: 2px;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+#detail-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
 }
 
-#detail-complaint .ant-steps-item-title {
-  margin: 0 20px 0 20px;
-  font-weight: 600;
+/* Table Complaint*/
+
+#detail-complaint .table-picklist .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
 }
 
-#detail-complaint
-  .ant-steps
-  .ant-steps-item-wait
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-title {
-  margin: 0 20px 20px;
-  font-weight: 400;
+#detail-complaint .table-picklist th {
+  text-align: center;
 }
 
-#detail-complaint .ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
-  margin: 0 0 0 56px;
-  padding: 3px 16px;
+/* Form Input Image */
+
+form.form-input-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed #858585;
+  width: 100%;
+  min-height: 110px;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
-#detail-complaint
-  .ant-steps
-  .ant-steps-item-process
-  > .ant-steps-item-container
-  > .ant-steps-item-tail::after {
-  background-color: #ee480a !important;
-  opacity: 0.3;
-  height: 4px;
-  border-radius: 0;
+.input-image-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px;
 }
 
-#detail-complaint
-  .ant-steps
-  .ant-steps-item-wait
-  > .ant-steps-item-container
-  > .ant-steps-item-tail::after {
-  background-color: #ee480a !important;
-  height: 4px;
-  opacity: 0.3;
-  border-radius: 0;
+.input-image-text p {
+  margin: 10px 10px;
+  padding: 5px 10px !important;
+  border: 1px solid;
+  border-radius: 5px;
+  color: #858585;
 }
 
-#detail-complaint
-  .ant-steps
-  .ant-steps-item-finish
-  > .ant-steps-item-container
-  > .ant-steps-item-tail::after {
-  background-color: #ee480a !important;
-  height: 4px;
-  border-radius: 0;
+.uploaded-row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 5px;
+  background-color: #f4f7fe;
 }
 
-/* Button */
-
-#detail-complaint .btn.btn-dark-danger {
-  width: 100px;
-  height: 50px;
-  margin: 0 10px 0 10px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #a30014 !important;
-  transition: 0.3s ease-in-out;
+.upload-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.btn.btn-dark-danger:hover:not(.btn-active) {
-  background-color: #d80019 !important;
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-#detail-complaint .btn.btn-dark-primary {
-  width: 180px;
-  height: 50px;
-  margin: 0 10px 0 10px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #020080 !important;
-  transition: 0.3s ease-in-out;
+svg.svg-inline--fa.fa-file-image.fa-sm {
+  margin: 0 10px 0 0;
 }
 
-.btn.btn-dark-primary:hover:not(.btn-active) {
-  background-color: #0300b5 !important;
+svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0 0 0 10px;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #detail-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #detail-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #detail-complaint .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #detail-complaint .form-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #detail-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #detail-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #detail-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #detail-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #detail-complaint .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+
+  /* Form Sales */
+
+  #detail-complaint .form-sales .form-header {
+    margin-bottom: 20px;
+  }
+
+  #detail-complaint .form-sales .form-header h1 {
+    text-align: start !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+  /* Table Order */
+
+  #detail-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #detail-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #detail-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    margin-top: 20px;
+    padding: 0 10px 0 10px;
+  }
+
+  #detail-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+
+  #detail-complaint .btn.btn-dark-primary {
+    height: 40px;
+  }
+
+  #detail-complaint .btn.btn-dark-danger {
+    height: 40px;
+  }
 }
