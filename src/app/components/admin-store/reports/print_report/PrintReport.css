@@ -1,0 +1,197 @@
+/* Form Layout */
+
+#print-report .form-wrapper {
+  margin-bottom: 30px;
+}
+
+#print-report .form-wrapper .form-header {
+  margin-bottom: 30px;
+}
+
+/* Costumer Information Form Layout */
+#print-report .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#print-report .costumer-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#print-report .costumer-info .detail-info.row textarea.form-control-plaintext {
+  height: 70px;
+}
+
+/* Product Information Form Layout */
+#print-report .product-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#print-report .product-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#print-report .product-info .detail-info.row textarea.form-control-plaintext {
+  height: 55px;
+}
+
+/* Sales Information Form Layout */
+#print-report .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#print-report .sales-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+/* Timeline */
+
+#print-report .anticon svg {
+  color: white;
+}
+
+#print-report .ant-steps.ant-steps-small .ant-steps-item-icon {
+  line-height: 20px;
+}
+
+#print-report
+  .ant-steps.order-history-timeline
+  .ant-steps-item-wait
+  .ant-steps-item-icon
+  > .ant-steps-icon {
+  color: #ffff;
+}
+
+#print-report .ant-steps-item-title {
+  margin: 0 20px 0 20px;
+  font-weight: 600;
+}
+
+#print-report
+  .ant-steps
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  margin: 0 20px 20px;
+  font-weight: 400;
+}
+
+#print-report .ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
+  margin: 0 0 0 56px;
+  padding: 3px 16px;
+}
+
+/* Timeline Order History */
+
+#print-report .ant-steps.order-history-timeline .ant-steps-item-wait .ant-steps-item-icon {
+  background-color: #055900 !important;
+  opacity: 0.3;
+}
+
+#print-report .ant-steps.order-history-timeline .ant-steps-item-process .ant-steps-item-icon {
+  background-color: #055900 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+#print-report .ant-steps.order-history-timeline .ant-steps-item-finish .ant-steps-item-icon {
+  background-color: #055900 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+#print-report
+  .ant-steps.order-history-timeline
+  .ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  opacity: 0.3;
+  height: 4px;
+  border-radius: 0;
+}
+
+#print-report
+  .ant-steps.order-history-timeline
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  height: 4px;
+  opacity: 0.3;
+  border-radius: 0;
+}
+
+#print-report
+  .ant-steps.order-history-timeline
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  height: 4px;
+  border-radius: 0;
+}
+
+/* Button Action */
+
+#print-report .btn.btn-danger {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#print-report .btn.btn-danger:hover:not(.btn-active) {
+  background-color: #c40017 !important;
+}
+
+#print-report .btn.btn-dark-primary {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#print-report .btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300bd !important;
+}
+
+@media screen and (max-width: 1400px) {
+}
+
+@media screen and (max-width: 1200px) {
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+}
+
+@media screen and (max-width: 576px) {
+  #print-report .costumer-info .detail-info.row textarea.form-control-plaintext {
+    height: 50px;
+  }
+
+  /* Button Action */
+
+  #print-report .btn.btn-danger {
+    width: 100%;
+    height: 50px;
+    margin: 0 10px 0 0;
+  }
+
+  #print-report .btn.btn-dark-primary {
+    width: 100%;
+    height: 50px;
+    margin: 0 0 0 10px;
+  }
+}

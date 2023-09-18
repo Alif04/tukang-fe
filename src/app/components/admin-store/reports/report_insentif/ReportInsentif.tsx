@@ -6,6 +6,7 @@ import './ReportInsentif.css'
 import {Table, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Button} from 'react-bootstrap'
+import {useNavigate} from 'react-router-dom'
 
 type Props = {
   className: string
@@ -185,6 +186,12 @@ const data: DataType[] = [
 ]
 
 const ReportInsentifStore: React.FC<Props> = ({className}) => {
+  const navigate = useNavigate()
+
+  const handlePrintReport = () => {
+    navigate('/reports/print-report')
+  }
+
   return (
     <section id='report-insentif'>
       <div className={`card ${className}`}>
@@ -229,6 +236,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
               variant='dark-gray'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              onClick={handlePrintReport}
             >
               Print Report
             </Button>

@@ -2,6 +2,7 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {PrintReport} from './components/PrintReport'
 import {ViewReport} from './components/ViewReport'
 import {ReportPerformanceList} from './components/ReportPerformanceList'
 import {ReportInsentifList} from './components/ReportInsentifList'
@@ -45,7 +46,15 @@ const RefundPage: React.FC = () => {
           </>
         }
       />
-
+      <Route
+        path='print-report'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>PRINT REPORT</PageTitle>
+            <PrintReport />
+          </>
+        }
+      />
       <Route index element={<Navigate to='/reports/view-report' />} />
     </Routes>
   )
