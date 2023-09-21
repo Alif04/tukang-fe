@@ -5,7 +5,6 @@ import {Link} from 'react-router-dom'
 import {KTSVG, toAbsoluteUrl} from '../../../helpers'
 import {useLayout} from '../../core'
 import {Header} from './Header'
-import {DefaultTitle} from './page-title/DefaultTitle'
 import {Topbar} from './Topbar'
 
 export function HeaderWrapper() {
