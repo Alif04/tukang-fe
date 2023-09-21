@@ -1,6 +1,6 @@
 import clsx from 'clsx'
-import React, { FC } from 'react'
-import { KTSVG, toAbsoluteUrl } from '../../../helpers'
+import React, {FC} from 'react'
+import {KTSVG, toAbsoluteUrl} from '../../../helpers'
 import {
   HeaderNotificationsMenu,
   HeaderUserMenu,
@@ -8,7 +8,7 @@ import {
   Search,
   ThemeModeSwitcher,
 } from '../../../partials'
-import { useLayout } from '../../core'
+import {useLayout} from '../../core'
 
 const toolbarButtonMarginClass = 'ms-1 ms-lg-3',
   toolbarButtonHeightClass = 'w-30px h-30px w-md-40px h-md-40px',
@@ -16,7 +16,7 @@ const toolbarButtonMarginClass = 'ms-1 ms-lg-3',
   toolbarButtonIconSizeClass = 'svg-icon-1'
 
 const Topbar: FC = () => {
-  const { config } = useLayout()
+  const {config} = useLayout()
 
   return (
     <div className='d-flex align-items-stretch flex-shrink-0' id='topbar'>
@@ -49,10 +49,7 @@ const Topbar: FC = () => {
           data-kt-menu-placement='bottom-end'
           data-kt-menu-flip='bottom'
         >
-          <KTSVG
-            path='/media/envelope.svg'
-            className={toolbarButtonIconSizeClass}
-          />
+          <KTSVG path='/media/envelope.svg' className={toolbarButtonIconSizeClass} />
         </div>
         <QuickLinks />
       </div>
@@ -68,10 +65,7 @@ const Topbar: FC = () => {
           data-kt-menu-placement='bottom-end'
           data-kt-menu-flip='bottom'
         >
-          <KTSVG
-            path='/media/bell.svg'
-            className={toolbarButtonIconSizeClass}
-          />
+          <KTSVG path='/media/bell.svg' className={toolbarButtonIconSizeClass} />
         </div>
         <HeaderNotificationsMenu />
       </div>
@@ -87,10 +81,7 @@ const Topbar: FC = () => {
           data-kt-menu-placement='bottom-end'
           data-kt-menu-flip='bottom'
         >
-          <KTSVG
-            path='/media/list-ul.svg'
-            className={toolbarButtonIconSizeClass}
-          />
+          <KTSVG path='/media/list-ul.svg' className={toolbarButtonIconSizeClass} />
         </div>
         {/* <HeaderNotificationsMenu /> */}
       </div>
@@ -153,4 +144,4 @@ const Topbar: FC = () => {
   )
 }
 
-export { Topbar }
+export {Topbar}

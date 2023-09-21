@@ -39,17 +39,21 @@ const NewComplaintStore: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 - BSD</span>
                 </Form.Label>
-
+                <br></br>
                 <Form.Label className='fs-4 fw-bold'>
                   Complaint ID : <span className='fs-4 ms-2 fw-normal'>873487923</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>77652739</span>
-                </Form.Label>
-                <br></br>
+                <Form.Group as={Row} className='order-id-complaint'>
+                  <Form.Label column sm='4'>
+                    Order ID :
+                  </Form.Label>
+                  <Col sm='8'>
+                    <Form.Control type='number' value='873487923' />
+                  </Col>
+                </Form.Group>
                 <Form.Label className='fs-4 fw-bold'>
                   LAST ORDER STATUS : <span className='fs-4 ms-2 fw-bold text-success'>BOOKED</span>
                 </Form.Label>

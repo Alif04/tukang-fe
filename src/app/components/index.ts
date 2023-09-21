@@ -135,6 +135,9 @@ export * from './admin-store/reports/report_insentif/ReportInsentif'
 // Print Report
 export * from './admin-store/reports/print_report/PrintReport'
 
+// Total Order Report
+export * from './admin-store/reports/total_order_report/TotalOrderReport'
+
 // CSI
 // View CSI
 export * from './admin-ho/csi/view_csi/ViewCSI'

@@ -32,6 +32,19 @@
   padding: 3px 0px;
 }
 
+/* Form Header */
+#new-complaint .form-header .order-id-complaint.row {
+  margin: 0 0 6.25px 0;
+}
+
+#new-complaint .form-header label.form-label.col-form-label.col-sm-4 {
+  padding: 0;
+}
+
+#new-complaint .form-header input.form-control {
+  padding: 0 6.25px;
+}
+
 /* Table Order */
 
 #new-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {

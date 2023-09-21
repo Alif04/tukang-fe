@@ -2,13 +2,15 @@ import React, {FC, useState} from 'react'
 
 import './DetailComplaint.css'
 
-import {Row, Col, Form, FormGroup, Button, ListGroup, Table} from 'react-bootstrap'
+import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
+import {Button, InputNumber, Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 const DetailComplaintStore: FC = () => {
   const [fileName, setFileName] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
+  const [visible, setVisible] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -263,9 +265,15 @@ const DetailComplaintStore: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
               <ListGroup>
-                <ListGroup.Item>342344.png</ListGroup.Item>
-                <ListGroup.Item>848735.png</ListGroup.Item>
-                <ListGroup.Item>Complaint.docx</ListGroup.Item>
+                <ListGroup.Item action onClick={() => setVisible(true)}>
+                  342344.png
+                </ListGroup.Item>
+                <ListGroup.Item action onClick={() => setVisible(true)}>
+                  848735.png
+                </ListGroup.Item>
+                <ListGroup.Item action onClick={() => setVisible(true)}>
+                  Complaint.docx
+                </ListGroup.Item>
               </ListGroup>
             </Col>
           </Row>
@@ -396,9 +404,15 @@ const DetailComplaintStore: FC = () => {
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
                   <ListGroup>
-                    <ListGroup.Item>342344.png</ListGroup.Item>
-                    <ListGroup.Item>848735.png</ListGroup.Item>
-                    <ListGroup.Item>Complaint.docx</ListGroup.Item>
+                    <ListGroup.Item action onClick={() => setVisible(true)}>
+                      342344.png
+                    </ListGroup.Item>
+                    <ListGroup.Item action onClick={() => setVisible(true)}>
+                      848735.png
+                    </ListGroup.Item>
+                    <ListGroup.Item action onClick={() => setVisible(true)}>
+                      Complaint.docx
+                    </ListGroup.Item>
                   </ListGroup>
                 </Col>
               </Row>
@@ -406,6 +420,19 @@ const DetailComplaintStore: FC = () => {
           </div>
         </div>
       </div>
+
+      <Image
+        width={200}
+        style={{display: 'none'}}
+        src='https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60'
+        preview={{
+          visible,
+          src: 'https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60',
+          onVisibleChange: (value) => {
+            setVisible(value)
+          },
+        }}
+      />
     </section>
   )
 }

@@ -23,84 +23,84 @@
   height: 15px;
 }
 
-#new-tukang .col-8.d-flex.justify-content-between{
-    flex-wrap: wrap;
+#new-tukang .col-8.d-flex.justify-content-between {
+  flex-wrap: wrap;
 }
 
-#new-tukang .col-8.d-flex.justify-content-between .col-12{
-    margin: -35px 0 20px 0;
+#new-tukang .col-8.d-flex.justify-content-between .col-12 {
+  margin: -35px 0 20px 0;
 }
 
-#new-tukang .mb-5 .form-input-image{
-    height: 250px;
+#new-tukang .mb-5 .form-input-image {
+  height: 250px;
 }
 
-#new-tukang .form-button-request{
+#new-tukang .form-button-request {
   display: flex;
 }
 
-#new-tukang .form-button-request i{
+#new-tukang .form-button-request i {
   font-size: 25px;
   margin-top: -4px;
 }
 
-#new-tukang .mb-5 .form-input-image.diri{
-    height: 130px;
+#new-tukang .mb-5 .form-input-image.diri {
+  height: 130px;
 }
 
-#new-tukang .mb-5 .form-input-image i{
-    font-size: 40px;
+#new-tukang .mb-5 .form-input-image i {
+  font-size: 40px;
 }
 
-    #new-tukang .parent {
-      border-radius: 15px;
-    }
-    #new-tukang .file-upload {
-      text-align: center;
-      border: 3px solid rgb(210, 227, 244);
-      padding: 1.5rem;
-      position: relative;
-      cursor: pointer;
-      height: 100px;
-    }
-    #new-tukang .file-upload i {
-      font-size: 40px;
-    }
+#new-tukang .parent {
+  border-radius: 15px;
+}
+#new-tukang .file-upload {
+  text-align: center;
+  border: 3px solid rgb(210, 227, 244);
+  padding: 1.5rem;
+  position: relative;
+  cursor: pointer;
+  height: 100px;
+}
+#new-tukang .file-upload i {
+  font-size: 40px;
+}
 
-    #new-tukang .file-upload input {
-      display: block;
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-    #new-tukang .file-upload2 {
-      border: 3px solid rgb(210, 227, 244);
-      padding: 1.5rem;
-      position: relative;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 300px;
-    }
-    #new-tukang .file-upload2 i {
-      font-size: 40px;
-    }
-    #new-tukang .file-upload2 input {
-      display: block;
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
+#new-tukang .file-upload input {
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+#new-tukang .file-upload2 {
+  border: 3px solid rgb(210, 227, 244);
+  padding: 1.5rem;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+}
+#new-tukang .file-upload2 i {
+  font-size: 40px;
+}
+#new-tukang .file-upload2 input {
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  cursor: pointer;
+}

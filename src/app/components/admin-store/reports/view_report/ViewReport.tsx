@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React from 'react'
 
 import './ViewReport.css'
 
@@ -12,18 +12,19 @@ const ViewReportStore = () => {
         <Card.Body>
           <Row className='row-1'>
             <Col>
-              <Card className='content-card'>
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
-
-                  <div className='fs-3 fw-normal'>Total Order</div>
-                </Card.Body>
-              </Card>
+              <a href='/reports/report-total-order'>
+                <Card className='content-card'>
+                  <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
+                    <img
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
+                    <div className='fs-3 fw-normal'>Total Order</div>
+                  </Card.Body>
+                </Card>
+              </a>
             </Col>
 
             <Col>
