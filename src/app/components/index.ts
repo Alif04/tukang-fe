@@ -132,6 +132,9 @@ export * from './admin-store/reports/report_performance/ReportPerformance'
 // View Report Insentif
 export * from './admin-store/reports/report_insentif/ReportInsentif'
 
+// Print Report
+export * from './admin-store/reports/print_report/PrintReport'
+
 // CSI
 // View CSI
 export * from './admin-ho/csi/view_csi/ViewCSI'
