@@ -46,7 +46,9 @@ const EngageWidget1: React.FC<Props> = ({
             />
             <input
               type='text'
-              className={`form-control border-0 fw-semibold ps-2 ${lg ? 'w-xxl-600px' : 'w-xxl-350px'}`}
+              className={`form-control border-0 fw-semibold ps-2 ${
+                lg ? 'w-xxl-600px' : 'w-xxl-350px'
+              }`}
               placeholder='Search Goods'
             />
           </form>
