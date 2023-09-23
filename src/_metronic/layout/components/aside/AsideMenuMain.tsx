@@ -48,7 +48,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/dashboard-order'
           title='Dashboard'
-          role={['admin-store']}
+          role={['admin-store', 'admin-ho']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -66,7 +66,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/warranty/claim-warranty-list'
           title='Claim Garansi'
-          role={['admin-store']}
+          role={['admin-store', 'admin-ho']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

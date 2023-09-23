@@ -1,48 +1,59 @@
 import React, {FC, useState} from 'react'
 
-import './DetailComplaint.css'
+import './DetailOrder.css'
 
-import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
 import {Image} from 'antd'
+import {Row, Col, Form, InputGroup, ListGroup, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {Steps} from 'antd'
 
-const DetailComplaintStore: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
+const orderHistory = [
+  {
+    title: 'Booking Process',
+  },
+  {
+    title: 'Survey Process',
+  },
+  {
+    title: 'Work in Progress',
+  },
+  {
+    title: 'Work Done',
+  },
+  {
+    title: 'Work Done',
+  },
+]
+
+const complaintHistory = [
+  {
+    title: 'Complaint Received',
+  },
+  {
+    title: 'Investigation Proccess',
+  },
+  {
+    title: 'Remedial Progress',
+  },
+  {
+    title: 'Complaint Done',
+  },
+]
+
+const DetailOrderHO: FC = () => {
   const [image, setImage] = useState<string | null>(null)
   const [visible, setVisible] = useState(false)
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setFileName(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
-    }
-  }
-
-  const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
-    inputField.click()
-  }
-
-  const handleRemoveFile = () => {
-    setFileName('No selected file')
-    setImage(null)
-  }
-
   return (
-    <section id='detail-complaint'>
+    <section id='detail-order'>
       <div className='card'>
         <div className='card-body'>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 BSD - 10121</span>
-                </Form.Label>
-
-                <Form.Label className='fs-4 fw-bold'>
-                  Complaint ID : <span className='fs-4 ms-2 fw-normal'>873487923</span>
+                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 - BSD</span>
                 </Form.Label>
               </Col>
 
@@ -50,14 +61,6 @@ const DetailComplaintStore: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Order ID : <span className='fs-4 ms-2 fw-normal'>77652739</span>
                 </Form.Label>
-                <Form.Group as={Row}>
-                  <Form.Label column sm='4' className='fs-4 fw-bold m-0'>
-                    Order Date :
-                  </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='date' plaintext readOnly />
-                  </Col>
-                </Form.Group>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -153,8 +156,65 @@ const DetailComplaintStore: FC = () => {
           </div>
 
           <Row className='table-warranty d-flex align-items-center mb-5'>
-            <div className='table-title-warranty mb-2'>
+            <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+
+              <Row className='table-header mb-5'>
+                <Col
+                  xs={12}
+                  md={3}
+                  lg={3}
+                  xl={3}
+                  xxl={3}
+                  className='request-date order-2 order-md-1'
+                >
+                  {/* <Form.Group as={Row} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column sm='6'>
+                      Tanggal request pemasangan :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <Form.Control type='date' plaintext readOnly />
+                    </Col>
+                  </Form.Group> */}
+
+                  <Form.Label>Tanggal request pemasangan :</Form.Label>
+                  <Form.Control type='date' plaintext readOnly />
+                </Col>
+
+                <Col
+                  xs={12}
+                  md={3}
+                  lg={3}
+                  xl={3}
+                  xxl={3}
+                  className='assigned-vendor order-2 order-md-1'
+                >
+                  <Form.Label>Assigned Vendor :</Form.Label>
+                  <Form.Select>
+                    <option value='1'>PT. ABC</option>
+                    <option value='2'>PT. BCA</option>
+                    <option value='3'>PT. AZA</option>
+                    <option value='4'>PT. DBK</option>
+                  </Form.Select>
+                </Col>
+
+                <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='btn-update order-3 order-md-2'>
+                  <Button variant='dark-primary'>Save Update</Button>
+                </Col>
+
+                <Col
+                  xs={12}
+                  md={3}
+                  lg={3}
+                  xl={3}
+                  xxl={3}
+                  className='order-status order-1 order-md-2'
+                >
+                  <Form.Label className='fs-4 fw-bold'>
+                    ORDER STATUS : <span className='fs-4 ms-2 fw-bold text-success'>ORDER</span>
+                  </Form.Label>
+                </Col>
+              </Row>
             </div>
 
             <div className='table-warranty-content'>
@@ -213,148 +273,25 @@ const DetailComplaintStore: FC = () => {
             </div>
           </Row>
 
-          <hr />
+          <div className='order-history mt-3 mb-3'>
+            <div className='fs-3 fw-bold text-success mb-4'>Order History</div>
+            <Steps
+              className='order-history-timeline'
+              current={0}
+              labelPlacement='vertical'
+              items={orderHistory}
+            />
+          </div>
 
-          <Row>
-            <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
-              COMPLAINT HISTORY
-            </div>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
-                  Complaint Date :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control type='date' plaintext readOnly />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
-                  Complaint via :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control plaintext readOnly defaultValue='Call' />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
-                  PIC Complaint :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control plaintext readOnly defaultValue='Nuning' />
-                </Col>
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Label className='mt-3'>Complaint Detail :</Form.Label>
-              <Form.Control
-                style={{minHeight: '200px'}}
-                as='textarea'
-                plaintext
-                readOnly
-                defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
-              ></Form.Control>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
-              <ListGroup>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  342344.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  848735.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  Complaint.docx
-                </ListGroup.Item>
-              </ListGroup>
-            </Col>
-          </Row>
-
-          <hr />
-
-          <Row>
-            <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-              <Form.Label className='fs-3 fw-bold'>Feedback Store :</Form.Label>
-              <Form.Control
-                style={{minHeight: '170px'}}
-                as='textarea'
-                defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
-              ></Form.Control>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group controlId='formFile'>
-                <Form.Label className='fs-3 fw-normal'>UPLOAD BUKTI</Form.Label>
-                <Form className='form-input-image' onClick={handleImageClick}>
-                  <Form.Control
-                    type='file'
-                    accept='image/*'
-                    className='input-field-image'
-                    hidden
-                    onChange={handleFileChange}
-                  />
-
-                  {image ? (
-                    <img src={image} alt={fileName} className='image-preview' />
-                  ) : (
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  )}
-                </Form>
-
-                <div className='uploaded-row'>
-                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                  <span className='upload-content'>{fileName}</span>
-
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    size='sm'
-                    color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
-                  />
-                </div>
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Nama Pemberi Feedback</Form.Label>
-                <Form.Control type='text' placeholder='John Doe' />
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Jabatan</Form.Label>
-                <Form.Control type='text' />
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Tanggal Feedback : </Form.Label>
-                <Form.Control type='date' />
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <hr />
+          <div className='complaint-history  mt-3 mb-3'>
+            <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
+            <Steps
+              className='complaint-history-timeline'
+              current={2}
+              labelPlacement='vertical'
+              items={complaintHistory}
+            />
+          </div>
 
           <div className='card'>
             <div className='card-body'>
@@ -371,7 +308,7 @@ const DetailComplaintStore: FC = () => {
 
                   <Form.Group as={Row} className='detail-info'>
                     <Form.Label column sm='6'>
-                      Complaint via :
+                      PIC Complaint :
                     </Form.Label>
                     <Col sm='6'>
                       <Form.Control plaintext readOnly defaultValue='Call' />
@@ -437,4 +374,4 @@ const DetailComplaintStore: FC = () => {
   )
 }
 
-export {DetailComplaintStore}
+export {DetailOrderHO}

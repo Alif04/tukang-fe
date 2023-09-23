@@ -2,11 +2,24 @@
 import React from 'react'
 
 import {WarrantyClaimList} from '../../../components'
+import {WarrantyClaimListHO} from '../../../components'
 
 const WarrantyList: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <WarrantyClaimList className='' />
+      {userRole == 'admin-store' ? (
+        <>
+          <WarrantyClaimList className='' />
+        </>
+      ) : userRole == 'admin-ho' ? (
+        <>
+          <WarrantyClaimListHO className='' />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

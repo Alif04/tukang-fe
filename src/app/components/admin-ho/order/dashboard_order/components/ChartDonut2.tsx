@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
-import {useThemeMode} from '../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
+import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 
 type Props = {
   className: string
   chartHeight: string
 }
 
-const ChartDonutWorkHO: React.FC<Props> = ({className, chartHeight}) => {
+const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -58,16 +58,15 @@ const chartOptions = (chartHeight: string): ApexOptions => {
   const pendingColor = getCSSVariableValue('--kt-primary')
   const cancelColor = getCSSVariableValue('--kt-dark')
   const ReworkColor = getCSSVariableValue('--kt-success')
-  const refundColor = getCSSVariableValue('--kt-danger')
 
   return {
-    series: [44, 55, 13, 30, 2],
+    series: [44, 55, 13, 30],
     chart: {
       width: 500,
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['On Progress', 'Done', 'Reschedule', 'Rework', 'Refund'],
+    labels: ['On Progress', 'Done', 'Reschedule', 'Rework'],
     legend: {
       show: true,
       height: 20,
@@ -76,7 +75,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor, ReworkColor, refundColor],
+    colors: [processColor, pendingColor, cancelColor, ReworkColor],
     grid: {
       padding: {
         top: 10,
@@ -92,4 +91,4 @@ const chartOptions = (chartHeight: string): ApexOptions => {
   }
 }
 
-export {ChartDonutWorkHO}
+export {ChartDonut2}

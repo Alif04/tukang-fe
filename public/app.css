@@ -230,6 +230,18 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   border-right: none;
 }
 
+/* Table Filter */
+
+:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper .ant-table-column-sorter-inner {
+  color: white !important;
+}
+
+:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper .ant-table-column-sorter-up.active,
+:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper
+  .ant-table-column-sorter-down.active {
+  color: #7f7f7f;
+}
+
 @media screen and (max-width: 1200px) {
   .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
     top: 25px !important;

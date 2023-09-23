@@ -3,11 +3,69 @@ import {useState, useEffect} from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import {Form} from 'react-bootstrap'
 import Swal from 'sweetalert2'
+import axios from 'axios'
 
 export function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const navigate = useNavigate()
+
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleLogin = () => {
+    const apiUrl = process.env.REACT_APP_API_URL
+    console.log(apiUrl)
+
+    axios
+      .post(`${apiUrl}/auth/login`, {
+        username,
+        password,
+      })
+      .then((res) => {
+        if (res.data.statusCode == 200) {
+          const userRole = res.data.roles.roles.name
+
+          localStorage.setItem('username', res.data.user.username)
+          localStorage.setItem('userRole', res.data.roles.roles.name)
+          localStorage.setItem('accessToken', res.data.accessToken)
+          localStorage.setItem('user_id', res.data.user.id)
+
+          if (
+            userRole == 'admin store' ||
+            userRole == 'admin ho' ||
+            userRole == 'admin vendor' ||
+            userRole == 'tukang'
+          ) {
+            document.location.href = '/home'
+            Swal.fire({
+              title: 'Login Success',
+              icon: 'success',
+            }).then(() => {
+              window.location.reload()
+            })
+          } else {
+            Swal.fire({
+              title: 'Login Failed',
+              icon: 'error',
+            })
+            document.location.href = '/auth'
+          }
+        } else {
+          Swal.fire({
+            title: 'Login Failed',
+            icon: 'error',
+          })
+          document.location.href = '/auth'
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        Swal.fire({
+          title: err.res.data.message,
+          icon: 'error',
+        })
+      })
+  }
 
   const performLogin = async (e: any) => {
     e.preventDefault()
@@ -93,9 +151,9 @@ export function Login() {
 
       <div className='fv-row mb-10'>
         <Form.Group className='mb-3'>
-          <Form.Label className='fs-6 fw-bolder text-dark'>Email address</Form.Label>
+          <Form.Label className='fs-6 fw-bolder text-dark'>Username</Form.Label>
           <Form.Control
-            placeholder='Email'
+            placeholder='Username'
             type='email'
             name='email'
             value={email}

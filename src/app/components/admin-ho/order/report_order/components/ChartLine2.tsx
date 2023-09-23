@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSS, getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
-import {useThemeMode} from '../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
+import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
 }
 
-const ChartLineComplaintHO: React.FC<Props> = ({className}) => {
+const ChartLine2: React.FC<Props> = ({className}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -47,7 +47,7 @@ const ChartLineComplaintHO: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ChartLineComplaintHO}
+export {ChartLine2}
 
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')

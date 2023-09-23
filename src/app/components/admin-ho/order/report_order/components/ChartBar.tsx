@@ -1,15 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSS, getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
-import {useThemeMode} from '../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
+import {KTSVG} from '../../../../../../_metronic/helpers'
+import {Dropdown1} from '../../../../../../_metronic/partials/content/dropdown/Dropdown1'
+import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
+import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
 }
 
-const ChartBarOrderHO: React.FC<Props> = ({className}) => {
+const ChartBar: React.FC<Props> = ({className}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -47,7 +49,7 @@ const ChartBarOrderHO: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ChartBarOrderHO}
+export {ChartBar}
 
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')

@@ -24,15 +24,28 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const OrderPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='dashboard-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>
-              INSTALASI & SERVICE MITRA10 DASHBOARD
-            </PageTitle>
+            {userRole == 'admin-store' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>
+                  {' '}
+                  INSTALASI & SERVICE MITRA10 DASHBOARD
+                </PageTitle>
+              </>
+            ) : userRole == 'admin-ho' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
+              </>
+            ) : (
+              <></>
+            )}
             <DashboardOrder />
           </>
         }
@@ -41,7 +54,19 @@ const OrderPage: React.FC = () => {
         path='view-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
+            {userRole == 'admin-store' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
+              </>
+            ) : userRole == 'admin-ho' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>
+                  LIST INSTALASI & SERVICE MITRA10
+                </PageTitle>
+              </>
+            ) : (
+              <></>
+            )}
             <ViewOrder />
           </>
         }
