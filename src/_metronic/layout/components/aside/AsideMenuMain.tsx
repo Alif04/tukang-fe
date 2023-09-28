@@ -19,8 +19,8 @@ export function AsideMenuMain() {
       showConfirmButton: false,
       timer: 2000,
     }).then(() => {
-      // navigate('/auth')
-      document.location.href = '/auth'
+      // navigate('/login')
+      document.location.href = '/login'
     })
 
     console.log('Logout Successful')
@@ -35,6 +35,15 @@ export function AsideMenuMain() {
         title='Home'
         fontIcon='bi-app-indicator'
         role={['admin-store', 'admin-ho', 'admin-vendor', 'admin-tukang']}
+      />
+
+      {/* Halaman Calendar */}
+      <AsideMenuItem
+        to='/calendar/view-calendar'
+        icon='/media/icons/duotune/art/art002.svg'
+        title='Calendar'
+        fontIcon='bi-app-indicator'
+        role={['admin-vendor', 'admin-tukang']}
       />
 
       {/* Halaman Order */}
@@ -150,6 +159,12 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/costumers/view-costumers'
           title='View Costumers'
+          role={['admin-ho']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/costumers/new-costumers'
+          title='New Costumers'
           role={['admin-ho']}
           hasBullet={true}
         />
@@ -282,13 +297,13 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/invoice/new-invoice'
           title='New Invoice'
-          role={['admin-vendor']}
+          role={['admin-vendor', 'admin-ho']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/invoice/detail-invoice'
           title='Detail Invoice'
-          role={['admin-vendor']}
+          role={['admin-vendor', 'admin-ho']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -404,13 +419,13 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/refund/view-refund'
           title='View Refund'
-          role={['admin-ho']}
+          role={['admin-ho', 'admin-vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/refund/new-refund'
           title='New Refund'
-          role={['admin-ho']}
+          role={['admin-ho', 'admin-vendor']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

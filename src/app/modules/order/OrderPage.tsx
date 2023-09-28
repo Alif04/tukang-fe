@@ -35,7 +35,6 @@ const OrderPage: React.FC = () => {
             {userRole == 'admin-store' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
-                  {' '}
                   INSTALASI & SERVICE MITRA10 DASHBOARD
                 </PageTitle>
               </>

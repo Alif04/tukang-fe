@@ -124,6 +124,9 @@ export * from './admin-ho/warranty/list_claim_warranty/WarrantyClaimList'
 // View Costumers HO
 export * from './admin-ho/costumers/view_costumers/ViewCostumer'
 
+// New Costumer HO
+export * from './admin-ho/costumers/new_costumers/NewCostumers'
+
 // Detail Costumers HO
 export * from './admin-ho/costumers/detail_costumers/DetailCostumers'
 
@@ -199,6 +202,9 @@ export * from './admin-ho/refund/new_refund/NewRefund'
 
 // VENDOR PAGE
 
+// CALENDAR WORK
+export * from './admin-vendor/calendar/view_calendar/ViewCalendar'
+
 // QUOTATION
 // View Quotation Vendor
 export * from './admin-vendor/quotation/view_quotation/ViewQuotation'
@@ -235,6 +241,11 @@ export * from './admin-vendor/work-order/report_work_order/ReportWorkOrder'
 export * from './admin-vendor/work-order/detail_work_order/DetailWorkOrder'
 
 // TUKANG PAGE
+
+// CALENDAR WORK ORDER
+export * from './tukang/calendar/view_calendar/ViewCalendar'
+
+// TUKANG
 // View Tukang
 export * from './tukang/tukang/view_tukang/ViewTukang'
 
@@ -246,3 +257,29 @@ export * from './tukang/tukang/update_tukang/UpdateTukang'
 
 // Detail Tukang
 export * from './tukang/tukang/detail_tukang/DetailTukang'
+
+// WORK ORDER
+// View Work Order
+export * from './tukang/work-order/view_work_order/ViewWorkTukang'
+
+// Update Work Order
+export * from './tukang/work-order/update_work_order/UpdateWorkOrder'
+
+// Report Work Order
+export * from './tukang/work-order/report_work_order/ReportWorkOrder'
+
+// Detail Work Order
+export * from './tukang/work-order/detail_work_order/DetailWorkOrder'
+
+// COMPLAINT
+// View Complaint
+export * from './tukang/complaint/view_complaint/ViewComplaint'
+
+// New Complaint
+export * from './tukang/complaint/new_complaint/NewComplaint'
+
+// Detail Complaint
+export * from './tukang/complaint/detail_complaint/DetailComplaint'
+
+// Report Complaint
+export * from './tukang/complaint/report_complaint/ReportComplaint'

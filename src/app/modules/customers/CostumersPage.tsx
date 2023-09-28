@@ -3,6 +3,7 @@ import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {ViewCostumer} from '../customers/components/ViewCostumers'
+import {NewCostumers} from '../customers/components/NewCostumers'
 import {DetailCostumer} from './components/DetailCostumers'
 import {ReportCostumer} from './components/ReportCostumers'
 
@@ -11,12 +12,6 @@ const costumersBreadCrumbs: Array<PageLink> = [
     title: 'Costumers',
     path: '/costumers/view-costumers',
     isSeparator: false,
-    isActive: false,
-  },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
     isActive: false,
   },
 ]
@@ -30,6 +25,16 @@ const CostumersPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={costumersBreadCrumbs}>COSTUMERS LIST</PageTitle>
             <ViewCostumer />
+          </>
+        }
+      />
+
+      <Route
+        path='new-costumers'
+        element={
+          <>
+            <PageTitle breadcrumbs={costumersBreadCrumbs}>NEW COSTUMER FORM</PageTitle>
+            <NewCostumers />
           </>
         }
       />

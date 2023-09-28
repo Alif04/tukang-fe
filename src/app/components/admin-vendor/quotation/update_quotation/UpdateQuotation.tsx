@@ -301,7 +301,7 @@ const UpdateQuotationVendor: FC = () => {
   }
 
   return (
-    <section id='update-quotation'>
+    <section id='update-quotation-vendor'>
       <div className='card mb-5'>
         <div className='card-body'>
           <Row>

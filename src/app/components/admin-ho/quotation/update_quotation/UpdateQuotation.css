@@ -1,3 +1,8 @@
+#update-quotation .table-head-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
 #update-quotation .bank-information .form-header {
   display: flex;
   justify-content: space-between;
@@ -39,6 +44,12 @@
   border: 1px solid gray;
 }
 
+#update-quotation .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
 #update-quotation .table-item th {
   background-color: #555555;
   color: #ffff;
@@ -59,4 +70,84 @@
 
 #update-quotation .table-head-wrapper .filter-search .input-group-text.filter-rtl {
   background-color: transparent;
+}
+
+/* Update Quotation File Upload */
+#update-quotation .update-quotation-evidence {
+  margin-bottom: 20px;
+}
+
+#update-quotation form.form-input-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed #858585;
+  width: 100%;
+  min-height: 160px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#update-quotation .input-image-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px;
+}
+
+#update-quotation .input-image-text p {
+  margin: 10px 10px;
+  padding: 5px 10px !important;
+  border: 1px solid;
+  border-radius: 5px;
+  color: #858585;
+}
+
+#update-quotation .uploaded-row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 5px;
+  background-color: #f4f7fe;
+}
+
+#update-quotation .upload-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#update-quotation .image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+#update-quotation svg.svg-inline--fa.fa-file-image.fa-sm {
+  margin: 0 10px 0 0;
+}
+
+#update-quotation svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0 0 0 10px;
+}
+
+/* Button Add Quotation */
+
+#update-quotation .button-new-quotation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 5px;
 }

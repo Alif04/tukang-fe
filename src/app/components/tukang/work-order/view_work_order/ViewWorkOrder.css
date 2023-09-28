@@ -1,0 +1,146 @@
+/* Table */
+#view-work-order-tukang .table-head-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+#view-work-order-tukang .table-head-wrapper .left {
+  display: flex;
+  align-items: center;
+}
+
+#view-work-order-tukang .table-head-wrapper .middle {
+  display: flex;
+  justify-content: space-between;
+}
+
+#view-work-order-tukang .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#view-work-order-tukang
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-work-order-tukang .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-work-order-tukang .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-work-order-tukang .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-work-order-tukang .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Searchbar */
+
+#view-work-order-tukang .filter-search {
+  display: flex;
+  justify-content: center;
+}
+
+#view-work-order-tukang .filter-search .input-group {
+  width: 80%;
+  height: 45px;
+}
+
+#view-work-order-tukang .filter-search .input-group .form-control.filter-rtl {
+  border-right: none;
+}
+
+#view-work-order-tukang .filter-search .input-group-text.filter-rtl {
+  background-color: transparent;
+}
+
+/* Date Filter */
+
+#view-work-order-tukang .date-filter {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+#view-work-order-tukang .date-filter h3 {
+  width: 100%;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+#view-work-order-tukang .date-filter .start-date {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+#view-work-order-tukang .date-filter .end-date {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Select Filter */
+
+#view-work-order-tukang .select-filter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#view-work-order-tukang .select-filter h3 {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+#view-work-order-tukang .select-filter select.form-select.filter.filter-order {
+  height: 42px;
+  border-radius: 5px;
+}
+
+/* Button Action */
+
+#view-work-order-tukang .button-export {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: green;
+  border: none;
+  border-radius: 5px;
+}
+
+#view-work-order-tukang .button-print {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 5px;
+}

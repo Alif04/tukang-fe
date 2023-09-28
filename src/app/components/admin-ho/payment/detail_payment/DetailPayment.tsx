@@ -12,7 +12,11 @@ const DetailPaymentHO: FC = () => {
         <div className='card-body'>
           <div className='d-flex justify-content-between'>
             <div className='receiver-information'>
-              <img alt='Logo' className='h-50px logo mb-3' src={toAbsoluteUrl('/logo-mitra.png')} />
+              <img
+                alt='Logo'
+                className='h-50px logo mb-3'
+                src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+              />
 
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>

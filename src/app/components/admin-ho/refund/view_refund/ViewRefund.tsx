@@ -5,16 +5,9 @@ import './ViewRefund.css'
 
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faTrash, faFileExcel, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -232,8 +225,10 @@ const ViewRefundHO: React.FC<Props> = ({className}) => {
     <section id='view-refund'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
-          <div className='table-head-wrapper'>
-            <div className='left'>
+          <Row className='mb-5'>
+            <Col xxl={4}></Col>
+
+            <Col xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -243,45 +238,15 @@ const ViewRefundHO: React.FC<Props> = ({className}) => {
                   <Form.Control placeholder='Filter' className='filter-ltr' />
                 </InputGroup>
               </div>
-            </div>
+            </Col>
 
-            <div className='right'>
-              <div className='select-filter'>
-                <select className='form-select filter filter-one'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-two'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-three'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-four'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-              </div>
-
-              <button className='button-export'>
+            <Col xxl={4} className='d-flex justify-content-end'>
+              <button className='button-export '>
                 Export To Excel
                 <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
               </button>
-            </div>
-          </div>
+            </Col>
+          </Row>
 
           <Table
             className='table-striped-rows'

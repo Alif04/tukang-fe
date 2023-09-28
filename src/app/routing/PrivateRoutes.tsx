@@ -9,6 +9,7 @@ import {WithChildren} from '../../_metronic/helpers'
 // import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 
 const PrivateRoutes = () => {
+  const CalendarPage = lazy(() => import('../modules/calendar/CalendarPage'))
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
   const WarrantyPage = lazy(() => import('../modules/warranty/WarrantyPage'))
@@ -44,6 +45,16 @@ const PrivateRoutes = () => {
         <Route path='menu-test' element={<MenuTestPage />} />
 
         {/* Lazy Modules */}
+
+        <Route
+          path='calendar/*'
+          element={
+            <SuspensedView>
+              <CalendarPage />
+            </SuspensedView>
+          }
+        />
+
         <Route
           path='order/*'
           element={

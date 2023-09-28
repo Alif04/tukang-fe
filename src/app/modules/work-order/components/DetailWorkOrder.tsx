@@ -1,10 +1,24 @@
 import React, {FC} from 'react'
+
 import {DetailWorkVendor} from '../../../components'
+import {DetailWorkTukang} from '../../../components'
 
 const DetailWorkOrder: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <DetailWorkVendor />
+      {userRole == 'admin-vendor' ? (
+        <>
+          <DetailWorkVendor />
+        </>
+      ) : userRole == 'admin-tukang' ? (
+        <>
+          <DetailWorkTukang />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

@@ -3,18 +3,11 @@ import React from 'react'
 
 import './ViewCostumer.css'
 
-import {Table} from 'antd'
+import {Table, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPrint, faFileExcel, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -24,11 +17,12 @@ type Props = {
 
 interface DataType {
   key: string
+  number: number
+  nama_toko: string
   costumer_id: string
   full_name: string
   phone_number: string
   email_address: string
-  address: string
   customer_since: string
   total_services: string
   total_spend: string
@@ -51,22 +45,35 @@ const DetailButton = () => {
   )
 }
 
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
+const {RangePicker} = DatePicker
+
+const DateRange = () => {
+  return <RangePicker className='date-range ms-3' />
+}
 
 const columns: ColumnsType<DataType> = [
   {
-    title: 'Customer ID',
+    title: 'No Urut',
+    dataIndex: 'number',
+    key: 'number',
+    width: 90,
+    align: 'center',
+  },
+  {
+    title: 'Nama Toko',
+    dataIndex: 'nama_toko',
+    key: 'nama_toko',
+    width: 140,
+  },
+  {
+    title: 'No Member',
     dataIndex: 'costumer_id',
     key: 'costumer_id',
     width: 130,
     align: 'center',
   },
   {
-    title: 'Full Name',
+    title: 'Nama Costumer',
     dataIndex: 'full_name',
     key: 'full_name',
     width: 140,
@@ -84,42 +91,24 @@ const columns: ColumnsType<DataType> = [
     width: 180,
   },
   {
-    title: 'Address',
-    dataIndex: 'address',
-    key: 'address',
-    width: 200,
-  },
-  {
-    title: 'Customer Since',
+    title: 'Join Date',
     dataIndex: 'customer_since',
     key: 'customer_since',
     align: 'center',
     width: 140,
   },
   {
-    title: 'Total Services',
+    title: 'Total Invoice',
     dataIndex: 'total_services',
     key: 'total_services',
     align: 'center',
     width: 140,
   },
   {
-    title: 'Total Spend',
+    title: 'Total Value',
     dataIndex: 'total_spend',
     key: 'total_spend',
     width: 160,
-  },
-  {
-    title: 'Total Complaint',
-    dataIndex: 'total_complaint',
-    key: 'total_complaint',
-    width: 160,
-  },
-  {
-    title: 'Total CIS Score',
-    dataIndex: 'total_cis_score',
-    key: 'total_cis_score',
-    width: 140,
   },
   {
     title: 'Status',
@@ -131,114 +120,120 @@ const columns: ColumnsType<DataType> = [
     title: 'Action',
     key: 'action',
     render: () => (
-      <div className='button-wrapper'>
+      <div className='d-flex justify-content-center button-wrapper'>
         <DetailButton />
-        <DeleteButton />
       </div>
     ),
     fixed: 'right',
-    width: 90,
+    width: 80,
   },
 ]
 
 const data: DataType[] = [
   {
     key: '1',
+    number: 1,
+    nama_toko: 'Mitra 10 - BSD',
     costumer_id: '78453992',
     full_name: 'Bpk. Abdi.S',
     phone_number: '08156785432',
     email_address: 'abdi.s@gmail.com',
-    address: 'jl. Kenanga no.2',
     customer_since: '2000',
     total_services: '4',
     total_spend: 'Rp.5.000.000',
     total_complaint: '0',
     total_cis_score: '100',
-    status: 'ACTIVE',
+    status: 'DONE',
   },
   {
     key: '2',
+    number: 2,
+    nama_toko: 'Mitra 10 - Fatmawati',
     costumer_id: '78453992',
     full_name: 'Bpk. Abdi.S',
     phone_number: '08156785432',
     email_address: 'abdi.s@gmail.com',
-    address: 'jl. Kenanga no.2',
     customer_since: '2000',
     total_services: '4',
     total_spend: 'Rp.5.000.000',
     total_complaint: '0',
     total_cis_score: '100',
-    status: 'ACTIVE',
+    status: 'DONE',
   },
   {
     key: '3',
+    number: 3,
+    nama_toko: 'Mitra 10 - PIK',
     costumer_id: '78453992',
     full_name: 'Bpk. Abdi.S',
     phone_number: '08156785432',
     email_address: 'abdi.s@gmail.com',
-    address: 'jl. Kenanga no.2',
     customer_since: '2000',
     total_services: '4',
     total_spend: 'Rp.5.000.000',
     total_complaint: '0',
     total_cis_score: '100',
-    status: 'ACTIVE',
+    status: 'DONE',
   },
   {
     key: '4',
+    number: 4,
+    nama_toko: 'Mitra 10 - BSD',
     costumer_id: '78453992',
     full_name: 'Bpk. Abdi.S',
     phone_number: '08156785432',
     email_address: 'abdi.s@gmail.com',
-    address: 'jl. Kenanga no.2',
     customer_since: '2000',
     total_services: '4',
     total_spend: 'Rp.5.000.000',
     total_complaint: '0',
     total_cis_score: '100',
-    status: 'ACTIVE',
+    status: 'ON PROGRESS',
   },
   {
     key: '5',
+    number: 5,
+    nama_toko: 'Mitra 10 - Fatmawati',
     costumer_id: '78453992',
     full_name: 'Bpk. Abdi.S',
     phone_number: '08156785432',
     email_address: 'abdi.s@gmail.com',
-    address: 'jl. Kenanga no.2',
     customer_since: '2000',
     total_services: '4',
     total_spend: 'Rp.5.000.000',
     total_complaint: '0',
     total_cis_score: '100',
-    status: 'ACTIVE',
+    status: 'ON PROGRESS',
   },
   {
     key: '6',
+    number: 6,
+    nama_toko: 'Mitra 10 - PIK',
     costumer_id: '78453992',
     full_name: 'Bpk. Abdi.S',
     phone_number: '08156785432',
     email_address: 'abdi.s@gmail.com',
-    address: 'jl. Kenanga no.2',
     customer_since: '2000',
     total_services: '4',
     total_spend: 'Rp.5.000.000',
     total_complaint: '0',
     total_cis_score: '100',
-    status: 'ACTIVE',
+    status: 'SCHEDULE',
   },
   {
     key: '7',
+    number: 7,
+    nama_toko: 'Mitra 10 - PIK',
     costumer_id: '78453992',
     full_name: 'Bpk. Abdi.S',
     phone_number: '08156785432',
     email_address: 'abdi.s@gmail.com',
-    address: 'jl. Kenanga no.2',
     customer_since: '2000',
     total_services: '4',
     total_spend: 'Rp.5.000.000',
     total_complaint: '0',
     total_cis_score: '100',
-    status: 'ACTIVE',
+    status: 'SCHEDULE',
   },
 ]
 
@@ -247,53 +242,54 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     <section id='view-costumer'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
+          <div className='filter-search'>
+            <InputGroup>
+              <Form.Control placeholder='Filter' className='filter-rtl' />
+
+              <InputGroup.Text className='filter-rtl'>
+                <FontAwesomeIcon icon={faSearch} size='sm' />
+              </InputGroup.Text>
+            </InputGroup>
+          </div>
+
           <div className='table-head-wrapper'>
             <div className='left'>
-              <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
+              <h3>Filter By :</h3>
 
-                  <Form.Control placeholder='Filter' className='filter-ltr' />
-                </InputGroup>
+              <Form.Group as={Row} className='date-filter mb-5'>
+                <Form.Label column sm='4'>
+                  Start Date :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <DateRange />
+                </Col>
+              </Form.Group>
+            </div>
+
+            <div className='middle'>
+              <div className='select-filter'>
+                <h3>Nama Store : </h3>
+
+                <select className='form-select filter filter-order'>
+                  <option value='1'>MITRA 10 - BSD</option>
+                  <option selected value='2'>
+                    MITRA 10 - SBY
+                  </option>
+                  <option value='3'> MITRA 10 - JAKARTA</option>
+                  <option value='4'> MITRA 10 - BANDUNG</option>
+                  <option value='5'> MITRA 10 - CIANJUR</option>
+                </select>
               </div>
             </div>
 
             <div className='right'>
-              <div className='select-filter'>
-                <select className='form-select filter filter-one'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-two'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-three'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-four'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-              </div>
-
               <button className='button-export'>
-                Export To Excel
-                <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
+                <FontAwesomeIcon icon={faFileExcel} size='2xl' className='excel-icon' />
+              </button>
+
+              <button className='button-print'>
+                <FontAwesomeIcon icon={faPrint} size='2xl' className='print-icon' />
               </button>
             </div>
           </div>

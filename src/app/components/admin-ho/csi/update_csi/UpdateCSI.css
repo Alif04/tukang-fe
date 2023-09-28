@@ -42,21 +42,6 @@
 }
 
 /* Table */
-#update-csi .table-head-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
-}
-
-#update-csi .table-head-wrapper .left {
-  display: flex;
-  align-items: center;
-}
-
-#update-csi .table-head-wrapper .middle {
-  display: flex;
-  justify-content: space-between;
-}
 
 #update-csi .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
@@ -97,18 +82,6 @@
   background-color: #e4e9f7;
 }
 
-#update-csi .ant-table-thead > tr > th.col-work-status {
-  background-color: #a30014 !important;
-}
-
-#update-csi .ant-table-thead > tr > th.col-complaint-date {
-  background-color: #a30014 !important;
-}
-
-#update-csi .ant-table-thead > tr > th.col-complaint-status {
-  background-color: #a30014 !important;
-}
-
 /* Searchbar */
 
 #update-csi .filter-search .input-group .form-control.filter-ltr {
@@ -120,62 +93,15 @@
   border-right: none;
 }
 
-/* Select Filter */
-
-.select-filter {
-  display: flex;
-  margin: 0 10px 0 10px;
-}
-
-.select-filter select.form-select.filter {
-  height: 45px;
-}
-
-.select-filter select.form-select.filter.filter-one {
-  border-right: none;
-  border-radius: 5px 0 0 5px;
-}
-
-.select-filter select.form-select.filter.filter-two {
-  border-right: none;
-  border-radius: 0;
-}
-
-.select-filter select.form-select.filter.filter-three {
-  border-radius: 0;
-}
-
-.select-filter select.form-select.filter.filter-four {
-  border-left: none;
-  border-radius: 0 5px 5px 0;
-}
-
 /* Button Action */
 
-#update-csi .button-wrapper {
-  display: flex;
-  justify-content: space-between;
-}
-
-.button-detail svg.svg-inline--fa.fa-book.fa-sm {
-  color: black;
-}
-
-.button-edit svg.svg-inline--fa.fa-pen.fa-sm {
-  color: black;
-}
-
-.button-delete svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0;
-  color: #d50119;
-}
-
-.button-export {
+#update-csi .button-export {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 165px;
-  height: 45px;
+  margin: 0 10px;
+  width: 140px;
+  height: 43px;
   font-size: 14px;
   font-weight: 500;
   background-color: #04844b;
@@ -184,11 +110,43 @@
   border-radius: 5px;
 }
 
-svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
+#update-csi .button-print {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 0 10px;
+  width: 130px;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #555555;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+#update-csi svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
+  margin: 5px;
+}
+
+#update-csi svg.svg-inline--fa.fa-print.fa-lg.print-icon {
   margin: 5px;
 }
 
 #update-csi svg.svg-inline--fa.fa-plus.fa-sm {
   color: black;
   margin: 5px;
+}
+
+#update-csi .button-detail svg.svg-inline--fa.fa-book.fa-sm {
+  color: black;
+}
+
+#update-csi .button-edit svg.svg-inline--fa.fa-pen.fa-sm {
+  color: black;
+}
+
+#update-csi .button-delete svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0;
+  color: #d50119;
 }

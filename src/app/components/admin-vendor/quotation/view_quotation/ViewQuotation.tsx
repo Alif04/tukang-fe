@@ -3,18 +3,11 @@ import React from 'react'
 
 import './ViewQuotation.css'
 
-import {Table} from 'antd'
+import {Table, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faTrash, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -37,18 +30,10 @@ interface DataType {
   order_status: string
 }
 
-const NewQuotation = () => {
-  const navigate = useNavigate()
+const {RangePicker} = DatePicker
 
-  const handleNewQuotation = () => {
-    navigate('/order/new-order')
-  }
-
-  return (
-    <button className='button-new-quotation' onClick={handleNewQuotation}>
-      New Quotation <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
-    </button>
-  )
+const DateRange = () => {
+  return <RangePicker className='date-range' />
 }
 
 const DetailButton = () => {
@@ -282,15 +267,24 @@ const data: DataType[] = [
 
 const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   return (
-    <section id='view-quotation'>
+    <section id='view-quotation-vendor'>
       <div className={`card ${className}`}>
-        <div className='card-body table-view-order'>
-          <div className='table-head-wrapper'>
-            <div className='left'>
-              <NewQuotation />
-            </div>
+        <div className='card-body'>
+          <Row className='table-head-wrapper'>
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+              <Form.Group as={Row}>
+                <Form.Label className='fs-3' column sm='3'>
+                  <FontAwesomeIcon icon={faFilter} size='sm' className='me-1' />
+                  Date :
+                </Form.Label>
 
-            <div className='right'>
+                <Col sm='9'>
+                  <DateRange />
+                </Col>
+              </Form.Group>
+            </Col>
+
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -300,43 +294,32 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
                   <Form.Control placeholder='Filter' className='filter-ltr' />
                 </InputGroup>
               </div>
+            </Col>
 
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <div className='select-filter'>
                 <select className='form-select filter filter-one'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
+                  <option selected>All Store</option>
+                  <option value='1'>Mitra 10 - BSD</option>
+                  <option value='2'>Mitra 10 - Depok</option>
+                  <option value='3'>Mitra 10 - Fatmawati</option>
                 </select>
 
                 <select className='form-select filter filter-two'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-three'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
+                  <option selected>All Vendor</option>
+                  <option value='1'>Vendor A</option>
+                  <option value='2'>Vendor B</option>
+                  <option value='3'>Vendor C</option>
                 </select>
 
                 <select className='form-select filter filter-four'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
+                  <option selected>All Quotation Status</option>
+                  <option value='1'>PENDING</option>
+                  <option value='2'>PAID</option>
                 </select>
               </div>
-
-              <button className='button-export'>
-                Export To Excel
-                <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
-              </button>
-            </div>
-          </div>
+            </Col>
+          </Row>
 
           <Table
             className='table-striped-rows'

@@ -2,7 +2,7 @@ import React, {FC} from 'react'
 
 import './NewRefund.css'
 
-import {Form, Button, Table} from 'react-bootstrap'
+import {Row, Col, Form, Button, Table} from 'react-bootstrap'
 import {Steps} from 'antd'
 
 const labelTimeline = [
@@ -34,77 +34,110 @@ const NewRefundHO: FC = () => {
     <section id='new-refund'>
       <div className='card'>
         <div className='card-body'>
-          <div className='d-flex justify-content-between'>
-            <div className='information-wrapper'>
-              <div className='detail-header'>
-                <div className='order-id d-flex justify-content-between'>
-                  <h3 className='text-start'>Nama Toko :</h3>
-                  <h3 className='text-end'>Mitra 10 BSD - 10121</h3>
-                </div>
-              </div>
-            </div>
+          <div className='form-wrapper'>
+            <Row className='form-header'>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 - BSD</span>
+                </Form.Label>
+              </Col>
 
-            <div className='information-wrapper'>
-              <div className='detail-header'>
-                <div className='order-id d-flex justify-content-between'>
-                  <h3 className='text-start'>Order ID : </h3>
-                  <h3 className='text-end'>77652739</h3>
-                </div>
-              </div>
-            </div>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Order ID : <span className='fs-4 ms-2 fw-normal'>77652739</span>
+                </Form.Label>
+              </Col>
 
-            <div className='information-wrapper'>
-              <div className='detail-header'>
-                <div className='receipt-number d-flex justify-content-between'>
-                  <h3 className='text-start'>Receipt Number :</h3>
-                  <h3 className='text-end'>898823469121</h3>
-                </div>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Receipt Number : <span className='fs-4 ms-2 fw-normal'>898823469121</span>
+                </Form.Label>
+              </Col>
+            </Row>
 
-                <div className='order-id d-flex justify-content-between'>
-                  <h3 className='text-start'>Order Status :</h3>
-                  <h3 className='text-end text-success'>PAID</h3>
-                </div>
-              </div>
-            </div>
-          </div>
+            <Row className='information-detail'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
+                <div className='fs-3 fw-bold'>Informasi Pembeli</div>
+                <Row>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        No Member :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='876992300239' />
+                      </Col>
+                    </Form.Group>
 
-          <div className='costumer-information mb-5'>
-            <div className='row'>
-              <div className='col-xxl-6'>
-                <div className='title mb-5'>
-                  <h1>Informasi Pembeli</h1>
-                </div>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Customer Name :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='Ryan Filbert' />
+                      </Col>
+                    </Form.Group>
 
-                <div className='row'>
-                  <div className='col-xxl-6'>
-                    <h6>No. Member : 876992300239</h6>
-                    <h6>Customer Name : Ryan Filbert</h6>
-                    <h6>
-                      Alamat Pemasangan : Jl. Kijang no.9, Jakarta TimurDKI Jakarta, Indonesia
-                    </h6>
-                  </div>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Alamat Pemasangan :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control
+                          as='textarea'
+                          plaintext
+                          readOnly
+                          rows={3}
+                          defaultValue='Jl. Kijang no.9, Jakarta Timur DKI Jakarta, Indonesia'
+                        />
+                      </Col>
+                    </Form.Group>
+                  </Col>
 
-                  <div className='col-xxl-6'>
-                    <h6>Nomor Telp/WA : 08126768945</h6>
-                    <h6>Alamat Email : ryan.filbert@gmail.com</h6>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-6'>
-                <div className='title mb-5'>
-                  <h1>Informasi Penjual</h1>
-                </div>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Nomor Telp/WA :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='08126768945' />
+                      </Col>
+                    </Form.Group>
 
-                <div className='row'>
-                  <div className='col-xxl-6'>
-                    <h6>Sales ID : 876123887787</h6>
-                    <h6>Sales Person : Wendy Silitonga</h6>
-                  </div>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Alamat Email :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly defaultValue='ryan.filbert@gmail.com' />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Col>
 
-                  <div className='col-xxl-6'></div>
-                </div>
-              </div>
-            </div>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+                <div className='fs-3 fw-bold'>Informasi Penjual</div>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='3'>
+                    Sales ID :
+                  </Form.Label>
+                  <Col sm='9'>
+                    <Form.Control plaintext readOnly defaultValue='876123887787' />
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='3'>
+                    Sales Person :
+                  </Form.Label>
+                  <Col sm='9'>
+                    <Form.Control plaintext readOnly defaultValue='Wendy Silitonga' />
+                  </Col>
+                </Form.Group>
+              </Col>
+            </Row>
           </div>
 
           <div className='order-information mb-5'>

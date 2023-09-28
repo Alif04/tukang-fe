@@ -15,7 +15,6 @@ import {
   faPlus,
   faImage,
   faFileImage,
-  faUserPlus,
 } from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
@@ -279,6 +278,27 @@ const data: DataType[] = [
 ]
 
 const UpdateQuotationHO: FC = () => {
+  const [fileName, setFileName] = useState<string>('No selected file')
+  const [image, setImage] = useState<string | null>(null)
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files && files[0]) {
+      setFileName(files[0].name)
+      setImage(URL.createObjectURL(files[0]))
+    }
+  }
+
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleRemoveFile = () => {
+    setFileName('No selected file')
+    setImage(null)
+  }
+
   return (
     <section id='update-quotation'>
       <div className='card mb-5'>
@@ -317,8 +337,8 @@ const UpdateQuotationHO: FC = () => {
 
                     <div className='form-body'>
                       <Form.Group className='mb-5'>
-                        <Form.Label>Costumer ID</Form.Label>
-                        <Form.Control type='email' placeholder='name@example.com' />
+                        <Form.Label>Order ID</Form.Label>
+                        <Form.Control />
                       </Form.Group>
 
                       <Form.Group className='mb-5'>
@@ -335,8 +355,8 @@ const UpdateQuotationHO: FC = () => {
 
                     <div className='form-body'>
                       <Form.Group className='mb-5'>
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control type='email' placeholder='name@example.com' />
+                        <Form.Label>Costumer ID</Form.Label>
+                        <Form.Control />
                       </Form.Group>
 
                       <Form.Group className='mb-5'>
@@ -390,6 +410,48 @@ const UpdateQuotationHO: FC = () => {
                 </div>
               </Row>
 
+              <Row>
+                <Col xxl={6}>
+                  <Form.Group controlId='formFile' className='mb-5'>
+                    <Form.Label>Upload Receipt</Form.Label>
+                    <Form className='form-input-image' onClick={handleImageClick}>
+                      <Form.Control
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image'
+                        hidden
+                        onChange={handleFileChange}
+                      />
+
+                      {image ? (
+                        <img src={image} alt={fileName} className='image-preview' />
+                      ) : (
+                        <div className='input-image-text'>
+                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                          <p>Add File</p>
+                        </div>
+                      )}
+                    </Form>
+
+                    <div className='uploaded-row'>
+                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                      <span className='upload-content'>{fileName}</span>
+
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        size='sm'
+                        color='#ed2b2a'
+                        style={{cursor: 'pointer'}}
+                        onClick={handleRemoveFile}
+                      />
+                    </div>
+                  </Form.Group>
+                </Col>
+
+                <Col xxl={6}></Col>
+              </Row>
+
               <div className='d-flex justify-content-center align-items-end'>
                 <Button variant='dark-danger' type='submit'>
                   Cancel
@@ -428,7 +490,7 @@ const UpdateQuotationHO: FC = () => {
                   </Form.Group>
 
                   <Form.Group className='mb-5'>
-                    <Form.Label>Alamat</Form.Label>
+                    <Form.Label>Address :</Form.Label>
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
@@ -477,7 +539,7 @@ const UpdateQuotationHO: FC = () => {
 
       <div className='card'>
         <div className='card-body table-view-order'>
-          <div className='table-head-wrapper'>
+          <div className='table-head-wrapper mb-5'>
             <div className='left'></div>
 
             <div className='middle'>

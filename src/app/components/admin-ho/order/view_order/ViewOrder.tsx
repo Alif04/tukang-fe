@@ -7,7 +7,7 @@ import './UpdateOrder.css'
 import {DatePicker} from 'antd'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Card, Form, InputGroup, Modal, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Modal, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,

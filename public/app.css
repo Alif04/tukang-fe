@@ -80,6 +80,13 @@ textarea.form-control-plaintext {
   height: 45px;
 }
 
+.ant-picker.ant-picker-range.css-dev-only-do-not-override-1ck3jst.date-range {
+  display: flex;
+  align-items: center;
+  width: 200px;
+  height: 45px;
+}
+
 /* .form-check-input {
   width: 1.1rem !important;
   height: 1.1rem !important;
