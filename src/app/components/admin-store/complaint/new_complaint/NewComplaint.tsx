@@ -1,20 +1,130 @@
 import React, {FC} from 'react'
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 
 import './NewComplaint.css'
 
-import {Row, Col, Form, InputGroup, ListGroup, Table, Button} from 'react-bootstrap'
+import axios from 'axios'
+import Select from 'react-select'
+import Swal from 'sweetalert2'
+import {useNavigate} from 'react-router-dom'
+import {Row, Col, Form, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 const NewComplaintStore: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+
+  // Fetch Data Order
+  const [order, setOrder] = useState<any>()
+  const [orderId, setOrderId] = useState<string>('')
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  const getOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/orders`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempOrder = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.id,
+        }))
+
+        setOrder(tempOrder)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getOrderDetail = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${orderId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getOrder()
+  }, [])
+
+  useEffect(() => {
+    if (orderId) {
+      getOrderDetail()
+    }
+  }, [orderId])
+
+  const phoneNumber =
+    orderDetail?.members.phone_number !== null
+      ? orderDetail?.members.phone_number
+      : orderDetail?.members.whatsapp_number
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  // Select Store
+  const handleChangeSelectOrder = (element: any) => {
+    const selectedOrder = element.value
+    setOrderId(selectedOrder)
+    console.log(selectedOrder)
+  }
+
+  // Add Complaint
+  const [complaintDesc, setComplaintDesc] = useState<any>('')
+  const [complaintDate, setComplaintDate] = useState<string>('')
+  const [complaintVia, setComplaintVia] = useState<string>('')
+  const [complaintStatus, setComplaintStatus] = useState<any>(1)
+  const [complaintEvidence, setComplaintEvidence] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
+
+  // Handle Input Change
+  const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setComplaintDesc(updatedInputValue)
+  }
+
+  // Handle Option Change
+  const handleInputOption = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const updatedOptionValue = event.target.value
+    setComplaintVia(updatedOptionValue)
+  }
+
+  // Handle Feedback Date Change
+  const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedFeedbackDate = event.target.value
+    setComplaintDate(updatedFeedbackDate)
+  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && files[0]) {
-      setFileName(files[0].name)
+      setComplaintEvidence(files[0].name)
       setImage(URL.createObjectURL(files[0]))
     }
   }
@@ -25,8 +135,53 @@ const NewComplaintStore: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setFileName('No selected file')
+    setComplaintEvidence('No selected file')
     setImage(null)
+  }
+
+  // Handle Submit Complaint
+  const handleSubmitNewComplaint = async () => {
+    try {
+      const formData = new FormData()
+
+      formData.append('order_id', orderId)
+      formData.append('complaint_desc', complaintDesc)
+      formData.append('complaint_channel', complaintVia)
+      formData.append('complaint_date', complaintDate)
+      formData.append('complaint_status', complaintStatus)
+      formData.append('complaint_evidence', complaintEvidence)
+
+      console.log(formData)
+
+      // await axios.post(`${apiUrl}/complaints`, formData, {
+      //   headers: {
+      //     Accept: 'application/json',
+      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      //     'Access-Control-Allow-Origin': '*',
+      //     'ngrok-skip-browser-warning': 'true',
+      //   },
+      // })
+
+      // Swal.fire({
+      //   title: 'Success',
+      //   text: 'Success Add Complaint',
+      //   icon: 'success',
+      // })
+
+      navigate('/complaint/view-complaint')
+    } catch (error) {
+      console.error(error)
+
+      Swal.fire({
+        title: 'Error',
+        text: 'Cant Add Order',
+        icon: 'error',
+      })
+    }
+  }
+
+  const handleCancelComplaint = () => {
+    navigate('/complaint/view-complaint')
   }
 
   return (
@@ -37,31 +192,47 @@ const NewComplaintStore: FC = () => {
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 - BSD</span>
+                  Nama Toko :
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name || ''}</span>
                 </Form.Label>
+
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
-                  Complaint ID : <span className='fs-4 ms-2 fw-normal'>873487923</span>
+                  LAST ORDER STATUS :{' '}
+                  <span className='fs-4 ms-2 fw-bold text-success'>
+                    {orderDetail?.project_status_id === 1
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 2
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 3
+                      ? 'ON PROGRESS'
+                      : ''}
+                  </span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group as={Row} className='order-id-complaint'>
-                  <Form.Label column sm='4'>
+                  <Form.Label column sm='3' className='fs-4 fw-bold'>
                     Order ID :
                   </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control type='number' value='873487923' />
+                  <Col sm='9'>
+                    <Select
+                      name='order-id'
+                      className='form-control p-0'
+                      placeholder='Ketik/Pilih Order Id'
+                      isSearchable={true}
+                      options={order}
+                      onChange={(e) => handleChangeSelectOrder(e)}
+                    />
                   </Col>
                 </Form.Group>
-                <Form.Label className='fs-4 fw-bold'>
-                  LAST ORDER STATUS : <span className='fs-4 ms-2 fw-bold text-success'>BOOKED</span>
-                </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Receipt Number : <span className='fs-4 ms-2 fw-normal'>898823469121</span>
+                  Receipt Number :
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number || ''}</span>
                 </Form.Label>
               </Col>
             </Row>
@@ -76,7 +247,7 @@ const NewComplaintStore: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='876992300239' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.id || ''} />
                       </Col>
                     </Form.Group>
 
@@ -85,7 +256,11 @@ const NewComplaintStore: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='Ryan Filbert' />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={orderDetail?.members.full_name || ''}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -99,7 +274,7 @@ const NewComplaintStore: FC = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          defaultValue='Jl. Kijang no.9, Jakarta Timur DKI Jakarta, Indonesia'
+                          value={orderDetail?.project_address || ''}
                         />
                       </Col>
                     </Form.Group>
@@ -111,7 +286,7 @@ const NewComplaintStore: FC = () => {
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='08126768945' />
+                        <Form.Control plaintext readOnly value={phoneNumber || ''} />
                       </Col>
                     </Form.Group>
 
@@ -120,7 +295,7 @@ const NewComplaintStore: FC = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='ryan.filbert@gmail.com' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.email || ''} />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -135,7 +310,7 @@ const NewComplaintStore: FC = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='876123887787' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.id || ''} />
                   </Col>
                 </Form.Group>
 
@@ -144,7 +319,7 @@ const NewComplaintStore: FC = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='Wendy Silitonga' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name || ''} />
                   </Col>
                 </Form.Group>
               </Col>
@@ -160,7 +335,12 @@ const NewComplaintStore: FC = () => {
                   Tanggal request pemasangan :
                 </Form.Label>
                 <Col sm='9'>
-                  <Form.Control type='date' plaintext readOnly />
+                  <Form.Control
+                    type='text'
+                    plaintext
+                    readOnly
+                    value={orderDetail ? formatDate(new Date(orderDetail?.created_at)) : ''}
+                  />
                 </Col>
               </Form.Group>
             </div>
@@ -207,14 +387,26 @@ const NewComplaintStore: FC = () => {
                     <td colSpan={5} className='text-end fw-bolder'>
                       Biaya Survey
                     </td>
-                    <td className=' fw-bolder'>700.000</td>
+                    <td className=' fw-bolder'>
+                      {orderDetail?.payment_type === 'GRATIS'
+                        ? `                      Rp. ${0?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : orderDetail?.payment_type === 'BERBAYAR'
+                        ? `                      Rp. ${99000?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : `Rp. ${0}`}
+                    </td>
                   </tr>
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>
                       Grand Total
                     </td>
-                    <td className=' fw-bolder'>1.700.000</td>
+                    <td className=' fw-bolder'>
+                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
+                    </td>
                   </tr>
                 </tbody>
               </Table>
@@ -225,15 +417,15 @@ const NewComplaintStore: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group className='mb-3'>
                 <Form.Label>Tanggal Komplain :</Form.Label>
-                <Form.Control type='date' />
+                <Form.Control type='date' onChange={handleChangeComplaintDate} />
               </Form.Group>
 
               <Form.Group className='mb-3'>
                 <Form.Label>Komplain melalui : </Form.Label>
-                <Form.Select>
-                  <option value='telepon'>Telepon</option>
-                  <option value='datang'>Datang</option>
-                  <option value='wa'>WA</option>
+                <Form.Select onChange={(event) => handleInputOption(event)}>
+                  <option value='handphone'>Telepon</option>
+                  <option value='kasir'>Kasir</option>
+                  <option value='WhatsApp'>WA</option>
                   <option value='email'>Email</option>
                 </Form.Select>
               </Form.Group>
@@ -244,15 +436,14 @@ const NewComplaintStore: FC = () => {
               <Form.Control
                 style={{minHeight: '250px'}}
                 as='textarea'
-                defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
+                value={complaintDesc}
+                onChange={handleInputComplaintDesc}
               ></Form.Control>
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group controlId='formFile'>
-                <Form.Label>Upload Receipt</Form.Label>
+                <Form.Label>Upload Bukti</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
                     type='file'
@@ -263,7 +454,7 @@ const NewComplaintStore: FC = () => {
                   />
 
                   {image ? (
-                    <img src={image} alt={fileName} className='image-preview' />
+                    <img src={image} alt={complaintEvidence} className='image-preview' />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -275,7 +466,7 @@ const NewComplaintStore: FC = () => {
                 <div className='uploaded-row'>
                   <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{fileName}</span>
+                  <span className='upload-content'>{complaintEvidence}</span>
 
                   <FontAwesomeIcon
                     icon={faTrash}
@@ -294,6 +485,7 @@ const NewComplaintStore: FC = () => {
               variant='dark-danger'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              onClick={handleCancelComplaint}
             >
               Cancel
             </Button>
@@ -302,6 +494,7 @@ const NewComplaintStore: FC = () => {
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              onClick={handleSubmitNewComplaint}
             >
               Submit
             </Button>

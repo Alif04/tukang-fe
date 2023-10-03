@@ -37,12 +37,8 @@
   margin: 0 0 6.25px 0;
 }
 
-#new-complaint .form-header label.form-label.col-form-label.col-sm-4 {
+#new-complaint .form-header label.form-label.col-form-label.col-sm-3 {
   padding: 0;
-}
-
-#new-complaint .form-header input.form-control {
-  padding: 0 6.25px;
 }
 
 /* Table Order */

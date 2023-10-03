@@ -1,19 +1,30 @@
 import {useState, useEffect} from 'react'
+import './Login.css'
+
 import {Link, useNavigate} from 'react-router-dom'
 import {Form, Button} from 'react-bootstrap'
 import Swal from 'sweetalert2'
 import axios from 'axios'
 import {toAbsoluteUrl} from '../../../_metronic/helpers'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'
 
 export function Login() {
   const navigate = useNavigate()
   const apiUrl = process.env.REACT_APP_API_URL
   console.log('API URL:', apiUrl)
 
+  const [loginData, setLoginData] = useState()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [handleTogglePassword, setHandleTogglePassword] = useState(false)
+  const togglePasswordVisiblity = () => {
+    setHandleTogglePassword(handleTogglePassword ? false : true)
+  }
 
   const handleLogin = () => {
+    setIsLoading(true)
     axios
       .post(
         `${apiUrl}/auth/login`,
@@ -30,37 +41,42 @@ export function Login() {
         }
       )
       .then((res) => {
-        const userRole = res.data.roles.roles.name
+        if (res.data.statusCode == 200) {
+          console.log('Roles:', res.data.roles)
 
-        localStorage.setItem('username', res.data.user.username)
-        localStorage.setItem('userRole', userRole)
-        localStorage.setItem('accessToken', res.data.accessToken)
-        localStorage.setItem('user_id', res.data.user.id)
+          const userRole: string[] = res.data.roles.map((roles: any) => roles.roles.name)
+          console.log('User Role:', userRole)
 
-        if (
-          userRole === 'admin store' ||
-          userRole === 'admin ho' ||
-          userRole === 'admin vendor' ||
-          userRole === 'tukang'
-        ) {
-          navigate('/home')
+          localStorage.setItem('user_id', res.data.user.id)
+          localStorage.setItem('username', res.data.user.username)
+          localStorage.setItem('userRole', userRole.join(','))
+          localStorage.setItem('accessToken', res.data.accessToken)
+
           Swal.fire({
             title: 'Login Success',
             icon: 'success',
+          }).then(() => {
+            navigate('/home')
           })
+          setIsLoading(false)
         } else {
+          navigate('/login')
           Swal.fire({
             title: 'Login Failed',
             icon: 'error',
           })
+          setIsLoading(true)
         }
       })
       .catch((err) => {
-        console.error(err)
+        setIsLoading(false)
+
         Swal.fire({
-          title: err.message,
+          title: 'Login Failed',
+          text: err.response.data.message,
           icon: 'error',
         })
+        console.error(err)
       })
   }
 
@@ -74,7 +90,7 @@ export function Login() {
         case 'adminStore':
           if (password == 'password') {
             localStorage.setItem('username', username)
-            localStorage.setItem('userRole', 'admin-store')
+            localStorage.setItem('userRole', 'admin store')
             successMessage = 'success'
           }
           break
@@ -135,81 +151,78 @@ export function Login() {
   }, [])
 
   return (
-    <div className='d-flex flex-column flex-column-fluid bgi-position-y-bottom position-x-center bgi-no-repeat bgi-size-contain bgi-attachment-fixed'>
-      <div className='d-flex flex-center flex-column flex-column-fluid p-10 pb-lg-20'>
-        <a href='#' className='mb-12'>
-          <img alt='Logo' src={toAbsoluteUrl('/media/auth/logo-mitra.png')} className='h-100px' />
-        </a>
-        <div className='w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto'>
-          <form className='form w-100'>
-            <div className='text-center mb-10'>
-              <h1 className='text-dark mb-3'>Sign In to Tukangin Website</h1>
-              <div className='text-gray-400 fw-bold fs-4'>
-                New Here?{' '}
-                <Link to='/auth/registration' className='link-primary fw-bolder'>
-                  Create an Account
-                </Link>
-              </div>
-            </div>
-            <div className='fv-row mb-10'>
-              <Form.Group className='mb-3'>
-                <Form.Label className='fs-6 fw-bolder text-dark'>Username</Form.Label>
-                <Form.Control
-                  placeholder='Username'
-                  type='text'
-                  name='username'
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </Form.Group>
-            </div>
-            <div className='fv-row mb-10'>
-              <Form.Group className='mb-3'>
-                <div className='d-flex justify-content-between mt-n5'>
-                  <div className='d-flex flex-stack mb-2'>
-                    <Form.Label className='fw-bolder text-dark fs-6 mb-0'>Password</Form.Label>
-                    <Link
-                      to='/auth/forgot-password'
-                      className='link-primary fs-6 fw-bolder'
-                      style={{marginLeft: '5px'}}
-                    >
-                      Forgot Password ?
-                    </Link>
-                  </div>
+    <section id='login-page'>
+      <div className='d-flex flex-column flex-column-fluid bgi-position-y-bottom position-x-center bgi-no-repeat bgi-size-contain bgi-attachment-fixed'>
+        <div className='d-flex flex-center flex-column flex-column-fluid p-10 pb-lg-20'>
+          <a href='#' className='mb-12'>
+            <img alt='Logo' src={toAbsoluteUrl('/media/auth/logo-mitra.png')} className='h-100px' />
+          </a>
+          <div className='w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto'>
+            <form className='form w-100'>
+              <div className='text-center mb-10'>
+                <h1 className='text-dark mb-3'>Sign In to Tukangin Website</h1>
+                <div className='text-gray-400 fw-bold fs-4'>
+                  New Here?{' '}
+                  <Link to='/auth/registration' className='link-primary fw-bolder'>
+                    Create an Account
+                  </Link>
                 </div>
-                <Form.Control
-                  placeholder='Password'
-                  type='password'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Form.Group>
-            </div>
-            <div className='text-center'>
-              <Button
-                id='kt_sign_in_submit'
-                className='btn btn-lg btn-primary w-100 mb-5'
-                onClick={performLogin}
-              >
-                Login
-              </Button>
-            </div>
-          </form>
+              </div>
+              <div className='fv-row mb-10'>
+                <Form.Group className='mb-3'>
+                  <Form.Label className='fs-6 fw-bolder text-dark'>Username</Form.Label>
+                  <Form.Control
+                    placeholder='Username'
+                    type='text'
+                    name='username'
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </Form.Group>
+              </div>
+              <div className='fv-row mb-10'>
+                <Form.Group className='mb-3'>
+                  <div className='d-flex justify-content-between mt-n5'>
+                    <div className='d-flex flex-stack mb-2'>
+                      <Form.Label className='fw-bolder text-dark fs-6 mb-0'>Password</Form.Label>
+                      <Link
+                        to='/auth/forgot-password'
+                        className='link-primary fs-6 fw-bolder'
+                        style={{marginLeft: '5px'}}
+                      >
+                        Forgot Password ?
+                      </Link>
+                    </div>
+                  </div>
+                  <Form.Control
+                    placeholder='Password'
+                    type={handleTogglePassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <span className='show-hide-password' onClick={togglePasswordVisiblity}>
+                    <FontAwesomeIcon
+                      icon={handleTogglePassword ? faEye : faEyeSlash}
+                      className='text-black'
+                      size='lg'
+                    />
+                  </span>
+                </Form.Group>
+              </div>
+              <div className='text-center'>
+                <Button
+                  id='kt_sign_in_submit'
+                  className='btn btn-lg btn-primary w-100 mb-5'
+                  onClick={handleLogin}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Logging In...' : 'Login'}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-      <div className='d-flex flex-center flex-column-auto p-10'>
-        <div className='d-flex align-items-center fw-bold fs-6'>
-          <a href='#' className='text-muted text-hover-primary px-2'>
-            About
-          </a>
-          <a href='#' className='text-muted text-hover-primary px-2'>
-            Contact
-          </a>
-          <a href='#' className='text-muted text-hover-primary px-2'>
-            Contact Us
-          </a>
-        </div>
-      </div>
-    </div>
+    </section>
   )
 }

@@ -8,7 +8,7 @@ const NewOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-store' ? (
+      {userRole == 'admin store' ? (
         <>
           <NewOrderStore />
         </>

@@ -32,7 +32,7 @@ const OrderPage: React.FC = () => {
         path='dashboard-order'
         element={
           <>
-            {userRole == 'admin-store' ? (
+            {userRole == 'admin store' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   INSTALASI & SERVICE MITRA10 DASHBOARD
@@ -53,7 +53,7 @@ const OrderPage: React.FC = () => {
         path='view-order'
         element={
           <>
-            {userRole == 'admin-store' ? (
+            {userRole == 'admin store' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
               </>
@@ -80,10 +80,10 @@ const OrderPage: React.FC = () => {
         }
       />
       <Route
-        path='detail-order'
+        path='detail-order/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER - 78453992 ALIA</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER</PageTitle>
             <DetailOrder />
           </>
         }

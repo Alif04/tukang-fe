@@ -45,12 +45,10 @@ const ComplaintPage: React.FC = () => {
       />
 
       <Route
-        path='detail-complaint'
+        path='detail-complaint/:id'
         element={
           <>
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>
-              DETAIL PENGADUAN 873487923 - Ryan Filbert
-            </PageTitle>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>DETAIL PENGADUAN</PageTitle>
             <DetailComplaint />
           </>
         }

@@ -8,7 +8,7 @@ const ReportCostumer: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-store' ? (
+      {userRole == 'admin store' ? (
         <>
           <ReportCostumerStore />
         </>

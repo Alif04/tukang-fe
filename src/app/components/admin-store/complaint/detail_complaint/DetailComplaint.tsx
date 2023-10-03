@@ -1,21 +1,124 @@
-import React, {FC, useState} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './DetailComplaint.css'
 
-import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import {useNavigate, useParams} from 'react-router-dom'
+import {Row, Col, Form, ListGroup, Table, Button} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 const DetailComplaintStore: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+  const navigate = useNavigate()
+
+  const [orderDetail, setOrderDetail] = useState<any>()
+  const [complaintDetail, setComplaintDetail] = useState<any>()
+  console.log(orderDetail)
+
+  const fetchComplaintData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/complaints/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setComplaintDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const fetchOrderData = async () => {
+    const orderId = complaintDetail?.order_id
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${orderId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchComplaintData()
+  }, [])
+
+  useEffect(() => {
+    if (complaintDetail) {
+      fetchOrderData()
+    }
+  }, [complaintDetail])
+
+  const phoneNumber =
+    orderDetail?.members.phone_number !== null
+      ? orderDetail?.members.phone_number
+      : orderDetail?.members.whatsapp_number
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  // Add Feedback
+
+  const [memberName, setMemberName] = useState<string>('')
+  const [position, setPosition] = useState<string>('')
+  const [feedbackDesc, setFeedbackDesc] = useState<any>('')
+  const [feedbackDate, setFeedbackDate] = useState<string>('')
+  const [evidenceComplaint, setEvidenceComplaint] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
   const [visible, setVisible] = useState(false)
 
+  // Handle Input Change
+  const handleInputMemberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setMemberName(updatedInputValue)
+  }
+
+  const handleInputPositionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setPosition(updatedInputValue)
+  }
+
+  const handleInputFeedbackDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setFeedbackDesc(updatedInputValue)
+  }
+
+  // Handle Feedback Date Change
+  const handleChangeFeedbackDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedFeedbackDate = event.target.value
+    setFeedbackDate(updatedFeedbackDate)
+  }
+
+  // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && files[0]) {
-      setFileName(files[0].name)
+      setEvidenceComplaint(files[0].name)
       setImage(URL.createObjectURL(files[0]))
     }
   }
@@ -26,8 +129,52 @@ const DetailComplaintStore: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setFileName('No selected file')
+    setEvidenceComplaint('No selected file')
     setImage(null)
+  }
+
+  // Handle Submit Feedback
+  const handleSubmitNewFeedback = async () => {
+    try {
+      const formData = new FormData()
+
+      formData.append('member_name', memberName)
+      formData.append('position', position)
+      formData.append('feedback_date', feedbackDate)
+      formData.append('feedback_desc', feedbackDesc)
+      formData.append('evidence_feedback', evidenceComplaint)
+
+      console.log(formData)
+
+      // const response = await axios.post(`${apiUrl}/feedback/create`, formData, {
+      //   headers: {
+      //     Accept: 'application/json',
+      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      //     'Access-Control-Allow-Origin': '*',
+      //     'ngrok-skip-browser-warning': 'true',
+      //   },
+      // })
+
+      // Swal.fire({
+      //   title: 'Success',
+      //   text: 'Success update realization',
+      //   icon: 'success',
+      // })
+
+      // navigate('/complaint/view-complaint')
+    } catch (error) {
+      console.error(error)
+
+      Swal.fire({
+        title: 'Error',
+        text: 'Cant Add Order',
+        icon: 'error',
+      })
+    }
+  }
+
+  const handleCancel = () => {
+    navigate('/complaint/view-complaint')
   }
 
   return (
@@ -38,31 +185,39 @@ const DetailComplaintStore: FC = () => {
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 BSD - 10121</span>
+                  Nama Toko :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
                 </Form.Label>
 
                 <Form.Label className='fs-4 fw-bold'>
-                  Complaint ID : <span className='fs-4 ms-2 fw-normal'>873487923</span>
+                  Complaint ID : <span className='fs-4 ms-2 fw-normal'>{complaintDetail?.id}</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>77652739</span>
+                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
                 </Form.Label>
+
                 <Form.Group as={Row}>
                   <Form.Label column sm='4' className='fs-4 fw-bold m-0'>
                     Order Date :
                   </Form.Label>
                   <Col sm='8'>
-                    <Form.Control type='date' plaintext readOnly />
+                    <Form.Control
+                      type='text'
+                      plaintext
+                      readOnly
+                      value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                    />
                   </Col>
                 </Form.Group>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Receipt Number : <span className='fs-4 ms-2 fw-normal'>898823469121</span>
+                  Receipt Number :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
                 </Form.Label>
               </Col>
             </Row>
@@ -77,7 +232,7 @@ const DetailComplaintStore: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='876992300239' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
                       </Col>
                     </Form.Group>
 
@@ -86,7 +241,7 @@ const DetailComplaintStore: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='Ryan Filbert' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
                       </Col>
                     </Form.Group>
 
@@ -100,7 +255,7 @@ const DetailComplaintStore: FC = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          defaultValue='Jl. Kijang no.9, Jakarta Timur DKI Jakarta, Indonesia'
+                          value={orderDetail?.project_address}
                         />
                       </Col>
                     </Form.Group>
@@ -108,20 +263,20 @@ const DetailComplaintStore: FC = () => {
 
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
+                      <Form.Label column sm='4'>
                         Nomor Telp/WA :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='08126768945' />
+                      <Col sm='8'>
+                        <Form.Control plaintext readOnly value={phoneNumber} />
                       </Col>
                     </Form.Group>
 
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
+                      <Form.Label column sm='4'>
                         Alamat Email :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='ryan.filbert@gmail.com' />
+                      <Col sm='8'>
+                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -136,7 +291,7 @@ const DetailComplaintStore: FC = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='876123887787' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
                   </Col>
                 </Form.Group>
 
@@ -145,7 +300,7 @@ const DetailComplaintStore: FC = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='Wendy Silitonga' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
                   </Col>
                 </Form.Group>
               </Col>
@@ -206,7 +361,9 @@ const DetailComplaintStore: FC = () => {
                     <td colSpan={5} className='text-end fw-bolder'>
                       Grand Total
                     </td>
-                    <td className=' fw-bolder'>1.700.000</td>
+                    <td className=' fw-bolder'>
+                      Rp. {parseInt(orderDetail?.grand_total)?.toLocaleString('id')}
+                    </td>
                   </tr>
                 </tbody>
               </Table>
@@ -226,7 +383,14 @@ const DetailComplaintStore: FC = () => {
                   Complaint Date :
                 </Form.Label>
                 <Col sm='6'>
-                  <Form.Control type='date' plaintext readOnly />
+                  <Form.Control
+                    type='text'
+                    plaintext
+                    readOnly
+                    value={
+                      complaintDetail ? formatDate(new Date(complaintDetail.complaint_date)) : ''
+                    }
+                  />
                 </Col>
               </Form.Group>
 
@@ -256,9 +420,7 @@ const DetailComplaintStore: FC = () => {
                 as='textarea'
                 plaintext
                 readOnly
-                defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
+                value={complaintDetail?.description}
               ></Form.Control>
             </Col>
 
@@ -278,17 +440,16 @@ const DetailComplaintStore: FC = () => {
             </Col>
           </Row>
 
-          <hr />
+          {/* <hr /> */}
 
-          <Row>
+          {/* <Row>
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
               <Form.Label className='fs-3 fw-bold'>Feedback Store :</Form.Label>
               <Form.Control
                 style={{minHeight: '170px'}}
                 as='textarea'
-                defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
+                value={feedbackDesc}
+                onChange={handleInputFeedbackDesc}
               ></Form.Control>
             </Col>
 
@@ -305,7 +466,7 @@ const DetailComplaintStore: FC = () => {
                   />
 
                   {image ? (
-                    <img src={image} alt={fileName} className='image-preview' />
+                    <img src={image} alt={evidenceComplaint} className='image-preview' />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -317,7 +478,7 @@ const DetailComplaintStore: FC = () => {
                 <div className='uploaded-row'>
                   <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{fileName}</span>
+                  <span className='upload-content'>{evidenceComplaint}</span>
 
                   <FontAwesomeIcon
                     icon={faTrash}
@@ -329,32 +490,57 @@ const DetailComplaintStore: FC = () => {
                 </div>
               </Form.Group>
             </Col>
-          </Row>
-
+          </Row> */}
+          {/* 
           <Row>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Nama Pemberi Feedback</Form.Label>
-                <Form.Control type='text' placeholder='John Doe' />
+                <Form.Control
+                  type='text'
+                  placeholder='John Doe'
+                  value={memberName}
+                  onChange={handleInputMemberChange}
+                />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Jabatan</Form.Label>
-                <Form.Control type='text' />
+                <Form.Control type='text' value={position} onChange={handleInputPositionChange} />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Tanggal Feedback : </Form.Label>
-                <Form.Control type='date' />
+                <Form.Control type='date' onChange={handleChangeFeedbackDate} />
               </Form.Group>
             </Col>
-          </Row>
+          </Row> */}
 
-          <hr />
+          {/* <div className='d-flex justify-content-center align-items-center mt-5'>
+            <Button
+              variant='dark-danger'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant='dark-primary'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleSubmitNewFeedback}
+            >
+              Submit
+            </Button>
+          </div> */}
+
+          {/* <hr />
 
           <div className='card'>
             <div className='card-body'>
@@ -417,7 +603,7 @@ const DetailComplaintStore: FC = () => {
                 </Col>
               </Row>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
