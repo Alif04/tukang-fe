@@ -128,7 +128,7 @@ const NewOrderStore: FC = () => {
   const [total, setTotal] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<number>(0)
   const [grandTotalComission, setGrandTotalComission] = useState<number>(0)
-  const [totalEstimateWorkDays, setTotalEstimateWorkDays] = useState<string>('')
+  const [totalEstimateWorkDays, setTotalEstimateWorkDays] = useState<number>(10)
 
   // Fetch API Data
   useEffect(() => {
@@ -628,7 +628,7 @@ const NewOrderStore: FC = () => {
     {
       index_id: 0,
       item_id: null,
-      order_status_id: 0,
+      order_status_id: 1,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -757,18 +757,19 @@ const NewOrderStore: FC = () => {
     try {
       const formData = new FormData()
 
-      formData.append('store_id', storeId)
-      formData.append('category_id', categoryId.toString())
       formData.append('receipt_file', receiptFile)
       formData.append('member_id', memberId)
-      formData.append('seles_id', salesId)
+      formData.append('sales_id', salesId)
       formData.append('vendor_id', vendorId.toString())
       formData.append('tukang_id', tukangId.toString())
       formData.append('project_status_id', projectStatusId.toString())
+      formData.append('category_id', categoryId.toString())
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
+      formData.append('total_estimate_workdays', totalEstimateWorkDays.toString())
+      formData.append('store_id', storeId)
       formData.append('payment_type', paymentType)
 
       orderDetailValues.forEach((order, index) => {
@@ -794,7 +795,7 @@ const NewOrderStore: FC = () => {
 
       Swal.fire({
         title: 'Success',
-        text: 'Success update realization',
+        text: 'Success Create Order',
         icon: 'success',
       })
 

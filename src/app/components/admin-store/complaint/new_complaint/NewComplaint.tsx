@@ -145,11 +145,11 @@ const NewComplaintStore: FC = () => {
       const formData = new FormData()
 
       formData.append('order_id', orderId)
-      formData.append('complaint_desc', complaintDesc)
+      formData.append('description', complaintDesc)
       formData.append('complaint_channel', complaintVia)
       formData.append('complaint_date', complaintDate)
       formData.append('complaint_status', complaintStatus)
-      formData.append('complaint_evidence', complaintEvidence)
+      formData.append('complaint_evidences', complaintEvidence)
 
       await axios.post(`${apiUrl}/complaints`, formData, {
         headers: {
