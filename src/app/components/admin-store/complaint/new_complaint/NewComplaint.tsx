@@ -11,6 +11,11 @@ import {Row, Col, Form, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
+interface ComplaintChannel {
+  value: BigInteger
+  label: string
+}
+
 const NewComplaintStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -19,6 +24,8 @@ const NewComplaintStore: FC = () => {
   const [order, setOrder] = useState<any>()
   const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
 
   const getOrder = async () => {
     try {
@@ -66,8 +73,35 @@ const NewComplaintStore: FC = () => {
     }
   }
 
+  const getComplaintChannel = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/complaint-channels`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempComplaintChannel = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setComplaintChannel(tempComplaintChannel)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getOrder()
+    getComplaintChannel()
   }, [])
 
   useEffect(() => {
@@ -98,7 +132,6 @@ const NewComplaintStore: FC = () => {
   // Add Complaint
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintVia, setComplaintVia] = useState<string>('')
   const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
@@ -109,18 +142,13 @@ const NewComplaintStore: FC = () => {
     setComplaintDesc(updatedInputValue)
   }
 
-  // Handle Option Change
-  const handleInputOption = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const updatedOptionValue = event.target.value
-    setComplaintVia(updatedOptionValue)
-  }
-
   // Handle Feedback Date Change
   const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFeedbackDate = event.target.value
     setComplaintDate(updatedFeedbackDate)
   }
 
+  // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && files[0]) {
@@ -139,6 +167,12 @@ const NewComplaintStore: FC = () => {
     setImage(null)
   }
 
+  // Handle Change Complaint Channel
+  const handleChangeSelectComplaintChannel = (element: any) => {
+    const updatedSelectComplaintChannel = element.value
+    setComplaintChannelId(updatedSelectComplaintChannel)
+  }
+
   // Handle Submit Complaint
   const handleSubmitNewComplaint = async () => {
     try {
@@ -146,7 +180,7 @@ const NewComplaintStore: FC = () => {
 
       formData.append('order_id', orderId)
       formData.append('description', complaintDesc)
-      formData.append('complaint_channel', complaintVia)
+      formData.append('complaint_channel', complaintChannelId)
       formData.append('complaint_date', complaintDate)
       formData.append('complaint_status', complaintStatus)
       formData.append('complaint_evidences', complaintEvidence)
@@ -420,12 +454,15 @@ const NewComplaintStore: FC = () => {
 
               <Form.Group className='mb-3'>
                 <Form.Label>Komplain melalui : </Form.Label>
-                <Form.Select onChange={(event) => handleInputOption(event)}>
-                  <option value='handphone'>Telepon</option>
-                  <option value='kasir'>Kasir</option>
-                  <option value='WhatsApp'>WA</option>
-                  <option value='email'>Email</option>
-                </Form.Select>
+                <Select
+                  name='complaint_channel_id'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  placeholder='Complaint Via'
+                  isSearchable={true}
+                  options={complaintChannel}
+                  onChange={(e) => handleChangeSelectComplaintChannel(e)}
+                />
               </Form.Group>
             </Col>
 
