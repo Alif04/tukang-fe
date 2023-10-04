@@ -120,7 +120,7 @@ const NewOrderStore: FC = () => {
 
   const [requestDate, setRequestDate] = useState<string>('')
   const [receiptFile, setReceiptFile] = useState<string>('No selected file')
-  const [receiptNumber, setReceiptNumber] = useState<string>('')
+  const [receiptNumber, setReceiptNumber] = useState<any>()
   const [image, setImage] = useState<string | null>(null)
 
   // Order Table
@@ -370,6 +370,12 @@ const NewOrderStore: FC = () => {
   const handleChangeRequestDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedRequestDate = event.target.value
     setRequestDate(updatedRequestDate)
+  }
+
+  // Input No Receipt
+  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedNoReceipt = event.target.value
+    setReceiptNumber(updatedNoReceipt)
   }
 
   // Payment Type ( Radio Button )
@@ -760,7 +766,7 @@ const NewOrderStore: FC = () => {
       formData.append('tukang_id', tukangId.toString())
       formData.append('project_status_id', projectStatusId.toString())
       formData.append('project_address', memberAddress)
-      formData.append('receipt_number', receiptNumber)
+      formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
       formData.append('payment_type', paymentType)
@@ -777,24 +783,22 @@ const NewOrderStore: FC = () => {
         formData.append(`order_details[${index}][comission]`, String(order.comission))
       })
 
-      console.log(formData)
+      const response = await axios.post(`${apiUrl}/orders/create`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      // const response = await axios.post(`${apiUrl}/orders/create`, formData, {
-      //   headers: {
-      //     Accept: 'application/json',
-      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      //     'Access-Control-Allow-Origin': '*',
-      //     'ngrok-skip-browser-warning': 'true',
-      //   },
-      // })
+      Swal.fire({
+        title: 'Success',
+        text: 'Success update realization',
+        icon: 'success',
+      })
 
-      // Swal.fire({
-      //   title: 'Success',
-      //   text: 'Success update realization',
-      //   icon: 'success',
-      // })
-
-      // navigate('/order/view-order')
+      navigate('/order/view-order')
     } catch (error) {
       console.error(error)
 
@@ -1131,7 +1135,7 @@ const NewOrderStore: FC = () => {
           </div>
 
           <Row className='table-order-header d-flex align-items-center mb-5'>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
               <Form.Group>
                 <Form.Label>Tanggal Request</Form.Label>
                 <Form.Control
@@ -1143,7 +1147,14 @@ const NewOrderStore: FC = () => {
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='order-status order-1 order-md-2'>
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3}>
+              <Form.Group>
+                <Form.Label>No Receipt</Form.Label>
+                <Form.Control name='no-receipt' type='number' onChange={handleChangeNoReceipt} />
+              </Form.Group>
+            </Col>
+
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
               <h1 className='fw-bold'>
                 ORDER STATUS : <span className='fw-bold text-success'>PICKLIST</span>
               </h1>
@@ -1151,10 +1162,10 @@ const NewOrderStore: FC = () => {
 
             <Col
               xs={12}
-              md={4}
-              lg={4}
-              xl={4}
-              xxl={4}
+              md={3}
+              lg={3}
+              xl={3}
+              xxl={3}
               className='button-add text-end order-3 order-md-3'
             >
               <button onClick={() => handleAddForm()}>Tambah Order</button>

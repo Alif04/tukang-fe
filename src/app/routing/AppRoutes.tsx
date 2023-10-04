@@ -12,6 +12,9 @@ import {ErrorsPage} from '../modules/errors/ErrorsPage'
 import {Login} from '../modules/login/Login'
 import {App} from '../App'
 
+import {MasterLayout} from '../../_metronic/layout/MasterLayout'
+import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
+
 /**
  * Base URL of the website.
  *
@@ -29,17 +32,19 @@ const AppRoutes: FC = () => {
       <Routes>
         <Route element={<App />}>
           <Route path='error/*' element={<ErrorsPage />} />
-          <Route path='/login' element={<Login />} />
 
-          {!username && !userRole && !accessToken && (
+          {!username || !userRole || !accessToken ? (
             <>
+              <Route path='login' element={<Login />} />
               <Route path='*' element={<Navigate to='/login' />} />
             </>
+          ) : (
+            <>
+              <Route index element={<Navigate to='/home' />} />
+              <Route path='/*' element={<PrivateRoutes />} />
+              <Route path='login' element={<Navigate to='/home' />} />
+            </>
           )}
-          <>
-            <Route path='/*' element={<PrivateRoutes />} />
-            <Route index element={<Navigate to='/home' />} />
-          </>
         </Route>
       </Routes>
     </BrowserRouter>

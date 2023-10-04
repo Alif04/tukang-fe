@@ -55,9 +55,12 @@ export function Login() {
           Swal.fire({
             title: 'Login Success',
             icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
           }).then(() => {
-            navigate('/home')
+            window.location.reload()
           })
+
           setIsLoading(false)
         } else {
           navigate('/login')
@@ -65,6 +68,7 @@ export function Login() {
             title: 'Login Failed',
             icon: 'error',
           })
+
           setIsLoading(true)
         }
       })

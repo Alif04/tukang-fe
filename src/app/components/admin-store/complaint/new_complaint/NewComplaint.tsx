@@ -151,22 +151,20 @@ const NewComplaintStore: FC = () => {
       formData.append('complaint_status', complaintStatus)
       formData.append('complaint_evidence', complaintEvidence)
 
-      console.log(formData)
+      await axios.post(`${apiUrl}/complaints`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      // await axios.post(`${apiUrl}/complaints`, formData, {
-      //   headers: {
-      //     Accept: 'application/json',
-      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      //     'Access-Control-Allow-Origin': '*',
-      //     'ngrok-skip-browser-warning': 'true',
-      //   },
-      // })
-
-      // Swal.fire({
-      //   title: 'Success',
-      //   text: 'Success Add Complaint',
-      //   icon: 'success',
-      // })
+      Swal.fire({
+        title: 'Success',
+        text: 'Success Add Complaint',
+        icon: 'success',
+      })
 
       navigate('/complaint/view-complaint')
     } catch (error) {
@@ -174,7 +172,7 @@ const NewComplaintStore: FC = () => {
 
       Swal.fire({
         title: 'Error',
-        text: 'Cant Add Order',
+        text: 'Cant Add Complaint',
         icon: 'error',
       })
     }
