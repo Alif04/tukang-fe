@@ -2,6 +2,7 @@
 
 #update-order .form-wrapper {
   display: flex;
+  gap: 50px;
   margin-bottom: 30px;
 }
 
@@ -69,6 +70,34 @@
   padding: 0 100px 0 10px;
 }
 
+/* Form Input Table Order */
+
+#update-order .table-order-content .select__control.css-13cymwt-control {
+  border: none;
+}
+
+#update-order .table-order-content span.select__indicator-separator.css-1u9des2-indicatorSeparator {
+  background-color: transparent;
+}
+
+#update-order .table-order-content .css-t3ipsp-control {
+  background-color: transparent;
+  border: black;
+  box-shadow: none !important;
+}
+
+#update-order .table-order-content .css-t3ipsp-control:hover {
+  background-color: transparent;
+  border: black;
+  box-shadow: none !important;
+}
+
+#update-order .table-order-content input.form-control {
+  text-align: center;
+  background-color: transparent;
+  border: none;
+}
+
 /* Button */
 
 #update-order .button-add button {
@@ -83,8 +112,8 @@
 
 #update-order .btn.btn-dark-primary {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   width: 200px;
   height: 40px;
   margin: 0 10px 0 10px;
@@ -109,17 +138,35 @@
 
 /* Table Picklist*/
 
-#update-order .table-order-head .table tr,
+#update-order .table-picklist .table tr,
 .table th,
 .table td {
   border: 1px solid gray;
 }
 
-.table-order-head th {
+.table-picklist th {
   text-align: center;
 }
 
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #update-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-order .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
 @media screen and (max-width: 1200px) {
+  /* Form Layout */
+
   #update-order .form-wrapper {
     flex-direction: column;
     gap: 10px;
@@ -145,6 +192,8 @@
     padding: 0 10px 0 10px;
   }
 
+  /* Form Sales */
+
   #update-order .form-sales .form-header {
     margin-bottom: 20px;
   }
@@ -158,6 +207,8 @@
 }
 
 @media screen and (max-width: 768px) {
+  /* Table Order */
+
   #update-order .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
@@ -179,15 +230,15 @@
 }
 
 @media screen and (max-width: 576px) {
-  #update-order .btn.btn-dark-primary {
+  /* Button */
+
+  #update-order .button-add button {
     width: 100%;
-    height: 50px;
-    margin: 0 0 0 10px;
   }
 
-  #update-order .btn.btn-warning {
+  #update-order .btn.btn-dark-primary {
     width: 100%;
-    height: 50px;
-    margin: 0 10px 0 0;
+    margin: 0;
+    height: 40px;
   }
 }

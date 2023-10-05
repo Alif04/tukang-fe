@@ -4,6 +4,7 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {ViewComplaint} from './components/ViewComplaint'
 import {NewComplaint} from './components/NewComplaint'
+import {UpdateComplaint} from './components/UpdateComplaint'
 import {DetailComplaint} from './components/DetailComplaint'
 import {ReportComplaint} from './components/ReportComplaint'
 
@@ -34,12 +35,23 @@ const ComplaintPage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='new-complaint'
         element={
           <>
             <PageTitle breadcrumbs={complaintBreadCrumbs}>FORMULIR PENGADUAN</PageTitle>
             <NewComplaint />
+          </>
+        }
+      />
+
+      <Route
+        path='update-complaint/:id'
+        element={
+          <>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>UPDATE COMPLAINT FORM</PageTitle>
+            <UpdateComplaint />
           </>
         }
       />

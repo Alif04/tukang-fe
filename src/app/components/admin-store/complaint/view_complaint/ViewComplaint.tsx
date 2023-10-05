@@ -12,7 +12,7 @@ import {Table, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faFilter, faSearch, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faFilter, faPen, faSearch, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
   className: string
@@ -140,6 +140,11 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           navigate(`/complaint/detail-complaint/${id}`)
         }
 
+        const handleEdit = () => {
+          const id = record.complaint_id
+          navigate(`/complaint/update-complaint/${id}`)
+        }
+
         const handleDelete = () => {
           const id = record.complaint_id
 
@@ -192,6 +197,10 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           <div className='button-wrapper'>
             <a className='button-detail' onClick={handleDetail}>
               <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
+
+            <a className='button-edit' onClick={handleEdit}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
             </a>
 
             <a className='button-delete' onClick={handleDelete}>

@@ -1,8 +1,8 @@
 import React, {FC, useEffect, useState} from 'react'
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
-import './NewOrder.css'
+import './UpdateOrder.css'
 
 import Swal from 'sweetalert2'
 import Select from 'react-select'
@@ -65,9 +65,10 @@ interface ItemPrice {
   price: string
 }
 
-const NewOrderStore: FC = () => {
+const UpdateOrderStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const params = useParams()
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -77,6 +78,7 @@ const NewOrderStore: FC = () => {
   const [indexForm, setIndexForm] = useState<number>(0)
 
   // Order Information Detail
+  const [orderDetail, setOrderDetail] = useState<any>()
 
   // Store
   const [store, setStore] = useState<StoreItem[]>([])
@@ -129,6 +131,26 @@ const NewOrderStore: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
+    const fetchOrderData = async () => {
+      try {
+        await axios
+          .get(`${apiUrl}/orders/${params.id}`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          .then((response) => {
+            const data = response.data.data
+            setOrderDetail(data)
+          })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     const getStore = async () => {
       try {
         const response = await axios.get(`${apiUrl}/store/get`, {
@@ -158,7 +180,7 @@ const NewOrderStore: FC = () => {
       }
     }
 
-    const getMember = async () => {
+    const getCostumer = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member/data`, {
           headers: {
@@ -173,7 +195,6 @@ const NewOrderStore: FC = () => {
             value: item.id,
             label: item.full_name,
             email: item.email,
-            // phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
@@ -182,7 +203,6 @@ const NewOrderStore: FC = () => {
           tempMember.push(creatableOption)
 
           setMember(tempMember)
-          // console.log(tempMember)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -348,8 +368,9 @@ const NewOrderStore: FC = () => {
       }
     }
 
+    fetchOrderData()
     getStore()
-    getMember()
+    getCostumer()
     getSales()
     getVendor()
     getTukang()
@@ -816,7 +837,7 @@ const NewOrderStore: FC = () => {
   }
 
   return (
-    <section id='new-order'>
+    <section id='update-order'>
       <div className='card mb-5'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -836,7 +857,6 @@ const NewOrderStore: FC = () => {
                         placeholder='Pilih Toko'
                         isSearchable={true}
                         options={store}
-                        defaultValue={store.find((storeItem) => storeItem.value) || null}
                         onChange={(e) => handleChangeSelectStore(e)}
                       />
                     </Col>
@@ -1332,8 +1352,10 @@ const NewOrderStore: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
+            <Button variant='warning'>Reprint Order</Button>
+
             <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
-              Submit Order & Print
+              Update Order & Print
             </Button>
           </div>
         </div>
@@ -1342,4 +1364,4 @@ const NewOrderStore: FC = () => {
   )
 }
 
-export {NewOrderStore}
+export {UpdateOrderStore}

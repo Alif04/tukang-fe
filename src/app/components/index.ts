@@ -46,6 +46,9 @@ export * from './admin-store/order/view_order/ViewOrder'
 // New Order Order
 export * from './admin-store/order/new_order/NewOrder'
 
+// Update Order
+export * from './admin-store/order/update_order/UpdateOrder'
+
 // Detail Order
 export * from './admin-store/order/detail_order/DetailOrder'
 
@@ -58,6 +61,9 @@ export * from './admin-store/complaint/view_complaint/ViewComplaint'
 
 // New Complaint
 export * from './admin-store/complaint/new_complaint/NewComplaint'
+
+// Update Complaint
+export * from './admin-store/complaint/update_complaint/UpdateComplaint'
 
 // Detail Complaint
 export * from './admin-store/complaint/detail_complaint/DetailComplaint'
