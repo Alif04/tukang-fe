@@ -1,61 +1,61 @@
 /* Form Layout */
 
-#new-complaint .form-wrapper {
+#update-complaint .form-wrapper {
   margin-bottom: 30px;
 }
 
-#new-complaint .form-wrapper .form-header {
+#update-complaint .form-wrapper .form-header {
   margin-bottom: 30px;
 }
 
-#new-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 60%;
 }
 
-#new-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#update-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
   padding: 3px 9.75px;
 }
 
-#new-complaint .costumer-info .detail-info.row input.form-control-plaintext {
+#update-complaint .costumer-info .detail-info.row input.form-control-plaintext {
   padding: 3px 0px;
 }
 
-#new-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 40%;
 }
 
-#new-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#update-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
   padding: 3px 9.75px;
 }
 
-#new-complaint .sales-info .detail-info.row input.form-control-plaintext {
+#update-complaint .sales-info .detail-info.row input.form-control-plaintext {
   padding: 3px 0px;
 }
 
 /* Form Header */
-#new-complaint .form-header .order-id-complaint.row {
+#update-complaint .form-header .order-id-complaint.row {
   margin: 0 0 6.25px 0;
 }
 
-#new-complaint .form-header label.form-label.col-form-label.col-sm-3 {
+#update-complaint .form-header label.form-label.col-form-label.col-sm-3 {
   padding: 0;
 }
 
 /* Table Order */
 
-#new-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 100px 0 10px;
 }
 
-#new-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 30px 0 30px;
 }
 
-#new-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 10px 0 100px;
 }
 
-#new-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 100px 0 10px;
 }
 
@@ -127,7 +127,7 @@
 
 /* Table Picklist*/
 
-#new-complaint .table-picklist .table tr,
+#update-complaint .table-picklist .table tr,
 .table th,
 .table td {
   border: 1px solid gray;
@@ -201,15 +201,15 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 1400px) {
   /* Form Layout */
 
-  #new-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #new-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #new-complaint .alamat-order.row .col {
+  #update-complaint .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 }
@@ -217,38 +217,38 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 1200px) {
   /* Form Layout */
 
-  #new-complaint .form-wrapper {
+  #update-complaint .form-wrapper {
     flex-direction: column;
     gap: 10px;
   }
 
-  #new-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 
-  #new-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 
-  #new-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #new-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #new-complaint .alamat-order.row .col {
+  #update-complaint .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 
   /* Form Sales */
 
-  #new-complaint .form-sales .form-header {
+  #update-complaint .form-sales .form-header {
     margin-bottom: 20px;
   }
 
-  #new-complaint .form-sales .form-header h1 {
+  #update-complaint .form-sales .form-header h1 {
     text-align: start !important;
   }
 }
@@ -259,22 +259,22 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 768px) {
   /* Table Order */
 
-  #new-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
   }
 
-  #new-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
   }
 
-  #new-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     margin-top: 20px;
     padding: 0 10px 0 10px;
   }
 
-  #new-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
   }
 }
@@ -282,11 +282,11 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 576px) {
   /* Button */
 
-  #new-complaint .btn.btn-dark-primary {
+  #update-complaint .btn.btn-dark-primary {
     height: 40px;
   }
 
-  #new-complaint .btn.btn-dark-danger {
+  #update-complaint .btn.btn-dark-danger {
     height: 40px;
   }
 }

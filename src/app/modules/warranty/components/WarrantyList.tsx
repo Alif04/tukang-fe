@@ -9,7 +9,7 @@ const WarrantyList: React.FC = () => {
 
   return (
     <>
-      {userRole == 'admin-store' ? (
+      {userRole == 'admin store' ? (
         <>
           <WarrantyClaimList className='' />
         </>

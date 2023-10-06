@@ -313,7 +313,7 @@ const DashboardWrapper: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-store' ? (
+      {userRole == 'admin store' ? (
         <>
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />

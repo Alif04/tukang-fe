@@ -5,6 +5,7 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
 import {NewOrder} from './components/NewOrder'
+import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {ReportOrder} from './components/ReportOrder'
 
@@ -32,7 +33,7 @@ const OrderPage: React.FC = () => {
         path='dashboard-order'
         element={
           <>
-            {userRole == 'admin-store' ? (
+            {userRole == 'admin store' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   INSTALASI & SERVICE MITRA10 DASHBOARD
@@ -49,11 +50,12 @@ const OrderPage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='view-order'
         element={
           <>
-            {userRole == 'admin-store' ? (
+            {userRole == 'admin store' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
               </>
@@ -70,6 +72,7 @@ const OrderPage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='new-order'
         element={
@@ -79,15 +82,27 @@ const OrderPage: React.FC = () => {
           </>
         }
       />
+
       <Route
-        path='detail-order'
+        path='update-order/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER - 78453992 ALIA</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE ORDER FORM</PageTitle>
+            <UpdateOrder />
+          </>
+        }
+      />
+
+      <Route
+        path='detail-order/:id'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER</PageTitle>
             <DetailOrder />
           </>
         }
       />
+
       <Route
         path='report-order'
         element={
@@ -99,6 +114,7 @@ const OrderPage: React.FC = () => {
           </>
         }
       />
+
       <Route index element={<Navigate to='/order/view-order' />} />
     </Routes>
   )

@@ -1,12 +1,12 @@
 import React, {FC} from 'react'
 import {useState, useEffect} from 'react'
 
-import './NewComplaint.css'
+import './UpdateComplaint.css'
 
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -16,14 +16,18 @@ interface ComplaintChannel {
   label: string
 }
 
-const NewComplaintStore: FC = () => {
+const UpdateComplaintStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const params = useParams()
 
   // Fetch Data Order
   const [order, setOrder] = useState<any>()
   const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
+
+  const [complaintDetail, setComplaintDetail] = useState<any>()
+
   const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
   const [complaintChannelId, setComplaintChannelId] = useState<string>('')
 
@@ -99,7 +103,28 @@ const NewComplaintStore: FC = () => {
     }
   }
 
+  const getComplaintId = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/complaints/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setComplaintDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
+    getComplaintId()
     getOrder()
     getComplaintChannel()
   }, [])
@@ -217,7 +242,7 @@ const NewComplaintStore: FC = () => {
   }
 
   return (
-    <section id='new-complaint'>
+    <section id='update-complaint'>
       <div className='card'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -531,7 +556,7 @@ const NewComplaintStore: FC = () => {
               type='submit'
               onClick={handleSubmitNewComplaint}
             >
-              Submit
+              Update
             </Button>
           </div>
         </div>
@@ -540,4 +565,4 @@ const NewComplaintStore: FC = () => {
   )
 }
 
-export {NewComplaintStore}
+export {UpdateComplaintStore}

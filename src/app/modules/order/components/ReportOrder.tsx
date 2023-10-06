@@ -8,7 +8,7 @@ const ReportOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-store' ? (
+      {userRole == 'admin store' ? (
         <>
           <ReportOrderStore />
         </>

@@ -10,9 +10,10 @@ import {Routes, Route, BrowserRouter, Navigate} from 'react-router-dom'
 import {PrivateRoutes} from './PrivateRoutes'
 import {ErrorsPage} from '../modules/errors/ErrorsPage'
 import {Login} from '../modules/login/Login'
-import {ProtectedAuth} from '../modules/login/ProtectedAuth'
-// import {Logout, AuthPage, useAuth} from '../modules/auth'
 import {App} from '../App'
+
+import {MasterLayout} from '../../_metronic/layout/MasterLayout'
+import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
 
 /**
  * Base URL of the website.
@@ -22,38 +23,28 @@ import {App} from '../App'
 // const {PUBLIC_URL} = process.env
 
 const AppRoutes: FC = () => {
-  // const {currentUser} = useAuth()
-
   const username = localStorage.getItem('username')
   const userRole = localStorage.getItem('userRole')
+  const accessToken = localStorage.getItem('accessToken')
 
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<App />}>
           <Route path='error/*' element={<ErrorsPage />} />
-          <Route path='/*' element={<PrivateRoutes />} />
-          <Route
-            index
-            element={
-              <ProtectedAuth>
-                <Navigate to='/home' />
-              </ProtectedAuth>
-            }
-          />
-          <Route path='/login' element={<Login />} />
-          {/* <Route path='logout' element={<Logout />} /> */}
-          {/* {!username || !userRole ? (
+
+          {!username || !userRole || !accessToken ? (
             <>
-              <Route path='auth/*' element={<AuthPage />} />
-              <Route path='*' element={<Navigate to='/auth' />} />
+              <Route path='login' element={<Login />} />
+              <Route path='*' element={<Navigate to='/login' />} />
             </>
           ) : (
             <>
-              <Route path='/*' element={<PrivateRoutes />} />
               <Route index element={<Navigate to='/home' />} />
+              <Route path='/*' element={<PrivateRoutes />} />
+              <Route path='login' element={<Navigate to='/home' />} />
             </>
-          )} */}
+          )}
         </Route>
       </Routes>
     </BrowserRouter>
