@@ -4,7 +4,7 @@ const fetchOrderList = async () => {
   try {
     const apiUrl = process.env.REACT_APP_API_URL
 
-    const response = await axios.get(`${apiUrl}/orders`, {
+    const response = await axios.get(`${apiUrl}/orders?status=0`, {
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -21,6 +21,7 @@ const fetchOrderList = async () => {
 const ViewOrder = async () => {
   try {
     const apiData = await fetchOrderList()
+
     if (!apiData) {
       console.error('No data received from fetchOrderList')
       return []
@@ -40,15 +41,6 @@ const ViewOrder = async () => {
 
       const orderDate = new Date(item.created_at)
 
-      let orderStatus =
-        item.project_status_id === 1
-          ? 'ON PROGRESS'
-          : // : item.project_status_id === 2
-            // ? 'ON PROGRESS'
-            // : item.project_status_id === 3
-            // ? 'DONE'
-            ''
-
       let phoneNumber =
         item.members.phone_number !== 'null'
           ? item.members.phone_number
@@ -61,9 +53,7 @@ const ViewOrder = async () => {
         no_member: item.members.id,
         costumer_name: item.members.full_name,
         phone_number: phoneNumber,
-        installer_name: item.tukang.full_name,
-        // payment_status: item.
-        order_status: orderStatus,
+        order_status: item.status.description,
       }
 
       return data

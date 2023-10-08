@@ -29,9 +29,8 @@ const AsideMenuItem: FC<Props & WithChildren> = ({
   const {aside} = config
 
   const userRoles = localStorage.getItem('userRole') || ''
-  const userRolesArray = userRoles.split(',')
 
-  const roleMatches = role.some((r) => userRolesArray.includes(r))
+  const roleMatches = role.some((r) => userRoles.includes(r))
   if (!roleMatches) {
     return null
   }

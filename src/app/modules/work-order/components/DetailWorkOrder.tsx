@@ -8,11 +8,11 @@ const DetailWorkOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-vendor' ? (
+      {userRole == 'Vendor Admin' ? (
         <>
           <DetailWorkVendor />
         </>
-      ) : userRole == 'admin-tukang' ? (
+      ) : userRole == 'Tukang' ? (
         <>
           <DetailWorkTukang />
         </>

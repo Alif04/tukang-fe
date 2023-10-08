@@ -145,53 +145,53 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           navigate(`/complaint/update-complaint/${id}`)
         }
 
-        const handleDelete = () => {
-          const id = record.complaint_id
+        // const handleDelete = () => {
+        //   const id = record.complaint_id
 
-          Swal.fire({
-            title: 'Are you sure delete this complaint?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Delete Complaint',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-          })
-            .then((willDelete) => {
-              if (willDelete) {
-                axios
-                  .delete(`${apiUrl}/complaints/${id}`, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
-                    },
-                  })
-                  .then((res) => {
-                    Swal.fire({
-                      title: 'Success',
-                      text: res.data.message,
-                      icon: 'success',
-                    })
-                    window.location.reload()
-                  })
-                  .catch((error) => {
-                    Swal.fire({
-                      title: 'Error',
-                      text: error.response.data.message,
-                      icon: 'error',
-                    })
-                  })
-              }
-            })
-            .catch((error) => {
-              Swal.fire({
-                title: 'Error',
-                text: error.response.data.message,
-                icon: 'error',
-              })
-            })
-        }
+        //   Swal.fire({
+        //     title: 'Are you sure delete this complaint?',
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonText: 'Delete Complaint',
+        //     cancelButtonText: 'Cancel',
+        //     reverseButtons: true,
+        //   })
+        //     .then((willDelete) => {
+        //       if (willDelete) {
+        //         axios
+        //           .delete(`${apiUrl}/complaints/${id}`, {
+        //             headers: {
+        //               Accept: 'application/json',
+        //               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        //               'Access-Control-Allow-Origin': '*',
+        //               'ngrok-skip-browser-warning': 'true',
+        //             },
+        //           })
+        //           .then((res) => {
+        //             Swal.fire({
+        //               title: 'Success',
+        //               text: res.data.message,
+        //               icon: 'success',
+        //             })
+        //             window.location.reload()
+        //           })
+        //           .catch((error) => {
+        //             Swal.fire({
+        //               title: 'Error',
+        //               text: error.response.data.message,
+        //               icon: 'error',
+        //             })
+        //           })
+        //       }
+        //     })
+        //     .catch((error) => {
+        //       Swal.fire({
+        //         title: 'Error',
+        //         text: error.response.data.message,
+        //         icon: 'error',
+        //       })
+        //     })
+        // }
 
         return (
           <div className='button-wrapper'>
@@ -202,15 +202,15 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
             <a className='button-edit' onClick={handleEdit}>
               <FontAwesomeIcon icon={faPen} size='sm' />
             </a>
-
+            {/* 
             <a className='button-delete' onClick={handleDelete}>
               <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+            </a> */}
           </div>
         )
       },
       fixed: 'right',
-      // width: 80,
+      width: 50,
     },
   ]
 

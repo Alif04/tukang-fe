@@ -313,22 +313,22 @@ const DashboardWrapper: FC = () => {
 
   return (
     <>
-      {userRole == 'admin store' ? (
+      {userRole == 'Store CS' || 'Store Staff' ? (
         <>
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />
         </>
-      ) : userRole == 'admin-ho' ? (
+      ) : userRole == 'HO Admin' ? (
         <>
           <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>
           <DashboardHO />
         </>
-      ) : userRole == 'admin-vendor' ? (
+      ) : userRole == 'Vendor Admin' ? (
         <>
           <PageTitle>VENDOR DASHBOARD</PageTitle>
           <DashboardVendor />
         </>
-      ) : userRole == 'admin-tukang' ? (
+      ) : userRole == 'Tukang' ? (
         <>
           <PageTitle>TUKANG DASHBOARD</PageTitle>
           <DashboardTukang />

@@ -1,35 +1,22 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
-
-import ListOrderData from '../../../../data/order/viewOrder'
-
-import './ViewOrder.css'
-
 import axios from 'axios'
-import Swal from 'sweetalert2'
 import {DatePicker} from 'antd'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, InputGroup, Modal, Button} from 'react-bootstrap'
+import {useNavigate} from 'react-router-dom'
+import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faFileImage,
-  faTrash,
-  faSearch,
-  faFilter,
-  faImage,
-  faPen,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch, faFilter, faPen} from '@fortawesome/free-solid-svg-icons'
+
+import './ViewOrder.css'
 
 type Props = {
   className: string
 }
 
-const ViewOrderStore: React.FC<Props> = ({className}) => {
+const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
-  const apiUrl = process.env.REACT_APP_API_URL
 
   const {RangePicker} = DatePicker
 
@@ -95,20 +82,6 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
       width: 140,
     },
     {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'installer_name',
-      key: 'installer_name',
-      align: 'left',
-      width: 180,
-    },
-    // {
-    //   title: 'Status Pembayaran',
-    //   dataIndex: 'payment_status',
-    //   key: 'payment_status',
-    //   align: 'left',
-    //   width: 150,
-    // },
-    {
       title: 'Status Order',
       dataIndex: 'order_status',
       key: 'order_status',
@@ -129,54 +102,6 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
           navigate(`/order/update-order/${id}`)
         }
 
-        const handleDelete = () => {
-          const id = record.order_id
-
-          Swal.fire({
-            title: 'Are you sure delete this order?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Delete Order',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-          })
-            .then((willDelete) => {
-              if (willDelete) {
-                axios
-                  .delete(`${apiUrl}/orders/${id}`, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
-                    },
-                  })
-                  .then((res) => {
-                    Swal.fire({
-                      title: 'Success',
-                      text: res.data.message,
-                      icon: 'success',
-                    })
-                    window.location.reload()
-                  })
-                  .catch((error) => {
-                    Swal.fire({
-                      title: 'Error',
-                      text: error.response.data.message,
-                      icon: 'error',
-                    })
-                  })
-              }
-            })
-            .catch((error) => {
-              Swal.fire({
-                title: 'Error',
-                text: error.response.data.message,
-                icon: 'error',
-              })
-            })
-        }
-
         return (
           <div className='button-wrapper'>
             <a className='button-detail' onClick={handleDetailId}>
@@ -186,23 +111,82 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
             <a className='button-edit' onClick={handleUpdateId}>
               <FontAwesomeIcon icon={faPen} size='sm' />
             </a>
-
-            <a className='button-delete' onClick={handleDelete}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
           </div>
         )
       },
       fixed: 'right',
-      width: 80,
+      width: 50,
     },
   ]
 
   const [orderData, setOrderData] = useState<DataType[]>([])
 
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  const fetchOrderList = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const response = await axios.get(`${apiUrl}/orders?status=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      return response.data.data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewOrder = async () => {
+    try {
+      const apiData = await fetchOrderList()
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const orderData = apiData.map((item: any) => {
+        let data
+        const orderDate = new Date(item.created_at)
+
+        let phoneNumber =
+          item.members.phone_number !== 'null'
+            ? item.members.phone_number
+            : item.members.whatsapp_number
+
+        data = {
+          order_id: item.id,
+          assign_from: item.store.store_name,
+          date_order: formatDate(orderDate),
+          no_member: item.members.id,
+          costumer_name: item.members.full_name,
+          phone_number: phoneNumber,
+          order_status: item.status.description,
+        }
+
+        return data
+      })
+
+      return orderData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
-      const data = await ListOrderData()
+      const data = await ViewOrder()
       setOrderData(data)
     }
 
@@ -251,4 +235,4 @@ const ViewOrderStore: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ViewOrderStore}
+export {ViewOrderStoreStaff}

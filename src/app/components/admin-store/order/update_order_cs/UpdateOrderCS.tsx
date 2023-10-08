@@ -1,8 +1,8 @@
 import React, {FC, useEffect, useState} from 'react'
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
-import './NewOrder.css'
+import './UpdateOrder.css'
 
 import Swal from 'sweetalert2'
 import Select from 'react-select'
@@ -12,7 +12,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface StoreItem {
-  value: BigInteger
+  value: string
   label: string
   address: string
   city_id: BigInteger
@@ -33,7 +33,7 @@ interface Sales {
 }
 
 interface ItemDescription {
-  value: BigInteger
+  value: string
   label: string
   category: string
   prices: Array<ItemPrice>
@@ -50,9 +50,10 @@ interface ItemPrice {
   price: string
 }
 
-const NewOrderStore: FC = () => {
+const UpdateOrderStoreCS: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const params = useParams()
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -62,10 +63,12 @@ const NewOrderStore: FC = () => {
   const [indexForm, setIndexForm] = useState<number>(0)
 
   // Order Information Detail
+  const [orderDetail, setOrderDetail] = useState<any>()
 
   // Store
   const [store, setStore] = useState<StoreItem[]>([])
   const [storeId, setStoreId] = useState<string>('')
+  const [storeName, setStoreName] = useState<string>('')
 
   // Member
   const [memberId, setMemberId] = useState<any>()
@@ -99,6 +102,76 @@ const NewOrderStore: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
+    const fetchOrderData = async () => {
+      try {
+        await axios
+          .get(`${apiUrl}/orders/${params.id}`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          .then((response) => {
+            const data = response.data.data
+            setOrderDetail(data)
+
+            if (data?.store?.id && data?.store?.store_name) {
+              setStoreId(data.store.id)
+              setStoreName(data.store.store_name)
+            }
+
+            if (data?.payment_type) {
+              setPaymentType(data.payment_type)
+            }
+
+            if (data?.created_at) {
+              setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
+            }
+
+            if (
+              data?.members?.id &&
+              data?.members?.full_name &&
+              data?.members.email &&
+              data?.members.whatsapp_number &&
+              data?.members.address_1
+            ) {
+              setMemberId(data.members.id)
+              setMemberName(data.members.full_name)
+              setMemberEmail(data.members.email)
+              setMemberPhoneNumber(data.members.whatsapp_number)
+              setMemberAddress(data.members.address_1)
+            }
+
+            if (data?.sales?.id && data?.sales?.full_name) {
+              setSalesId(data.sales.id)
+              setSalesName(data.sales.full_name)
+            }
+
+            if (data?.order_details) {
+              const initialOrderDetailValues = data.order_details.map((item: any) => ({
+                id: item.id,
+                item_id: item.item_id,
+                order_status_id: item.order_status_id,
+                unit: item.unit,
+                category_name: item.category_name,
+                unit_price: parseInt(item.unit_price),
+                quote_price: item.quote_price,
+                quantity: item.quantity,
+                total: item.total,
+                survey_price: item.survey_price,
+                comission: item.comission,
+              }))
+
+              setOrderDetailValues(initialOrderDetailValues)
+            }
+          })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     const getStore = async () => {
       try {
         const response = await axios.get(`${apiUrl}/store/get`, {
@@ -128,7 +201,7 @@ const NewOrderStore: FC = () => {
       }
     }
 
-    const getMember = async () => {
+    const getCostumer = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member/data`, {
           headers: {
@@ -143,7 +216,6 @@ const NewOrderStore: FC = () => {
             value: item.id,
             label: item.full_name,
             email: item.email,
-            // phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
@@ -152,7 +224,6 @@ const NewOrderStore: FC = () => {
           tempMember.push(creatableOption)
 
           setMember(tempMember)
-          // console.log(tempMember)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -182,7 +253,6 @@ const NewOrderStore: FC = () => {
           tempSales.push(creatableOptionSales)
 
           setSales(tempSales)
-          // console.log(tempSales)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -228,16 +298,20 @@ const NewOrderStore: FC = () => {
       }
     }
 
+    fetchOrderData()
     getStore()
-    getMember()
+    getCostumer()
     getSales()
     getItem()
   }, [])
 
   // Select Store
   const handleChangeSelectStore = (element: any) => {
-    const updatedStore = element.value
-    setStoreId(updatedStore)
+    const updatedStoreId = element.value
+    const updatedStoreName = element.label
+
+    setStoreId(updatedStoreId)
+    setStoreName(updatedStoreName)
   }
 
   // Select Date Requeet
@@ -255,13 +329,6 @@ const NewOrderStore: FC = () => {
   // Payment Type ( Radio Button )
   const handlePaymentOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedOptionPayment = event.target.value
-
-    if (selectedOptionPayment == 'GRATIS') {
-      setServiceType('PEMASANGAN TANPA SURVEY')
-    } else if (selectedOptionPayment == 'BERBAYAR') {
-      setServiceType('SURVEY')
-    }
-
     setPaymentType(selectedOptionPayment)
   }
 
@@ -401,8 +468,8 @@ const NewOrderStore: FC = () => {
   // Order Details
   const [orderDetailValues, setOrderDetailValues] = useState([
     {
-      index_id: 0,
-      item_id: null,
+      id: '',
+      item_id: '',
       order_status_id: 1,
       unit: '',
       category_name: '',
@@ -416,14 +483,12 @@ const NewOrderStore: FC = () => {
   ])
 
   let handleAddForm = () => {
-    const newId =
-      orderDetailValues.length > 0
-        ? orderDetailValues[orderDetailValues.length - 1].index_id + 1
-        : 0
+    // const newId =
+    //   orderDetailValues.length > 0 ? orderDetailValues[orderDetailValues.length - 1].id + 1 : 0
 
     const newForm = {
-      index_id: newId,
-      item_id: null,
+      id: '',
+      item_id: '',
       order_status_id: 1,
       unit: '',
       category_name: '',
@@ -445,10 +510,10 @@ const NewOrderStore: FC = () => {
     setOrderDetailValues(newOrderDetailValues)
     setIndexForm(indexForm - 1)
 
-    let updatedOrderDetailValues = newOrderDetailValues.map((value, newIndex) => {
+    let updatedOrderDetailValues = newOrderDetailValues.map((value) => {
       return {
         ...value,
-        index_id: newIndex,
+        id: '',
       }
     })
 
@@ -511,7 +576,6 @@ const NewOrderStore: FC = () => {
   const calculatedGrandTotalOrder = () => {
     return orderDetailValues.reduce(() => {
       const totalOrderAmount = total
-
       let biayaSurvey = 0
 
       if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
@@ -535,8 +599,8 @@ const NewOrderStore: FC = () => {
     setGrandTotal(calculatedGrandTotal)
   }, [orderDetailValues, total, paymentType, serviceType])
 
-  // Order Validation
-  const NewOrderValidation = () => {
+  // Update Order Validation
+  const UpdatePreOrderValidation = () => {
     let valid = true
 
     if (!storeId) {
@@ -616,13 +680,6 @@ const NewOrderStore: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!image) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill upload receipt form',
-        icon: 'error',
-      })
-      valid = false
     }
 
     orderDetailValues.map((item) => {
@@ -645,10 +702,10 @@ const NewOrderStore: FC = () => {
     return valid
   }
 
-  // Submit New Order
+  // Submit Update Pre Order
 
-  const handleSubmitNewOrder = async () => {
-    if (NewOrderValidation()) {
+  const handleSubmitUpdateOrder = async () => {
+    if (UpdatePreOrderValidation()) {
       const formData = new FormData()
 
       formData.append('receipt_file', receiptFile)
@@ -663,6 +720,7 @@ const NewOrderStore: FC = () => {
       formData.append('payment_type', paymentType)
 
       orderDetailValues.forEach((order, index) => {
+        formData.append(`order_details[${index}][id]`, String(order.id))
         formData.append(`order_details[${index}][item_id]`, String(order.item_id))
         formData.append(`order_details[${index}][unit]`, order.unit)
         formData.append(`order_details[${index}][unit_price]`, String(order.unit_price))
@@ -674,7 +732,7 @@ const NewOrderStore: FC = () => {
       })
 
       const response = await axios
-        .post(`${apiUrl}/orders`, formData, {
+        .post(`${apiUrl}/orders/${params.id}`, formData, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -686,11 +744,9 @@ const NewOrderStore: FC = () => {
           if (response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: response.data.message,
+              text: 'Success Update Order',
               icon: 'success',
             })
-
-            navigate('/order/view-order')
           } else {
             Swal.fire({
               title: 'Error',
@@ -698,6 +754,8 @@ const NewOrderStore: FC = () => {
               icon: 'error',
             })
           }
+
+          navigate('/order/view-order')
         })
         .catch((error) => {
           console.error(error)
@@ -712,7 +770,7 @@ const NewOrderStore: FC = () => {
   }
 
   return (
-    <section id='new-order'>
+    <section id='update-order'>
       <div className='card mb-5'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -732,8 +790,11 @@ const NewOrderStore: FC = () => {
                         placeholder='Pilih Toko'
                         isSearchable={true}
                         options={store}
-                        defaultValue={store.find((storeItem) => storeItem.value) || null}
-                        onChange={(e) => handleChangeSelectStore(e)}
+                        value={{
+                          value: storeId,
+                          label: storeName,
+                        }}
+                        onChange={(element) => handleChangeSelectStore(element)}
                       />
                     </Col>
                   </Form.Group>
@@ -753,6 +814,7 @@ const NewOrderStore: FC = () => {
                         value='gratis'
                         onChange={handlePaymentOptionChange}
                       />
+
                       <Form.Check
                         inline
                         label='Survey'
@@ -762,6 +824,7 @@ const NewOrderStore: FC = () => {
                         value='survey'
                         onChange={handlePaymentOptionChange}
                       />
+
                       <Form.Check
                         inline
                         label='Berbayar'
@@ -771,6 +834,7 @@ const NewOrderStore: FC = () => {
                         value='berbayar'
                         onChange={handleServiceOptionChange}
                       />
+
                       <Form.Check
                         inline
                         label='Pemasangan Tanpa Survey'
@@ -778,8 +842,11 @@ const NewOrderStore: FC = () => {
                         name='serviceType'
                         type='radio'
                         value='pemasangan_tanpa_survey'
+                        checked={
+                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                        }
                         onChange={handlePaymentOptionChange}
-                      />{' '}
+                      />
                     </div>
                   </div>
                 </Col>
@@ -791,7 +858,7 @@ const NewOrderStore: FC = () => {
                     <Form.Label>No Member</Form.Label>
                     <Form.Control
                       type='number'
-                      value={memberId}
+                      value={memberId || orderDetail?.members?.id || ''}
                       onChange={(element) => handleChangeMemberId(element)}
                     />
                   </Form.Group>
@@ -810,7 +877,7 @@ const NewOrderStore: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        value={memberPhoneNumber}
+                        value={memberPhoneNumber || orderDetail?.members?.whatsapp_number || ''}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />
                     </InputGroup>
@@ -830,6 +897,13 @@ const NewOrderStore: FC = () => {
                       placeholder='Pilih/Ketik Nama Member'
                       isSearchable={true}
                       options={member}
+                      value={{
+                        value: memberId,
+                        label: memberName,
+                        email: memberEmail,
+                        whatsapp_number: memberPhoneNumber,
+                        address_1: memberAddress,
+                      }}
                       onChange={(element) => handleChangeSelectMember(element)}
                     />
                   </Form.Group>
@@ -840,7 +914,7 @@ const NewOrderStore: FC = () => {
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                       type='text'
-                      value={memberEmail || ''}
+                      value={memberEmail || orderDetail?.members?.email || ''}
                       onChange={(element) => handleChangeMemberEmailAddress(element)}
                     />
                   </Form.Group>
@@ -854,7 +928,7 @@ const NewOrderStore: FC = () => {
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
-                      value={memberAddress || ''}
+                      value={memberAddress || orderDetail?.members?.address_1 || ''}
                       onChange={(element) => handleChangeMemberAddress(element)}
                     />
                   </Form.Group>
@@ -899,7 +973,7 @@ const NewOrderStore: FC = () => {
                     <Col sm='8'>
                       <Form.Control
                         type='text'
-                        value={salesId}
+                        value={salesId || orderDetail?.sales?.id || ''}
                         onChange={(element) => handleChangeSalesId(element)}
                       />
                     </Col>
@@ -919,6 +993,10 @@ const NewOrderStore: FC = () => {
                         placeholder='Pilih/Ketik Nama Sales'
                         isSearchable={true}
                         options={sales}
+                        value={{
+                          value: salesId,
+                          label: salesName,
+                        }}
                         onChange={(element) => handleChangeSelectSales(element)}
                       />
                     </Col>
@@ -949,8 +1027,9 @@ const NewOrderStore: FC = () => {
             </Col>
 
             <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
-              <h1 className='fs-3 fw-bold'>
-                ORDER STATUS : <span className='fw-bold text-success'>BOOK</span>
+              <h1 className='fw-bold'>
+                ORDER STATUS : {''}
+                <span className='fw-bold text-success'>{orderDetail?.status.description}</span>
               </h1>
             </Col>
 
@@ -981,7 +1060,7 @@ const NewOrderStore: FC = () => {
               </thead>
               <tbody>
                 {orderDetailValues.map((element, index) => (
-                  <tr key={element.index_id}>
+                  <tr key={element.id}>
                     <td>
                       <Button variant='danger' onClick={() => handleRemoveForm(index)}>
                         Remove
@@ -990,7 +1069,6 @@ const NewOrderStore: FC = () => {
 
                     <td>
                       <Form.Control
-                        id={`item-id-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.item_id || ''}
@@ -999,19 +1077,23 @@ const NewOrderStore: FC = () => {
 
                     <td>
                       <Select
-                        id={`item-name-${index}`}
+                        name={`item-${index}`}
+                        id={`item${index}`}
                         className='form-control p-0 form-item-name'
                         classNamePrefix='select'
                         placeholder='Pilih/Ketik Nama Item'
                         isSearchable={true}
                         options={item}
+                        value={{
+                          value: orderDetailValues[index]?.item_id,
+                          label: orderDetailValues[index]?.unit,
+                        }}
                         onChange={(element) => handleChangeSelectItem(index, element)}
                       />
                     </td>
 
                     <td>
                       <Form.Control
-                        id={`category-name-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.category_name || ''}
@@ -1020,7 +1102,6 @@ const NewOrderStore: FC = () => {
 
                     <td>
                       <Form.Control
-                        id={`quantity-${index}`}
                         value={element.quantity}
                         onChange={(e) => handleQuantityChange(index, e.target.value)}
                       />
@@ -1028,7 +1109,6 @@ const NewOrderStore: FC = () => {
 
                     <td>
                       <Form.Control
-                        id={`unit-price-${index}`}
                         readOnly
                         plaintext
                         value={`Rp. ${
@@ -1068,7 +1148,13 @@ const NewOrderStore: FC = () => {
                   <td colSpan={6} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
+                  <td className=' fw-bolder'>
+                    {`Rp. ${
+                      grandTotal
+                        ? grandTotal.toLocaleString('id')
+                        : parseInt(orderDetail?.grand_total).toLocaleString('id')
+                    }`}
+                  </td>
                 </tr>
               </tbody>
             </Table>
@@ -1118,8 +1204,10 @@ const NewOrderStore: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
-              Submit Order & Email
+            <Button variant='warning'>Reprint Order</Button>
+
+            <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
+              Update Order & Print
             </Button>
           </div>
         </div>
@@ -1128,4 +1216,4 @@ const NewOrderStore: FC = () => {
   )
 }
 
-export {NewOrderStore}
+export {UpdateOrderStoreCS}

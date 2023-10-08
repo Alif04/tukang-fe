@@ -4,7 +4,7 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
-import {NewOrder} from './components/NewOrder'
+import {PreOrder} from './components/PreOrder'
 import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {ReportOrder} from './components/ReportOrder'
@@ -33,13 +33,13 @@ const OrderPage: React.FC = () => {
         path='dashboard-order'
         element={
           <>
-            {userRole == 'admin store' ? (
+            {userRole == 'Store CS' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   INSTALASI & SERVICE MITRA10 DASHBOARD
                 </PageTitle>
               </>
-            ) : userRole == 'admin-ho' ? (
+            ) : userRole == 'HO Admin' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
               </>
@@ -55,11 +55,11 @@ const OrderPage: React.FC = () => {
         path='view-order'
         element={
           <>
-            {userRole == 'admin store' ? (
+            {userRole == 'Store CS' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
               </>
-            ) : userRole == 'admin-ho' ? (
+            ) : userRole == 'HO Admin' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   LIST INSTALASI & SERVICE MITRA10
@@ -74,11 +74,11 @@ const OrderPage: React.FC = () => {
       />
 
       <Route
-        path='new-order'
+        path='pre-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PESANAN BARU</PageTitle>
-            <NewOrder />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PRE ORDER</PageTitle>
+            <PreOrder />
           </>
         }
       />

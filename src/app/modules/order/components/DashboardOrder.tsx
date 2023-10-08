@@ -8,11 +8,11 @@ const DashboardOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'admin store' ? (
+      {userRole == 'Store CS' || 'Store Staff' ? (
         <>
           <DashboardOrderStore />
         </>
-      ) : userRole == 'admin-ho' ? (
+      ) : userRole == 'HO Admin' ? (
         <>
           <DashboardOrderHO />
         </>
