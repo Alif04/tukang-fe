@@ -187,7 +187,7 @@ const DetailComplaintStore: FC = () => {
                   Nama Toko :{' '}
                   <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
                 </Form.Label>
-
+                <br></br>
                 <Form.Label className='fs-4 fw-bold'>
                   Complaint ID : <span className='fs-4 ms-2 fw-normal'>{complaintDetail?.id}</span>
                 </Form.Label>
@@ -342,11 +342,11 @@ const DetailComplaintStore: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'GRATIS'
+                      {orderDetail?.payment_type === 'gratis'
                         ? `                      Rp. ${0?.toLocaleString(
                             'id'
                           )}                        `
-                        : orderDetail?.payment_type === 'BERBAYAR'
+                        : orderDetail?.payment_type === 'survey'
                         ? `                      Rp. ${99000?.toLocaleString(
                             'id'
                           )}                        `
@@ -396,7 +396,11 @@ const DetailComplaintStore: FC = () => {
                   Complaint via :
                 </Form.Label>
                 <Col sm='6'>
-                  <Form.Control plaintext readOnly defaultValue='Call' />
+                  <Form.Control
+                    plaintext
+                    readOnly
+                    value={complaintDetail?.complaint_channels.name}
+                  />
                 </Col>
               </Form.Group>
 
@@ -405,7 +409,7 @@ const DetailComplaintStore: FC = () => {
                   PIC Complaint :
                 </Form.Label>
                 <Col sm='6'>
-                  <Form.Control plaintext readOnly defaultValue='Nuning' />
+                  <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
                 </Col>
               </Form.Group>
             </Col>
