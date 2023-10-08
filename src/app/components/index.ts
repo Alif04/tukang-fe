@@ -40,14 +40,20 @@ export * from './tukang/dashboard/ChartDonutQuotationTukang'
 // Dashboard Order
 export * from './admin-store/order/dashboard_order/DashboardOrder'
 
-// View Order
-export * from './admin-store/order/view_order/ViewOrder'
+// View Order Staff
+export * from './admin-store/order/view_order_staff/ViewOrder'
 
-// New Order Order
-export * from './admin-store/order/new_order/NewOrder'
+// View Order CS
+export * from './admin-store/order/view_order_cs/ViewOrder'
 
-// Update Order
-export * from './admin-store/order/update_order/UpdateOrder'
+// Pre Order
+export * from './admin-store/order/pre_order/PreOrder'
+
+// Update Order Staff
+export * from './admin-store/order/update_order_staff/UpdateOrderStaff'
+
+// Update Order CS
+export * from './admin-store/order/update_order_cs/UpdateOrderCS'
 
 // Detail Order
 export * from './admin-store/order/detail_order/DetailOrder'

@@ -8,11 +8,11 @@ const DetailQuotation: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-ho' ? (
+      {userRole == 'HO Admin' ? (
         <>
           <DetailQuotationHO />
         </>
-      ) : userRole == 'admin-vendor' ? (
+      ) : userRole == 'Vendor Admin' ? (
         <>
           <DetailQuotationVendor />
         </>

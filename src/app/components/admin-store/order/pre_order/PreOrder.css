@@ -1,0 +1,231 @@
+/* Form Layout */
+
+#pre-order .form-wrapper {
+  display: flex;
+  gap: 50px;
+  margin-bottom: 30px;
+}
+
+#pre-order .form-costumer {
+  width: 70%;
+}
+
+#pre-order .form-sales {
+  width: 30%;
+}
+
+#pre-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  padding: 0 70px 0 10px;
+}
+
+#pre-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  padding: 0 70px 0 10px;
+}
+
+#pre-order .alamat-order.row .col {
+  padding: 0 70px 0 10px;
+}
+
+#pre-order .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+/* Form Header */
+
+#pre-order .form-header.row {
+  margin-bottom: 30px;
+}
+
+#pre-order .form-header label.payment-type.form-label {
+  width: 230px;
+}
+
+#pre-order .form-header .form-check-request label.form-check-label {
+  font-size: 11px;
+}
+
+/* Form Sales */
+
+#pre-order .form-sales .form-header {
+  margin-bottom: 30px;
+}
+
+/* Table Order */
+
+#pre-order .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
+#pre-order .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 30px 0 30px;
+}
+
+#pre-order .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 10px 0 100px;
+}
+
+#pre-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
+/* Form Input Table Order */
+
+#pre-order .table-order-content .select__control.css-13cymwt-control {
+  border: none;
+}
+
+#pre-order .table-order-content span.select__indicator-separator.css-1u9des2-indicatorSeparator {
+  background-color: transparent;
+}
+
+#pre-order .table-order-content .css-t3ipsp-control {
+  background-color: transparent;
+  border: black;
+  box-shadow: none !important;
+}
+
+#pre-order .table-order-content .css-t3ipsp-control:hover {
+  background-color: transparent;
+  border: black;
+  box-shadow: none !important;
+}
+
+#pre-order .table-order-content input.form-control {
+  text-align: center;
+  background-color: transparent;
+  border: none;
+}
+
+/* Button */
+
+#pre-order .button-add button {
+  width: 130px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #04562b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+#pre-order .btn.btn-dark-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+/* Table Picklist*/
+
+#pre-order .table-picklist .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+.table-picklist th {
+  text-align: center;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #pre-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #pre-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #pre-order .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #pre-order .form-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #pre-order .form-costumer {
+    width: 100%;
+  }
+
+  #pre-order .form-sales {
+    width: 100%;
+  }
+
+  #pre-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #pre-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #pre-order .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+
+  /* Form Sales */
+
+  #pre-order .form-sales .form-header {
+    margin-bottom: 20px;
+  }
+
+  #pre-order .form-sales .form-header h1 {
+    text-align: start !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+  /* Table Order */
+
+  #pre-order .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #pre-order .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #pre-order .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    margin-top: 20px;
+    padding: 0 10px 0 10px;
+  }
+
+  #pre-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+
+  #pre-order .button-add button {
+    width: 100%;
+  }
+
+  #pre-order .btn.btn-dark-primary {
+    width: 100%;
+    margin: 0;
+    height: 40px;
+  }
+}

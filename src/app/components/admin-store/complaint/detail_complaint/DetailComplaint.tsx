@@ -17,7 +17,6 @@ const DetailComplaintStore: FC = () => {
 
   const [orderDetail, setOrderDetail] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
-  console.log(orderDetail)
 
   const fetchComplaintData = async () => {
     try {
@@ -325,36 +324,34 @@ const DetailComplaintStore: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Total
-                    </td>
-                    <td className=' fw-bolder'>1.000.000</td>
-                  </tr>
+                  {orderDetail?.order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.item_id}</td>
+                        <td>{item?.unit}</td>
+                        <td>{item?.status?.description}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))}
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>
                       Biaya Survey
                     </td>
-                    <td className=' fw-bolder'>700.000</td>
+                    <td className=' fw-bolder'>
+                      {orderDetail?.payment_type === 'GRATIS'
+                        ? `                      Rp. ${0?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : orderDetail?.payment_type === 'BERBAYAR'
+                        ? `                      Rp. ${99000?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : `Rp. ${0}`}
+                    </td>
                   </tr>
 
                   <tr>
@@ -362,7 +359,7 @@ const DetailComplaintStore: FC = () => {
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total)?.toLocaleString('id')}
+                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
                     </td>
                   </tr>
                 </tbody>

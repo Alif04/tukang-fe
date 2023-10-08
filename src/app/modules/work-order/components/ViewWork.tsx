@@ -8,11 +8,11 @@ const ViewWork: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-vendor' ? (
+      {userRole == 'Vendor Admin' ? (
         <>
           <ViewWorkVendor className='' />
         </>
-      ) : userRole == 'admin-tukang' ? (
+      ) : userRole == 'Tukang' ? (
         <>
           <ViewWorkTukang className='' />
         </>

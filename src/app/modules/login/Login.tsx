@@ -42,14 +42,9 @@ export function Login() {
       )
       .then((res) => {
         if (res.data.statusCode == 200) {
-          console.log('Roles:', res.data.roles)
-
-          const userRole: string[] = res.data.roles.map((roles: any) => roles.roles.name)
-          console.log('User Role:', userRole)
-
           localStorage.setItem('user_id', res.data.user.id)
           localStorage.setItem('username', res.data.user.username)
-          localStorage.setItem('userRole', userRole.join(','))
+          localStorage.setItem('userRole', res.data.user.roles.name)
           localStorage.setItem('accessToken', res.data.accessToken)
 
           Swal.fire({
@@ -94,7 +89,7 @@ export function Login() {
         case 'adminStore':
           if (password == 'password') {
             localStorage.setItem('username', username)
-            localStorage.setItem('userRole', 'admin store')
+            localStorage.setItem('userRole', 'Store CS')
             successMessage = 'success'
           }
           break
@@ -102,7 +97,7 @@ export function Login() {
         case 'adminHo':
           if (password == 'password') {
             localStorage.setItem('username', username)
-            localStorage.setItem('userRole', 'admin-ho')
+            localStorage.setItem('userRole', 'HO Admin')
             successMessage = 'success'
           }
           break
@@ -110,7 +105,7 @@ export function Login() {
         case 'adminVendor':
           if (password == 'password') {
             localStorage.setItem('username', username)
-            localStorage.setItem('userRole', 'admin-vendor')
+            localStorage.setItem('userRole', 'Vendor Admin')
             successMessage = 'success'
           }
           break
@@ -118,7 +113,7 @@ export function Login() {
         case 'tukang':
           if (password == 'password') {
             localStorage.setItem('username', username)
-            localStorage.setItem('userRole', 'admin-tukang')
+            localStorage.setItem('userRole', 'Tukang')
             successMessage = 'success'
           }
           break

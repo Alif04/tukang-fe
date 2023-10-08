@@ -9,11 +9,11 @@ const ViewCostumer: React.FC = () => {
 
   return (
     <>
-      {userRole == 'admin store' ? (
+      {userRole == 'Store CS' || 'Store Staff' ? (
         <>
           <ViewCostumerStore className='' />
         </>
-      ) : userRole == 'admin-ho' ? (
+      ) : userRole == 'HO Admin' ? (
         <>
           <ViewCostumerHO className='' />
         </>

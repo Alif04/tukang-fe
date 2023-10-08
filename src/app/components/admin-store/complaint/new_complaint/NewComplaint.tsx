@@ -132,7 +132,7 @@ const NewComplaintStore: FC = () => {
   // Add Complaint
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintStatus, setComplaintStatus] = useState<any>(1)
+  // const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
 
@@ -142,10 +142,10 @@ const NewComplaintStore: FC = () => {
     setComplaintDesc(updatedInputValue)
   }
 
-  // Handle Feedback Date Change
+  // Handle Complaint Date Change
   const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedFeedbackDate = event.target.value
-    setComplaintDate(updatedFeedbackDate)
+    const updatedComplaintDate = event.target.value
+    setComplaintDate(updatedComplaintDate)
   }
 
   // Handle Change Upload File
@@ -182,7 +182,7 @@ const NewComplaintStore: FC = () => {
       formData.append('description', complaintDesc)
       formData.append('complaint_channel', complaintChannelId)
       formData.append('complaint_date', complaintDate)
-      formData.append('complaint_status', complaintStatus)
+      // formData.append('complaint_status', complaintStatus)
       formData.append('complaint_evidences', complaintEvidence)
 
       await axios.post(`${apiUrl}/complaints`, formData, {
@@ -390,30 +390,18 @@ const NewComplaintStore: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Total
-                    </td>
-                    <td className=' fw-bolder'>1.000.000</td>
-                  </tr>
+                  {orderDetail?.order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.item_id}</td>
+                        <td>{item?.unit}</td>
+                        <td>{item?.status?.description}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))}
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>

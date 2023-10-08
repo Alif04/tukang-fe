@@ -9,11 +9,11 @@ const ViewCalendar: React.FC = () => {
 
   return (
     <>
-      {userRole == 'admin-vendor' ? (
+      {userRole == 'Vendor Admin' ? (
         <>
           <ViewCalendarVendor />
         </>
-      ) : userRole == 'admin-tukang' ? (
+      ) : userRole == 'Tukang' ? (
         <>
           <ViewCalendarTukang />
         </>

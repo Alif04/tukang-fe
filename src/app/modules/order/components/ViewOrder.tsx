@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
-import {ViewOrderStore} from '../../../components'
+import {ViewOrderStoreStaff} from '../../../components'
+import {ViewOrderStoreCS} from '../../../components'
 import {ViewOrderHO} from '../../../components'
 
 const ViewOrder: React.FC = () => {
@@ -9,11 +10,15 @@ const ViewOrder: React.FC = () => {
 
   return (
     <>
-      {userRole == 'admin store' ? (
+      {userRole == 'Store Staff' ? (
         <>
-          <ViewOrderStore className='' />
+          <ViewOrderStoreStaff className='' />
         </>
-      ) : userRole == 'admin-ho' ? (
+      ) : userRole == 'Store CS' ? (
+        <>
+          <ViewOrderStoreCS className='' />
+        </>
+      ) : userRole == 'HO Admin' ? (
         <>
           <ViewOrderHO className='' />
         </>
