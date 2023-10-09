@@ -2,35 +2,28 @@
 import {FC} from 'react'
 import {PageTitle} from '../../../_metronic/layout/core'
 
-import {Form} from 'react-bootstrap'
+import {Row, Col, Card, Form} from 'react-bootstrap'
 
 // Dashboard Store
 import {
   SalesReportWidget,
-  CalendarWidget,
   TransactionWidget,
+  WaitingCostumerPay,
   TopSalesWidget,
-  RecentEventWidget,
   TotalOrderStore,
   TotalComplaint,
-  WaitingCostumerPay,
   TotalReschedule,
-  OrderTracking,
 } from '../../components'
 
 // Dashboard HO
 import '../../components/admin-ho/dashboard/DashboardHO.css'
 import {
-  ChartBarOrderHO,
   ChartBarPerformance,
-  ChartDonutQuotationHO,
-  ChartDonutWorkHO,
-  ChartLineComplaintHO,
-  ChartLineSurveyHO,
-  TotalComplaintHO,
-  TotalOrderHO,
-  TotalWorkOrder,
   DateRange,
+  ChartBarOrder,
+  ChartBarSurvey,
+  MoreInformation,
+  TableList,
 } from '../../components'
 
 // Dashboard Vendor
@@ -165,41 +158,83 @@ const DashboardHO: FC = () => (
       </div>
     </div>
 
-    <div className='row gy-5 g-xl-8'>
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <TotalOrderHO className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
-      </div>
+    <div className='row g-5 g-xl-8 mb-5'>
+      <div className='col-xl-12'>
+        <Card>
+          <Card.Body>
+            <div className='fs-5 fw-normal mb-5'>Order</div>
 
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <TotalWorkOrder className='card-xl-stretch mb-5 mb-xl-8' chartHeight='240px' />
-      </div>
+            <Row className='justify-content-md-center'>
+              <Col className='mb-5'>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>20</h1>
+                  <p className='text-center'>Total Order</p>
+                </div>
+              </Col>
 
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <TotalComplaintHO className='card-xl-stretch mb-5 mb-xl-8' chartHeight='270px' />
+              <Col className='mb-5'>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>18</h1>
+                  <p className='text-center'>Survey</p>
+                </div>
+              </Col>
+
+              <Col className='mb-5'>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>02</h1>
+                  <p className='text-center'>On Progress</p>
+                </div>
+              </Col>
+
+              <Col className='mb-5'>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>18</h1>
+                  <p className='text-center'>Complete</p>
+                </div>
+              </Col>
+
+              <Col className='mb-5'>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>12</h1>
+                  <p className='text-danger text-center'>Reschedule</p>
+                </div>
+              </Col>
+
+              <Col className='mb-5'>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>01</h1>
+                  <p className='text-brown fw-bold text-center'>Menunggu Bayar</p>
+                </div>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
       </div>
     </div>
 
-    <div className='row gy-5 g-xl-8'>
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <ChartBarOrderHO className='card-xl-stretch mb-xl-8' />
-      </div>
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <ChartLineSurveyHO className='card-xl-stretch mb-xl-8' />
-      </div>
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <ChartLineComplaintHO className='card-xl-stretch mb-5 mb-xl-8' />
-      </div>
-    </div>
+    <div className='row'>
+      <div className='col-xxl-8'>
+        <div className='row g-5 g-xl-8 mb-5'>
+          <div className='col-xl-6'>
+            <MoreInformation className='card-xl-stretch mb-xl-8' />
+          </div>
+          <div className='col-xl-6'>
+            <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
+          </div>
+        </div>
 
-    <div className='row gy-5 g-xl-8'>
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <ChartDonutQuotationHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+        <div className='row g-5 g-xl-8 mb-5'>
+          <div className='col-xl-6'>
+            <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+          </div>
+          <div className='col-xl-6'>
+            <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
+          </div>
+        </div>
       </div>
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <ChartDonutWorkHO className='card-xl-stretch mb-xl-8' chartHeight='300px' />
-      </div>
-      <div className='col-xxl-4 col-xl-4 col-lg-12'>
-        <ChartBarPerformance className='card-xl-stretch mb-5 mb-xl-8' />
+
+      <div className='col-xxl-4'>
+        <TableList className='card-xl-stretch mb-5 mb-xl-8' />
       </div>
     </div>
   </section>
@@ -278,22 +313,22 @@ const DashboardWrapper: FC = () => {
 
   return (
     <>
-      {userRole == 'admin-store' ? (
+      {userRole == 'Store CS' || 'Store Staff' ? (
         <>
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />
         </>
-      ) : userRole == 'admin-ho' ? (
+      ) : userRole == 'Admin HO' ? (
         <>
-          <PageTitle>HO DASHBOARD</PageTitle>
+          <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>
           <DashboardHO />
         </>
-      ) : userRole == 'admin-vendor' ? (
+      ) : userRole == 'Vendor Admin' ? (
         <>
           <PageTitle>VENDOR DASHBOARD</PageTitle>
           <DashboardVendor />
         </>
-      ) : userRole == 'admin-tukang' ? (
+      ) : userRole == 'Tukang' ? (
         <>
           <PageTitle>TUKANG DASHBOARD</PageTitle>
           <DashboardTukang />

@@ -4,7 +4,8 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
-import {NewOrder} from './components/NewOrder'
+import {PreOrder} from './components/PreOrder'
+import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {ReportOrder} from './components/ReportOrder'
 
@@ -24,46 +25,84 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const OrderPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='dashboard-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>
-              INSTALASI & SERVICE MITRA10 DASHBOARD
-            </PageTitle>
+            {userRole == 'Store CS' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>
+                  INSTALASI & SERVICE MITRA10 DASHBOARD
+                </PageTitle>
+              </>
+            ) : userRole == 'Admin HO' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
+              </>
+            ) : (
+              <></>
+            )}
             <DashboardOrder />
           </>
         }
       />
+
       <Route
         path='view-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
+            {userRole == 'Store CS' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
+              </>
+            ) : userRole == 'Admin HO' ? (
+              <>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>
+                  LIST INSTALASI & SERVICE MITRA10
+                </PageTitle>
+              </>
+            ) : (
+              <></>
+            )}
             <ViewOrder />
           </>
         }
       />
+
       <Route
-        path='new-order'
+        path='pre-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PESANAN BARU</PageTitle>
-            <NewOrder />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PRE ORDER</PageTitle>
+            <PreOrder />
           </>
         }
       />
+
       <Route
-        path='detail-order'
+        path='update-order/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER - 78453992 ALIA</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE ORDER FORM</PageTitle>
+            <UpdateOrder />
+          </>
+        }
+      />
+
+      <Route
+        path='detail-order/:id'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER</PageTitle>
             <DetailOrder />
           </>
         }
       />
+
       <Route
         path='report-order'
         element={
@@ -75,6 +114,7 @@ const OrderPage: React.FC = () => {
           </>
         }
       />
+
       <Route index element={<Navigate to='/order/view-order' />} />
     </Routes>
   )

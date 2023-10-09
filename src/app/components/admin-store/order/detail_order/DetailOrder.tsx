@@ -1,10 +1,10 @@
-import React, {FC} from 'react'
+import React, {useState, FC, useEffect} from 'react'
 
 import './DetailOrder.css'
 
-import {Row, Col, Form, InputGroup, ListGroup, Table, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
+import {useParams} from 'react-router-dom'
+import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
 import {Steps} from 'antd'
 
 const orderHistory = [
@@ -41,6 +41,46 @@ const complaintHistory = [
 ]
 
 const DetailOrderStore: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  const fetchOrderData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrderData()
+  }, [])
+
+  const phoneNumber =
+    orderDetail?.members.phone_number !== null
+      ? orderDetail?.members.phone_number
+      : orderDetail?.members.whatsapp_number
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
   return (
     <section id='detail-order'>
       <div className='card'>
@@ -49,23 +89,34 @@ const DetailOrderStore: FC = () => {
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 - BSD</span>
+                  Nama Toko :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>77652739</span>
+                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Receipt Number : <span className='fs-4 ms-2 fw-normal'>898823469121</span>
+                  Receipt Number :
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order Status : <span className='fs-4 ms-2 fw-bold text-success'>BOOKED</span>
+                  Order Status :
+                  <span className='fs-4 ms-2 fw-bold text-success'>
+                    {orderDetail?.project_status_id === 1
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 2
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 3
+                      ? 'ON PROGRESS'
+                      : ''}
+                  </span>
                 </Form.Label>
               </Col>
             </Row>
@@ -80,7 +131,7 @@ const DetailOrderStore: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='876992300239' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
                       </Col>
                     </Form.Group>
 
@@ -89,7 +140,7 @@ const DetailOrderStore: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='Ryan Filbert' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
                       </Col>
                     </Form.Group>
 
@@ -103,7 +154,7 @@ const DetailOrderStore: FC = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          defaultValue='Jl. Kijang no.9, Jakarta Timur DKI Jakarta, Indonesia'
+                          value={orderDetail?.project_address}
                         />
                       </Col>
                     </Form.Group>
@@ -115,7 +166,7 @@ const DetailOrderStore: FC = () => {
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='08126768945' />
+                        <Form.Control plaintext readOnly value={phoneNumber} />
                       </Col>
                     </Form.Group>
 
@@ -124,7 +175,7 @@ const DetailOrderStore: FC = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='ryan.filbert@gmail.com' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -139,7 +190,7 @@ const DetailOrderStore: FC = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='876123887787' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
                   </Col>
                 </Form.Group>
 
@@ -148,7 +199,7 @@ const DetailOrderStore: FC = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='Wendy Silitonga' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
                   </Col>
                 </Form.Group>
               </Col>
@@ -164,7 +215,12 @@ const DetailOrderStore: FC = () => {
                   Tanggal request pemasangan :
                 </Form.Label>
                 <Col sm='9'>
-                  <Form.Control type='date' plaintext readOnly />
+                  <Form.Control
+                    type='text'
+                    plaintext
+                    readOnly
+                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                  />
                 </Col>
               </Form.Group>
             </div>
@@ -182,50 +238,51 @@ const DetailOrderStore: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Total
-                    </td>
-                    <td className=' fw-bolder'>1.000.000</td>
-                  </tr>
+                  {orderDetail?.order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.item_id}</td>
+                        <td>{item?.unit}</td>
+                        <td>{item?.status?.description}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))}
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>
                       Biaya Survey
                     </td>
-                    <td className=' fw-bolder'>700.000</td>
+                    <td className=' fw-bolder'>
+                      {orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                        ? `                      Rp. ${0?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : orderDetail?.payment_type === 'survey'
+                        ? `                      Rp. ${99000?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : `Rp. ${0}`}
+                    </td>
                   </tr>
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>
                       Grand Total
                     </td>
-                    <td className=' fw-bolder'>1.700.000</td>
+                    <td className=' fw-bolder'>
+                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
+                    </td>
                   </tr>
                 </tbody>
               </Table>
             </div>
           </Row>
 
-          <div className='order-history mt-3 mb-3'>
+          {/* <div className='order-history mt-3 mb-3'>
             <div className='fs-3 fw-bold text-success mb-4'>Order History</div>
             <Steps
               className='order-history-timeline'
@@ -300,7 +357,7 @@ const DetailOrderStore: FC = () => {
                 </Col>
               </Row>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

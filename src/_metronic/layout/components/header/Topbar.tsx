@@ -1,18 +1,11 @@
 import clsx from 'clsx'
 import React, {FC} from 'react'
-import {KTSVG, toAbsoluteUrl} from '../../../helpers'
-import {
-  HeaderNotificationsMenu,
-  HeaderUserMenu,
-  QuickLinks,
-  Search,
-  ThemeModeSwitcher,
-} from '../../../partials'
+import {KTSVG} from '../../../helpers'
+import {HeaderNotificationsMenu, QuickLinks} from '../../../partials'
 import {useLayout} from '../../core'
 
 const toolbarButtonMarginClass = 'ms-1 ms-lg-3',
   toolbarButtonHeightClass = 'w-30px h-30px w-md-40px h-md-40px',
-  toolbarUserAvatarHeightClass = 'symbol-30px symbol-md-40px',
   toolbarButtonIconSizeClass = 'svg-icon-1'
 
 const Topbar: FC = () => {
@@ -20,24 +13,6 @@ const Topbar: FC = () => {
 
   return (
     <div className='d-flex align-items-stretch flex-shrink-0' id='topbar'>
-      {/* <div className={clsx('d-flex align-items-stretch', toolbarButtonMarginClass)}>
-        <Search />
-      </div>
-      <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
-        <div
-          className={clsx(
-            'btn btn-icon btn-active-light-primary btn-custom',
-            toolbarButtonHeightClass
-          )}
-          id='kt_activities_toggle'
-        >
-          <KTSVG
-            path='/media/icons/duotune/general/gen032.svg'
-            className={toolbarButtonIconSizeClass}
-          />
-        </div>
-      </div> */}
-
       <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
         <div
           className={clsx(

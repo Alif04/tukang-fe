@@ -9,37 +9,40 @@ import {FC} from 'react'
 import {Routes, Route, BrowserRouter, Navigate} from 'react-router-dom'
 import {PrivateRoutes} from './PrivateRoutes'
 import {ErrorsPage} from '../modules/errors/ErrorsPage'
-import {Logout, AuthPage, useAuth} from '../modules/auth'
+import {Login} from '../modules/login/Login'
 import {App} from '../App'
+
+import {MasterLayout} from '../../_metronic/layout/MasterLayout'
+import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
 
 /**
  * Base URL of the website.
  *
  * @see https://facebook.github.io/create-react-app/docs/using-the-public-folder
  */
-const {PUBLIC_URL} = process.env
+// const {PUBLIC_URL} = process.env
 
 const AppRoutes: FC = () => {
-  // const {currentUser} = useAuth()
-
-  const email = localStorage.getItem('email')
+  const username = localStorage.getItem('username')
   const userRole = localStorage.getItem('userRole')
+  const accessToken = localStorage.getItem('accessToken')
 
   return (
-    <BrowserRouter basename={PUBLIC_URL}>
+    <BrowserRouter>
       <Routes>
         <Route element={<App />}>
           <Route path='error/*' element={<ErrorsPage />} />
-          <Route path='logout' element={<Logout />} />
-          {!email || !userRole ? (
+
+          {!username || !userRole || !accessToken ? (
             <>
-              <Route path='auth/*' element={<AuthPage />} />
-              <Route path='*' element={<Navigate to='/auth' />} />
+              <Route path='login' element={<Login />} />
+              <Route path='*' element={<Navigate to='/login' />} />
             </>
           ) : (
             <>
-              <Route path='/*' element={<PrivateRoutes />} />
               <Route index element={<Navigate to='/home' />} />
+              <Route path='/*' element={<PrivateRoutes />} />
+              <Route path='login' element={<Navigate to='/home' />} />
             </>
           )}
         </Route>

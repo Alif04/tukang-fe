@@ -2,11 +2,24 @@
 import React from 'react'
 
 import {ViewComplaintStore} from '../../../components'
+import {ViewComplaintHO} from '../../../components'
 
 const ViewComplaint: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ViewComplaintStore className='' />
+      {userRole == 'Store CS' || userRole === 'Store Staff' ? (
+        <>
+          <ViewComplaintStore className='' />
+        </>
+      ) : userRole == 'Admin HO' ? (
+        <>
+          <ViewComplaintHO className='' />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

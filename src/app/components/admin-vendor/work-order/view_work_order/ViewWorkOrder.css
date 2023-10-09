@@ -1,0 +1,74 @@
+/* Table */
+#view-work-order-vendor .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #398318;
+}
+
+#view-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#view-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-work-order-vendor .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-work-order-vendor .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-work-order-vendor .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-work-order-vendor .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#view-work-order-vendor .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#view-work-order-vendor .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+#view-work-order-vendor .ant-table-thead > tr > th.col-work-status {
+  background-color: #a30014 !important;
+}
+
+#view-work-order-vendor .ant-table-thead > tr > th.col-complaint-date {
+  background-color: #a30014 !important;
+}
+
+#view-work-order-vendor .ant-table-thead > tr > th.col-complaint-status {
+  background-color: #a30014 !important;
+}
+
+/* Searchbar */
+
+#view-work-order-vendor .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+#view-work-order-vendor .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
+}

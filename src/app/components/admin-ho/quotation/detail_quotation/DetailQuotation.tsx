@@ -1,4 +1,5 @@
 import React, {FC} from 'react'
+import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './DetailQuotation.css'
 import {Table, Button, Row, Col} from 'react-bootstrap'
@@ -11,7 +12,11 @@ const DetailQuotationHO: FC = () => {
           <div className='invoice-detail d-flex justify-content-between'>
             <div className='vendor-information'>
               <div className='vendor-detail'>
-                <h1 className='fw-bolder'>PT ABC</h1>
+                <img
+                  alt='Logo'
+                  className='h-50px logo mb-3'
+                  src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+                />
 
                 <div className='address'>
                   <h3 className='fw-normal'>Jalan Gading Serpong Boulevard Blok Mitra10</h3>

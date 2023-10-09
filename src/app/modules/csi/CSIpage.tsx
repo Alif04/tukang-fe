@@ -29,7 +29,7 @@ const CSIpage: React.FC = () => {
         path='view-csi'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>CSI LIST</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>SURVEY KEPUASAN PELANGGAN</PageTitle>
             <ViewCSI />
           </>
         }
@@ -47,7 +47,7 @@ const CSIpage: React.FC = () => {
         path='update-csi'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE CSI</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMAT EMAIL CSI</PageTitle>
             <UpdateCSI />
           </>
         }

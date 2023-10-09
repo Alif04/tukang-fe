@@ -1,11 +1,24 @@
 import React, {FC} from 'react'
 
 import {ReportWorkVendor} from '../../../components'
+import {ReportWorkTukang} from '../../../components'
 
 const ReportWork: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ReportWorkVendor />
+      {userRole == 'Vendor Admin' ? (
+        <>
+          <ReportWorkVendor />
+        </>
+      ) : userRole == 'Tukang' ? (
+        <>
+          <ReportWorkTukang />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

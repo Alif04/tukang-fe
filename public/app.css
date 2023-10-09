@@ -54,6 +54,11 @@ div#kt_content {
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25) !important;
 }
 
+/* Form Select ( React Select ) */
+.form-control.p-0.css-b62m3t-container {
+  border: none;
+}
+
 /* Form Text Area ( Plain Text and ReadOnly ) */
 textarea.form-control-plaintext {
   overflow: hidden;
@@ -74,6 +79,13 @@ textarea.form-control-plaintext {
 /* Date Range */
 
 .ant-picker.ant-picker-range.css-dev-only-do-not-override-1m62vyb.date-range {
+  display: flex;
+  align-items: center;
+  width: 200px;
+  height: 45px;
+}
+
+.ant-picker.ant-picker-range.css-dev-only-do-not-override-1ck3jst.date-range {
   display: flex;
   align-items: center;
   width: 200px;
@@ -228,6 +240,18 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 .table-view-order .table-head-wrapper .filter-search .input-group-text.filter-ltr {
   background-color: transparent;
   border-right: none;
+}
+
+/* Table Filter */
+
+:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper .ant-table-column-sorter-inner {
+  color: white !important;
+}
+
+:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper .ant-table-column-sorter-up.active,
+:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper
+  .ant-table-column-sorter-down.active {
+  color: #7f7f7f;
 }
 
 @media screen and (max-width: 1200px) {

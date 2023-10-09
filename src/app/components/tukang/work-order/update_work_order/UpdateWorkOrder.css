@@ -1,0 +1,220 @@
+/* Form Layout */
+
+#update-work-order-tukang .form-wrapper {
+  display: flex;
+  gap: 50px;
+  margin-bottom: 30px;
+}
+
+#update-work-order-tukang .form-costumer {
+  width: 60%;
+}
+
+#update-work-order-tukang .form-work-order {
+  width: 40%;
+}
+
+/* #update-work-order-tukang .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  padding: 0 70px 0 10px;
+}
+
+#update-work-order-tukang .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  padding: 0 70px 0 10px;
+} */
+
+/* 
+#update-work-order-tukang .alamat-order.row .col {
+  padding: 0 70px 0 10px;
+} */
+
+#update-work-order-tukang .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+/* Form Header */
+
+#update-work-order-tukang .form-costumer .form-header {
+  height: 45px;
+}
+
+#update-work-order-tukang .form-work-order .form-header {
+  margin-bottom: 30px;
+}
+
+#update-work-order-tukang
+  .form-work-order
+  .form-header
+  label.fs-1.fw-bold.form-label.col-form-label.col-sm-6 {
+  padding: 0 9.75px;
+}
+
+#update-work-order-tukang
+  .form-work-order
+  .form-header
+  label.fs-5.fw-bold.form-label.col-form-label.col-sm-6 {
+  padding: 10px 9.75px;
+}
+
+/* Form Sub Header */
+
+#update-work-order-tukang .form-sub-header {
+  margin-bottom: 25px;
+}
+
+/* Table Item List */
+
+#update-work-order-tukang .table .table-item-head tr th {
+  font-weight: 400;
+  text-align: center;
+  color: #ffff;
+  background-color: #464646;
+}
+
+/* Table Work Order List */
+#update-work-order-tukang .table-head-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+#update-work-order-tukang .table-head-wrapper .left {
+  display: flex;
+  align-items: center;
+}
+
+#update-work-order-tukang .table-head-wrapper .middle {
+  display: flex;
+  justify-content: space-between;
+}
+
+#update-work-order-tukang .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#update-work-order-tukang
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#update-work-order-tukang .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#update-work-order-tukang .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#update-work-order-tukang .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#update-work-order-tukang .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Searchbar */
+
+#update-work-order-tukang .filter-search {
+  display: flex;
+  justify-content: center;
+}
+
+#update-work-order-tukang .filter-search .input-group {
+  width: 80%;
+  height: 45px;
+}
+
+#update-work-order-tukang .filter-search .input-group .form-control.filter-rtl {
+  border-right: none;
+}
+
+#update-work-order-tukang .filter-search .input-group-text.filter-rtl {
+  background-color: transparent;
+}
+
+/* Date Filter */
+
+#update-work-order-tukang .date-filter {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+#update-work-order-tukang .date-filter h3 {
+  width: 100%;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+#update-work-order-tukang .date-filter .start-date {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+#update-work-order-tukang .date-filter .end-date {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Select Filter */
+
+#update-work-order-tukang .select-filter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#update-work-order-tukang .select-filter h3 {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+#update-work-order-tukang .select-filter select.form-select.filter.filter-order {
+  height: 42px;
+  border-radius: 5px;
+}
+
+/* Button Action */
+
+#update-work-order-tukang .button-export {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: green;
+  border: none;
+  border-radius: 5px;
+}
+
+#update-work-order-tukang .button-print {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: black;
+  border: none;
+  border-radius: 5px;
+}

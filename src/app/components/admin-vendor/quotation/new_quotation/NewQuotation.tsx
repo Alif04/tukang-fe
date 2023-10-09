@@ -1,4 +1,5 @@
 import React, {FC} from 'react'
+import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './NewQuotation.css'
 
@@ -7,197 +8,203 @@ import {Form, Table, Button, Row, Col} from 'react-bootstrap'
 const NewQuotationVendor: FC = () => {
   return (
     <section id='new-quotation'>
-      <div className='card mb-5'>
+      <div className='card'>
         <div className='card-body'>
-          <Row>
-            <Col lg={8}>
-              <Row className='mb-5'>
-                <Col lg={4}>
-                  <div className='quotation-information'>
-                    <div className='form-header'></div>
+          <Row className='mb-4'>
+            <Col xxl={6} className='vendor-information'>
+              <div className='vendor-detail'>
+                <img
+                  alt='Logo'
+                  className='h-50px logo mb-3'
+                  src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+                />
 
-                    <div className='form-body'>
-                      <Form.Group className='mb-5'>
-                        <Form.Label>Nama Toko</Form.Label>
-                        <Form.Select>
-                          <option selected value='1'>
-                            MITRA 10 BSD
-                          </option>
-                          <option value='2'>MITRA 10 Fatmawati</option>
-                          <option value='3'>MITRA 10 Bandung</option>
-                          <option value='4'>MITRA 10 Jogja</option>
-                        </Form.Select>
-                      </Form.Group>
-
-                      <Form.Group className='mb-5'>
-                        <Form.Label>Costumer Name</Form.Label>
-                        <Form.Control type='text' />
-                      </Form.Group>
-                    </div>
-                  </div>
-                </Col>
-
-                <Col lg={4}>
-                  <div className='quotation-information'>
-                    <div className='form-header'></div>
-
-                    <div className='form-body'>
-                      <Form.Group className='mb-5'>
-                        <Form.Label>Costumer ID</Form.Label>
-                        <Form.Control type='email' placeholder='name@example.com' />
-                      </Form.Group>
-
-                      <Form.Group className='mb-5'>
-                        <Form.Label>Phone Number / WA Number</Form.Label>
-                        <Form.Control type='number' />
-                      </Form.Group>
-                    </div>
-                  </div>
-                </Col>
-
-                <Col lg={4}>
-                  <div className='quotation-information'>
-                    <div className='form-header'></div>
-
-                    <div className='form-body'>
-                      <Form.Group className='mb-5'>
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control type='email' placeholder='name@example.com' />
-                      </Form.Group>
-
-                      <Form.Group className='mb-5'>
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control type='email' />
-                      </Form.Group>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-
-              <Row className='mt-5'>
-                <div className='table-item'>
-                  <Table hover>
-                    <thead className='table-item-head'>
-                      <tr>
-                        <th>Item</th>
-                        <th>Harga Satuan</th>
-                        <th>Jumlah</th>
-                        <th>Total Harga</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Jasa Instalasi AC</td>
-                        <td>1.800.000</td>
-                        <td>1</td>
-                        <td>1.800.000</td>
-                      </tr>
-
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Total
-                        </td>
-                        <td className=' fw-bolder'>1.800.000</td>
-                      </tr>
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Discount (8%)
-                        </td>
-                        <td className=' fw-bolder'>-144.000</td>
-                      </tr>
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Grand Total
-                        </td>
-                        <td className=' fw-bolder'>1.854.000</td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </div>
-              </Row>
-
-              <div className='d-flex justify-content-center align-items-end'>
-                <Button variant='dark-danger' type='submit'>
-                  Cancel
-                </Button>
-
-                <Button variant='dark-primary' type='submit'>
-                  Save
-                </Button>
+                <Form.Group className='w-100'>
+                  <Form.Label>Nama Toko</Form.Label>
+                  <Form.Select>
+                    <option value='1'>Mitra 10 - BSD</option>
+                    <option value='2'>Mitra 10 - Fatmawati</option>
+                    <option value='3'>Mitra 10 - Bandung</option>
+                    <option value='4'>Mitra 10 - Jogja</option>
+                  </Form.Select>
+                </Form.Group>
               </div>
             </Col>
 
-            <Col lg={4}>
-              <div className='bank-information'>
-                <div className='form-header'>
-                  <h1 className='fw-bold'>ORDER STATUS: </h1>
-                  <h1 className='fw-bold text-success'>QUOTE OUT</h1>
+            <Col xxl={6} className='payment-request'>
+              <h1 className='fw-bolder'>QUOTATION</h1>
+
+              <Form.Group as={Row} className='mb-4'>
+                <Form.Label className='fs-5' column sm='4'>
+                  Tanggal :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control type='date' />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-4'>
+                <Form.Label className='fs-5' column sm='4'>
+                  Quotation ID :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control type='number' />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-4'>
+                <Form.Label className='fs-5' column sm='4'>
+                  Costumer ID :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control type='number' />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-4'>
+                <Form.Label className='fs-5' column sm='4'>
+                  Quotation Valid Until :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control type='date' />
+                </Col>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row className='mb-4'>
+            <Col xxl={6}>
+              <div className='receiver-information'>
+                <div className='receiver-detail'>
+                  <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
+                  <h1 className='fw-bolder'>Ibu Ami</h1>
                 </div>
 
-                <div className='form-body'>
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
-                    <Form.Label column sm='4'>
-                      Quotation ID :
-                    </Form.Label>
-                    <Col sm='8'>
-                      <Form.Control type='text' />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
-                    <Form.Label column sm='4'>
-                      Valid Until :
-                    </Form.Label>
-                    <Col sm='8'>
-                      <Form.Control type='text' />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Alamat</Form.Label>
-                    <Form.Control
-                      as='textarea'
-                      className='field-alamat'
-                      placeholder='Jl. Pahlawan'
-                    />
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
-                    <Form.Label column sm='4'>
-                      Bank Name :
-                    </Form.Label>
-                    <Col sm='8'>
-                      <Form.Control type='text' />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
-                    <Form.Label column sm='4'>
-                      Bank Account :
-                    </Form.Label>
-                    <Col sm='8'>
-                      <Form.Control type='text' />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
-                    <Form.Label column sm='4'>
-                      Account Name :
-                    </Form.Label>
-                    <Col sm='8'>
-                      <Form.Control type='text' />
-                    </Col>
-                  </Form.Group>
+                <div className='address'>
+                  <h3 className='fw-normal'>Jalan Gading Serpong Boulevard Blok Mitra10</h3>
+                  <h3 className='fw-normal'>Curug Sangereng, Klp. Dua, Tangerang, </h3>
+                  <h3 className='fw-normal'>Banten Kode Pos : 15310 </h3>
+                  <h3 className='fw-normal'> Telp: (021) 54217373</h3>
                 </div>
               </div>
+            </Col>
 
-              <div className='d-flex justify-content-end'>
-                <Button variant='dark-success' type='submit'>
-                  Save & Email Quotation
-                </Button>
+            <Col xxl={6}>
+              <div className='payment-request'>
+                <Form.Group>
+                  <Form.Label className='fs-5'>Instruksi Spesial</Form.Label>
+                  <Form.Control as='textarea' />
+                </Form.Group>
               </div>
             </Col>
           </Row>
+
+          <div className='detail-table-jasa'>
+            <Table hover>
+              <thead>
+                <tr>
+                  <th className='text-center'>Jenis Jasa</th>
+                  <th className='text-center'>Quantity</th>
+                  <th className='text-center'>Harga Satuan</th>
+                  <th className='text-center'>Total Harga</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Instalasi AC</td>
+                  <td>1</td>
+                  <td>500.000</td>
+                  <td>500.000</td>
+                </tr>
+                <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Total Jasa
+                  </td>
+                  <td className=' fw-bolder'>1.800.000</td>
+                </tr>
+              </tbody>
+            </Table>
+          </div>
+
+          <div className='detail-table-material'>
+            <Table hover>
+              <thead>
+                <tr>
+                  <th className='text-center'>Material Yang Dibutuhkan</th>
+                  <th className='text-center'>Quantity</th>
+                  <th className='text-center'>Harga Satuan</th>
+                  <th className='text-center'>Total Harga</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Instalasi AC</td>
+                  <td>1</td>
+                  <td>500.000</td>
+                  <td>500.000</td>
+                </tr>
+                <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Total Material
+                  </td>
+                  <td className=' fw-bolder'>1.800.000</td>
+                </tr>
+                <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Total Jasa & Material
+                  </td>
+                  <td className=' fw-bolder'>1.800.000</td>
+                </tr>
+                <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Promosi ( Free Survey )
+                  </td>
+                  <td className=' fw-bolder'></td>
+                </tr>
+                <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Additional Promosi
+                  </td>
+                  <td className=' fw-bolder'>-144.000</td>
+                </tr>
+                <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Grand Total
+                  </td>
+                  <td className=' fw-bolder'>1.854.000</td>
+                </tr>
+              </tbody>
+            </Table>
+          </div>
+
+          <div className='payment-detail'>
+            <div className='payment-method'>
+              <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
+
+              <h3 className='fw-normal'>BANK BCA</h3>
+              <h3 className='fw-normal'>PT.MITRA10</h3>
+              <h3 className='fw-normal'>123-876-90</h3>
+            </div>
+
+            <div className='payment-evidence'>
+              <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
+              <h1 className='fw-bolder'>WA: 0813748392</h1>
+              <h1 className='fw-bolder'>Email: Installation.support@mitra10.com</h1>
+            </div>
+
+            <h1 className='fw-bolder'>
+              Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
+              kembali.
+            </h1>
+          </div>
+
+          <div className='d-flex justify-content-center'>
+            <Button variant='dark-primary'>Save & Email</Button>
+          </div>
         </div>
       </div>
     </section>

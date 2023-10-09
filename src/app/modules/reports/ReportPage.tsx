@@ -2,6 +2,7 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {TotalOrderReport} from './components/TotalOrderReport'
 import {PrintReport} from './components/PrintReport'
 import {ViewReport} from './components/ViewReport'
 import {ReportPerformanceList} from './components/ReportPerformanceList'
@@ -43,6 +44,15 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL ORDER</PageTitle>
             <ReportPerformanceList />
+          </>
+        }
+      />
+      <Route
+        path='report-total-order'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL ORDER</PageTitle>
+            <TotalOrderReport />
           </>
         }
       />

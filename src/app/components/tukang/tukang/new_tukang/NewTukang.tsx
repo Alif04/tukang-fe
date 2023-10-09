@@ -3,18 +3,9 @@ import {useState} from 'react'
 
 import './NewTukang.css'
 
-import {Form, Row, Col, Button} from 'react-bootstrap'
-
+import {Form, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 const NewTukang: FC = () => {
   const [fileName, setFileName] = useState<string>('No selected file')
@@ -90,7 +81,7 @@ const NewTukang: FC = () => {
                     <div className='d-flex justify-content-between'>
                       <Form.Label>Keahlian</Form.Label>
 
-                      <a className='form-button-request'>
+                      <a href='/tukang/view-tukang' className='form-button-request'>
                         <Form.Label>Tambah Keahlian & jasa</Form.Label>
                         <i className='bi bi-plus'></i>
                       </a>

@@ -5,10 +5,18 @@ import './UpdateCSI.css'
 
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, Button, InputGroup, ListGroup, Row, Col} from 'react-bootstrap'
+import {Form, Button, InputGroup, Row, Col} from 'react-bootstrap'
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faFileExcel, faPen, faTrash, faSearch, faPlus} from '@fortawesome/free-solid-svg-icons'
+import {
+  faFileExcel,
+  faPen,
+  faTrash,
+  faSearch,
+  faPlus,
+  faFilter,
+  faPrint,
+} from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -17,6 +25,7 @@ interface DataType {
   order_id: string
   date_order: string
   product_name: string
+  installation_type: string
   costumer_id: string
   costumer_name: string
   email_address: string
@@ -79,6 +88,13 @@ const columns: ColumnsType<DataType> = [
     title: 'Product Name',
     dataIndex: 'product_name',
     key: 'product_name',
+    align: 'left',
+    width: 120,
+  },
+  {
+    title: 'Installation Type',
+    dataIndex: 'installation_type',
+    key: 'installation_type',
     align: 'left',
     width: 120,
   },
@@ -152,6 +168,7 @@ const data: DataType[] = [
     order_id: '78453992',
     date_order: '10/2/2023',
     product_name: 'Water Heater',
+    installation_type: 'New Set Up',
     costumer_id: '8986747',
     costumer_name: 'Alia',
     email_address: 'alia@gmail.com',
@@ -165,6 +182,8 @@ const data: DataType[] = [
     order_id: '78453993',
     date_order: '13/2/2023',
     product_name: 'AC',
+    installation_type: 'New Set Up',
+
     costumer_id: '8986748',
     costumer_name: 'Abdulah',
     email_address: 'abdullah@gmail.com',
@@ -178,6 +197,8 @@ const data: DataType[] = [
     order_id: '78453994',
     date_order: '14/2/2023',
     product_name: 'Water Heater',
+    installation_type: 'New Set Up',
+
     costumer_id: '8986710',
     costumer_name: 'Alice',
     email_address: 'alice@gmail.com',
@@ -191,6 +212,8 @@ const data: DataType[] = [
     order_id: '78453995',
     date_order: '15/2/2023',
     product_name: 'AC',
+    installation_type: 'New Set Up',
+
     costumer_id: '8986123',
     costumer_name: 'Kobe',
     email_address: 'kobe@gmail.com',
@@ -204,6 +227,8 @@ const data: DataType[] = [
     order_id: '78453996',
     date_order: '10/3/2023',
     product_name: 'AC',
+    installation_type: 'New Set Up',
+
     costumer_id: '8986123',
     costumer_name: 'Kobe',
     email_address: 'kobe@gmail.com',
@@ -217,6 +242,8 @@ const data: DataType[] = [
     order_id: '78453997',
     date_order: '12/3/2023',
     product_name: 'AC',
+    installation_type: 'New Set Up',
+
     costumer_id: '8986123',
     costumer_name: 'Kobe',
     email_address: 'kobe@gmail.com',
@@ -230,6 +257,8 @@ const data: DataType[] = [
     order_id: '78453998',
     date_order: '15/2/2023',
     product_name: 'AC',
+    installation_type: 'New Set Up',
+
     costumer_id: '8986123',
     costumer_name: 'Kobe',
     email_address: 'kobe@gmail.com',
@@ -402,8 +431,21 @@ const UpdateCSIHO: FC = () => {
 
       <div className='card mb-5'>
         <div className='card-body'>
-          <div className='table-head-wrapper'>
-            <div className='left'>
+          <Row className='table-head-wrapper'>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='mb-2'>
+              <Form.Group as={Row}>
+                <Form.Label className='fs-3' column sm='4'>
+                  <FontAwesomeIcon icon={faFilter} size='sm' className='me-1' />
+                  Date :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control type='date' />
+                </Col>
+              </Form.Group>
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -413,45 +455,22 @@ const UpdateCSIHO: FC = () => {
                   <Form.Control placeholder='Filter' className='filter-ltr' />
                 </InputGroup>
               </div>
-            </div>
+            </Col>
 
-            <div className='right'>
-              <div className='select-filter'>
-                <select className='form-select filter filter-one'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <div className='d-flex justify-content-end'>
+                <button className='button-export'>
+                  Export To Excel
+                  <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
+                </button>
 
-                <select className='form-select filter filter-two'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-three'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
-
-                <select className='form-select filter filter-four'>
-                  <option selected>All</option>
-                  <option value='1'>One</option>
-                  <option value='2'>Two</option>
-                  <option value='3'>Three</option>
-                </select>
+                <button className='button-print'>
+                  Print Data
+                  <FontAwesomeIcon icon={faPrint} size='lg' className='print-icon' />
+                </button>
               </div>
-
-              <button className='button-export'>
-                Export To Excel
-                <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
-              </button>
-            </div>
-          </div>
+            </Col>
+          </Row>
 
           <Table
             className='table-striped-rows'

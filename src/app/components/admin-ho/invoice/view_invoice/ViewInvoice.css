@@ -1,20 +1,4 @@
 /* Table */
-#view-invoice .table-head-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
-}
-
-#view-invoice .table-head-wrapper .left {
-  display: flex;
-  align-items: center;
-}
-
-#view-invoice .table-head-wrapper .middle {
-  display: flex;
-  justify-content: space-between;
-}
-
 #view-invoice .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
   font-weight: 500;
@@ -87,36 +71,6 @@
 #view-invoice .filter-search .input-group-text.filter-ltr {
   background-color: transparent;
   border-right: none;
-}
-
-/* Select Filter */
-
-.select-filter {
-  display: flex;
-  margin: 0 10px 0 10px;
-}
-
-.select-filter select.form-select.filter {
-  height: 45px;
-}
-
-.select-filter select.form-select.filter.filter-one {
-  border-right: none;
-  border-radius: 5px 0 0 5px;
-}
-
-.select-filter select.form-select.filter.filter-two {
-  border-right: none;
-  border-radius: 0;
-}
-
-.select-filter select.form-select.filter.filter-three {
-  border-radius: 0;
-}
-
-.select-filter select.form-select.filter.filter-four {
-  border-left: none;
-  border-radius: 0 5px 5px 0;
 }
 
 /* Button Action */
