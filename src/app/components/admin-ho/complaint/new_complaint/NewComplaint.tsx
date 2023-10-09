@@ -16,7 +16,7 @@ interface ComplaintChannel {
   label: string
 }
 
-const NewComplaintStore: FC = () => {
+const NewComplaintHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
@@ -132,7 +132,7 @@ const NewComplaintStore: FC = () => {
   // Add Complaint
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintStatus, setComplaintStatus] = useState<any>(1)
+  // const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
 
@@ -173,96 +173,42 @@ const NewComplaintStore: FC = () => {
     setComplaintChannelId(updatedSelectComplaintChannel)
   }
 
-  // Complaint Validation
-  const ComplaintValidation = () => {
-    let valid = true
-
-    if (!orderId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select order Id',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!complaintDesc) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill complaint description form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!complaintChannelId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select complaint channel',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!complaintDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill complaint date form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!complaintEvidence) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill complaint evidence form',
-        icon: 'error',
-      })
-      valid = false
-    }
-    return valid
-  }
-
   // Handle Submit Complaint
   const handleSubmitNewComplaint = async () => {
-    if (ComplaintValidation()) {
+    try {
       const formData = new FormData()
 
       formData.append('order_id', orderId)
       formData.append('description', complaintDesc)
       formData.append('complaint_channel', complaintChannelId)
       formData.append('complaint_date', complaintDate)
-      formData.append('complaint_status', complaintStatus)
+      // formData.append('complaint_status', complaintStatus)
       formData.append('complaint_evidences', complaintEvidence)
 
-      const response = await axios
-        .post(`${apiUrl}/complaints`, formData, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          if (response.data.status === 200 || response.data.status === 201) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Success Add Complaint',
-              icon: 'success',
-            })
-          } else {
-            Swal.fire({
-              title: 'Error',
-              text: response.data.message,
-              icon: 'error',
-            })
-          }
+      await axios.post(`${apiUrl}/complaints`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-          navigate('/complaint/view-complaint')
-        })
-        .catch((error) => {
-          console.error(error)
+      Swal.fire({
+        title: 'Success',
+        text: 'Success Add Complaint',
+        icon: 'success',
+      })
 
-          Swal.fire({
-            title: 'Error',
-            text: error.response.data.message,
-            icon: 'error',
-          })
-        })
+      navigate('/complaint/view-complaint')
+    } catch (error) {
+      console.error(error)
+
+      Swal.fire({
+        title: 'Error',
+        text: 'Cant Add Complaint',
+        icon: 'error',
+      })
     }
   }
 
@@ -280,6 +226,20 @@ const NewComplaintStore: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name || ''}</span>
+                </Form.Label>
+
+                <br></br>
+                <Form.Label className='fs-4 fw-bold'>
+                  LAST ORDER STATUS :{' '}
+                  <span className='fs-4 ms-2 fw-bold text-success'>
+                    {orderDetail?.project_status_id === 1
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 2
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 3
+                      ? 'ON PROGRESS'
+                      : ''}
+                  </span>
                 </Form.Label>
               </Col>
 
@@ -305,19 +265,6 @@ const NewComplaintStore: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Receipt Number :
                   <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number || ''}</span>
-                </Form.Label>
-                <br></br>
-                <Form.Label className='fs-4 fw-bold'>
-                  LAST ORDER STATUS :{' '}
-                  <span className='fs-4 ms-2 fw-bold text-success'>
-                    {orderDetail?.project_status_id === 1
-                      ? 'BOOK'
-                      : orderDetail?.project_status_id === 2
-                      ? 'BOOKED'
-                      : orderDetail?.project_status_id === 3
-                      ? 'SURVEY REQ'
-                      : ''}
-                  </span>
                 </Form.Label>
               </Col>
             </Row>
@@ -461,12 +408,11 @@ const NewComplaintStore: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                      {orderDetail?.payment_type === 'GRATIS'
                         ? `                      Rp. ${0?.toLocaleString(
                             'id'
                           )}                        `
-                        : orderDetail?.payment_type === 'survey'
+                        : orderDetail?.payment_type === 'BERBAYAR'
                         ? `                      Rp. ${99000?.toLocaleString(
                             'id'
                           )}                        `
@@ -486,8 +432,6 @@ const NewComplaintStore: FC = () => {
               </Table>
             </div>
           </Row>
-
-          <hr />
 
           <Row className='mb-5'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
@@ -584,4 +528,4 @@ const NewComplaintStore: FC = () => {
   )
 }
 
-export {NewComplaintStore}
+export {NewComplaintHO}

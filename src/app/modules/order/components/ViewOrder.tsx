@@ -18,7 +18,7 @@ const ViewOrder: React.FC = () => {
         <>
           <ViewOrderStoreCS className='' />
         </>
-      ) : userRole == 'HO Admin' ? (
+      ) : userRole == 'Admin HO' ? (
         <>
           <ViewOrderHO className='' />
         </>

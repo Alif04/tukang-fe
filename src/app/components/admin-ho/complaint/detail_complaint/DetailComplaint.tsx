@@ -10,7 +10,7 @@ import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-const DetailComplaintStore: FC = () => {
+const DetailComplaintHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -625,4 +625,4 @@ const DetailComplaintStore: FC = () => {
   )
 }
 
-export {DetailComplaintStore}
+export {DetailComplaintHO}

@@ -13,7 +13,7 @@ const WarrantyList: React.FC = () => {
         <>
           <WarrantyClaimList className='' />
         </>
-      ) : userRole == 'HO Admin' ? (
+      ) : userRole == 'Admin HO' ? (
         <>
           <WarrantyClaimListHO className='' />
         </>

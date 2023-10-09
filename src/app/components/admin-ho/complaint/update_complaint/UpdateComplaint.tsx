@@ -1,22 +1,36 @@
 import React, {FC, useState, useEffect} from 'react'
 
-import './DetailComplaint.css'
+import './UpdateComplaint.css'
 
 import axios from 'axios'
+import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, ListGroup, Table, Button} from 'react-bootstrap'
 import {Image} from 'antd'
+import {useNavigate, useParams} from 'react-router-dom'
+import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-const DetailComplaintStore: FC = () => {
+interface ComplaintChannel {
+  value: string
+  label: string
+}
+
+const UpdateComplaintHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
 
+  // Complaint Detail
+  const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
+  // Complaint Channel
+  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
+  const [complaintChannelName, setComplaintChannelName] = useState<string>('')
 
   const fetchComplaintData = async () => {
     try {
@@ -32,6 +46,11 @@ const DetailComplaintStore: FC = () => {
         .then((response) => {
           const data = response.data.data
           setComplaintDetail(data)
+
+          if (data?.complaint_channels?.id && data?.complaint_channels?.name) {
+            setComplaintChannelId(data.complaint_channels.id)
+            setComplaintChannelName(data.complaint_channels.name)
+          }
         })
     } catch (error) {
       console.error(error)
@@ -59,8 +78,35 @@ const DetailComplaintStore: FC = () => {
     }
   }
 
+  const fetchComplaintChannel = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/complaint-channels`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempComplaintChannel = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setComplaintChannel(tempComplaintChannel)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     fetchComplaintData()
+    fetchComplaintChannel()
   }, [])
 
   useEffect(() => {
@@ -81,43 +127,39 @@ const DetailComplaintStore: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  // Add Feedback
-
-  const [memberName, setMemberName] = useState<string>('')
-  const [position, setPosition] = useState<string>('')
-  const [feedbackDesc, setFeedbackDesc] = useState<any>('')
-  const [feedbackDate, setFeedbackDate] = useState<string>('')
-  const [evidenceComplaint, setEvidenceComplaint] = useState<string>('No selected file')
+  // Add Complaint
+  const [complaintDesc, setComplaintDesc] = useState<any>('')
+  const [complaintDate, setComplaintDate] = useState<string>('')
+  const [complaintStatus, setComplaintStatus] = useState<any>(1)
+  const [complaintEvidence, setComplaintEvidence] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
-  const [visible, setVisible] = useState(false)
 
   // Handle Input Change
-  const handleInputMemberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedInputValue = event.target.value
-    setMemberName(updatedInputValue)
+    setComplaintDesc(updatedInputValue)
   }
 
-  const handleInputPositionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setPosition(updatedInputValue)
+  // Handle Change Complaint Channel
+  const handleChangeSelectComplaintChannel = (element: any) => {
+    const updatedComplaintChannelId = element.value
+    const updatedComplaintChannelName = element.label
+
+    setComplaintChannelId(updatedComplaintChannelId)
+    setComplaintChannelName(updatedComplaintChannelName)
   }
 
-  const handleInputFeedbackDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setFeedbackDesc(updatedInputValue)
+  // Handle Complaint Date Change
+  const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedComplaintDate = event.target.value
+    setComplaintDate(updatedComplaintDate)
   }
 
-  // Handle Feedback Date Change
-  const handleChangeFeedbackDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedFeedbackDate = event.target.value
-    setFeedbackDate(updatedFeedbackDate)
-  }
-
-  // Handle Upload File
+  // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && files[0]) {
-      setEvidenceComplaint(files[0].name)
+      setComplaintEvidence(files[0].name)
       setImage(URL.createObjectURL(files[0]))
     }
   }
@@ -128,56 +170,55 @@ const DetailComplaintStore: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setEvidenceComplaint('No selected file')
+    setComplaintEvidence('No selected file')
     setImage(null)
   }
 
-  // Handle Submit Feedback
-  const handleSubmitNewFeedback = async () => {
+  // Handle Submit Complaint
+  const handleUpdateComplaint = async () => {
     try {
       const formData = new FormData()
 
-      formData.append('member_name', memberName)
-      formData.append('position', position)
-      formData.append('feedback_date', feedbackDate)
-      formData.append('feedback_desc', feedbackDesc)
-      formData.append('evidence_feedback', evidenceComplaint)
+      formData.append('order_id', orderId)
+      formData.append('description', complaintDesc)
+      formData.append('complaint_channel', complaintChannelId)
+      formData.append('complaint_date', complaintDate)
+      // formData.append('complaint_status', complaintStatus)
+      formData.append('complaint_evidences', complaintEvidence)
 
-      console.log(formData)
+      await axios.post(`${apiUrl}/complaints/${params.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      // const response = await axios.post(`${apiUrl}/feedback/create`, formData, {
-      //   headers: {
-      //     Accept: 'application/json',
-      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      //     'Access-Control-Allow-Origin': '*',
-      //     'ngrok-skip-browser-warning': 'true',
-      //   },
-      // })
+      Swal.fire({
+        title: 'Success',
+        text: 'Success Update Complaint',
+        icon: 'success',
+      })
 
-      // Swal.fire({
-      //   title: 'Success',
-      //   text: 'Success update realization',
-      //   icon: 'success',
-      // })
-
-      // navigate('/complaint/view-complaint')
+      navigate('/complaint/view-complaint')
     } catch (error) {
       console.error(error)
 
       Swal.fire({
         title: 'Error',
-        text: 'Cant Add Order',
+        text: 'Cant Add Complaint',
         icon: 'error',
       })
     }
   }
 
-  const handleCancel = () => {
+  const handleCancelComplaint = () => {
     navigate('/complaint/view-complaint')
   }
 
   return (
-    <section id='detail-complaint'>
+    <section id='update-complaint'>
       <div className='card'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -326,7 +367,7 @@ const DetailComplaintStore: FC = () => {
                 <tbody>
                   {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
+                      <tr key={index}>
                         <td>{item?.item_id}</td>
                         <td>{item?.unit}</td>
                         <td>{item?.status?.description}</td>
@@ -342,12 +383,11 @@ const DetailComplaintStore: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                      {orderDetail?.payment_type === 'GRATIS'
                         ? `                      Rp. ${0?.toLocaleString(
                             'id'
                           )}                        `
-                        : orderDetail?.payment_type === 'survey'
+                        : orderDetail?.payment_type === 'BERBAYAR'
                         ? `                      Rp. ${99000?.toLocaleString(
                             'id'
                           )}                        `
@@ -371,225 +411,71 @@ const DetailComplaintStore: FC = () => {
           <hr />
 
           <Row>
-            <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
-              COMPLAINT HISTORY
-            </div>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <div className='fs-3 fw-bold text-danger'>COMPLAINT HISTORY</div>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
-                  Complaint Date :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control
-                    type='text'
-                    plaintext
-                    readOnly
-                    value={
-                      complaintDetail ? formatDate(new Date(complaintDetail.complaint_date)) : ''
-                    }
-                  />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
-                  Complaint via :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    value={complaintDetail?.complaint_channels.name}
-                  />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
-                  PIC Complaint :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
-                </Col>
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Label className='mt-3'>Complaint Detail :</Form.Label>
-              <Form.Control
-                style={{minHeight: '200px'}}
-                as='textarea'
-                plaintext
-                readOnly
-                value={complaintDetail?.description}
-              ></Form.Control>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
-              <ListGroup>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  342344.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  848735.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  Complaint.docx
-                </ListGroup.Item>
-              </ListGroup>
-            </Col>
-          </Row>
-
-          {/* <hr /> */}
-
-          {/* <Row>
-            <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-              <Form.Label className='fs-3 fw-bold'>Feedback Store :</Form.Label>
-              <Form.Control
-                style={{minHeight: '170px'}}
-                as='textarea'
-                value={feedbackDesc}
-                onChange={handleInputFeedbackDesc}
-              ></Form.Control>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group controlId='formFile'>
-                <Form.Label className='fs-3 fw-normal'>UPLOAD BUKTI</Form.Label>
-                <Form className='form-input-image' onClick={handleImageClick}>
-                  <Form.Control
-                    type='file'
-                    accept='image/*'
-                    className='input-field-image'
-                    hidden
-                    onChange={handleFileChange}
-                  />
-
-                  {image ? (
-                    <img src={image} alt={evidenceComplaint} className='image-preview' />
-                  ) : (
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  )}
-                </Form>
-
-                <div className='uploaded-row'>
-                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                  <span className='upload-content'>{evidenceComplaint}</span>
-
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    size='sm'
-                    color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
-                  />
-                </div>
-              </Form.Group>
-            </Col>
-          </Row> */}
-          {/* 
-          <Row>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Nama Pemberi Feedback</Form.Label>
-                <Form.Control
-                  type='text'
-                  placeholder='John Doe'
-                  value={memberName}
-                  onChange={handleInputMemberChange}
-                />
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Jabatan</Form.Label>
-                <Form.Control type='text' value={position} onChange={handleInputPositionChange} />
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Tanggal Feedback : </Form.Label>
-                <Form.Control type='date' onChange={handleChangeFeedbackDate} />
-              </Form.Group>
-            </Col>
-          </Row> */}
-
-          {/* <div className='d-flex justify-content-center align-items-center mt-5'>
-            <Button
-              variant='dark-danger'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              variant='dark-primary'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handleSubmitNewFeedback}
-            >
-              Submit
-            </Button>
-          </div> */}
-
-          {/* <hr />
-
-          <div className='card'>
-            <div className='card-body'>
               <Row>
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Col>
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      Complaint Date :
+                    <Form.Label column sm='7'>
+                      Complaint ID :
                     </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control type='date' plaintext readOnly />
+                    <Col sm='5'>
+                      <Form.Control type='text' plaintext readOnly value={complaintDetail?.id} />
                     </Col>
                   </Form.Group>
 
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      Complaint via :
+                    <Form.Label column sm='7'>
+                      Complaint Channel :
                     </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='Call' />
+                    <Col sm='5'>
+                      <Form.Control
+                        plaintext
+                        readOnly
+                        value={complaintDetail?.complaint_channels.name}
+                      />
                     </Col>
                   </Form.Group>
 
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      PIC Complaint :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='Nuning' />
-                    </Col>
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Label className='mt-3'>Complaint Detail :</Form.Label>
                   <Form.Control
                     style={{minHeight: '200px'}}
                     as='textarea'
                     plaintext
                     readOnly
-                    defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
+                    value={complaintDetail?.description}
                   ></Form.Control>
                 </Col>
 
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Col>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='7'>
+                      Complaint Date :
+                    </Form.Label>
+                    <Col sm='5'>
+                      <Form.Control
+                        type='text'
+                        plaintext
+                        readOnly
+                        value={
+                          complaintDetail
+                            ? formatDate(new Date(complaintDetail.complaint_date))
+                            : ''
+                        }
+                      />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='7'>
+                      Complaint Handler :
+                    </Form.Label>
+                    <Col sm='5'>
+                      <Form.Control plaintext readOnly defaultValue='HO' />
+                    </Col>
+                  </Form.Group>
+
                   <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
                   <ListGroup>
                     <ListGroup.Item action onClick={() => setVisible(true)}>
@@ -604,8 +490,97 @@ const DetailComplaintStore: FC = () => {
                   </ListGroup>
                 </Col>
               </Row>
-            </div>
-          </div> */}
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <div className='fs-3 fw-bold text-success'>REMEDIAL ACTION</div>
+
+              <Row>
+                <Col>
+                  <Form.Group>
+                    <Form.Label className='mt-3'>Change Status :</Form.Label>
+
+                    <Select
+                      name='store_id'
+                      className='form-control p-0'
+                      classNamePrefix='select'
+                      placeholder='Pilih Status'
+                      isSearchable={true}
+                      //   options={complaint}
+                    />
+                  </Form.Group>
+
+                  <Form.Group>
+                    <Form.Label className='mt-5'>Notes :</Form.Label>
+                    <Form.Control style={{minHeight: '200px'}} as='textarea'></Form.Control>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label className='mt-3'>Start Date :</Form.Label>
+                    <Form.Control type='date' />
+                  </Form.Group>
+
+                  <Form.Group controlId='formFile' className='mt-5'>
+                    <Form.Label>Upload File</Form.Label>
+                    <Form className='form-input-image' onClick={handleImageClick}>
+                      <Form.Control
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image'
+                        hidden
+                        onChange={handleFileChange}
+                      />
+
+                      {image ? (
+                        <img src={image} alt={complaintEvidence} className='image-preview' />
+                      ) : (
+                        <div className='input-image-text'>
+                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                          <p>Add File</p>
+                        </div>
+                      )}
+                    </Form>
+
+                    <div className='uploaded-row'>
+                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                      <span className='upload-content'>{complaintEvidence}</span>
+
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        size='sm'
+                        color='#ed2b2a'
+                        style={{cursor: 'pointer'}}
+                        onClick={handleRemoveFile}
+                      />
+                    </div>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+
+          <div className='d-flex justify-content-center align-items-center mt-5'>
+            <Button
+              variant='dark-danger'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleCancelComplaint}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant='dark-primary'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleUpdateComplaint}
+            >
+              Submit
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -625,4 +600,4 @@ const DetailComplaintStore: FC = () => {
   )
 }
 
-export {DetailComplaintStore}
+export {UpdateComplaintHO}

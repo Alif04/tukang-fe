@@ -256,11 +256,12 @@ const DetailOrderStore: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'GRATIS'
+                      {orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
                         ? `                      Rp. ${0?.toLocaleString(
                             'id'
                           )}                        `
-                        : orderDetail?.payment_type === 'BERBAYAR'
+                        : orderDetail?.payment_type === 'survey'
                         ? `                      Rp. ${99000?.toLocaleString(
                             'id'
                           )}                        `

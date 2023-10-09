@@ -726,7 +726,7 @@ const UpdateOrderStoreStaff: FC = () => {
           },
         })
         .then((response) => {
-          if (response.data.status === 201) {
+          if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
               text: 'Success Update Order',
@@ -797,6 +797,7 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='gratis'
+                        checked={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -807,6 +808,7 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='serviceType'
                         type='radio'
                         value='survey'
+                        checked={paymentType === 'survey'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -817,6 +819,9 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='berbayar'
+                        checked={
+                          paymentType === 'survey' || paymentType === 'pemasangan_tanpa_survey'
+                        }
                         onChange={handleServiceOptionChange}
                       />
 

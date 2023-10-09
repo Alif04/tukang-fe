@@ -318,7 +318,7 @@ const DashboardWrapper: FC = () => {
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />
         </>
-      ) : userRole == 'HO Admin' ? (
+      ) : userRole == 'Admin HO' ? (
         <>
           <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>
           <DashboardHO />

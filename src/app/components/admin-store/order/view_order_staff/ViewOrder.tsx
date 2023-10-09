@@ -1,7 +1,9 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
+
+import './ViewOrder.css'
+
 import axios from 'axios'
-import {DatePicker} from 'antd'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
@@ -9,7 +11,8 @@ import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faSearch, faFilter, faPen} from '@fortawesome/free-solid-svg-icons'
 
-import './ViewOrder.css'
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
 
 type Props = {
   className: string
@@ -18,10 +21,13 @@ type Props = {
 const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
-  const {RangePicker} = DatePicker
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
 
-  const DateRange = () => {
-    return <RangePicker className='date-range ms-3' />
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
   }
 
   interface DataType {
@@ -132,14 +138,17 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(`${apiUrl}/orders?status=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=2`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -191,7 +200,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     }
 
     fetchData()
-  }, [])
+  }, [dateFrom, dateTo, searchFilter])
 
   return (
     <section id='view-order'>
@@ -204,7 +213,21 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
 
-              <DateRange />
+              <RangePicker
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
             </Col>
 
             <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
@@ -214,7 +237,11 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
                     <FontAwesomeIcon icon={faSearch} size='sm' />
                   </InputGroup.Text>
 
-                  <Form.Control placeholder='Filter' className='filter-ltr' />
+                  <Form.Control
+                    placeholder='Filter'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
                 </InputGroup>
               </div>
             </Col>

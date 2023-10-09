@@ -1,8 +1,8 @@
 import React, {FC, useEffect, useState} from 'react'
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
-import './NewOrder.css'
+import './UpdateOrder.css'
 
 import Swal from 'sweetalert2'
 import Select from 'react-select'
@@ -12,7 +12,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface StoreItem {
-  value: BigInteger
+  value: string
   label: string
   address: string
   city_id: BigInteger
@@ -38,7 +38,7 @@ interface Vendor {
 }
 
 interface ItemDescription {
-  value: BigInteger
+  value: string
   label: string
   category: string
   prices: Array<ItemPrice>
@@ -55,9 +55,10 @@ interface ItemPrice {
   price: string
 }
 
-const NewOrderHO: FC = () => {
+const UpdateOrderHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const params = useParams()
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -67,10 +68,12 @@ const NewOrderHO: FC = () => {
   const [indexForm, setIndexForm] = useState<number>(0)
 
   // Order Information Detail
+  const [orderDetail, setOrderDetail] = useState<any>()
 
   // Store
   const [store, setStore] = useState<StoreItem[]>([])
   const [storeId, setStoreId] = useState<string>('')
+  const [storeName, setStoreName] = useState<string>('')
 
   // Member
   const [memberId, setMemberId] = useState<any>()
@@ -90,8 +93,6 @@ const NewOrderHO: FC = () => {
   const [vendor, setVendor] = useState<Vendor[]>([])
   const [vendorName, setVendorName] = useState<string>('')
 
-  const [projectStatusId, setProjectStatusId] = useState<number>(1)
-
   const [paymentType, setPaymentType] = useState<string>('')
   const [serviceType, setServiceType] = useState<string>('')
 
@@ -109,6 +110,80 @@ const NewOrderHO: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
+    const fetchOrderData = async () => {
+      try {
+        await axios
+          .get(`${apiUrl}/orders/${params.id}`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          .then((response) => {
+            const data = response.data.data
+            setOrderDetail(data)
+
+            if (data?.store?.id && data?.store?.store_name) {
+              setStoreId(data.store.id)
+              setStoreName(data.store.store_name)
+            }
+
+            if (data?.payment_type) {
+              setPaymentType(data.payment_type)
+            }
+
+            if (data?.created_at) {
+              setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
+            }
+
+            if (data?.receipt_number) {
+              setReceiptNumber(data.receipt_number)
+            }
+
+            if (
+              data?.members?.id &&
+              data?.members?.full_name &&
+              data?.members.email &&
+              data?.members.whatsapp_number &&
+              data?.members.address_1
+            ) {
+              setMemberId(data.members.id)
+              setMemberName(data.members.full_name)
+              setMemberEmail(data.members.email)
+              setMemberPhoneNumber(data.members.whatsapp_number)
+              setMemberAddress(data.members.address_1)
+            }
+
+            if (data?.sales?.id && data?.sales?.full_name) {
+              setSalesId(data.sales.id)
+              setSalesName(data.sales.full_name)
+            }
+
+            if (data?.order_details) {
+              const initialOrderDetailValues = data.order_details.map((item: any) => ({
+                id: item.id,
+                item_id: item.item_id,
+                order_status_id: item.order_status_id,
+                unit: item.unit,
+                category_name: item.category_name,
+                unit_price: parseInt(item.unit_price),
+                quote_price: item.quote_price,
+                quantity: item.quantity,
+                total: item.total,
+                survey_price: item.survey_price,
+                comission: item.comission,
+              }))
+
+              setOrderDetailValues(initialOrderDetailValues)
+            }
+          })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     const getStore = async () => {
       try {
         const response = await axios.get(`${apiUrl}/store/get`, {
@@ -138,7 +213,7 @@ const NewOrderHO: FC = () => {
       }
     }
 
-    const getMember = async () => {
+    const getCostumer = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member/data`, {
           headers: {
@@ -153,7 +228,6 @@ const NewOrderHO: FC = () => {
             value: item.id,
             label: item.full_name,
             email: item.email,
-            // phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
@@ -162,7 +236,6 @@ const NewOrderHO: FC = () => {
           tempMember.push(creatableOption)
 
           setMember(tempMember)
-          // console.log(tempMember)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -192,7 +265,6 @@ const NewOrderHO: FC = () => {
           tempSales.push(creatableOptionSales)
 
           setSales(tempSales)
-          // console.log(tempSales)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -222,6 +294,7 @@ const NewOrderHO: FC = () => {
           tempVendor.push(creatableOptionVendor)
 
           setVendor(tempVendor)
+          // console.log(tempVendor)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -232,7 +305,7 @@ const NewOrderHO: FC = () => {
 
     const getItem = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/items`, {
+        const response = await axios.get(`${apiUrl}/items?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -267,8 +340,9 @@ const NewOrderHO: FC = () => {
       }
     }
 
+    fetchOrderData()
     getStore()
-    getMember()
+    getCostumer()
     getSales()
     getVendor()
     getItem()
@@ -276,8 +350,11 @@ const NewOrderHO: FC = () => {
 
   // Select Store
   const handleChangeSelectStore = (element: any) => {
-    const updatedStore = element.value
-    setStoreId(updatedStore)
+    const updatedStoreId = element.value
+    const updatedStoreName = element.label
+
+    setStoreId(updatedStoreId)
+    setStoreName(updatedStoreName)
   }
 
   // Select Date Requeet
@@ -295,13 +372,6 @@ const NewOrderHO: FC = () => {
   // Payment Type ( Radio Button )
   const handlePaymentOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedOptionPayment = event.target.value
-
-    if (selectedOptionPayment == 'GRATIS') {
-      setServiceType('PEMASANGAN TANPA SURVEY')
-    } else if (selectedOptionPayment == 'BERBAYAR') {
-      setServiceType('SURVEY')
-    }
-
     setPaymentType(selectedOptionPayment)
   }
 
@@ -458,25 +528,25 @@ const NewOrderHO: FC = () => {
   }
 
   // Handle Change Vendor Name
-  const handleChangeVendorId = (element: any) => {
-    const newVendorId = element.target.value
+  //   const handleChangeVendorId = (element: any) => {
+  //     const newVendorId = element.target.value
 
-    setVendorInfo((prevVendorInfo) => ({
-      ...(prevVendorInfo as Vendor),
-      value: newVendorId,
-    }))
+  //     setVendorInfo((prevVendorInfo) => ({
+  //       ...(prevVendorInfo as Vendor),
+  //       value: newVendorId,
+  //     }))
 
-    setVendorId(newVendorId)
-  }
+  //     setVendorId(newVendorId)
+  //   }
 
   // Add New Order
 
   // Order Details
   const [orderDetailValues, setOrderDetailValues] = useState([
     {
-      index_id: 0,
-      item_id: null,
-      order_status_id: 1,
+      id: '',
+      item_id: '',
+      order_status_id: 3,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -489,15 +559,13 @@ const NewOrderHO: FC = () => {
   ])
 
   let handleAddForm = () => {
-    const newId =
-      orderDetailValues.length > 0
-        ? orderDetailValues[orderDetailValues.length - 1].index_id + 1
-        : 0
+    // const newId =
+    //   orderDetailValues.length > 0 ? orderDetailValues[orderDetailValues.length - 1].id + 1 : 0
 
     const newForm = {
-      index_id: newId,
-      item_id: null,
-      order_status_id: 1,
+      id: '',
+      item_id: '',
+      order_status_id: 3,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -518,10 +586,10 @@ const NewOrderHO: FC = () => {
     setOrderDetailValues(newOrderDetailValues)
     setIndexForm(indexForm - 1)
 
-    let updatedOrderDetailValues = newOrderDetailValues.map((value, newIndex) => {
+    let updatedOrderDetailValues = newOrderDetailValues.map((value) => {
       return {
         ...value,
-        index_id: newIndex,
+        id: '',
       }
     })
 
@@ -566,13 +634,15 @@ const NewOrderHO: FC = () => {
   const calculatedOrderTotal = () => {
     return orderDetailValues.reduce((accumulator, item) => {
       const quantity = item.quantity || 1
-      const hargaJasa = item.unit_price || 0
+      let hargaJasa = 0
 
-      // console.log(quantity)
-      // console.log(hargaJasa)
+      if (paymentType === 'gratis') {
+        hargaJasa = 0
+      } else {
+        hargaJasa = item.unit_price
+      }
 
       const calculatedTotal = quantity * hargaJasa
-
       return accumulator + calculatedTotal
     }, 0)
   }
@@ -584,16 +654,15 @@ const NewOrderHO: FC = () => {
       const totalOrderAmount = total
       let biayaSurvey = 0
 
-      if (paymentType === 'GRATIS' && serviceType === 'PEMASANGAN TANPA SURVEY') {
+      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
-      } else if (paymentType === 'BERBAYAR' && serviceType === 'PEMASANGAN TANPA SURVEY') {
-        biayaSurvey = 0
-      } else if (paymentType === 'BERBAYAR' && serviceType === 'SURVEY') {
+      } else if (paymentType === 'survey') {
         biayaSurvey = 99000
+      } else {
+        biayaSurvey = 0
       }
 
       const calculatedGrandTotal = totalOrderAmount + biayaSurvey
-
       return calculatedGrandTotal
     }, 0)
   }
@@ -606,8 +675,8 @@ const NewOrderHO: FC = () => {
     setGrandTotal(calculatedGrandTotal)
   }, [orderDetailValues, total, paymentType, serviceType])
 
-  // Order Validation
-  const NewOrderValidation = () => {
+  // Update Order Validation
+  const UpdatePreOrderValidation = () => {
     let valid = true
 
     if (!storeId) {
@@ -687,13 +756,6 @@ const NewOrderHO: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!image) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill upload receipt form',
-        icon: 'error',
-      })
-      valid = false
     }
 
     orderDetailValues.map((item) => {
@@ -716,17 +778,16 @@ const NewOrderHO: FC = () => {
     return valid
   }
 
-  // Submit New Order
+  // Submit Update Pre Order
 
-  const handleSubmitNewOrder = async () => {
-    if (NewOrderValidation()) {
+  const handleSubmitUpdateOrder = async () => {
+    if (UpdatePreOrderValidation()) {
       const formData = new FormData()
 
       formData.append('receipt_file', receiptFile)
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
-      formData.append('vendor_id', vendorId.toString())
-      formData.append('project_status_id', projectStatusId.toString())
+      formData.append('vendor_id', vendorId)
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
@@ -736,6 +797,7 @@ const NewOrderHO: FC = () => {
       formData.append('payment_type', paymentType)
 
       orderDetailValues.forEach((order, index) => {
+        formData.append(`order_details[${index}][id]`, String(order.id))
         formData.append(`order_details[${index}][item_id]`, String(order.item_id))
         formData.append(`order_details[${index}][order_status_id]`, String(order.order_status_id))
         formData.append(`order_details[${index}][unit]`, order.unit)
@@ -748,7 +810,7 @@ const NewOrderHO: FC = () => {
       })
 
       const response = await axios
-        .post(`${apiUrl}/orders`, formData, {
+        .post(`${apiUrl}/orders/${params.id}`, formData, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -757,14 +819,12 @@ const NewOrderHO: FC = () => {
           },
         })
         .then((response) => {
-          if (response.data.status === 201) {
+          if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: response.data.message,
+              text: 'Success Update Order',
               icon: 'success',
             })
-
-            navigate('/order/view-order')
           } else {
             Swal.fire({
               title: 'Error',
@@ -772,6 +832,8 @@ const NewOrderHO: FC = () => {
               icon: 'error',
             })
           }
+
+          navigate('/order/view-order')
         })
         .catch((error) => {
           console.error(error)
@@ -786,7 +848,7 @@ const NewOrderHO: FC = () => {
   }
 
   return (
-    <section id='new-order'>
+    <section id='update-order'>
       <div className='card mb-5'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -806,8 +868,11 @@ const NewOrderHO: FC = () => {
                         placeholder='Pilih Toko'
                         isSearchable={true}
                         options={store}
-                        defaultValue={store.find((storeItem) => storeItem.value) || null}
-                        onChange={(e) => handleChangeSelectStore(e)}
+                        value={{
+                          value: storeId,
+                          label: storeName,
+                        }}
+                        onChange={(element) => handleChangeSelectStore(element)}
                       />
                     </Col>
                   </Form.Group>
@@ -821,46 +886,49 @@ const NewOrderHO: FC = () => {
                       <Form.Check
                         inline
                         label='Gratis'
-                        id='GRATIS'
+                        id='gratis'
                         name='paymentType'
                         type='radio'
-                        value='GRATIS'
-                        checked={paymentType === 'GRATIS'}
+                        value='gratis'
+                        checked={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
                       <Form.Check
                         inline
                         label='Survey'
+                        id='survey'
                         name='serviceType'
                         type='radio'
-                        value='SURVEY'
-                        id='SURVEY'
-                        checked={serviceType === 'SURVEY'}
-                        disabled={paymentType === 'GRATIS'}
-                        onChange={handleServiceOptionChange}
-                      />
-
-                      <Form.Check
-                        inline
-                        label='Berbayar'
-                        name='paymentType'
-                        type='radio'
-                        value='BERBAYAR'
-                        checked={paymentType === 'BERBAYAR'}
+                        value='survey'
+                        checked={paymentType === 'survey'}
                         onChange={handlePaymentOptionChange}
                       />
 
                       <Form.Check
                         inline
+                        label='Berbayar'
+                        id='berbayar'
+                        name='paymentType'
+                        type='radio'
+                        value='berbayar'
+                        checked={
+                          paymentType === 'survey' || paymentType === 'pemasangan_tanpa_survey'
+                        }
+                        onChange={handleServiceOptionChange}
+                      />
+
+                      <Form.Check
+                        inline
                         label='Pemasangan Tanpa Survey'
+                        id='pemasangan_tanpa_survey'
                         name='serviceType'
                         type='radio'
-                        value='PEMASANGAN TANPA SURVEY'
-                        id='PEMASANGAN TANPA SURVEY'
-                        checked={serviceType === 'PEMASANGAN TANPA SURVEY'}
-                        disabled={paymentType === 'GRATIS'}
-                        onChange={handleServiceOptionChange}
+                        value='pemasangan_tanpa_survey'
+                        checked={
+                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                        }
+                        onChange={handlePaymentOptionChange}
                       />
                     </div>
                   </div>
@@ -873,7 +941,7 @@ const NewOrderHO: FC = () => {
                     <Form.Label>No Member</Form.Label>
                     <Form.Control
                       type='number'
-                      value={memberId}
+                      value={memberId || orderDetail?.members?.id || ''}
                       onChange={(element) => handleChangeMemberId(element)}
                     />
                   </Form.Group>
@@ -892,7 +960,7 @@ const NewOrderHO: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        value={memberPhoneNumber}
+                        value={memberPhoneNumber || orderDetail?.members?.whatsapp_number || ''}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />
                     </InputGroup>
@@ -912,6 +980,13 @@ const NewOrderHO: FC = () => {
                       placeholder='Pilih/Ketik Nama Member'
                       isSearchable={true}
                       options={member}
+                      value={{
+                        value: memberId,
+                        label: memberName,
+                        email: memberEmail,
+                        whatsapp_number: memberPhoneNumber,
+                        address_1: memberAddress,
+                      }}
                       onChange={(element) => handleChangeSelectMember(element)}
                     />
                   </Form.Group>
@@ -922,7 +997,7 @@ const NewOrderHO: FC = () => {
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                       type='text'
-                      value={memberEmail || ''}
+                      value={memberEmail || orderDetail?.members?.email || ''}
                       onChange={(element) => handleChangeMemberEmailAddress(element)}
                     />
                   </Form.Group>
@@ -936,7 +1011,7 @@ const NewOrderHO: FC = () => {
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
-                      value={memberAddress || ''}
+                      value={memberAddress || orderDetail?.members?.address_1 || ''}
                       onChange={(element) => handleChangeMemberAddress(element)}
                     />
                   </Form.Group>
@@ -981,7 +1056,7 @@ const NewOrderHO: FC = () => {
                     <Col sm='8'>
                       <Form.Control
                         type='text'
-                        value={salesId}
+                        value={salesId || orderDetail?.sales?.id || ''}
                         onChange={(element) => handleChangeSalesId(element)}
                       />
                     </Col>
@@ -1001,6 +1076,10 @@ const NewOrderHO: FC = () => {
                         placeholder='Pilih/Ketik Nama Sales'
                         isSearchable={true}
                         options={sales}
+                        value={{
+                          value: salesId,
+                          label: salesName,
+                        }}
                         onChange={(element) => handleChangeSelectSales(element)}
                       />
                     </Col>
@@ -1008,13 +1087,13 @@ const NewOrderHO: FC = () => {
 
                   <Form.Group as={Row} className='mb-5'>
                     <Form.Label column sm='4'>
-                      No Receipt :
+                      No Receipt
                     </Form.Label>
-
                     <Col sm='8'>
                       <Form.Control
                         name='no-receipt'
                         type='number'
+                        value={receiptNumber}
                         onChange={handleChangeNoReceipt}
                       />
                     </Col>
@@ -1037,6 +1116,10 @@ const NewOrderHO: FC = () => {
                   placeholder='Pilih/Ketik Nama Vendor'
                   isSearchable={true}
                   options={vendor}
+                  value={{
+                    value: vendorId,
+                    label: vendorName,
+                  }}
                   onChange={(element) => handleChangeSelectVendor(element)}
                 />
               </Form.Group>
@@ -1056,7 +1139,8 @@ const NewOrderHO: FC = () => {
 
             <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
               <h1 className='fs-3 fw-bold'>
-                ORDER STATUS : <span className='fw-bold text-success'>BOOKED</span>
+                ORDER STATUS : {''}
+                <span className='fw-bold text-success'>{orderDetail?.status.description}</span>
               </h1>
             </Col>
 
@@ -1087,7 +1171,7 @@ const NewOrderHO: FC = () => {
               </thead>
               <tbody>
                 {orderDetailValues.map((element, index) => (
-                  <tr key={element.index_id}>
+                  <tr key={element.id}>
                     <td>
                       <Button variant='danger' onClick={() => handleRemoveForm(index)}>
                         Remove
@@ -1096,7 +1180,6 @@ const NewOrderHO: FC = () => {
 
                     <td>
                       <Form.Control
-                        id={`item-id-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.item_id || ''}
@@ -1105,19 +1188,23 @@ const NewOrderHO: FC = () => {
 
                     <td>
                       <Select
-                        id={`item-name-${index}`}
+                        name={`item-${index}`}
+                        id={`item${index}`}
                         className='form-control p-0 form-item-name'
                         classNamePrefix='select'
                         placeholder='Pilih/Ketik Nama Item'
                         isSearchable={true}
                         options={item}
+                        value={{
+                          value: orderDetailValues[index]?.item_id,
+                          label: orderDetailValues[index]?.unit,
+                        }}
                         onChange={(element) => handleChangeSelectItem(index, element)}
                       />
                     </td>
 
                     <td>
                       <Form.Control
-                        id={`category-name-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.category_name || ''}
@@ -1126,7 +1213,6 @@ const NewOrderHO: FC = () => {
 
                     <td>
                       <Form.Control
-                        id={`quantity-${index}`}
                         value={element.quantity}
                         onChange={(e) => handleQuantityChange(index, e.target.value)}
                       />
@@ -1134,7 +1220,6 @@ const NewOrderHO: FC = () => {
 
                     <td>
                       <Form.Control
-                        id={`unit-price-${index}`}
                         readOnly
                         plaintext
                         value={`Rp. ${
@@ -1159,14 +1244,9 @@ const NewOrderHO: FC = () => {
                   </td>
                   <td className=' fw-bolder'>
                     {(() => {
-                      if (paymentType === 'GRATIS' && serviceType === 'PEMASANGAN TANPA SURVEY') {
+                      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
                         return `Rp. 0`
-                      } else if (
-                        paymentType === 'BERBAYAR' &&
-                        serviceType === 'PEMASANGAN TANPA SURVEY'
-                      ) {
-                        return `Rp. 0`
-                      } else if (paymentType === 'BERBAYAR' && serviceType === 'SURVEY') {
+                      } else if (paymentType === 'survey') {
                         return `Rp. 99.000`
                       } else {
                         return `Rp. 0`
@@ -1179,7 +1259,13 @@ const NewOrderHO: FC = () => {
                   <td colSpan={6} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
+                  <td className=' fw-bolder'>
+                    {`Rp. ${
+                      grandTotal
+                        ? grandTotal.toLocaleString('id')
+                        : parseInt(orderDetail?.grand_total).toLocaleString('id')
+                    }`}
+                  </td>
                 </tr>
               </tbody>
             </Table>
@@ -1229,8 +1315,10 @@ const NewOrderHO: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
-              Submit Order & Email
+            <Button variant='warning'>Reprint Order</Button>
+
+            <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
+              Update Order & Print
             </Button>
           </div>
         </div>
@@ -1239,4 +1327,4 @@ const NewOrderHO: FC = () => {
   )
 }
 
-export {NewOrderHO}
+export {UpdateOrderHO}

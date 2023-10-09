@@ -119,14 +119,27 @@ export * from './admin-ho/order/dashboard_order/DashboardOrder'
 // View Order
 export * from './admin-ho/order/view_order/ViewOrder'
 
-// New Order Order
-export * from './admin-ho/order/new_order/NewOrder'
+// Update Order
+export * from './admin-ho/order/update_order/UpdateOrder'
 
 // Detail Order
 export * from './admin-ho/order/detail_order/DetailOrder'
 
 // Report Order
 export * from './admin-ho/order/report_order/ReportOrder'
+
+// COMPLAINT
+// View Complaint
+export * from './admin-ho/complaint/view_complaint/ViewComplaint'
+
+// New Complaint
+export * from './admin-ho/complaint/new_complaint/NewComplaint'
+
+// Update Complaint
+export * from './admin-ho/complaint/update_complaint/UpdateComplaint'
+
+// Detail Complaint
+export * from './admin-ho/complaint/detail_complaint/DetailComplaint'
 
 // CLAIM WARRANTY
 // List Claim Warranty
