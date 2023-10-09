@@ -11,7 +11,7 @@ const TableList: React.FC<Props> = ({className}) => {
     <div className={`card ${className}`}>
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
-          <h1 className='fs-1 text-black mb-3'>Complaint LIST</h1>
+          <h1 className='fs-1 text-black mb-3'>List Pengaduan</h1>
 
           <Table hover className='mb-3'>
             <thead>

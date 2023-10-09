@@ -504,7 +504,7 @@ const UpdateComplaintHO: FC = () => {
                       name='store_id'
                       className='form-control p-0'
                       classNamePrefix='select'
-                      placeholder='Pilih Toko'
+                      placeholder='Pilih Status'
                       isSearchable={true}
                       //   options={complaint}
                     />
