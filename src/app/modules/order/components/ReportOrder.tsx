@@ -12,7 +12,7 @@ const ReportOrder: FC = () => {
         <>
           <ReportOrderStore />
         </>
-      ) : userRole == 'HO Admin' ? (
+      ) : userRole == 'Admin HO' ? (
         <>
           <ReportOrderHO />
         </>

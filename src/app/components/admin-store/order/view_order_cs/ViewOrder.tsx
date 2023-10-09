@@ -139,7 +139,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       const apiUrl = process.env.REACT_APP_API_URL
 
       const response = await axios.get(
-        `{apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=2`,
+        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=2`,
         {
           headers: {
             Accept: 'application/json',

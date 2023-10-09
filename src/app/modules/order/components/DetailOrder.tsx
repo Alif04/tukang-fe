@@ -12,7 +12,7 @@ const DetailOrder: FC = () => {
         <>
           <DetailOrderStore />
         </>
-      ) : userRole == 'HO Admin' ? (
+      ) : userRole == 'Admin HO' ? (
         <>
           <DetailOrderHO />
         </>

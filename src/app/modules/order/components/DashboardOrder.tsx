@@ -12,7 +12,7 @@ const DashboardOrder: FC = () => {
         <>
           <DashboardOrderStore />
         </>
-      ) : userRole == 'HO Admin' ? (
+      ) : userRole == 'Admin HO' ? (
         <>
           <DashboardOrderHO />
         </>

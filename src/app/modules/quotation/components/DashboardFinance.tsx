@@ -8,7 +8,7 @@ const DashboardFinance: FC = () => {
 
   return (
     <>
-      {userRole == 'HO Admin' ? (
+      {userRole == 'Admin HO' ? (
         <>
           <DashboardFinanceHO />
         </>

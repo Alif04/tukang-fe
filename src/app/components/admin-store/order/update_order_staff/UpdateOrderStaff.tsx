@@ -797,6 +797,7 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='gratis'
+                        checked={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -807,6 +808,7 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='serviceType'
                         type='radio'
                         value='survey'
+                        checked={paymentType === 'survey'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -817,6 +819,9 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='berbayar'
+                        checked={
+                          paymentType === 'survey' || paymentType === 'pemasangan_tanpa_survey'
+                        }
                         onChange={handleServiceOptionChange}
                       />
 

@@ -39,7 +39,7 @@ const OrderPage: React.FC = () => {
                   INSTALASI & SERVICE MITRA10 DASHBOARD
                 </PageTitle>
               </>
-            ) : userRole == 'HO Admin' ? (
+            ) : userRole == 'Admin HO' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
               </>
@@ -59,7 +59,7 @@ const OrderPage: React.FC = () => {
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
               </>
-            ) : userRole == 'HO Admin' ? (
+            ) : userRole == 'Admin HO' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   LIST INSTALASI & SERVICE MITRA10

@@ -83,8 +83,6 @@ const UpdateOrderStoreCS: FC = () => {
   const [sales, setSales] = useState<Sales[]>([])
   const [salesName, setSalesName] = useState<string>('')
 
-  const [projectStatusId, setProjectStatusId] = useState<number>(1)
-
   const [paymentType, setPaymentType] = useState<string>('')
   const [serviceType, setServiceType] = useState<string>('')
 
@@ -128,6 +126,10 @@ const UpdateOrderStoreCS: FC = () => {
 
             if (data?.created_at) {
               setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
+            }
+
+            if (data?.receipt_number) {
+              setReceiptNumber(data.receipt_number)
             }
 
             if (
@@ -470,7 +472,7 @@ const UpdateOrderStoreCS: FC = () => {
     {
       id: '',
       item_id: '',
-      order_status_id: 1,
+      order_status_id: 3,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -489,7 +491,7 @@ const UpdateOrderStoreCS: FC = () => {
     const newForm = {
       id: '',
       item_id: '',
-      order_status_id: 1,
+      order_status_id: 3,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -722,6 +724,7 @@ const UpdateOrderStoreCS: FC = () => {
       orderDetailValues.forEach((order, index) => {
         formData.append(`order_details[${index}][id]`, String(order.id))
         formData.append(`order_details[${index}][item_id]`, String(order.item_id))
+        formData.append(`order_details[${index}][order_status_id]`, String(order.order_status_id))
         formData.append(`order_details[${index}][unit]`, order.unit)
         formData.append(`order_details[${index}][unit_price]`, String(order.unit_price))
         formData.append(`order_details[${index}][quote_price]`, String(order.quote_price))
@@ -741,7 +744,7 @@ const UpdateOrderStoreCS: FC = () => {
           },
         })
         .then((response) => {
-          if (response.data.status === 201) {
+          if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
               text: 'Success Update Order',
@@ -812,6 +815,7 @@ const UpdateOrderStoreCS: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='gratis'
+                        checked={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -822,6 +826,7 @@ const UpdateOrderStoreCS: FC = () => {
                         name='serviceType'
                         type='radio'
                         value='survey'
+                        checked={paymentType === 'survey'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -832,6 +837,9 @@ const UpdateOrderStoreCS: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='berbayar'
+                        checked={
+                          paymentType === 'survey' || paymentType === 'pemasangan_tanpa_survey'
+                        }
                         onChange={handleServiceOptionChange}
                       />
 
@@ -1010,7 +1018,12 @@ const UpdateOrderStoreCS: FC = () => {
             <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
               <Form.Group>
                 <Form.Label>No Receipt</Form.Label>
-                <Form.Control name='no-receipt' type='number' onChange={handleChangeNoReceipt} />
+                <Form.Control
+                  name='no-receipt'
+                  type='number'
+                  value={receiptNumber}
+                  onChange={handleChangeNoReceipt}
+                />
               </Form.Group>
             </Col>
 

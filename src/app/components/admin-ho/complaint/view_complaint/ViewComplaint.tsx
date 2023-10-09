@@ -17,7 +17,7 @@ type Props = {
   className: string
 }
 
-const ViewComplaintStore: React.FC<Props> = ({className}) => {
+const ViewComplaintHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -328,4 +328,4 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ViewComplaintStore}
+export {ViewComplaintHO}
