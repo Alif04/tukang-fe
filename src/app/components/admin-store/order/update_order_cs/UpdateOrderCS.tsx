@@ -83,8 +83,8 @@ const UpdateOrderStoreCS: FC = () => {
   const [sales, setSales] = useState<Sales[]>([])
   const [salesName, setSalesName] = useState<string>('')
 
+  const [type, setType] = useState<string>('')
   const [paymentType, setPaymentType] = useState<string>('')
-  const [serviceType, setServiceType] = useState<string>('')
 
   const [requestDate, setRequestDate] = useState<string>('')
   const [receiptFile, setReceiptFile] = useState<string>('No selected file')
@@ -334,9 +334,16 @@ const UpdateOrderStoreCS: FC = () => {
     setPaymentType(selectedOptionPayment)
   }
 
-  const handleServiceOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedOptionService = event.target.value
-    setServiceType(selectedOptionService)
+  const handleTypeOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedOptionType = event.target.value
+
+    if (selectedOptionType === 'gratis') {
+      setPaymentType('gratis')
+    } else if (selectedOptionType === 'berbayar') {
+      setPaymentType('survey')
+    }
+
+    setType(selectedOptionType)
   }
 
   // Upload File
@@ -562,7 +569,7 @@ const UpdateOrderStoreCS: FC = () => {
       const quantity = item.quantity || 1
       let hargaJasa = 0
 
-      if (paymentType === 'gratis') {
+      if (type === 'gratis') {
         hargaJasa = 0
       } else {
         hargaJasa = item.unit_price
@@ -580,7 +587,7 @@ const UpdateOrderStoreCS: FC = () => {
       const totalOrderAmount = total
       let biayaSurvey = 0
 
-      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      if (type === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
       } else if (paymentType === 'survey') {
         biayaSurvey = 99000
@@ -599,7 +606,7 @@ const UpdateOrderStoreCS: FC = () => {
 
     setTotal(calculatedTotal)
     setGrandTotal(calculatedGrandTotal)
-  }, [orderDetailValues, total, paymentType, serviceType])
+  }, [orderDetailValues, total, type, paymentType])
 
   // Update Order Validation
   const UpdatePreOrderValidation = () => {
@@ -613,6 +620,13 @@ const UpdateOrderStoreCS: FC = () => {
       })
       valid = false
     } else if (!paymentType) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select payment type',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!type) {
       Swal.fire({
         title: 'Error',
         text: 'Please select payment type',
@@ -812,21 +826,22 @@ const UpdateOrderStoreCS: FC = () => {
                         inline
                         label='Gratis'
                         id='gratis'
-                        name='paymentType'
+                        name='type'
                         type='radio'
                         value='gratis'
-                        checked={paymentType === 'gratis'}
-                        onChange={handlePaymentOptionChange}
+                        checked={type === 'gratis'}
+                        onChange={handleTypeOptionChange}
                       />
 
                       <Form.Check
                         inline
                         label='Survey'
                         id='survey'
-                        name='serviceType'
+                        name='paymentType'
                         type='radio'
                         value='survey'
                         checked={paymentType === 'survey'}
+                        disabled={type === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -834,25 +849,22 @@ const UpdateOrderStoreCS: FC = () => {
                         inline
                         label='Berbayar'
                         id='berbayar'
-                        name='paymentType'
+                        name='type'
                         type='radio'
                         value='berbayar'
-                        checked={
-                          paymentType === 'survey' || paymentType === 'pemasangan_tanpa_survey'
-                        }
-                        onChange={handleServiceOptionChange}
+                        checked={type === 'berbayar'}
+                        onChange={handleTypeOptionChange}
                       />
 
                       <Form.Check
                         inline
                         label='Pemasangan Tanpa Survey'
                         id='pemasangan_tanpa_survey'
-                        name='serviceType'
+                        name='paymentType'
                         type='radio'
                         value='pemasangan_tanpa_survey'
-                        checked={
-                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
-                        }
+                        checked={type === 'gratis' || paymentType === 'pemasangan_tanpa_survey'}
+                        disabled={type === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
                     </div>
