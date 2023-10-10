@@ -33,7 +33,7 @@ const OrderPage: React.FC = () => {
         path='dashboard-order'
         element={
           <>
-            {userRole == 'Store CS' ? (
+            {userRole == 'Store CS' || userRole === 'Store Staff' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   INSTALASI & SERVICE MITRA10 DASHBOARD
@@ -55,7 +55,7 @@ const OrderPage: React.FC = () => {
         path='view-order'
         element={
           <>
-            {userRole == 'Store CS' ? (
+            {userRole == 'Store CS' || userRole == 'Store Staff' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
               </>

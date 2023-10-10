@@ -35,7 +35,7 @@ const MasterLayout = () => {
         <div className='page d-flex flex-row flex-column-fluid'>
           <AsideDefault />
           <div className='wrapper d-flex flex-column flex-row-fluid' id='kt_wrapper'>
-            <HeaderWrapper />
+            <HeaderWrapper className='bg-primary' />
 
             <div
               id='kt_content'

@@ -26,15 +26,17 @@ const OrderPage: React.FC = () => {
           </>
         }
       />
+
       <Route
-        path='claim-warranty-form'
+        path='claim-warranty-form/:id'
         element={
           <>
-            <PageTitle breadcrumbs={warrantyBreadCrumbs}>FORMULIR CLAIM - 78453992 ALIA</PageTitle>
+            <PageTitle breadcrumbs={warrantyBreadCrumbs}>FORMULIR CLAIM</PageTitle>
             <ClaimWarrantyForm />
           </>
         }
       />
+
       <Route index element={<Navigate to='/warranty/claim-warranty-list' />} />
     </Routes>
   )

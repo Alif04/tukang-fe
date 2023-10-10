@@ -21,6 +21,7 @@ type Props = {
 const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
+  const [status, setStatus] = useState<Status[]>([])
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -40,6 +41,11 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     installer_name: string
     // payment_status: string
     order_status: string
+  }
+
+  interface Status {
+    value: any
+    category: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -193,6 +199,34 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     }
   }
 
+  const getStatus = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const response = await axios.get(`${apiUrl}/status`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStatus = response.data.data.map((item: any) => ({
+          value: item.id,
+          category: item.category,
+        }))
+
+        setStatus(tempStatus)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await ViewOrder()
@@ -200,6 +234,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     }
 
     fetchData()
+    getStatus()
   }, [dateFrom, dateTo, searchFilter])
 
   return (
