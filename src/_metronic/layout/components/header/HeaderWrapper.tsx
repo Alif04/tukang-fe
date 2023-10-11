@@ -7,14 +7,23 @@ import {useLayout} from '../../core'
 import {Header} from './Header'
 import {Topbar} from './Topbar'
 
-export function HeaderWrapper() {
+interface HeaderWrapperProps {
+  className?: string
+}
+
+export function HeaderWrapper({className}: HeaderWrapperProps) {
   const {config, classes, attributes} = useLayout()
   const {header, aside} = config
 
   return (
     <div
       id='kt_header'
-      className={clsx('header', classes.header.join(' '), 'align-items-stretch bg-primary')}
+      className={clsx(
+        'header',
+        classes.header.join(' '),
+        'align-items-stretch bg-primary',
+        className
+      )}
       {...attributes.headerMenu}
     >
       <div

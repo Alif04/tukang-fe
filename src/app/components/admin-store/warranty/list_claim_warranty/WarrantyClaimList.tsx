@@ -1,205 +1,203 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 
 import './WarrantyClaimList.css'
 
-import {DatePicker} from 'antd'
+import axios from 'axios'
+import {useNavigate} from 'react-router-dom'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTicket, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
 
-import {useNavigate} from 'react-router-dom'
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
 
 type Props = {
   className: string
 }
 
-interface DataType {
-  key: string
-  order_id: string
-  date_order: string
-  no_member: string
-  costumer_name: string
-  phone_number: string
-  installer_name: string
-  payment_status: string
-  tanggal_aktif_garansi: string
-}
-
-const {RangePicker} = DatePicker
-
-const DateRange = () => {
-  return <RangePicker className='date-range ms-3' />
-}
-
-const NewWarrantyClaimButton = () => {
+const WarrantyClaimList: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
-  const handleNewFormWarranty = () => {
-    navigate('/warranty/claim-warranty-form')
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
   }
 
-  return (
-    <a className='button-new-claim-garansi-form' onClick={handleNewFormWarranty}>
-      <FontAwesomeIcon icon={faTicket} size='sm' />
-    </a>
-  )
-}
+  interface DataType {
+    key: string
+    order_id: string
+    date_order: string
+    no_member: string
+    costumer_name: string
+    phone_number: string
+    installer_name: string
+    payment_status: string
+    tanggal_aktif_garansi: string
+  }
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 100,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Order Date',
-    dataIndex: 'date_order',
-    key: 'date_order',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'No Member',
-    dataIndex: 'no_member',
-    key: 'no_member',
-    align: 'left',
-    width: 120,
-  },
-  {
-    title: 'Costumer Name',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'No Telp / WA',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Nama Jasa Pemasangan',
-    dataIndex: 'installer_name',
-    key: 'installer_name',
-    align: 'left',
-    width: 180,
-  },
-  {
-    title: 'Status Pembayaran',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
-    align: 'left',
-    width: 150,
-  },
-  {
-    title: 'Tanggal Aktif Garansi',
-    dataIndex: 'tanggal_aktif_garansi',
-    key: 'tanggal_aktif_garansi',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper d-flex justify-content-center'>
-        <NewWarrantyClaimButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 70,
-  },
-]
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      width: 100,
+      className: 'col_order_id',
+    },
+    {
+      title: 'Order Date',
+      dataIndex: 'date_order',
+      key: 'date_order',
+      align: 'center',
+      width: 110,
+    },
+    {
+      title: 'No Member',
+      dataIndex: 'no_member',
+      key: 'no_member',
+      align: 'center',
+      width: 110,
+    },
+    {
+      title: 'Costumer Name',
+      dataIndex: 'costumer_name',
+      key: 'costumer_name',
+      align: 'left',
+      width: 140,
+    },
+    {
+      title: 'No Telp / WA',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
+      align: 'left',
+      width: 140,
+    },
+    // {
+    //   title: 'Nama Jasa Pemasangan',
+    //   dataIndex: 'installer_name',
+    //   key: 'installer_name',
+    //   align: 'left',
+    //   width: 180,
+    // },
+    {
+      title: 'Status Pembayaran',
+      dataIndex: 'payment_status',
+      key: 'payment_status',
+      align: 'left',
+      width: 150,
+    },
+    {
+      title: 'Tanggal Aktif Garansi',
+      dataIndex: 'tanggal_aktif_garansi',
+      key: 'tanggal_aktif_garansi',
+      align: 'left',
+      width: 140,
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (record) => {
+        const handleDetailId = () => {
+          const id = record.order_id
+          navigate(`/warranty/claim-warranty-form/${id}`)
+        }
 
-const data: DataType[] = [
-  {
-    key: '1',
-    order_id: '78453992',
-    date_order: '10/2/2023',
-    no_member: '8986747',
-    costumer_name: 'Alia',
-    phone_number: '08158374638',
-    installer_name: 'Patric',
-    payment_status: 'PAID',
-    tanggal_aktif_garansi: '08/08/2023',
-  },
-  {
-    key: '2',
-    order_id: '78453993',
-    date_order: '13/2/2023',
-    no_member: '8986748',
-    costumer_name: 'Abdulah',
-    phone_number: '08158376565',
-    installer_name: 'Artur',
-    payment_status: 'PAID',
-    tanggal_aktif_garansi: '08/08/2023',
-  },
-  {
-    key: '3',
-    order_id: '78453994',
-    date_order: '14/2/2023',
-    no_member: '8986710',
-    costumer_name: 'Alice',
-    phone_number: '08158300987',
-    installer_name: 'John',
-    payment_status: 'PAID',
-    tanggal_aktif_garansi: '08/08/2023',
-  },
-  {
-    key: '4',
-    order_id: '78453995',
-    date_order: '15/2/2023',
-    no_member: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Patric',
-    payment_status: 'PAID',
-    tanggal_aktif_garansi: '08/08/2023',
-  },
-  {
-    key: '5',
-    order_id: '78453996',
-    date_order: '10/3/2023',
-    no_member: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    payment_status: 'PAID',
-    tanggal_aktif_garansi: '08/08/2023',
-  },
-  {
-    key: '6',
-    order_id: '78453997',
-    date_order: '12/3/2023',
-    no_member: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    payment_status: 'PAID',
-    tanggal_aktif_garansi: '08/08/2023',
-  },
-  {
-    key: '7',
-    order_id: '78453998',
-    date_order: '15/2/2023',
-    no_member: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    payment_status: 'PAID',
-    tanggal_aktif_garansi: '08/08/2023',
-  },
-]
+        return (
+          <div className='button-wrapper'>
+            <a className='button-new-claim-garansi-form' onClick={handleDetailId}>
+              <FontAwesomeIcon icon={faTicket} size='sm' />
+            </a>
+          </div>
+        )
+      },
+      fixed: 'right',
+      width: 50,
+    },
+  ]
 
-const WarrantyClaimList: React.FC<Props> = ({className}) => {
+  const [claimWarrantyData, setclaimWarrantyData] = useState<DataType[]>([])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  const fetchOrderList = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const response = await axios.get(
+        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=2`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+      return response.data.data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewOrder = async () => {
+    try {
+      const apiData = await fetchOrderList()
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const claimWarrantyData = apiData.map((item: any) => {
+        let data
+        const orderDate = new Date(item.created_at)
+
+        let phoneNumber =
+          item.members.phone_number !== 'null'
+            ? item.members.phone_number
+            : item.members.whatsapp_number
+
+        data = {
+          order_id: item.id,
+          date_order: formatDate(orderDate),
+          no_member: item.members.id,
+          costumer_name: item.members.full_name,
+          phone_number: phoneNumber,
+          order_status: item.status.description,
+        }
+
+        return data
+      })
+
+      return claimWarrantyData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await ViewOrder()
+      setclaimWarrantyData(data)
+    }
+
+    fetchData()
+  }, [dateFrom, dateTo, searchFilter])
+
   return (
     <section id='warranty-claim-list'>
       <div className={`card ${className}`}>
@@ -210,8 +208,21 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
                 <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
+              <RangePicker
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-              <DateRange />
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />{' '}
             </Col>
 
             <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
@@ -221,7 +232,11 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
                     <FontAwesomeIcon icon={faSearch} size='sm' />
                   </InputGroup.Text>
 
-                  <Form.Control placeholder='Filter' className='filter-ltr' />
+                  <Form.Control
+                    placeholder='Filter'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
                 </InputGroup>
               </div>
             </Col>
@@ -231,7 +246,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={data}
+            dataSource={claimWarrantyData}
             rowKey={(record) => record.key}
             scroll={{x: 1500}}
             pagination={{position: ['bottomCenter']}}

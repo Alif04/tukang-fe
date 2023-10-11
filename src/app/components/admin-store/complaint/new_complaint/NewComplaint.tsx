@@ -281,6 +281,10 @@ const NewComplaintStore: FC = () => {
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name || ''}</span>
                 </Form.Label>
+                <br></br>
+                <Form.Label className='fs-4 fw-bold'>
+                  Complaint ID :<span className='fs-4 ms-2 fw-normal'></span>
+                </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>

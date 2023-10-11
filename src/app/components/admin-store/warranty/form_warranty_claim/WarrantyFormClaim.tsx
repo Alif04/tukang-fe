@@ -1,9 +1,157 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 
 import './WarrantyFormClaim.css'
+
+import axios from 'axios'
+import {useNavigate, useParams} from 'react-router-dom'
+import Swal from 'sweetalert2'
 import {Form, Row, Col, Table, Button} from 'react-bootstrap'
 
 const WarrantyFormClaim = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+  const navigate = useNavigate()
+
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  const getOrderDetail = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getOrderDetail()
+  }, [])
+
+  const phoneNumber =
+    orderDetail?.members.phone_number !== null
+      ? orderDetail?.members.phone_number
+      : orderDetail?.members.whatsapp_number
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  // Add Claim Warranty
+  const [warrantyClaimValues, setWarrantyClaimValues] = useState([
+    {
+      date_claim_warranty: '',
+      description: '',
+    },
+  ])
+
+  const [date, setDate] = useState<any>()
+  const [desc, setDesc] = useState<any>()
+
+  const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValueWarrantyClaim = [...warrantyClaimValues]
+    const updatedValueDateClaim = event.target.value
+
+    const updatedDateClaim = {
+      ...newValueWarrantyClaim,
+      date_claim_warranty: updatedValueDateClaim,
+    }
+
+    setDate(updatedDateClaim)
+    setWarrantyClaimValues(updatedDateClaim)
+  }
+
+  const handleChangeDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValueWarrantyClaim = [...warrantyClaimValues]
+    const updatedValueDescription = event.target.value
+
+    const updatedDescription = {
+      ...newValueWarrantyClaim,
+      date_claim_warranty: updatedValueDescription,
+    }
+
+    setDesc(updatedDescription)
+    setWarrantyClaimValues(updatedDescription)
+  }
+
+  // Handle Submit Warranty
+  const ClaimWarrantyValidation = () => {
+    let valid = true
+
+    if (!date) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!desc) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill warranty claim description form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  // Handle Submit Claim Warranty
+  const handleSubmitWarrantyClaim = async () => {
+    if (ClaimWarrantyValidation()) {
+      const warrantyClaim = [...warrantyClaimValues]
+
+      const response = await axios
+        .post(`${apiUrl}/`, warrantyClaim, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Add Complaint',
+              icon: 'success',
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
+
+          navigate('/warranty/claim-warranty-list')
+        })
+        .catch((error) => {
+          console.error(error)
+
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
+    }
+  }
+
   return (
     <section id='warranty-form'>
       <div className='card mb-5'>
@@ -12,29 +160,40 @@ const WarrantyFormClaim = () => {
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko : <span className='fs-4 ms-2 fw-normal'>MITRA 10 - BSD</span>
+                  Nama Toko :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>77652739</span>
+                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Receipt Number : <span className='fs-4 ms-2 fw-normal'>898823469121</span>
+                  Receipt Number :
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order Status : <span className='fs-4 ms-2 fw-bold text-success'>PAID</span>
+                  Order Status :
+                  <span className='fs-4 ms-2 fw-bold text-success'>
+                    {orderDetail?.project_status_id === 1
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 2
+                      ? 'ON PROGRESS'
+                      : orderDetail?.project_status_id === 3
+                      ? 'ON PROGRESS'
+                      : ''}
+                  </span>
                 </Form.Label>
               </Col>
             </Row>
 
             <Row className='information-detail'>
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
                 <div className='fs-3 fw-bold'>Informasi Pembeli</div>
                 <Row>
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
@@ -43,7 +202,7 @@ const WarrantyFormClaim = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='876992300239' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
                       </Col>
                     </Form.Group>
 
@@ -52,7 +211,7 @@ const WarrantyFormClaim = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='Ryan Filbert' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
                       </Col>
                     </Form.Group>
 
@@ -66,7 +225,7 @@ const WarrantyFormClaim = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          defaultValue='Jl. Kijang no.9, Jakarta Timur DKI Jakarta, Indonesia'
+                          value={orderDetail?.project_address}
                         />
                       </Col>
                     </Form.Group>
@@ -78,7 +237,7 @@ const WarrantyFormClaim = () => {
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='08126768945' />
+                        <Form.Control plaintext readOnly value={phoneNumber} />
                       </Col>
                     </Form.Group>
 
@@ -87,14 +246,14 @@ const WarrantyFormClaim = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly defaultValue='ryan.filbert@gmail.com' />
+                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
                       </Col>
                     </Form.Group>
                   </Col>
                 </Row>
               </Col>
 
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
                 <Form.Group as={Row} className='detail-info'>
@@ -102,7 +261,7 @@ const WarrantyFormClaim = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='876123887787' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
                   </Col>
                 </Form.Group>
 
@@ -111,7 +270,7 @@ const WarrantyFormClaim = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly defaultValue='Wendy Silitonga' />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
                   </Col>
                 </Form.Group>
               </Col>
@@ -127,7 +286,12 @@ const WarrantyFormClaim = () => {
                   Tanggal request pemasangan :
                 </Form.Label>
                 <Col sm='9'>
-                  <Form.Control type='date' plaintext readOnly />
+                  <Form.Control
+                    type='text'
+                    plaintext
+                    readOnly
+                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                  />
                 </Col>
               </Form.Group>
             </div>
@@ -145,43 +309,44 @@ const WarrantyFormClaim = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>500.00</td>
-                  </tr>
-
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Total
-                    </td>
-                    <td className=' fw-bolder'>1.000.000</td>
-                  </tr>
+                  {orderDetail?.order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.item_id}</td>
+                        <td>{item?.unit}</td>
+                        <td>{item?.status?.description}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))}
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>
                       Biaya Survey
                     </td>
-                    <td className=' fw-bolder'>700.000</td>
+                    <td className=' fw-bolder'>
+                      {orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                        ? `                      Rp. ${0?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : orderDetail?.payment_type === 'survey'
+                        ? `                      Rp. ${99000?.toLocaleString(
+                            'id'
+                          )}                        `
+                        : `Rp. ${0}`}
+                    </td>
                   </tr>
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>
                       Grand Total
                     </td>
-                    <td className=' fw-bolder'>1.700.000</td>
+                    <td className=' fw-bolder'>
+                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
+                    </td>
                   </tr>
                 </tbody>
               </Table>
@@ -195,12 +360,12 @@ const WarrantyFormClaim = () => {
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
-              <Form.Control type='date' />
+              <Form.Control type='date' onChange={handleChangeDate} />
             </Col>
 
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
               <div className='fs-5 fw-normal'>Alasan Claim</div>
-              <Form.Control as='textarea' rows={3} defaultValue='...' />
+              <Form.Control as='textarea' onChange={handleChangeDescription} rows={3} />
             </Col>
           </Row>
 
