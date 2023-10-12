@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import {FC} from 'react'
+import {useState, useEffect, FC} from 'react'
 import {PageTitle} from '../../../_metronic/layout/core'
 
+import axios from 'axios'
 import {Row, Col, Card, Form} from 'react-bootstrap'
 
 // Dashboard Store
@@ -47,6 +48,11 @@ import {
   ChartDonutWorkTukang,
   ChartDonutQuotationTukang,
 } from '../../components'
+
+interface Status {
+  value: any
+  category: string
+}
 
 const DashboardStore: FC = () => (
   <>
@@ -311,9 +317,46 @@ const DashboardTukang: FC = () => (
 const DashboardWrapper: FC = () => {
   const userRole = localStorage.getItem('userRole')
 
+  const [status, setStatus] = useState<Status[]>([])
+
+  // Get Status
+  const getStatus = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const response = await axios.get(`${apiUrl}/status`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStatus = response.data.data.map((item: any) => ({
+          value: item.id,
+          category: item.category,
+        }))
+
+        setStatus(tempStatus)
+
+        sessionStorage.setItem('statusData', JSON.stringify(tempStatus))
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    getStatus()
+  }, [])
+
   return (
     <>
-      {userRole == 'Store CS' || 'Store Staff' ? (
+      {userRole == 'Store CS' || userRole == 'Store Staff' ? (
         <>
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />

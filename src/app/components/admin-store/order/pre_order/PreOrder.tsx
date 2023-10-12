@@ -392,7 +392,6 @@ const PreOrderStore: FC = () => {
     {
       index_id: 0,
       item_id: null,
-      // order_status_id: 1,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -413,7 +412,6 @@ const PreOrderStore: FC = () => {
     const newForm = {
       index_id: newId,
       item_id: null,
-      // order_status_id: 1,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -484,7 +482,7 @@ const PreOrderStore: FC = () => {
       const quantity = item.quantity || 1
       let hargaJasa = 0
 
-      if (type === 'gratis') {
+      if (paymentType === 'gratis') {
         hargaJasa = 0
       } else {
         hargaJasa = item.unit_price
@@ -503,7 +501,7 @@ const PreOrderStore: FC = () => {
 
       let biayaSurvey = 0
 
-      if (type === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
       } else if (paymentType === 'survey') {
         biayaSurvey = 99000
@@ -739,7 +737,7 @@ const PreOrderStore: FC = () => {
                         name='type'
                         type='radio'
                         value='gratis'
-                        checked={type === 'gratis'}
+                        checked={paymentType === 'gratis'}
                         onChange={handleTypeOptionChange}
                       />
 
@@ -751,7 +749,7 @@ const PreOrderStore: FC = () => {
                         type='radio'
                         value='survey'
                         checked={paymentType === 'survey'}
-                        disabled={type === 'gratis'}
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -773,12 +771,19 @@ const PreOrderStore: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='pemasangan_tanpa_survey'
-                        checked={type === 'gratis' || paymentType === 'pemasangan_tanpa_survey'}
-                        disabled={type === 'gratis'}
+                        checked={
+                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                        }
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
                     </div>
                   </div>
+
+                  <Form.Label className='fs-7 fw-normal'>
+                    <span className='text-danger fw-bold'>Note :</span>
+                    <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
+                  </Form.Label>
                 </Col>
               </Row>
 

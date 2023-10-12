@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react'
 import './ViewOrder.css'
 
 import axios from 'axios'
-import {Table} from 'antd'
+import {Table, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
@@ -21,7 +21,6 @@ type Props = {
 const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
-  const [status, setStatus] = useState<Status[]>([])
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -41,11 +40,6 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     installer_name: string
     // payment_status: string
     order_status: string
-  }
-
-  interface Status {
-    value: any
-    category: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -97,6 +91,38 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       title: 'Status Order',
       dataIndex: 'order_status',
       key: 'order_status',
+      render: (order_status) => {
+        const orderStatus = order_status
+        let color = ''
+
+        switch (orderStatus) {
+          case 'BOOK':
+            color = 'green'
+            break
+          case 'BOOKED':
+            color = 'lime'
+            break
+          case 'SURVEYREQ':
+            color = 'blue'
+            break
+          case 'SURVEYSTART':
+          case 'SURVEYDONE':
+          case 'QUOTE IN':
+          case 'QUOTE OUT':
+          case 'WORKREQ':
+          case 'WORKSTART':
+          case 'WIP':
+          case 'WORKEND':
+          case 'CISOUT':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
       align: 'left',
       width: 140,
     },
@@ -144,18 +170,30 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(
-        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=2`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-      return response.data.data
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+      const desiredStatusName = 'BOOK'
+      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+
+      if (desiredStatus) {
+        const statusId = desiredStatus.value
+
+        const response = await axios.get(
+          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=${statusId}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+        return response.data.data
+      } else {
+        console.error('Desired status not found in statusData')
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -186,7 +224,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
           no_member: item.members.id,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          order_status: item.status.description,
+          order_status: item.status.category,
         }
 
         return data
@@ -199,34 +237,6 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     }
   }
 
-  const getStatus = async () => {
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
-      const response = await axios.get(`${apiUrl}/status`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempStatus = response.data.data.map((item: any) => ({
-          value: item.id,
-          category: item.category,
-        }))
-
-        setStatus(tempStatus)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
   useEffect(() => {
     const fetchData = async () => {
       const data = await ViewOrder()
@@ -234,7 +244,6 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
     }
 
     fetchData()
-    getStatus()
   }, [dateFrom, dateTo, searchFilter])
 
   return (

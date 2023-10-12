@@ -86,6 +86,8 @@ const UpdateOrderStoreCS: FC = () => {
   const [type, setType] = useState<string>('')
   const [paymentType, setPaymentType] = useState<string>('')
 
+  const [projectStatusId, setProjectStatusId] = useState<number>(3)
+
   const [requestDate, setRequestDate] = useState<string>('')
   const [receiptFile, setReceiptFile] = useState<string>('No selected file')
   const [receiptNumber, setReceiptNumber] = useState<any>()
@@ -307,6 +309,18 @@ const UpdateOrderStoreCS: FC = () => {
     getItem()
   }, [])
 
+  // Order Status
+  // const orderStatus = () => {
+  //   const storedStatus = sessionStorage.getItem('statusData')
+  //   const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+  //   const desiredStatusName = 'BOOKED'
+  //   const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+  //   const statusId = desiredStatus.value
+
+  //   setProjectStatusId(statusId)
+  // }
+
   // Select Store
   const handleChangeSelectStore = (element: any) => {
     const updatedStoreId = element.value
@@ -492,9 +506,6 @@ const UpdateOrderStoreCS: FC = () => {
   ])
 
   let handleAddForm = () => {
-    // const newId =
-    //   orderDetailValues.length > 0 ? orderDetailValues[orderDetailValues.length - 1].id + 1 : 0
-
     const newForm = {
       id: '',
       item_id: '',
@@ -569,7 +580,7 @@ const UpdateOrderStoreCS: FC = () => {
       const quantity = item.quantity || 1
       let hargaJasa = 0
 
-      if (type === 'gratis') {
+      if (paymentType === 'gratis') {
         hargaJasa = 0
       } else {
         hargaJasa = item.unit_price
@@ -587,7 +598,7 @@ const UpdateOrderStoreCS: FC = () => {
       const totalOrderAmount = total
       let biayaSurvey = 0
 
-      if (type === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
       } else if (paymentType === 'survey') {
         biayaSurvey = 99000
@@ -609,7 +620,7 @@ const UpdateOrderStoreCS: FC = () => {
   }, [orderDetailValues, total, type, paymentType])
 
   // Update Order Validation
-  const UpdatePreOrderValidation = () => {
+  const UpdateOrderValidation = () => {
     let valid = true
 
     if (!storeId) {
@@ -718,15 +729,15 @@ const UpdateOrderStoreCS: FC = () => {
     return valid
   }
 
-  // Submit Update Pre Order
-
+  // Submit Update Order
   const handleSubmitUpdateOrder = async () => {
-    if (UpdatePreOrderValidation()) {
+    if (UpdateOrderValidation()) {
       const formData = new FormData()
 
       formData.append('receipt_file', receiptFile)
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
+      formData.append('project_status_id', projectStatusId.toString())
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
@@ -829,7 +840,7 @@ const UpdateOrderStoreCS: FC = () => {
                         name='type'
                         type='radio'
                         value='gratis'
-                        checked={type === 'gratis'}
+                        checked={paymentType === 'gratis'}
                         onChange={handleTypeOptionChange}
                       />
 
@@ -841,7 +852,7 @@ const UpdateOrderStoreCS: FC = () => {
                         type='radio'
                         value='survey'
                         checked={paymentType === 'survey'}
-                        disabled={type === 'gratis'}
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -852,7 +863,11 @@ const UpdateOrderStoreCS: FC = () => {
                         name='type'
                         type='radio'
                         value='berbayar'
-                        checked={type === 'berbayar'}
+                        checked={
+                          type === 'berbayar' ||
+                          paymentType === 'pemasangan_tanpa_survey' ||
+                          paymentType === 'survey'
+                        }
                         onChange={handleTypeOptionChange}
                       />
 
@@ -863,8 +878,10 @@ const UpdateOrderStoreCS: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='pemasangan_tanpa_survey'
-                        checked={type === 'gratis' || paymentType === 'pemasangan_tanpa_survey'}
-                        disabled={type === 'gratis'}
+                        checked={
+                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                        }
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
                     </div>

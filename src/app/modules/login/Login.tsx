@@ -14,7 +14,6 @@ export function Login() {
   const apiUrl = process.env.REACT_APP_API_URL
   console.log('API URL:', apiUrl)
 
-  const [loginData, setLoginData] = useState()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)

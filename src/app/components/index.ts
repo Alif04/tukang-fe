@@ -132,9 +132,6 @@ export * from './admin-ho/order/report_order/ReportOrder'
 // View Complaint
 export * from './admin-ho/complaint/view_complaint/ViewComplaint'
 
-// New Complaint
-export * from './admin-ho/complaint/new_complaint/NewComplaint'
-
 // Update Complaint
 export * from './admin-ho/complaint/update_complaint/UpdateComplaint'
 

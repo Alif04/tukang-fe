@@ -179,7 +179,7 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
       const apiUrl = process.env.REACT_APP_API_URL
 
       const response = await axios.get(
-        `${apiUrl}/complaints?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50`,
+        `${apiUrl}/complaints?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&limit=0`,
         {
           headers: {
             Accept: 'application/json',

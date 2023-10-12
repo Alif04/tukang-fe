@@ -83,8 +83,6 @@ const UpdateOrderStoreStaff: FC = () => {
   const [sales, setSales] = useState<Sales[]>([])
   const [salesName, setSalesName] = useState<string>('')
 
-  const [projectStatusId, setProjectStatusId] = useState<number>(1)
-
   const [type, setType] = useState<string>('')
   const [paymentType, setPaymentType] = useState<string>('')
 
@@ -560,7 +558,7 @@ const UpdateOrderStoreStaff: FC = () => {
       const quantity = item.quantity || 1
       let hargaJasa = 0
 
-      if (type === 'gratis') {
+      if (paymentType === 'gratis') {
         hargaJasa = 0
       } else {
         hargaJasa = item.unit_price
@@ -578,7 +576,7 @@ const UpdateOrderStoreStaff: FC = () => {
       const totalOrderAmount = total
       let biayaSurvey = 0
 
-      if (type === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
       } else if (paymentType === 'survey') {
         biayaSurvey = 99000
@@ -811,7 +809,7 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='type'
                         type='radio'
                         value='gratis'
-                        checked={type === 'gratis'}
+                        checked={paymentType === 'gratis'}
                         onChange={handleTypeOptionChange}
                       />
 
@@ -823,7 +821,7 @@ const UpdateOrderStoreStaff: FC = () => {
                         type='radio'
                         value='survey'
                         checked={paymentType === 'survey'}
-                        disabled={type === 'gratis'}
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -834,7 +832,11 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='type'
                         type='radio'
                         value='berbayar'
-                        checked={type === 'berbayar'}
+                        checked={
+                          type === 'berbayar' ||
+                          paymentType === 'pemasangan_tanpa_survey' ||
+                          paymentType === 'survey'
+                        }
                         onChange={handleTypeOptionChange}
                       />
 
@@ -845,8 +847,10 @@ const UpdateOrderStoreStaff: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='pemasangan_tanpa_survey'
-                        checked={type === 'gratis' || paymentType === 'pemasangan_tanpa_survey'}
-                        disabled={type === 'gratis'}
+                        checked={
+                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                        }
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
                     </div>

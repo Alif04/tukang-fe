@@ -11,6 +11,7 @@ export function AsideMenuMain() {
 
   const logoutHandler = () => {
     localStorage.clear()
+    sessionStorage.clear()
 
     Swal.fire({
       icon: 'success',
@@ -331,7 +332,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/complaint/new-complaint'
           title='Request Pengaduan'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Vendor Admin', 'Tukang']}
+          role={['Store CS', 'Store Staff']}
           hasBullet={true}
         />
         <AsideMenuItem
