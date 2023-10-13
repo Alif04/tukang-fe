@@ -12,6 +12,8 @@ const WarrantyFormClaim = () => {
   const params = useParams()
   const navigate = useNavigate()
 
+  // Order Detail
+  const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
 
   const getOrderDetail = async () => {
@@ -51,40 +53,18 @@ const WarrantyFormClaim = () => {
   }
 
   // Add Claim Warranty
-  const [warrantyClaimValues, setWarrantyClaimValues] = useState([
-    {
-      date_claim_warranty: '',
-      description: '',
-    },
-  ])
-
+  const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [date, setDate] = useState<any>()
   const [desc, setDesc] = useState<any>()
 
   const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValueWarrantyClaim = [...warrantyClaimValues]
     const updatedValueDateClaim = event.target.value
-
-    const updatedDateClaim = {
-      ...newValueWarrantyClaim,
-      date_claim_warranty: updatedValueDateClaim,
-    }
-
-    setDate(updatedDateClaim)
-    setWarrantyClaimValues(updatedDateClaim)
+    setDate(updatedValueDateClaim)
   }
 
   const handleChangeDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValueWarrantyClaim = [...warrantyClaimValues]
     const updatedValueDescription = event.target.value
-
-    const updatedDescription = {
-      ...newValueWarrantyClaim,
-      date_claim_warranty: updatedValueDescription,
-    }
-
-    setDesc(updatedDescription)
-    setWarrantyClaimValues(updatedDescription)
+    setDesc(updatedValueDescription)
   }
 
   // Handle Submit Warranty
@@ -112,10 +92,15 @@ const WarrantyFormClaim = () => {
   // Handle Submit Claim Warranty
   const handleSubmitWarrantyClaim = async () => {
     if (ClaimWarrantyValidation()) {
-      const warrantyClaim = [...warrantyClaimValues]
+      const formData = new FormData()
+
+      formData.append('order_id', orderId)
+      formData.append('description', desc)
+      formData.append('complaint_date', date)
+      formData.append('complaint_status', complaintStatus)
 
       const response = await axios
-        .post(`${apiUrl}/`, warrantyClaim, {
+        .post(`${apiUrl}/complaints`, formData, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -127,7 +112,7 @@ const WarrantyFormClaim = () => {
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Add Complaint',
+              text: 'Success Add Claim Warranty',
               icon: 'success',
             })
           } else {

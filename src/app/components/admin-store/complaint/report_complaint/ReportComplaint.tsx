@@ -1,5 +1,6 @@
 import React, {FC} from 'react'
 
+import {DateRange} from './components/DateRange'
 import {ChartBar} from './components/ChartBar'
 import {ChartLine} from './components/ChartLine'
 import {ChartLine2} from './components/ChartLine2'
@@ -13,6 +14,20 @@ const ReportComplaintStore: FC = () => {
   return (
     <>
       {/* begin::Row */}
+      <div className='row'>
+        <div className='col-xxl-4 col-xl-6 col-lg-12 mb-5'>
+          <div className='row'>
+            <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center '>
+              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
+            </div>
+
+            <div className='col-xxl-8 col-xl-8 col-lg-8'>
+              <DateRange className='date-range' />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
           <Card className='mb-5'>

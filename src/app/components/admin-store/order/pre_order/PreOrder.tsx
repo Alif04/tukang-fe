@@ -526,14 +526,7 @@ const PreOrderStore: FC = () => {
   const PreOrderValidation = () => {
     let valid = true
 
-    if (!storeId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select store',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!paymentType) {
+    if (!paymentType) {
       Swal.fire({
         title: 'Error',
         text: 'Please select payment type',
@@ -705,23 +698,13 @@ const PreOrderStore: FC = () => {
             <div className='form-costumer'>
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
+                  <Form.Group className='form-header'>
+                    <Form.Label>
                       Nama Toko
+                      <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                        MITRA 10 - BSD
+                      </span>
                     </Form.Label>
-
-                    <Col sm='8'>
-                      <Select
-                        name='store_id'
-                        className='form-control p-0'
-                        classNamePrefix='select'
-                        placeholder='Pilih Toko'
-                        isSearchable={true}
-                        options={store}
-                        defaultValue={store.find((storeItem) => storeItem.value) || null}
-                        onChange={(e) => handleChangeSelectStore(e)}
-                      />
-                    </Col>
                   </Form.Group>
                 </Col>
 
