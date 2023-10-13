@@ -4,13 +4,13 @@ import React, {useEffect, useState} from 'react'
 import './ViewComplaint.css'
 
 import axios from 'axios'
+import {Table, DatePicker, Tag} from 'antd'
 import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faFilter, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {Table, DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -34,7 +34,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     assign_from: string
     order_id: number
     date_order: string
-    no_member: string
+    no_member: number
     costumer_name: string
     phone_number: number
     // installer_name: string
@@ -52,6 +52,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'complaint_id',
       align: 'center',
       width: 130,
+      sorter: (a, b) => a.complaint_id - b.complaint_id,
     },
     {
       title: 'Assign From',
@@ -59,6 +60,8 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'assign_from',
       align: 'center',
       width: 120,
+      onFilter: (value, record) => record.assign_from.includes(String(value)),
+      sorter: (a, b) => a.assign_from.length - b.assign_from.length,
     },
     {
       title: 'Order ID',
@@ -66,6 +69,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'order_id',
       align: 'center',
       width: 120,
+      sorter: (a, b) => a.order_id - b.order_id,
     },
     {
       title: 'Order Date',
@@ -73,6 +77,8 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 130,
+      onFilter: (value, record) => record.date_order.includes(String(value)),
+      sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
       title: 'No Member',
@@ -80,18 +86,22 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'no_member',
       align: 'center',
       width: 130,
+      sorter: (a, b) => a.no_member - b.no_member,
     },
     {
       title: 'Customer Name',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       width: 150,
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
       title: 'No Telp / WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       width: 160,
+      sorter: (a, b) => a.phone_number - b.phone_number,
     },
     // {
     //   title: 'Installer Name',
@@ -100,9 +110,47 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     //   width: 180,
     // },
     {
-      title: 'Order Status',
+      title: 'Status Order',
       dataIndex: 'order_status',
       key: 'order_status',
+      render: (order_status) => {
+        const orderStatus = order_status
+        let color = ''
+
+        switch (orderStatus) {
+          case 'BOOK':
+            color = 'green'
+            break
+          case 'BOOKED':
+            color = 'lime'
+            break
+          case 'SURVEYREQ':
+            color = 'blue'
+            break
+          case 'SURVEYSTART':
+          case 'SURVEYDONE':
+          case 'QUOTE IN':
+          case 'QUOTE OUT':
+          case 'WORKREQ':
+          case 'WORKSTART':
+          case 'WIP':
+          case 'WORKEND':
+          case 'CISOUT':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
+      filters: [
+        {text: 'BOOK', value: 'BOOK'},
+        {text: 'BOOKED', value: 'BOOKED'},
+      ],
+      onFilter: (value, record) => record.order_status.includes(String(value)),
+      sorter: (a, b) => a.order_status.length - b.order_status.length,
       width: 180,
     },
     // {
@@ -118,6 +166,8 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'complaint_date',
       className: 'col-complaint-date',
       width: 150,
+      onFilter: (value, record) => record.complaint_date.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.complaint_date.length,
     },
     {
       title: 'Complaint Description',
@@ -125,6 +175,8 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'complaint_desc',
       className: 'col-complaint-date',
       width: 180,
+      onFilter: (value, record) => record.complaint_desc.includes(String(value)),
+      sorter: (a, b) => a.complaint_desc.length - b.complaint_desc.length,
     },
     {
       title: 'Complaint Status',
@@ -132,6 +184,30 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'complaint_status',
       className: 'col-complaint-status',
       width: 180,
+      render: (complaint_status) => {
+        const complaintStatus = complaint_status
+        let color = ''
+
+        switch (complaintStatus) {
+          case 'INVESTIGATED':
+            color = 'volcano'
+            break
+          case 'ACCEPTED':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{complaintStatus}</Tag>
+      },
+      filters: [
+        {text: 'INVESTIGATED', value: 'INVESTIGATED'},
+        {text: 'ACCEPTED', value: 'ACCEPTED'},
+      ],
+      onFilter: (value, record) => record.complaint_status.includes(String(value)),
+      sorter: (a, b) => a.complaint_status.length - b.complaint_status.length,
     },
     {
       title: 'Action',

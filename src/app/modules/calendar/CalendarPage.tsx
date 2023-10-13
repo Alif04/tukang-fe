@@ -22,7 +22,7 @@ const CalendarPage: React.FC = () => {
         path='view-calendar'
         element={
           <>
-            {userRole == 'Vendor Admin' ? (
+            {userRole == 'Admin Vendor' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>CALENDAR WORK</PageTitle>
               </>

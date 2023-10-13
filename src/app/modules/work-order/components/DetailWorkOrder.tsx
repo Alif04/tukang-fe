@@ -8,7 +8,7 @@ const DetailWorkOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'Vendor Admin' ? (
+      {userRole == 'Admin Vendor' ? (
         <>
           <DetailWorkVendor />
         </>

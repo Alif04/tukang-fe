@@ -45,6 +45,8 @@ export function Login() {
           localStorage.setItem('username', res.data.user.username)
           localStorage.setItem('userRole', res.data.user.roles.name)
           localStorage.setItem('accessToken', res.data.accessToken)
+          localStorage.setItem('storeId', res.data.user.employee.store.id)
+          localStorage.setItem('storeName', res.data.user.employee.store.store_name)
 
           Swal.fire({
             title: 'Login Success',

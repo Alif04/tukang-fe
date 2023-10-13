@@ -9,6 +9,11 @@ h6 {
   margin-bottom: 0 !important;
 }
 
+/* Color */
+.bg-danger-complaint {
+  background-color: #6e010f !important;
+}
+
 /* Body Content*/
 div#kt_content {
   background-color: white;

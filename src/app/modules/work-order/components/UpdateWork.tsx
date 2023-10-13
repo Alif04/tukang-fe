@@ -8,7 +8,7 @@ const UpdateWork: FC = () => {
 
   return (
     <>
-      {userRole == 'Vendor Admin' ? (
+      {userRole == 'Admin Vendor' ? (
         <>
           <UpdateWorkVendor />
         </>

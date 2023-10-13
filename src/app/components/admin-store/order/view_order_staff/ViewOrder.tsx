@@ -50,6 +50,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 90,
       className: 'col_order_id',
+      sorter: (a, b) => a.order_id - b.order_id,
     },
     {
       title: 'Assign From',
@@ -58,6 +59,8 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 150,
       className: 'col_order_id',
+      onFilter: (value, record) => record.assign_from.includes(String(value)),
+      sorter: (a, b) => a.assign_from.length - b.assign_from.length,
     },
     {
       title: 'Date Order',
@@ -65,6 +68,8 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 110,
+      onFilter: (value, record) => record.date_order.includes(String(value)),
+      sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
       title: 'No Member',
@@ -72,6 +77,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       key: 'no_member',
       align: 'center',
       width: 90,
+      sorter: (a, b) => a.no_member - b.no_member,
     },
     {
       title: 'Costumer Name',
@@ -79,6 +85,8 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       key: 'costumer_name',
       align: 'left',
       width: 140,
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
       title: 'No Telp / WA',
@@ -86,6 +94,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       key: 'phone_number',
       align: 'left',
       width: 140,
+      sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
       title: 'Status Order',
@@ -123,6 +132,12 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
+      filters: [
+        {text: 'BOOK', value: 'BOOK'},
+        {text: 'BOOKED', value: 'BOOKED'},
+      ],
+      onFilter: (value, record) => record.order_status.includes(String(value)),
+      sorter: (a, b) => a.order_status.length - b.order_status.length,
       align: 'left',
       width: 140,
     },

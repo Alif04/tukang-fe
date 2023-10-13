@@ -12,7 +12,7 @@ const DashboardFinance: FC = () => {
         <>
           <DashboardFinanceHO />
         </>
-      ) : userRole == 'Vendor Admin' ? (
+      ) : userRole == 'Admin Vendor' ? (
         <>
           <DashboardFinanceVendor />
         </>

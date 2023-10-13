@@ -35,7 +35,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         title='Home'
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Vendor Admin', 'Tukang']}
+        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
       />
 
       {/* Halaman Calendar */}
@@ -44,7 +44,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         title='Calendar'
         fontIcon='bi-app-indicator'
-        role={['Vendor Admin', 'Tukang']}
+        role={['Admin Vendor', 'Tukang']}
       />
 
       {/* Halaman Order */}
@@ -93,31 +93,31 @@ export function AsideMenuMain() {
         title='Work Order'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
-        role={['Vendor Admin', 'Tukang']}
+        role={['Admin Vendor', 'Tukang']}
       >
         <AsideMenuItem
           to='/work-order/view-work-order'
           title='View Work Order'
-          role={['Vendor Admin', 'Tukang']}
+          role={['Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/work-order/report-work-order'
           title='Report Work Order'
           hasBullet={true}
-          role={['Vendor Admin', 'Tukang']}
+          role={['Admin Vendor', 'Tukang']}
         />
         <AsideMenuItem
           to='/work-order/update-work-order'
           title='Update Work Order'
           hasBullet={true}
-          role={['Vendor Admin', 'Tukang']}
+          role={['Admin Vendor', 'Tukang']}
         />
         <AsideMenuItem
           to='/work-order/detail-work-order'
           title='Detail Work Order'
           hasBullet={true}
-          role={['Vendor Admin', 'Tukang']}
+          role={['Admin Vendor', 'Tukang']}
         />
       </AsideMenuItemWithSub>
 
@@ -127,30 +127,30 @@ export function AsideMenuMain() {
         title='Tukang'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
-        role={['Vendor Admin', 'Tukang']}
+        role={['Admin Vendor', 'Tukang']}
       >
         <AsideMenuItem
           to='/tukang/view-tukang'
           title='View Tukang'
-          role={['Vendor Admin']}
+          role={['Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/tukang/new-tukang'
           title='New Tukang'
-          role={['Vendor Admin']}
+          role={['Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/tukang/update-tukang'
           title='Update Tukang'
-          role={['Vendor Admin', 'Tukang']}
+          role={['Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/tukang/detail-tukang'
           title='Detail Tukang'
-          role={['Vendor Admin', 'Tukang']}
+          role={['Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -253,30 +253,30 @@ export function AsideMenuMain() {
         title='Quotation'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Vendor Admin']}
+        role={['Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItem
           to='/quotation/view-quotation'
           title='View Quotation'
-          role={['Admin HO', 'Vendor Admin']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/quotation/new-quotation'
           title='New Quotation'
-          role={['Admin HO', 'Vendor Admin']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/quotation/update-quotation'
           title='Update Quotation'
-          role={['Admin HO', 'Vendor Admin']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/quotation/detail-quotation'
           title='Detail Quotation'
-          role={['Admin HO', 'Vendor Admin']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -293,24 +293,24 @@ export function AsideMenuMain() {
         title='Invoice'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Vendor Admin']}
+        role={['Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItem
           to='/invoice/view-invoice'
           title='View Invoice'
-          role={['Admin HO', 'Vendor Admin']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/invoice/new-invoice'
           title='New Invoice'
-          role={['Vendor Admin', 'Admin HO']}
+          role={['Admin Vendor', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/invoice/detail-invoice'
           title='Detail Invoice'
-          role={['Vendor Admin', 'Admin HO']}
+          role={['Admin Vendor', 'Admin HO']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -319,14 +319,14 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/complaint'
         title='Pengaduan'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Vendor Admin', 'Tukang']}
+        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
       >
         <AsideMenuItem
           to='/complaint/report-complaint'
           title='Pengaduan Konsumen Dashboard'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Vendor Admin', 'Tukang']}
+          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -338,7 +338,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/complaint/view-complaint'
           title='List Pengaduan'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Vendor Admin', 'Tukang']}
+          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -426,13 +426,13 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/refund/view-refund'
           title='View Refund'
-          role={['Admin HO', 'Vendor Admin']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/refund/new-refund'
           title='New Refund'
-          role={['Admin HO', 'Vendor Admin']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -443,12 +443,12 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         title='Pengaturan'
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Vendor Admin', 'Tukang']}
+        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
       >
         <AsideMenuItem
           to='/setting/register-sales'
           title='Register Sales'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Vendor Admin', 'Tukang']}
+          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

@@ -9,6 +9,7 @@ import {Topbar} from './Topbar'
 
 interface HeaderWrapperProps {
   className?: string
+  style?: React.CSSProperties
 }
 
 export function HeaderWrapper({className}: HeaderWrapperProps) {
@@ -18,12 +19,7 @@ export function HeaderWrapper({className}: HeaderWrapperProps) {
   return (
     <div
       id='kt_header'
-      className={clsx(
-        'header',
-        classes.header.join(' '),
-        'align-items-stretch bg-primary',
-        className
-      )}
+      className={clsx('header', classes.header.join(' '), 'align-items-stretch', className)}
       {...attributes.headerMenu}
     >
       <div

@@ -58,6 +58,9 @@ export * from './admin-store/order/update_order_cs/UpdateOrderCS'
 // Detail Order
 export * from './admin-store/order/detail_order/DetailOrder'
 
+// Print Out Order
+export * from './admin-store/order/printout_order/PrintoutOrder'
+
 // Report Order
 export * from './admin-store/order/report_order/ReportOrder'
 

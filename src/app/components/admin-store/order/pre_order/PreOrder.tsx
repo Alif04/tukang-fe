@@ -58,6 +58,8 @@ const PreOrderStore: FC = () => {
   const userId = localStorage.getItem('user_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
+  const staffStoreId = localStorage.getItem('storeId') as any
+  const staffStoreName = localStorage.getItem('storeName') as string
 
   const [indexForm, setIndexForm] = useState<number>(0)
 
@@ -72,6 +74,7 @@ const PreOrderStore: FC = () => {
   const [member, setMember] = useState<Member[]>([])
   const [memberName, setMemberName] = useState<string>('')
   const [memberPhoneNumber, setMemberPhoneNumber] = useState<any>()
+  console.log(memberPhoneNumber)
   const [memberEmail, setMemberEmail] = useState<any>()
   const [memberAddress, setMemberAddress] = useState<any>()
 
@@ -98,7 +101,7 @@ const PreOrderStore: FC = () => {
   useEffect(() => {
     const getStore = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/store/get`, {
+        const response = await axios.get(`${apiUrl}/stores`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -229,11 +232,11 @@ const PreOrderStore: FC = () => {
     getItem()
   }, [])
 
-  // Select Store
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStore = element.value
+  // Store
+  useEffect(() => {
+    const updatedStore = staffStoreId.toString()
     setStoreId(updatedStore)
-  }
+  }, [staffStoreId])
 
   // Select Date Request
   const handleChangeRequestDate = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,7 +399,7 @@ const PreOrderStore: FC = () => {
       category_name: '',
       unit_price: 0,
       quote_price: 0,
-      quantity: 0,
+      quantity: 1,
       total: 0,
       survey_price: 0,
       comission: 0,
@@ -416,7 +419,7 @@ const PreOrderStore: FC = () => {
       category_name: '',
       unit_price: 0,
       quote_price: 0,
-      quantity: 0,
+      quantity: 1,
       total: 0,
       survey_price: 0,
       comission: 0,
@@ -702,7 +705,7 @@ const PreOrderStore: FC = () => {
                     <Form.Label>
                       Nama Toko
                       <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
-                        MITRA 10 - BSD
+                        {staffStoreName}
                       </span>
                     </Form.Label>
                   </Form.Group>
@@ -795,6 +798,7 @@ const PreOrderStore: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
+                        type='number'
                         value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />
