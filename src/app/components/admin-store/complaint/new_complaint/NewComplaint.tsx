@@ -26,6 +26,7 @@ const NewComplaintStore: FC = () => {
   const [orderDetail, setOrderDetail] = useState<any>()
   const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
   const [complaintChannelId, setComplaintChannelId] = useState<string>('')
+  const [complaintCode, setComplaintCode] = useState<string | number>('NaN')
 
   const getOrder = async () => {
     try {
@@ -99,9 +100,32 @@ const NewComplaintStore: FC = () => {
     }
   }
 
+  const getCode = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/complaints/next-code`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      console.log(response, response.status)
+
+      if (response.status === 200) {
+        const {data} = response
+        setComplaintCode(data.data.code)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getOrder()
     getComplaintChannel()
+    getCode()
   }, [])
 
   useEffect(() => {
@@ -283,7 +307,7 @@ const NewComplaintStore: FC = () => {
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
-                  Complaint ID :<span className='fs-4 ms-2 fw-normal'></span>
+                  Complaint ID :<span className='fs-4 ms-2 fw-normal'> {complaintCode} </span>
                 </Form.Label>
               </Col>
 
