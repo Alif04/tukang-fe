@@ -106,7 +106,7 @@ const OrderPage: React.FC = () => {
       />
 
       <Route
-        path='printout-order'
+        path='printout-order/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>PRINTOUT ORDER</PageTitle>
@@ -116,7 +116,7 @@ const OrderPage: React.FC = () => {
       />
 
       <Route
-        path='preview-email'
+        path='preview-email/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>PREVIEW EMAIL</PageTitle>

@@ -295,15 +295,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
             ? 'ACCEPTED'
             : ''
 
-        let orderStatus =
-          item.orders.project_status_id === 2
-            ? 'BOOK'
-            : item.orders.project_status_id === 3
-            ? 'BOOKED'
-            : item.orders.project_status_id === 4
-            ? 'SURVEY REQ'
-            : ''
-
         let phoneNumber =
           item.orders.members.phone_number !== 'null'
             ? item.orders.members.phone_number
@@ -318,7 +309,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           costumer_name: item.orders.members.full_name,
           phone_number: phoneNumber,
           // installer_name: item.orders.tukang.full_name,
-          order_status: orderStatus,
+          order_status: item.orders.status.category,
           // work_status: item,
           complaint_date: formatDate(complaintDate),
           complaint_desc: item.description,
@@ -395,7 +386,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={complaintData}
             rowKey={(record) => record.complaint_id}
-            scroll={{x: 1700}}
+            scroll={{x: 2000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

@@ -158,7 +158,13 @@ const NewComplaintStore: FC = () => {
   const [complaintDate, setComplaintDate] = useState<string>('')
   const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<FileList | []>()
-  const [image, setImage] = useState<string>('No selected file')
+  const [image, setImage] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
   // Handle Input Change
   const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,7 +186,11 @@ const NewComplaintStore: FC = () => {
 
     if (files && files[0]) {
       setComplaintEvidence(files)
-      setImage(files[0].name)
+
+      setImage({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
     }
   }
 
@@ -190,7 +200,10 @@ const NewComplaintStore: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setImage('No selected file')
+    setImage({
+      blob: '',
+      fileName: '',
+    })
     setComplaintEvidence([])
   }
 
@@ -255,7 +268,7 @@ const NewComplaintStore: FC = () => {
       formData.append('complaint_status', complaintStatus)
 
       if (complaintEvidence?.length) {
-        formData.append('complaint_evidences', complaintEvidence[0], image)
+        formData.append('complaint_evidences', complaintEvidence[0])
       }
 
       const response = await axios
@@ -566,8 +579,8 @@ const NewComplaintStore: FC = () => {
                     onChange={handleFileChange}
                   />
 
-                  {image ? (
-                    <img src={image} alt={image} className='image-preview' />
+                  {image.blob ? (
+                    <img src={image.blob} alt={image.fileName} className='image-preview' />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -579,7 +592,7 @@ const NewComplaintStore: FC = () => {
                 <div className='uploaded-row'>
                   <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{image}</span>
+                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
 
                   <FontAwesomeIcon
                     icon={faTrash}

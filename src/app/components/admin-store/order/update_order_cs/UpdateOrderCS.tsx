@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from 'react'
+import React, {ChangeEvent, FC, useEffect, useState} from 'react'
 import axios from 'axios'
 import {useNavigate, useParams} from 'react-router-dom'
 
@@ -23,6 +23,7 @@ interface Member {
   value: any
   label: string
   email: any
+  phone_number: any
   whatsapp_number: any
   address_1: any
 }
@@ -59,6 +60,8 @@ const UpdateOrderStoreCS: FC = () => {
   const userId = localStorage.getItem('user_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
+  const staffStoreId = localStorage.getItem('storeId') as any
+  const staffStoreName = localStorage.getItem('storeName') as string
 
   const [indexForm, setIndexForm] = useState<number>(0)
 
@@ -78,6 +81,8 @@ const UpdateOrderStoreCS: FC = () => {
   const [memberEmail, setMemberEmail] = useState<any>()
   const [memberAddress, setMemberAddress] = useState<any>()
 
+  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
+
   // Sales
   const [salesId, setSalesId] = useState<any>()
   const [sales, setSales] = useState<Sales[]>([])
@@ -89,9 +94,18 @@ const UpdateOrderStoreCS: FC = () => {
   const [projectStatusId, setProjectStatusId] = useState<number>(3)
 
   const [requestDate, setRequestDate] = useState<string>('')
-  const [receiptFile, setReceiptFile] = useState<string>('No selected file')
+
   const [receiptNumber, setReceiptNumber] = useState<any>()
-  const [image, setImage] = useState<string | null>(null)
+
+  const [receiptFile, setReceiptFile] = useState<FileList | []>()
+
+  const [image, setImage] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
   // Order Table
   const [item, setItem] = useState<ItemDescription[]>([])
@@ -130,6 +144,17 @@ const UpdateOrderStoreCS: FC = () => {
               setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
             }
 
+            if (data?.project_number) {
+              setMemberPhoneNumber(data.project_number)
+            }
+
+            if (data?.receipt_path) {
+              setImage({
+                blob: '',
+                fileName: data.receipt_path,
+              })
+            }
+
             if (data?.receipt_number) {
               setReceiptNumber(data.receipt_number)
             }
@@ -144,7 +169,6 @@ const UpdateOrderStoreCS: FC = () => {
               setMemberId(data.members.id)
               setMemberName(data.members.full_name)
               setMemberEmail(data.members.email)
-              setMemberPhoneNumber(data.members.whatsapp_number)
               setMemberAddress(data.members.address_1)
             }
 
@@ -176,35 +200,6 @@ const UpdateOrderStoreCS: FC = () => {
       }
     }
 
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/store/get`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            address: item.address,
-            city_id: item.city_id,
-            zip_code: item.zip_code,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     const getCostumer = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member/data`, {
@@ -220,6 +215,7 @@ const UpdateOrderStoreCS: FC = () => {
             value: item.id,
             label: item.full_name,
             email: item.email,
+            phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
@@ -303,7 +299,6 @@ const UpdateOrderStoreCS: FC = () => {
     }
 
     fetchOrderData()
-    getStore()
     getCostumer()
     getSales()
     getItem()
@@ -322,30 +317,29 @@ const UpdateOrderStoreCS: FC = () => {
   // }
 
   // Select Store
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    const updatedStoreName = element.label
-
-    setStoreId(updatedStoreId)
-    setStoreName(updatedStoreName)
-  }
+  useEffect(() => {
+    const updatedStore = staffStoreId.toString()
+    setStoreId(updatedStore)
+  }, [staffStoreId])
 
   // Select Date Requeet
+  const today = new Date().toISOString().split('T')[0]
+
   const handleChangeRequestDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedRequestDate = event.target.value
     setRequestDate(updatedRequestDate)
-  }
-
-  // Input No Receipt
-  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedNoReceipt = event.target.value
-    setReceiptNumber(updatedNoReceipt)
   }
 
   // Payment Type ( Radio Button )
   const handlePaymentOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedOptionPayment = event.target.value
     setPaymentType(selectedOptionPayment)
+  }
+
+  // Input No Receipt
+  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedNoReceipt = event.target.value
+    setReceiptNumber(updatedNoReceipt)
   }
 
   const handleTypeOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -363,9 +357,14 @@ const UpdateOrderStoreCS: FC = () => {
   // Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
+
     if (files && files[0]) {
-      setReceiptFile(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+      setReceiptFile(files)
+
+      setImage({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
     }
   }
 
@@ -375,8 +374,11 @@ const UpdateOrderStoreCS: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setReceiptFile('No selected file')
-    setImage(null)
+    setImage({
+      blob: '',
+      fileName: '',
+    })
+    setReceiptFile([])
   }
 
   // Member Information
@@ -399,6 +401,7 @@ const UpdateOrderStoreCS: FC = () => {
         value: element?.value || 0,
         label: element?.label || '',
         email: element?.email || '',
+        phone_number: element?.phone_number || '',
         whatsapp_number: element?.whatsapp_number || '',
         address_1: element?.address_1 || '',
       }
@@ -435,6 +438,16 @@ const UpdateOrderStoreCS: FC = () => {
   }
 
   // Change Select Member Phone Number
+  const handleChangeRadio = (element: ChangeEvent<HTMLInputElement>) => {
+    setIsWhatsapp(!isWhatsapp)
+
+    if (isWhatsapp) {
+      setMemberPhoneNumber(memberInfo?.whatsapp_number)
+    } else {
+      setMemberPhoneNumber(memberInfo?.phone_number)
+    }
+  }
+
   const handleChangeMemberPhoneNumber = (element: any) => {
     const newMemberPhoneNumber = element.target.value
     setMemberInfo((prevMemberInfo) => ({
@@ -498,7 +511,7 @@ const UpdateOrderStoreCS: FC = () => {
       category_name: '',
       unit_price: 0,
       quote_price: 0,
-      quantity: 0,
+      quantity: 1,
       total: 0,
       survey_price: 0,
       comission: 0,
@@ -514,7 +527,7 @@ const UpdateOrderStoreCS: FC = () => {
       category_name: '',
       unit_price: 0,
       quote_price: 0,
-      quantity: 0,
+      quantity: 1,
       total: 0,
       survey_price: 0,
       comission: 0,
@@ -544,17 +557,16 @@ const UpdateOrderStoreCS: FC = () => {
   const handleChangeSelectItem = (index: any, element: any) => {
     if (!element) return
 
-    const selectedItemId = element.value
-    const selectedCategoryName = element.category
-    const selectedUnitPrice = element.prices[0].price
+    const {label, value: selectedItemId, category: selectedCategoryName, prices} = element
 
     const newOrderDetailValues = [...orderDetailValues]
     newOrderDetailValues[index] = {
       ...newOrderDetailValues[index],
       item_id: selectedItemId,
-      unit: element.label,
+      unit: label,
       category_name: selectedCategoryName,
-      unit_price: selectedUnitPrice,
+      unit_price: prices[0].price,
+      total: prices[0].price,
     }
 
     setOrderDetailValues(newOrderDetailValues)
@@ -631,13 +643,6 @@ const UpdateOrderStoreCS: FC = () => {
       })
       valid = false
     } else if (!paymentType) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select payment type',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!type) {
       Swal.fire({
         title: 'Error',
         text: 'Please select payment type',
@@ -734,7 +739,11 @@ const UpdateOrderStoreCS: FC = () => {
     if (UpdateOrderValidation()) {
       const formData = new FormData()
 
-      formData.append('receipt_file', receiptFile)
+      if (receiptFile?.length) {
+        formData.append('receipt_file', receiptFile[0])
+        formData.append('receipt_name', receiptFile[0].name)
+      }
+
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
       formData.append('project_status_id', projectStatusId.toString())
@@ -805,26 +814,13 @@ const UpdateOrderStoreCS: FC = () => {
             <div className='form-costumer'>
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
-                      Nama Toko
+                  <Form.Group>
+                    <Form.Label>
+                      Nama Toko{' '}
+                      <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                        {staffStoreName}
+                      </span>
                     </Form.Label>
-
-                    <Col sm='8'>
-                      <Select
-                        name='store_id'
-                        className='form-control p-0'
-                        classNamePrefix='select'
-                        placeholder='Pilih Toko'
-                        isSearchable={true}
-                        options={store}
-                        value={{
-                          value: storeId,
-                          label: storeName,
-                        }}
-                        onChange={(element) => handleChangeSelectStore(element)}
-                      />
-                    </Col>
                   </Form.Group>
                 </Col>
 
@@ -895,7 +891,7 @@ const UpdateOrderStoreCS: FC = () => {
                     <Form.Label>No Member</Form.Label>
                     <Form.Control
                       type='number'
-                      value={memberId || orderDetail?.members?.id || ''}
+                      value={memberId}
                       onChange={(element) => handleChangeMemberId(element)}
                     />
                   </Form.Group>
@@ -907,14 +903,22 @@ const UpdateOrderStoreCS: FC = () => {
                       <Form.Label>WA / Phone Number</Form.Label>
 
                       <div className='form-check-request'>
-                        <Form.Check inline label='Bukan Whatsapp' name='group1' type='checkbox' />
+                        <Form.Check
+                          inline
+                          label='Bukan Whatsapp'
+                          name='group1'
+                          value='1'
+                          type='checkbox'
+                          onChange={handleChangeRadio}
+                        />
                       </div>
                     </div>
 
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        value={memberPhoneNumber || orderDetail?.members?.whatsapp_number || ''}
+                        type='number'
+                        value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />
                     </InputGroup>
@@ -938,6 +942,7 @@ const UpdateOrderStoreCS: FC = () => {
                         value: memberId,
                         label: memberName,
                         email: memberEmail,
+                        phone_number: memberPhoneNumber,
                         whatsapp_number: memberPhoneNumber,
                         address_1: memberAddress,
                       }}
@@ -951,7 +956,7 @@ const UpdateOrderStoreCS: FC = () => {
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                       type='text'
-                      value={memberEmail || orderDetail?.members?.email || ''}
+                      value={memberEmail}
                       onChange={(element) => handleChangeMemberEmailAddress(element)}
                     />
                   </Form.Group>
@@ -965,7 +970,7 @@ const UpdateOrderStoreCS: FC = () => {
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
-                      value={memberAddress || orderDetail?.members?.address_1 || ''}
+                      value={memberAddress}
                       onChange={(element) => handleChangeMemberAddress(element)}
                     />
                   </Form.Group>
@@ -1010,7 +1015,7 @@ const UpdateOrderStoreCS: FC = () => {
                     <Col sm='8'>
                       <Form.Control
                         type='text'
-                        value={salesId || orderDetail?.sales?.id || ''}
+                        value={salesId}
                         onChange={(element) => handleChangeSalesId(element)}
                       />
                     </Col>
@@ -1064,6 +1069,7 @@ const UpdateOrderStoreCS: FC = () => {
                   type='date'
                   value={requestDate}
                   onChange={handleChangeRequestDate}
+                  min={today}
                 />
               </Form.Group>
             </Col>
@@ -1216,7 +1222,11 @@ const UpdateOrderStoreCS: FC = () => {
                   />
 
                   {image ? (
-                    <img src={image} alt={receiptFile} className='image-preview' />
+                    <img
+                      src={image.blob ? image.blob : `${apiUrl}/public/receipt/${image.fileName}`}
+                      alt={image.fileName}
+                      className='image-preview'
+                    />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -1228,7 +1238,7 @@ const UpdateOrderStoreCS: FC = () => {
                 <div className='uploaded-row'>
                   <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{receiptFile}</span>
+                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
 
                   <FontAwesomeIcon
                     icon={faTrash}

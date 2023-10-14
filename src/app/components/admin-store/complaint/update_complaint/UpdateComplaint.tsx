@@ -45,6 +45,14 @@ const UpdateComplaintStore: FC = () => {
           const data = response.data.data
           setComplaintDetail(data)
 
+          if (data?.description) {
+            setComplaintDesc(data.description)
+          }
+
+          if (data?.complaint_date) {
+            setComplaintDate(new Date(data.complaint_date).toISOString().split('T')[0])
+          }
+
           if (data?.complaint_channels?.id && data?.complaint_channels?.name) {
             setComplaintChannelId(data.complaint_channels.id)
             setComplaintChannelName(data.complaint_channels.name)
@@ -148,6 +156,8 @@ const UpdateComplaintStore: FC = () => {
   }
 
   // Handle Complaint Date Change
+  const today = new Date().toISOString().split('T')[0]
+
   const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedComplaintDate = event.target.value
     setComplaintDate(updatedComplaintDate)
@@ -181,7 +191,6 @@ const UpdateComplaintStore: FC = () => {
       formData.append('description', complaintDesc)
       formData.append('complaint_channel', complaintChannelId)
       formData.append('complaint_date', complaintDate)
-      // formData.append('complaint_status', complaintStatus)
       formData.append('complaint_evidences', complaintEvidence)
 
       await axios.post(`${apiUrl}/complaints/${params.id}`, formData, {
@@ -412,12 +421,8 @@ const UpdateComplaintStore: FC = () => {
                 <Form.Label>Tanggal Komplain :</Form.Label>
                 <Form.Control
                   type='date'
-                  value={
-                    complaintDate ||
-                    (complaintDetail
-                      ? new Date(complaintDetail.complaint_date).toISOString().split('T')[0]
-                      : '')
-                  }
+                  min={today}
+                  value={complaintDate}
                   onChange={handleChangeComplaintDate}
                 />
               </Form.Group>
@@ -445,7 +450,7 @@ const UpdateComplaintStore: FC = () => {
               <Form.Control
                 style={{minHeight: '250px'}}
                 as='textarea'
-                value={complaintDesc || complaintDetail?.description || ''}
+                value={complaintDesc}
                 onChange={handleInputComplaintDesc}
               ></Form.Control>
             </Col>
