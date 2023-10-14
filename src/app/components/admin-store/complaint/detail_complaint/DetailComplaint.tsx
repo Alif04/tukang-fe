@@ -429,15 +429,11 @@ const DetailComplaintStore: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
               <ListGroup>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  342344.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  848735.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  Complaint.docx
-                </ListGroup.Item>
+                {complaintDetail?.complaint_evidence.map((item: any) => (
+                  <ListGroup.Item action onClick={() => setVisible(true)}>
+                    {item.evidence_location}
+                  </ListGroup.Item>
+                ))}
               </ListGroup>
             </Col>
           </Row>

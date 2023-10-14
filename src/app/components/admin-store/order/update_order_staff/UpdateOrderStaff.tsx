@@ -782,9 +782,11 @@ const UpdateOrderStoreStaff: FC = () => {
 
   const handleReprintOrder = async () => {
     const response = await axios
-      .post(`${apiUrl}/orders/count`, {
+      .request({
+        url: `${apiUrl}/orders/${params.id}/counter`,
+        method: 'post',
+        maxBodyLength: Infinity,
         headers: {
-          Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
@@ -805,7 +807,7 @@ const UpdateOrderStoreStaff: FC = () => {
           })
         }
 
-        navigate('/order/view-order')
+        navigate(`/order/printout-order/${params.id}`)
       })
       .catch((error) => {
         console.error(error)
@@ -1256,7 +1258,9 @@ const UpdateOrderStoreStaff: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='warning'>Reprint Order</Button>
+            <Button variant='warning' onClick={handleReprintOrder}>
+              Reprint Order
+            </Button>
 
             <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
               Update Order & Print

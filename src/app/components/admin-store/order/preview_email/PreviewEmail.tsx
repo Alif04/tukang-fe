@@ -92,6 +92,11 @@ const PreviewEmailOrder: FC = () => {
               <h3 className='fw-bolder'>
                 Costumer ID : <span className='fw-normal'>{orderDetail?.members.id}</span>
               </h3>
+
+              <h3 className='fw-bolder'>
+                Tipe Pembayaran :{' '}
+                <span className='fw-normal text-capitalize'>{orderDetail?.payment_type}</span>
+              </h3>
             </div>
           </div>
 

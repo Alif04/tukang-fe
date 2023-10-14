@@ -116,7 +116,7 @@ const PrintoutOrder: FC = () => {
                   Copy :
                 </Form.Label>
                 <Col sm='6'>
-                  <Form.Control plaintext readOnly defaultValue='0' />
+                  <Form.Control plaintext readOnly value={orderDetail?.print_counter} />
                 </Col>
               </Form.Group>
 
