@@ -691,8 +691,6 @@ const PreOrderStore: FC = () => {
               icon: 'error',
             })
           }
-
-          navigate('/order/view-order')
         })
         .catch((error) => {
           console.error(error)

@@ -206,6 +206,8 @@ const UpdateComplaintStore: FC = () => {
         title: 'Success',
         text: 'Success Update Complaint',
         icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
       })
 
       navigate('/complaint/view-complaint')

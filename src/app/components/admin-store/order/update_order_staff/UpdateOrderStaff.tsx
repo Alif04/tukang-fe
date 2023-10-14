@@ -753,6 +753,8 @@ const UpdateOrderStoreStaff: FC = () => {
               title: 'Success',
               text: 'Success Update Order',
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
             })
           } else {
             Swal.fire({

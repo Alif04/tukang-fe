@@ -286,6 +286,8 @@ const NewComplaintStore: FC = () => {
               title: 'Success',
               text: 'Success Add Complaint',
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
             })
           } else {
             Swal.fire({

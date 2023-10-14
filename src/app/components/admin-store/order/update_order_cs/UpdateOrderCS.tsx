@@ -91,7 +91,7 @@ const UpdateOrderStoreCS: FC = () => {
   const [type, setType] = useState<string>('')
   const [paymentType, setPaymentType] = useState<string>('')
 
-  const [projectStatusId, setProjectStatusId] = useState<number>(3)
+  const [projectStatusId, setProjectStatusId] = useState<any>()
 
   const [requestDate, setRequestDate] = useState<string>('')
 
@@ -305,16 +305,16 @@ const UpdateOrderStoreCS: FC = () => {
   }, [])
 
   // Order Status
-  // const orderStatus = () => {
-  //   const storedStatus = sessionStorage.getItem('statusData')
-  //   const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-  //   const desiredStatusName = 'BOOKED'
-  //   const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-  //   const statusId = desiredStatus.value
+    const desiredStatusName = 'BOOKED'
+    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const statusId = desiredStatus.value
 
-  //   setProjectStatusId(statusId)
-  // }
+    setProjectStatusId(statusId)
+  }, [projectStatusId])
 
   // Select Store
   useEffect(() => {
@@ -746,7 +746,7 @@ const UpdateOrderStoreCS: FC = () => {
 
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
-      formData.append('project_status_id', projectStatusId.toString())
+      formData.append('project_status_id', projectStatusId)
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
@@ -778,11 +778,17 @@ const UpdateOrderStoreCS: FC = () => {
           },
         })
         .then((response) => {
+          const orderId = response.data.data.id
+
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
               text: 'Success Update Order',
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              navigate(`/order/preview-email/${orderId}`)
             })
           } else {
             Swal.fire({
@@ -791,8 +797,6 @@ const UpdateOrderStoreCS: FC = () => {
               icon: 'error',
             })
           }
-
-          navigate('/order/view-order')
         })
         .catch((error) => {
           console.error(error)
@@ -1256,10 +1260,10 @@ const UpdateOrderStoreCS: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='warning'>Reprint Order</Button>
+            {/* <Button variant='success'>Reprint Order</Button> */}
 
             <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
-              Update Order & Print
+              Submit Order & Email
             </Button>
           </div>
         </div>
