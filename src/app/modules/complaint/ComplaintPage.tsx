@@ -1,5 +1,5 @@
 import React from 'react'
-import {Navigate, Route, Routes} from 'react-router-dom'
+import {useParams, Navigate, Route, Routes} from 'react-router-dom'
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
@@ -25,13 +25,15 @@ const complaintBreadCrumbs: Array<PageLink> = [
 ]
 
 const ComplaintPage: React.FC = () => {
+  const params = useParams()
+
   return (
     <Routes>
       <Route
         path='view-complaint'
         element={
           <>
-            <HeaderWrapper className='bg-danger' />
+            <HeaderWrapper className='bg-danger-complaint' />
             <PageTitle breadcrumbs={complaintBreadCrumbs}>LIST PENGADUAN</PageTitle>
             <ViewComplaint />
           </>
@@ -42,7 +44,7 @@ const ComplaintPage: React.FC = () => {
         path='new-complaint'
         element={
           <>
-            <HeaderWrapper className='bg-danger' />
+            <HeaderWrapper className='bg-danger-complaint' />
             <PageTitle breadcrumbs={complaintBreadCrumbs}>FORMULIR PENGADUAN</PageTitle>
             <NewComplaint />
           </>
@@ -53,8 +55,7 @@ const ComplaintPage: React.FC = () => {
         path='update-complaint/:id'
         element={
           <>
-            <HeaderWrapper className='bg-danger' />
-
+            <HeaderWrapper className='bg-danger-complaint' />
             <PageTitle breadcrumbs={complaintBreadCrumbs}>UPDATE COMPLAINT FORM</PageTitle>
             <UpdateComplaint />
           </>
@@ -65,8 +66,7 @@ const ComplaintPage: React.FC = () => {
         path='detail-complaint/:id'
         element={
           <>
-            <HeaderWrapper className='bg-danger' />
-
+            <HeaderWrapper className='bg-danger-complaint' />
             <PageTitle breadcrumbs={complaintBreadCrumbs}>DETAIL PENGADUAN</PageTitle>
             <DetailComplaint />
           </>
@@ -77,8 +77,7 @@ const ComplaintPage: React.FC = () => {
         path='report-complaint'
         element={
           <>
-            <HeaderWrapper className='bg-danger' />
-
+            <HeaderWrapper className='bg-danger-complaint' />
             <PageTitle breadcrumbs={complaintBreadCrumbs}>PENGADUAN KONSUMEN DASHBOARD</PageTitle>
             <ReportComplaint />
           </>

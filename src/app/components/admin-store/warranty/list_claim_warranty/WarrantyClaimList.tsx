@@ -32,11 +32,11 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
 
   interface DataType {
     key: string
-    order_id: string
+    order_id: number
     date_order: string
-    no_member: string
+    no_member: number
     costumer_name: string
-    phone_number: string
+    phone_number: number
     installer_name: string
     payment_status: string
     tanggal_aktif_garansi: string
@@ -50,6 +50,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 100,
       className: 'col_order_id',
+      sorter: (a, b) => a.order_id - b.order_id,
     },
     {
       title: 'Order Date',
@@ -57,6 +58,8 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 110,
+      onFilter: (value, record) => record.date_order.includes(String(value)),
+      sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
       title: 'No Member',
@@ -64,6 +67,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'no_member',
       align: 'center',
       width: 110,
+      sorter: (a, b) => a.no_member - b.no_member,
     },
     {
       title: 'Costumer Name',
@@ -71,6 +75,8 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'costumer_name',
       align: 'left',
       width: 140,
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
       title: 'No Telp / WA',
@@ -78,6 +84,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'phone_number',
       align: 'left',
       width: 140,
+      sorter: (a, b) => a.phone_number - b.phone_number,
     },
     // {
     //   title: 'Nama Jasa Pemasangan',
@@ -135,18 +142,30 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(
-        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=2`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-      return response.data.data
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+      const desiredStatusName = 'BOOK'
+      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+
+      if (desiredStatus) {
+        const statusId = desiredStatus.value
+
+        const response = await axios.get(
+          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=${statusId}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+        return response.data.data
+      } else {
+        console.error('Desired status not found in statusData')
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }

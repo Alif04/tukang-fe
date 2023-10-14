@@ -12,7 +12,7 @@ const DetailQuotation: FC = () => {
         <>
           <DetailQuotationHO />
         </>
-      ) : userRole == 'Vendor Admin' ? (
+      ) : userRole == 'Admin Vendor' ? (
         <>
           <DetailQuotationVendor />
         </>

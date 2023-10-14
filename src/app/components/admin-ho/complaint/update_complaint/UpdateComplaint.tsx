@@ -11,8 +11,8 @@ import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface ComplaintChannel {
-  value: string
+interface OptionRemedialStatus {
+  value: any
   label: string
 }
 
@@ -22,15 +22,11 @@ const UpdateComplaintHO: FC = () => {
   const navigate = useNavigate()
 
   // Complaint Detail
-  const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
+
+  const [complaintId, setComplaintId] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
   const [visible, setVisible] = useState(false)
-
-  // Complaint Channel
-  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
-  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
-  const [complaintChannelName, setComplaintChannelName] = useState<string>('')
 
   const fetchComplaintData = async () => {
     try {
@@ -45,12 +41,11 @@ const UpdateComplaintHO: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
-          setComplaintDetail(data)
-
-          if (data?.complaint_channels?.id && data?.complaint_channels?.name) {
-            setComplaintChannelId(data.complaint_channels.id)
-            setComplaintChannelName(data.complaint_channels.name)
+          if (data?.id) {
+            setComplaintId(data.id)
           }
+
+          setComplaintDetail(data)
         })
     } catch (error) {
       console.error(error)
@@ -59,6 +54,7 @@ const UpdateComplaintHO: FC = () => {
 
   const fetchOrderData = async () => {
     const orderId = complaintDetail?.order_id
+
     try {
       await axios
         .get(`${apiUrl}/orders/${orderId}`, {
@@ -78,9 +74,9 @@ const UpdateComplaintHO: FC = () => {
     }
   }
 
-  const fetchComplaintChannel = async () => {
+  const fetchRemedialStatus = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/complaint-channels`, {
+      const response = await axios.get(`${apiUrl}/status`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -92,10 +88,10 @@ const UpdateComplaintHO: FC = () => {
       if (Array.isArray(response.data.data)) {
         const tempComplaintChannel = response.data.data.map((item: any) => ({
           value: item.id,
-          label: item.name,
+          label: item.category,
         }))
 
-        setComplaintChannel(tempComplaintChannel)
+        setOptionRemedialStatus(tempComplaintChannel)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -106,7 +102,7 @@ const UpdateComplaintHO: FC = () => {
 
   useEffect(() => {
     fetchComplaintData()
-    fetchComplaintChannel()
+    fetchRemedialStatus()
   }, [])
 
   useEffect(() => {
@@ -127,39 +123,54 @@ const UpdateComplaintHO: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  // Add Complaint
-  const [complaintDesc, setComplaintDesc] = useState<any>('')
-  const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintStatus, setComplaintStatus] = useState<any>(1)
-  const [complaintEvidence, setComplaintEvidence] = useState<string>('No selected file')
+  // Add Remedial Action
+  const [remedialDesc, setRemedialDesc] = useState<any>('')
+  const [remedialStartDate, setremedialStartDate] = useState<string>('')
+  const [remedialEndDate, setremedialEndDate] = useState<string>('')
+  const [remedialEvidence, setRemedialEvidence] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
 
+  // Remedial Status
+  const [optionRemedialStatus, setOptionRemedialStatus] = useState<OptionRemedialStatus[]>([])
+  const [optionRemedialStatusId, setOptionRemedialStatusId] = useState<string>('')
+  const [optionRemedialStatusName, setOptionRemedialStatusName] = useState<string>('')
+
   // Handle Input Change
-  const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputRemedialDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedInputValue = event.target.value
-    setComplaintDesc(updatedInputValue)
+    setRemedialDesc(updatedInputValue)
   }
 
-  // Handle Change Complaint Channel
-  const handleChangeSelectComplaintChannel = (element: any) => {
-    const updatedComplaintChannelId = element.value
-    const updatedComplaintChannelName = element.label
-
-    setComplaintChannelId(updatedComplaintChannelId)
-    setComplaintChannelName(updatedComplaintChannelName)
+  // Handle Change Remedial Status
+  const handleChangeSelectRemedialStatus = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const updatedOptionRemedialStatusId = event.target.value
+    setOptionRemedialStatusId(updatedOptionRemedialStatusId)
   }
+
+  // const handleChangeSelectRemedialStatus = (element: any) => {
+  //   const updatedOptionRemedialStatusId = element.value
+  //   const updatedOptionRemedialStatusName = element.label
+
+  //   setOptionRemedialStatusId(updatedOptionRemedialStatusId)
+  //   setOptionRemedialStatusName(updatedOptionRemedialStatusName)
+  // }
 
   // Handle Complaint Date Change
-  const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedComplaintDate = event.target.value
-    setComplaintDate(updatedComplaintDate)
+  const handleChangeremedialStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedremedialStartDate = event.target.value
+    setremedialStartDate(updatedremedialStartDate)
+  }
+
+  const handleChangeremedialEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedremedialEndDate = event.target.value
+    setremedialEndDate(updatedremedialEndDate)
   }
 
   // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && files[0]) {
-      setComplaintEvidence(files[0].name)
+      setRemedialEvidence(files[0].name)
       setImage(URL.createObjectURL(files[0]))
     }
   }
@@ -170,50 +181,104 @@ const UpdateComplaintHO: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setComplaintEvidence('No selected file')
+    setRemedialEvidence('No selected file')
     setImage(null)
   }
 
-  // Handle Submit Complaint
-  const handleUpdateComplaint = async () => {
-    try {
-      const formData = new FormData()
+  // Remedial Validation
+  const RemedialValidation = () => {
+    let valid = true
 
-      formData.append('order_id', orderId)
-      formData.append('description', complaintDesc)
-      formData.append('complaint_channel', complaintChannelId)
-      formData.append('complaint_date', complaintDate)
-      // formData.append('complaint_status', complaintStatus)
-      formData.append('complaint_evidences', complaintEvidence)
-
-      await axios.post(`${apiUrl}/complaints/${params.id}`, formData, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      Swal.fire({
-        title: 'Success',
-        text: 'Success Update Complaint',
-        icon: 'success',
-      })
-
-      navigate('/complaint/view-complaint')
-    } catch (error) {
-      console.error(error)
-
+    if (!remedialDesc) {
       Swal.fire({
         title: 'Error',
-        text: 'Cant Add Complaint',
+        text: 'Please fill remedial notes form',
         icon: 'error',
       })
+      valid = false
+    } else if (!remedialStartDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill remedial start date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!remedialEndDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill remedial end date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!optionRemedialStatus) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select remedial status',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!remedialEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill remedial evidence form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  // Handle Submit Remedial Action
+  const handleSubmitRemedialAction = async () => {
+    if (RemedialValidation()) {
+      const formData = new FormData()
+
+      formData.append('complaint_id', complaintId)
+      formData.append('remedial_action', remedialDesc)
+      formData.append('ra_date_start', remedialStartDate)
+      formData.append('ra_date_end', remedialEndDate)
+      formData.append('remedial_status', optionRemedialStatusId)
+      formData.append('complaint_evidences', remedialEvidence)
+
+      const response = await axios
+        .post(`${apiUrl}/remedials`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Update Complaint',
+              icon: 'success',
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
+
+          navigate('/complaint/view-complaint')
+        })
+        .catch((error) => {
+          console.error(error)
+
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
     }
   }
 
-  const handleCancelComplaint = () => {
+  const handleCancelRemedial = () => {
     navigate('/complaint/view-complaint')
   }
 
@@ -498,28 +563,44 @@ const UpdateComplaintHO: FC = () => {
               <Row>
                 <Col>
                   <Form.Group>
+                    <Form.Label className='mt-3'>Start Date :</Form.Label>
+                    <Form.Control type='date' onChange={handleChangeremedialStartDate} />
+                  </Form.Group>
+
+                  <Form.Group>
                     <Form.Label className='mt-3'>Change Status :</Form.Label>
 
-                    <Select
+                    <Form.Select onChange={handleChangeSelectRemedialStatus}>
+                      <option selected>Select Status</option>
+                      <option value='5'>INVESTIGATED</option>
+                      <option value='6'>ACCEPTED</option>
+                    </Form.Select>
+
+                    {/* <Select
                       name='store_id'
                       className='form-control p-0'
                       classNamePrefix='select'
                       placeholder='Pilih Status'
                       isSearchable={true}
-                      //   options={complaint}
-                    />
+                      options={optionRemedialStatus}
+                      onChange={handleChangeSelectRemedialStatus}
+                    /> */}
                   </Form.Group>
 
                   <Form.Group>
                     <Form.Label className='mt-5'>Notes :</Form.Label>
-                    <Form.Control style={{minHeight: '200px'}} as='textarea'></Form.Control>
+                    <Form.Control
+                      style={{minHeight: '200px'}}
+                      as='textarea'
+                      onChange={handleInputRemedialDesc}
+                    ></Form.Control>
                   </Form.Group>
                 </Col>
 
                 <Col>
                   <Form.Group>
-                    <Form.Label className='mt-3'>Start Date :</Form.Label>
-                    <Form.Control type='date' />
+                    <Form.Label className='mt-3'>End Date :</Form.Label>
+                    <Form.Control type='date' onChange={handleChangeremedialEndDate} />
                   </Form.Group>
 
                   <Form.Group controlId='formFile' className='mt-5'>
@@ -534,7 +615,7 @@ const UpdateComplaintHO: FC = () => {
                       />
 
                       {image ? (
-                        <img src={image} alt={complaintEvidence} className='image-preview' />
+                        <img src={image} alt={remedialEvidence} className='image-preview' />
                       ) : (
                         <div className='input-image-text'>
                           <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -546,7 +627,7 @@ const UpdateComplaintHO: FC = () => {
                     <div className='uploaded-row'>
                       <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                      <span className='upload-content'>{complaintEvidence}</span>
+                      <span className='upload-content'>{remedialEvidence}</span>
 
                       <FontAwesomeIcon
                         icon={faTrash}
@@ -567,7 +648,7 @@ const UpdateComplaintHO: FC = () => {
               variant='dark-danger'
               className='d-flex justify-content-center align-items-center'
               type='submit'
-              onClick={handleCancelComplaint}
+              onClick={handleCancelRemedial}
             >
               Cancel
             </Button>
@@ -576,7 +657,7 @@ const UpdateComplaintHO: FC = () => {
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center'
               type='submit'
-              onClick={handleUpdateComplaint}
+              onClick={handleSubmitRemedialAction}
             >
               Submit
             </Button>

@@ -13,7 +13,7 @@ const ViewQuotation: React.FC = () => {
         <>
           <ViewQuotationHO className='' />
         </>
-      ) : userRole == 'Vendor Admin' ? (
+      ) : userRole == 'Admin Vendor' ? (
         <>
           <ViewQuotationVendor className='' />
         </>

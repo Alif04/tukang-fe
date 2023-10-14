@@ -58,6 +58,12 @@ export * from './admin-store/order/update_order_cs/UpdateOrderCS'
 // Detail Order
 export * from './admin-store/order/detail_order/DetailOrder'
 
+// Print Out Order
+export * from './admin-store/order/printout_order/PrintoutOrder'
+
+// Preview Email Order
+export * from './admin-store/order/preview_email/PreviewEmail'
+
 // Report Order
 export * from './admin-store/order/report_order/ReportOrder'
 
@@ -131,9 +137,6 @@ export * from './admin-ho/order/report_order/ReportOrder'
 // COMPLAINT
 // View Complaint
 export * from './admin-ho/complaint/view_complaint/ViewComplaint'
-
-// New Complaint
-export * from './admin-ho/complaint/new_complaint/NewComplaint'
 
 // Update Complaint
 export * from './admin-ho/complaint/update_complaint/UpdateComplaint'

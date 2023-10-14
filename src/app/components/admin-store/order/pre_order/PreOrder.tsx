@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from 'react'
+import React, {ChangeEvent, FC, useEffect, useState} from 'react'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 
@@ -23,6 +23,7 @@ interface Member {
   value: any
   label: string
   email: any
+  phone_number: any
   whatsapp_number: any
   address_1: any
 }
@@ -58,6 +59,8 @@ const PreOrderStore: FC = () => {
   const userId = localStorage.getItem('user_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
+  const staffStoreId = localStorage.getItem('storeId') as any
+  const staffStoreName = localStorage.getItem('storeName') as string
 
   const [indexForm, setIndexForm] = useState<number>(0)
 
@@ -75,6 +78,8 @@ const PreOrderStore: FC = () => {
   const [memberEmail, setMemberEmail] = useState<any>()
   const [memberAddress, setMemberAddress] = useState<any>()
 
+  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
+
   // Sales
   const [salesId, setSalesId] = useState<any>()
   const [sales, setSales] = useState<Sales[]>([])
@@ -84,8 +89,15 @@ const PreOrderStore: FC = () => {
   const [paymentType, setPaymentType] = useState<string>('')
 
   const [requestDate, setRequestDate] = useState<string>('')
-  const [receiptFile, setReceiptFile] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+
+  const [receiptFile, setReceiptFile] = useState<FileList | []>()
+  const [image, setImage] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
   // Order Table
   const [item, setItem] = useState<ItemDescription[]>([])
@@ -96,35 +108,6 @@ const PreOrderStore: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/store/get`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            address: item.address,
-            city_id: item.city_id,
-            zip_code: item.zip_code,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     const getMember = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member/data`, {
@@ -140,7 +123,7 @@ const PreOrderStore: FC = () => {
             value: item.id,
             label: item.full_name,
             email: item.email,
-            // phone_number: item.phone_number,
+            phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
@@ -223,19 +206,20 @@ const PreOrderStore: FC = () => {
       }
     }
 
-    getStore()
     getMember()
     getSales()
     getItem()
   }, [])
 
-  // Select Store
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStore = element.value
+  // Store
+  useEffect(() => {
+    const updatedStore = staffStoreId.toString()
     setStoreId(updatedStore)
-  }
+  }, [staffStoreId])
 
   // Select Date Request
+  const today = new Date().toISOString().split('T')[0]
+
   const handleChangeRequestDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedRequestDate = event.target.value
     setRequestDate(updatedRequestDate)
@@ -262,9 +246,14 @@ const PreOrderStore: FC = () => {
   // Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
+
     if (files && files[0]) {
-      setReceiptFile(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+      setReceiptFile(files)
+
+      setImage({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
     }
   }
 
@@ -274,8 +263,11 @@ const PreOrderStore: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setReceiptFile('No selected file')
-    setImage(null)
+    setImage({
+      blob: '',
+      fileName: '',
+    })
+    setReceiptFile([])
   }
 
   // Member Information
@@ -298,6 +290,7 @@ const PreOrderStore: FC = () => {
         value: element?.value || 0,
         label: element?.label || '',
         email: element?.email || '',
+        phone_number: element?.phone_number || '',
         whatsapp_number: element?.whatsapp_number || '',
         address_1: element?.address_1 || '',
       }
@@ -334,8 +327,21 @@ const PreOrderStore: FC = () => {
   }
 
   // Change Select Member Phone Number
+  const handleChangeRadio = (element: ChangeEvent<HTMLInputElement>) => {
+    // console.log('Checkbox :', element, element.target, element.target.value)
+
+    setIsWhatsapp(!isWhatsapp)
+
+    if (isWhatsapp) {
+      setMemberPhoneNumber(memberInfo?.whatsapp_number)
+    } else {
+      setMemberPhoneNumber(memberInfo?.phone_number)
+    }
+  }
+
   const handleChangeMemberPhoneNumber = (element: any) => {
     const newMemberPhoneNumber = element.target.value
+
     setMemberInfo((prevMemberInfo) => ({
       ...(prevMemberInfo as Member),
       whatsapp_number: newMemberPhoneNumber,
@@ -392,12 +398,11 @@ const PreOrderStore: FC = () => {
     {
       index_id: 0,
       item_id: null,
-      // order_status_id: 1,
       unit: '',
       category_name: '',
       unit_price: 0,
       quote_price: 0,
-      quantity: 0,
+      quantity: 1,
       total: 0,
       survey_price: 0,
       comission: 0,
@@ -413,12 +418,11 @@ const PreOrderStore: FC = () => {
     const newForm = {
       index_id: newId,
       item_id: null,
-      // order_status_id: 1,
       unit: '',
       category_name: '',
       unit_price: 0,
       quote_price: 0,
-      quantity: 0,
+      quantity: 1,
       total: 0,
       survey_price: 0,
       comission: 0,
@@ -448,17 +452,17 @@ const PreOrderStore: FC = () => {
   const handleChangeSelectItem = (index: any, element: any) => {
     if (!element) return
 
-    const selectedItemId = element.value
-    const selectedCategoryName = element.category
-    const selectedUnitPrice = element.prices[0].price
+    const {label, value: selectedItemId, category: selectedCategoryName, prices} = element
 
     const newOrderDetailValues = [...orderDetailValues]
+
     newOrderDetailValues[index] = {
       ...newOrderDetailValues[index],
       item_id: selectedItemId,
-      unit: element.label,
+      unit: label,
       category_name: selectedCategoryName,
-      unit_price: selectedUnitPrice,
+      unit_price: prices[0].price,
+      total: prices[0].price,
     }
 
     setOrderDetailValues(newOrderDetailValues)
@@ -484,7 +488,7 @@ const PreOrderStore: FC = () => {
       const quantity = item.quantity || 1
       let hargaJasa = 0
 
-      if (type === 'gratis') {
+      if (paymentType === 'gratis') {
         hargaJasa = 0
       } else {
         hargaJasa = item.unit_price
@@ -503,7 +507,7 @@ const PreOrderStore: FC = () => {
 
       let biayaSurvey = 0
 
-      if (type === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
       } else if (paymentType === 'survey') {
         biayaSurvey = 99000
@@ -528,14 +532,7 @@ const PreOrderStore: FC = () => {
   const PreOrderValidation = () => {
     let valid = true
 
-    if (!storeId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select store',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!paymentType) {
+    if (!paymentType) {
       Swal.fire({
         title: 'Error',
         text: 'Please select payment type',
@@ -640,10 +637,14 @@ const PreOrderStore: FC = () => {
     if (PreOrderValidation()) {
       const formData = new FormData()
 
-      formData.append('receipt_file', receiptFile)
+      if (receiptFile?.length) {
+        formData.append('receipt_file', receiptFile[0])
+      }
+
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
       formData.append('project_address', memberAddress)
+      formData.append('project_number', memberPhoneNumber)
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
       formData.append('total_estimate_workdays', totalEstimateWorkDays.toString())
@@ -707,23 +708,13 @@ const PreOrderStore: FC = () => {
             <div className='form-costumer'>
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
+                  <Form.Group className='form-header'>
+                    <Form.Label>
                       Nama Toko
+                      <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                        {staffStoreName}
+                      </span>
                     </Form.Label>
-
-                    <Col sm='8'>
-                      <Select
-                        name='store_id'
-                        className='form-control p-0'
-                        classNamePrefix='select'
-                        placeholder='Pilih Toko'
-                        isSearchable={true}
-                        options={store}
-                        defaultValue={store.find((storeItem) => storeItem.value) || null}
-                        onChange={(e) => handleChangeSelectStore(e)}
-                      />
-                    </Col>
                   </Form.Group>
                 </Col>
 
@@ -739,7 +730,7 @@ const PreOrderStore: FC = () => {
                         name='type'
                         type='radio'
                         value='gratis'
-                        checked={type === 'gratis'}
+                        checked={paymentType === 'gratis'}
                         onChange={handleTypeOptionChange}
                       />
 
@@ -751,7 +742,7 @@ const PreOrderStore: FC = () => {
                         type='radio'
                         value='survey'
                         checked={paymentType === 'survey'}
-                        disabled={type === 'gratis'}
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -773,12 +764,19 @@ const PreOrderStore: FC = () => {
                         name='paymentType'
                         type='radio'
                         value='pemasangan_tanpa_survey'
-                        checked={type === 'gratis' || paymentType === 'pemasangan_tanpa_survey'}
-                        disabled={type === 'gratis'}
+                        checked={
+                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                        }
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
                     </div>
                   </div>
+
+                  <Form.Label className='fs-7 fw-normal'>
+                    <span className='text-danger fw-bold'>Note :</span>
+                    <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
+                  </Form.Label>
                 </Col>
               </Row>
 
@@ -800,13 +798,21 @@ const PreOrderStore: FC = () => {
                       <Form.Label>WA / Phone Number</Form.Label>
 
                       <div className='form-check-request'>
-                        <Form.Check inline label='Bukan Whatsapp' name='group1' type='checkbox' />
+                        <Form.Check
+                          inline
+                          label='Bukan Whatsapp'
+                          name='group1'
+                          value='1'
+                          type='checkbox'
+                          onChange={handleChangeRadio}
+                        />
                       </div>
                     </div>
 
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
+                        type='number'
                         value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />
@@ -934,6 +940,7 @@ const PreOrderStore: FC = () => {
                   type='date'
                   value={requestDate}
                   onChange={handleChangeRequestDate}
+                  min={today}
                 />
               </Form.Group>
             </Col>
@@ -1077,8 +1084,8 @@ const PreOrderStore: FC = () => {
                     onChange={handleFileChange}
                   />
 
-                  {image ? (
-                    <img src={image} alt={receiptFile} className='image-preview' />
+                  {image.blob ? (
+                    <img src={image.blob} alt={image.fileName} className='image-preview' />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -1090,7 +1097,7 @@ const PreOrderStore: FC = () => {
                 <div className='uploaded-row'>
                   <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{receiptFile}</span>
+                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
 
                   <FontAwesomeIcon
                     icon={faTrash}

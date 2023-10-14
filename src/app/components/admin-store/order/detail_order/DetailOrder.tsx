@@ -5,6 +5,8 @@ import './DetailOrder.css'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 import {Steps} from 'antd'
 
 const orderHistory = [
@@ -59,6 +61,13 @@ const DetailOrderStore: FC = () => {
         .then((response) => {
           const data = response.data.data
           setOrderDetail(data)
+
+          if (data?.receipt_path) {
+            setImage({
+              blob: '',
+              fileName: data.receipt_path,
+            })
+          }
         })
     } catch (error) {
       console.error(error)
@@ -69,10 +78,13 @@ const DetailOrderStore: FC = () => {
     fetchOrderData()
   }, [])
 
-  const phoneNumber =
-    orderDetail?.members.phone_number !== null
-      ? orderDetail?.members.phone_number
-      : orderDetail?.members.whatsapp_number
+  const [image, setImage] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -166,7 +178,7 @@ const DetailOrderStore: FC = () => {
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={phoneNumber} />
+                        <Form.Control plaintext readOnly value={orderDetail?.project_number} />
                       </Col>
                     </Form.Group>
 
@@ -280,6 +292,30 @@ const DetailOrderStore: FC = () => {
                 </tbody>
               </Table>
             </div>
+          </Row>
+
+          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Form.Group controlId='formFile'>
+                <Form.Label>Bukti Receipt</Form.Label>
+                <Form className='form-input-image'>
+                  <Form.Control type='file' accept='image/*' className='input-field-image' hidden />
+
+                  <img
+                    src={`${apiUrl}/public/receipt/${image.fileName}`}
+                    alt={image.fileName}
+                    className='image-preview'
+                  />
+                </Form>
+
+                <div className='uploaded-row'>
+                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
+                </div>
+              </Form.Group>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
           </Row>
 
           {/* <div className='order-history mt-3 mb-3'>

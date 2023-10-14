@@ -14,7 +14,6 @@ export function Login() {
   const apiUrl = process.env.REACT_APP_API_URL
   console.log('API URL:', apiUrl)
 
-  const [loginData, setLoginData] = useState()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -46,6 +45,8 @@ export function Login() {
           localStorage.setItem('username', res.data.user.username)
           localStorage.setItem('userRole', res.data.user.roles.name)
           localStorage.setItem('accessToken', res.data.accessToken)
+          localStorage.setItem('storeId', res.data.user?.employee?.store?.id)
+          localStorage.setItem('storeName', res.data.user?.employee?.store?.store_name)
 
           Swal.fire({
             title: 'Login Success',

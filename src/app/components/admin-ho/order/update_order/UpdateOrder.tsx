@@ -93,8 +93,10 @@ const UpdateOrderHO: FC = () => {
   const [vendor, setVendor] = useState<Vendor[]>([])
   const [vendorName, setVendorName] = useState<string>('')
 
+  const [type, setType] = useState<string>('')
   const [paymentType, setPaymentType] = useState<string>('')
-  const [serviceType, setServiceType] = useState<string>('')
+
+  const [projectStatusId, setProjectStatusId] = useState<number>(6)
 
   const [requestDate, setRequestDate] = useState<string>('')
   const [receiptFile, setReceiptFile] = useState<string>('No selected file')
@@ -294,7 +296,6 @@ const UpdateOrderHO: FC = () => {
           tempVendor.push(creatableOptionVendor)
 
           setVendor(tempVendor)
-          // console.log(tempVendor)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -348,6 +349,18 @@ const UpdateOrderHO: FC = () => {
     getItem()
   }, [])
 
+  // Order Status
+  // const orderStatus = () => {
+  //   const storedStatus = sessionStorage.getItem('statusData')
+  //   const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+  //   const desiredStatusName = 'SURVEYREQ'
+  //   const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+  //   const statusId = desiredStatus.value
+
+  //   setProjectStatusId(statusId)
+  // }
+
   // Select Store
   const handleChangeSelectStore = (element: any) => {
     const updatedStoreId = element.value
@@ -375,9 +388,16 @@ const UpdateOrderHO: FC = () => {
     setPaymentType(selectedOptionPayment)
   }
 
-  const handleServiceOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedOptionService = event.target.value
-    setServiceType(selectedOptionService)
+  const handleTypeOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedOptionType = event.target.value
+
+    if (selectedOptionType === 'gratis') {
+      setPaymentType('gratis')
+    } else if (selectedOptionType === 'berbayar') {
+      setPaymentType('survey')
+    }
+
+    setType(selectedOptionType)
   }
 
   // Upload File
@@ -546,7 +566,7 @@ const UpdateOrderHO: FC = () => {
     {
       id: '',
       item_id: '',
-      order_status_id: 3,
+      order_status_id: 6,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -565,7 +585,7 @@ const UpdateOrderHO: FC = () => {
     const newForm = {
       id: '',
       item_id: '',
-      order_status_id: 3,
+      order_status_id: 6,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -673,10 +693,10 @@ const UpdateOrderHO: FC = () => {
 
     setTotal(calculatedTotal)
     setGrandTotal(calculatedGrandTotal)
-  }, [orderDetailValues, total, paymentType, serviceType])
+  }, [orderDetailValues, total, paymentType, type])
 
   // Update Order Validation
-  const UpdatePreOrderValidation = () => {
+  const UpdateOrderValidation = () => {
     let valid = true
 
     if (!storeId) {
@@ -756,6 +776,13 @@ const UpdateOrderHO: FC = () => {
         icon: 'error',
       })
       valid = false
+    } else if (!vendorName) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select or create vendor name form',
+        icon: 'error',
+      })
+      valid = false
     }
 
     orderDetailValues.map((item) => {
@@ -781,13 +808,14 @@ const UpdateOrderHO: FC = () => {
   // Submit Update Pre Order
 
   const handleSubmitUpdateOrder = async () => {
-    if (UpdatePreOrderValidation()) {
+    if (UpdateOrderValidation()) {
       const formData = new FormData()
 
       formData.append('receipt_file', receiptFile)
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
       formData.append('vendor_id', vendorId)
+      formData.append('project_status_id', projectStatusId.toString())
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
@@ -887,21 +915,22 @@ const UpdateOrderHO: FC = () => {
                         inline
                         label='Gratis'
                         id='gratis'
-                        name='paymentType'
+                        name='type'
                         type='radio'
                         value='gratis'
                         checked={paymentType === 'gratis'}
-                        onChange={handlePaymentOptionChange}
+                        onChange={handleTypeOptionChange}
                       />
 
                       <Form.Check
                         inline
                         label='Survey'
                         id='survey'
-                        name='serviceType'
+                        name='paymentType'
                         type='radio'
                         value='survey'
                         checked={paymentType === 'survey'}
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
 
@@ -909,25 +938,28 @@ const UpdateOrderHO: FC = () => {
                         inline
                         label='Berbayar'
                         id='berbayar'
-                        name='paymentType'
+                        name='type'
                         type='radio'
                         value='berbayar'
                         checked={
-                          paymentType === 'survey' || paymentType === 'pemasangan_tanpa_survey'
+                          type === 'berbayar' ||
+                          paymentType === 'pemasangan_tanpa_survey' ||
+                          paymentType === 'survey'
                         }
-                        onChange={handleServiceOptionChange}
+                        onChange={handleTypeOptionChange}
                       />
 
                       <Form.Check
                         inline
                         label='Pemasangan Tanpa Survey'
                         id='pemasangan_tanpa_survey'
-                        name='serviceType'
+                        name='paymentType'
                         type='radio'
                         value='pemasangan_tanpa_survey'
                         checked={
                           paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
                         }
+                        disabled={paymentType === 'gratis'}
                         onChange={handlePaymentOptionChange}
                       />
                     </div>
