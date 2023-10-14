@@ -8,6 +8,7 @@ import {PreOrder} from './components/PreOrder'
 import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {PrintOutOrder} from './components/PrintoutOrder'
+import {PreviewEmail} from './components/PreviewEmail'
 import {ReportOrder} from './components/ReportOrder'
 
 const orderBreadCrumbs: Array<PageLink> = [
@@ -110,6 +111,16 @@ const OrderPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>PRINTOUT ORDER</PageTitle>
             <PrintOutOrder />
+          </>
+        }
+      />
+
+      <Route
+        path='preview-email'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>PREVIEW EMAIL</PageTitle>
+            <PreviewEmail />
           </>
         }
       />

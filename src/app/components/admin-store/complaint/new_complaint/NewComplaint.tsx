@@ -146,7 +146,7 @@ const NewComplaintStore: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  // Select Store
+  // Select Order
   const handleChangeSelectOrder = (element: any) => {
     const selectedOrder = element.value
     setOrderId(selectedOrder)
@@ -157,8 +157,8 @@ const NewComplaintStore: FC = () => {
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
   const [complaintStatus, setComplaintStatus] = useState<any>(1)
-  const [complaintEvidence, setComplaintEvidence] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+  const [complaintEvidence, setComplaintEvidence] = useState<FileList | []>()
+  const [image, setImage] = useState<string>('No selected file')
 
   // Handle Input Change
   const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,6 +167,8 @@ const NewComplaintStore: FC = () => {
   }
 
   // Handle Complaint Date Change
+  const today = new Date().toISOString().split('T')[0]
+
   const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedComplaintDate = event.target.value
     setComplaintDate(updatedComplaintDate)
@@ -175,9 +177,10 @@ const NewComplaintStore: FC = () => {
   // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
+
     if (files && files[0]) {
-      setComplaintEvidence(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+      setComplaintEvidence(files)
+      setImage(files[0].name)
     }
   }
 
@@ -187,8 +190,8 @@ const NewComplaintStore: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setComplaintEvidence('No selected file')
-    setImage(null)
+    setImage('No selected file')
+    setComplaintEvidence([])
   }
 
   // Handle Change Complaint Channel
@@ -250,7 +253,10 @@ const NewComplaintStore: FC = () => {
       formData.append('complaint_channel', complaintChannelId)
       formData.append('complaint_date', complaintDate)
       formData.append('complaint_status', complaintStatus)
-      formData.append('complaint_evidences', complaintEvidence)
+
+      if (complaintEvidence?.length) {
+        formData.append('complaint_evidences', complaintEvidence[0], image)
+      }
 
       const response = await axios
         .post(`${apiUrl}/complaints`, formData, {
@@ -521,7 +527,7 @@ const NewComplaintStore: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group className='mb-3'>
                 <Form.Label>Tanggal Komplain :</Form.Label>
-                <Form.Control type='date' onChange={handleChangeComplaintDate} />
+                <Form.Control type='date' onChange={handleChangeComplaintDate} min={today} />
               </Form.Group>
 
               <Form.Group className='mb-3'>
@@ -561,7 +567,7 @@ const NewComplaintStore: FC = () => {
                   />
 
                   {image ? (
-                    <img src={image} alt={complaintEvidence} className='image-preview' />
+                    <img src={image} alt={image} className='image-preview' />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -573,7 +579,7 @@ const NewComplaintStore: FC = () => {
                 <div className='uploaded-row'>
                   <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{complaintEvidence}</span>
+                  <span className='upload-content'>{image}</span>
 
                   <FontAwesomeIcon
                     icon={faTrash}

@@ -249,14 +249,18 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 /* Table Filter */
 
-:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper .ant-table-column-sorter-inner {
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-sorter-inner {
   color: white !important;
 }
 
-:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper .ant-table-column-sorter-up.active,
-:where(.css-dev-only-do-not-override-1m62vyb).ant-table-wrapper
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-sorter-up.active,
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
   .ant-table-column-sorter-down.active {
   color: #7f7f7f;
+}
+
+span.anticon.anticon-filter svg {
+  color: white !important;
 }
 
 @media screen and (max-width: 1200px) {

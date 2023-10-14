@@ -324,7 +324,7 @@ const DashboardWrapper: FC = () => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(`${apiUrl}/status`, {
+      const response = await axios.get(`${apiUrl}/status?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

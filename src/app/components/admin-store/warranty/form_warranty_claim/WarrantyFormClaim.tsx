@@ -30,6 +30,10 @@ const WarrantyFormClaim = () => {
         .then((response) => {
           const data = response.data.data
           setOrderDetail(data)
+
+          if (data?.id) {
+            setOrderId(data.id)
+          }
         })
     } catch (error) {
       console.error(error)
@@ -52,16 +56,36 @@ const WarrantyFormClaim = () => {
     return `${day}/${month}/${year}`
   }
 
-  // Add Claim Warranty
-  const [complaintStatus, setComplaintStatus] = useState<any>(1)
+  // Add Warranty Claim
+  const [complaintStatus, setComplaintStatus] = useState<any>()
+  console.log(complaintStatus)
   const [date, setDate] = useState<any>()
   const [desc, setDesc] = useState<any>()
+  const [complantChannel, setComplaintChannel] = useState<number>(1)
+
+  // Set Status Warranty Claim
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+  const desiredStatusName = 'WARRANTYCLAIM'
+  const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+
+  useEffect(() => {
+    if (desiredStatus) {
+      const statusId = desiredStatus.value
+      setComplaintStatus(statusId)
+    }
+  }, [complaintStatus])
+
+  // Handle Change Date Warranty Claim
+  const today = new Date().toISOString().split('T')[0]
 
   const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedValueDateClaim = event.target.value
     setDate(updatedValueDateClaim)
   }
 
+  // Handle Change Description Claim Warranty
   const handleChangeDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedValueDescription = event.target.value
     setDesc(updatedValueDescription)
@@ -97,6 +121,7 @@ const WarrantyFormClaim = () => {
       formData.append('order_id', orderId)
       formData.append('description', desc)
       formData.append('complaint_date', date)
+      formData.append('complaint_channel', complantChannel.toString())
       formData.append('complaint_status', complaintStatus)
 
       const response = await axios
@@ -345,7 +370,7 @@ const WarrantyFormClaim = () => {
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
-              <Form.Control type='date' onChange={handleChangeDate} />
+              <Form.Control type='date' onChange={handleChangeDate} min={today} />
             </Col>
 
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
@@ -355,7 +380,9 @@ const WarrantyFormClaim = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='dark-primary'>Ajukan Claim</Button>
+            <Button variant='dark-primary' onClick={handleSubmitWarrantyClaim}>
+              Ajukan Claim
+            </Button>
           </div>
         </div>
       </div>
