@@ -64,9 +64,6 @@ export * from './admin-store/order/printout_order/PrintoutOrder'
 // Preview Email Order
 export * from './admin-store/order/preview_email/PreviewEmail'
 
-// Report Order
-export * from './admin-store/order/report_order/ReportOrder'
-
 // COMPLAINT
 // View Complaint
 export * from './admin-store/complaint/view_complaint/ViewComplaint'

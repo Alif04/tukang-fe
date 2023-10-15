@@ -1,15 +1,115 @@
-import React, {FC} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './DashboardOrder.css'
-import {DateRange} from './components/DateRange'
+
 import {ChartBar} from './components/ChartBar'
 import {ChartLine} from './components/ChartLine'
 import {MoreInformation} from './components/MoreInformation'
 import {TableList} from './components/TableList'
 
+import axios from 'axios'
+import {DatePicker} from 'antd'
 import {Card, Row, Col} from 'react-bootstrap'
 
+const {RangePicker} = DatePicker
+
+const initialStatusState = {
+  totalOrder: 0,
+  survey: 0,
+  onProgress: 0,
+  complete: 0,
+  reschedule: 0,
+  cancel: 0,
+  refund: 0,
+  waitingSurvey: 0,
+  waitingPayment: 0,
+}
+
+type StatusToStateMap = {
+  [statusName: string]: keyof typeof initialStatusState
+}
+
+const statusToStateMap: StatusToStateMap = {
+  BOOK: 'totalOrder',
+  SURVEYREQ: 'survey',
+  WIP: 'onProgress',
+  SURVEYDONE: 'complete',
+  RESCHEDULE: 'reschedule',
+  REJECT: 'cancel',
+  REFUND: 'refund',
+  WAITINGSURVEY: 'waitingSurvey',
+  WORKRELATED: 'waitingPayment',
+}
+
 const DashboardOrderStore: FC = () => {
+  const [orderList, setOrderList] = useState<any>()
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+
+  const fetchOrderList = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const response = await axios
+        .get(`${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=50`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderList(data)
+        })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrderList()
+  }, [dateFrom, dateTo])
+
+  // Catch Value From Response API by Status
+  const [statusState, setStatusState] = useState(initialStatusState)
+
+  useEffect(() => {
+    if (orderList) {
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+      for (const statusName in statusToStateMap) {
+        const stateKey = statusToStateMap[statusName]
+        const desiredStatus = statusData.find((status: any) => status.category === statusName)
+
+        if (desiredStatus) {
+          const statusValue = desiredStatus.value
+          const orderCount = orderList.filter((item: any) => item.status.id === statusValue).length
+
+          setStatusState((prevState) => ({
+            ...prevState,
+            [stateKey]: orderCount,
+          }))
+        }
+      }
+    }
+  }, [orderList])
+
+  const {
+    totalOrder,
+    survey,
+    onProgress,
+    complete,
+    reschedule,
+    cancel,
+    refund,
+    waitingSurvey,
+    waitingPayment,
+  } = statusState
+
   return (
     <section id='dashboard-order'>
       <div className='row'>
@@ -20,7 +120,21 @@ const DashboardOrderStore: FC = () => {
             </div>
 
             <div className='col-xxl-8 col-xl-8 col-lg-8'>
-              <DateRange className='date-range' />
+              <RangePicker
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />{' '}
             </div>
           </div>
         </div>
@@ -36,63 +150,63 @@ const DashboardOrderStore: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>20</h1>
+                    <h1 className='fw-normal'>{totalOrder}</h1>
                     <p className='text-center'>Total Order</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>18</h1>
+                    <h1 className='fw-normal'>{survey}</h1>
                     <p className='text-center'>Survey</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>02</h1>
+                    <h1 className='fw-normal'>{onProgress}</h1>
                     <p className='text-center'>On Progress</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>18</h1>
+                    <h1 className='fw-normal'>{complete}</h1>
                     <p className='text-center'>Complete</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>12</h1>
+                    <h1 className='fw-normal'>{reschedule}</h1>
                     <p className='text-danger text-center'>Reschedule</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>05</h1>
+                    <h1 className='fw-normal'>{cancel}</h1>
                     <p className='text-danger text-center'>Cancel</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>01</h1>
+                    <h1 className='fw-normal'>{refund}</h1>
                     <p className='text-danger text-center'>Refund</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>18</h1>
+                    <h1 className='fw-normal'>{waitingSurvey}</h1>
                     <p className='text-brown fw-bold text-center'>Menunggu Survey</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>01</h1>
+                    <h1 className='fw-normal'>{waitingPayment}</h1>
                     <p className='text-brown fw-bold text-center'>Menunggu Bayar</p>
                   </div>
                 </Col>

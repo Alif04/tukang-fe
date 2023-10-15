@@ -1,93 +1,93 @@
 /* Form Layout */
 
-#update-complaint .form-wrapper {
+#update-complaint-store .form-wrapper {
   margin-bottom: 30px;
 }
 
-#update-complaint .form-wrapper .form-header {
+#update-complaint-store .form-wrapper .form-header {
   margin-bottom: 30px;
 }
 
-#update-complaint .form-wrapper .form-header label.form-label.col-form-label.col-sm-4 {
+#update-complaint-store .form-wrapper .form-header label.form-label.col-form-label.col-sm-4 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .form-wrapper .form-header input.form-control-plaintext {
+#update-complaint-store .form-wrapper .form-header input.form-control-plaintext {
   padding: 3px 0px;
 }
 
-#update-complaint .form-wrapper .form-header label.fs-4.fw-bold.form-label {
+#update-complaint-store .form-wrapper .form-header label.fs-4.fw-bold.form-label {
   margin: 0 !important;
 }
 
-#update-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-complaint-store .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 60%;
 }
 
-#update-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#update-complaint-store .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-4 {
+#update-complaint-store .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-4 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .costumer-info .detail-info.row input.form-control-plaintext {
+#update-complaint-store .costumer-info .detail-info.row input.form-control-plaintext {
   padding: 3px 0px;
 }
 
-#update-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-complaint-store .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 40%;
 }
 
-#update-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#update-complaint-store .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .sales-info .detail-info.row input.form-control-plaintext {
+#update-complaint-store .sales-info .detail-info.row input.form-control-plaintext {
   padding: 3px 0px;
 }
 
 /* Table Order */
 
-#update-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-store .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 100px 0 10px;
 }
 
-#update-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-store .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 30px 0 30px;
 }
 
-#update-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-store .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 10px 0 100px;
 }
 
-#update-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-store .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 100px 0 10px;
 }
 
 /* Table Complaint*/
 
-#update-complaint .table-picklist .table tr,
+#update-complaint-store .table-picklist .table tr,
 .table th,
 .table td {
   border: 1px solid gray;
 }
 
-#update-complaint .table-picklist th {
+#update-complaint-store .table-picklist th {
   text-align: center;
 }
 
 /* Form Input Image */
 
-form.form-input-image {
+#update-complaint-store form.form-input-image {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border: 2px dashed #858585;
   width: 100%;
-  min-height: 110px;
+  min-height: 100px;
   cursor: pointer;
   border-radius: 5px;
 }
@@ -142,15 +142,15 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 1400px) {
   /* Form Layout */
 
-  #update-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-store .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-store .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .alamat-order.row .col {
+  #update-complaint-store .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 }
@@ -158,38 +158,38 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 1200px) {
   /* Form Layout */
 
-  #update-complaint .form-wrapper {
+  #update-complaint-store .form-wrapper {
     flex-direction: column;
     gap: 10px;
   }
 
-  #update-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-store .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 
-  #update-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-store .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 
-  #update-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-store .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-store .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .alamat-order.row .col {
+  #update-complaint-store .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 
   /* Form Sales */
 
-  #update-complaint .form-sales .form-header {
+  #update-complaint-store .form-sales .form-header {
     margin-bottom: 20px;
   }
 
-  #update-complaint .form-sales .form-header h1 {
+  #update-complaint-store .form-sales .form-header h1 {
     text-align: start !important;
   }
 }
@@ -200,22 +200,22 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 768px) {
   /* Table Order */
 
-  #update-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-store .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
   }
 
-  #update-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-store .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
   }
 
-  #update-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-store .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     margin-top: 20px;
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-store .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
   }
 }
@@ -223,11 +223,11 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 576px) {
   /* Button */
 
-  #update-complaint .btn.btn-dark-primary {
+  #update-complaint-store .btn.btn-dark-primary {
     height: 40px;
   }
 
-  #update-complaint .btn.btn-dark-danger {
+  #update-complaint-store .btn.btn-dark-danger {
     height: 40px;
   }
 }

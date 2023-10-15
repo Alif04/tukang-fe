@@ -9,7 +9,6 @@ import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {PrintOutOrder} from './components/PrintoutOrder'
 import {PreviewEmail} from './components/PreviewEmail'
-import {ReportOrder} from './components/ReportOrder'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -106,7 +105,7 @@ const OrderPage: React.FC = () => {
       />
 
       <Route
-        path='printout-order'
+        path='printout-order/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>PRINTOUT ORDER</PageTitle>
@@ -116,23 +115,11 @@ const OrderPage: React.FC = () => {
       />
 
       <Route
-        path='preview-email'
+        path='preview-email/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>PREVIEW EMAIL</PageTitle>
             <PreviewEmail />
-          </>
-        }
-      />
-
-      <Route
-        path='report-order'
-        element={
-          <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>
-              INSTALASI & SERVICE MITRA10 DASHBOARD
-            </PageTitle>
-            <ReportOrder />
           </>
         }
       />

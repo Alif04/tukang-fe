@@ -139,14 +139,14 @@
 
 /* Form Input Image */
 
-form.form-input-image {
+#new-complaint form.form-input-image {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border: 2px dashed #858585;
   width: 100%;
-  min-height: 110px;
+  min-height: 100px;
   cursor: pointer;
   border-radius: 5px;
 }

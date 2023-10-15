@@ -1,4 +1,4 @@
-import React, {FC} from 'react'
+import React, {FC, useRef} from 'react'
 import {useState, useEffect} from 'react'
 
 import './NewComplaint.css'
@@ -7,7 +7,7 @@ import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, Table, Button} from 'react-bootstrap'
+import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -157,8 +157,9 @@ const NewComplaintStore: FC = () => {
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
   const [complaintStatus, setComplaintStatus] = useState<any>(1)
-  const [complaintEvidence, setComplaintEvidence] = useState<FileList | []>()
-  const [image, setImage] = useState<string>('No selected file')
+  const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
 
   // Handle Input Change
   const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -176,11 +177,16 @@ const NewComplaintStore: FC = () => {
 
   // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
 
-    if (files && files[0]) {
-      setComplaintEvidence(files)
-      setImage(files[0].name)
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setComplaintEvidence(file)
     }
   }
 
@@ -189,9 +195,17 @@ const NewComplaintStore: FC = () => {
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setImage('No selected file')
-    setComplaintEvidence([])
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...complaintEvidence]
+
+    newEvidances.splice(index, 1)
+
+    setComplaintEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
   }
 
   // Handle Change Complaint Channel
@@ -255,7 +269,11 @@ const NewComplaintStore: FC = () => {
       formData.append('complaint_status', complaintStatus)
 
       if (complaintEvidence?.length) {
-        formData.append('complaint_evidences', complaintEvidence[0], image)
+        complaintEvidence.forEach((item) => {
+          if (item) {
+            formData.append(`complaint_evidences`, item, item?.name)
+          }
+        })
       }
 
       const response = await axios
@@ -273,6 +291,8 @@ const NewComplaintStore: FC = () => {
               title: 'Success',
               text: 'Success Add Complaint',
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
             })
           } else {
             Swal.fire({
@@ -562,33 +582,45 @@ const NewComplaintStore: FC = () => {
                     type='file'
                     accept='image/*'
                     className='input-field-image'
+                    multiple
                     hidden
+                    id='file-input'
+                    ref={evidenceRef}
                     onChange={handleFileChange}
                   />
 
-                  {image ? (
-                    <img src={image} alt={image} className='image-preview' />
-                  ) : (
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  )}
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
                 </Form>
 
-                <div className='uploaded-row'>
-                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                <ListGroup className='pt-3'>
+                  {complaintEvidence.length ? (
+                    complaintEvidence.map((item, index) => (
+                      <ListGroup.Item
+                        key={`${item?.name}-${index}-${item?.type}`}
+                        className='d-flex justify-content-between'
+                      >
+                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{image}</span>
+                        <span className='upload-content'> {item?.name}</span>
 
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    size='sm'
-                    color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
-                  />
-                </div>
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size='sm'
+                          color='#ed2b2a'
+                          style={{cursor: 'pointer'}}
+                          onClick={(e) => handleRemoveFile(index)}
+                        />
+                      </ListGroup.Item>
+                    ))
+                  ) : (
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
               </Form.Group>
             </Col>
           </Row>

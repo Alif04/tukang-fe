@@ -57,9 +57,11 @@
 /* Receipt ID */
 
 #printout-order .receipt-id {
-  margin-top: 200px;
+  margin-top: 150px;
 }
 
 #printout-order .receipt-id hr.line {
-  border-color: red;
+  width: 100%;
+  border-top: none !important;
+  border-bottom: 5px solid black !important;
 }

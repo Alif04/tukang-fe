@@ -707,7 +707,6 @@ const UpdateOrderStoreStaff: FC = () => {
   }
 
   // Submit Update Pre Order
-
   const handleSubmitUpdateOrder = async () => {
     if (UpdatePreOrderValidation()) {
       const formData = new FormData()
@@ -754,6 +753,8 @@ const UpdateOrderStoreStaff: FC = () => {
               title: 'Success',
               text: 'Success Update Order',
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
             })
           } else {
             Swal.fire({
@@ -775,6 +776,48 @@ const UpdateOrderStoreStaff: FC = () => {
           })
         })
     }
+  }
+
+  // Reprint Order
+
+  const handleReprintOrder = async () => {
+    const response = await axios
+      .request({
+        url: `${apiUrl}/orders/${params.id}/counter`,
+        method: 'post',
+        maxBodyLength: Infinity,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Reprint Order',
+            icon: 'success',
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+
+        navigate(`/order/printout-order/${params.id}`)
+      })
+      .catch((error) => {
+        console.error(error)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
   }
 
   return (
@@ -862,7 +905,7 @@ const UpdateOrderStoreStaff: FC = () => {
                     <Form.Label>No Member</Form.Label>
                     <Form.Control
                       type='number'
-                      value={memberId || orderDetail?.members?.id || ''}
+                      value={memberId}
                       onChange={(element) => handleChangeMemberId(element)}
                     />
                   </Form.Group>
@@ -986,7 +1029,7 @@ const UpdateOrderStoreStaff: FC = () => {
                     <Col sm='8'>
                       <Form.Control
                         type='text'
-                        value={salesId || orderDetail?.sales?.id || ''}
+                        value={salesId}
                         onChange={(element) => handleChangeSalesId(element)}
                       />
                     </Col>
@@ -1215,7 +1258,9 @@ const UpdateOrderStoreStaff: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='warning'>Reprint Order</Button>
+            <Button variant='warning' onClick={handleReprintOrder}>
+              Reprint Order
+            </Button>
 
             <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
               Update Order & Print

@@ -1,9 +1,9 @@
 import React, {ChangeEvent, FC, useEffect, useState} from 'react'
-import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 
 import './PreOrder.css'
 
+import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -672,11 +672,17 @@ const PreOrderStore: FC = () => {
           },
         })
         .then((response) => {
+          const orderId = response.data.data.id
+
           if (response.data.status === 201) {
             Swal.fire({
               title: 'Success',
               text: response.data.message,
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              navigate(`/order/printout-order/${orderId}`)
             })
           } else {
             Swal.fire({
@@ -685,8 +691,6 @@ const PreOrderStore: FC = () => {
               icon: 'error',
             })
           }
-
-          navigate('/order/view-order')
         })
         .catch((error) => {
           console.error(error)
