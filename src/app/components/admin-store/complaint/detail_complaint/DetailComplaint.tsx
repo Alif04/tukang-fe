@@ -451,10 +451,10 @@ const DetailComplaintStore: FC = () => {
                     key={previewImage}
                     width={200}
                     style={{display: 'none'}}
-                    src={`${apiUrl}/public/receipt/${previewImage}`}
+                    src={`${apiUrl}/public/complaints/${previewImage}`}
                     preview={{
                       visible,
-                      src: `${apiUrl}/public/receipt/${previewImage}`,
+                      src: `${apiUrl}/public/complaints/${previewImage}`,
                       onVisibleChange: (value) => {
                         setVisible(value)
                       },
