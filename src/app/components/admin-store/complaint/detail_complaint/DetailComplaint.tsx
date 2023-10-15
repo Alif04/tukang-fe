@@ -18,6 +18,9 @@ const DetailComplaintStore: FC = () => {
   const [orderDetail, setOrderDetail] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
 
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
   const fetchComplaintData = async () => {
     try {
       await axios
@@ -89,7 +92,6 @@ const DetailComplaintStore: FC = () => {
   const [feedbackDate, setFeedbackDate] = useState<string>('')
   const [evidenceComplaint, setEvidenceComplaint] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
-  const [visible, setVisible] = useState(false)
 
   // Handle Input Change
   const handleInputMemberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -430,11 +432,36 @@ const DetailComplaintStore: FC = () => {
               <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
               <ListGroup>
                 {complaintDetail?.complaint_evidence.map((item: any) => (
-                  <ListGroup.Item action onClick={() => setVisible(true)}>
+                  <ListGroup.Item
+                    key={item.id}
+                    action
+                    onClick={() => {
+                      setPreviewImage(item.evidence_location)
+                      setVisible(true)
+                    }}
+                  >
                     {item.evidence_location}
                   </ListGroup.Item>
                 ))}
               </ListGroup>
+
+              {previewImage && (
+                <div>
+                  <Image
+                    key={previewImage}
+                    width={200}
+                    style={{display: 'none'}}
+                    src={`${apiUrl}/public/receipt/${previewImage}`}
+                    preview={{
+                      visible,
+                      src: `${apiUrl}/public/receipt/${previewImage}`,
+                      onVisibleChange: (value) => {
+                        setVisible(value)
+                      },
+                    }}
+                  />
+                </div>
+              )}
             </Col>
           </Row>
 
@@ -604,19 +631,6 @@ const DetailComplaintStore: FC = () => {
           </div> */}
         </div>
       </div>
-
-      <Image
-        width={200}
-        style={{display: 'none'}}
-        src='https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60'
-        preview={{
-          visible,
-          src: 'https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60',
-          onVisibleChange: (value) => {
-            setVisible(value)
-          },
-        }}
-      />
     </section>
   )
 }

@@ -287,12 +287,12 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
         const complaintDate = new Date(item.complaint_date)
 
         let complaintStatus =
-          item.complaint_status === 1
-            ? 'COMPLAINT'
-            : item.complaint_status === 2
+          item.complaint_status === 3
             ? 'INVESTIGATED'
-            : item.complaint_status === 3
+            : item.complaint_status === 19
             ? 'ACCEPTED'
+            : item.complaint_status === 21
+            ? 'REJECT'
             : ''
 
         let phoneNumber =

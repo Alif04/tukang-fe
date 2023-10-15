@@ -1,6 +1,5 @@
-import React, {FC} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
-import {DateRange} from './components/DateRange'
 import {ChartBar} from './components/ChartBar'
 import {ChartLine} from './components/ChartLine'
 import {ChartLine2} from './components/ChartLine2'
@@ -8,9 +7,117 @@ import {ChartDonut} from './components/ChartDonut'
 import {ChartDonut2} from './components/ChartDonut2'
 import {TableList} from './components/TableList'
 
+import axios from 'axios'
+import {DatePicker} from 'antd'
 import Card from 'react-bootstrap/Card'
 
+const {RangePicker} = DatePicker
+
+const initialStatusState = {
+  newComplaint: 0,
+  rejectComplaint: 0,
+  approvedComplaint: 0,
+  resurveyComplaint: 0,
+  reworkComplaint: 0,
+  rescheduleComplaint: 0,
+  refundComplaint: 0,
+  nonWorkRelated: 0,
+  workRelated: 0,
+  notResolved: 0,
+  resolved: 0,
+}
+
+type StatusToStateMap = {
+  [statusName: string]: keyof typeof initialStatusState
+}
+
+const statusToStateMap: StatusToStateMap = {
+  INVESTIGATE: 'newComplaint',
+  REJECT: 'rejectComplaint',
+  APPROVE: 'approvedComplaint',
+  RESURVEY: 'resurveyComplaint',
+  REWORK: 'reworkComplaint',
+  RESCHEDULE: 'rescheduleComplaint',
+  REFUND: 'refundComplaint',
+  NONWORKRELATED: 'nonWorkRelated',
+  WORKRELATED: 'workRelated',
+  NOTRESOLVED: 'notResolved',
+  RESOLVED: 'resolved',
+}
+
 const ReportComplaintStore: FC = () => {
+  const [complaintList, setComplaintList] = useState<any>()
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+
+  const fetchComplaintList = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const response = await axios
+        .get(`${apiUrl}/complaints?date_from=${dateFrom}&date_to=${dateTo}&take=50`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setComplaintList(data)
+        })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchComplaintList()
+  }, [dateFrom, dateTo])
+
+  // Catch Value From Response API by Status
+  const [statusState, setStatusState] = useState(initialStatusState)
+
+  useEffect(() => {
+    if (complaintList) {
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+      for (const statusName in statusToStateMap) {
+        const stateKey = statusToStateMap[statusName]
+        const desiredStatus = statusData.find((status: any) => status.category === statusName)
+
+        if (desiredStatus) {
+          const statusValue = desiredStatus.value
+          const complaintsCount = complaintList.filter(
+            (item: any) => item.complaint_status === statusValue
+          ).length
+
+          setStatusState((prevState) => ({
+            ...prevState,
+            [stateKey]: complaintsCount,
+          }))
+        }
+      }
+    }
+  }, [complaintList])
+
+  const {
+    newComplaint,
+    rejectComplaint,
+    approvedComplaint,
+    resurveyComplaint,
+    reworkComplaint,
+    rescheduleComplaint,
+    refundComplaint,
+    nonWorkRelated,
+    workRelated,
+    notResolved,
+    resolved,
+  } = statusState
+
   return (
     <>
       {/* begin::Row */}
@@ -22,7 +129,21 @@ const ReportComplaintStore: FC = () => {
             </div>
 
             <div className='col-xxl-8 col-xl-8 col-lg-8'>
-              <DateRange className='date-range' />
+              <RangePicker
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
@@ -37,21 +158,21 @@ const ReportComplaintStore: FC = () => {
               <div className='d-flex justify-content-between mb-5'>
                 <div className='order-in'>
                   <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal'>20</h1>
+                    <h1 className='fw-normal'>{newComplaint}</h1>
                     <p>NEW</p>
                   </div>
                 </div>
 
                 <div className='order-pending'>
                   <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>18</h1>
+                    <h1 className='fw-normal'>{rejectComplaint}</h1>
                     <p>REJECTED</p>
                   </div>
                 </div>
 
                 <div className='order-cancel'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>02</h1>
+                    <h1 className='fw-normal'>{approvedComplaint}</h1>
                     <p className='text-danger'>APPROVED</p>
                   </div>
                 </div>
@@ -68,28 +189,28 @@ const ReportComplaintStore: FC = () => {
               <div className='d-flex justify-content-between mb-5'>
                 <div className='survey'>
                   <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal'>18</h1>
+                    <h1 className='fw-normal'>{resurveyComplaint}</h1>
                     <p>RESURVEY</p>
                   </div>
                 </div>
 
                 <div className='wip'>
                   <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>12</h1>
+                    <h1 className='fw-normal'>{reworkComplaint}</h1>
                     <p>REWORK</p>
                   </div>
                 </div>
 
                 <div className='done'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>05</h1>
+                    <h1 className='fw-normal'>{rescheduleComplaint}</h1>
                     <p className='text-success'>RESECHEDULE</p>
                   </div>
                 </div>
 
                 <div className='complaint'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>01</h1>
+                    <h1 className='fw-normal'>{refundComplaint}</h1>
                     <p className='text-danger'>REFUND</p>
                   </div>
                 </div>
@@ -106,28 +227,28 @@ const ReportComplaintStore: FC = () => {
               <div className='d-flex justify-content-between mb-5'>
                 <div className='reschedule'>
                   <div className='d-flex flex-column align-items-center pe-1 gap-2'>
-                    <h1 className='fw-normal'>18</h1>
+                    <h1 className='fw-normal'>{nonWorkRelated}</h1>
                     <p className='text-center'>NON WORK RELATED</p>
                   </div>
                 </div>
 
                 <div className='refund'>
                   <div className='d-flex flex-column align-items-center ps-1 pe-1 gap-2'>
-                    <h1 className='fw-normal'>00</h1>
+                    <h1 className='fw-normal'>{workRelated}</h1>
                     <p className='text-center'>WORK RELATED</p>
                   </div>
                 </div>
 
                 <div className='resolve'>
                   <div className='d-flex flex-column align-items-center  ps-1 pe-1 gap-2'>
-                    <h1 className='fw-normal'>01</h1>
+                    <h1 className='fw-normal'>{notResolved}</h1>
                     <p className='text-danger text-center'>NOT RESOLVED</p>
                   </div>
                 </div>
 
                 <div className='resolve'>
                   <div className='d-flex flex-column align-items-center ps-1 gap-2'>
-                    <h1 className='fw-normal'>23</h1>
+                    <h1 className='fw-normal'>{resolved}</h1>
                     <p className='text-success  text-center'>RESOLVED</p>
                   </div>
                 </div>

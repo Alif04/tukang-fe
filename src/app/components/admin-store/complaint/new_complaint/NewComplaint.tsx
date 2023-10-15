@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FC, useRef} from 'react'
+import React, {FC, useRef} from 'react'
 import {useState, useEffect} from 'react'
 
 import './NewComplaint.css'
@@ -158,7 +158,6 @@ const NewComplaintStore: FC = () => {
   const [complaintDate, setComplaintDate] = useState<string>('')
   const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
-  const [image, setImage] = useState<{blob: string; fileName: string}[]>([{blob: '', fileName: ''}])
 
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -270,7 +269,7 @@ const NewComplaintStore: FC = () => {
       formData.append('complaint_status', complaintStatus)
 
       if (complaintEvidence?.length) {
-        complaintEvidence.forEach((item, index) => {
+        complaintEvidence.forEach((item) => {
           if (item) {
             formData.append(`complaint_evidences`, item, item?.name)
           }
@@ -590,14 +589,10 @@ const NewComplaintStore: FC = () => {
                     onChange={handleFileChange}
                   />
 
-                  {/* {image.blob ? (
-                    <img src={image.blob} alt={image.fileName} className='image-preview' />
-                  ) : ( */}
                   <div className='input-image-text'>
                     <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
                     <p>Add File</p>
                   </div>
-                  {/* )} */}
                 </Form>
 
                 <ListGroup className='pt-3'>
@@ -605,29 +600,27 @@ const NewComplaintStore: FC = () => {
                     complaintEvidence.map((item, index) => (
                       <ListGroup.Item
                         key={`${item?.name}-${index}-${item?.type}`}
-                        onClick={(e) => handleRemoveFile(index)}
+                        className='d-flex justify-content-between'
                       >
-                        {item?.name}
+                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                        <span className='upload-content'> {item?.name}</span>
+
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size='sm'
+                          color='#ed2b2a'
+                          style={{cursor: 'pointer'}}
+                          onClick={(e) => handleRemoveFile(index)}
+                        />
                       </ListGroup.Item>
                     ))
                   ) : (
-                    <ListGroup.Item>Tidak ada file yang dipilih</ListGroup.Item>
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
                   )}
                 </ListGroup>
-
-                {/* <div className='uploaded-row'>
-                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
-
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    size='sm'
-                    color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
-                  />
-                </div> */}
               </Form.Group>
             </Col>
           </Row>
