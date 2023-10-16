@@ -817,6 +817,7 @@ const PreOrderStore: FC = () => {
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
                         type='number'
+                        disabled
                         value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />

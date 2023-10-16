@@ -167,7 +167,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       className: 'col-complaint-date',
       width: 150,
       onFilter: (value, record) => record.complaint_date.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.complaint_date.length,
+      sorter: (a, b) => a.complaint_date.length - b.complaint_date.length,
     },
     {
       title: 'Complaint Description',

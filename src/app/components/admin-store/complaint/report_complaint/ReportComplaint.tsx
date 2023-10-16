@@ -46,36 +46,95 @@ const statusToStateMap: StatusToStateMap = {
 }
 
 const ReportComplaintStore: FC = () => {
+  const [complaintData, setComplaintData] = useState<any[]>([])
   const [complaintList, setComplaintList] = useState<any>()
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const today = new Date()
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
+    .toISOString()
+    .split('T')[0]
+
+  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
 
   const fetchComplaintList = async () => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios
-        .get(`${apiUrl}/complaints?date_from=${dateFrom}&date_to=${dateTo}&take=50`, {
+      const response = await axios.get(
+        `${apiUrl}/complaints?date_from=${dateFrom}&date_to=${dateTo}&take=50`,
+        {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
-        })
-        .then((response) => {
-          const data = response.data.data
-          setComplaintList(data)
-        })
+        }
+      )
+      const data = response.data.data
+      setComplaintList(data)
+      return data
     } catch (error) {
       console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewComplaint = () => {
+    try {
+      const apiData = complaintList.map((item: any) => {
+        let data
+
+        const complaintDate = new Date(item.complaint_date)
+
+        let complaintStatus =
+          item.complaint_status === 3
+            ? 'INVESTIGATED'
+            : item.complaint_status === 19
+            ? 'ACCEPTED'
+            : item.complaint_status === 21
+            ? 'REJECT'
+            : ''
+
+        data = {
+          order_id: item.orders.id,
+          complaint_date: formatDate(complaintDate),
+          complaint_status: complaintStatus,
+        }
+
+        return data
+      })
+
+      return apiData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
     }
   }
 
   useEffect(() => {
     fetchComplaintList()
   }, [dateFrom, dateTo])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await ViewComplaint()
+        setComplaintData(data)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [complaintList])
 
   // Catch Value From Response API by Status
   const [statusState, setStatusState] = useState(initialStatusState)
@@ -282,7 +341,7 @@ const ReportComplaintStore: FC = () => {
           <ChartDonut2 className='card-xl-stretch mb-5 mb-xl-8' chartHeight='300px' />
         </div>
         <div className='col-xl-4'>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' />
+          <TableList className='card-xl-stretch mb-5 mb-xl-8' complaintData={complaintData} />
         </div>
       </div>
       {/* end::Row */}
