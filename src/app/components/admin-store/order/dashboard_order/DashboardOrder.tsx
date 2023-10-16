@@ -42,36 +42,85 @@ const statusToStateMap: StatusToStateMap = {
 }
 
 const DashboardOrderStore: FC = () => {
-  const [orderList, setOrderList] = useState<any>()
+  const [orderData, setOrderData] = useState<any[]>([])
+  console.log(orderData)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [orderList, setOrderList] = useState<any[]>([])
+
+  const today = new Date()
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
+    .toISOString()
+    .split('T')[0]
+
+  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
 
   const fetchOrderList = async () => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios
-        .get(`${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=50`, {
+      const response = await axios.get(
+        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=50`,
+        {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
-        })
-        .then((response) => {
-          const data = response.data.data
-          setOrderList(data)
-        })
+        }
+      )
+      const data = response.data.data
+      setOrderList(data)
+      return data
     } catch (error) {
       console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewOrder = () => {
+    try {
+      const apiData = orderList.map((item: any) => {
+        let data
+
+        data = {
+          order_id: item.id,
+          costumer_name: item.members.full_name,
+        }
+
+        return data
+      })
+
+      return apiData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
     }
   }
 
   useEffect(() => {
     fetchOrderList()
   }, [dateFrom, dateTo])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await ViewOrder()
+        setOrderData(data)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [orderList])
 
   // Catch Value From Response API by Status
   const [statusState, setStatusState] = useState(initialStatusState)
@@ -234,7 +283,7 @@ const DashboardOrderStore: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-12'>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' />
+          <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
         </div>
       </div>
       {/* end::Row */}

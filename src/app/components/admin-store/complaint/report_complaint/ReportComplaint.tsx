@@ -48,8 +48,13 @@ const statusToStateMap: StatusToStateMap = {
 const ReportComplaintStore: FC = () => {
   const [complaintList, setComplaintList] = useState<any>()
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const today = new Date()
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
+    .toISOString()
+    .split('T')[0]
+
+  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const fetchComplaintList = async () => {
     try {

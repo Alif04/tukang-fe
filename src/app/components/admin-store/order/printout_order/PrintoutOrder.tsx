@@ -161,7 +161,7 @@ const PrintoutOrder: FC = () => {
             </Table>
           </div>
 
-          <div className='receipt-id'>
+          <div className='receipt-id mb-5'>
             <Row>
               <Col xl={2}>
                 <h1 className='fs-2'>Receipt ID :</h1>
@@ -171,6 +171,10 @@ const PrintoutOrder: FC = () => {
                 <hr className='line' />
               </Col>
             </Row>
+          </div>
+
+          <div className='d-flex justify-content-center mt-5'>
+            <Button variant='primary'>Print</Button>
           </div>
         </div>
       </div>
