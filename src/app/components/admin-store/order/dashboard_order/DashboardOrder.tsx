@@ -43,8 +43,6 @@ const statusToStateMap: StatusToStateMap = {
 
 const DashboardOrderStore: FC = () => {
   const [orderData, setOrderData] = useState<any[]>([])
-  console.log(orderData)
-
   const [orderList, setOrderList] = useState<any[]>([])
 
   const today = new Date()

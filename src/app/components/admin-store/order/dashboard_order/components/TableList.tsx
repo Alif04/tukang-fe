@@ -47,58 +47,6 @@ const columns: ColumnsType<DataType> = [
   },
 ]
 
-// const data: DataType[] = [
-//   {
-//     key: '1',
-//     order_id: '78453992',
-//     costumer_name: 'Alia',
-//     nama_jasa: '',
-//     total: '',
-//   },
-//   {
-//     key: '2',
-//     order_id: '78453993',
-//     costumer_name: 'Abdulah',
-//     nama_jasa: '',
-//     total: '',
-//   },
-//   {
-//     key: '3',
-//     order_id: '78453994',
-//     costumer_name: 'Alice',
-//     nama_jasa: '',
-//     total: '',
-//   },
-//   {
-//     key: '4',
-//     order_id: '78453995',
-//     costumer_name: 'Kobe',
-//     nama_jasa: '',
-//     total: '',
-//   },
-//   {
-//     key: '5',
-//     order_id: '78453996',
-//     costumer_name: 'Kobe',
-//     nama_jasa: '',
-//     total: '',
-//   },
-//   {
-//     key: '6',
-//     order_id: '78453997',
-//     costumer_name: 'Kobe',
-//     nama_jasa: '',
-//     total: '',
-//   },
-//   {
-//     key: '7',
-//     order_id: '78453998',
-//     costumer_name: 'Kobe',
-//     nama_jasa: '',
-//     total: '',
-//   },
-// ]
-
 const TableList: React.FC<Props> = ({className, orderData}) => {
   return (
     <div className={`card ${className}`}>

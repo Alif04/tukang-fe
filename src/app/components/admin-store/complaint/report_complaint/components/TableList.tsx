@@ -1,59 +1,82 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
-import Table from 'react-bootstrap/Table'
+
+import {Table, Tag} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
 
 type Props = {
   className: string
+  complaintData: DataType[]
 }
 
-const TableList: React.FC<Props> = ({className}) => {
+interface DataType {
+  order_id: number
+  complaint_date: string
+  status: string
+}
+
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'Order ID',
+    dataIndex: 'order_id',
+    key: 'order_id',
+    align: 'center',
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a.order_id - b.order_id,
+    width: 100,
+  },
+  {
+    title: 'Complaint Date',
+    dataIndex: 'complaint_date',
+    key: 'complaint_date',
+    align: 'left',
+  },
+  {
+    title: 'Status',
+    dataIndex: 'complaint_status',
+    key: 'complaint_status',
+    align: 'left',
+    width: 130,
+    render: (complaint_status) => {
+      const complaintStatus = complaint_status
+      let color = ''
+
+      switch (complaintStatus) {
+        case 'INVESTIGATED':
+          color = 'volcano'
+          break
+        case 'ACCEPTED':
+          color = 'green'
+          break
+        default:
+          color = 'blue'
+          break
+      }
+
+      return <Tag color={color}>{complaintStatus}</Tag>
+    },
+    filters: [
+      {text: 'INVESTIGATED', value: 'INVESTIGATED'},
+      {text: 'ACCEPTED', value: 'ACCEPTED'},
+    ],
+  },
+]
+
+const TableList: React.FC<Props> = ({className, complaintData}) => {
   return (
     <div className={`card ${className}`}>
-      <div className='card-body p-2'>
+      <div className='card-body p-5'>
         <div className='d-flex flex-column'>
           <h1 className='fs-1 text-black mb-3'>List Pengaduan</h1>
 
-          <Table hover className='mb-3'>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Complaint Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>9873488</td>
-                <td>09/06/2023</td>
-                <td>COMPLAINT</td>
-              </tr>
-              <tr>
-                <td>8789372</td>
-                <td>09/06/2023</td>
-                <td>INVESTIGASI</td>
-              </tr>
-              <tr>
-                <td>7673293</td>
-                <td>09/06/2023</td>
-                <td className='text-danger'>SELESAI</td>
-              </tr>
-              <tr>
-                <td>9873488</td>
-                <td>09/06/2023</td>
-                <td>REWORK</td>
-              </tr>
-              <tr>
-                <td>7673293</td>
-                <td>09/06/2023</td>
-                <td>REFUND</td>
-              </tr>
-              <tr>
-                <td>7673293</td>
-                <td>09/06/2023</td>
-                <td>RESCHEDULE</td>
-              </tr>
-            </tbody>
-          </Table>
+          <Table
+            bordered
+            columns={columns}
+            dataSource={complaintData}
+            rowKey={(record) => record.order_id}
+            scroll={{x: 300, y: 165}}
+            pagination={{position: ['bottomRight']}}
+          />
         </div>
       </div>
     </div>

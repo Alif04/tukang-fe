@@ -50,6 +50,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 100,
       className: 'col_order_id',
+      defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
