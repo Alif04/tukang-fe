@@ -1,9 +1,8 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef, ChangeEvent} from 'react'
 
 import './UpdateComplaint.css'
 
 import axios from 'axios'
-import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {Image} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
@@ -127,8 +126,9 @@ const UpdateComplaintHO: FC = () => {
   const [remedialDesc, setRemedialDesc] = useState<any>('')
   const [remedialStartDate, setremedialStartDate] = useState<string>('')
   const [remedialEndDate, setremedialEndDate] = useState<string>('')
-  const [remedialEvidence, setRemedialEvidence] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+  const [remedialEvidence, setRemedialEvidence] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
 
   // Remedial Status
   const [optionRemedialStatus, setOptionRemedialStatus] = useState<OptionRemedialStatus[]>([])
@@ -168,10 +168,25 @@ const UpdateComplaintHO: FC = () => {
 
   // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setRemedialEvidence(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+    const fileList = event.target.files
+
+    if (fileList && fileList.length <= 5) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
+
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setRemedialEvidence(file)
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: 'File yang diupload maksimal 5',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 2000,
+      })
     }
   }
 
@@ -180,9 +195,17 @@ const UpdateComplaintHO: FC = () => {
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setRemedialEvidence('No selected file')
-    setImage(null)
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...remedialEvidence]
+
+    newEvidances.splice(index, 1)
+
+    setRemedialEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
   }
 
   // Remedial Validation
@@ -238,7 +261,14 @@ const UpdateComplaintHO: FC = () => {
       formData.append('ra_date_start', remedialStartDate)
       formData.append('ra_date_end', remedialEndDate)
       formData.append('remedial_status', optionRemedialStatusId)
-      formData.append('complaint_evidences', remedialEvidence)
+
+      if (remedialEvidence?.length) {
+        remedialEvidence.forEach((item) => {
+          if (item) {
+            formData.append(`complaint_evidences`, item, item?.name)
+          }
+        })
+      }
 
       const response = await axios
         .post(`${apiUrl}/remedials`, formData, {
@@ -575,16 +605,6 @@ const UpdateComplaintHO: FC = () => {
                       <option value='5'>INVESTIGATED</option>
                       <option value='6'>ACCEPTED</option>
                     </Form.Select>
-
-                    {/* <Select
-                      name='store_id'
-                      className='form-control p-0'
-                      classNamePrefix='select'
-                      placeholder='Pilih Status'
-                      isSearchable={true}
-                      options={optionRemedialStatus}
-                      onChange={handleChangeSelectRemedialStatus}
-                    /> */}
                   </Form.Group>
 
                   <Form.Group>
@@ -603,40 +623,52 @@ const UpdateComplaintHO: FC = () => {
                     <Form.Control type='date' onChange={handleChangeremedialEndDate} />
                   </Form.Group>
 
-                  <Form.Group controlId='formFile' className='mt-5'>
-                    <Form.Label>Upload File</Form.Label>
+                  <Form.Group controlId='formFile'>
+                    <Form.Label>Upload Bukti</Form.Label>
                     <Form className='form-input-image' onClick={handleImageClick}>
                       <Form.Control
                         type='file'
                         accept='image/*'
                         className='input-field-image'
+                        multiple
                         hidden
+                        id='file-input'
+                        ref={evidenceRef}
                         onChange={handleFileChange}
                       />
 
-                      {image ? (
-                        <img src={image} alt={remedialEvidence} className='image-preview' />
-                      ) : (
-                        <div className='input-image-text'>
-                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                          <p>Add File</p>
-                        </div>
-                      )}
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
                     </Form>
 
-                    <div className='uploaded-row'>
-                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                    <ListGroup className='pt-3'>
+                      {remedialEvidence.length ? (
+                        remedialEvidence.map((item, index) => (
+                          <ListGroup.Item
+                            key={`${item?.name}-${index}-${item?.type}`}
+                            className='d-flex justify-content-between'
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                      <span className='upload-content'>{remedialEvidence}</span>
+                            <span className='upload-content'> {item?.name}</span>
 
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        size='sm'
-                        color='#ed2b2a'
-                        style={{cursor: 'pointer'}}
-                        onClick={handleRemoveFile}
-                      />
-                    </div>
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
                   </Form.Group>
                 </Col>
               </Row>

@@ -336,12 +336,6 @@ const UpdateOrderStoreCS: FC = () => {
     setPaymentType(selectedOptionPayment)
   }
 
-  // Input No Receipt
-  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedNoReceipt = event.target.value
-    setReceiptNumber(updatedNoReceipt)
-  }
-
   const handleTypeOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedOptionType = event.target.value
 
@@ -352,6 +346,12 @@ const UpdateOrderStoreCS: FC = () => {
     }
 
     setType(selectedOptionType)
+  }
+
+  // Input No Receipt
+  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedNoReceipt = event.target.value
+    setReceiptNumber(updatedNoReceipt)
   }
 
   // Upload File
@@ -820,7 +820,7 @@ const UpdateOrderStoreCS: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Form.Group>
                     <Form.Label>
-                      Nama Toko{' '}
+                      Nama Toko
                       <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
                         {staffStoreName}
                       </span>
