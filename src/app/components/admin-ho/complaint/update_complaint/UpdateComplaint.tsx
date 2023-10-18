@@ -20,11 +20,15 @@ const UpdateComplaintHO: FC = () => {
   const params = useParams()
   const navigate = useNavigate()
 
+  const userId = localStorage.getItem('user_id') as any
+
   // Complaint Detail
   const [orderDetail, setOrderDetail] = useState<any>()
 
   const [complaintId, setComplaintId] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
+
+  const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
 
   const fetchComplaintData = async () => {
@@ -123,6 +127,8 @@ const UpdateComplaintHO: FC = () => {
   }
 
   // Add Remedial Action
+  const [picRemedialId, setPicRemedialId] = useState<any>()
+  console.log(picRemedialId)
   const [remedialDesc, setRemedialDesc] = useState<any>('')
   const [remedialStartDate, setremedialStartDate] = useState<string>('')
   const [remedialEndDate, setremedialEndDate] = useState<string>('')
@@ -134,6 +140,12 @@ const UpdateComplaintHO: FC = () => {
   const [optionRemedialStatus, setOptionRemedialStatus] = useState<OptionRemedialStatus[]>([])
   const [optionRemedialStatusId, setOptionRemedialStatusId] = useState<string>('')
   const [optionRemedialStatusName, setOptionRemedialStatusName] = useState<string>('')
+
+  // PIC Remedial
+  useEffect(() => {
+    const updatedPicRemedial = userId.toString()
+    setPicRemedialId(updatedPicRemedial)
+  }, [userId])
 
   // Handle Input Change
   const handleInputRemedialDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,6 +168,8 @@ const UpdateComplaintHO: FC = () => {
   // }
 
   // Handle Complaint Date Change
+  const today = new Date().toISOString().split('T')[0]
+
   const handleChangeremedialStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedremedialStartDate = event.target.value
     setremedialStartDate(updatedremedialStartDate)
@@ -172,13 +186,17 @@ const UpdateComplaintHO: FC = () => {
 
     if (fileList && fileList.length <= 5) {
       const file: Array<File | null> = new Array<File>()
-      const {length} = fileList
+      const existingFiles = [...remedialEvidence]
+      const mergedFiles = existingFiles.concat(file)
 
-      for (let i = 0; i < length; i++) {
-        file[i] = fileList.item(i)
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
       }
 
-      setRemedialEvidence(file)
+      setRemedialEvidence(mergedFiles)
     } else {
       Swal.fire({
         title: 'Error',
@@ -260,12 +278,13 @@ const UpdateComplaintHO: FC = () => {
       formData.append('remedial_action', remedialDesc)
       formData.append('ra_date_start', remedialStartDate)
       formData.append('ra_date_end', remedialEndDate)
+      formData.append('remedial_pic', picRemedialId)
       formData.append('remedial_status', optionRemedialStatusId)
 
       if (remedialEvidence?.length) {
         remedialEvidence.forEach((item) => {
           if (item) {
-            formData.append(`complaint_evidences`, item, item?.name)
+            formData.append(`remedial_evidences`, item, item?.name)
           }
         })
       }
@@ -573,16 +592,37 @@ const UpdateComplaintHO: FC = () => {
 
                   <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
                   <ListGroup>
-                    <ListGroup.Item action onClick={() => setVisible(true)}>
-                      342344.png
-                    </ListGroup.Item>
-                    <ListGroup.Item action onClick={() => setVisible(true)}>
-                      848735.png
-                    </ListGroup.Item>
-                    <ListGroup.Item action onClick={() => setVisible(true)}>
-                      Complaint.docx
-                    </ListGroup.Item>
+                    {complaintDetail?.complaint_evidence.map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisible(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
                   </ListGroup>
+
+                  {previewImage && (
+                    <div>
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/complaints/${previewImage}`}
+                        preview={{
+                          visible,
+                          src: `${apiUrl}/public/complaints/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisible(value)
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
                 </Col>
               </Row>
             </Col>
@@ -594,7 +634,11 @@ const UpdateComplaintHO: FC = () => {
                 <Col>
                   <Form.Group>
                     <Form.Label className='mt-3'>Start Date :</Form.Label>
-                    <Form.Control type='date' onChange={handleChangeremedialStartDate} />
+                    <Form.Control
+                      type='date'
+                      min={today}
+                      onChange={handleChangeremedialStartDate}
+                    />
                   </Form.Group>
 
                   <Form.Group>
@@ -602,8 +646,8 @@ const UpdateComplaintHO: FC = () => {
 
                     <Form.Select onChange={handleChangeSelectRemedialStatus}>
                       <option selected>Select Status</option>
-                      <option value='5'>INVESTIGATED</option>
-                      <option value='6'>ACCEPTED</option>
+                      <option value='4'>INVESTIGATED</option>
+                      <option value='19'>ACCEPTED</option>
                     </Form.Select>
                   </Form.Group>
 
@@ -620,7 +664,7 @@ const UpdateComplaintHO: FC = () => {
                 <Col>
                   <Form.Group>
                     <Form.Label className='mt-3'>End Date :</Form.Label>
-                    <Form.Control type='date' onChange={handleChangeremedialEndDate} />
+                    <Form.Control type='date' min={today} onChange={handleChangeremedialEndDate} />
                   </Form.Group>
 
                   <Form.Group controlId='formFile'>
@@ -696,19 +740,6 @@ const UpdateComplaintHO: FC = () => {
           </div>
         </div>
       </div>
-
-      <Image
-        width={200}
-        style={{display: 'none'}}
-        src='https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60'
-        preview={{
-          visible,
-          src: 'https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60',
-          onVisibleChange: (value) => {
-            setVisible(value)
-          },
-        }}
-      />
     </section>
   )
 }

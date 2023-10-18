@@ -225,7 +225,7 @@ const DetailComplaintStore: FC = () => {
     }
   }
 
-  // Complaint Validation
+  // Feedback Validation
   const FeedbackValidation = () => {
     let valid = true
 

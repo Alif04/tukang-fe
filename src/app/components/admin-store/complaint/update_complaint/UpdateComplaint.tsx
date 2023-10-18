@@ -216,9 +216,45 @@ const UpdateComplaintStore: FC = () => {
     }
   }
 
+  // Update Complaint Validation
+  const UpdateComplaintValidation = () => {
+    let valid = true
+
+    if (!complaintDesc) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint description',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintChannelId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select complaint via form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint evidence form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
   // Handle Submit Complaint
   const handleUpdateComplaint = async () => {
-    try {
+    if (UpdateComplaintValidation()) {
       const formData = new FormData()
 
       formData.append('order_id', orderId)
@@ -234,32 +270,44 @@ const UpdateComplaintStore: FC = () => {
         })
       }
 
-      await axios.post(`${apiUrl}/complaints/${params.id}`, formData, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios
+        .post(`${apiUrl}/complaints/${params.id}`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
-      Swal.fire({
-        title: 'Success',
-        text: 'Success Update Complaint',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 1500,
-      })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Update Complaint',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
 
-      navigate('/complaint/view-complaint')
-    } catch (error) {
-      console.error(error)
+          navigate('/complaint/view-complaint')
+        })
+        .catch((error) => {
+          console.error(error)
 
-      Swal.fire({
-        title: 'Error',
-        text: 'Cant Add Complaint',
-        icon: 'error',
-      })
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
     }
   }
 

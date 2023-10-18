@@ -100,6 +100,7 @@ const UpdateOrderHO: FC = () => {
   const [paymentType, setPaymentType] = useState<string>('')
 
   const [projectStatusId, setProjectStatusId] = useState<any>()
+  console.log(projectStatusId)
 
   const [requestDate, setRequestDate] = useState<string>('')
 
@@ -373,8 +374,7 @@ const UpdateOrderHO: FC = () => {
   }, [])
 
   // Order Status
-
-  const orderStatus = () => {
+  useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
@@ -383,7 +383,7 @@ const UpdateOrderHO: FC = () => {
     const statusId = desiredStatus.value
 
     setProjectStatusId(statusId)
-  }
+  }, [projectStatusId])
 
   // Select Store
   const handleChangeSelectStore = (element: any) => {
@@ -846,7 +846,7 @@ const UpdateOrderHO: FC = () => {
     return valid
   }
 
-  // Submit Update Pre Order
+  // Submit Update Order
 
   const handleSubmitUpdateOrder = async () => {
     if (UpdateOrderValidation()) {
@@ -860,7 +860,7 @@ const UpdateOrderHO: FC = () => {
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
       formData.append('vendor_id', vendorId)
-      formData.append('project_status_id', projectStatusId.toString())
+      formData.append('project_status_id', projectStatusId)
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
@@ -892,11 +892,17 @@ const UpdateOrderHO: FC = () => {
           },
         })
         .then((response) => {
+          const orderId = response.data.data.id
+
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Update Order',
+              text: response.data.message,
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              navigate(`/order/printout-order/${orderId}`)
             })
           } else {
             Swal.fire({
@@ -905,7 +911,6 @@ const UpdateOrderHO: FC = () => {
               icon: 'error',
             })
           }
-
           navigate('/order/view-order')
         })
         .catch((error) => {
