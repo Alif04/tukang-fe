@@ -1,22 +1,32 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './DetailComplaint.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import Select from 'react-select'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, ListGroup, Table, Button} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
+interface Member {
+  value: any
+  label: string
+}
+
 const DetailComplaintHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
 
+  const [complaintId, setComplaintId] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const fetchComplaintData = async () => {
     try {
@@ -59,8 +69,34 @@ const DetailComplaintHO: FC = () => {
     }
   }
 
+  const getCostumer = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/member/data`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      if (Array.isArray(response.data.data.member)) {
+        const tempMember = response.data.data.member.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+        }))
+
+        setPicFeedback(tempMember)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     fetchComplaintData()
+    getCostumer()
   }, [])
 
   useEffect(() => {
@@ -81,44 +117,89 @@ const DetailComplaintHO: FC = () => {
     return `${day}/${month}/${year}`
   }
 
+  // PIC Feedback
+  const [picFeedbackId, setPicFeedbackId] = useState<any>()
+  const [picFeedback, setPicFeedback] = useState<Member[]>([])
+  const [picFeedbackName, setPicFeedbackName] = useState<string>('')
+
   // Add Feedback
 
-  const [memberName, setMemberName] = useState<string>('')
-  const [position, setPosition] = useState<string>('')
+  const [feedbackStatus, setFeedbackStatusId] = useState<any>()
   const [feedbackDesc, setFeedbackDesc] = useState<any>('')
-  const [feedbackDate, setFeedbackDate] = useState<string>('')
-  const [evidenceComplaint, setEvidenceComplaint] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
-  const [visible, setVisible] = useState(false)
+  const [feedbackStartDate, setFeedbackStartDate] = useState<string>('')
+  const [feedbackEndDate, setFeedbackEndDate] = useState<string>('')
+  const [feedbackEvidence, setFeedbackEvidence] = useState<Array<File | null>>([])
 
-  // Handle Input Change
-  const handleInputMemberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setMemberName(updatedInputValue)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Feedback Status
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatusName = 'FEEDBACK'
+    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const statusId = desiredStatus.value
+
+    setFeedbackStatusId(statusId)
+  }, [feedbackStatus])
+
+  // Handle Change PIC Feedback
+  // const handleInputMemberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const updatedInputValue = event.target.value
+  //   setPicFeedback(updatedInputValue)
+  // }
+
+  const handlePicFeedbackChange = (element: Member | null) => {
+    const newMemberInfo: Member = {
+      value: element?.value || 0,
+      label: element?.label || '',
+    }
+
+    setPicFeedbackId(newMemberInfo.value)
+    setPicFeedbackName(newMemberInfo.label)
   }
 
-  const handleInputPositionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setPosition(updatedInputValue)
-  }
-
+  // Handle Change Feedback Desc
   const handleInputFeedbackDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedInputValue = event.target.value
     setFeedbackDesc(updatedInputValue)
   }
 
   // Handle Feedback Date Change
-  const handleChangeFeedbackDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedFeedbackDate = event.target.value
-    setFeedbackDate(updatedFeedbackDate)
+  const today = new Date().toISOString().split('T')[0]
+
+  const handleChangeFeedbackStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedFeedbackStartDate = event.target.value
+    setFeedbackStartDate(updatedFeedbackStartDate)
+  }
+
+  const handleChangeFeedbackEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedFeedbackEndDate = event.target.value
+    setFeedbackEndDate(updatedFeedbackEndDate)
   }
 
   // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setEvidenceComplaint(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+    const fileList = event.target.files
+
+    if (fileList && fileList.length <= 5) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
+
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setFeedbackEvidence(file)
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: 'File yang diupload maksimal 5',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 2000,
+      })
     }
   }
 
@@ -127,48 +208,117 @@ const DetailComplaintHO: FC = () => {
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setEvidenceComplaint('No selected file')
-    setImage(null)
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...feedbackEvidence]
+
+    newEvidances.splice(index, 1)
+
+    setFeedbackEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Feedback Validation
+  const FeedbackValidation = () => {
+    let valid = true
+
+    if (!picFeedback) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill PIC Feedback form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!feedbackDesc) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill feedback store description form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!feedbackStartDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill feedback start date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!feedbackEndDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill feedback end date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!feedbackEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill feedback evidence form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
   }
 
   // Handle Submit Feedback
   const handleSubmitNewFeedback = async () => {
-    try {
+    if (FeedbackValidation()) {
       const formData = new FormData()
 
-      formData.append('member_name', memberName)
-      formData.append('position', position)
-      formData.append('feedback_date', feedbackDate)
-      formData.append('feedback_desc', feedbackDesc)
-      formData.append('evidence_feedback', evidenceComplaint)
+      formData.append('complaint_id', complaintId)
+      formData.append('remedial_action', feedbackDesc)
+      formData.append('ra_date_start', feedbackStartDate)
+      formData.append('ra_date_end', feedbackEndDate)
+      formData.append('remedial_pic', picFeedbackId)
+      formData.append('remedial_status', feedbackStatus)
 
-      console.log(formData)
+      if (feedbackEvidence?.length) {
+        feedbackEvidence.forEach((item) => {
+          if (item) {
+            formData.append(`remedial_evidences`, item, item?.name)
+          }
+        })
+      }
 
-      // const response = await axios.post(`${apiUrl}/feedback/create`, formData, {
-      //   headers: {
-      //     Accept: 'application/json',
-      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      //     'Access-Control-Allow-Origin': '*',
-      //     'ngrok-skip-browser-warning': 'true',
-      //   },
-      // })
+      const response = await axios
+        .post(`${apiUrl}/remedials`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Update Feedback',
+              icon: 'success',
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
 
-      // Swal.fire({
-      //   title: 'Success',
-      //   text: 'Success update realization',
-      //   icon: 'success',
-      // })
+          navigate('/complaint/view-complaint')
+        })
+        .catch((error) => {
+          console.error(error)
 
-      // navigate('/complaint/view-complaint')
-    } catch (error) {
-      console.error(error)
-
-      Swal.fire({
-        title: 'Error',
-        text: 'Cant Add Order',
-        icon: 'error',
-      })
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
     }
   }
 
@@ -429,22 +579,43 @@ const DetailComplaintHO: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
               <ListGroup>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  342344.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  848735.png
-                </ListGroup.Item>
-                <ListGroup.Item action onClick={() => setVisible(true)}>
-                  Complaint.docx
-                </ListGroup.Item>
+                {complaintDetail?.complaint_evidence.map((item: any) => (
+                  <ListGroup.Item
+                    key={item.id}
+                    action
+                    onClick={() => {
+                      setPreviewImage(item.evidence_location)
+                      setVisible(true)
+                    }}
+                  >
+                    {item.evidence_location}
+                  </ListGroup.Item>
+                ))}
               </ListGroup>
+
+              {previewImage && (
+                <div>
+                  <Image
+                    key={previewImage}
+                    width={200}
+                    style={{display: 'none'}}
+                    src={`${apiUrl}/public/complaints/${previewImage}`}
+                    preview={{
+                      visible,
+                      src: `${apiUrl}/public/complaints/${previewImage}`,
+                      onVisibleChange: (value) => {
+                        setVisible(value)
+                      },
+                    }}
+                  />
+                </div>
+              )}
             </Col>
           </Row>
 
-          {/* <hr /> */}
+          <hr />
 
-          {/* <Row>
+          <Row>
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
               <Form.Label className='fs-3 fw-bold'>Feedback Store :</Form.Label>
               <Form.Control
@@ -457,72 +628,100 @@ const DetailComplaintHO: FC = () => {
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group controlId='formFile'>
-                <Form.Label className='fs-3 fw-normal'>UPLOAD BUKTI</Form.Label>
+                <Form.Label>Upload Bukti</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
                     type='file'
                     accept='image/*'
                     className='input-field-image'
+                    multiple
                     hidden
+                    id='file-input'
+                    ref={evidenceRef}
                     onChange={handleFileChange}
                   />
 
-                  {image ? (
-                    <img src={image} alt={evidenceComplaint} className='image-preview' />
-                  ) : (
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  )}
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
                 </Form>
 
-                <div className='uploaded-row'>
-                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                <ListGroup className='pt-3'>
+                  {feedbackEvidence.length ? (
+                    feedbackEvidence.map((item, index) => (
+                      <ListGroup.Item
+                        key={`${item?.name}-${index}-${item?.type}`}
+                        className='d-flex justify-content-between'
+                      >
+                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{evidenceComplaint}</span>
+                        <span className='upload-content'> {item?.name}</span>
 
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    size='sm'
-                    color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
-                  />
-                </div>
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size='sm'
+                          color='#ed2b2a'
+                          style={{cursor: 'pointer'}}
+                          onClick={(e) => handleRemoveFile(index)}
+                        />
+                      </ListGroup.Item>
+                    ))
+                  ) : (
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
               </Form.Group>
             </Col>
-          </Row> */}
-          {/* 
+          </Row>
+
           <Row>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Nama Pemberi Feedback</Form.Label>
-                <Form.Control
+
+                {/* <Form.Control
                   type='text'
                   placeholder='John Doe'
-                  value={memberName}
-                  onChange={handleInputMemberChange}
+                  value={picFeedback}
+                  onChange={handlePicFeedbackChange}
+                /> */}
+
+                <Select
+                  name='member'
+                  id='member'
+                  className='form-control p-0 form-item-name'
+                  classNamePrefix='select'
+                  placeholder='Pilih PIC Feedback'
+                  isSearchable={true}
+                  options={picFeedback}
+                  value={{
+                    value: picFeedbackId,
+                    label: picFeedbackName,
+                  }}
+                  onChange={(element) => handlePicFeedbackChange(element)}
                 />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
-                <Form.Label>Jabatan</Form.Label>
-                <Form.Control type='text' value={position} onChange={handleInputPositionChange} />
+                <Form.Label>Tanggal Start Feedback : </Form.Label>
+                <Form.Control min={today} type='date' onChange={handleChangeFeedbackStartDate} />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
-                <Form.Label>Tanggal Feedback : </Form.Label>
-                <Form.Control type='date' onChange={handleChangeFeedbackDate} />
+                <Form.Label>Tanggal End Feedback : </Form.Label>
+                <Form.Control min={today} type='date' onChange={handleChangeFeedbackEndDate} />
               </Form.Group>
             </Col>
-          </Row> */}
+          </Row>
 
-          {/* <div className='d-flex justify-content-center align-items-center mt-5'>
+          <div className='d-flex justify-content-center align-items-center mt-5'>
             <Button
               variant='dark-danger'
               className='d-flex justify-content-center align-items-center'
@@ -540,7 +739,7 @@ const DetailComplaintHO: FC = () => {
             >
               Submit
             </Button>
-          </div> */}
+          </div>
 
           {/* <hr />
 
