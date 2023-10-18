@@ -1,8 +1,8 @@
-import React, {ChangeEvent, FC, useEffect, useState} from 'react'
+import React, {FC, useEffect, useState, ChangeEvent} from 'react'
 import axios from 'axios'
 import {useNavigate, useParams} from 'react-router-dom'
 
-import './UpdateOrder.css'
+import './NewOrder.css'
 
 import Swal from 'sweetalert2'
 import Select from 'react-select'
@@ -33,6 +33,11 @@ interface Sales {
   label: string
 }
 
+interface Vendor {
+  value: any
+  label: string
+}
+
 interface ItemDescription {
   value: string
   label: string
@@ -51,7 +56,7 @@ interface ItemPrice {
   price: string
 }
 
-const UpdateOrderStoreCS: FC = () => {
+const NewOrderHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -60,8 +65,6 @@ const UpdateOrderStoreCS: FC = () => {
   const userId = localStorage.getItem('user_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
-  const staffStoreId = localStorage.getItem('storeId') as any
-  const staffStoreName = localStorage.getItem('storeName') as string
 
   const [indexForm, setIndexForm] = useState<number>(0)
 
@@ -88,10 +91,16 @@ const UpdateOrderStoreCS: FC = () => {
   const [sales, setSales] = useState<Sales[]>([])
   const [salesName, setSalesName] = useState<string>('')
 
+  // Vendor
+  const [vendorId, setVendorId] = useState<any>()
+  const [vendor, setVendor] = useState<Vendor[]>([])
+  const [vendorName, setVendorName] = useState<string>('')
+
   const [type, setType] = useState<string>('')
   const [paymentType, setPaymentType] = useState<string>('')
 
   const [projectStatusId, setProjectStatusId] = useState<any>()
+  console.log(projectStatusId)
 
   const [requestDate, setRequestDate] = useState<string>('')
 
@@ -116,87 +125,32 @@ const UpdateOrderStoreCS: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
-    const fetchOrderData = async () => {
+    const getStore = async () => {
       try {
-        await axios
-          .get(`${apiUrl}/orders/${params.id}`, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          .then((response) => {
-            const data = response.data.data
-            setOrderDetail(data)
+        const response = await axios.get(`${apiUrl}/stores`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
-            if (data?.store?.id && data?.store?.store_name) {
-              setStoreId(data.store.id)
-              setStoreName(data.store.store_name)
-            }
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+            address: item.address,
+            city_id: item.city_id,
+            zip_code: item.zip_code,
+          }))
 
-            if (data?.payment_type) {
-              setPaymentType(data.payment_type)
-            }
-
-            if (data?.created_at) {
-              setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
-            }
-
-            if (data?.project_number) {
-              setMemberPhoneNumber(data.project_number)
-            }
-
-            if (data?.receipt_path) {
-              setImage({
-                blob: '',
-                fileName: data.receipt_path,
-              })
-            }
-
-            if (data?.receipt_number) {
-              setReceiptNumber(data.receipt_number)
-            }
-
-            if (
-              data?.members?.id &&
-              data?.members?.full_name &&
-              data?.members.email &&
-              data?.members.whatsapp_number &&
-              data?.members.address_1
-            ) {
-              setMemberId(data.members.id)
-              setMemberName(data.members.full_name)
-              setMemberEmail(data.members.email)
-              setMemberAddress(data.members.address_1)
-            }
-
-            if (data?.sales?.id && data?.sales?.full_name) {
-              setSalesId(data.sales.id)
-              setSalesName(data.sales.full_name)
-            }
-
-            if (data?.order_details) {
-              const initialOrderDetailValues = data.order_details.map((item: any) => ({
-                id: item.id,
-                item_id: item.item_id,
-                order_status_id: item.order_status_id,
-                unit: item.unit,
-                category_name: item.category_name,
-                unit_price: parseInt(item.unit_price),
-                quote_price: item.quote_price,
-                quantity: item.quantity,
-                total: item.total,
-                survey_price: item.survey_price,
-                comission: item.comission,
-              }))
-
-              setOrderDetailValues(initialOrderDetailValues)
-            }
-          })
-      } catch (error) {
-        console.error(error)
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
       }
     }
 
@@ -215,7 +169,6 @@ const UpdateOrderStoreCS: FC = () => {
             value: item.id,
             label: item.full_name,
             email: item.email,
-            phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
@@ -261,6 +214,35 @@ const UpdateOrderStoreCS: FC = () => {
       }
     }
 
+    const getVendor = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/vendor/get`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempVendor = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.company_name,
+          }))
+
+          const creatableOptionVendor = {value: 'vendorOption'}
+          tempVendor.push(creatableOptionVendor)
+
+          setVendor(tempVendor)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     const getItem = async () => {
       try {
         const response = await axios.get(`${apiUrl}/items?take=0`, {
@@ -298,9 +280,10 @@ const UpdateOrderStoreCS: FC = () => {
       }
     }
 
-    fetchOrderData()
+    getStore()
     getCostumer()
     getSales()
+    getVendor()
     getItem()
   }, [])
 
@@ -309,7 +292,7 @@ const UpdateOrderStoreCS: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatusName = 'BOOKED'
+    const desiredStatusName = 'SURVEYREQ'
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
     const statusId = desiredStatus.value
 
@@ -317,17 +300,26 @@ const UpdateOrderStoreCS: FC = () => {
   }, [projectStatusId])
 
   // Select Store
-  useEffect(() => {
-    const updatedStore = staffStoreId.toString()
-    setStoreId(updatedStore)
-  }, [staffStoreId])
+  const handleChangeSelectStore = (element: any) => {
+    const updatedStoreId = element.value
+    const updatedStoreName = element.label
 
-  // Select Date Requeet
+    setStoreId(updatedStoreId)
+    setStoreName(updatedStoreName)
+  }
+
+  // Select Date Request
   const today = new Date().toISOString().split('T')[0]
 
   const handleChangeRequestDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedRequestDate = event.target.value
     setRequestDate(updatedRequestDate)
+  }
+
+  // Input No Receipt
+  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedNoReceipt = event.target.value
+    setReceiptNumber(updatedNoReceipt)
   }
 
   // Payment Type ( Radio Button )
@@ -346,12 +338,6 @@ const UpdateOrderStoreCS: FC = () => {
     }
 
     setType(selectedOptionType)
-  }
-
-  // Input No Receipt
-  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedNoReceipt = event.target.value
-    setReceiptNumber(updatedNoReceipt)
   }
 
   // Upload File
@@ -386,6 +372,9 @@ const UpdateOrderStoreCS: FC = () => {
 
   // Sales Information
   const [salesInfo, setSalesInfo] = useState<Sales | null>(null)
+
+  // Vendor Information
+  const [vendorInfo, setVendorInfo] = useState<Vendor | null>(null)
 
   // Change Select Member
   const handleChangeSelectMember = (element: Member | null) => {
@@ -499,14 +488,32 @@ const UpdateOrderStoreCS: FC = () => {
     setSalesId(newSalesId)
   }
 
+  // Change Select Vendor
+  const handleChangeSelectVendor = (element: Vendor | null) => {
+    if (element && element.value == 'vendorOption') {
+      setVendorInfo(null)
+      setVendorId(null)
+      setVendorName('')
+    } else {
+      const newVendorInfo: Vendor = {
+        value: element?.value || 0,
+        label: element?.label || '',
+      }
+
+      setVendorInfo(newVendorInfo)
+      setVendorId(newVendorInfo.value)
+      setVendorName(newVendorInfo.label)
+    }
+  }
+
   // Add New Order
 
   // Order Details
   const [orderDetailValues, setOrderDetailValues] = useState([
     {
-      id: '',
+      id: 0,
       item_id: '',
-      order_status_id: 3,
+      order_status_id: 6,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -519,10 +526,13 @@ const UpdateOrderStoreCS: FC = () => {
   ])
 
   let handleAddForm = () => {
+    const newId =
+      orderDetailValues.length > 0 ? orderDetailValues[orderDetailValues.length - 1].id + 1 : 0
+
     const newForm = {
-      id: '',
+      id: newId,
       item_id: '',
-      order_status_id: 3,
+      order_status_id: 6,
       unit: '',
       category_name: '',
       unit_price: 0,
@@ -543,10 +553,10 @@ const UpdateOrderStoreCS: FC = () => {
     setOrderDetailValues(newOrderDetailValues)
     setIndexForm(indexForm - 1)
 
-    let updatedOrderDetailValues = newOrderDetailValues.map((value) => {
+    let updatedOrderDetailValues = newOrderDetailValues.map((value, newIndex) => {
       return {
         ...value,
-        id: '',
+        id: newIndex,
       }
     })
 
@@ -629,10 +639,10 @@ const UpdateOrderStoreCS: FC = () => {
 
     setTotal(calculatedTotal)
     setGrandTotal(calculatedGrandTotal)
-  }, [orderDetailValues, total, type, paymentType])
+  }, [orderDetailValues, total, paymentType, type])
 
-  // Update Order Validation
-  const UpdateOrderValidation = () => {
+  // New Order Validation
+  const NewOrderValidation = () => {
     let valid = true
 
     if (!storeId) {
@@ -712,6 +722,13 @@ const UpdateOrderStoreCS: FC = () => {
         icon: 'error',
       })
       valid = false
+    } else if (!vendorName) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select or create vendor name form',
+        icon: 'error',
+      })
+      valid = false
     }
 
     orderDetailValues.map((item) => {
@@ -735,8 +752,9 @@ const UpdateOrderStoreCS: FC = () => {
   }
 
   // Submit Update Order
-  const handleSubmitUpdateOrder = async () => {
-    if (UpdateOrderValidation()) {
+
+  const handleSubmitNewOrder = async () => {
+    if (NewOrderValidation()) {
       const formData = new FormData()
 
       if (receiptFile?.length) {
@@ -746,8 +764,10 @@ const UpdateOrderStoreCS: FC = () => {
 
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
+      formData.append('vendor_id', vendorId)
       formData.append('project_status_id', projectStatusId)
       formData.append('project_address', memberAddress)
+      formData.append('project_number', memberPhoneNumber)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
@@ -756,7 +776,6 @@ const UpdateOrderStoreCS: FC = () => {
       formData.append('payment_type', paymentType)
 
       orderDetailValues.forEach((order, index) => {
-        formData.append(`order_details[${index}][id]`, String(order.id))
         formData.append(`order_details[${index}][item_id]`, String(order.item_id))
         formData.append(`order_details[${index}][order_status_id]`, String(order.order_status_id))
         formData.append(`order_details[${index}][unit]`, order.unit)
@@ -769,7 +788,7 @@ const UpdateOrderStoreCS: FC = () => {
       })
 
       const response = await axios
-        .post(`${apiUrl}/orders/${params.id}`, formData, {
+        .post(`${apiUrl}/orders`, formData, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -783,12 +802,12 @@ const UpdateOrderStoreCS: FC = () => {
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Update Order',
+              text: response.data.message,
               icon: 'success',
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              navigate(`/order/preview-email/${orderId}`)
+              navigate(`/order/printout-order/${orderId}`)
             })
           } else {
             Swal.fire({
@@ -810,65 +829,30 @@ const UpdateOrderStoreCS: FC = () => {
     }
   }
 
-  // Reprint Order
-
-  const handleReprintOrder = async () => {
-    const response = await axios
-      .request({
-        url: `${apiUrl}/orders/${params.id}/counter`,
-        method: 'post',
-        maxBodyLength: Infinity,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Reprint Order',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1000,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-
-        navigate(`/order/printout-order/${params.id}`)
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
-  }
-
   return (
-    <section id='update-order'>
+    <section id='new-order'>
       <div className='card mb-5'>
         <div className='card-body'>
           <div className='form-wrapper'>
             <div className='form-costumer'>
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Form.Group>
-                    <Form.Label>
+                  <Form.Group as={Row}>
+                    <Form.Label column sm='4'>
                       Nama Toko
-                      <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
-                        {staffStoreName}
-                      </span>
                     </Form.Label>
+
+                    <Col sm='8'>
+                      <Select
+                        name='store_id'
+                        className='form-control p-0'
+                        classNamePrefix='select'
+                        placeholder='Pilih Toko'
+                        isSearchable={true}
+                        options={store}
+                        onChange={(element) => handleChangeSelectStore(element)}
+                      />
+                    </Col>
                   </Form.Group>
                 </Col>
 
@@ -986,14 +970,6 @@ const UpdateOrderStoreCS: FC = () => {
                       placeholder='Pilih/Ketik Nama Member'
                       isSearchable={true}
                       options={member}
-                      value={{
-                        value: memberId,
-                        label: memberName,
-                        email: memberEmail,
-                        phone_number: memberPhoneNumber,
-                        whatsapp_number: memberPhoneNumber,
-                        address_1: memberAddress,
-                      }}
                       onChange={(element) => handleChangeSelectMember(element)}
                     />
                   </Form.Group>
@@ -1083,11 +1059,22 @@ const UpdateOrderStoreCS: FC = () => {
                         placeholder='Pilih/Ketik Nama Sales'
                         isSearchable={true}
                         options={sales}
-                        value={{
-                          value: salesId,
-                          label: salesName,
-                        }}
                         onChange={(element) => handleChangeSelectSales(element)}
+                      />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='mb-5'>
+                    <Form.Label column sm='4'>
+                      No Receipt
+                    </Form.Label>
+                    <Col sm='8'>
+                      <Form.Control
+                        name='no-receipt'
+                        type='number'
+                        placeholder='Ketik No Receipt'
+                        value={receiptNumber}
+                        onChange={handleChangeNoReceipt}
                       />
                     </Col>
                   </Form.Group>
@@ -1099,12 +1086,17 @@ const UpdateOrderStoreCS: FC = () => {
           <Row className='table-order-header d-flex align-items-center mb-5'>
             <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
               <Form.Group>
-                <Form.Label>No Receipt</Form.Label>
-                <Form.Control
-                  name='no-receipt'
-                  type='number'
-                  value={receiptNumber}
-                  onChange={handleChangeNoReceipt}
+                <Form.Label>Nama Vendor :</Form.Label>
+
+                <CreatableSelect
+                  name='vendor'
+                  id='vendor'
+                  className='form-control p-0 form-item-name'
+                  classNamePrefix='select'
+                  placeholder='Pilih/Ketik Nama Vendor'
+                  isSearchable={true}
+                  options={vendor}
+                  onChange={(element) => handleChangeSelectVendor(element)}
                 />
               </Form.Group>
             </Col>
@@ -1115,17 +1107,17 @@ const UpdateOrderStoreCS: FC = () => {
                 <Form.Control
                   name='request-date'
                   type='date'
+                  min={today}
                   value={requestDate}
                   onChange={handleChangeRequestDate}
-                  min={today}
                 />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
-              <h1 className='fw-bold'>
+              <h1 className='fs-3 fw-bold'>
                 ORDER STATUS : {''}
-                <span className='fw-bold text-success'>{orderDetail?.status.description}</span>
+                <span className='fw-bold text-success'>BOOKED</span>
               </h1>
             </Col>
 
@@ -1165,6 +1157,7 @@ const UpdateOrderStoreCS: FC = () => {
 
                     <td>
                       <Form.Control
+                        id={`item-id-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.item_id || ''}
@@ -1173,23 +1166,19 @@ const UpdateOrderStoreCS: FC = () => {
 
                     <td>
                       <Select
-                        name={`item-${index}`}
-                        id={`item${index}`}
+                        id={`item-name-${index}`}
                         className='form-control p-0 form-item-name'
                         classNamePrefix='select'
                         placeholder='Pilih/Ketik Nama Item'
                         isSearchable={true}
                         options={item}
-                        value={{
-                          value: orderDetailValues[index]?.item_id,
-                          label: orderDetailValues[index]?.unit,
-                        }}
                         onChange={(element) => handleChangeSelectItem(index, element)}
                       />
                     </td>
 
                     <td>
                       <Form.Control
+                        id={`category-name-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.category_name || ''}
@@ -1198,6 +1187,7 @@ const UpdateOrderStoreCS: FC = () => {
 
                     <td>
                       <Form.Control
+                        id={`quantity-${index}`}
                         value={element.quantity}
                         onChange={(e) => handleQuantityChange(index, e.target.value)}
                       />
@@ -1205,6 +1195,7 @@ const UpdateOrderStoreCS: FC = () => {
 
                     <td>
                       <Form.Control
+                        id={`unit-price-${index}`}
                         readOnly
                         plaintext
                         value={`Rp. ${
@@ -1244,13 +1235,7 @@ const UpdateOrderStoreCS: FC = () => {
                   <td colSpan={6} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>
-                    {`Rp. ${
-                      grandTotal
-                        ? grandTotal.toLocaleString('id')
-                        : parseInt(orderDetail?.grand_total).toLocaleString('id')
-                    }`}
-                  </td>
+                  <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
                 </tr>
               </tbody>
             </Table>
@@ -1304,12 +1289,10 @@ const UpdateOrderStoreCS: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='success' onClick={handleReprintOrder}>
-              Reprint Order
-            </Button>
+            {/* <Button variant='warning'>Reprint Order</Button> */}
 
-            <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
-              Submit Order & Email
+            <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
+              New Order & Print
             </Button>
           </div>
         </div>
@@ -1318,4 +1301,4 @@ const UpdateOrderStoreCS: FC = () => {
   )
 }
 
-export {UpdateOrderStoreCS}
+export {NewOrderHO}

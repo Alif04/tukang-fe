@@ -3,6 +3,7 @@ import React, {FC, useState, useEffect} from 'react'
 import './PrintoutOrder.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import {useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Table, Form, Button, Row, Col} from 'react-bootstrap'
@@ -41,6 +42,45 @@ const PrintoutOrder: FC = () => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
+  }
+
+  // Handle Print Order
+  const handlePrintOrder = async () => {
+    const response = await axios
+      .request({
+        url: `${apiUrl}/orders/${params.id}/counter`,
+        method: 'post',
+        maxBodyLength: Infinity,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        printElement('printout-order')
+      })
+      .catch((error) => {
+        console.error(error)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  // Fungsi untuk mencetak elemen
+  const printElement = (elementId: string) => {
+    const printContents = document.getElementById(elementId)
+    const originalContents = document.body.innerHTML
+
+    if (printContents) {
+      document.body.innerHTML = printContents.innerHTML
+      window.print()
+      document.body.innerHTML = originalContents
+    }
   }
 
   return (
@@ -174,7 +214,9 @@ const PrintoutOrder: FC = () => {
           </div>
 
           <div className='d-flex justify-content-center mt-5'>
-            <Button variant='primary'>Print</Button>
+            <Button className='hide-print-button' variant='primary' onClick={handlePrintOrder}>
+              Print
+            </Button>
           </div>
         </div>
       </div>
