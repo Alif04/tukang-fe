@@ -16,7 +16,7 @@ interface ComplaintChannel {
   label: string
 }
 
-const NewComplaintStore: FC = () => {
+const NewComplaintHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
@@ -650,4 +650,4 @@ const NewComplaintStore: FC = () => {
   )
 }
 
-export {NewComplaintStore}
+export {NewComplaintHO}

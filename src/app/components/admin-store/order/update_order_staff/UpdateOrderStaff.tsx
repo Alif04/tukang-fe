@@ -78,6 +78,7 @@ const UpdateOrderStoreStaff: FC = () => {
   const [member, setMember] = useState<Member[]>([])
   const [memberName, setMemberName] = useState<string>('')
   const [memberPhoneNumber, setMemberPhoneNumber] = useState<any>()
+  console.log(memberPhoneNumber)
   const [memberEmail, setMemberEmail] = useState<any>()
   const [memberAddress, setMemberAddress] = useState<any>()
 
@@ -494,9 +495,6 @@ const UpdateOrderStoreStaff: FC = () => {
   ])
 
   let handleAddForm = () => {
-    // const newId =
-    //   orderDetailValues.length > 0 ? orderDetailValues[orderDetailValues.length - 1].id + 1 : 0
-
     const newForm = {
       id: '',
       item_id: '',
@@ -798,6 +796,8 @@ const UpdateOrderStoreStaff: FC = () => {
             title: 'Success',
             text: 'Success Reprint Order',
             icon: 'success',
+            showConfirmButton: false,
+            timer: 1000,
           })
         } else {
           Swal.fire({
@@ -831,9 +831,15 @@ const UpdateOrderStoreStaff: FC = () => {
                   <Form.Group>
                     <Form.Label>
                       Nama Toko
-                      <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
-                        {staffStoreName}
-                      </span>
+                      {storeName ? (
+                        <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                          {storeName}
+                        </span>
+                      ) : (
+                        <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                          {staffStoreName}
+                        </span>
+                      )}
                     </Form.Label>
                   </Form.Group>
                 </Col>

@@ -122,6 +122,9 @@ export * from './admin-ho/order/dashboard_order/DashboardOrder'
 // View Order
 export * from './admin-ho/order/view_order/ViewOrder'
 
+// New Order
+export * from './admin-ho/order/new_order/NewOrder'
+
 // Update Order
 export * from './admin-ho/order/update_order/UpdateOrder'
 
@@ -134,6 +137,9 @@ export * from './admin-ho/order/report_order/ReportOrder'
 // COMPLAINT
 // View Complaint
 export * from './admin-ho/complaint/view_complaint/ViewComplaint'
+
+// New Complaint
+export * from './admin-ho/complaint/new_complaint/NewComplaint'
 
 // Update Complaint
 export * from './admin-ho/complaint/update_complaint/UpdateComplaint'

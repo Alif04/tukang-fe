@@ -69,6 +69,19 @@ textarea.form-control-plaintext {
   overflow: hidden;
 }
 
+/* Form ( Hide Arrow/Spinner Form Type Number */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Other Browser */
+input[type='number'] {
+  appearance: textfield;
+}
+
 /* Text */
 .text-brown {
   color: brown;

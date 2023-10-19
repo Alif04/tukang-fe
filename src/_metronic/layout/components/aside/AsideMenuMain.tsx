@@ -61,12 +61,12 @@ export function AsideMenuMain() {
           role={['Store CS', 'Store Staff', 'Admin HO']}
           hasBullet={true}
         />
-        {/* <AsideMenuItem
+        <AsideMenuItem
           to='/order/new-order'
           title='Order Baru'
-          role={['Store CS', 'Admin HO']}
+          role={['Admin HO']}
           hasBullet={true}
-        /> */}
+        />
         <AsideMenuItem
           to='/order/pre-order'
           title='Pre Order'
@@ -332,7 +332,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/complaint/new-complaint'
           title='Request Pengaduan'
-          role={['Store CS', 'Store Staff']}
+          role={['Store CS', 'Store Staff', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem

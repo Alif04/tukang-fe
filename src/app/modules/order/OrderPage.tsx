@@ -5,6 +5,7 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
 import {PreOrder} from './components/PreOrder'
+import {NewOrder} from './components/NewOrder'
 import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {PrintOutOrder} from './components/PrintoutOrder'
@@ -80,6 +81,16 @@ const OrderPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PRE ORDER</PageTitle>
             <PreOrder />
+          </>
+        }
+      />
+
+      <Route
+        path='new-order'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR NEW ORDER</PageTitle>
+            <NewOrder />
           </>
         }
       />

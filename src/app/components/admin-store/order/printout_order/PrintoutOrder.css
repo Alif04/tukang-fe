@@ -65,3 +65,10 @@
   border-top: none !important;
   border-bottom: 5px solid black !important;
 }
+
+/* Hide Print */
+@media print {
+  .hide-print-button {
+    display: none;
+  }
+}
