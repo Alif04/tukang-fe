@@ -61,6 +61,27 @@
   width: 370px;
 }
 
+#warranty-claim-list h3.date-text {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+@media screen and (max-width: 1400px) {
+  #warranty-claim-list h3.date-text {
+    font-size: 14px;
+    font-weight: normal;
+  }
+
+  #warranty-claim-list svg.svg-inline--fa.fa-filter.fa-2xl.me-2 {
+    font-size: 15px;
+  }
+
+  #warranty-claim-list
+    .ant-picker.ant-picker-range.css-dev-only-do-not-override-1ck3jst.date-range {
+    width: 180px;
+  }
+}
+
 @media screen and (max-width: 1200px) {
   #warranty-claim-list .filter-search {
     width: 100%;

@@ -91,30 +91,30 @@
 
 /* Select Filter */
 
-.select-filter {
+#view-quotation .select-filter {
   display: flex;
   margin: 0 10px 0 10px;
 }
 
-.select-filter select.form-select.filter {
+#view-quotation .select-filter select.form-select.filter {
   height: 45px;
 }
 
-.select-filter select.form-select.filter.filter-one {
+#view-quotation .select-filter select.form-select.filter.filter-one {
   border-right: none;
   border-radius: 5px 0 0 5px;
 }
 
-.select-filter select.form-select.filter.filter-two {
+#view-quotation .select-filter select.form-select.filter.filter-two {
   border-right: none;
   border-radius: 0;
 }
 
-.select-filter select.form-select.filter.filter-three {
+#view-quotation .select-filter select.form-select.filter.filter-three {
   border-radius: 0;
 }
 
-.select-filter select.form-select.filter.filter-four {
+#view-quotation .select-filter select.form-select.filter.filter-four {
   border-left: none;
   border-radius: 0 5px 5px 0;
 }
@@ -138,37 +138,6 @@
   color: #ffff;
   border: none;
   border-radius: 5px;
-}
-
-.button-detail svg.svg-inline--fa.fa-book.fa-sm {
-  color: black;
-}
-
-.button-edit svg.svg-inline--fa.fa-pen.fa-sm {
-  color: black;
-}
-
-.button-delete svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0;
-  color: #d50119;
-}
-
-.button-export {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 165px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #04844b;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
-  margin: 5px;
 }
 
 #view-quotation svg.svg-inline--fa.fa-plus.fa-sm {

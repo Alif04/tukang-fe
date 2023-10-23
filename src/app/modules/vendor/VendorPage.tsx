@@ -30,31 +30,36 @@ const VendorPage: React.FC = () => {
         path='view-vendor'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR LIST</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              DAFTAR VENDOR INSTALASI & SERVICE MITRA10
+            </PageTitle>
             <ViewVendor />
           </>
         }
       />
+
       <Route
         path='new-vendor'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW VENDOR FORM</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR REGISTRASI VENDOR</PageTitle>
             <NewVendor />
           </>
         }
       />
+
       <Route
-        path='update-vendor'
+        path='update-vendor/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE VENDOR</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE REGISTRASI VENDOR</PageTitle>
             <UpdateVendor />
           </>
         }
       />
+
       <Route
-        path='detail-vendor'
+        path='detail-vendor/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL VENDOR</PageTitle>
@@ -62,6 +67,7 @@ const VendorPage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='report-vendor'
         element={

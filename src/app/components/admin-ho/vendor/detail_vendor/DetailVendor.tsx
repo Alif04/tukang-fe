@@ -15,83 +15,142 @@ const DetailVendorHO: FC = () => {
       <div className='card mb-5'>
         <div className='card-body'>
           <Row>
-            <Col lg={4}>
+            <Col lg={3}>
               <div className='vendor-profile'>
                 <img
                   className='d-block m-auto mb-4'
                   src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
                   alt='Avatar'
                 />
-
-                <div className='vendor-information'>
-                  <h1>PT ABC</h1>
-
-                  <tr>
-                    <td className='left'>
-                      <h3 className='fw-bold text-start'>Vendor ID :</h3>
-                    </td>
-                    <td className='right'>
-                      <h3 className='fw-bold text-start'>77652739</h3>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className='left'>
-                      <h3 className='fw-bold text-start'>Join Since :</h3>
-                    </td>
-                    <td className='right'>
-                      <h3 className='fw-bold text-start'>14/12/2000</h3>
-                    </td>
-                  </tr>
-
-                  <Rate className='d-flex justify-content-center mt-3 mb-3' />
-
-                  <tr>
-                    <td className='left'>
-                      <h3 className='fw-bold text-start'>Phone Number :</h3>
-                    </td>
-                    <td className='right'>
-                      <h3 className='fw-bold text-start'>(021) 765-9899</h3>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className='left'>
-                      <h3 className='fw-bold text-start'>Email Address :</h3>
-                    </td>
-                    <td className='right'>
-                      <h3 className='fw-bold text-start'>pt.abc@gmail.com</h3>
-                    </td>
-                  </tr>
-
-                  <div className='d-flex justify-content-center'>
-                    <h3 className='fw-bold pt-2  pb-2 w-75'>Address :</h3>
-                    <h3 className='fw-bold pt-2  pb-2'>
-                      RS. Fatmawati No.39 12150 Jakarta Selatan DKI Jakarta
-                    </h3>
-                  </div>
-
-                  <div className='serving-area d-flex justify-content-start'>
-                    <h3 className='fw-bold pt-2  pb-2'>Serving Area :</h3>
-
-                    <ul className='mt-2'>
-                      <li>
-                        <h3 className='fw-bold text-start p-0'>JABODETABEK</h3>
-                      </li>
-                      <li>
-                        <h3 className='fw-bold text-start p-0'>MEDAN</h3>
-                      </li>
-                      <li>
-                        <h3 className='fw-bold text-start p-0'>UJUNG PADANG</h3>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <h3 className='fw-bold pt-2 pb-2 text-start'>
-                    Jumlah Teknisi : <span className='fw-normal fs-2'>20</span>
-                  </h3>
-                </div>
               </div>
+
+              <h1 className='d-flex justify-content-center fs-1 fw-bold'>PT. ABC</h1>
+
+              <Row className='d-flex justify-content-center'>
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Vendor ID :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>876992300239</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Join Since :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>14/12/2000</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Status :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>ACTIVE</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Margin :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>35%</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Rate className='d-flex justify-content-center' />
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Phone Number :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>(021) 765-9899</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Email Address :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>pt.abc@gmail.com</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Address :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>
+                      Jl. Rs. Fatmawati No.39 12150 Jakarta Selatan Dki Jakarta
+                    </Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Nama PIC :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>Hendra Setiawan</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Phone Number :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>0815 765-9899</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Email Address :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>Hendra@gmail.com</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Service Type :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>
+                      'Civil (service by unit) Electrical (service by unit) Renovasi (service by
+                      project)'
+                    </Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Service Area :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fw-normal mt-3'>JABODETABEK</Form.Label>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Jumlah Teknisi :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Label className='fs-1 fw-semibold'>20</Form.Label>
+                  </Col>
+                </Form.Group>
+              </Row>
             </Col>
 
             <Col lg={4}>
@@ -108,7 +167,11 @@ const DetailVendorHO: FC = () => {
               </div>
             </Col>
 
-            <Col lg={4}>Table 2</Col>
+            <Col lg={5}>
+              <div className='table border p-1'>
+                <TableList />
+              </div>
+            </Col>
           </Row>
         </div>
       </div>
