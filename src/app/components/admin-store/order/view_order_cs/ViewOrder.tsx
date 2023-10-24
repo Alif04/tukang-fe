@@ -195,7 +195,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
         const statusId = desiredStatus.value
 
         const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=${statusId}`,
+          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
           {
             headers: {
               Accept: 'application/json',

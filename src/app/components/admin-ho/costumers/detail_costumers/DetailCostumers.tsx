@@ -1,161 +1,189 @@
-import React, {FC} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './DetailCostumers.css'
 
+import axios from 'axios'
 import {Table, Rate} from 'antd'
+import {useNavigate, useParams} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, Tabs, Tab} from 'react-bootstrap'
 
-interface DataTypeOrder {
-  key: string
-  number: number
-  order_id: number
-  tanggal: string
-}
-
-const columnsOrder: ColumnsType<DataTypeOrder> = [
-  {
-    title: 'No',
-    dataIndex: 'number',
-    key: 'number',
-    align: 'center',
-    width: 10,
-  },
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 250,
-  },
-  {
-    title: 'Tanggal',
-    dataIndex: 'tanggal',
-    key: 'tanggal',
-  },
-]
-
-const dataOrder: DataTypeOrder[] = [
-  {
-    key: '1',
-    number: 1,
-    order_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '2',
-    number: 2,
-    order_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '3',
-    number: 3,
-    order_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '4',
-    number: 4,
-    order_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '5',
-    number: 5,
-    order_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '6',
-    number: 6,
-    order_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '7',
-    number: 7,
-    order_id: 123344,
-    tanggal: '20/10/2023',
-  },
-]
-
-interface DataTypeComplaint {
-  key: string
-  number: number
-  complaint_id: number
-  tanggal: string
-}
-
-const columnsComplaint: ColumnsType<DataTypeComplaint> = [
-  {
-    title: 'No',
-    dataIndex: 'number',
-    key: 'number',
-    align: 'center',
-    width: 10,
-  },
-  {
-    title: 'Complaint ID',
-    dataIndex: 'complaint_id',
-    key: 'complaint_id',
-    align: 'center',
-    width: 250,
-  },
-  {
-    title: 'Tanggal',
-    dataIndex: 'tanggal',
-    key: 'tanggal',
-  },
-]
-
-const dataComplaint: DataTypeComplaint[] = [
-  {
-    key: '1',
-    number: 1,
-    complaint_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '2',
-    number: 2,
-    complaint_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '3',
-    number: 3,
-    complaint_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '4',
-    number: 4,
-    complaint_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '5',
-    number: 5,
-    complaint_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '6',
-    number: 6,
-    complaint_id: 123344,
-    tanggal: '20/10/2023',
-  },
-  {
-    key: '7',
-    number: 7,
-    complaint_id: 123344,
-    tanggal: '20/10/2023',
-  },
-]
-
 const DetailCostumerHO: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+
+  const [memberDetail, setMemberDetail] = useState<any>()
+
+  const [orderData, setOrderData] = useState<DataTypeOrder[]>([])
+  console.log(orderData)
+  const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
+  console.log(complaintData)
+
+  const fetchMemberDetail = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/member/data/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data.member
+          setMemberDetail(data)
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchMemberDetail()
+  }, [])
+
+  const phoneNumber =
+    memberDetail?.phone_number !== null ? memberDetail?.phone_number : memberDetail?.whatsapp_number
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  interface DataTypeOrder {
+    key: string
+    number: number
+    order_id: number
+    date_order: string
+  }
+
+  const columnsOrder: ColumnsType<DataTypeOrder> = [
+    {
+      title: 'No',
+      dataIndex: 'number',
+      key: 'number',
+      align: 'center',
+      width: 10,
+    },
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      width: 250,
+    },
+    {
+      title: 'Tanggal',
+      dataIndex: 'date_order',
+      key: 'date_order',
+    },
+  ]
+
+  interface DataTypeComplaint {
+    key: string
+    number: number
+    complaint_id: number
+    complaint_date: string
+  }
+
+  const columnsComplaint: ColumnsType<DataTypeComplaint> = [
+    {
+      title: 'No',
+      dataIndex: 'number',
+      key: 'number',
+      align: 'center',
+      width: 10,
+    },
+    {
+      title: 'Complaint ID',
+      dataIndex: 'complaint_id',
+      key: 'complaint_id',
+      align: 'center',
+      width: 250,
+    },
+    {
+      title: 'Tanggal',
+      dataIndex: 'complaint_date',
+      key: 'complaint_date',
+    },
+  ]
+
+  const ViewOrder = async () => {
+    try {
+      const apiData = memberDetail?.order
+
+      const orderData = apiData.map((item: any) => {
+        let data
+
+        const orderDate = new Date(item.created_at)
+
+        data = {
+          number: apiData.indexOf(item) + 1,
+          order_id: item.id,
+          date_order: formatDate(orderDate),
+        }
+
+        return data
+      })
+
+      return orderData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
+    }
+  }
+
+  const ViewComplaint = async () => {
+    try {
+      const apiData = memberDetail?.order
+
+      if (apiData) {
+        let complaintNumber = 1
+
+        const complaintDataArray = apiData.flatMap((orderItem: any) => {
+          return orderItem.complaints.map((complaintItem: any) => {
+            const complaintDate = new Date(complaintItem.complaint_date)
+
+            const complaintData = {
+              number: complaintNumber,
+              complaint_id: complaintItem.id,
+              complaint_date: formatDate(complaintDate),
+            }
+
+            complaintNumber++
+            return complaintData
+          })
+        })
+
+        return complaintDataArray
+      } else {
+        return []
+      }
+    } catch (error) {
+      console.error('Error getting complaint data:', error)
+      return []
+    }
+  }
+
+  useEffect(() => {
+    const fetchOrderData = async () => {
+      const data = await ViewOrder()
+      setOrderData(data)
+    }
+
+    const fetchComplaintData = async () => {
+      const data = await ViewComplaint()
+      setComplaintData(data)
+    }
+
+    fetchOrderData()
+    fetchComplaintData()
+  }, [memberDetail])
+
   return (
     <section id='detail-costumer'>
       <Row className='row-1'>
@@ -165,12 +193,12 @@ const DetailCostumerHO: FC = () => {
 
         <Col xxl={9} xl={9} lg={9} md={9} sm={12}>
           <div className='costumer-profile'>
-            <h1 className='fs-1 mb-3'>Lia Amalia</h1>
-            <h3 className='fs-2 fst-3 mb-3 text-muted'>12198764</h3>
+            <h1 className='fs-1 mb-3'>{memberDetail?.full_name}</h1>
+            <h3 className='fs-2 fst-3 mb-3 text-muted'>{memberDetail?.id}</h3>
             <p className='fs-4 mb-1'>Customer of : Mitra 10-BSD</p>
             <p className='fs-4 text-muted mb-1'>Rating</p>
 
-            <Rate />
+            <Rate disabled defaultValue={memberDetail?.rating} />
           </div>
         </Col>
       </Row>
@@ -192,12 +220,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    as='textarea'
-                    defaultValue='Rs. Fatmawati No.39 12150 Jakarta Selatan DKI Jakarta'
-                  />
+                  <Form.Control plaintext readOnly as='textarea' value={memberDetail?.address_1} />
                 </Col>
               </Form.Group>
 
@@ -207,7 +230,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly defaultValue='0865-765-8976' />
+                  <Form.Control plaintext readOnly value={phoneNumber} />
                 </Col>
               </Form.Group>
 
@@ -217,7 +240,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly defaultValue='lia.amalia@outlook.com' />
+                  <Form.Control plaintext readOnly value={memberDetail?.email} />
                 </Col>
               </Form.Group>
             </div>
@@ -240,7 +263,12 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly type='date' />
+                  <Form.Control
+                    plaintext
+                    readOnly
+                    type='text'
+                    value={memberDetail ? formatDate(new Date(memberDetail?.join_date)) : ''}
+                  />
                 </Col>
               </Form.Group>
 
@@ -268,8 +296,8 @@ const DetailCostumerHO: FC = () => {
                 className='mt-3'
                 bordered
                 columns={columnsOrder}
-                dataSource={dataOrder}
-                rowKey={(record) => record.key}
+                dataSource={orderData}
+                rowKey={(record) => record.order_id}
                 pagination={{position: ['bottomCenter']}}
               />
             </Tab>
@@ -279,8 +307,8 @@ const DetailCostumerHO: FC = () => {
                 className='mt-3'
                 bordered
                 columns={columnsComplaint}
-                dataSource={dataComplaint}
-                rowKey={(record) => record.key}
+                dataSource={complaintData}
+                rowKey={(record) => record.complaint_id}
                 pagination={{position: ['bottomCenter']}}
               />
             </Tab>

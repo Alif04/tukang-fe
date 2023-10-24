@@ -8,11 +8,11 @@ const DetailCostumer: FC = () => {
 
   return (
     <>
-      {userRole == 'Store CS' || 'Store Staff' ? (
+      {userRole === 'Store CS' || userRole === 'Store Staff' ? (
         <>
           <DetailCostumerStore />
         </>
-      ) : userRole == 'Admin HO' ? (
+      ) : userRole === 'Admin HO' ? (
         <>
           <DetailCostumerHO />
         </>

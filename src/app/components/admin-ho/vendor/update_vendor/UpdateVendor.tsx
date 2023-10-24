@@ -1,545 +1,1218 @@
-import React, {FC} from 'react'
-import {useState} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './UpdateVendor.css'
 
-import {Table} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
-import {Form, Button, InputGroup, Row, Col} from 'react-bootstrap'
-
+import axios from 'axios'
+import Select from 'react-select'
+import Swal from 'sweetalert2'
+import makeAnimated from 'react-select/animated'
+import {useNavigate, useParams} from 'react-router-dom'
+import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-  faUserPlus,
-} from '@fortawesome/free-solid-svg-icons'
+import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
-import {useNavigate} from 'react-router-dom'
-
-interface DataType {
-  key: React.Key
-  id: string
-  date_join: string
-  company_name: string
-  phone_number: string
-  email_address: string
-  service_type: string
-  serving_area: string
-  total_amount_paid: string
-  work_done: string
-  complaint: string
-  rating: string
+interface ServiceArea {
+  value: BigInteger
+  label: string
 }
 
-const AddVendorButton = () => {
-  const navigate = useNavigate()
-
-  const handleAddVendor = () => {
-    navigate('/order/new-order')
-  }
-
-  return (
-    <button className='button-add-order' onClick={handleAddVendor}>
-      New Vendor <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
-    </button>
-  )
+interface ServiceType {
+  value: BigInteger
+  label: string
 }
 
-const DetailButton = () => {
-  const navigate = useNavigate()
-
-  const handleDetail = () => {
-    navigate('/order/detail-order')
-  }
-
-  return (
-    <a className='button-detail' onClick={handleDetail}>
-      <FontAwesomeIcon icon={faBook} size='sm' />
-    </a>
-  )
+interface Bank {
+  value: any
+  label: string
 }
 
-const AddButton = () => {
-  const navigate = useNavigate()
-
-  const handleAdd = () => {
-    navigate('/order/detail-order')
-  }
-
-  return (
-    <a className='button-add' onClick={handleAdd}>
-      <FontAwesomeIcon icon={faUserPlus} size='sm' />
-    </a>
-  )
+interface CheckStates {
+  compro: boolean
+  suratPermohonan: boolean
+  pks: boolean
+  suip: boolean
 }
-
-const EditButton = () => {
-  const navigate = useNavigate()
-
-  const handleEdit = () => {
-    navigate('/order/update-order')
-  }
-
-  return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
-}
-
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    align: 'center',
-    width: 90,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Date Join',
-    dataIndex: 'date_join',
-    key: 'date_join',
-    align: 'center',
-    width: 90,
-  },
-  {
-    title: 'Company Name',
-    dataIndex: 'company_name',
-    key: 'company_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Email Address',
-    dataIndex: 'email_address',
-    key: 'email_address',
-    align: 'left',
-    width: 110,
-  },
-
-  {
-    title: 'Service Type',
-    dataIndex: 'service_type',
-    key: 'service_type',
-    align: 'left',
-    width: 160,
-  },
-  {
-    title: 'Total Amount Paid',
-    dataIndex: 'total_amount_paid',
-    key: 'total_amount_paid',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Work Done ',
-    dataIndex: 'work_done',
-    key: 'work_done',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Complaint',
-    dataIndex: 'complaint',
-    key: 'complaint',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Rating',
-    dataIndex: 'rating',
-    key: 'rating',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <AddButton />
-        <DetailButton />
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 100,
-  },
-]
-
-const data: DataType[] = [
-  {
-    key: '1',
-    id: '78453992',
-    date_join: '10/2/2023',
-    company_name: 'PT.ABC',
-    phone_number: '(021) 5445080',
-    email_address: 'abc@gmail.com',
-    service_type: 'Water Heater Installation, Service AC',
-    serving_area: 'JABODETABEK',
-    total_amount_paid: '58,000,000    ',
-    work_done: '300',
-    complaint: '1',
-    rating: '5',
-  },
-  {
-    key: '2',
-    id: '78453993',
-    date_join: '10/2/2023',
-    company_name: 'PT.ABC',
-    phone_number: '(021) 5445080',
-    email_address: 'abc@gmail.com',
-    service_type: 'Water Heater Installation, Service AC',
-    serving_area: 'JABODETABEK',
-    total_amount_paid: '58,000,000    ',
-    work_done: '300',
-    complaint: '1',
-    rating: '5',
-  },
-  {
-    key: '3',
-    id: '78453994',
-    date_join: '10/2/2023',
-    company_name: 'PT.ABC',
-    phone_number: '(021) 5445080',
-    email_address: 'abc@gmail.com',
-    service_type: 'Water Heater Installation, Service AC',
-    serving_area: 'JABODETABEK',
-    total_amount_paid: '58,000,000    ',
-    work_done: '300',
-    complaint: '1',
-    rating: '5',
-  },
-  {
-    key: '4',
-    id: '78453995',
-    date_join: '10/2/2023',
-    company_name: 'PT.ABC',
-    phone_number: '(021) 5445080',
-    email_address: 'abc@gmail.com',
-    service_type: 'Water Heater Installation, Service AC',
-    serving_area: 'JABODETABEK',
-    total_amount_paid: '58,000,000    ',
-    work_done: '300',
-    complaint: '1',
-    rating: '5',
-  },
-  {
-    key: '5',
-    id: '78453996',
-    date_join: '10/2/2023',
-    company_name: 'PT.ABC',
-    phone_number: '(021) 5445080',
-    email_address: 'abc@gmail.com',
-    service_type: 'Water Heater Installation, Service AC',
-    serving_area: 'JABODETABEK',
-    total_amount_paid: '58,000,000    ',
-    work_done: '300',
-    complaint: '1',
-    rating: '5',
-  },
-  {
-    key: '6',
-    id: '78453997',
-    date_join: '10/2/2023',
-    company_name: 'PT.ABC',
-    phone_number: '(021) 5445080',
-    email_address: 'abc@gmail.com',
-    service_type: 'Water Heater Installation, Service AC',
-    serving_area: 'JABODETABEK',
-    total_amount_paid: '58,000,000    ',
-    work_done: '300',
-    complaint: '1',
-    rating: '5',
-  },
-  {
-    key: '7',
-    id: '78453998',
-    date_join: '10/2/2023',
-    company_name: 'PT.ABC',
-    phone_number: '(021) 5445080',
-    email_address: 'abc@gmail.com',
-    service_type: 'Water Heater Installation, Service AC',
-    serving_area: 'JABODETABEK',
-    total_amount_paid: '58,000,000    ',
-    work_done: '300',
-    complaint: '1',
-    rating: '5',
-  },
-]
 
 const UpdateVendorHO: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+  const params = useParams()
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [vendorDetail, setVendorDetail] = useState<any>()
+  const animatedComponents = makeAnimated()
+
+  // Fetch API
+  const fetchVendorData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/vendor/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setVendorDetail(data)
+
+          if (data?.id) {
+            setVendorId(data.id)
+          }
+
+          if (data?.company_name && data?.address && data?.email_address && data?.phone_number) {
+            setVendorName(data.company_name)
+            setVendorAddress(data.address)
+            setEmailVendor(data.email_address)
+            setPhoneNumberVendor(data.phone_number)
+          }
+
+          if (data?.ktp_number && data?.npwp_number) {
+            setKtpNumber(data.ktp_number)
+            setNpwpNumber(data.npwp_number)
+          }
+
+          if (data?.vendor_bank) {
+            setBankId(data.vendor_bank[0].bank_id)
+            // setBankName(data.vendor_bank[0].bank_name)
+            setAccountName(data.vendor_bank[0].account_name)
+            setAccountNumber(data.vendor_bank[0].account_number)
+          }
+
+          if (data?.vendor_area) {
+            setMarkup(data.vendor_area[0].default_markup)
+            setDiscount(data.vendor_area[0].default_discount)
+          }
+
+          if (data?.vendor_area) {
+            const vendorArea = data.vendor_area.map((item: any) => ({
+              value: item.city_id,
+              label: item.city_name,
+            }))
+
+            setServiceArea(vendorArea)
+          }
+
+          if (data?.vendor_service) {
+            const service_type = data.vendor_service.map((item: any) => ({
+              value: item.service_type_id,
+              label: item.service_type_name,
+            }))
+
+            setServiceType(service_type)
+          }
+
+          if (data?.vendor_document) {
+            const documentTypes = [
+              'npwp_file',
+              'ktp_file',
+              'compro_file',
+              'surat_permohonan_file',
+              'pks_file',
+              'suip_file',
+            ]
+
+            type DocumentStateSetter = (state: {blob: string; fileName: string}) => void
+
+            const documentStateSetters: Record<string, DocumentStateSetter> = {
+              npwp_file: setimageNPWP,
+              ktp_file: setimageKTP,
+              compro_file: setimageCompro,
+              surat_permohonan_file: setimageSuratPermohonan,
+              pks_file: setimagePksEvidence,
+              suip_file: setimageSuipEvidence,
+            }
+
+            data.vendor_document.forEach((document: any) => {
+              const {document_name, path} = document
+
+              if (documentTypes.includes(document_name)) {
+                const setter = documentStateSetters[document_name]
+
+                if (setter) {
+                  setter({
+                    blob: '',
+                    fileName: path,
+                  })
+                }
+              }
+            })
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const getCity = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/city`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempCity = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.city_name,
+        }))
+
+        setServiceArea(tempCity)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getServiceType = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/service-type`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempServiceType = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.service_type,
+        }))
+
+        setServiceType(tempServiceType)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getBank = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/bank`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempBank = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.bank_name,
+        }))
+
+        setBank(tempBank)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchVendorData()
+    getCity()
+    getServiceType()
+    getBank()
+  }, [])
+
+  // Vendor Information
+  const [vendorId, setVendorId] = useState<string>('')
+  const [vendorName, setVendorName] = useState<string>('')
+  const [joinDate, setJoinDate] = useState<string>('')
+  const [picName, setPicName] = useState<string>('')
+  const [emailVendor, setEmailVendor] = useState<string>('')
+  const [phoneNumberVendor, setPhoneNumberVendor] = useState<any>()
+  const [vendorAddress, setVendorAddress] = useState<any>('')
+
+  const [ktpNumber, setKtpNumber] = useState<any>('')
+  const [npwpNumber, setNpwpNumber] = useState<any>('')
+
+  const [serviceAreaId, setserviceAreaId] = useState<any>([])
+  const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
+
+  const [serviceTypeId, setserviceTypeId] = useState<any>([])
+  const [serviceType, setServiceType] = useState<ServiceType[]>([])
+
+  // File Upload
+  const [ktpEvidence, setKtpEvidence] = useState<FileList | []>()
+  const [npwpEvidence, setNpwpEvidence] = useState<FileList | []>()
+  const [comproEvidence, setComproEvidence] = useState<FileList | []>()
+  const [suratPermohonanEvidence, setSuratPermohonanEvidence] = useState<FileList | []>()
+  const [pksEvidence, setPksEvidence] = useState<FileList | []>()
+  const [suipEvidence, setSuipEvidence] = useState<FileList | []>()
+
+  const [uploadFiles, setUploadFiles] = useState<Array<File | null>>([])
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [imageKTP, setimageKTP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  const [imageNPWP, setimageNPWP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  const [imageCompro, setimageCompro] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  const [imageSuratPermohonan, setimageSuratPermohonan] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  const [imagePksEvidence, setimagePksEvidence] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  const [imageSuipEvidence, setimageSuipEvidence] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  // Bank Information
+  const [bank, setBank] = useState<Bank[]>([])
+  const [bankInfo, setBankInfo] = useState<Bank | null>(null)
+  const [bankId, setBankId] = useState<any>()
+  const [bankName, setBankName] = useState<string>('')
+  const [accountNumber, setAccountNumber] = useState<any>()
+  const [accountName, setAccountName] = useState<string>('')
+  const [markup, setMarkup] = useState<any>()
+  const [discount, setDiscount] = useState<any>()
+
+  // Handle Join Date Change
+  const today = new Date().toISOString().split('T')[0]
+
+  const handleChangeJoinDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedJoinDate = event.target.value
+    setJoinDate(updatedJoinDate)
+  }
+
+  // Handle Change Input Vendor
+  const handleChangeVendorName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedVendorName = event.target.value
+    setVendorName(updatedVendorName)
+  }
+
+  const handleChangePicName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedPicName = event.target.value
+    setPicName(updatedPicName)
+  }
+
+  const handleChangeVendorEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedVendorEmail = event.target.value
+    setEmailVendor(updatedVendorEmail)
+  }
+
+  const handleChangeVendorPhoneNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedVendorPhoneNumber = event.target.value
+    setPhoneNumberVendor(updatedVendorPhoneNumber)
+  }
+
+  const handleChangeVendorAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedVendorAddress = event.target.value
+    setVendorAddress(updatedVendorAddress)
+  }
+
+  const [isActive, setisActive] = useState<CheckStates>({
+    compro: false,
+    suratPermohonan: false,
+    pks: false,
+    suip: false,
+  })
+
+  // console.log('isActive Compro', isActive.compro)
+  // console.log('isActive Surat Permohonan', isActive.suratPermohonan)
+
+  const handleFormCheckbox = (element: keyof CheckStates) => {
+    setisActive({...isActive, [element]: !isActive[element]})
+  }
+
+  // Handle Upload KTP
+  const handleFileChangeKTP = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
+
     if (files && files[0]) {
-      setFileName(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+      setKtpEvidence(files)
+
+      setimageKTP({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadKTP = () => {
+    const inputField = document.getElementById('input-ktp-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Upload NPWP
+  const handleFileChangeNPWP = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+
+    if (files && files[0]) {
+      setNpwpEvidence(files)
+
+      setimageNPWP({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadNPWP = () => {
+    const inputField = document.getElementById('input-npwp-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Upload Compro
+  const handleFileChangeCompro = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+
+    if (files && files[0]) {
+      setComproEvidence(files)
+
+      setimageCompro({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadCompro = () => {
+    const inputField = document.getElementById('input-compro-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Upload Surat Permohonan
+  const handleFileChangeSuratPermohonan = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+
+    if (files && files[0]) {
+      setSuratPermohonanEvidence(files)
+
+      setimageSuratPermohonan({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadSuratPermohonan = () => {
+    const inputField = document.getElementById('input-surat_permohonan-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Upload PKS Evidence
+  const handleFileChangePksEvidence = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+
+    if (files && files[0]) {
+      setPksEvidence(files)
+
+      setimagePksEvidence({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadPksEvidence = () => {
+    const inputField = document.getElementById('input-pks-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Upload SUIP Evidence
+  const handleFileChangeSuipEvidence = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+
+    if (files && files[0]) {
+      setSuipEvidence(files)
+
+      setimageSuipEvidence({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadSuipEvidence = () => {
+    const inputField = document.getElementById('input-suip-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Change Upload File
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+
+      const existingFiles = [...uploadFiles]
+
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setUploadFiles(mergedFiles)
     }
   }
 
   const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    const inputField = document.getElementById('file-input') as HTMLInputElement
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setFileName('No selected file')
-    setImage(null)
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...uploadFiles]
+
+    newEvidances.splice(index, 1)
+
+    setUploadFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Handle Change Input KTP Number
+  const handleChangeKTPNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedKTPNumber = event.target.value
+    setKtpNumber(updatedKTPNumber)
+  }
+
+  // Handle Change Input NPWP Number
+  const handleChangeNPWPNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedNPWPNumber = event.target.value
+    setNpwpNumber(updatedNPWPNumber)
+  }
+
+  // Handle Change Input Bank
+  const handleChangeSelectBank = (element: Bank | null) => {
+    const newBankInfo: Bank = {
+      value: element?.value || 0,
+      label: element?.label || '',
+    }
+
+    setBankInfo(newBankInfo)
+    setBankId(newBankInfo.value)
+    setBankName(newBankInfo.label)
+  }
+
+  const handleChangeBankId = (element: any) => {
+    const newBankId = element.target.value
+
+    setBankInfo((prevBank) => ({
+      ...(prevBank as Bank),
+      value: newBankId,
+    }))
+
+    setBankId(newBankId)
+  }
+
+  const handleChangeAccountName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedAccountName = event.target.value
+    setAccountName(updatedAccountName)
+  }
+
+  const handleChangeAccountNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedAccountNumber = event.target.value
+    setAccountNumber(updatedAccountNumber)
+  }
+
+  const handleChangeMarkup = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedMarkup = event.target.value
+    setMarkup(updatedMarkup)
+  }
+
+  const handleChangeDiscount = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedDiscount = event.target.value
+    setDiscount(updatedDiscount)
+  }
+
+  // Change Select Service Area
+  const handleChangeServiceAreaId = (element: any) => {
+    const updatedServiceArea = element.map((option: any) => option.value)
+    setserviceAreaId(updatedServiceArea)
+
+    console.log('Service Area', updatedServiceArea)
+  }
+
+  // Change Select Service Type
+  const handleChangeServiceTypeId = (element: any) => {
+    const updatedServiceTypeId = element.map((option: any) => option.value)
+    setserviceTypeId(updatedServiceTypeId)
+
+    console.log('Service Type', updatedServiceTypeId)
+  }
+
+  // Vendor Validation
+  const VendorValidation = () => {
+    let valid = true
+
+    if (!joinDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Join Date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!vendorName) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nama Perusahaan form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!emailVendor) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Email form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!phoneNumberVendor) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nomor HP / WA form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!serviceAreaId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select Service Area form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!serviceTypeId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select Service Type form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!vendorAddress) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Vendor Address form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!ktpEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Upload KTP form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!npwpEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Upload NPWP form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!bankName) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nama Bank form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!accountNumber) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nomor Account form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!accountName) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Account Name form',
+        icon: 'error',
+      })
+      valid = false
+    }
+
+    return valid
+  }
+
+  // Handle Submit New Vendor
+  const handleUpdateVendor = async () => {
+    if (VendorValidation()) {
+      const formData = new FormData()
+
+      formData.append('id', vendorId)
+      formData.append('company_name', vendorName)
+      formData.append('address', vendorAddress)
+      formData.append('phone_number', phoneNumberVendor)
+      formData.append('email_address', emailVendor)
+
+      if (npwpEvidence?.length) {
+        formData.append('npwp_file', npwpEvidence[0])
+      }
+
+      if (ktpEvidence?.length) {
+        formData.append('ktp_file', ktpEvidence[0])
+      }
+
+      if (isActive && comproEvidence?.length) {
+        formData.append('compro_file', comproEvidence[0])
+      }
+
+      if (isActive && suratPermohonanEvidence?.length) {
+        formData.append('surat_permohonan_file', suratPermohonanEvidence[0])
+      }
+
+      if (isActive && pksEvidence?.length) {
+        formData.append('pks_file', pksEvidence[0])
+      }
+
+      if (isActive && suipEvidence?.length) {
+        formData.append('suip_file', suipEvidence[0])
+      }
+
+      if (uploadFiles?.length) {
+        uploadFiles.forEach((item) => {
+          if (item) {
+            formData.append(`vendor_document`, item, item?.name)
+          }
+        })
+      }
+
+      formData.append('pic_name', picName)
+      formData.append('markup', markup)
+      formData.append('discount', discount)
+      formData.append('account_name', accountName)
+      formData.append('account_number', accountNumber)
+      formData.append('bank_id', bankId)
+
+      formData.append('ktp_number', ktpNumber)
+      formData.append('npwp_number', npwpNumber)
+
+      if (serviceAreaId?.length) {
+        serviceAreaId.forEach((item: any) => {
+          if (item) {
+            formData.append(`city_id[]`, item)
+          }
+        })
+      }
+
+      if (serviceTypeId?.length) {
+        serviceTypeId.forEach((item: any) => {
+          if (item) {
+            formData.append(`service_type_id[]`, item)
+          }
+        })
+      }
+
+      const response = await axios
+        .post(`${apiUrl}/vendor/${params.id}`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Create Vendor',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
+
+          navigate('/vendor/view-vendor')
+        })
+        .catch((error) => {
+          console.error(error)
+
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
+    }
+  }
+
+  const handleCancelUpdateVendor = () => {
+    navigate('/vendor/view-vendor')
   }
 
   return (
     <section id='update-vendor'>
       <div className='card mb-5'>
         <div className='card-body'>
-          <div className='d-flex justify-content-between'>
-            <div className='vendor-information'>
-              <div className='form-header'>
-                <Form.Label className='fw-bold'>Serving Area</Form.Label>
+          <Row>
+            <Col xxl={6} xl={6} lg={12} md={12}>
+              <Row className='header-body'>
+                <Col>
+                  <Form.Group as={Row}>
+                    <Form.Label column sm='4'>
+                      Vendor ID
+                    </Form.Label>
 
-                <Form.Select className='form-select-area'>
-                  <option value='1' selected>
-                    DKI Jakarta
-                  </option>
-                  <option value='2'>Jabodetabek</option>
-                  <option value='3'>Jawa Barat</option>
-                  <option value='4'>Jawa Tengah</option>
-                </Form.Select>
-
-                <Form.Select className='form-select-area'>
-                  <option value='1' selected>
-                    DKI Jakarta
-                  </option>
-                  <option value='2'>Jabodetabek</option>
-                  <option value='3'>Jawa Barat</option>
-                  <option value='4'>Jawa Tengah</option>
-                </Form.Select>
-
-                <Form.Select className='form-select-area'>
-                  <option value='1' selected>
-                    All
-                  </option>
-                  <option value='2'>Mitra 10 BSD</option>
-                  <option value='3'>Mitra 10 Fatmawati</option>
-                  <option value='4'>Mitra 10 Kemanggisan</option>
-                </Form.Select>
-              </div>
-
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Company Name</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Row>
-                    <Col>
-                      <Form.Label>Phone Number</Form.Label>
-                      <Form.Control type='number' />
+                    <Col sm='8'>
+                      <Form.Control readOnly value={vendorId} />
                     </Col>
+                  </Form.Group>
+                </Col>
 
-                    <Col>
-                      <Form.Label>Fax Number</Form.Label>
-                      <Form.Control type='number' />
+                <Col>
+                  <Form.Group as={Row}>
+                    <Form.Label column sm='4'>
+                      Join Date
+                    </Form.Label>
+
+                    <Col sm='8'>
+                      <Form.Control type='date' onChange={handleChangeJoinDate} min={today} />
                     </Col>
-                  </Row>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Nama Perusahaan</Form.Label>
+
+                  <Form.Control type='text' onChange={handleChangeVendorName} value={vendorName} />
                 </Form.Group>
+              </Row>
 
-                <Form.Group className='mb-5'>
-                  <Row>
-                    <Col>
-                      <Form.Label>Email Address</Form.Label>
-                      <Form.Control type='email' />
-                    </Col>
+              <Row className='form-body'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Nama PIC</Form.Label>
 
-                    <Col>
-                      <Form.Label>NPWP</Form.Label>
-                      <Form.Control type='number' />
-                    </Col>
-                  </Row>
-                </Form.Group>
+                    <Form.Control type='text' onChange={handleChangePicName} value={picName} />
+                  </Form.Group>
+                </Col>
 
-                <Form.Group className='mb-5'>
-                  <Form.Label>Alamat</Form.Label>
-                  <Form.Control as='textarea' className='field-alamat' placeholder='Jl. Pahlawan' />
-                </Form.Group>
-              </div>
-            </div>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Email</Form.Label>
 
-            <div className='bank-information'>
-              <div className='form-header'></div>
-
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Bank Name</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Account Holder Name</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Bank Account</Form.Label>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <div className='d-flex justify-content-between'>
-                    <Form.Label>Default Markup</Form.Label>
-
-                    <div className='form-check-request'>
-                      <Form.Check inline label='Rp' name='group1' type='radio' />
-                      <Form.Check inline label='%' name='group1' type='radio' />
-                    </div>
-                  </div>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Discount</Form.Label>
-                  <Form.Control type='number' />
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className='service-information'>
-              <div className='form-header'>
-                <Form.Label className='fw-bold'>Vendor ID</Form.Label>
-                <Form.Control type='text' />
-              </div>
-
-              <div className='form-body'>
-                <Form.Group className='mb-5'>
-                  <div className='d-flex justify-content-between'>
-                    <Form.Label>Add PIC</Form.Label>
-
-                    <Form.Label>Add KTP</Form.Label>
-                  </div>
-                  <Form.Control type='text' />
-                </Form.Group>
-
-                <Form.Group className='mb-5'>
-                  <Form.Label>Service Type</Form.Label>
-
-                  <Form.Select aria-label='Default select example'>
-                    <option value='1'>ALL</option>
-                    <option value='2'>ELECTRICAL</option>
-                    <option value='3'>MECHANICAL</option>
-                  </Form.Select>
-                </Form.Group>
-
-                <div className='mb-5'>
-                  <Form.Check className='mb-3' label='NPWP' />
-                  <Form.Check className='mb-3' label='PKS' />
-                  <Form.Check className='mb-3' label='SIUP' />
-                </div>
-
-                <Form.Group controlId='formFile' className='mb-5'>
-                  <Form.Label>Upload Receipt</Form.Label>
-                  <Form className='form-input-image' onClick={handleImageClick}>
                     <Form.Control
+                      type='email'
+                      onChange={handleChangeVendorEmail}
+                      value={emailVendor}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Nomor HP / WA</Form.Label>
+
+                    <Form.Control
+                      type='text'
+                      onChange={handleChangeVendorPhoneNumber}
+                      value={phoneNumberVendor}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='form-body'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Service Area</Form.Label>
+
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Service Area'
+                      isSearchable={true}
+                      isMulti
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      options={serviceArea}
+                      onChange={(element) => handleChangeServiceAreaId(element)}
+                      // value={{
+                      //   value: serviceAreaId,
+                      // }}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Service Type</Form.Label>
+
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Service Type'
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      isMulti
+                      options={serviceType}
+                      onChange={(element) => handleChangeServiceTypeId(element)}
+                      // value={{
+                      //   value: serviceTypeId,
+                      // }}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Address</Form.Label>
+                  <Form.Control
+                    as='textarea'
+                    className='address-form'
+                    onChange={handleChangeVendorAddress}
+                    value={vendorAddress}
+                  />
+                </Form.Group>
+              </Row>
+            </Col>
+
+            <Col xxl={3} xl={3} lg={12} md={12}>
+              <Row className='header-body'></Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <div className='d-flex justify-content-between' onClick={handleUploadKTP}>
+                    <Form.Control
+                      id='input-ktp-file'
                       type='file'
                       accept='image/*'
-                      className='input-field-image'
                       hidden
+                      className='input-field-image'
+                      onChange={handleFileChangeKTP}
+                    />
+
+                    <Form.Label>KTP</Form.Label>
+
+                    <div className='d-flex'>
+                      <Form.Label className='me-2 text-decoration-underline text-primary'>
+                        {imageKTP.fileName ? imageKTP.fileName : ''}
+                      </Form.Label>
+
+                      <FontAwesomeIcon icon={faUpload} size='lg' />
+                    </div>
+                  </div>
+
+                  <Form.Control type='number' onChange={handleChangeKTPNumber} value={ktpNumber} />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <div className='d-flex justify-content-between' onClick={handleUploadNPWP}>
+                    <Form.Control
+                      id='input-npwp-file'
+                      type='file'
+                      accept='image/*'
+                      hidden
+                      className='input-field-image'
+                      onChange={handleFileChangeNPWP}
+                    />
+
+                    <Form.Label>NPWP</Form.Label>
+
+                    <div className='d-flex'>
+                      <Form.Label className='me-2 text-decoration-underline text-primary'>
+                        {imageNPWP.fileName ? imageNPWP.fileName : ''}
+                      </Form.Label>
+
+                      <FontAwesomeIcon icon={faUpload} size='lg' />
+                    </div>
+                  </div>
+
+                  <Form.Control
+                    type='texnumber'
+                    onChange={handleChangeNPWPNumber}
+                    value={npwpNumber}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group className='d-flex justify-content-between mb-2'>
+                  <Form.Control
+                    id='input-compro-file'
+                    type='file'
+                    accept='image/*'
+                    hidden
+                    className='input-field-image'
+                    onChange={handleFileChangeCompro}
+                  />
+
+                  <div className='upload d-flex align-items-center'>
+                    <Form.Check
+                      checked={isActive.compro}
+                      onChange={() => handleFormCheckbox('compro')}
+                    />
+
+                    <Form.Label className='ms-2' onClick={handleUploadCompro}>
+                      COMPRO
+                    </Form.Label>
+                  </div>
+
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                    {imageCompro.fileName ? imageCompro.fileName : ''}
+                  </Form.Label>
+                </Form.Group>
+
+                <Form.Group className='d-flex justify-content-between mb-2'>
+                  <Form.Control
+                    id='input-surat_permohonan-file'
+                    type='file'
+                    accept='image/*'
+                    hidden
+                    className='input-field-image'
+                    onChange={handleFileChangeSuratPermohonan}
+                  />
+
+                  <div className='upload d-flex align-items-center'>
+                    <Form.Check
+                      checked={isActive.suratPermohonan}
+                      onChange={() => handleFormCheckbox('suratPermohonan')}
+                    />
+                    <Form.Label className='ms-2' onClick={handleUploadSuratPermohonan}>
+                      Surat Pemohonan
+                    </Form.Label>
+                  </div>
+
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                    {imageSuratPermohonan.fileName ? imageSuratPermohonan.fileName : ''}
+                  </Form.Label>
+                </Form.Group>
+
+                <Form.Group className='d-flex justify-content-between mb-2'>
+                  <Form.Control
+                    id='input-pks-file'
+                    type='file'
+                    accept='image/*'
+                    hidden
+                    className='input-field-image'
+                    onChange={handleFileChangePksEvidence}
+                  />
+
+                  <div className='upload d-flex align-items-center'>
+                    <Form.Check checked={isActive.pks} onChange={() => handleFormCheckbox('pks')} />
+                    <Form.Label className='ms-2' onClick={handleUploadPksEvidence}>
+                      PKS
+                    </Form.Label>
+                  </div>
+
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                    {imagePksEvidence.fileName ? imagePksEvidence.fileName : ''}
+                  </Form.Label>
+                </Form.Group>
+
+                <Form.Group className='d-flex justify-content-between mb-2'>
+                  <Form.Control
+                    id='input-suip-file'
+                    type='file'
+                    accept='image/*'
+                    hidden
+                    className='input-field-image'
+                    onChange={handleFileChangeSuipEvidence}
+                  />
+
+                  <div className='upload d-flex align-items-center'>
+                    <Form.Check
+                      checked={isActive.suip}
+                      onChange={() => handleFormCheckbox('suip')}
+                    />
+                    <Form.Label className='ms-2' onClick={handleUploadSuipEvidence}>
+                      SUIP
+                    </Form.Label>
+                  </div>
+
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                    {imageSuipEvidence.fileName ? imageSuipEvidence.fileName : ''}
+                  </Form.Label>
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Upload other docs</Form.Label>
+                  <Form className='form-input-image' onClick={handleImageClick}>
+                    <Form.Control
+                      id='file-input'
+                      type='file'
+                      accept='image/*'
+                      multiple
+                      hidden
+                      ref={evidenceRef}
                       onChange={handleFileChange}
                     />
 
-                    {image ? (
-                      <img src={image} alt={fileName} className='image-preview' />
-                    ) : (
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    )}
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
                   </Form>
 
-                  <div className='uploaded-row'>
-                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                  <ListGroup className='pt-3'>
+                    {uploadFiles.length ? (
+                      uploadFiles.map((item, index) => (
+                        <ListGroup.Item
+                          key={`${item?.name}-${index}-${item?.type}`}
+                          className='d-flex justify-content-between'
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                    <span className='upload-content'>{fileName}</span>
+                          <span className='upload-content'>{item?.name}</span>
 
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      size='sm'
-                      color='#ed2b2a'
-                      style={{cursor: 'pointer'}}
-                      onClick={handleRemoveFile}
-                    />
-                  </div>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
+                      </ListGroup.Item>
+                    )}
+                  </ListGroup>
                 </Form.Group>
-              </div>
-            </div>
-          </div>
+              </Row>
+            </Col>
+
+            <Col xxl={3} xl={3} lg={12} md={12}>
+              <Row className='header-body'></Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Nama Bank</Form.Label>
+
+                  <Select
+                    classNamePrefix='select'
+                    placeholder='Pilih Nama Bank'
+                    isSearchable={true}
+                    options={bank}
+                    onChange={(element) => handleChangeSelectBank(element)}
+                    // value={{
+                    //   value: bankId,
+                    //   label: bankName,
+                    // }}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Nomor Account</Form.Label>
+
+                  <Form.Control
+                    type='number'
+                    onChange={handleChangeAccountNumber}
+                    value={accountNumber}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Nama Pemilik Account</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    onChange={handleChangeAccountName}
+                    value={accountName}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <div className='d-flex justify-content-between'>
+                    <Form.Label>Margin</Form.Label>
+
+                    <div className='form-check-request'>
+                      <Form.Check inline label='Rp' name='group1' type='radio' />
+                      <Form.Check inline label='%' checked name='group1' type='radio' />
+                    </div>
+                  </div>
+
+                  <Form.Control type='number' onChange={handleChangeMarkup} value={markup} />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Discount</Form.Label>
+
+                  <Form.Control type='number' onChange={handleChangeDiscount} value={discount} />
+                </Form.Group>
+              </Row>
+            </Col>
+          </Row>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit'>
+            <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateVendor}>
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit'>
+            <Button variant='dark-primary' type='submit' onClick={handleUpdateVendor}>
               Save
             </Button>
           </div>
-        </div>
-      </div>
-
-      <div className='card'>
-        <div className='card-body table-view-order'>
-          <div className='table-head-wrapper'>
-            <div className='left'></div>
-
-            <div className='middle'>
-              <div className='filter-search'>
-                <InputGroup>
-                  <Form.Control placeholder='Filter' className='filter-rtl' />
-
-                  <InputGroup.Text className='filter-rtl'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-                </InputGroup>
-              </div>
-            </div>
-
-            <div className='right'>
-              <AddVendorButton />
-            </div>
-          </div>
-
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={data}
-            rowKey={(record) => record.key}
-            scroll={{x: 1800}}
-            pagination={{position: ['bottomRight']}}
-          />
         </div>
       </div>
     </section>

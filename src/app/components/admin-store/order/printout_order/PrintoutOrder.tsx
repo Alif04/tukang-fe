@@ -4,13 +4,14 @@ import './PrintoutOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {useParams} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Table, Form, Button, Row, Col} from 'react-bootstrap'
 
 const PrintoutOrder: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
+  const navigate = useNavigate()
   const [orderDetail, setOrderDetail] = useState<any>()
 
   const fetchOrderData = async () => {
@@ -69,6 +70,11 @@ const PrintoutOrder: FC = () => {
           icon: 'error',
         })
       })
+  }
+
+  // Handle Cancel Print
+  const handleCancelPrint = () => {
+    navigate(`/order/update-order/${params.id}`)
   }
 
   // Fungsi untuk mencetak elemen
@@ -213,8 +219,12 @@ const PrintoutOrder: FC = () => {
             </Row>
           </div>
 
-          <div className='d-flex justify-content-center mt-5'>
-            <Button className='hide-print-button' variant='primary' onClick={handlePrintOrder}>
+          <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
+            <Button className='hide-print-button' variant='dark-danger' onClick={handleCancelPrint}>
+              Cancel
+            </Button>
+
+            <Button className='hide-print-button' variant='dark-primary' onClick={handlePrintOrder}>
               Print
             </Button>
           </div>

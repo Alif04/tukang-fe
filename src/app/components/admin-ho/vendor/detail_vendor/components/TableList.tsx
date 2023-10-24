@@ -34,7 +34,7 @@ const NewQuotation = () => {
 
   return (
     <button className='button-new-quotation' onClick={handleNewQuotation}>
-      New Quotation <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
+      Add New Jasa <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
     </button>
   )
 }
@@ -109,15 +109,15 @@ const TableList: FC = () => {
   return (
     <div className='table-view-order'>
       <div className='table-head-wrapper'>
-        <div className='left'>
-          <h3>JASA Information</h3>
-        </div>
+        <Row>
+          <Col className='d-flex align-items-center'>
+            <h3>JASA Information</h3>
+          </Col>
 
-        <div className='middle'></div>
-
-        <div className='right'>
-          <NewQuotation />
-        </div>
+          <Col>
+            <NewQuotation />
+          </Col>
+        </Row>
       </div>
 
       <Table

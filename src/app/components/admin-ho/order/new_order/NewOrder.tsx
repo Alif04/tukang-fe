@@ -100,7 +100,6 @@ const NewOrderHO: FC = () => {
   const [paymentType, setPaymentType] = useState<string>('')
 
   const [projectStatusId, setProjectStatusId] = useState<any>()
-  console.log(projectStatusId)
 
   const [requestDate, setRequestDate] = useState<string>('')
 
@@ -617,15 +616,18 @@ const NewOrderHO: FC = () => {
 
   const calculatedGrandTotalOrder = () => {
     return orderDetailValues.reduce(() => {
-      const totalOrderAmount = total
+      let totalOrderAmount = 0
       let biayaSurvey = 0
 
       if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
+        totalOrderAmount = total
       } else if (paymentType === 'survey') {
         biayaSurvey = 99000
+        totalOrderAmount = 0
       } else {
         biayaSurvey = 0
+        totalOrderAmount = total
       }
 
       const calculatedGrandTotal = totalOrderAmount + biayaSurvey

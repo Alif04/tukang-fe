@@ -40,10 +40,10 @@ const CostumersPage: React.FC = () => {
       />
 
       <Route
-        path='detail-costumers'
+        path='detail-costumers/:id'
         element={
           <>
-            <PageTitle breadcrumbs={costumersBreadCrumbs}>DETAIL COSTUMER</PageTitle>
+            <PageTitle breadcrumbs={costumersBreadCrumbs}>PROFILE COSTUMER</PageTitle>
             <DetailCostumer />
           </>
         }

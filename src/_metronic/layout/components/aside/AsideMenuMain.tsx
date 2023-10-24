@@ -121,6 +121,74 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Quotation */}
+      <AsideMenuItemWithSub
+        to='/quotation'
+        title='Quotation'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+        role={['Admin HO', 'Admin Vendor']}
+      >
+        <AsideMenuItem
+          to='/quotation/view-quotation'
+          title='View Quotation'
+          role={['Admin HO', 'Admin Vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/new-quotation'
+          title='New Quotation'
+          role={['Admin HO', 'Admin Vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/update-quotation'
+          title='Update Quotation'
+          role={['Admin HO', 'Admin Vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/detail-quotation'
+          title='Detail Quotation'
+          role={['Admin HO', 'Admin Vendor']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/quotation/report-finance'
+          title='Dashboard Finance'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Pengaduan */}
+      <AsideMenuItemWithSub
+        to='/complaint'
+        title='Pengaduan'
+        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+      >
+        <AsideMenuItem
+          to='/complaint/report-complaint'
+          title='Pengaduan Konsumen Dashboard'
+          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/complaint/new-complaint'
+          title='Request Pengaduan'
+          role={['Store CS', 'Store Staff', 'Admin HO']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/complaint/view-complaint'
+          title='List Pengaduan'
+          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
       {/* Halaman Tukang */}
       <AsideMenuItemWithSub
         to='/tukang'
@@ -151,6 +219,34 @@ export function AsideMenuMain() {
           to='/tukang/detail-tukang'
           title='Detail Tukang'
           role={['Admin Vendor', 'Tukang']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Vendor */}
+      <AsideMenuItemWithSub
+        to='/vendor'
+        title='Vendor'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+        role={['Admin HO']}
+      >
+        <AsideMenuItem
+          to='/vendor/view-vendor'
+          title='View Vendor'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/vendor/new-vendor'
+          title='New Vendor'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/vendor/report-vendor'
+          title='Report Vendor'
+          role={['Admin HO']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -207,86 +303,6 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
-      {/* Halaman Vendor */}
-      <AsideMenuItemWithSub
-        to='/vendor'
-        title='Vendor'
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-        role={['Admin HO']}
-      >
-        <AsideMenuItem
-          to='/vendor/view-vendor'
-          title='View Vendor'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/vendor/new-vendor'
-          title='New Vendor'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/vendor/update-vendor'
-          title='Update Vendor'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-        {/* <AsideMenuItem
-          to='/vendor/detail-vendor'
-          title='Detail Vendor'
-          role={['Admin HO']}
-          hasBullet={true}
-        /> */}
-        <AsideMenuItem
-          to='/vendor/report-vendor'
-          title='Report Vendor'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-      </AsideMenuItemWithSub>
-
-      {/* Halaman Quotation */}
-      <AsideMenuItemWithSub
-        to='/quotation'
-        title='Quotation'
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-        role={['Admin HO', 'Admin Vendor']}
-      >
-        <AsideMenuItem
-          to='/quotation/view-quotation'
-          title='View Quotation'
-          role={['Admin HO', 'Admin Vendor']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/quotation/new-quotation'
-          title='New Quotation'
-          role={['Admin HO', 'Admin Vendor']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/quotation/update-quotation'
-          title='Update Quotation'
-          role={['Admin HO', 'Admin Vendor']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/quotation/detail-quotation'
-          title='Detail Quotation'
-          role={['Admin HO', 'Admin Vendor']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/quotation/report-finance'
-          title='Dashboard Finance'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-      </AsideMenuItemWithSub>
-
       {/* Halaman Invoice */}
       <AsideMenuItemWithSub
         to='/invoice'
@@ -311,34 +327,6 @@ export function AsideMenuMain() {
           to='/invoice/detail-invoice'
           title='Detail Invoice'
           role={['Admin Vendor', 'Admin HO']}
-          hasBullet={true}
-        />
-      </AsideMenuItemWithSub>
-
-      {/* Halaman Pengaduan */}
-      <AsideMenuItemWithSub
-        to='/complaint'
-        title='Pengaduan'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-      >
-        <AsideMenuItem
-          to='/complaint/report-complaint'
-          title='Pengaduan Konsumen Dashboard'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/complaint/new-complaint'
-          title='Request Pengaduan'
-          role={['Store CS', 'Store Staff', 'Admin HO']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/complaint/view-complaint'
-          title='List Pengaduan'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

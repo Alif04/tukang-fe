@@ -45,18 +45,6 @@
   background-color: #e4e9f7;
 }
 
-#view-vendor .ant-table-thead > tr > th.col-work-status {
-  background-color: #a30014 !important;
-}
-
-#view-vendor .ant-table-thead > tr > th.col-complaint-date {
-  background-color: #a30014 !important;
-}
-
-#view-vendor .ant-table-thead > tr > th.col-complaint-status {
-  background-color: #a30014 !important;
-}
-
 /* Searchbar */
 
 #view-vendor .filter-search .input-group .form-control.filter-ltr {
@@ -68,66 +56,6 @@
   border-right: none;
 }
 
-/* Button Action */
-
-.button-wrapper {
-  display: flex;
-  justify-content: space-between;
-}
-
-.button-detail svg.svg-inline--fa.fa-book.fa-sm {
-  color: black;
-}
-
-#view-vendor .button-add svg.svg-inline--fa.fa-plus.fa-sm {
-  color: black;
-}
-
-.button-edit svg.svg-inline--fa.fa-pen.fa-sm {
-  color: black;
-}
-
-.button-delete svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0;
-  color: #d50119;
-}
-
-#view-vendor .button-export {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 180px;
+#view-vendor .select__control.css-13cymwt-control {
   height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #04844b;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-svg.svg-inline--fa.fa-fire.fa-lg.plus-icon {
-  margin: 5px;
-}
-
-.button-new-vendor {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 125px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: transparent;
-  color: black;
-  border: none;
-  border-radius: 5px;
-}
-
-svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
-  margin: 5px;
-}
-
-svg.svg-inline--fa.fa-user-plus.fa-sm {
-  color: black;
 }
