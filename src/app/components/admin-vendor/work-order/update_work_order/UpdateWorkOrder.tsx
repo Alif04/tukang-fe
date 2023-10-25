@@ -98,31 +98,35 @@ const UpdateWorkVendor: FC = () => {
 
                 <div className='detail-information'>
                   <div className='costumer-id mb-3'>
-                    <p className='me-5'>Order ID : 88965329</p>
+                    <p className='me-5'>Order ID : {orderDetail?.id}</p>
                   </div>
 
                   <div className='costumer-name mb-3'>
-                    <p className='me-5'>Nama Jasa Pemasangan : Peemasangan Water Heater</p>
+                    <p className='me-5'>
+                      Nama Jasa Pemasangan : {orderDetail?.order_details[0].unit}
+                    </p>
                   </div>
 
                   <div className='email mb-3'>
-                    <p className='me-5'>Item Name : Electrolux Water Heaater</p>
+                    <p className='me-5'>Item Name : {orderDetail?.order_details[0].unit}</p>
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Tipe Pembayaran : FREE</p>
+                    <p className='me-5 text-uppercase'>
+                      Tipe Pembayaran : {orderDetail?.payment_type}
+                    </p>
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Harga Jasa : 1.000.000</p>
+                    <p className='me-5'>Harga Jasa : {orderDetail?.order_details[0].total}</p>
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Quantity : 1</p>
+                    <p className='me-5'>Quantity : {orderDetail?.order_details[0].quantity}</p>
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Total Harga : 1.000.000</p>
+                    <p className='me-5'>Total Harga : {orderDetail?.grand_total}</p>
                   </div>
                 </div>
               </div>
