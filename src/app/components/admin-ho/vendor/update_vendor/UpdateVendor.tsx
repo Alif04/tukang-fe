@@ -68,6 +68,10 @@ const UpdateVendorHO: FC = () => {
             setPhoneNumberVendor(data.phone_number)
           }
 
+          if (data?.user_name) {
+            setPicName(data.user_name)
+          }
+
           if (data?.ktp_number && data?.npwp_number) {
             setKtpNumber(data.ktp_number)
             setNpwpNumber(data.npwp_number)
@@ -75,7 +79,7 @@ const UpdateVendorHO: FC = () => {
 
           if (data?.vendor_bank) {
             setBankId(data.vendor_bank[0].bank_id)
-            // setBankName(data.vendor_bank[0].bank_name)
+            setBankName(data.vendor_bank[0].bank_name)
             setAccountName(data.vendor_bank[0].account_name)
             setAccountNumber(data.vendor_bank[0].account_number)
           }
@@ -138,6 +142,19 @@ const UpdateVendorHO: FC = () => {
                 }
               }
             })
+          }
+
+          if (data?.vendor_document) {
+            const filteredData = data.vendor_document.filter(
+              (item: any) => item.document_name === 'vendor_document'
+            )
+
+            const VendorDocumentValues = filteredData.map((item: any) => ({
+              id: item.id,
+              name: item.path,
+            }))
+
+            setUploadFiles(VendorDocumentValues)
           }
         })
     } catch (error) {
@@ -352,11 +369,66 @@ const UpdateVendorHO: FC = () => {
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
-    compro: false,
-    suratPermohonan: false,
-    pks: false,
-    suip: false,
+    compro: true,
+    suratPermohonan: true,
+    pks: true,
+    suip: true,
   })
+
+  useEffect(() => {
+    if (imageCompro.fileName !== '') {
+      setisActive((prevState) => ({
+        ...prevState,
+        compro: true,
+      }))
+    } else {
+      setisActive((prevState) => ({
+        ...prevState,
+        compro: false,
+      }))
+    }
+
+    if (imageSuratPermohonan.fileName !== '') {
+      setisActive((prevState) => ({
+        ...prevState,
+        suratPermohonan: true,
+      }))
+    } else {
+      setisActive((prevState) => ({
+        ...prevState,
+        suratPermohonan: false,
+      }))
+    }
+
+    if (imagePksEvidence.fileName !== '') {
+      setisActive((prevState) => ({
+        ...prevState,
+        pks: true,
+      }))
+    } else {
+      setisActive((prevState) => ({
+        ...prevState,
+        pks: false,
+      }))
+    }
+
+    if (imageSuipEvidence.fileName !== '') {
+      setisActive((prevState) => ({
+        ...prevState,
+        suip: true,
+      }))
+    } else {
+      setisActive((prevState) => ({
+        ...prevState,
+        suip: false,
+      }))
+    }
+  }, [
+    imageCompro.fileName,
+    imageSuratPermohonan.fileName,
+    imagePksEvidence.fileName,
+    imageSuipEvidence.fileName,
+  ])
 
   // console.log('isActive Compro', isActive.compro)
   // console.log('isActive Surat Permohonan', isActive.suratPermohonan)
