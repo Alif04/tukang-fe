@@ -42,7 +42,7 @@ export function AsideMenuMain() {
       <AsideMenuItem
         to='/calendar/view-calendar'
         icon='/media/icons/duotune/art/art002.svg'
-        title='Calendar'
+        title='Calendar ( Maintenance )'
         fontIcon='bi-app-indicator'
         role={['Admin Vendor', 'Tukang']}
       />
@@ -90,7 +90,7 @@ export function AsideMenuMain() {
       {/* Halaman Work Order */}
       <AsideMenuItemWithSub
         to='/work-order'
-        title='Work Order'
+        title='Work Order (Maintenance)'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
         role={['Admin Vendor', 'Tukang']}
@@ -124,7 +124,7 @@ export function AsideMenuMain() {
       {/* Halaman Quotation */}
       <AsideMenuItemWithSub
         to='/quotation'
-        title='Quotation'
+        title='Quotation (Maintenance)'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
         role={['Admin HO', 'Admin Vendor']}
@@ -192,7 +192,7 @@ export function AsideMenuMain() {
       {/* Halaman Tukang */}
       <AsideMenuItemWithSub
         to='/tukang'
-        title='Tukang'
+        title='Tukang (Maintenance)'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
         role={['Admin Vendor', 'Tukang']}
@@ -282,7 +282,7 @@ export function AsideMenuMain() {
       {/* Halaman CSI */}
       <AsideMenuItemWithSub
         to='/cis'
-        title='CSI'
+        title='CSI (Maintenance)'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
         role={['Admin HO']}
@@ -306,7 +306,7 @@ export function AsideMenuMain() {
       {/* Halaman Invoice */}
       <AsideMenuItemWithSub
         to='/invoice'
-        title='Invoice'
+        title='Invoice (Maintenance)'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
         role={['Admin HO', 'Admin Vendor']}
@@ -362,7 +362,7 @@ export function AsideMenuMain() {
       {/* Halaman Payment */}
       <AsideMenuItemWithSub
         to='/payment'
-        title='Payment'
+        title='Payment (Maintenance)'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
         role={['Admin HO']}
@@ -406,7 +406,7 @@ export function AsideMenuMain() {
       {/* Halaman Refund */}
       <AsideMenuItemWithSub
         to='/refund'
-        title='Refund'
+        title='Refund (Maintenance)'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
         role={['Admin HO']}
