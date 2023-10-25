@@ -1,274 +1,343 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 
 import './ViewWorkOrder.css'
 
-import {Table} from 'antd'
+import axios from 'axios'
+import {Table, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
+import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faFileExcel, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {useNavigate} from 'react-router-dom'
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
 
 type Props = {
   className: string
 }
 
 interface DataType {
-  key: string
-  order_id: string
+  order_id: number
+  store_name: string
   date_order: string
+  costumer_id: number
+  costumer_name: string
+  phone_number: number
   item_name: string
   installation_type: string
   payment_status: string
-  costumer_id: string
-  costumer_name: string
-  phone_number: string
-  installer_name: string
   order_status: string
 }
 
-const DetailButton = () => {
-  const navigate = useNavigate()
-
-  const handleDetail = () => {
-    navigate('/work-order/Detail-work_order')
-  }
-
-  return (
-    <a className='button-detail' onClick={handleDetail}>
-      <FontAwesomeIcon icon={faBook} size='sm' />
-    </a>
-  )
-}
-
-const EditButton = () => {
-  const navigate = useNavigate()
-
-  const handleEdit = () => {
-    navigate('/order/update-order')
-  }
-
-  return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
-}
-
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 100,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Date Order',
-    dataIndex: 'date_order',
-    key: 'date_order',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Product Name',
-    dataIndex: 'item_name',
-    key: 'item_name',
-    align: 'left',
-    width: 120,
-  },
-  {
-    title: 'Installation Type',
-    dataIndex: 'installation_type',
-    key: 'installation_type',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Payment Status',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
-    align: 'left',
-    width: 150,
-  },
-  {
-    title: 'Customer ID',
-    dataIndex: 'costumer_id',
-    key: 'costumer_id',
-    align: 'center',
-    width: 120,
-  },
-  {
-    title: 'Customer Name',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
-    align: 'center',
-    width: 150,
-  },
-  {
-    title: 'Installer Name',
-    dataIndex: 'installer_name',
-    key: 'installer_name',
-    align: 'left',
-    width: 130,
-  },
-  {
-    title: 'Work Order Status',
-    dataIndex: 'order_status',
-    key: 'order_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <DetailButton />
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 115,
-  },
-]
-
-const data: DataType[] = [
-  {
-    key: '1',
-    order_id: '78453992',
-    date_order: '10/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    phone_number: '08158374638',
-    installer_name: 'Patric',
-    order_status: 'DONE',
-  },
-  {
-    key: '2',
-    order_id: '78453993',
-    date_order: '13/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986748',
-    costumer_name: 'Abdulah',
-    phone_number: '08158376565',
-    installer_name: 'Jonas',
-    order_status: 'DONE',
-  },
-  {
-    key: '3',
-    order_id: '78453994',
-    date_order: '14/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986710',
-    costumer_name: 'Alice',
-    phone_number: '08158300987',
-    installer_name: 'Patric',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '4',
-    order_id: '78453995',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '5',
-    order_id: '78453996',
-    date_order: '10/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '6',
-    order_id: '78453997',
-    date_order: '12/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '7',
-    order_id: '78453998',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    order_status: 'ON PROGRESS',
-  },
-]
-
 const ViewWorkVendor: React.FC<Props> = ({className}) => {
+  const navigate = useNavigate()
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
+  }
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      width: 100,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Nama Store',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Date Order',
+      dataIndex: 'date_order',
+      key: 'date_order',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.date_order.includes(String(value)),
+      sorter: (a, b) => a.date_order.length - b.date_order.length,
+    },
+    {
+      title: 'Customer ID',
+      dataIndex: 'costumer_id',
+      key: 'costumer_id',
+      align: 'center',
+      width: 120,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.costumer_id - b.costumer_id,
+    },
+    {
+      title: 'Customer Name',
+      dataIndex: 'costumer_name',
+      key: 'costumer_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+    },
+    {
+      title: 'Phone Number',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
+      align: 'center',
+      width: 150,
+      sorter: (a, b) => a.phone_number - b.phone_number,
+    },
+    {
+      title: 'Item Name',
+      dataIndex: 'item_name',
+      key: 'item_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.item_name.includes(String(value)),
+      sorter: (a, b) => a.item_name.length - b.item_name.length,
+    },
+    {
+      title: 'Nama Jasa Pemasangan',
+      dataIndex: 'installation_type',
+      key: 'installation_type',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.installation_type.includes(String(value)),
+      sorter: (a, b) => a.installation_type.length - b.installation_type.length,
+    },
+    {
+      title: 'Payment Status',
+      dataIndex: 'payment_status',
+      key: 'payment_status',
+      align: 'left',
+      width: 150,
+      onFilter: (value, record) => record.payment_status.includes(String(value)),
+      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+    },
+    {
+      title: 'Order Status',
+      dataIndex: 'order_status',
+      key: 'order_status',
+      align: 'left',
+      width: 140,
+      render: (order_status) => {
+        const orderStatus = order_status
+        let color = ''
+
+        switch (orderStatus) {
+          case 'BOOK':
+            color = 'green'
+            break
+          case 'BOOKED':
+            color = 'lime'
+            break
+          case 'SURVEYREQ':
+            color = 'blue'
+            break
+          case 'SURVEYSTART':
+          case 'SURVEYDONE':
+          case 'QUOTE IN':
+          case 'QUOTE OUT':
+          case 'WORKREQ':
+          case 'WORKSTART':
+          case 'WIP':
+          case 'WORKEND':
+          case 'CISOUT':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
+      filters: [
+        {text: 'BOOK', value: 'BOOK'},
+        {text: 'BOOKED', value: 'BOOKED'},
+      ],
+      onFilter: (value, record) => record.order_status.includes(String(value)),
+      sorter: (a, b) => a.order_status.length - b.order_status.length,
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      fixed: 'right',
+      width: 115,
+      render: (record) => {
+        const handleDetailId = () => {
+          const id = record.order_id
+          navigate(`/work-order/detail-work-order/${id}`)
+        }
+
+        const handleUpdateId = () => {
+          const id = record.order_id
+          navigate(`/work-order/update-work-order/${id}`)
+        }
+
+        return (
+          <div className='button-wrapper'>
+            <a className='button-detail' onClick={handleDetailId}>
+              <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
+
+            <a className='button-edit' onClick={handleUpdateId}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
+            </a>
+          </div>
+        )
+      },
+    },
+  ]
+
+  const [orderData, setOrderData] = useState<DataType[]>([])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  const fetchOrderList = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+      const desiredStatusName = 'SURVEYREQ'
+      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+
+      if (desiredStatus) {
+        const statusId = desiredStatus.value
+
+        const response = await axios.get(
+          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+        return response.data.data
+      } else {
+        console.error('Desired status not found in statusData')
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewOrder = async () => {
+    try {
+      const apiData = await fetchOrderList()
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const orderData = apiData.map((item: any) => {
+        let data
+        const orderDate = new Date(item.created_at)
+
+        let phoneNumber =
+          item.members.phone_number !== 'null'
+            ? item.members.phone_number
+            : item.members.whatsapp_number
+
+        let paymentStatus = item.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
+
+        data = {
+          order_id: item.id,
+          store_name: item.store.store_name,
+          date_order: formatDate(orderDate),
+          costumer_id: item.members.id,
+          costumer_name: item.members.full_name,
+          phone_number: phoneNumber,
+          item_name: item.m_order_details[0].item.item_name,
+          installation_type: item.m_order_details[0].item.category_name,
+          payment_status: paymentStatus,
+          order_status: item.status.category,
+        }
+
+        return data
+      })
+
+      return orderData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await ViewOrder()
+      setOrderData(data)
+    }
+
+    fetchData()
+  }, [dateFrom, dateTo, searchFilter])
+
   return (
     <section id='view-work-order-vendor'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
-          <Row className='mb-5'>
-            <Col xxl={4}></Col>
+          <Row className='table-head-wrapper'>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+              <div className='d-flex align-items-center me-3'>
+                <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
+                <h3 className='fs-3 fw-normal'>Date : </h3>
+              </div>
 
-            <Col xxl={4}>
+              <RangePicker
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
                     <FontAwesomeIcon icon={faSearch} size='sm' />
                   </InputGroup.Text>
 
-                  <Form.Control placeholder='Filter' className='filter-ltr' />
+                  <Form.Control
+                    placeholder='Filter'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
                 </InputGroup>
               </div>
-            </Col>
-
-            <Col xxl={4} className='d-flex justify-content-end'>
-              <button className='button-export '>
-                Export To Excel
-                <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
-              </button>
             </Col>
           </Row>
 
@@ -276,10 +345,10 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={data}
-            rowKey={(record) => record.key}
+            dataSource={orderData}
+            rowKey={(record) => record.order_id}
             scroll={{x: 1800}}
-            pagination={{position: ['bottomCenter']}}
+            pagination={{position: ['bottomRight']}}
           />
         </div>
       </div>

@@ -38,7 +38,7 @@ const WorkOrderPage: React.FC = () => {
         }
       />
       <Route
-        path='update-work-order'
+        path='update-work-order/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE WORK ORDER</PageTitle>
@@ -47,7 +47,7 @@ const WorkOrderPage: React.FC = () => {
         }
       />
       <Route
-        path='detail-work-order'
+        path='detail-work-order/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL WORK ORDER</PageTitle>

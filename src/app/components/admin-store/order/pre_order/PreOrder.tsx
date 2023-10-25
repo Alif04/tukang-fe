@@ -506,7 +506,10 @@ const PreOrderStore: FC = () => {
       let totalOrderAmount = 0
       let biayaSurvey = 0
 
-      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      if (paymentType === 'gratis') {
+        biayaSurvey = 0
+        totalOrderAmount = 0
+      } else if (paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
         totalOrderAmount = total
       } else if (paymentType === 'survey') {

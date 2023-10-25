@@ -2,270 +2,42 @@ import React, {useState, useEffect, FC} from 'react'
 
 import './UpdateWorkOrder.css'
 
+import axios from 'axios'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, Button, InputGroup, Row, Col} from 'react-bootstrap'
-
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-  faUserPlus,
-  faFileExcel,
-} from '@fortawesome/free-solid-svg-icons'
-
-import {useNavigate} from 'react-router-dom'
-
-interface DataType {
-  key: string
-  order_id: string
-  date_order: string
-  item_name: string
-  installation_type: string
-  payment_status: string
-  costumer_id: string
-  costumer_name: string
-  phone_number: string
-  installer_name: string
-  vendor_name: string
-  order_status: string
-}
-
-const DetailButton = () => {
-  const navigate = useNavigate()
-
-  const handleDetail = () => {
-    navigate('/work-order/Detail-work_order')
-  }
-
-  return (
-    <a className='button-detail' onClick={handleDetail}>
-      <FontAwesomeIcon icon={faBook} size='sm' />
-    </a>
-  )
-}
-
-const EditButton = () => {
-  const navigate = useNavigate()
-
-  const handleEdit = () => {
-    navigate('/order/update-order')
-  }
-
-  return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
-}
-
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 100,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Date Order',
-    dataIndex: 'date_order',
-    key: 'date_order',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Product Name',
-    dataIndex: 'item_name',
-    key: 'item_name',
-    align: 'left',
-    width: 120,
-  },
-  {
-    title: 'Installation Type',
-    dataIndex: 'installation_type',
-    key: 'installation_type',
-    align: 'left',
-    width: 100,
-  },
-  {
-    title: 'Payment Status',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
-    align: 'left',
-    width: 100,
-  },
-  {
-    title: 'Customer ID',
-    dataIndex: 'costumer_id',
-    key: 'costumer_id',
-    align: 'center',
-    width: 100,
-  },
-  {
-    title: 'Customer Name',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
-    align: 'center',
-    width: 150,
-  },
-  {
-    title: 'Installer Name',
-    dataIndex: 'installer_name',
-    key: 'installer_name',
-    align: 'left',
-    width: 130,
-  },
-  {
-    title: 'Vendor Name',
-    dataIndex: 'vendor_name',
-    key: 'vendor_name',
-    align: 'left',
-    width: 130,
-  },
-  {
-    title: 'Order Status',
-    dataIndex: 'order_status',
-    key: 'order_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <DetailButton />
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 90,
-  },
-]
-
-const data: DataType[] = [
-  {
-    key: '1',
-    order_id: '78453992',
-    date_order: '10/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    phone_number: '08158374638',
-    installer_name: 'Patric',
-    vendor_name: 'PT ABC',
-    order_status: 'DONE',
-  },
-  {
-    key: '2',
-    order_id: '78453993',
-    date_order: '13/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986748',
-    costumer_name: 'Abdulah',
-    phone_number: '08158376565',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'DONE',
-  },
-  {
-    key: '3',
-    order_id: '78453994',
-    date_order: '14/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986710',
-    costumer_name: 'Alice',
-    phone_number: '08158300987',
-    installer_name: 'Patric',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '4',
-    order_id: '78453995',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '5',
-    order_id: '78453996',
-    date_order: '10/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '6',
-    order_id: '78453997',
-    date_order: '12/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '7',
-    order_id: '78453998',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-]
+import {useNavigate, useParams} from 'react-router-dom'
+import {Form, Button, Row, Col} from 'react-bootstrap'
 
 const UpdateWorkVendor: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  const fetchOrderData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrderData()
+  }, [])
+
   return (
     <section id='update-work-order'>
       <div className='card mb-5'>
@@ -274,7 +46,7 @@ const UpdateWorkVendor: FC = () => {
             <div className='information-wrapper'>
               <div className='detail-header'>
                 <div className='order-id'>
-                  <h3>Nama Toko : MITRA 10 BSD</h3>
+                  <h3>Nama Toko : {orderDetail?.store.store_name}</h3>
                 </div>
               </div>
 
@@ -285,25 +57,23 @@ const UpdateWorkVendor: FC = () => {
 
                 <div className='detail-information'>
                   <div className='costumer-id mb-3'>
-                    <p className='me-5'>Costumer ID : 77652739</p>
+                    <p className='me-5'>Costumer ID : {orderDetail?.members.id}</p>
                   </div>
 
                   <div className='costumer-name  mb-3'>
-                    <p className='me-5'>Costumer Name : Ryan Filbert</p>
+                    <p className='me-5'>Costumer Name : {orderDetail?.members.full_name}</p>
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Phone/WA : 876992300239</p>
+                    <p className='me-5'>Phone/WA : {orderDetail?.project_number}</p>
                   </div>
 
                   <div className='email mb-3'>
-                    <p className='me-5'>Email Address : ryan.filbert@gmail.com</p>
+                    <p className='me-5'>Email Address : {orderDetail?.members.email}</p>
                   </div>
 
                   <div className='alamat-pemasangan d-flex mb-3'>
-                    <p className='me-5'>
-                      Address : Jl. Kijang no.9, Jakarta TimurDKI Jakarta, Indonesia
-                    </p>
+                    <p className='me-5'>Address : {orderDetail?.project_address}</p>
                   </div>
                 </div>
               </div>
@@ -316,7 +86,7 @@ const UpdateWorkVendor: FC = () => {
                     Work order ID :
                   </Form.Label>
                   <Col sm='8'>
-                    <Form.Control readOnly type='text' value='899359-2' />
+                    <Form.Control readOnly type='text' value={orderDetail?.id} />
                   </Col>
                 </Form.Group>
               </div>
@@ -459,38 +229,6 @@ const UpdateWorkVendor: FC = () => {
               Save
             </Button>
           </div>
-        </div>
-      </div>
-
-      <div className='card'>
-        <div className='card-body table-view-order'>
-          <div className='table-head-wrapper'>
-            <div className='left'></div>
-
-            <div className='middle'>
-              <div className='filter-search'>
-                <InputGroup>
-                  <Form.Control placeholder='Filter' className='filter-rtl' />
-
-                  <InputGroup.Text className='filter-rtl'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-                </InputGroup>
-              </div>
-            </div>
-
-            <div className='right'></div>
-          </div>
-
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={data}
-            rowKey={(record) => record.key}
-            scroll={{x: 2000}}
-            pagination={{position: ['bottomRight']}}
-          />
         </div>
       </div>
     </section>
