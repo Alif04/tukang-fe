@@ -1,20 +1,10 @@
 import React, {FC} from 'react'
-import {useState} from 'react'
 
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup, Button, Row, Col} from 'react-bootstrap'
+import {Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-  faUserPlus,
-} from '@fortawesome/free-solid-svg-icons'
+import {faPlus} from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -25,15 +15,15 @@ interface DataType {
   area_service: string
 }
 
-const NewQuotation = () => {
+const NewJASA = () => {
   const navigate = useNavigate()
 
-  const handleNewQuotation = () => {
+  const handleNewJASA = () => {
     navigate('/order/new-order')
   }
 
   return (
-    <button className='button-new-quotation' onClick={handleNewQuotation}>
+    <button className='button-new-quotation' onClick={handleNewJASA}>
       Add New Jasa <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
     </button>
   )
@@ -114,8 +104,8 @@ const TableList: FC = () => {
             <h3>JASA Information</h3>
           </Col>
 
-          <Col>
-            <NewQuotation />
+          <Col className='d-flex justify-content-end'>
+            <NewJASA />
           </Col>
         </Row>
       </div>
@@ -125,6 +115,7 @@ const TableList: FC = () => {
         bordered
         columns={columns}
         dataSource={data}
+        scroll={{y: 110}}
         rowKey={(record) => record.key}
         pagination={{position: ['bottomRight']}}
       />

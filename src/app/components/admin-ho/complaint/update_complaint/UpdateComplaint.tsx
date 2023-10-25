@@ -128,7 +128,6 @@ const UpdateComplaintHO: FC = () => {
 
   // Add Remedial Action
   const [picRemedialId, setPicRemedialId] = useState<any>()
-  console.log(picRemedialId)
   const [remedialDesc, setRemedialDesc] = useState<any>('')
   const [remedialStartDate, setremedialStartDate] = useState<string>('')
   const [remedialEndDate, setremedialEndDate] = useState<string>('')
