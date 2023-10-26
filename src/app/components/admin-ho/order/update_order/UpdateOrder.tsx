@@ -300,7 +300,7 @@ const UpdateOrderHO: FC = () => {
 
     const getVendor = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/vendor/get`, {
+        const response = await axios.get(`${apiUrl}/vendor`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
