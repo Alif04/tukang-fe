@@ -521,6 +521,26 @@ const DetailComplaintHO: FC = () => {
           <hr />
 
           <Row>
+            <div className='d-flex justify-content-end align-items-center'>
+              <Button
+                variant='dark-danger'
+                className='d-flex justify-content-center align-items-center'
+                type='submit'
+              >
+                Rejected
+              </Button>
+
+              <Button
+                variant='dark-success'
+                className='d-flex justify-content-center align-items-center'
+                type='submit'
+              >
+                Approved
+              </Button>
+            </div>
+          </Row>
+
+          <Row>
             <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
               COMPLAINT HISTORY
             </div>
@@ -617,7 +637,7 @@ const DetailComplaintHO: FC = () => {
 
           <Row>
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-              <Form.Label className='fs-3 fw-bold'>Feedback Store :</Form.Label>
+              <Form.Label className='fs-3 fw-bold'>FEEDBACK :</Form.Label>
               <Form.Control
                 style={{minHeight: '170px'}}
                 as='textarea'

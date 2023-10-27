@@ -39,7 +39,7 @@ const VendorPage: React.FC = () => {
         path='new-quotation'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>QUOTATION 12877450 - ALIA</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>QUOTATION</PageTitle>
             <NewQuotation />
           </>
         }

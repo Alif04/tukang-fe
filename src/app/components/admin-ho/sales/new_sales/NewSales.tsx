@@ -267,6 +267,70 @@ const NewSalesHO: FC = () => {
   }
 
   // Sales Validation
+  // const SalesValidation = () => {
+  //   let valid = true
+
+  //   if (!storeId) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please select Store form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!salesId) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill Sales Id form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!salesName) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill Name Sales Consultant form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!salesPhoneNumber) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill WA / Phone Number form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!brandsId) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please select Brands form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!bankName) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill Nama Bank form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!accountNumber) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill Nomor Akun Bank form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!accountName) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill Nama Pemilik Akun form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   }
+
+  //   return valid
+  // }
+
   const SalesValidation = () => {
     let valid = true
 
@@ -291,38 +355,10 @@ const NewSalesHO: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!salesPhoneNumber) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill WA / Phone Number form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!brandsId) {
       Swal.fire({
         title: 'Error',
         text: 'Please select Brands form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!bankName) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nama Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!accountNumber) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nomor Akun Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!accountName) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nama Pemilik Akun form',
         icon: 'error',
       })
       valid = false
@@ -421,6 +457,15 @@ const NewSalesHO: FC = () => {
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
+                  <Form.Label>Nama Sales Consultant</Form.Label>
+                  <Form.Control
+                    type='text'
+                    value={salesName}
+                    onChange={(element) => handleChangeSalesName(element)}
+                  />
+                </Form.Group>
+
+                {/* <Form.Group className='mb-5'>
                   <Form.Label>Nama Bank</Form.Label>
 
                   <Select
@@ -430,7 +475,7 @@ const NewSalesHO: FC = () => {
                     options={bank}
                     onChange={(element) => handleChangeSelectBank(element)}
                   />
-                </Form.Group>
+                </Form.Group> */}
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -451,25 +496,25 @@ const NewSalesHO: FC = () => {
 
             <Row className='input-order'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Group className='mb-5'>
+                {/* <Form.Group className='mb-5'>
                   <Form.Label>Nama Sales Consultant</Form.Label>
                   <Form.Control
                     type='text'
                     value={salesName}
                     onChange={(element) => handleChangeSalesName(element)}
                   />
-                </Form.Group>
+                </Form.Group> */}
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Group className='mb-5'>
+                {/* <Form.Group className='mb-5'>
                   <Form.Label>Nomor Akun Bank</Form.Label>
                   <Form.Control
                     type='number'
                     value={accountNumber}
                     onChange={(element) => handleChangeAccountNumber(element)}
                   />
-                </Form.Group>
+                </Form.Group> */}
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
@@ -477,25 +522,25 @@ const NewSalesHO: FC = () => {
 
             <Row>
               <Col>
-                <Form.Group className='mb-5'>
+                {/* <Form.Group className='mb-5'>
                   <Form.Label>WA / Phone Number</Form.Label>
                   <Form.Control
                     type='number'
                     value={salesPhoneNumber}
                     onChange={(element) => handleChangeSalesPhoneNumber(element)}
                   />
-                </Form.Group>
+                </Form.Group> */}
               </Col>
 
               <Col>
-                <Form.Group className='mb-5'>
+                {/* <Form.Group className='mb-5'>
                   <Form.Label>Nama Pemilik Akun</Form.Label>
                   <Form.Control
                     type='text'
                     value={accountName}
                     onChange={(element) => handleChangeAccountName(element)}
                   />
-                </Form.Group>
+                </Form.Group> */}
               </Col>
 
               <Col></Col>

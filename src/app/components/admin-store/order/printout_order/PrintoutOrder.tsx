@@ -192,38 +192,38 @@ const PrintoutOrder: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {orderDetail?.order_details.map((item: any, index: any) => (
+                {orderDetail?.payment_type === 'survey' ? (
                   <>
                     <tr>
-                      <td colSpan={2}>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'survey') {
-                            return `Survey`
-                          } else {
-                            return `${item?.unit}`
-                          }
-                        })()}
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td className='fs-3 fw-bolder'>Total</td>
-                      <td className='fs-3'>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'gratis') {
-                            return `Rp. ${0?.toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'survey') {
-                            return `Rp. ${99000?.toLocaleString('id')}`
-                          } else {
-                            return `Rp. ${0?.toLocaleString('id')}`
-                          }
-                        })()}
-                      </td>
+                      <td colSpan={2}>Survey</td>
                     </tr>
                   </>
-                ))}
+                ) : (
+                  orderDetail?.order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td colSpan={2}>{item?.unit}</td>
+                      </tr>
+                    </>
+                  ))
+                )}
+
+                <tr>
+                  <td className='fs-3 fw-bolder'>Total</td>
+                  <td className='fs-3'>
+                    {(() => {
+                      if (orderDetail?.payment_type === 'gratis') {
+                        return `Rp. ${0?.toLocaleString('id')}`
+                      } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                        return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
+                      } else if (orderDetail?.payment_type === 'survey') {
+                        return `Rp. ${99000?.toLocaleString('id')}`
+                      } else {
+                        return `Rp. ${0?.toLocaleString('id')}`
+                      }
+                    })()}
+                  </td>
+                </tr>
               </tbody>
             </Table>
           </div>

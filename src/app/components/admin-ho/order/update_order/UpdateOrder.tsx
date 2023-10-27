@@ -904,7 +904,7 @@ const UpdateOrderHO: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              navigate(`/order/printout-order/${orderId}`)
+              navigate(`/order/preview-email/${orderId}`)
             })
           } else {
             Swal.fire({
@@ -958,7 +958,7 @@ const UpdateOrderHO: FC = () => {
           })
         }
 
-        navigate(`/order/printout-order/${params.id}`)
+        navigate(`/order/preview-email/${params.id}`)
       })
       .catch((error) => {
         console.error(error)
@@ -1457,11 +1457,11 @@ const UpdateOrderHO: FC = () => {
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
             <Button variant='warning' onClick={handleReprintOrder}>
-              Reprint Order
+              Resend Email
             </Button>
 
             <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
-              Update Order & Print
+              Update Order & Email
             </Button>
           </div>
         </div>

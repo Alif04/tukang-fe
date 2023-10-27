@@ -95,13 +95,7 @@ export function Login() {
           <div className='w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto'>
             <form className='form w-100'>
               <div className='text-center mb-10'>
-                <h1 className='text-dark mb-3'>Sign In to Tukangin Website</h1>
-                <div className='text-gray-400 fw-bold fs-4'>
-                  New Here?{' '}
-                  <Link to='/auth/registration' className='link-primary fw-bolder'>
-                    Create an Account
-                  </Link>
-                </div>
+                <h1 className='text-dark mb-3'>Sign In to Instalasi Website</h1>
               </div>
               <div className='fv-row mb-10'>
                 <Form.Group className='mb-3'>
