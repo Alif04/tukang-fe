@@ -94,9 +94,27 @@
   background-color: #7cb920 !important;
 }
 
-#detail-complaint .btn.btn-dark-danger {
+#detail-complaint .btn.btn-light-danger {
   width: 100px;
   height: 35px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#detail-complaint .btn.btn-light-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+#detail-complaint .btn.btn-dark-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+#detail-complaint .btn.btn-dark-danger {
+  width: 100px;
+  height: 50px;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;

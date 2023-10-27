@@ -144,11 +144,17 @@ const NewVendorHO: FC = () => {
     getVendorId()
   }, [])
 
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${year}/${month}/${day}`
+  }
+
   // Vendor Information
   const [vendorId, setVendorId] = useState<string>('')
   const [vendorName, setVendorName] = useState<string>('')
   const [joinDate, setJoinDate] = useState<string>('')
-  console.log(joinDate)
   const [picName, setPicName] = useState<string>('')
   const [emailVendor, setEmailVendor] = useState<string>('')
   const [phoneNumberVendor, setPhoneNumberVendor] = useState<any>()
@@ -238,7 +244,7 @@ const NewVendorHO: FC = () => {
 
   const handleChangeJoinDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedJoinDate = new Date(event.target.value)
-    setJoinDate(updatedJoinDate.toISOString())
+    setJoinDate(formatDate(updatedJoinDate))
   }
 
   // Handle Change Input Vendor
@@ -488,7 +494,7 @@ const NewVendorHO: FC = () => {
     const updatedServiceArea = element.map((option: any) => option.value)
     setserviceAreaId(updatedServiceArea)
 
-    console.log('Service Area', updatedServiceArea)
+    // console.log('Service Area', updatedServiceArea)
   }
 
   // Change Select Service Type
@@ -496,7 +502,7 @@ const NewVendorHO: FC = () => {
     const updatedServiceTypeId = element.map((option: any) => option.value)
     setserviceTypeId(updatedServiceTypeId)
 
-    console.log('Service Type', updatedServiceTypeId)
+    // console.log('Service Type', updatedServiceTypeId)
   }
 
   // Vendor Validation
@@ -602,6 +608,7 @@ const NewVendorHO: FC = () => {
       formData.append('address', vendorAddress)
       formData.append('phone_number', phoneNumberVendor)
       formData.append('email_address', emailVendor)
+      formData.append('join_date', joinDate)
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])

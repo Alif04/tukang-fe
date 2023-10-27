@@ -16,7 +16,17 @@ interface ServiceArea {
   label: string
 }
 
+interface ServiceAreaValues {
+  value: BigInteger
+  label: string
+}
+
 interface ServiceType {
+  value: BigInteger
+  label: string
+}
+
+interface ServiceTypeValues {
   value: BigInteger
   label: string
 }
@@ -61,6 +71,10 @@ const UpdateVendorHO: FC = () => {
             setVendorId(data.id)
           }
 
+          if (data?.join_date) {
+            setJoinDate(new Date(data.join_date).toISOString().split('T')[0])
+          }
+
           if (data?.company_name && data?.address && data?.email_address && data?.phone_number) {
             setVendorName(data.company_name)
             setVendorAddress(data.address)
@@ -68,8 +82,8 @@ const UpdateVendorHO: FC = () => {
             setPhoneNumberVendor(data.phone_number)
           }
 
-          if (data?.user_name) {
-            setPicName(data.user_name)
+          if (data?.users.username) {
+            setPicName(data.users.username)
           }
 
           if (data?.ktp_number && data?.npwp_number) {
@@ -79,7 +93,7 @@ const UpdateVendorHO: FC = () => {
 
           if (data?.vendor_bank) {
             setBankId(data.vendor_bank[0].bank_id)
-            setBankName(data.vendor_bank[0].bank_name)
+            setBankName(data.vendor_bank[0].bank.bank_name)
             setAccountName(data.vendor_bank[0].account_name)
             setAccountNumber(data.vendor_bank[0].account_number)
           }
@@ -92,19 +106,19 @@ const UpdateVendorHO: FC = () => {
           if (data?.vendor_area) {
             const vendorArea = data.vendor_area.map((item: any) => ({
               value: item.city_id,
-              label: item.city_name,
+              label: item.city.city_name,
             }))
 
-            setServiceArea(vendorArea)
+            setServiceAreaValues(vendorArea)
           }
 
           if (data?.vendor_service) {
             const service_type = data.vendor_service.map((item: any) => ({
               value: item.service_type_id,
-              label: item.service_type_name,
+              label: item.service_type.service_type,
             }))
 
-            setServiceType(service_type)
+            setServiceTypeValues(service_type)
           }
 
           if (data?.vendor_document) {
@@ -261,9 +275,11 @@ const UpdateVendorHO: FC = () => {
 
   const [serviceAreaId, setserviceAreaId] = useState<any>([])
   const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
+  const [serviceAreaValues, setServiceAreaValues] = useState<ServiceAreaValues[]>([])
 
   const [serviceTypeId, setserviceTypeId] = useState<any>([])
   const [serviceType, setServiceType] = useState<ServiceType[]>([])
+  const [serviceTypeValues, setServiceTypeValues] = useState<ServiceTypeValues[]>([])
 
   // File Upload
   const [ktpEvidence, setKtpEvidence] = useState<FileList | []>()
@@ -346,11 +362,6 @@ const UpdateVendorHO: FC = () => {
   const handleChangeVendorName = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedVendorName = event.target.value
     setVendorName(updatedVendorName)
-  }
-
-  const handleChangePicName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedPicName = event.target.value
-    setPicName(updatedPicName)
   }
 
   const handleChangeVendorEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -646,19 +657,35 @@ const UpdateVendorHO: FC = () => {
   }
 
   // Change Select Service Area
-  const handleChangeServiceAreaId = (element: any) => {
-    const updatedServiceArea = element.map((option: any) => option.value)
-    setserviceAreaId(updatedServiceArea)
+  const handleChangeServiceArea = (element: any) => {
+    const updatedServiceArea = element.map((option: any) => ({
+      value: option.value,
+      label: option.label,
+    }))
 
+    const updatedServiceAreaIds = updatedServiceArea.map((option: any) => option.value)
+
+    setserviceAreaId(updatedServiceAreaIds)
+    setServiceAreaValues(updatedServiceArea)
+
+    console.log('Service Area Id', updatedServiceAreaIds)
     console.log('Service Area', updatedServiceArea)
   }
 
   // Change Select Service Type
-  const handleChangeServiceTypeId = (element: any) => {
-    const updatedServiceTypeId = element.map((option: any) => option.value)
-    setserviceTypeId(updatedServiceTypeId)
+  const handleChangeServiceType = (element: any) => {
+    const updatedServiceType = element.map((option: any) => ({
+      value: option.value,
+      label: option.label,
+    }))
 
-    console.log('Service Type', updatedServiceTypeId)
+    const updatedServiceTypeIds = updatedServiceType.map((option: any) => option.value)
+
+    setserviceTypeId(updatedServiceTypeIds)
+    setServiceTypeValues(updatedServiceType)
+
+    console.log('Service Type Id', updatedServiceTypeIds)
+    console.log('Service Type', updatedServiceType)
   }
 
   // Vendor Validation
@@ -714,20 +741,6 @@ const UpdateVendorHO: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!ktpEvidence) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Upload KTP form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!npwpEvidence) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Upload NPWP form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!bankName) {
       Swal.fire({
         title: 'Error',
@@ -764,6 +777,7 @@ const UpdateVendorHO: FC = () => {
       formData.append('address', vendorAddress)
       formData.append('phone_number', phoneNumberVendor)
       formData.append('email_address', emailVendor)
+      formData.append('join_date', joinDate)
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])
@@ -836,7 +850,7 @@ const UpdateVendorHO: FC = () => {
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Create Vendor',
+              text: 'Success Update Vendor',
               icon: 'success',
               showConfirmButton: false,
               timer: 1500,
@@ -893,7 +907,12 @@ const UpdateVendorHO: FC = () => {
                     </Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control type='date' onChange={handleChangeJoinDate} min={today} />
+                      <Form.Control
+                        type='date'
+                        onChange={handleChangeJoinDate}
+                        min={today}
+                        value={joinDate}
+                      />
                     </Col>
                   </Form.Group>
                 </Col>
@@ -912,7 +931,7 @@ const UpdateVendorHO: FC = () => {
                   <Form.Group>
                     <Form.Label>Nama PIC</Form.Label>
 
-                    <Form.Control type='text' onChange={handleChangePicName} value={picName} />
+                    <Form.Control disabled type='text' value={picName} />
                   </Form.Group>
                 </Col>
 
@@ -954,10 +973,8 @@ const UpdateVendorHO: FC = () => {
                       closeMenuOnSelect={false}
                       components={animatedComponents}
                       options={serviceArea}
-                      onChange={(element) => handleChangeServiceAreaId(element)}
-                      // value={{
-                      //   value: serviceAreaId,
-                      // }}
+                      onChange={(element) => handleChangeServiceArea(element)}
+                      value={serviceAreaValues}
                     />
                   </Form.Group>
                 </Col>
@@ -973,10 +990,8 @@ const UpdateVendorHO: FC = () => {
                       components={animatedComponents}
                       isMulti
                       options={serviceType}
-                      onChange={(element) => handleChangeServiceTypeId(element)}
-                      // value={{
-                      //   value: serviceTypeId,
-                      // }}
+                      onChange={(element) => handleChangeServiceType(element)}
+                      value={serviceTypeValues}
                     />
                   </Form.Group>
                 </Col>
@@ -1219,10 +1234,10 @@ const UpdateVendorHO: FC = () => {
                     isSearchable={true}
                     options={bank}
                     onChange={(element) => handleChangeSelectBank(element)}
-                    // value={{
-                    //   value: bankId,
-                    //   label: bankName,
-                    // }}
+                    value={{
+                      value: bankId,
+                      label: bankName,
+                    }}
                   />
                 </Form.Group>
               </Row>

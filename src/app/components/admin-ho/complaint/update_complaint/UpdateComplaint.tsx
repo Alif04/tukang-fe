@@ -55,28 +55,6 @@ const UpdateComplaintHO: FC = () => {
     }
   }
 
-  const fetchOrderData = async () => {
-    const orderId = complaintDetail?.order_id
-
-    try {
-      await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          const data = response.data.data
-          setOrderDetail(data)
-        })
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const fetchRemedialStatus = async () => {
     try {
       const response = await axios.get(`${apiUrl}/status`, {
@@ -108,16 +86,10 @@ const UpdateComplaintHO: FC = () => {
     fetchRemedialStatus()
   }, [])
 
-  useEffect(() => {
-    if (complaintDetail) {
-      fetchOrderData()
-    }
-  }, [complaintDetail])
-
   const phoneNumber =
-    orderDetail?.members.phone_number !== null
-      ? orderDetail?.members.phone_number
-      : orderDetail?.members.whatsapp_number
+    complaintDetail?.orders.members.phone_number !== null
+      ? complaintDetail?.orders.members.phone_number
+      : complaintDetail?.orders.members.whatsapp_number
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -338,8 +310,10 @@ const UpdateComplaintHO: FC = () => {
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
+                  Nama Toko :
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {complaintDetail?.orders.store.store_name}
+                  </span>
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
@@ -349,7 +323,8 @@ const UpdateComplaintHO: FC = () => {
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
+                  Order ID :
+                  <span className='fs-4 ms-2 fw-normal'>{complaintDetail?.orders.id}</span>
                 </Form.Label>
 
                 <Form.Group as={Row}>
@@ -361,7 +336,11 @@ const UpdateComplaintHO: FC = () => {
                       type='text'
                       plaintext
                       readOnly
-                      value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                      value={
+                        complaintDetail?.orders
+                          ? formatDate(new Date(complaintDetail?.orders.created_at))
+                          : ''
+                      }
                     />
                   </Col>
                 </Form.Group>
@@ -369,8 +348,10 @@ const UpdateComplaintHO: FC = () => {
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Receipt Number :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
+                  Receipt Number :
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {complaintDetail?.orders.receipt_number}
+                  </span>
                 </Form.Label>
               </Col>
             </Row>
@@ -385,7 +366,11 @@ const UpdateComplaintHO: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.members.id}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -394,7 +379,11 @@ const UpdateComplaintHO: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.members.full_name}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -408,7 +397,7 @@ const UpdateComplaintHO: FC = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          value={orderDetail?.project_address}
+                          value={complaintDetail?.orders.project_address}
                         />
                       </Col>
                     </Form.Group>
@@ -429,7 +418,11 @@ const UpdateComplaintHO: FC = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='8'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.members.email}
+                        />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -444,7 +437,7 @@ const UpdateComplaintHO: FC = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
+                    <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
                   </Col>
                 </Form.Group>
 
@@ -453,7 +446,11 @@ const UpdateComplaintHO: FC = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
+                    <Form.Control
+                      plaintext
+                      readOnly
+                      value={complaintDetail?.orders.sales.full_name}
+                    />
                   </Col>
                 </Form.Group>
               </Col>
@@ -478,9 +475,9 @@ const UpdateComplaintHO: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
+                  {complaintDetail?.orders.m_order_details.map((item: any, index: any) => (
                     <>
-                      <tr key={index}>
+                      <tr>
                         <td>{item?.item_id}</td>
                         <td>{item?.unit}</td>
                         <td>{item?.status?.description}</td>
@@ -496,11 +493,12 @@ const UpdateComplaintHO: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'GRATIS'
+                      {complaintDetail?.orders.payment_type === 'gratis' ||
+                      complaintDetail?.orders.payment_type === 'pemasangan_tanpa_survey'
                         ? `                      Rp. ${0?.toLocaleString(
                             'id'
                           )}                        `
-                        : orderDetail?.payment_type === 'BERBAYAR'
+                        : complaintDetail?.orders.payment_type === 'survey'
                         ? `                      Rp. ${99000?.toLocaleString(
                             'id'
                           )}                        `
@@ -513,7 +511,7 @@ const UpdateComplaintHO: FC = () => {
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
+                      Rp. {parseInt(complaintDetail?.orders.grand_total || 0)?.toLocaleString('id')}
                     </td>
                   </tr>
                 </tbody>
@@ -626,104 +624,162 @@ const UpdateComplaintHO: FC = () => {
               </Row>
             </Col>
 
-            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-              <div className='fs-3 fw-bold text-success'>REMEDIAL ACTION</div>
+            {complaintDetail?.status.category === 'REJECT' ? (
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <div className='fs-3 fw-bold text-success'>
+                  REMEDIAL ACTION
+                  <span className='ms-3 fs-5 fw-semibold text-danger'>
+                    ( *Complaint is not approved yet )
+                  </span>
+                </div>
 
-              <Row>
-                <Col>
-                  <Form.Group>
-                    <Form.Label className='mt-3'>Start Date :</Form.Label>
-                    <Form.Control
-                      type='date'
-                      min={today}
-                      onChange={handleChangeremedialStartDate}
-                    />
-                  </Form.Group>
+                <Row>
+                  <Col>
+                    <Form.Group>
+                      <Form.Label className='mt-3'>Start Date :</Form.Label>
+                      <Form.Control disabled type='date' />
+                    </Form.Group>
 
-                  <Form.Group>
-                    <Form.Label className='mt-3'>Change Status :</Form.Label>
+                    <Form.Group>
+                      <Form.Label className='mt-3'>Change Status :</Form.Label>
 
-                    <Form.Select onChange={handleChangeSelectRemedialStatus}>
-                      <option selected>Select Status</option>
-                      <option value='3'>INVESTIGATE</option>
-                      <option value='19'>ACCEPT</option>
-                      <option value='21'>REJECT</option>
-                      <option value='1005'>REWORKREQ</option>
-                      <option value='1004'>REWORKSTART</option>
-                      <option value='24'>REWORKEND</option>
-                      <option value='1006'>RESURVEYREQ</option>
-                      <option value='22'>RESCHEDULE</option>
-                      <option value='18'>REFUND</option>
-                      <option value='1007'>DONE</option>
-                    </Form.Select>
-                  </Form.Group>
+                      <Form.Select disabled onChange={handleChangeSelectRemedialStatus}>
+                        <option selected>Select Status</option>
+                      </Form.Select>
+                    </Form.Group>
 
-                  <Form.Group>
-                    <Form.Label className='mt-5'>Notes :</Form.Label>
-                    <Form.Control
-                      style={{minHeight: '200px'}}
-                      as='textarea'
-                      onChange={handleInputRemedialDesc}
-                    ></Form.Control>
-                  </Form.Group>
-                </Col>
-
-                <Col>
-                  <Form.Group>
-                    <Form.Label className='mt-3'>End Date :</Form.Label>
-                    <Form.Control type='date' min={today} onChange={handleChangeremedialEndDate} />
-                  </Form.Group>
-
-                  <Form.Group controlId='formFile'>
-                    <Form.Label>Upload Bukti</Form.Label>
-                    <Form className='form-input-image' onClick={handleImageClick}>
+                    <Form.Group>
+                      <Form.Label className='mt-5'>Notes :</Form.Label>
                       <Form.Control
-                        type='file'
-                        accept='image/*'
-                        className='input-field-image'
-                        multiple
-                        hidden
-                        id='file-input'
-                        ref={evidenceRef}
-                        onChange={handleFileChange}
-                      />
+                        disabled
+                        style={{minHeight: '200px'}}
+                        as='textarea'
+                      ></Form.Control>
+                    </Form.Group>
+                  </Col>
 
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    </Form>
+                  <Col>
+                    <Form.Group>
+                      <Form.Label className='mt-3'>End Date :</Form.Label>
+                      <Form.Control disabled type='date' />
+                    </Form.Group>
 
-                    <ListGroup className='pt-3'>
-                      {remedialEvidence.length ? (
-                        remedialEvidence.map((item, index) => (
-                          <ListGroup.Item
-                            key={`${item?.name}-${index}-${item?.type}`}
-                            className='d-flex justify-content-between'
-                          >
-                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                    <Form.Group controlId='formFile' className='mt-3'>
+                      <Form.Label>Upload Bukti</Form.Label>
 
-                            <span className='upload-content'> {item?.name}</span>
-
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              size='sm'
-                              color='#ed2b2a'
-                              style={{cursor: 'pointer'}}
-                              onClick={(e) => handleRemoveFile(index)}
-                            />
-                          </ListGroup.Item>
-                        ))
-                      ) : (
-                        <ListGroup.Item className='d-flex justify-content-center'>
-                          Tidak ada file yang dipilih
+                      <ListGroup>
+                        <ListGroup.Item className='list-group-not-approve d-flex justify-content-center'>
+                          Tidak dapat memilih file
                         </ListGroup.Item>
-                      )}
-                    </ListGroup>
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Col>
+                      </ListGroup>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Col>
+            ) : (
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <div className='fs-3 fw-bold text-success'>REMEDIAL ACTION</div>
+
+                <Row>
+                  <Col>
+                    <Form.Group>
+                      <Form.Label className='mt-3'>Start Date :</Form.Label>
+                      <Form.Control
+                        type='date'
+                        min={today}
+                        onChange={handleChangeremedialStartDate}
+                      />
+                    </Form.Group>
+
+                    <Form.Group>
+                      <Form.Label className='mt-3'>Change Status :</Form.Label>
+
+                      <Form.Select onChange={handleChangeSelectRemedialStatus}>
+                        <option selected>Select Status</option>
+                        <option value='3'>INVESTIGATE</option>
+                        <option value='19'>ACCEPT</option>
+                        <option value='21'>REJECT</option>
+                        <option value='1005'>REWORKREQ</option>
+                        <option value='1004'>REWORKSTART</option>
+                        <option value='24'>REWORKEND</option>
+                        <option value='1006'>RESURVEYREQ</option>
+                        <option value='22'>RESCHEDULE</option>
+                        <option value='18'>REFUND</option>
+                        <option value='1007'>DONE</option>
+                      </Form.Select>
+                    </Form.Group>
+
+                    <Form.Group>
+                      <Form.Label className='mt-5'>Notes :</Form.Label>
+                      <Form.Control
+                        style={{minHeight: '200px'}}
+                        as='textarea'
+                        onChange={handleInputRemedialDesc}
+                      ></Form.Control>
+                    </Form.Group>
+                  </Col>
+
+                  <Col>
+                    <Form.Group>
+                      <Form.Label className='mt-3'>End Date :</Form.Label>
+                      <Form.Control
+                        type='date'
+                        min={today}
+                        onChange={handleChangeremedialEndDate}
+                      />
+                    </Form.Group>
+
+                    <Form.Group controlId='formFile' className='mt-3'>
+                      <Form.Label>Upload Bukti</Form.Label>
+                      <Form className='form-input-image' onClick={handleImageClick}>
+                        <Form.Control
+                          type='file'
+                          accept='image/*'
+                          className='input-field-image'
+                          multiple
+                          hidden
+                          id='file-input'
+                          ref={evidenceRef}
+                          onChange={handleFileChange}
+                        />
+
+                        <div className='input-image-text'>
+                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                          <p>Add File</p>
+                        </div>
+                      </Form>
+
+                      <ListGroup className='pt-3'>
+                        {remedialEvidence.length ? (
+                          remedialEvidence.map((item, index) => (
+                            <ListGroup.Item
+                              key={`${item?.name}-${index}-${item?.type}`}
+                              className='d-flex justify-content-between'
+                            >
+                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                              <span className='upload-content'> {item?.name}</span>
+
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size='sm'
+                                color='#ed2b2a'
+                                style={{cursor: 'pointer'}}
+                                onClick={(e) => handleRemoveFile(index)}
+                              />
+                            </ListGroup.Item>
+                          ))
+                        ) : (
+                          <ListGroup.Item className='d-flex justify-content-center'>
+                            Tidak ada file yang dipilih
+                          </ListGroup.Item>
+                        )}
+                      </ListGroup>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Col>
+            )}
           </Row>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>
