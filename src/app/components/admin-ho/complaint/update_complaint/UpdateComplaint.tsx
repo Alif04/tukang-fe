@@ -645,8 +645,16 @@ const UpdateComplaintHO: FC = () => {
 
                     <Form.Select onChange={handleChangeSelectRemedialStatus}>
                       <option selected>Select Status</option>
-                      <option value='4'>INVESTIGATED</option>
-                      <option value='19'>ACCEPTED</option>
+                      <option value='3'>INVESTIGATE</option>
+                      <option value='19'>ACCEPT</option>
+                      <option value='21'>REJECT</option>
+                      <option value='1005'>REWORKREQ</option>
+                      <option value='1004'>REWORKSTART</option>
+                      <option value='24'>REWORKEND</option>
+                      <option value='1006'>RESURVEYREQ</option>
+                      <option value='22'>RESCHEDULE</option>
+                      <option value='18'>REFUND</option>
+                      <option value='1007'>DONE</option>
                     </Form.Select>
                   </Form.Group>
 

@@ -514,7 +514,17 @@ const DetailComplaintStore: FC = () => {
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
+                      {(() => {
+                        if (orderDetail?.payment_type === 'gratis') {
+                          return `Rp. ${0?.toLocaleString('id')}`
+                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                          return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
+                        } else if (orderDetail?.payment_type === 'survey') {
+                          return `Rp. ${99000?.toLocaleString('id')}`
+                        } else {
+                          return `Rp. ${0?.toLocaleString('id')}`
+                        }
+                      })()}{' '}
                     </td>
                   </tr>
                 </tbody>

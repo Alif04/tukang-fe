@@ -1,11 +1,141 @@
-import React, {FC} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './NewQuotation.css'
 
+import axios from 'axios'
+import Select from 'react-select'
+import Swal from 'sweetalert2'
+import {useNavigate} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
 
+interface StoreItem {
+  value: string
+  label: string
+}
+
 const NewQuotationHO: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+
+  // Fetch Data Order
+  const [order, setOrder] = useState<any>()
+  const [orderId, setOrderId] = useState<string>('')
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  // Store
+  const [store, setStore] = useState<StoreItem[]>([])
+  const [storeId, setStoreId] = useState<string>('')
+  const [storeName, setStoreName] = useState<string>('')
+
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.store_name,
+          address: item.address,
+          city_id: item.city_id,
+          zip_code: item.zip_code,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempOrder = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.id,
+        }))
+
+        setOrder(tempOrder)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getOrderDetail = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${orderId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getOrder()
+    getStore()
+  }, [])
+
+  useEffect(() => {
+    if (orderId) {
+      getOrderDetail()
+    }
+  }, [orderId])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  // Select Store
+  const handleChangeSelectStore = (element: any) => {
+    const updatedStoreId = element.value
+    const updatedStoreName = element.label
+
+    setStoreId(updatedStoreId)
+    setStoreName(updatedStoreName)
+  }
+
+  // Select Order
+  const handleChangeSelectOrder = (element: any) => {
+    const selectedOrder = element.value
+    setOrderId(selectedOrder)
+  }
+
   return (
     <section id='new-quotation'>
       <div className='card'>
@@ -19,14 +149,20 @@ const NewQuotationHO: FC = () => {
                   src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
                 />
 
-                <Form.Group className='w-100'>
+                <Form.Group>
                   <Form.Label>Nama Toko</Form.Label>
-                  <Form.Select>
-                    <option value='1'>Mitra 10 - BSD</option>
-                    <option value='2'>Mitra 10 - Fatmawati</option>
-                    <option value='3'>Mitra 10 - Bandung</option>
-                    <option value='4'>Mitra 10 - Jogja</option>
-                  </Form.Select>
+
+                  <Col>
+                    <Select
+                      name='store_id'
+                      className='form-control p-0'
+                      classNamePrefix='select'
+                      placeholder='Pilih Toko'
+                      isSearchable={true}
+                      options={store}
+                      onChange={(element) => handleChangeSelectStore(element)}
+                    />
+                  </Col>
                 </Form.Group>
               </div>
             </Col>
@@ -35,7 +171,23 @@ const NewQuotationHO: FC = () => {
               <h1 className='fw-bolder'>QUOTATION</h1>
 
               <Form.Group as={Row} className='mb-4'>
-                <Form.Label className='fs-5' column sm='4'>
+                <Form.Label className='fs-5 fw-bold' column sm='4'>
+                  Status :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control
+                    readOnly
+                    plaintext
+                    className='fs-2 fw-bold text-black'
+                    type='text'
+                    value='UNPAID'
+                  />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-4'>
+                <Form.Label className='fs-5 fw-bold' column sm='4'>
                   Tanggal :
                 </Form.Label>
 
@@ -45,17 +197,24 @@ const NewQuotationHO: FC = () => {
               </Form.Group>
 
               <Form.Group as={Row} className='mb-4'>
-                <Form.Label className='fs-5' column sm='4'>
+                <Form.Label className='fs-5 fw-bold' column sm='4'>
                   Quotation ID :
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='number' />
+                  <Select
+                    name='order-id'
+                    className='form-control p-0'
+                    placeholder='Ketik/Pilih Order Id'
+                    isSearchable={true}
+                    options={order}
+                    onChange={(e) => handleChangeSelectOrder(e)}
+                  />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='mb-4'>
-                <Form.Label className='fs-5' column sm='4'>
+                <Form.Label className='fs-5 fw-bold' column sm='4'>
                   Costumer ID :
                 </Form.Label>
 
@@ -65,7 +224,7 @@ const NewQuotationHO: FC = () => {
               </Form.Group>
 
               <Form.Group as={Row} className='mb-4'>
-                <Form.Label className='fs-5' column sm='4'>
+                <Form.Label className='fs-5 fw-bold' column sm='4'>
                   Quotation Valid Until :
                 </Form.Label>
 

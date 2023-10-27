@@ -140,6 +140,10 @@ const UpdateOrderStoreCS: FC = () => {
               setPaymentType(data.payment_type)
             }
 
+            if (data?.project_address) {
+              setMemberAddress(data.project_address)
+            }
+
             if (data?.created_at) {
               setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
             }
@@ -163,13 +167,11 @@ const UpdateOrderStoreCS: FC = () => {
               data?.members?.id &&
               data?.members?.full_name &&
               data?.members.email &&
-              data?.members.whatsapp_number &&
-              data?.members.address_1
+              data?.members.whatsapp_number
             ) {
               setMemberId(data.members.id)
               setMemberName(data.members.full_name)
               setMemberEmail(data.members.email)
-              setMemberAddress(data.members.address_1)
             }
 
             if (data?.sales?.id && data?.sales?.full_name) {
@@ -610,7 +612,10 @@ const UpdateOrderStoreCS: FC = () => {
       let totalOrderAmount = 0
       let biayaSurvey = 0
 
-      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      if (paymentType === 'gratis') {
+        biayaSurvey = 0
+        totalOrderAmount = 0
+      } else if (paymentType === 'pemasangan_tanpa_survey') {
         biayaSurvey = 0
         totalOrderAmount = total
       } else if (paymentType === 'survey') {
@@ -1307,7 +1312,7 @@ const UpdateOrderStoreCS: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='success' onClick={handleReprintOrder}>
+            <Button variant='dark-success' onClick={handleReprintOrder}>
               Reprint Order
             </Button>
 

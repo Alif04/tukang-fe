@@ -1256,12 +1256,8 @@ const NewOrderHO: FC = () => {
                     onChange={handleFileChange}
                   />
 
-                  {image ? (
-                    <img
-                      src={image.blob ? image.blob : `${apiUrl}/public/receipt/${image.fileName}`}
-                      alt={image.fileName}
-                      className='image-preview'
-                    />
+                  {image.blob ? (
+                    <img src={image.blob} alt={image.fileName} className='image-preview' />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />

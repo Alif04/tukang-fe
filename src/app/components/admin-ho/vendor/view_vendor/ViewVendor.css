@@ -59,3 +59,8 @@
 #view-vendor .select__control.css-13cymwt-control {
   height: 45px;
 }
+
+#view-vendor .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+  border: none;
+}

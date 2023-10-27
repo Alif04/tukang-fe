@@ -83,7 +83,7 @@ const PreviewEmailOrder: FC = () => {
               </div>
 
               <div className='address'>
-                <h3 className='fw-normal'>{orderDetail?.members.address_1}</h3>
+                <h3 className='fw-normal'>{orderDetail?.project_address}</h3>
                 <h3 className='fw-normal'> Telp : {orderDetail?.members.phone_number}</h3>
               </div>
             </div>
@@ -95,7 +95,19 @@ const PreviewEmailOrder: FC = () => {
 
               <h3 className='fw-bolder'>
                 Tipe Pembayaran :{' '}
-                <span className='fw-normal text-capitalize'>{orderDetail?.payment_type}</span>
+                <span className='fw-normal text-capitalize'>
+                  {(() => {
+                    if (orderDetail?.payment_type === 'survey') {
+                      return `Berbayar & Survey`
+                    } else if (orderDetail?.payment_type === 'gratis') {
+                      return `Gratis`
+                    } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                      return `Berbayar & Pemasangan Tanpa Survey`
+                    } else {
+                      return ``
+                    }
+                  })()}
+                </span>
               </h3>
             </div>
           </div>
@@ -113,18 +125,47 @@ const PreviewEmailOrder: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {orderDetail?.order_details.map((item: any, index: any) => (
+                {/* {orderDetail?.order_details.map((item: any, index: any) => (
                   <>
                     <tr>
                       <td>{item?.item_id}</td>
-                      <td>{item?.unit}</td>
+                      <td>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'survey') {
+                            return `Survey`
+                          } else {
+                            return `${item?.unit}`
+                          }
+                        })()}
+                      </td>
                       <td>{item?.status?.description}</td>
                       <td>{item?.quantity}</td>
                       <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
                       <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
                     </tr>
                   </>
-                ))}
+                ))} */}
+
+                {orderDetail?.payment_type === 'survey' ? (
+                  <>
+                    <tr>
+                      <td colSpan={6}>Survey</td>
+                    </tr>
+                  </>
+                ) : (
+                  orderDetail?.order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.item_id}</td>
+                        <td>{item?.unit}</td>
+                        <td>{item?.status?.description}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))
+                )}
 
                 <tr>
                   <td colSpan={5} className='text-end fw-bolder'>

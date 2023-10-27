@@ -136,6 +136,23 @@
   transition: 0.3s ease-in-out;
 }
 
+#update-order .btn.btn-dark-success {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 140px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #04562b !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-order .btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #048543 !important;
+}
+
 /* Table Picklist*/
 
 #update-order .table-picklist .table tr,
