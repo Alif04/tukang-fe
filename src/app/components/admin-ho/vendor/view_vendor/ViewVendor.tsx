@@ -175,7 +175,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .delete(`${apiUrl}/vendor/delete/${id}`, {
+                  .delete(`${apiUrl}/vendor/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -292,7 +292,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
           phone_number: item.phone_number,
           date_join: formatDate(joinDate),
           service_type: vendorService,
-          serving_area: vendorArea,
+          serving_area: vendorArea || '',
           // rating: string
           vendor_status: item.is_active ? 'ACTIVE' : 'NON ACTIVE',
         }

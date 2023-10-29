@@ -150,7 +150,6 @@ const NewComplaintHO: FC = () => {
   const handleChangeSelectOrder = (element: any) => {
     const selectedOrder = element.value
     setOrderId(selectedOrder)
-    console.log(selectedOrder)
   }
 
   // Add Complaint

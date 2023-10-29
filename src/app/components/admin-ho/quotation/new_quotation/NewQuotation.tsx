@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './NewQuotation.css'
@@ -103,9 +103,32 @@ const NewQuotationHO: FC = () => {
     }
   }
 
+  const getCode = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/quotation/next-code`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      console.log(response, response.status)
+
+      if (response.status === 200) {
+        const {data} = response
+        setQuotationNumber(data.data.code)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getOrder()
     getStore()
+    getCode()
   }, [])
 
   useEffect(() => {
@@ -121,6 +144,16 @@ const NewQuotationHO: FC = () => {
     return `${day}/${month}/${year}`
   }
 
+  // Add Quotation
+  const [quotationStatus, setQuotationStatus] = useState<any>()
+  const [quotationNumber, setQuotationNumber] = useState<string | number>('NaN')
+  const [quotationDescription, setQuotationDescription] = useState<string>('')
+  const [quotationDate, setQuotationDate] = useState<string>('')
+  const [quotationValidity, setQuotationValidity] = useState<string>('')
+  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
   // Select Store
   const handleChangeSelectStore = (element: any) => {
     const updatedStoreId = element.value
@@ -134,6 +167,178 @@ const NewQuotationHO: FC = () => {
   const handleChangeSelectOrder = (element: any) => {
     const selectedOrder = element.value
     setOrderId(selectedOrder)
+  }
+
+  // Quotation Status
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatus = statusData.find((status: any) => status.category === 'SURVEYDONE')
+    const statusId = desiredStatus.value
+
+    setQuotationStatus(statusId)
+  }, [quotationStatus])
+
+  // Handle Change Quotation Description
+  const handleInputQuotationDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setQuotationDescription(updatedInputValue)
+  }
+
+  // Handle Change Quotation Date
+  const today = new Date().toISOString().split('T')[0]
+
+  const handleChangeQuotationDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedQuotationDate = event.target.value
+    setQuotationDate(updatedQuotationDate)
+  }
+
+  // Handle Change Quotation Validity
+  const handleChangeQuotationValidity = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedQuotationValidity = event.target.value
+    setQuotationValidity(updatedQuotationValidity)
+  }
+
+  // Handle Upload Quotation File
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
+
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setQuotationFiles(file)
+    }
+  }
+
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...quotationFiles]
+
+    newEvidances.splice(index, 1)
+
+    setQuotationFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Quotation Validation
+  const QuotationValidation = () => {
+    let valid = true
+
+    if (!orderId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select order Id',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!quotationDescription) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill instruksi spesial form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!storeId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select store',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!quotationDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill tanggal form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!quotationValidity) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill quotation valid until form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  // Handle Submit Complaint
+  const handleSubmitNewQuotation = async () => {
+    if (QuotationValidation()) {
+      const formData = new FormData()
+
+      formData.append('order_id', orderId)
+      formData.append('store_id', storeId)
+      formData.append('quotation_status', quotationStatus)
+      formData.append('description', quotationDescription)
+      formData.append('quotation_number', quotationNumber.toString())
+      formData.append('quotation_date', quotationDate)
+      formData.append('quotation_validity', quotationValidity)
+
+      if (quotationFiles?.length) {
+        quotationFiles.forEach((item) => {
+          if (item) {
+            formData.append(`quotation_files`, item, item?.name)
+          }
+        })
+      }
+
+      const response = await axios
+        .post(`${apiUrl}/quotation`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Add Quotation',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
+
+          navigate('/quotation/view-quotation')
+        })
+        .catch((error) => {
+          console.error(error)
+
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
+    }
+  }
+
+  const handleCancelQuotation = () => {
+    navigate('/quotation/view-quotation')
   }
 
   return (
@@ -181,7 +386,7 @@ const NewQuotationHO: FC = () => {
                     plaintext
                     className='fs-2 fw-bold text-black'
                     type='text'
-                    value='UNPAID'
+                    value={orderDetail?.status.category}
                   />
                 </Col>
               </Form.Group>
@@ -192,13 +397,13 @@ const NewQuotationHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='date' />
+                  <Form.Control type='date' min={today} onChange={handleChangeQuotationDate} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='mb-4'>
                 <Form.Label className='fs-5 fw-bold' column sm='4'>
-                  Quotation ID :
+                  Order ID :
                 </Form.Label>
 
                 <Col sm='8'>
@@ -215,11 +420,21 @@ const NewQuotationHO: FC = () => {
 
               <Form.Group as={Row} className='mb-4'>
                 <Form.Label className='fs-5 fw-bold' column sm='4'>
+                  Quotation ID :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control type='number' value={quotationNumber} readOnly />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-4'>
+                <Form.Label className='fs-5 fw-bold' column sm='4'>
                   Costumer ID :
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='number' />
+                  <Form.Control type='number' readOnly value={orderDetail?.members.id} />
                 </Col>
               </Form.Group>
 
@@ -229,7 +444,7 @@ const NewQuotationHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='date' />
+                  <Form.Control type='date' min={today} onChange={handleChangeQuotationValidity} />
                 </Col>
               </Form.Group>
             </Col>
@@ -240,14 +455,14 @@ const NewQuotationHO: FC = () => {
               <div className='receiver-information'>
                 <div className='receiver-detail'>
                   <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                  <h1 className='fw-bolder'>Ibu Ami</h1>
+                  <h1 className='fw-bolder mt-2'>{orderDetail?.members.full_name}</h1>
                 </div>
 
                 <div className='address'>
-                  <h3 className='fw-normal'>Jalan Gading Serpong Boulevard Blok Mitra10</h3>
-                  <h3 className='fw-normal'>Curug Sangereng, Klp. Dua, Tangerang, </h3>
-                  <h3 className='fw-normal'>Banten Kode Pos : 15310 </h3>
-                  <h3 className='fw-normal'> Telp: (021) 54217373</h3>
+                  <h3 className='fw-normal'>{orderDetail?.project_address}</h3>
+                  <h3 className='fw-normal'>
+                    {orderDetail?.project_number ? `Telp : ${orderDetail?.project_number}` : ''}
+                  </h3>
                 </div>
               </div>
             </Col>
@@ -255,8 +470,12 @@ const NewQuotationHO: FC = () => {
             <Col xxl={6}>
               <div className='payment-request'>
                 <Form.Group>
-                  <Form.Label className='fs-5'>Instruksi Spesial</Form.Label>
-                  <Form.Control as='textarea' />
+                  <Form.Label className='fs-5 fw-bold'>Instruksi Spesial</Form.Label>
+                  <Form.Control
+                    style={{minHeight: '140px'}}
+                    as='textarea'
+                    onChange={handleInputQuotationDesc}
+                  />
                 </Form.Group>
               </div>
             </Col>
@@ -273,17 +492,41 @@ const NewQuotationHO: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Instalasi AC</td>
-                  <td>1</td>
-                  <td>500.000</td>
-                  <td>500.000</td>
-                </tr>
+                {orderDetail?.payment_type === 'survey' ? (
+                  <>
+                    <tr>
+                      <td colSpan={6}>Survey</td>
+                    </tr>
+                  </>
+                ) : (
+                  orderDetail?.order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.unit}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))
+                )}
+
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
                     Total Jasa
                   </td>
-                  <td className=' fw-bolder'>1.800.000</td>
+                  <td className=' fw-bolder'>
+                    {orderDetail?.payment_type === 'gratis' ||
+                    orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                      ? `                      Rp. ${0?.toLocaleString(
+                          'id'
+                        )}                        `
+                      : orderDetail?.payment_type === 'survey'
+                      ? `                      Rp. ${99000?.toLocaleString(
+                          'id'
+                        )}                        `
+                      : `Rp. ${0}`}
+                  </td>
                 </tr>
               </tbody>
             </Table>
@@ -361,8 +604,24 @@ const NewQuotationHO: FC = () => {
             </h1>
           </div>
 
-          <div className='d-flex justify-content-center'>
-            <Button variant='dark-primary'>Save & Email</Button>
+          <div className='d-flex justify-content-center align-items-center mt-5'>
+            <Button
+              variant='dark-danger'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleCancelQuotation}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant='dark-primary'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleSubmitNewQuotation}
+            >
+              Save & Email
+            </Button>
           </div>
         </div>
       </div>

@@ -1,47 +1,148 @@
-#new-quotation .bank-information .form-header {
+/* Header */
+#new-quotation {
   display: flex;
-  justify-content: space-between;
-  min-height: 70px;
+  justify-content: center;
+  align-items: center;
 }
 
-#new-quotation .quotation-information .form-body {
-  margin-bottom: 50px;
+#new-quotation .card {
+  width: 900px;
 }
 
-#new-quotation .quotation-information .form-header {
-  display: flex;
-  justify-content: space-between;
-  min-height: 45px;
+#new-quotation .card .card-body {
+  min-height: 100vh;
+  padding: 3rem 3rem !important;
 }
 
-#new-quotation .quotation-information .form-body {
-  margin-bottom: 50px;
+#new-quotation .card .card-body .invoice-detail {
+  margin: 0 0 30px 0;
 }
 
-#new-quotation .bank-information .form-body .field-alamat {
-  min-height: 100px;
+#new-quotation .card .card-body .vendor-information .vendor-detail h1 {
+  color: #007eb4;
+  font-size: 41px;
+  padding: 0 0 10px 0;
 }
 
-#new-quotation .bank-information .form-body .form-check-request .form-check-input {
-  margin-top: 0;
-  width: 15px;
-  height: 15px;
+#new-quotation .receiver-information .receiver-detail {
+  padding: 0 0 10px 0;
 }
 
-#new-quotation button.btn.btn-dark-success {
-  margin: 0;
-  width: 250px;
+#new-quotation .receiver-information .receiver-detail h1 {
+  font-size: 18px;
 }
 
-#new-quotation .table-item .table tr,
-.table th,
-.table td {
-  border: 1px solid gray;
+#new-quotation .address h3 {
+  font-size: 16px;
+  padding: 0 0 10px 0;
 }
 
-#new-quotation .table-item th {
-  background-color: #555555;
-  color: #ffff;
-  font-weight: 400;
-  text-align: center;
+#new-quotation .payment-request h1 {
+  color: #484747;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#new-quotation .payment-request h3 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+/* Table Jasa */
+
+#new-quotation .detail-table-jasa {
+  margin: 0 0 30px 0;
+}
+
+#new-quotation .detail-table-jasa table tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #055900;
+}
+
+#new-quotation
+  .detail-table-jasa
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(even)
+  td {
+  background-color: #e4e9f7;
+}
+
+#new-quotation
+  .detail-table-jasa
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(odd)
+  td {
+  background-color: #ffff;
+}
+
+/* Table Material */
+
+#new-quotation .detail-table-material {
+  margin: 0 0 30px 0;
+}
+
+#new-quotation .detail-table-material table tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #a16d00;
+}
+
+#new-quotation
+  .detail-table-material
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(even)
+  td {
+  background-color: #e4e9f7;
+}
+
+#new-quotation
+  .detail-table-material
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(odd)
+  td {
+  background-color: #ffff;
+}
+
+/* Footer */
+
+#new-quotation .payment-detail .payment-method {
+  margin: 10px 0;
+}
+
+#new-quotation .payment-detail .payment-method {
+  margin: 10px 0;
+}
+
+#new-quotation .payment-detail h1 {
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+#new-quotation .payment-detail .payment-method h1 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+#new-quotation .payment-detail .payment-evidence h1 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+#new-quotation .payment-detail .payment-method h3 {
+  padding: 0 0 10px 0;
+  font-size: 14px;
+}
+
+/* Button Action */
+
+#new-quotation .btn.btn-dark-primary {
+  width: 140px;
+  height: 50px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
 }

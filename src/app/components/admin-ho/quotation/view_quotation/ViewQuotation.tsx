@@ -17,107 +17,6 @@ type Props = {
   className: string
 }
 
-// const data: DataType[] = [
-//   {
-//     key: '1',
-//     order_id: '78453992',
-//     date_order: '10/2/2023',
-//     product_name: 'Water Heater',
-//     installation_type: 'New set up',
-//     costumer_id: '8986747',
-//     costumer_name: 'Alia',
-//     quotation_id: '12877450',
-//     vendor_name: 'PT.ABC',
-//     amount: '500.000',
-//     payment_status: 'NONE',
-//     order_status: 'QUOTEIN',
-//   },
-//   {
-//     key: '2',
-//     order_id: '78453993',
-//     date_order: '10/2/2023',
-//     product_name: 'Water Heater',
-//     installation_type: 'New set up',
-//     costumer_id: '8986747',
-//     costumer_name: 'Alia',
-//     quotation_id: '12877450',
-//     vendor_name: 'PT.ABC',
-//     amount: '500.000',
-//     payment_status: 'NONE',
-//     order_status: 'QUOTEIN',
-//   },
-//   {
-//     key: '3',
-//     order_id: '78453994',
-//     date_order: '10/2/2023',
-//     product_name: 'Water Heater',
-//     installation_type: 'New set up',
-//     costumer_id: '8986747',
-//     costumer_name: 'Alia',
-//     quotation_id: '12877450',
-//     vendor_name: 'PT.ABC',
-//     amount: '500.000',
-//     payment_status: 'NONE',
-//     order_status: 'QUOTEIN',
-//   },
-//   {
-//     key: '4',
-//     order_id: '78453995',
-//     date_order: '10/2/2023',
-//     product_name: 'Water Heater',
-//     installation_type: 'New set up',
-//     costumer_id: '8986747',
-//     costumer_name: 'Alia',
-//     quotation_id: '12877450',
-//     vendor_name: 'PT.ABC',
-//     amount: '500.000',
-//     payment_status: 'NONE',
-//     order_status: 'QUOTEIN',
-//   },
-//   {
-//     key: '5',
-//     order_id: '78453996',
-//     date_order: '10/2/2023',
-//     product_name: 'Water Heater',
-//     installation_type: 'New set up',
-//     costumer_id: '8986747',
-//     costumer_name: 'Alia',
-//     quotation_id: '12877450',
-//     vendor_name: 'PT.ABC',
-//     amount: '500.000',
-//     payment_status: 'NONE',
-//     order_status: 'QUOTEIN',
-//   },
-//   {
-//     key: '6',
-//     order_id: '78453997',
-//     date_order: '10/2/2023',
-//     product_name: 'Water Heater',
-//     installation_type: 'New set up',
-//     costumer_id: '8986747',
-//     costumer_name: 'Alia',
-//     quotation_id: '12877450',
-//     vendor_name: 'PT.ABC',
-//     amount: '500.000',
-//     payment_status: 'NONE',
-//     order_status: 'QUOTEIN',
-//   },
-//   {
-//     key: '7',
-//     order_id: '78453998',
-//     date_order: '10/2/2023',
-//     product_name: 'Water Heater',
-//     installation_type: 'New set up',
-//     costumer_id: '8986747',
-//     costumer_name: 'Alia',
-//     quotation_id: '12877450',
-//     vendor_name: 'PT.ABC',
-//     amount: '500.000',
-//     payment_status: 'NONE',
-//     order_status: 'QUOTEIN',
-//   },
-// ]
-
 const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
@@ -302,30 +201,41 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
+      const response = await axios.get(`${apiUrl}/quotation`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      const desiredStatusName = 'SURVEYDONE'
-      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+      return response.data.data
 
-      if (desiredStatus) {
-        const statusId = desiredStatus.value
+      // const storedStatus = sessionStorage.getItem('statusData')
+      // const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-        const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      // const desiredStatusName = 'SURVEYDONE'
+      // const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+
+      // if (desiredStatus) {
+      //   const statusId = desiredStatus.value
+
+      //   const response = await axios.get(
+      //     `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
+      //     {
+      //       headers: {
+      //         Accept: 'application/json',
+      //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      //         'Access-Control-Allow-Origin': '*',
+      //         'ngrok-skip-browser-warning': 'true',
+      //       },
+      //     }
+      //   )
+      //   return response.data.data
+      // } else {
+      //   console.error('Desired status not found in statusData')
+      // }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -342,20 +252,20 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.created_at)
+        const orderDate = new Date(item.order.created_at)
 
         let paymentStatus = item.receipt_path === 'null' ? 'UNPAID' : 'PAID'
 
         data = {
           quotation_id: item.id,
           store_name: item.store.store_name,
-          order_id: item.id,
+          order_id: item.order.id,
           date_order: formatDate(orderDate),
-          costumer_name: item.members.full_name,
+          costumer_name: item.order.members.full_name,
           vendor_name: item.vendor.vendor_name,
           payment_status: paymentStatus,
-          order_status: item.status.category,
-          quotation_status: item.status.category,
+          order_status: item.order.status.category,
+          quotation_status: item.quotation_status,
         }
 
         return data

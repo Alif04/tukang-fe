@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
 import {PreOrder} from './components/PreOrder'

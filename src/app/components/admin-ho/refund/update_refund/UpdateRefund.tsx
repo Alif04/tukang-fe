@@ -1,12 +1,12 @@
 import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
 
-import './NewRefund.css'
+import './UpdateRefund.css'
 
 import axios from 'axios'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, Button, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -38,45 +38,19 @@ interface Refund {
   // refund_voucher: Option[]
 }
 
-const NewRefundHO: FC = () => {
+const UpdateRefundHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
   const navigate = useNavigate()
 
-  // Fetch Data Order
-  const [order, setOrder] = useState<any>()
+  // Refund Detail
   const [orderId, setOrderId] = useState<string>('')
-  const [orderDetail, setOrderDetail] = useState<any>()
+  const [refundDetail, setRefundDetail] = useState<any>()
 
-  const getOrder = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempOrder = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.id,
-        }))
-
-        setOrder(tempOrder)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  const getOrderDetail = async () => {
+  const fetchRefundData = async () => {
     try {
       await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
+        .get(`${apiUrl}/refund/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -86,27 +60,38 @@ const NewRefundHO: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
-          setOrderDetail(data)
+
+          if (data?.orders.id) {
+            setOrderId(data.id)
+          }
+
+          setRefundValues({
+            order_id: data.id,
+            refund_status: data.refund_status,
+            notes: data.notes,
+            reason: data.reason,
+            date_approve: new Date(data.date_approve).toISOString().split('T')[0],
+            date_of_filing: new Date(data.date_of_filing).toISOString().split('T')[0],
+            voucher: data.voucher,
+            penalty_nominal: data.penalty_nominal,
+            approval_number: data.approval_number,
+          })
+
+          setRefundDetail(data)
         })
-    } catch (err) {
-      console.error(err)
+    } catch (error) {
+      console.error(error)
     }
   }
 
   useEffect(() => {
-    getOrder()
+    fetchRefundData()
   }, [])
 
-  useEffect(() => {
-    if (orderId) {
-      getOrderDetail()
-    }
-  }, [orderId])
-
   const phoneNumber =
-    orderDetail?.members.phone_number !== null
-      ? orderDetail?.members.phone_number
-      : orderDetail?.members.whatsapp_number
+    refundDetail?.orders.members.phone_number !== null
+      ? refundDetail?.orders.members.phone_number
+      : refundDetail?.orders.members.whatsapp_number
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -149,11 +134,10 @@ const NewRefundHO: FC = () => {
 
     setRefundValues((prevRefundValues) => ({
       ...prevRefundValues,
-      order_id: selectedOrder,
+      store_id: selectedOrder,
     }))
 
     setOrderId(selectedOrder)
-    console.log(selectedOrder)
   }
 
   // Createable Multi Value
@@ -254,7 +238,7 @@ const NewRefundHO: FC = () => {
   }
 
   // Handle Submit New Refund
-  const handleSubmitNewRefund = async () => {
+  const handleUpdateRefund = async () => {
     await axios
       .post(`${apiUrl}/refund`, refundValues, {
         headers: {
@@ -268,7 +252,7 @@ const NewRefundHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Create Refund',
+            text: 'Success Update Refund',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -294,12 +278,12 @@ const NewRefundHO: FC = () => {
       })
   }
 
-  const handleCancelRefund = () => {
+  const handleCancelUpdateRefund = () => {
     navigate('/refund/view-refund')
   }
 
   return (
-    <section id='new-refund'>
+    <section id='update-refund'>
       <div className='card'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -307,44 +291,25 @@ const NewRefundHO: FC = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name || ''}</span>
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {refundDetail?.orders.store.store_name}
+                  </span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group as={Row} className='order-id-complaint'>
-                  <Form.Label column sm='3' className='fs-4 fw-bold'>
-                    Order ID :
+                  <Form.Label className='fs-4 fw-bold'>
+                    Order ID :<span className='fs-4 ms-2 fw-normal'>{refundDetail?.orders.id}</span>
                   </Form.Label>
-                  <Col sm='9'>
-                    <Select
-                      name='order-id'
-                      className='form-control p-0'
-                      placeholder='Ketik/Pilih Order Id'
-                      isSearchable={true}
-                      options={order}
-                      onChange={(e) => handleChangeSelectOrder(e)}
-                    />
-                  </Col>
                 </Form.Group>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Receipt Number :
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number || ''}</span>
-                </Form.Label>
-                <br></br>
-                <Form.Label className='fs-4 fw-bold'>
-                  LAST ORDER STATUS :{' '}
-                  <span className='fs-4 ms-2 fw-bold text-success'>
-                    {orderDetail?.project_status_id === 1
-                      ? 'BOOK'
-                      : orderDetail?.project_status_id === 2
-                      ? 'BOOKED'
-                      : orderDetail?.project_status_id === 3
-                      ? 'SURVEY REQ'
-                      : ''}
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {refundDetail?.orders.receipt_number || ''}
                   </span>
                 </Form.Label>
               </Col>
@@ -360,7 +325,11 @@ const NewRefundHO: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.id || ''} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={refundDetail?.orders.members.id || ''}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -372,7 +341,7 @@ const NewRefundHO: FC = () => {
                         <Form.Control
                           plaintext
                           readOnly
-                          value={orderDetail?.members.full_name || ''}
+                          value={refundDetail?.orders.members.full_name || ''}
                         />
                       </Col>
                     </Form.Group>
@@ -387,7 +356,7 @@ const NewRefundHO: FC = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          value={orderDetail?.project_address || ''}
+                          value={refundDetail?.orders.project_address || ''}
                         />
                       </Col>
                     </Form.Group>
@@ -408,7 +377,11 @@ const NewRefundHO: FC = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.email || ''} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={refundDetail?.orders.members.email || ''}
+                        />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -419,20 +392,24 @@ const NewRefundHO: FC = () => {
                 <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
                 <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
+                  <Form.Label column sm='4'>
                     Sales ID :
                   </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.id || ''} />
+                  <Col sm='8'>
+                    <Form.Control plaintext readOnly value={refundDetail?.orders.sales.id || ''} />
                   </Col>
                 </Form.Group>
 
                 <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
+                  <Form.Label column sm='4'>
                     Sales Person :
                   </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name || ''} />
+                  <Col sm='8'>
+                    <Form.Control
+                      plaintext
+                      readOnly
+                      value={refundDetail?.orders.sales.full_name || ''}
+                    />
                   </Col>
                 </Form.Group>
               </Col>
@@ -452,7 +429,9 @@ const NewRefundHO: FC = () => {
                     type='text'
                     plaintext
                     readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail?.created_at)) : ''}
+                    value={
+                      refundDetail ? formatDate(new Date(refundDetail?.orders.created_at)) : ''
+                    }
                   />
                 </Col>
               </Form.Group>
@@ -471,7 +450,7 @@ const NewRefundHO: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
+                  {refundDetail?.orders.m_order_details.map((item: any, index: any) => (
                     <>
                       <tr>
                         <td>{item?.item_id}</td>
@@ -489,12 +468,12 @@ const NewRefundHO: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                      {refundDetail?.payment_type === 'gratis' ||
+                      refundDetail?.payment_type === 'pemasangan_tanpa_survey'
                         ? `                      Rp. ${0?.toLocaleString(
                             'id'
                           )}                        `
-                        : orderDetail?.payment_type === 'survey'
+                        : refundDetail?.payment_type === 'survey'
                         ? `                      Rp. ${99000?.toLocaleString(
                             'id'
                           )}                        `
@@ -507,7 +486,7 @@ const NewRefundHO: FC = () => {
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
+                      Rp. {parseInt(refundDetail?.grand_total || 0)?.toLocaleString('id')}
                     </td>
                   </tr>
                 </tbody>
@@ -532,6 +511,7 @@ const NewRefundHO: FC = () => {
                     className='w-75'
                     min={today}
                     onChange={(element) => handleChangeRefundDate(element)}
+                    value={refundValues.date_of_filing}
                   />
                 </div>
               </div>
@@ -544,6 +524,7 @@ const NewRefundHO: FC = () => {
                     as='textarea'
                     className='desc-notes'
                     onChange={(element) => handleChangeRefundDescription(element)}
+                    value={refundValues.reason}
                   />
                 </div>
               </div>
@@ -560,6 +541,7 @@ const NewRefundHO: FC = () => {
                     min={today}
                     className='w-75'
                     onChange={(element) => handleChangeApproveRefundDate(element)}
+                    value={refundValues.date_approve}
                   />
                 </div>
 
@@ -569,6 +551,7 @@ const NewRefundHO: FC = () => {
                     type='number'
                     className='w-75'
                     onChange={(element) => handleChangeApprovalNumber(element)}
+                    value={refundValues.approval_number}
                   />
                 </div>
               </div>
@@ -580,6 +563,7 @@ const NewRefundHO: FC = () => {
                     as='textarea'
                     className='desc-notes'
                     onChange={(element) => handleChangeRefundNotes(element)}
+                    value={refundValues.notes}
                   />
                 </div>
               </div>
@@ -594,6 +578,7 @@ const NewRefundHO: FC = () => {
                       type='text'
                       className='mt-5 mb-5'
                       onChange={(element) => handleChangeRefundVoucher(element)}
+                      value={refundValues.voucher}
                     />
 
                     {/* <CreatableSelect
@@ -621,6 +606,7 @@ const NewRefundHO: FC = () => {
                       type='number'
                       className='mt-5 mb-5'
                       onChange={(element) => handleChangePenaltyAmount(element)}
+                      value={refundValues.penalty_nominal}
                     />
 
                     <Button variant='danger'>Penalty</Button>
@@ -631,12 +617,12 @@ const NewRefundHO: FC = () => {
           </div>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelRefund}>
+            <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateRefund}>
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitNewRefund}>
-              Submit Refund
+            <Button variant='dark-primary' type='submit' onClick={handleUpdateRefund}>
+              Update Refund
             </Button>
           </div>
         </div>
@@ -645,4 +631,4 @@ const NewRefundHO: FC = () => {
   )
 }
 
-export {NewRefundHO}
+export {UpdateRefundHO}

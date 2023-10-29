@@ -92,6 +92,7 @@ const UpdateVendorHO: FC = () => {
           }
 
           if (data?.vendor_bank) {
+            setBankIds(data.vendor_bank[0].id)
             setBankId(data.vendor_bank[0].bank_id)
             setBankName(data.vendor_bank[0].bank.bank_name)
             setAccountName(data.vendor_bank[0].account_name)
@@ -274,6 +275,8 @@ const UpdateVendorHO: FC = () => {
   const [npwpNumber, setNpwpNumber] = useState<any>('')
 
   const [serviceAreaId, setserviceAreaId] = useState<any>([])
+  console.log(serviceAreaId)
+
   const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
   const [serviceAreaValues, setServiceAreaValues] = useState<ServiceAreaValues[]>([])
 
@@ -343,6 +346,7 @@ const UpdateVendorHO: FC = () => {
   // Bank Information
   const [bank, setBank] = useState<Bank[]>([])
   const [bankInfo, setBankInfo] = useState<Bank | null>(null)
+  const [bankIds, setBankIds] = useState<any>()
   const [bankId, setBankId] = useState<any>()
   const [bankName, setBankName] = useState<string>('')
   const [accountNumber, setAccountNumber] = useState<any>()
@@ -812,27 +816,29 @@ const UpdateVendorHO: FC = () => {
       }
 
       formData.append('pic_name', picName)
-      formData.append('markup', markup)
-      formData.append('discount', discount)
-      formData.append('account_name', accountName)
-      formData.append('account_number', accountNumber)
-      formData.append('bank_id', bankId)
+
+      formData.append('vendor_bank[id]', bankIds)
+      formData.append('vendor_bank[bank_id]', bankId)
+      formData.append('vendor_bank[account_number]', accountNumber)
+      formData.append('vendor_bank[account_name]', accountName)
 
       formData.append('ktp_number', ktpNumber)
       formData.append('npwp_number', npwpNumber)
 
       if (serviceAreaId?.length) {
-        serviceAreaId.forEach((item: any) => {
+        serviceAreaId.forEach((item: any, index: number) => {
           if (item) {
-            formData.append(`city_id[]`, item)
+            formData.append(`vendor_area[${index}][city_id]`, item)
+            formData.append(`vendor_area[${index}][default_markup]`, markup)
+            formData.append(`vendor_area[${index}][default_discount]`, discount)
           }
         })
       }
 
       if (serviceTypeId?.length) {
-        serviceTypeId.forEach((item: any) => {
+        serviceTypeId.forEach((item: any, index: number) => {
           if (item) {
-            formData.append(`service_type_id[]`, item)
+            formData.append(`vendor_service[${index}][service_type_id]`, item)
           }
         })
       }
