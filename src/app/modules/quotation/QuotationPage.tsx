@@ -35,17 +35,19 @@ const VendorPage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='new-quotation'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>QUOTATION</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW QUOTATION</PageTitle>
             <NewQuotation />
           </>
         }
       />
+
       <Route
-        path='update-quotation'
+        path='update-quotation/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE QUOTATION</PageTitle>
@@ -53,8 +55,9 @@ const VendorPage: React.FC = () => {
           </>
         }
       />
+
       <Route
-        path='detail-quotation'
+        path='detail-quotation/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL QUOTATION</PageTitle>
@@ -62,6 +65,7 @@ const VendorPage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='report-finance'
         element={
@@ -71,6 +75,7 @@ const VendorPage: React.FC = () => {
           </>
         }
       />
+
       <Route index element={<Navigate to='/quotation/view-quotation' />} />
     </Routes>
   )

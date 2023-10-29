@@ -1,0 +1,140 @@
+/* Table */
+#view-tukang .table-head-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+#view-tukang .table-head-wrapper .left {
+  display: flex;
+  align-items: center;
+}
+
+#view-tukang .table-head-wrapper .middle {
+  display: flex;
+  justify-content: space-between;
+}
+
+#view-tukang .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#view-tukang
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-tukang .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-tukang .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-tukang .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-tukang .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#view-tukang .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#view-tukang .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+/* Searchbar */
+
+#view-tukang .filter-search {
+  display: flex;
+  justify-content: center;
+}
+
+#view-tukang .filter-search .input-group {
+  width: 80%;
+  height: 45px;
+}
+
+#view-tukang .filter-search .input-group .form-control.filter-rtl {
+  border-right: none;
+}
+
+#view-tukang .filter-search .input-group-text.filter-rtl {
+  background-color: transparent;
+}
+
+/* Date Filter */
+
+#view-tukang .date-filter {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+#view-tukang .date-filter h3 {
+  width: 100%;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+#view-tukang .date-filter .start-date {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+#view-tukang .date-filter .end-date {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Select Filter */
+
+#view-tukang .select-filter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#view-tukang .select-filter h3 {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+#view-tukang .select-filter select.form-select.filter.filter-order {
+  height: 42px;
+  border-radius: 5px;
+}
+
+/* Button Action */
+
+#view-tukang .button-detail svg.svg-inline--fa.fa-book.fa-sm {
+  color: black;
+}
+
+#view-tukang .button-export {
+  padding: 0;
+  width: 100%;
+  height: 45px;
+  background-color: transparent;
+  color: #04844b;
+}

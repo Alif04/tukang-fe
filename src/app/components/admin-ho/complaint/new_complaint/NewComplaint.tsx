@@ -30,7 +30,7 @@ const NewComplaintHO: FC = () => {
 
   const getOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/orders?take=50`, {
+      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -150,16 +150,26 @@ const NewComplaintHO: FC = () => {
   const handleChangeSelectOrder = (element: any) => {
     const selectedOrder = element.value
     setOrderId(selectedOrder)
-    console.log(selectedOrder)
   }
 
   // Add Complaint
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintStatus, setComplaintStatus] = useState<any>(1)
+  const [complaintStatus, setComplaintStatus] = useState<any>()
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
 
   const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Complaint Status
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatus = statusData.find((status: any) => status.category === 'INVESTIGATED')
+    const statusId = desiredStatus.value
+
+    setComplaintStatus(statusId)
+  }, [complaintStatus])
 
   // Handle Input Change
   const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -156,7 +156,6 @@ const NewComplaintStore: FC = () => {
   // Add Complaint
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
 
   const evidenceRef = useRef<HTMLInputElement>(null)
@@ -266,7 +265,6 @@ const NewComplaintStore: FC = () => {
       formData.append('description', complaintDesc)
       formData.append('complaint_channel', complaintChannelId)
       formData.append('complaint_date', complaintDate)
-      formData.append('complaint_status', complaintStatus)
 
       if (complaintEvidence?.length) {
         complaintEvidence.forEach((item) => {

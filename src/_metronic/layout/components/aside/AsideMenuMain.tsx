@@ -135,24 +135,14 @@ export function AsideMenuMain() {
           role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
+
         <AsideMenuItem
           to='/quotation/new-quotation'
           title='New Quotation'
           role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
-        <AsideMenuItem
-          to='/quotation/update-quotation'
-          title='Update Quotation'
-          role={['Admin HO', 'Admin Vendor']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/quotation/detail-quotation'
-          title='Detail Quotation'
-          role={['Admin HO', 'Admin Vendor']}
-          hasBullet={true}
-        />
+
         <AsideMenuItem
           to='/quotation/report-finance'
           title='Dashboard Finance'

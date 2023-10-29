@@ -4,6 +4,8 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {ViewRefund} from './components/ViewRefund'
 import {NewRefund} from './components/NewRefund'
+import {UpdateRefund} from './components/UpdateRefund'
+import {DetailRefund} from './components/DetailRefund'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -32,15 +34,37 @@ const RefundPage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='new-refund'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR REFUND - 0863572 - ALIA</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR REFUND</PageTitle>
             <NewRefund />
           </>
         }
       />
+
+      <Route
+        path='update-refund/:id'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE REFUND</PageTitle>
+            <UpdateRefund />
+          </>
+        }
+      />
+
+      <Route
+        path='detail-refund/:id'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL REFUND</PageTitle>
+            <DetailRefund />
+          </>
+        }
+      />
+
       <Route index element={<Navigate to='/refund/view-refund' />} />
     </Routes>
   )

@@ -22,7 +22,9 @@ const DetailComplaintHO: FC = () => {
   const navigate = useNavigate()
 
   const [complaintId, setComplaintId] = useState<any>()
-  const [orderDetail, setOrderDetail] = useState<any>()
+  const [complaintStatusApprove, setComplaintStatusApprove] = useState<any>()
+  const [complaintStatusCancel, setComplaintStatusCancel] = useState<any>()
+
   const [complaintDetail, setComplaintDetail] = useState<any>()
 
   const [previewImage, setPreviewImage] = useState<any>()
@@ -42,27 +44,10 @@ const DetailComplaintHO: FC = () => {
         .then((response) => {
           const data = response.data.data
           setComplaintDetail(data)
-        })
-    } catch (error) {
-      console.error(error)
-    }
-  }
 
-  const fetchOrderData = async () => {
-    const orderId = complaintDetail?.order_id
-    try {
-      await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          const data = response.data.data
-          setOrderDetail(data)
+          if (data?.id) {
+            setComplaintId(data.id)
+          }
         })
     } catch (error) {
       console.error(error)
@@ -99,16 +84,25 @@ const DetailComplaintHO: FC = () => {
     getCostumer()
   }, [])
 
+  // Complaint Status Approve
   useEffect(() => {
-    if (complaintDetail) {
-      fetchOrderData()
-    }
-  }, [complaintDetail])
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatusApprove = statusData.find((status: any) => status.category === 'ACCEPTED')
+    const statusApproveId = desiredStatusApprove.value
+
+    const desiredStatusCancel = statusData.find((status: any) => status.category === 'REJECT')
+    const statusCancelId = desiredStatusCancel.value
+
+    setComplaintStatusApprove(statusApproveId)
+    setComplaintStatusCancel(statusCancelId)
+  }, [complaintStatusApprove, complaintStatusCancel])
 
   const phoneNumber =
-    orderDetail?.members.phone_number !== null
-      ? orderDetail?.members.phone_number
-      : orderDetail?.members.whatsapp_number
+    complaintDetail?.orders.members.phone_number !== null
+      ? complaintDetail?.orders.members.phone_number
+      : complaintDetail?.orders.members.whatsapp_number
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -322,8 +316,48 @@ const DetailComplaintHO: FC = () => {
     }
   }
 
+  // Cancel Complaint
   const handleCancel = () => {
     navigate('/complaint/view-complaint')
+  }
+
+  // Handle Approve & Cancel
+  const handleApprovalComplaint = async (status: number) => {
+    await axios
+      .post(`${apiUrl}/complaints/${complaintId}/set-status/${status}`, null, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: response.data.message,
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+        navigate('/complaint/view-complaint')
+      })
+      .catch((error) => {
+        console.error(error)
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
   }
 
   return (
@@ -334,8 +368,10 @@ const DetailComplaintHO: FC = () => {
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
+                  Nama Toko :
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {complaintDetail?.orders.store.store_name}
+                  </span>
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
@@ -345,7 +381,8 @@ const DetailComplaintHO: FC = () => {
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
+                  Order ID :
+                  <span className='fs-4 ms-2 fw-normal'>{complaintDetail?.orders.id}</span>
                 </Form.Label>
 
                 <Form.Group as={Row}>
@@ -357,7 +394,11 @@ const DetailComplaintHO: FC = () => {
                       type='text'
                       plaintext
                       readOnly
-                      value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                      value={
+                        complaintDetail?.orders
+                          ? formatDate(new Date(complaintDetail?.orders.created_at))
+                          : ''
+                      }
                     />
                   </Col>
                 </Form.Group>
@@ -365,8 +406,10 @@ const DetailComplaintHO: FC = () => {
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Receipt Number :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
+                  Receipt Number :
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {complaintDetail?.orders.receipt_number}
+                  </span>
                 </Form.Label>
               </Col>
             </Row>
@@ -381,7 +424,11 @@ const DetailComplaintHO: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.members.id}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -390,7 +437,11 @@ const DetailComplaintHO: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.members.full_name}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -404,7 +455,7 @@ const DetailComplaintHO: FC = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          value={orderDetail?.project_address}
+                          value={complaintDetail?.orders.project_address}
                         />
                       </Col>
                     </Form.Group>
@@ -425,7 +476,11 @@ const DetailComplaintHO: FC = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='8'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.members.email}
+                        />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -440,7 +495,7 @@ const DetailComplaintHO: FC = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
+                    <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
                   </Col>
                 </Form.Group>
 
@@ -449,7 +504,11 @@ const DetailComplaintHO: FC = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
+                    <Form.Control
+                      plaintext
+                      readOnly
+                      value={complaintDetail?.orders.sales.full_name}
+                    />
                   </Col>
                 </Form.Group>
               </Col>
@@ -474,7 +533,7 @@ const DetailComplaintHO: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
+                  {complaintDetail?.orders.m_order_details.map((item: any, index: any) => (
                     <>
                       <tr>
                         <td>{item?.item_id}</td>
@@ -492,12 +551,12 @@ const DetailComplaintHO: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                      {complaintDetail?.orders.payment_type === 'gratis' ||
+                      complaintDetail?.orders.payment_type === 'pemasangan_tanpa_survey'
                         ? `                      Rp. ${0?.toLocaleString(
                             'id'
                           )}                        `
-                        : orderDetail?.payment_type === 'survey'
+                        : complaintDetail?.orders.payment_type === 'survey'
                         ? `                      Rp. ${99000?.toLocaleString(
                             'id'
                           )}                        `
@@ -510,7 +569,7 @@ const DetailComplaintHO: FC = () => {
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
+                      Rp. {parseInt(complaintDetail?.orders.grand_total || 0)?.toLocaleString('id')}
                     </td>
                   </tr>
                 </tbody>
@@ -523,9 +582,10 @@ const DetailComplaintHO: FC = () => {
           <Row>
             <div className='d-flex justify-content-end align-items-center'>
               <Button
-                variant='dark-danger'
+                variant='light-danger'
                 className='d-flex justify-content-center align-items-center'
                 type='submit'
+                onClick={() => handleApprovalComplaint(complaintStatusCancel)}
               >
                 Rejected
               </Button>
@@ -534,6 +594,7 @@ const DetailComplaintHO: FC = () => {
                 variant='dark-success'
                 className='d-flex justify-content-center align-items-center'
                 type='submit'
+                onClick={() => handleApprovalComplaint(complaintStatusApprove)}
               >
                 Approved
               </Button>
@@ -580,7 +641,11 @@ const DetailComplaintHO: FC = () => {
                   PIC Complaint :
                 </Form.Label>
                 <Col sm='6'>
-                  <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
+                  <Form.Control
+                    plaintext
+                    readOnly
+                    value={complaintDetail?.orders.members.full_name}
+                  />
                 </Col>
               </Form.Group>
             </Col>

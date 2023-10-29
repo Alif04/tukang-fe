@@ -125,27 +125,6 @@ const PreviewEmailOrder: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* {orderDetail?.order_details.map((item: any, index: any) => (
-                  <>
-                    <tr>
-                      <td>{item?.item_id}</td>
-                      <td>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'survey') {
-                            return `Survey`
-                          } else {
-                            return `${item?.unit}`
-                          }
-                        })()}
-                      </td>
-                      <td>{item?.status?.description}</td>
-                      <td>{item?.quantity}</td>
-                      <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                      <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
-                    </tr>
-                  </>
-                ))} */}
-
                 {orderDetail?.payment_type === 'survey' ? (
                   <>
                     <tr>

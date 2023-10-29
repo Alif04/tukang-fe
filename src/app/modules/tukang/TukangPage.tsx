@@ -29,38 +29,42 @@ const TukangPage: React.FC = () => {
         path='view-tukang'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>View Tukang</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>TUKANG LIST</PageTitle>
             <ViewTukang />
           </>
         }
       />
+
       <Route
         path='new-tukang'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>New Tukang</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW TUKANG FORM</PageTitle>
             <NewTukangin />
           </>
         }
       />
+
       <Route
         path='update-tukang'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>Update Tukang</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE TUKANG FORM</PageTitle>
             <UpdateTukangin />
           </>
         }
       />
+
       <Route
         path='detail-tukang'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>Detail Tukang</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL TUKANG</PageTitle>
             <DetailTukangin />
           </>
         }
       />
+
       <Route index element={<Navigate to='/work-order/view-Work_order' />} />
     </Routes>
   )

@@ -1,283 +1,134 @@
-import React, {FC} from 'react'
-import {useState} from 'react'
+import React, {FC, useState, useEffect, useRef, ChangeEvent} from 'react'
 
 import './UpdateQuotation.css'
 
+import axios from 'axios'
+import Select from 'react-select'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
+import {useNavigate, useParams} from 'react-router-dom'
 import {Form, InputGroup, Button, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-import {useNavigate} from 'react-router-dom'
-
-interface DataType {
-  key: React.Key
-  order_id: string
-  date_order: string
-  product_name: string
-  installation_type: string
-  costumer_id: string
-  costumer_name: string
-  quotation_id: string
-  vendor_name: string
-  amount: string
-  payment_status: string
-  order_status: string
+interface StoreItem {
+  value: string
+  label: string
 }
-
-const NewQuotation = () => {
-  const navigate = useNavigate()
-
-  const handleNewQuotation = () => {
-    navigate('/order/new-order')
-  }
-
-  return (
-    <button className='button-new-quotation' onClick={handleNewQuotation}>
-      New Quotation <FontAwesomeIcon icon={faPlus} size='lg' className='plus-icon' />
-    </button>
-  )
-}
-
-const DetailButton = () => {
-  const navigate = useNavigate()
-
-  const handleDetail = () => {
-    navigate('/order/detail-order')
-  }
-
-  return (
-    <a className='button-detail' onClick={handleDetail}>
-      <FontAwesomeIcon icon={faBook} size='sm' />
-    </a>
-  )
-}
-
-const EditButton = () => {
-  const navigate = useNavigate()
-
-  const handleEdit = () => {
-    navigate('/order/update-order')
-  }
-
-  return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
-}
-
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 100,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Date Order',
-    dataIndex: 'date_order',
-    key: 'date_order',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Product Name',
-    dataIndex: 'product_name',
-    key: 'product_name',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Installation Type',
-    dataIndex: 'installation_type',
-    key: 'installation_type',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Costumer ID',
-    dataIndex: 'costumer_id',
-    key: 'costumer_id',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Costumer Name',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Quotation ID',
-    dataIndex: 'quotation_id',
-    key: 'quotation_id',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Vendor Name',
-    dataIndex: 'vendor_name',
-    key: 'vendor_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Amount',
-    dataIndex: 'amount',
-    key: 'amount',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Payment Status',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Order Status',
-    dataIndex: 'order_status',
-    key: 'order_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <DetailButton />
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 90,
-  },
-]
-
-const data: DataType[] = [
-  {
-    key: '1',
-    order_id: '78453992',
-    date_order: '10/2/2023',
-    product_name: 'Water Heater',
-    installation_type: 'New set up',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    quotation_id: '12877450',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'NONE',
-    order_status: 'QUOTEIN',
-  },
-  {
-    key: '2',
-    order_id: '78453993',
-    date_order: '10/2/2023',
-    product_name: 'Water Heater',
-    installation_type: 'New set up',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    quotation_id: '12877450',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'NONE',
-    order_status: 'QUOTEIN',
-  },
-  {
-    key: '3',
-    order_id: '78453994',
-    date_order: '10/2/2023',
-    product_name: 'Water Heater',
-    installation_type: 'New set up',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    quotation_id: '12877450',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'NONE',
-    order_status: 'QUOTEIN',
-  },
-  {
-    key: '4',
-    order_id: '78453995',
-    date_order: '10/2/2023',
-    product_name: 'Water Heater',
-    installation_type: 'New set up',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    quotation_id: '12877450',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'NONE',
-    order_status: 'QUOTEIN',
-  },
-  {
-    key: '5',
-    order_id: '78453996',
-    date_order: '10/2/2023',
-    product_name: 'Water Heater',
-    installation_type: 'New set up',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    quotation_id: '12877450',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'NONE',
-    order_status: 'QUOTEIN',
-  },
-  {
-    key: '6',
-    order_id: '78453997',
-    date_order: '10/2/2023',
-    product_name: 'Water Heater',
-    installation_type: 'New set up',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    quotation_id: '12877450',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'NONE',
-    order_status: 'QUOTEIN',
-  },
-  {
-    key: '7',
-    order_id: '78453998',
-    date_order: '10/2/2023',
-    product_name: 'Water Heater',
-    installation_type: 'New set up',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    quotation_id: '12877450',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'NONE',
-    order_status: 'QUOTEIN',
-  },
-]
 
 const UpdateQuotationHO: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+  const navigate = useNavigate()
+
+  // Fetch Data Quotation
+  const [quotationDetail, setQuotationDetail] = useState<any>()
+
+  // Fetch Data Order
+  const [order, setOrder] = useState<any>()
+  const [orderId, setOrderId] = useState<string>('')
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  // Store
+  const [store, setStore] = useState<StoreItem[]>([])
+  const [storeId, setStoreId] = useState<string>('')
+  const [storeName, setStoreName] = useState<string>('')
+
+  const fetchQuotationData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/quotation/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setQuotationDetail(data)
+
+          if (data?.order.id) {
+            setOrderId(data.order.id)
+          }
+
+          if (data?.store?.id && data?.store?.store_name) {
+            setStoreId(data.store.id)
+            setStoreName(data.store.store_name)
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.store_name,
+          address: item.address,
+          city_id: item.city_id,
+          zip_code: item.zip_code,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchQuotationData()
+    getStore()
+  }, [])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  // Add Quotation
+  const [quotationStatus, setQuotationStatus] = useState<any>()
+  const [quotationNumber, setQuotationNumber] = useState<string | number>('NaN')
+  const [quotationDescription, setQuotationDescription] = useState<string>('')
+  const [quotationDate, setQuotationDate] = useState<string>('')
+  const [quotationValidity, setQuotationValidity] = useState<string>('')
+  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Select Store
+  const handleChangeSelectStore = (element: any) => {
+    const updatedStoreId = element.value
+    const updatedStoreName = element.label
+
+    setStoreId(updatedStoreId)
+    setStoreName(updatedStoreName)
+  }
+
+  // Select Order
+  const handleChangeSelectOrder = (element: any) => {
+    const selectedOrder = element.value
+    setOrderId(selectedOrder)
+  }
+
   const [fileName, setFileName] = useState<string>('No selected file')
   const [image, setImage] = useState<string | null>(null)
 
@@ -313,19 +164,31 @@ const UpdateQuotationHO: FC = () => {
                     <div className='form-body'>
                       <Form.Group className='mb-5'>
                         <Form.Label>Nama Toko</Form.Label>
-                        <Form.Select>
-                          <option selected value='1'>
-                            MITRA 10 BSD
-                          </option>
-                          <option value='2'>MITRA 10 Fatmawati</option>
-                          <option value='3'>MITRA 10 Bandung</option>
-                          <option value='4'>MITRA 10 Jogja</option>
-                        </Form.Select>
+
+                        <Col>
+                          <Select
+                            name='store_id'
+                            className='form-control p-0'
+                            classNamePrefix='select'
+                            placeholder='Pilih Toko'
+                            isSearchable={true}
+                            options={store}
+                            onChange={(element) => handleChangeSelectStore(element)}
+                            value={{
+                              value: storeId,
+                              label: storeName,
+                            }}
+                          />
+                        </Col>
                       </Form.Group>
 
                       <Form.Group className='mb-5'>
                         <Form.Label>Costumer Name</Form.Label>
-                        <Form.Control type='text' />
+                        <Form.Control
+                          type='text'
+                          readOnly
+                          value={quotationDetail?.order.members.full_name}
+                        />
                       </Form.Group>
                     </div>
                   </div>
@@ -338,12 +201,17 @@ const UpdateQuotationHO: FC = () => {
                     <div className='form-body'>
                       <Form.Group className='mb-5'>
                         <Form.Label>Order ID</Form.Label>
-                        <Form.Control />
+
+                        <Form.Control readOnly value={orderId} />
                       </Form.Group>
 
                       <Form.Group className='mb-5'>
                         <Form.Label>Phone Number / WA Number</Form.Label>
-                        <Form.Control type='number' />
+                        <Form.Control
+                          type='number'
+                          readOnly
+                          value={quotationDetail?.order.project_number}
+                        />
                       </Form.Group>
                     </div>
                   </div>
@@ -356,12 +224,20 @@ const UpdateQuotationHO: FC = () => {
                     <div className='form-body'>
                       <Form.Group className='mb-5'>
                         <Form.Label>Costumer ID</Form.Label>
-                        <Form.Control />
+                        <Form.Control
+                          type='number'
+                          readOnly
+                          value={quotationDetail?.order.members.id}
+                        />
                       </Form.Group>
 
                       <Form.Group className='mb-5'>
                         <Form.Label>Email address</Form.Label>
-                        <Form.Control type='email' />
+                        <Form.Control
+                          type='email'
+                          readOnly
+                          value={quotationDetail?.order.members.email}
+                        />
                       </Form.Group>
                     </div>
                   </div>
@@ -380,18 +256,44 @@ const UpdateQuotationHO: FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>Jasa Instalasi AC</td>
-                        <td>1.800.000</td>
-                        <td>1</td>
-                        <td>1.800.000</td>
-                      </tr>
+                      {orderDetail?.payment_type === 'survey' ? (
+                        <>
+                          <tr>
+                            <td colSpan={6}>Survey</td>
+                          </tr>
+                        </>
+                      ) : (
+                        orderDetail?.order_details.map((item: any, index: any) => (
+                          <>
+                            <tr>
+                              <td>{item?.unit}</td>
+                              <td>{item?.quantity}</td>
+                              <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                'id'
+                              )}`}</td>
+                              <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        ))
+                      )}
 
                       <tr>
                         <td colSpan={3} className='text-end fw-bolder'>
                           Total
                         </td>
-                        <td className=' fw-bolder'>1.800.000</td>
+                        <td className=' fw-bolder'>
+                          {' '}
+                          {orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `                      Rp. ${0?.toLocaleString(
+                                'id'
+                              )}                        `
+                            : orderDetail?.payment_type === 'survey'
+                            ? `                      Rp. ${99000?.toLocaleString(
+                                'id'
+                              )}                        `
+                            : `Rp. ${0}`}
+                        </td>
                       </tr>
                       <tr>
                         <td colSpan={3} className='text-end fw-bolder'>
@@ -451,16 +353,6 @@ const UpdateQuotationHO: FC = () => {
 
                 <Col xxl={6}></Col>
               </Row>
-
-              <div className='d-flex justify-content-center align-items-end'>
-                <Button variant='dark-danger' type='submit'>
-                  Cancel
-                </Button>
-
-                <Button variant='dark-primary' type='submit'>
-                  Save
-                </Button>
-              </div>
             </Col>
 
             <Col lg={4}>
@@ -476,7 +368,7 @@ const UpdateQuotationHO: FC = () => {
                       Quotation ID :
                     </Form.Label>
                     <Col sm='8'>
-                      <Form.Control type='text' />
+                      <Form.Control type='text' readOnly value={quotationDetail?.id} />
                     </Col>
                   </Form.Group>
 
@@ -485,7 +377,15 @@ const UpdateQuotationHO: FC = () => {
                       Valid Until :
                     </Form.Label>
                     <Col sm='8'>
-                      <Form.Control type='text' />
+                      <Form.Control
+                        type='text'
+                        readOnly
+                        value={
+                          quotationDetail
+                            ? formatDate(new Date(quotationDetail.quotation_validity))
+                            : ''
+                        }
+                      />
                     </Col>
                   </Form.Group>
 
@@ -494,11 +394,12 @@ const UpdateQuotationHO: FC = () => {
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
-                      placeholder='Jl. Pahlawan'
+                      readOnly
+                      value={quotationDetail?.order.project_address}
                     />
                   </Form.Group>
 
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
+                  <Form.Group as={Row} className='mb-5'>
                     <Form.Label column sm='4'>
                       Bank Name :
                     </Form.Label>
@@ -507,7 +408,7 @@ const UpdateQuotationHO: FC = () => {
                     </Col>
                   </Form.Group>
 
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
+                  <Form.Group as={Row} className='mb-5'>
                     <Form.Label column sm='4'>
                       Bank Account :
                     </Form.Label>
@@ -516,7 +417,7 @@ const UpdateQuotationHO: FC = () => {
                     </Col>
                   </Form.Group>
 
-                  <Form.Group as={Row} className='mb-5' controlId='formPlaintextEmail'>
+                  <Form.Group as={Row} className='mb-5'>
                     <Form.Label column sm='4'>
                       Account Name :
                     </Form.Label>
@@ -526,7 +427,23 @@ const UpdateQuotationHO: FC = () => {
                   </Form.Group>
                 </div>
               </div>
+            </Col>
+          </Row>
 
+          <Row className='mt-5'>
+            <Col lg={8}>
+              <div className='d-flex justify-content-center align-items-end'>
+                <Button variant='dark-danger' type='submit'>
+                  Cancel
+                </Button>
+
+                <Button variant='dark-primary' type='submit'>
+                  Save
+                </Button>
+              </div>
+            </Col>
+
+            <Col lg={4}>
               <div className='d-flex justify-content-end'>
                 <Button variant='dark-success' type='submit'>
                   Save & Email Quotation
@@ -534,40 +451,6 @@ const UpdateQuotationHO: FC = () => {
               </div>
             </Col>
           </Row>
-        </div>
-      </div>
-
-      <div className='card'>
-        <div className='card-body table-view-order'>
-          <div className='table-head-wrapper mb-5'>
-            <div className='left'></div>
-
-            <div className='middle'>
-              <div className='filter-search'>
-                <InputGroup>
-                  <Form.Control placeholder='Filter' className='filter-rtl' />
-
-                  <InputGroup.Text className='filter-rtl'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-                </InputGroup>
-              </div>
-            </div>
-
-            <div className='right'>
-              <NewQuotation />
-            </div>
-          </div>
-
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={data}
-            rowKey={(record) => record.key}
-            scroll={{x: 1800}}
-            pagination={{position: ['bottomRight']}}
-          />
         </div>
       </div>
     </section>

@@ -231,6 +231,12 @@ export * from './admin-ho/refund/view_refund/ViewRefund'
 // New Refund
 export * from './admin-ho/refund/new_refund/NewRefund'
 
+// Update Refund
+export * from './admin-ho/refund/update_refund/UpdateRefund'
+
+// Detail Refund
+export * from './admin-ho/refund/detail_refund/DetailRefund'
+
 // VENDOR PAGE
 
 // CALENDAR WORK
@@ -272,6 +278,18 @@ export * from './admin-vendor/work-order/report_work_order/ReportWorkOrder'
 export * from './admin-vendor/work-order/detail_work_order/DetailWorkOrder'
 
 // TUKANG PAGE
+
+// New Tukang
+export * from './admin-vendor/tukang/new_tukang/NewTukang'
+
+// Update Tukang
+export * from './admin-vendor/tukang/update_tukang/UpdateTukang'
+
+// Detail Tukang
+export * from './admin-vendor/tukang/detail_tukang/DetailTukang'
+
+// View Tukang
+export * from './admin-vendor/tukang/view_tukang/ViewTukang'
 
 // CALENDAR WORK ORDER
 export * from './tukang/calendar/view_calendar/ViewCalendar'
