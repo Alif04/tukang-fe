@@ -4,9 +4,21 @@ import {UpdateTukang} from '../../../components/tukang/tukang/update_tukang/Upda
 import {UpdateTukangVendor} from '../../../components'
 
 const UpdateTukangin: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <UpdateTukang />
+      {userRole == 'Admin Vendor' ? (
+        <>
+          <UpdateTukangVendor />
+        </>
+      ) : userRole == 'Tukang' ? (
+        <>
+          <UpdateTukang />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

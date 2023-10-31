@@ -1,0 +1,88 @@
+#update-invoice .survey-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 45px;
+}
+
+#update-invoice button.btn.btn-dark-success {
+  margin: 0;
+  width: 250px;
+}
+
+#update-invoice .table-item .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+#update-invoice .table-item th {
+  background-color: #183383;
+  color: #ffff;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Form Input Image */
+
+#update-invoice .invoice-evidence {
+  margin-bottom: 160px;
+}
+
+#update-invoice form.form-input-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #858585;
+  width: 100%;
+  min-height: 285px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#update-invoice .input-image-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px;
+}
+
+#update-invoice .input-image-text p {
+  margin: 10px 10px;
+  padding: 5px 10px !important;
+  border: 1px solid;
+  border-radius: 5px;
+  color: #858585;
+}
+
+#update-invoice .uploaded-row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 5px;
+  background-color: #f4f7fe;
+}
+
+#update-invoice .upload-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#update-invoice .image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+#update-invoice svg.svg-inline--fa.fa-file-image.fa-sm {
+  margin: 0 10px 0 0;
+}
+
+#update-invoice svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0 0 0 10px;
+}

@@ -15,7 +15,7 @@ interface OptionRemedialStatus {
   label: string
 }
 
-const UpdateComplaintHO: FC = () => {
+const UpdateComplaintVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -807,4 +807,4 @@ const UpdateComplaintHO: FC = () => {
   )
 }
 
-export {UpdateComplaintHO}
+export {UpdateComplaintVendor}

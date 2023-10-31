@@ -9,8 +9,8 @@ import {DetailTukangin} from './components/DetailTukangin'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
-    title: 'Order',
-    path: '/Work-Order/view-Work',
+    title: 'Tukang',
+    path: '/tukang/view-tukang',
     isSeparator: false,
     isActive: false,
   },
@@ -46,7 +46,7 @@ const TukangPage: React.FC = () => {
       />
 
       <Route
-        path='update-tukang'
+        path='update-tukang/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE TUKANG FORM</PageTitle>
@@ -56,7 +56,7 @@ const TukangPage: React.FC = () => {
       />
 
       <Route
-        path='detail-tukang'
+        path='detail-tukang/:id'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL TUKANG</PageTitle>

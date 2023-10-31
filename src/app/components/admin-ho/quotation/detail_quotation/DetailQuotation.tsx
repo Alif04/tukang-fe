@@ -141,36 +141,50 @@ const DetailQuotationHO: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Instalasi AC</td>
-                  <td>500.000</td>
-                  <td>1</td>
-                  <td>500.000</td>
-                </tr>
-                <tr>
-                  <td>Pipa AC</td>
-                  <td>50.000</td>
-                  <td>16</td>
-                  <td>800.000</td>
-                </tr>
-                <tr>
-                  <td>Pipa Paralon</td>
-                  <td>50.000</td>
-                  <td>10</td>
-                  <td>500.000</td>
-                </tr>
+                {quotationDetail?.order.payment_type === 'survey' ? (
+                  <>
+                    <tr>
+                      <td colSpan={4}>Survey</td>
+                    </tr>
+                  </>
+                ) : (
+                  quotationDetail?.order.m_order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.unit}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))
+                )}
+
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
-                    Total
+                    Biaya Survey
                   </td>
-                  <td className=' fw-bolder'>1.800.000</td>
+                  <td className=' fw-bolder'>
+                    {quotationDetail?.order.payment_type === 'gratis' ||
+                    quotationDetail?.order.payment_type === 'pemasangan_tanpa_survey'
+                      ? `                      Rp. ${0?.toLocaleString(
+                          'id'
+                        )}                        `
+                      : quotationDetail?.order.payment_type === 'survey'
+                      ? `                      Rp. ${99000?.toLocaleString(
+                          'id'
+                        )}                        `
+                      : `Rp. ${0}`}
+                  </td>
                 </tr>
 
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>1.854.000</td>
+                  <td className=' fw-bolder'>
+                    Rp. {parseInt(quotationDetail?.order.grand_total || 0)?.toLocaleString('id')}
+                  </td>
                 </tr>
               </tbody>
             </Table>

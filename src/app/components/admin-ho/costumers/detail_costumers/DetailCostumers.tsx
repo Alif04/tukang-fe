@@ -5,7 +5,7 @@ import './DetailCostumers.css'
 
 import axios from 'axios'
 import {Table, Rate} from 'antd'
-import {useNavigate, useParams} from 'react-router-dom'
+import {useParams} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, Tabs, Tab} from 'react-bootstrap'
 
@@ -16,9 +16,7 @@ const DetailCostumerHO: FC = () => {
   const [memberDetail, setMemberDetail] = useState<any>()
 
   const [orderData, setOrderData] = useState<DataTypeOrder[]>([])
-  console.log(orderData)
   const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
-  console.log(complaintData)
 
   const fetchMemberDetail = async () => {
     try {

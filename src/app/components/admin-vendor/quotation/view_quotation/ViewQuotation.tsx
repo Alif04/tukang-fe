@@ -18,6 +18,8 @@ type Props = {
 }
 
 const ViewQuotationVendor: React.FC<Props> = ({className}) => {
+  const navigate = useNavigate()
+
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -182,7 +184,30 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 90,
+      width: 50,
+      render: (record) => {
+        const handleDetailId = () => {
+          const id = record.quotation_id
+          navigate(`/quotation/detail-quotation/${id}`)
+        }
+
+        const handleUpdateId = () => {
+          const id = record.quotation_id
+          navigate(`/quotation/update-quotation/${id}`)
+        }
+
+        return (
+          <div className='button-wrapper'>
+            <a className='button-detail' onClick={handleDetailId}>
+              <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
+
+            <a className='button-edit' onClick={handleUpdateId}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
+            </a>
+          </div>
+        )
+      },
     },
   ]
 
@@ -209,31 +234,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       })
 
       return response.data.data
-
-      // const storedStatus = sessionStorage.getItem('statusData')
-      // const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      // const desiredStatusName = 'SURVEYDONE'
-      // const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-
-      // if (desiredStatus) {
-      //   const statusId = desiredStatus.value
-
-      //   const response = await axios.get(
-      //     `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
-      //     {
-      //       headers: {
-      //         Accept: 'application/json',
-      //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      //         'Access-Control-Allow-Origin': '*',
-      //         'ngrok-skip-browser-warning': 'true',
-      //       },
-      //     }
-      //   )
-      //   return response.data.data
-      // } else {
-      //   console.error('Desired status not found in statusData')
-      // }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -260,9 +260,9 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           order_id: item.order.id,
           date_order: formatDate(orderDate),
           costumer_name: item.order.members.full_name,
-          vendor_name: item.vendor.vendor_name,
+          // vendor_name: item.vendor.vendor_name,
           payment_status: paymentStatus,
-          order_status: item.order.status.category,
+          order_status: item.status.category,
           quotation_status: item.quotation_status,
         }
 
@@ -325,29 +325,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               </div>
             </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-              <div className='select-filter'>
-                <select className='form-select filter filter-one'>
-                  <option selected>All Store</option>
-                  <option value='1'>Mitra 10 - BSD</option>
-                  <option value='2'>Mitra 10 - Depok</option>
-                  <option value='3'>Mitra 10 - Fatmawati</option>
-                </select>
-
-                <select className='form-select filter filter-two'>
-                  <option selected>All Vendor</option>
-                  <option value='1'>Vendor A</option>
-                  <option value='2'>Vendor B</option>
-                  <option value='3'>Vendor C</option>
-                </select>
-
-                <select className='form-select filter filter-four'>
-                  <option selected>All Quotation Status</option>
-                  <option value='1'>PENDING</option>
-                  <option value='2'>PAID</option>
-                </select>
-              </div>
-            </Col>
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}></Col>
           </Row>
 
           <Table

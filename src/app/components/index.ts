@@ -277,8 +277,7 @@ export * from './admin-vendor/work-order/report_work_order/ReportWorkOrder'
 // Detail Work Order
 export * from './admin-vendor/work-order/detail_work_order/DetailWorkOrder'
 
-// TUKANG PAGE
-
+// TUKANG
 // New Tukang
 export * from './admin-vendor/tukang/new_tukang/NewTukang'
 
@@ -291,6 +290,30 @@ export * from './admin-vendor/tukang/detail_tukang/DetailTukang'
 // View Tukang
 export * from './admin-vendor/tukang/view_tukang/ViewTukang'
 
+// Complaint
+// View Complaint
+export * from './admin-vendor/complaint/view_complaint/ViewComplaint'
+
+// New Complaint
+export * from './admin-vendor/complaint/new_complaint/NewComplaint'
+
+// Update Complaint
+export * from './admin-vendor/complaint/update_complaint/UpdateComplaint'
+
+// Detail Complaint
+export * from './admin-vendor/complaint/detail_complaint/DetailComplaint'
+
+// Invoice
+// View Invoice
+export * from './admin-vendor/invoice/view_invoice/ViewInvoice'
+
+// New Invoice
+export * from './admin-vendor/invoice/new_invoice/NewInvoice'
+
+// Detail Invoice
+export * from './admin-vendor/invoice/detail_invoice/DetailInvoice'
+
+// ADMIN TUKANG PAGE
 // CALENDAR WORK ORDER
 export * from './tukang/calendar/view_calendar/ViewCalendar'
 

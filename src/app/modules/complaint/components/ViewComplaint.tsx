@@ -3,6 +3,7 @@ import React from 'react'
 
 import {ViewComplaintStore} from '../../../components'
 import {ViewComplaintHO} from '../../../components'
+import {ViewComplaintVendor} from '../../../components'
 
 const ViewComplaint: React.FC = () => {
   const userRole = localStorage.getItem('userRole')
@@ -16,6 +17,10 @@ const ViewComplaint: React.FC = () => {
       ) : userRole == 'Admin HO' ? (
         <>
           <ViewComplaintHO className='' />
+        </>
+      ) : userRole == 'Admin Vendor' ? (
+        <>
+          <ViewComplaintVendor className='' />
         </>
       ) : (
         <></>

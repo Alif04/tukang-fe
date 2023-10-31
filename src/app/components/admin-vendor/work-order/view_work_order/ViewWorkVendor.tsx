@@ -175,7 +175,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 115,
+      width: 80,
       render: (record) => {
         const handleDetailId = () => {
           const id = record.order_id

@@ -687,9 +687,6 @@ const UpdateVendorHO: FC = () => {
 
     setserviceTypeId(updatedServiceTypeIds)
     setServiceTypeValues(updatedServiceType)
-
-    console.log('Service Type Id', updatedServiceTypeIds)
-    console.log('Service Type', updatedServiceType)
   }
 
   // Vendor Validation

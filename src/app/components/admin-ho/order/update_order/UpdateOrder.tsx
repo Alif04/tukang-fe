@@ -271,7 +271,7 @@ const UpdateOrderHO: FC = () => {
 
     const getSales = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales/get`, {
+        const response = await axios.get(`${apiUrl}/sales`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
