@@ -4,9 +4,21 @@ import {ViewTukangin} from '../../../components'
 import {ViewTukangVendor} from '../../../components'
 
 const ViewTukang: FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ViewTukangin className='' />
+      {userRole == 'Admin Vendor' ? (
+        <>
+          <ViewTukangVendor />
+        </>
+      ) : userRole == 'Tukang' ? (
+        <>
+          <ViewTukangin />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

@@ -1,10 +1,49 @@
-import React, {FC} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './DetailQuotation.css'
-import {Table, Button, Row, Col} from 'react-bootstrap'
+
+import axios from 'axios'
+import {useParams} from 'react-router-dom'
+import {Form, Table, Row, Col} from 'react-bootstrap'
 
 const DetailQuotationVendor: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+
+  const [quotationDetail, setQuotationDetail] = useState<any>()
+
+  const fetchQuotationData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/quotation/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setQuotationDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchQuotationData()
+  }, [])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
   return (
     <section id='detail-quotation'>
       <div className='card'>
@@ -19,10 +58,8 @@ const DetailQuotationVendor: FC = () => {
                 />
 
                 <div className='address'>
-                  <h3 className='fw-normal'>Jalan Gading Serpong Boulevard Blok Mitra10</h3>
-                  <h3 className='fw-normal'>Curug Sangereng, Klp. Dua, Tangerang, </h3>
-                  <h3 className='fw-normal'>Banten Kode Pos : 15310 </h3>
-                  <h3 className='fw-normal'> Telp: (021) 54217373</h3>
+                  <h2 className='fw-semibold mb-2'>{quotationDetail?.store.store_name}</h2>
+                  <h3 className='fw-normal'>{quotationDetail?.store.address}</h3>
                 </div>
               </div>
             </div>
@@ -31,15 +68,18 @@ const DetailQuotationVendor: FC = () => {
               <h1 className='fw-bolder'>QUOTATION</h1>
 
               <h3 className='fw-bolder'>
-                Tanggal : <span className='fw-normal'>16/3/2023</span>
+                Tanggal :
+                <span className='ms-1 fw-normal'>
+                  {quotationDetail ? formatDate(new Date(quotationDetail.quotation_date)) : ''}
+                </span>
               </h3>
 
               <h3 className='fw-bolder'>
-                Quotation ID : <span className='fw-normal'>897983245</span>
+                Quotation ID : <span className='fw-normal'>{quotationDetail?.id}</span>
               </h3>
 
               <h3 className='fw-bolder'>
-                Costumer ID : <span className='fw-normal'>121768</span>
+                Costumer ID : <span className='fw-normal'>{quotationDetail?.order.member_id}</span>
               </h3>
             </div>
           </div>
@@ -48,25 +88,44 @@ const DetailQuotationVendor: FC = () => {
             <div className='receiver-information'>
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                <h1 className='fw-bolder'>Ibu Ami</h1>
+                <h1 className='fw-bolder mt-3'>Ibu Ami</h1>
               </div>
 
               <div className='address'>
-                <h3 className='fw-normal'>Jalan Gading Serpong Boulevard Blok Mitra10</h3>
-                <h3 className='fw-normal'>Curug Sangereng, Klp. Dua, Tangerang, </h3>
-                <h3 className='fw-normal'>Banten Kode Pos : 15310 </h3>
-                <h3 className='fw-normal'> Telp: (021) 54217373</h3>
+                <h3 className='fw-normal'>{quotationDetail?.order.project_address}</h3>
+                <h3 className='fw-normal'> Telp : {quotationDetail?.order.project_number}</h3>
               </div>
             </div>
 
             <div className='payment-request'>
-              <h3 className='fw-bolder'>
-                Quotation valid until : <span className='fw-normal'>21/3/2023</span>
-              </h3>
+              <Form.Group as={Row}>
+                <Form.Label className='fs-5 fw-bolder' column sm='7'>
+                  Quotation valid until :
+                </Form.Label>
 
-              <h3 className='fw-bolder'>
-                Instruksi spesial : <span className='fw-normal'>Tidak ada</span>
-              </h3>
+                <Col sm='5'>
+                  <Form.Control
+                    type='text'
+                    plaintext
+                    readOnly
+                    value={
+                      quotationDetail
+                        ? formatDate(new Date(quotationDetail.quotation_validity))
+                        : ''
+                    }
+                  />
+                </Col>
+              </Form.Group>
+
+              <Form.Group className='detail-info'>
+                <Form.Label className='fs-5 fw-bolder'>Instruksi Spesial :</Form.Label>
+                <Form.Control
+                  as='textarea'
+                  plaintext
+                  readOnly
+                  value={quotationDetail?.description}
+                />
+              </Form.Group>
             </div>
           </div>
 
@@ -81,47 +140,50 @@ const DetailQuotationVendor: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Instalasi AC</td>
-                  <td>500.000</td>
-                  <td>1</td>
-                  <td>500.000</td>
-                </tr>
-                <tr>
-                  <td>Pipa AC</td>
-                  <td>50.000</td>
-                  <td>16</td>
-                  <td>800.000</td>
-                </tr>
-                <tr>
-                  <td>Pipa Paralon</td>
-                  <td>50.000</td>
-                  <td>10</td>
-                  <td>500.000</td>
-                </tr>
-                <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
-                    Total
-                  </td>
-                  <td className=' fw-bolder'>1.800.000</td>
-                </tr>
+                {quotationDetail?.order.payment_type === 'survey' ? (
+                  <>
+                    <tr>
+                      <td colSpan={4}>Survey</td>
+                    </tr>
+                  </>
+                ) : (
+                  quotationDetail?.order.m_order_details.map((item: any, index: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.unit}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      </tr>
+                    </>
+                  ))
+                )}
+
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
-                    Tax (11%)
+                    Biaya Survey
                   </td>
-                  <td className=' fw-bolder'>198.000</td>
-                </tr>
-                <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
-                    Discount (8%)
+                  <td className=' fw-bolder'>
+                    {quotationDetail?.order.payment_type === 'gratis' ||
+                    quotationDetail?.order.payment_type === 'pemasangan_tanpa_survey'
+                      ? `                      Rp. ${0?.toLocaleString(
+                          'id'
+                        )}                        `
+                      : quotationDetail?.order.payment_type === 'survey'
+                      ? `                      Rp. ${99000?.toLocaleString(
+                          'id'
+                        )}                        `
+                      : `Rp. ${0}`}
                   </td>
-                  <td className=' fw-bolder'>-144.000</td>
                 </tr>
+
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>1.854.000</td>
+                  <td className=' fw-bolder'>
+                    Rp. {parseInt(quotationDetail?.order.grand_total || 0)?.toLocaleString('id')}
+                  </td>
                 </tr>
               </tbody>
             </Table>

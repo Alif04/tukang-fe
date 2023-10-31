@@ -2,11 +2,24 @@
 import React from 'react'
 
 import {ViewInvoiceHO} from '../../../components'
+import {ViewInvoiceVendor} from '../../../components'
 
 const ViewInvoice: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ViewInvoiceHO className='' />
+      {userRole == 'Admin HO' ? (
+        <>
+          <ViewInvoiceHO className='' />
+        </>
+      ) : userRole == 'Admin Vendor' ? (
+        <>
+          <ViewInvoiceVendor className='' />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

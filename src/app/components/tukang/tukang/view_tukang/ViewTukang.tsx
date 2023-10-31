@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react'
+import React, {FC} from 'react'
 
 import './ViewTukang.css'
 
@@ -17,10 +17,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigate} from 'react-router-dom'
-
-type Props = {
-  className: string
-}
 
 interface DataType {
   key: string
@@ -197,10 +193,10 @@ const data: DataType[] = [
   },
 ]
 
-const ViewTukangin: React.FC<Props> = ({className}) => {
+const ViewTukangin: FC = () => {
   return (
     <section id='view-tukang'>
-      <div className={`card ${className}`}>
+      <div className='card'>
         <div className='card-body table-view-order'>
           <div className='filter-search'>
             <InputGroup>

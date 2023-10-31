@@ -107,18 +107,6 @@ export function AsideMenuMain() {
           hasBullet={true}
           role={['Admin Vendor', 'Tukang']}
         />
-        <AsideMenuItem
-          to='/work-order/update-work-order'
-          title='Update Work Order'
-          hasBullet={true}
-          role={['Admin Vendor', 'Tukang']}
-        />
-        <AsideMenuItem
-          to='/work-order/detail-work-order'
-          title='Detail Work Order'
-          hasBullet={true}
-          role={['Admin Vendor', 'Tukang']}
-        />
       </AsideMenuItemWithSub>
 
       {/* Halaman Quotation */}
@@ -168,7 +156,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/complaint/new-complaint'
           title='Request Pengaduan'
-          role={['Store CS', 'Store Staff', 'Admin HO']}
+          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -197,18 +185,6 @@ export function AsideMenuMain() {
           to='/tukang/new-tukang'
           title='New Tukang'
           role={['Admin Vendor']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/tukang/update-tukang'
-          title='Update Tukang'
-          role={['Admin Vendor', 'Tukang']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/tukang/detail-tukang'
-          title='Detail Tukang'
-          role={['Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

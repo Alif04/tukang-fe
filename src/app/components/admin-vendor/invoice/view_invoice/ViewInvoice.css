@@ -1,0 +1,117 @@
+/* Table */
+#view-invoice .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #398318;
+}
+
+#view-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#view-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-invoice .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-invoice .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-invoice .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-invoice .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#view-invoice .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#view-invoice .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+#view-invoice .ant-table-thead > tr > th.col-work-status {
+  background-color: #a30014 !important;
+}
+
+#view-invoice .ant-table-thead > tr > th.col-complaint-date {
+  background-color: #a30014 !important;
+}
+
+#view-invoice .ant-table-thead > tr > th.col-complaint-status {
+  background-color: #a30014 !important;
+}
+
+/* Searchbar */
+
+#view-invoice .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+#view-invoice .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
+}
+
+/* Button Action */
+
+#view-invoice .button-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-detail svg.svg-inline--fa.fa-book.fa-sm {
+  color: black;
+}
+
+.button-edit svg.svg-inline--fa.fa-pen.fa-sm {
+  color: black;
+}
+
+.button-delete svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0;
+  color: #d50119;
+}
+
+.button-export {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 165px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #04844b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
+  margin: 5px;
+}
+
+#view-invoice svg.svg-inline--fa.fa-plus.fa-sm {
+  color: black;
+  margin: 5px;
+}

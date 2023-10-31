@@ -1,212 +1,245 @@
-import React, {FC} from 'react'
-import {useState} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './UpdateTukang.css'
 
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import Select from 'react-select'
+import makeAnimated from 'react-select/animated'
 import {Table} from 'antd'
+import {useNavigate, useParams} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, Button, InputGroup, FormControl} from 'react-bootstrap'
-
+import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-import {useNavigate} from 'react-router-dom'
-
-interface DataType {
-  key: string
-  tukang_id: string
-  tanggal_join: string
-  nama_lengkap: string
-  tanggal_lahir: string
-  keahlian: string
-  KTP: string
-  nomor: string
+interface Vendor {
+  value: any
+  label: string
 }
 
-const DetailButton = () => {
-  const navigate = useNavigate()
-
-  const handleDetail = () => {
-    navigate('/order/detail-order')
-  }
-
-  return (
-    <a className='button-detail' onClick={handleDetail}>
-      <FontAwesomeIcon icon={faBook} size='sm' />
-    </a>
-  )
+interface TukangService {
+  value: BigInteger
+  label: any
 }
 
-const EditButton = () => {
-  const navigate = useNavigate()
-
-  const handleEdit = () => {
-    navigate('/order/update-order')
-  }
-
-  return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
+interface TukangServiceValues {
+  value: BigInteger
+  label: string
 }
-
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Tukang ID',
-    dataIndex: 'tukang_id',
-    key: 'tukang_id',
-    align: 'center',
-    className: 'col_tukang_id',
-  },
-  {
-    title: 'Tanggal Join',
-    dataIndex: 'tanggal_join',
-    key: 'tanggal_join',
-    align: 'center',
-  },
-  {
-    title: 'Nama Lengkap',
-    dataIndex: 'nama_lengkap',
-    key: 'nama_lengkap',
-    align: 'left',
-  },
-  {
-    title: 'Tanggal Lahir',
-    dataIndex: 'tanggal_lahir',
-    key: 'tanggal_lahir',
-    align: 'left',
-  },
-  {
-    title: 'Keahlian',
-    dataIndex: 'keahlian',
-    key: 'keahlian',
-    align: 'left',
-  },
-  {
-    title: 'KTP',
-    dataIndex: 'KTP',
-    key: 'KTP',
-    align: 'center',
-  },
-  {
-    title: 'Nomor',
-    dataIndex: 'nomor',
-    key: 'nomor',
-    align: 'left',
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <DetailButton />
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-  },
-]
-
-const data: DataType[] = [
-  {
-    key: '1',
-    tukang_id: '78453992',
-    tanggal_join: '10/2/2023',
-    nama_lengkap: 'Water Heater',
-    tanggal_lahir: 'New set up',
-    keahlian: 'PAID',
-    KTP: '8986747',
-    nomor: 'Alia',
-  },
-  {
-    key: '2',
-    tukang_id: '78453993',
-    tanggal_join: '13/2/2023',
-    nama_lengkap: 'AC',
-    tanggal_lahir: 'New set up',
-    keahlian: 'PAID',
-    KTP: '8986748',
-    nomor: 'Abdulah',
-  },
-  {
-    key: '3',
-    tukang_id: '78453994',
-    tanggal_join: '14/2/2023',
-    nama_lengkap: 'Water Heater',
-    tanggal_lahir: 'New set up',
-    keahlian: 'PAID',
-    KTP: '8986710',
-    nomor: 'Alice',
-  },
-  {
-    key: '4',
-    tukang_id: '78453994',
-    tanggal_join: '14/2/2023',
-    nama_lengkap: 'Water Heater',
-    tanggal_lahir: 'New set up',
-    keahlian: 'PAID',
-    KTP: '8986710',
-    nomor: 'Alice',
-  },
-  {
-    key: '5',
-    tukang_id: '78453994',
-    tanggal_join: '14/2/2023',
-    nama_lengkap: 'Water Heater',
-    tanggal_lahir: 'New set up',
-    keahlian: 'PAID',
-    KTP: '8986710',
-    nomor: 'Alice',
-  },
-  {
-    key: '6',
-    tukang_id: '78453994',
-    tanggal_join: '14/2/2023',
-    nama_lengkap: 'Water Heater',
-    tanggal_lahir: 'New set up',
-    keahlian: 'PAID',
-    KTP: '8986710',
-    nomor: 'Alice',
-  },
-  {
-    key: '7',
-    tukang_id: '78453994',
-    tanggal_join: '14/2/2023',
-    nama_lengkap: 'Water Heater',
-    tanggal_lahir: 'New set up',
-    keahlian: 'PAID',
-    KTP: '8986710',
-    nomor: 'Alice',
-  },
-]
 
 const UpdateTukangVendor: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
-  const [fileNameDiri, setFileNameDiri] = useState<string>('No selected file')
-  const [imageDiri, setImageDiri] = useState<string | null>(null)
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+  const params = useParams()
+  const animatedComponents = makeAnimated()
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const fetchTukangDetail = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/tukang/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data.data
+          setTukangDetail(data)
+
+          if (data?.id) {
+            setTukangId(data.id)
+          }
+
+          if (data?.full_name) {
+            setTukangName(data.full_name)
+          }
+
+          if (data?.phone_number) {
+            setPhoneNumber(data.phone_number)
+          }
+
+          if (data?.ktp_number) {
+            setKtpNumber(data.ktp_number)
+          }
+
+          if (data?.bod) {
+            setDateBirth(new Date(data.join_date).toISOString().split('T')[0])
+          }
+
+          if (data?.email) {
+            setEmail(data?.email)
+          }
+
+          if (data?.address) {
+            setAddress(data.address)
+          }
+
+          // if (data?.tukang_services) {
+          //   const tukangService = data.tukang_services.map((item: any) => ({
+          //     value: item.city_id,
+          //     label: item.city.city_name,
+          //   }))
+
+          //   setTukangServiceValues(tukangService)
+          // }
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getVendor = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/vendor`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempVendor = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.company_name,
+        }))
+
+        setVendor(tempVendor)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getTukangService = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/tukang-service/data`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data.tukang_service)) {
+        const tempServiceType = response.data.data.tukang_service.map((item: any) => ({
+          value: item.service_type_id,
+          label: item.service_type_id,
+        }))
+
+        setTukangService(tempServiceType)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchTukangDetail()
+    getVendor()
+    getTukangService()
+  }, [])
+
+  // Detail Tukang
+  const [tukangDetail, setTukangDetail] = useState<any>()
+
+  // Tukang Information
+  const [tukangId, setTukangId] = useState<any>()
+  const [tukangName, setTukangName] = useState<string>('')
+  const [address, setAddress] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
+
+  const [phoneNumber, setPhoneNumber] = useState<any>()
+  const [dateBirth, setDateBirth] = useState<string>('')
+  const [ktpNumber, setKtpNumber] = useState<any>()
+
+  const [tukangServiceId, setTukangServiceId] = useState<any>([])
+  const [tukangService, setTukangService] = useState<TukangService[]>([])
+  const [tukangServiceValues, setTukangServiceValues] = useState<TukangServiceValues[]>([])
+
+  const [uploadFotoDiri, setUploadFotoDiri] = useState<FileList | []>()
+  const [image, setImage] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  // Vendor Information
+  const [vendor, setVendor] = useState<Vendor[]>([])
+  const [vendorId, setVendorId] = useState<string>('')
+
+  // Change Input Tukang Information
+  const handleChangeTukangName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedTukangName = event.target.value
+    setTukangName(updatedTukangName)
+  }
+
+  const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedEmail = event.target.value
+    setEmail(updatedEmail)
+  }
+
+  const handleChangePhoneNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedPhoneNumber = event.target.value
+    setPhoneNumber(updatedPhoneNumber)
+  }
+
+  const handleChangeDateBirth = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedDateBirth = event.target.value
+    setDateBirth(updatedDateBirth)
+  }
+
+  const handleChangeKtpNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedKtpNumber = event.target.value
+    setKtpNumber(updatedKtpNumber)
+  }
+
+  const handleChangeAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedAddress = event.target.value
+    setKtpNumber(updatedAddress)
+  }
+
+  // Change Select Tukang Service
+  const handleChangeTukangService = (element: any) => {
+    const updatedTukangService = element.map((option: any) => ({
+      value: option.value,
+      label: option.label,
+    }))
+
+    const updatedTukangServiceId = element.map((option: any) => option.value)
+
+    setTukangServiceId(updatedTukangServiceId)
+    setTukangServiceValues(updatedTukangService)
+  }
+
+  // Change Select Vendor
+  const handleChangeSelectVendor = (element: any) => {
+    const updatedVendorId = element.value
+    setVendorId(updatedVendorId)
+  }
+
+  // Upload Foto Diri
+  const handleUploadFotoDiri = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
+
     if (files && files[0]) {
-      setFileName(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+      setUploadFotoDiri(files)
+
+      setImage({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
     }
   }
 
@@ -216,202 +249,311 @@ const UpdateTukangVendor: FC = () => {
   }
 
   const handleRemoveFile = () => {
-    setFileName('No selected file')
-    setImage(null)
+    setImage({
+      blob: '',
+      fileName: '',
+    })
+    setUploadFotoDiri([])
   }
 
-  const handleFileChangeDiri = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setFileNameDiri(files[0].name)
-      setImageDiri(URL.createObjectURL(files[0]))
+  // Upload Document ( Multiple File )
+  const [uploadFiles, setUploadFiles] = useState<Array<File | null>>([])
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
+
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setUploadFiles(file)
     }
   }
 
-  const handleImageClickDiri = () => {
-    const inputField = document.querySelector('.input-field-image2') as HTMLInputElement
+  const handleImageClicks = () => {
+    const inputField = document.getElementById('file-input') as HTMLInputElement
     inputField.click()
   }
 
-  const handleRemoveFileDiri = () => {
-    setFileNameDiri('No selected file')
-    setImageDiri(null)
+  const handleRemoveFiles = (index: number) => {
+    const newEvidances = [...uploadFiles]
+
+    newEvidances.splice(index, 1)
+
+    setUploadFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Handle Submit Tukang
+  const handleUpdateTukang = async () => {
+    const formData = new FormData()
+
+    formData.append('vendor_id', vendorId)
+    formData.append('full_name', tukangName)
+    formData.append('email', email)
+    formData.append('ktp_number', ktpNumber)
+    formData.append('bod', dateBirth)
+    formData.append('address', address)
+    formData.append('phone_number', phoneNumber)
+
+    if (tukangServiceId?.length) {
+      tukangServiceId.forEach((item: any) => {
+        if (item) {
+          formData.append(`service_type_id`, item)
+        }
+      })
+    }
+
+    if (uploadFotoDiri?.length) {
+      formData.append('file', uploadFotoDiri[0])
+    }
+
+    if (uploadFiles?.length) {
+      uploadFiles.forEach((item) => {
+        if (item) {
+          formData.append(`files`, item, item?.name)
+        }
+      })
+    }
+
+    const response = await axios
+      .post(`${apiUrl}/tukang/${params.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Update Tukang',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            navigate('/tukang/view-tukang')
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  const handleCancelUpdateTukang = () => {
+    navigate('/tukang/view-tukang')
   }
 
   return (
     <section id='update-tukang'>
       <div className='card mb-5'>
         <div className='card-body'>
-          <div className='d-flex justify-content-between'>
-            <div className='col-8 d-flex justify-content-between'>
-              <div className='costumer-information'>
-                <div className='form-body'>
-                  <Form.Group className='mb-5'>
+          <Row>
+            <Col xxl={8}>
+              <Row>
+                <Col xxl={6}>
+                  <Form.Group className='tukang-info'>
                     <Form.Label>Tukang ID</Form.Label>
-                    <Form.Control type='text' className='filter-rtl' />
+                    <Form.Control type='number' value={tukangId} />
                   </Form.Group>
 
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Tanggal Lahir</Form.Label>
-                    <Form.Control type='text' />
-                  </Form.Group>
-
-                  <Form.Group className='mb-5'>
-                    <Form.Label>WA/Phone Number</Form.Label>
-                    <Form.Control type='number' />
-                  </Form.Group>
-
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Keahlian</Form.Label>
-                    <Form.Control type='text' />
-                  </Form.Group>
-                </div>
-              </div>
-
-              <div className='costumer-information'>
-                <div className='form-body'>
-                  <Form.Group className='mb-5'>
+                  <Form.Group className='tukang-info'>
                     <Form.Label>Nama Tukang</Form.Label>
-                    <Form.Control type='text' />
+                    <Form.Control
+                      type='text'
+                      onChange={handleChangeTukangName}
+                      value={tukangName}
+                    />
                   </Form.Group>
 
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Umur</Form.Label>
-                    <Form.Control type='text' />
+                  <Form.Group className='tukang-info'>
+                    <Form.Label>No. Handphone</Form.Label>
+                    <Form.Control
+                      type='number'
+                      onChange={handleChangePhoneNumber}
+                      value={phoneNumber}
+                    />
                   </Form.Group>
 
-                  <Form.Group className='mb-5'>
+                  <Form.Group className='tukang-info'>
                     <Form.Label>Nomor KTP</Form.Label>
-                    <Form.Control type='text' />
+                    <Form.Control
+                      type='number'
+                      onChange={handleChangeKtpNumber}
+                      value={ktpNumber}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col xxl={6}>
+                  <Form.Group className='tukang-info'>
+                    <Form.Label>Keahlian</Form.Label>
+
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Keahlian Tukang'
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      isMulti
+                      options={tukangService}
+                      onChange={(element) => handleChangeTukangService(element)}
+                    />
                   </Form.Group>
 
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Harga Jasa</Form.Label>
-                    <Form.Control type='number' />
+                  <Form.Group className='tukang-info'>
+                    <Form.Label>Tanggal Lahir</Form.Label>
+                    <Form.Control type='date' onChange={handleChangeDateBirth} value={dateBirth} />
                   </Form.Group>
+
+                  <Form.Group className='tukang-info'>
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control type='email' onChange={handleChangeEmail} value={email} />
+                  </Form.Group>
+
+                  <Form.Group className='tukang-info'>
+                    <Form.Label>Vendor</Form.Label>
+
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Nama Vendor'
+                      isSearchable={true}
+                      options={vendor}
+                      onChange={(element) => handleChangeSelectVendor(element)}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row>
+                <Form.Group className='tukang-info'>
+                  <Form.Label>Alamat</Form.Label>
+                  <Form.Control
+                    as='textarea'
+                    type='text'
+                    onChange={handleChangeAddress}
+                    value={address}
+                  />
+                </Form.Group>
+              </Row>
+            </Col>
+
+            <Col xxl={4}>
+              <Form.Group controlId='formFile'>
+                <Form.Label>Upload Photo Diri</Form.Label>
+
+                <Form className='form-input-image' onClick={handleImageClick}>
+                  <Form.Control
+                    type='file'
+                    accept='image/*'
+                    className='input-field-image'
+                    hidden
+                    onChange={handleUploadFotoDiri}
+                  />
+
+                  {image.blob ? (
+                    <img src={image.blob} alt={image.fileName} className='image-preview' />
+                  ) : (
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  )}
+                </Form>
+
+                <div className='uploaded-row'>
+                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
+
+                  <FontAwesomeIcon
+                    icon={faTrash}
+                    size='sm'
+                    color='#ed2b2a'
+                    style={{cursor: 'pointer'}}
+                    onClick={handleRemoveFile}
+                  />
                 </div>
-              </div>
-              <div className='col-12'>
-                <Form.Label>Alamat</Form.Label>
-                <Form.Control as='textarea' rows={3} />
-              </div>
-            </div>
+              </Form.Group>
 
-            <div className='costumer-information'>
-              <div className='form-body'>
-                <Form.Group controlId='formFile' className='mb-5'>
-                  <Form.Label>Upload Photo Diri</Form.Label>
-                  <Form className='form-input-image diri' onClick={handleImageClickDiri}>
-                    <Form.Control
-                      type='file'
-                      accept='image/*'
-                      className='input-field-image2'
-                      hidden
-                      onChange={handleFileChangeDiri}
-                    />
+              <Form.Group>
+                <Form.Label>Upload KTP dan Dokumen Lainnya</Form.Label>
+                <Form className='form-input-image' onClick={handleImageClicks}>
+                  <Form.Control
+                    id='file-input'
+                    type='file'
+                    accept='image/*'
+                    multiple
+                    hidden
+                    ref={evidenceRef}
+                    onChange={handleFilesChange}
+                  />
 
-                    {imageDiri ? (
-                      <img src={imageDiri} alt={fileNameDiri} className='image-preview' />
-                    ) : (
-                      <i className='bi bi-upload'></i>
-                    )}
-                  </Form>
-                  {imageDiri ? (
-                    <div className='uploaded-row'>
-                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-                      <span className='upload-content'>{fileNameDiri}</span>
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        size='sm'
-                        color='#ed2b2a'
-                        style={{cursor: 'pointer'}}
-                        onClick={handleRemoveFileDiri}
-                      />
-                    </div>
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
+                </Form>
+
+                <ListGroup className='pt-3'>
+                  {uploadFiles.length ? (
+                    uploadFiles.map((item, index) => (
+                      <ListGroup.Item
+                        key={`${item?.name}-${index}-${item?.type}`}
+                        className='d-flex justify-content-between'
+                      >
+                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                        <span className='upload-content'>{item?.name}</span>
+
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size='sm'
+                          color='#ed2b2a'
+                          style={{cursor: 'pointer'}}
+                          onClick={(e) => handleRemoveFiles(index)}
+                        />
+                      </ListGroup.Item>
+                    ))
                   ) : (
-                    <div></div>
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
                   )}
-                </Form.Group>
-
-                <Form.Group controlId='formFile' className='mb-5'>
-                  <Form.Label>Upload Dokumen dan foto lainnya</Form.Label>
-                  <Form className='form-input-image' onClick={handleImageClick}>
-                    <Form.Control
-                      type='file'
-                      accept='image/*'
-                      className='input-field-image'
-                      hidden
-                      onChange={handleFileChange}
-                    />
-
-                    {image ? (
-                      <img src={image} alt={fileName} className='image-preview' />
-                    ) : (
-                      <i className='bi bi-upload'></i>
-                    )}
-                  </Form>
-                  {image ? (
-                    <div className='uploaded-row'>
-                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-                      <span className='upload-content'>{fileName}</span>
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        size='sm'
-                        color='#ed2b2a'
-                        style={{cursor: 'pointer'}}
-                        onClick={handleRemoveFile}
-                      />
-                    </div>
-                  ) : (
-                    <div></div>
-                  )}
-                </Form.Group>
-              </div>
-            </div>
-          </div>
+                </ListGroup>
+              </Form.Group>
+            </Col>
+          </Row>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit'>
+            <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateTukang}>
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit'>
+            <Button variant='dark-primary' type='submit' onClick={handleUpdateTukang}>
               Save
             </Button>
           </div>
-        </div>
-      </div>
-
-      <div className='card'>
-        <div className='card-body table-view-order'>
-          <div className='table-head-wrapper'>
-            <div className='middle'>
-              <div className='filter-search'>
-                <InputGroup>
-                  <Form.Control placeholder='Search Tukang' className='filter-rtl' />
-
-                  <InputGroup.Text className='filter-rtl'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-                </InputGroup>
-              </div>
-            </div>
-          </div>
-          <div className='button-right'>
-            <a className='form-button-request'>
-              <Form.Label>New Tukang</Form.Label>
-              <i className='bi bi-plus'></i>
-            </a>
-          </div>
-
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={data}
-            rowKey={(record) => record.key}
-            pagination={{position: ['bottomRight']}}
-          />
         </div>
       </div>
     </section>

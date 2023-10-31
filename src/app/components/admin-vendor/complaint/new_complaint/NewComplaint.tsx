@@ -1,44 +1,22 @@
-import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
+import React, {FC, useRef} from 'react'
+import {useState, useEffect} from 'react'
 
-import './NewRefund.css'
+import './NewComplaint.css'
 
 import axios from 'axios'
 import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
 import Swal from 'sweetalert2'
 import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, Button, Table} from 'react-bootstrap'
+import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface Option {
-  readonly label: string
-  readonly value: string
+interface ComplaintChannel {
+  value: BigInteger
+  label: string
 }
 
-const components = {
-  DropdownIndicator: null,
-}
-
-const inputVoucher = (label: string) => ({
-  label,
-  value: label,
-})
-
-interface Refund {
-  order_id: any
-  refund_status: any
-  notes: string
-  reason: string
-  date_of_filing: any
-  date_approve: any
-  penalty_nominal: any
-  approval_number: any
-  voucher: string
-  // refund_voucher: Option[]
-}
-
-const NewRefundHO: FC = () => {
+const NewComplaintVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
@@ -46,6 +24,9 @@ const NewRefundHO: FC = () => {
   const [order, setOrder] = useState<any>()
   const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
+  const [complaintCode, setComplaintCode] = useState<string | number>('NaN')
 
   const getOrder = async () => {
     try {
@@ -93,8 +74,58 @@ const NewRefundHO: FC = () => {
     }
   }
 
+  const getComplaintChannel = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/complaint-channels`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempComplaintChannel = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setComplaintChannel(tempComplaintChannel)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getCode = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/complaints/next-code`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      console.log(response, response.status)
+
+      if (response.status === 200) {
+        const {data} = response
+        setComplaintCode(data.data.code)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getOrder()
+    getComplaintChannel()
+    getCode()
   }, [])
 
   useEffect(() => {
@@ -115,190 +146,192 @@ const NewRefundHO: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  // Add Refund
-  const [refundValues, setRefundValues] = useState<Refund>({
-    order_id: null,
-    refund_status: null,
-    notes: '',
-    reason: '',
-    date_approve: '',
-    date_of_filing: '',
-    voucher: '',
-    penalty_nominal: '',
-    approval_number: '',
-    // refund_voucher: [],
-  })
+  // Select Order
+  const handleChangeSelectOrder = (element: any) => {
+    const selectedOrder = element.value
+    setOrderId(selectedOrder)
+  }
 
-  // Refund Status
+  // Add Complaint
+  const [complaintDesc, setComplaintDesc] = useState<any>('')
+  const [complaintDate, setComplaintDate] = useState<string>('')
+  const [complaintStatus, setComplaintStatus] = useState<any>()
+  const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Complaint Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatus = statusData.find((status: any) => status.category === 'REFUND')
+    const desiredStatus = statusData.find((status: any) => status.category === 'INVESTIGATED')
     const statusId = desiredStatus.value
 
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      refund_status: statusId,
-    }))
-  }, [refundValues])
+    setComplaintStatus(statusId)
+  }, [complaintStatus])
 
-  // Select Order
-  const handleChangeSelectOrder = (element: any) => {
-    const selectedOrder = element.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      order_id: selectedOrder,
-    }))
-
-    setOrderId(selectedOrder)
+  // Handle Input Change
+  const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setComplaintDesc(updatedInputValue)
   }
 
-  // Createable Multi Value
-  const [inputValue, setInputValue] = React.useState('')
-  const [value, setValue] = React.useState<readonly Option[]>([])
-
-  // const handleKeyDown: KeyboardEventHandler = (event) => {
-  //   if (!inputValue) return
-
-  //   switch (event.key) {
-  //     case 'Enter':
-  //     case 'Tab':
-  //       const newVoucher = inputVoucher(inputValue)
-
-  //       setValue((prev) => [...prev, newVoucher])
-  //       setInputValue('')
-
-  //       setRefundValues((prevValues) => ({
-  //         ...prevValues,
-  //         refund_voucher: [...prevValues.refund_voucher, newVoucher],
-  //       }))
-
-  //       event.preventDefault()
-  //   }
-  // }
-
-  // Handle Change Refund Voucher
-  const handleChangeRefundVoucher = (element: any) => {
-    const newRefundVoucher = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      voucher: newRefundVoucher,
-    }))
-  }
-
-  // Handle Change Refund Date
+  // Handle Complaint Date Change
   const today = new Date().toISOString().split('T')[0]
 
-  // Change Input Date
-  const handleChangeRefundDate = (element: any) => {
-    const newRefundDate = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      date_of_filing: newRefundDate,
-    }))
+  const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedComplaintDate = event.target.value
+    setComplaintDate(updatedComplaintDate)
   }
 
-  // Change Input Refund Description
-  const handleChangeRefundDescription = (element: any) => {
-    const newRefundDescription = element.target.value
+  // Handle Change Upload File
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
 
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      reason: newRefundDescription,
-    }))
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setComplaintEvidence(file)
+    }
   }
 
-  // Change Approval Refund
-  const handleChangeApproveRefundDate = (element: any) => {
-    const newRefundApproveDate = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      date_approve: newRefundApproveDate,
-    }))
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
   }
 
-  // Change Nomor Approval
-  const handleChangeApprovalNumber = (element: any) => {
-    const newRefundApproveDate = element.target.value
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...complaintEvidence]
 
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      approval_number: newRefundApproveDate,
-    }))
+    newEvidances.splice(index, 1)
+
+    setComplaintEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
   }
 
-  // Change Refund Notes
-  const handleChangeRefundNotes = (element: any) => {
-    const newRefundNotes = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      notes: newRefundNotes,
-    }))
+  // Handle Change Complaint Channel
+  const handleChangeSelectComplaintChannel = (element: any) => {
+    const updatedSelectComplaintChannel = element.value
+    setComplaintChannelId(updatedSelectComplaintChannel)
   }
 
-  // Change Nomor Approval
-  const handleChangePenaltyAmount = (element: any) => {
-    const newPenalyAmount = element.target.value
+  // Complaint Validation
+  const ComplaintValidation = () => {
+    let valid = true
 
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      penalty_nominal: newPenalyAmount,
-    }))
-  }
-
-  // Handle Submit New Refund
-  const handleSubmitNewRefund = async () => {
-    await axios
-      .post(`${apiUrl}/refund`, refundValues, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
+    if (!orderId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select order Id',
+        icon: 'error',
       })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Create Refund',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
+      valid = false
+    } else if (!complaintDesc) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint description form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintChannelId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select complaint channel',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint evidence form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  // Handle Submit Complaint
+  const handleSubmitNewComplaint = async () => {
+    if (ComplaintValidation()) {
+      const formData = new FormData()
+
+      formData.append('order_id', orderId)
+      formData.append('description', complaintDesc)
+      formData.append('complaint_channel', complaintChannelId)
+      formData.append('complaint_date', complaintDate)
+      formData.append('complaint_status', complaintStatus)
+
+      if (complaintEvidence?.length) {
+        complaintEvidence.forEach((item) => {
+          if (item) {
+            formData.append(`complaint_evidences`, item, item?.name)
+          }
+        })
+      }
+
+      const response = await axios
+        .post(`${apiUrl}/complaints`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Add Complaint',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
+
+          navigate('/complaint/view-complaint')
+        })
+        .catch((error) => {
+          console.error(error)
+
           Swal.fire({
             title: 'Error',
-            text: response.data.message,
+            text: error.response.data.message,
             icon: 'error',
           })
-        }
-
-        navigate('/refund/view-refund')
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
         })
-      })
+    }
   }
 
-  const handleCancelRefund = () => {
-    navigate('/refund/view-refund')
+  const handleCancelComplaint = () => {
+    navigate('/complaint/view-complaint')
   }
 
   return (
-    <section id='new-refund'>
+    <section id='new-complaint'>
       <div className='card'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -307,6 +340,10 @@ const NewRefundHO: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name || ''}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-4 fw-bold'>
+                  Complaint ID :<span className='fs-4 ms-2 fw-normal'> {complaintCode} </span>
                 </Form.Label>
               </Col>
 
@@ -516,126 +553,105 @@ const NewRefundHO: FC = () => {
 
           <hr />
 
-          <div className='order-history'>
-            <div className='title'>
-              <h1 className='text-uppercase'>formulir refund</h1>
-            </div>
+          <Row className='mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Group className='mb-3'>
+                <Form.Label>Tanggal Komplain :</Form.Label>
+                <Form.Control type='date' onChange={handleChangeComplaintDate} min={today} />
+              </Form.Group>
 
-            <div className='row mb-5'>
-              <div className='col-md-4'>
-                <div className='complaint-information'>
-                  <h4>Tanggal Pengajuan Refund : </h4>
+              <Form.Group className='mb-3'>
+                <Form.Label>Komplain melalui : </Form.Label>
+                <Select
+                  name='complaint_channel_id'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  placeholder='Complaint Via'
+                  isSearchable={true}
+                  options={complaintChannel}
+                  onChange={(e) => handleChangeSelectComplaintChannel(e)}
+                />
+              </Form.Group>
+            </Col>
 
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Label>Alasan :</Form.Label>
+              <Form.Control
+                style={{minHeight: '250px'}}
+                as='textarea'
+                value={complaintDesc}
+                onChange={handleInputComplaintDesc}
+              ></Form.Control>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Group controlId='formFile'>
+                <Form.Label>UPLOAD BUKTI COMPLAINT</Form.Label>
+                <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
-                    type='date'
-                    className='w-75'
-                    min={today}
-                    onChange={(element) => handleChangeRefundDate(element)}
+                    type='file'
+                    accept='image/*'
+                    className='input-field-image'
+                    multiple
+                    hidden
+                    id='file-input'
+                    ref={evidenceRef}
+                    onChange={handleFileChange}
                   />
-                </div>
-              </div>
 
-              <div className='col-md-4'>
-                <div className='complaint-detail'>
-                  <h4>Alasan Refund :</h4>
-
-                  <Form.Control
-                    as='textarea'
-                    className='desc-notes'
-                    onChange={(element) => handleChangeRefundDescription(element)}
-                  />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'></div>
-            </div>
-
-            <div className='row'>
-              <div className='col-xxl-4'>
-                <div className='complaint-information mb-5'>
-                  <h4>Tanggal Approve Refund : </h4>
-                  <Form.Control
-                    type='date'
-                    min={today}
-                    className='w-75'
-                    onChange={(element) => handleChangeApproveRefundDate(element)}
-                  />
-                </div>
-
-                <div className='complaint-information'>
-                  <h4>Nomor Approval : </h4>
-                  <Form.Control
-                    type='number'
-                    className='w-75'
-                    onChange={(element) => handleChangeApprovalNumber(element)}
-                  />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'>
-                <div className='complaint-information'>
-                  <h4>Notes</h4>
-                  <Form.Control
-                    as='textarea'
-                    className='desc-notes'
-                    onChange={(element) => handleChangeRefundNotes(element)}
-                  />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'>
-                <div className='row'>
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Customer</h4>
-                    <h4 className='mb-5'>Input Voucher</h4>
-
-                    <Form.Control
-                      type='text'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangeRefundVoucher(element)}
-                    />
-
-                    {/* <CreatableSelect
-                      className='mt-5 mb-5'
-                      components={components}
-                      inputValue={inputValue}
-                      isClearable
-                      isMulti
-                      menuIsOpen={false}
-                      onChange={(newValue) => setValue(newValue)}
-                      onInputChange={(newValue) => setInputValue(newValue)}
-                      onKeyDown={handleKeyDown}
-                      placeholder='Input Kode Voucher dan Pencet Enter'
-                      value={value}
-                    /> */}
-
-                    <Button variant='primary'>Voucher</Button>
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
                   </div>
+                </Form>
 
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Vendor</h4>
-                    <h4 className='mb-2'>Input Nominal Denda</h4>
+                <ListGroup className='pt-3'>
+                  {complaintEvidence.length ? (
+                    complaintEvidence.map((item, index) => (
+                      <ListGroup.Item
+                        key={`${item?.name}-${index}-${item?.type}`}
+                        className='d-flex justify-content-between'
+                      >
+                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                    <Form.Control
-                      type='number'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangePenaltyAmount(element)}
-                    />
+                        <span className='upload-content'> {item?.name}</span>
 
-                    <Button variant='danger'>Penalty</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size='sm'
+                          color='#ed2b2a'
+                          style={{cursor: 'pointer'}}
+                          onClick={(e) => handleRemoveFile(index)}
+                        />
+                      </ListGroup.Item>
+                    ))
+                  ) : (
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
+              </Form.Group>
+            </Col>
+          </Row>
 
-          <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelRefund}>
+          <div className='d-flex justify-content-center align-items-center mt-5'>
+            <Button
+              variant='dark-danger'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleCancelComplaint}
+            >
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitNewRefund}>
-              Submit Refund
+            <Button
+              variant='dark-primary'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+              onClick={handleSubmitNewComplaint}
+            >
+              Submit
             </Button>
           </div>
         </div>
@@ -644,4 +660,4 @@ const NewRefundHO: FC = () => {
   )
 }
 
-export {NewRefundHO}
+export {NewComplaintVendor}
