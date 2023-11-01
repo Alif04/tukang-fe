@@ -1,10 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 
 import './ViewInvoice.css'
 
-import {Table} from 'antd'
+import axios from 'axios'
+import {Table, Tag, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
+import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
@@ -16,218 +18,258 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons'
 
-import {useNavigate} from 'react-router-dom'
+const {RangePicker} = DatePicker
 
 type Props = {
   className: string
 }
 
-interface DataType {
-  key: React.Key
-  order_id: string
-  date_order: string
-  quotation_id: string
-  invoice_id: string
-  invoice_date: string
-  vendor_name: string
-  amount: string
-  payment_status: string
-  order_status: string
-}
-
-const EditButton = () => {
+const ViewInvoiceVendor: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
-  const handleEdit = () => {
-    navigate('/order/update-order')
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
   }
 
-  return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
-}
+  interface DataType {
+    order_id: number
+    invoice_id: number
+    date_order: string
+    // product_name: string
+    // installation_type: string
+    quotation_id: number
+    payment_status: string
+    member_id: number
+    vendor_name: string
+    order_status: string
+  }
 
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      width: 100,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Date Order',
+      dataIndex: 'date_order',
+      key: 'date_order',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.date_order.includes(String(value)),
+      sorter: (a, b) => a.date_order.length - b.date_order.length,
+    },
+    // {
+    //   title: 'Product Name',
+    //   dataIndex: 'product_name',
+    //   key: 'product_name',
+    //   align: 'center',
+    //   width: 110,
+    //   onFilter: (value, record) => record.product_name.includes(String(value)),
+    //   sorter: (a, b) => a.product_name.length - b.product_name.length,
+    // },
+    // {
+    //   title: 'Installation Type',
+    //   dataIndex: 'installation_type',
+    //   key: 'installation_type',
+    //   align: 'center',
+    //   width: 110,
+    //   onFilter: (value, record) => record.installation_type.includes(String(value)),
+    //   sorter: (a, b) => a.installation_type.length - b.installation_type.length,
+    // },
+    {
+      title: 'Quotation ID',
+      dataIndex: 'quotation_id',
+      key: 'quotation_id',
+      align: 'left',
+      width: 110,
+      sorter: (a, b) => a.quotation_id - b.quotation_id,
+    },
+    {
+      title: 'Payment Status',
+      dataIndex: 'payment_status',
+      key: 'payment_status',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.payment_status.includes(String(value)),
+      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+    },
+    {
+      title: 'Costumer ID',
+      dataIndex: 'member_id',
+      key: 'member_id',
+      align: 'left',
+      width: 140,
+      sorter: (a, b) => a.member_id - b.member_id,
+    },
+    {
+      title: 'Vendor Name',
+      dataIndex: 'vendor_name',
+      key: 'vendor_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.vendor_name.includes(String(value)),
+      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    },
+    {
+      title: 'Order Status',
+      dataIndex: 'order_status',
+      key: 'order_status',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.order_status.includes(String(value)),
+      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      render: (order_status) => {
+        const orderStatus = order_status
+        let color = ''
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 100,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Date Order',
-    dataIndex: 'date_order',
-    key: 'date_order',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Quotation ID',
-    dataIndex: 'quotation_id',
-    key: 'quotation_id',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Invoice ID',
-    dataIndex: 'invoice_id',
-    key: 'invoice_id',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Invoice Date',
-    dataIndex: 'invoice_date',
-    key: 'invoice_date',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Vendor Name',
-    dataIndex: 'vendor_name',
-    key: 'vendor_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Amount',
-    dataIndex: 'amount',
-    key: 'amount',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Payment Status',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Order Status',
-    dataIndex: 'order_status',
-    key: 'order_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 70,
-  },
-]
+        switch (orderStatus) {
+          case 'SURVEYDONE':
+            color = 'green'
+            break
+          case 'RESURVEYDONE':
+          default:
+            color = 'blue'
+            break
+        }
 
-const data: DataType[] = [
-  {
-    key: '1',
-    order_id: '78453992',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '2',
-    order_id: '78453993',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '3',
-    order_id: '78453994',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '4',
-    order_id: '78453995',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '5',
-    order_id: '78453996',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '6',
-    order_id: '78453997',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '7',
-    order_id: '78453998',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-]
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
+      filters: [
+        {text: 'BOOK', value: 'BOOK'},
+        {text: 'BOOKED', value: 'BOOKED'},
+      ],
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      fixed: 'right',
+      width: 70,
+      render: (record) => {
+        const handleDelete = () => {}
 
-const rowSelection = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
-  },
-}
+        const handleDetailId = () => {
+          const id = record.invoice_id
+          navigate(`/invoice/detail-invoice/${id}`)
+        }
 
-const ViewInvoiceVendor: React.FC<Props> = ({className}) => {
+        const handleUpdateId = () => {
+          const id = record.invoice_id
+          navigate(`/invoice/update-invoice/${id}`)
+        }
+
+        const handleAddInvoice = () => {
+          navigate('/invoice/new-invoice')
+        }
+
+        return (
+          <div className='button-wrapper'>
+            <a className='button-delete' onClick={handleDelete}>
+              <FontAwesomeIcon icon={faTrash} size='sm' />
+            </a>
+
+            <a className='button-detail' onClick={handleDetailId}>
+              <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
+
+            <a className='button-edit' onClick={handleUpdateId}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
+            </a>
+
+            <a className='button-add' onClick={handleUpdateId}>
+              <FontAwesomeIcon icon={faPlus} size='sm' />
+            </a>
+          </div>
+        )
+      },
+    },
+  ]
+
+  const [invoiceData, setInvoiceData] = useState<DataType[]>([])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  const fetchInvoiceList = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL
+
+      const response = await axios.get(`${apiUrl}/invoices`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      return response.data.data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewInvoice = async () => {
+    try {
+      const apiData = await fetchInvoiceList()
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const invoiceData = apiData.map((item: any) => {
+        let data
+
+        const orderDate = new Date(item.order.created_at)
+        let paymentStatus = item.receipt_path === 'null' ? 'UNPAID' : 'PAID'
+
+        data = {
+          order_id: item.order_id,
+          invoice_id: item.id,
+          date_order: orderDate,
+          // product_name: string
+          // installation_type: string
+          // quotation_id: number
+          payment_status: paymentStatus,
+          member_id: item.order.member_id,
+          vendor_name: item.vendor.company_name,
+          order_status: item.status.category,
+        }
+
+        return data
+      })
+
+      return invoiceData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await ViewInvoice()
+      setInvoiceData(data)
+    }
+
+    fetchData()
+  }, [dateFrom, dateTo, searchFilter])
+
   return (
     <section id='view-invoice'>
       <div className={`card ${className}`}>
@@ -259,12 +301,8 @@ const ViewInvoiceVendor: React.FC<Props> = ({className}) => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={data}
-            rowSelection={{
-              type: 'checkbox',
-              ...rowSelection,
-            }}
-            rowKey={(record) => record.key}
+            dataSource={invoiceData}
+            rowKey={(record) => record.invoice_id}
             scroll={{x: 1500}}
             pagination={{position: ['bottomRight']}}
           />

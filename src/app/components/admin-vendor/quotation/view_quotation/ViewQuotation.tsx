@@ -320,7 +320,11 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
                     <FontAwesomeIcon icon={faSearch} size='sm' />
                   </InputGroup.Text>
 
-                  <Form.Control placeholder='Filter' className='filter-ltr' />
+                  <Form.Control
+                    placeholder='Filter'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
                 </InputGroup>
               </div>
             </Col>

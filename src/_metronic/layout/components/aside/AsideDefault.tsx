@@ -1,16 +1,17 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import {FC, useRef} from 'react'
-import {Link} from 'react-router-dom'
-import clsx from 'clsx'
-import {useLayout} from '../../core'
-import {KTSVG, toAbsoluteUrl} from '../../../helpers'
-import {AsideMenu} from './AsideMenu'
+import { FC, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useLayout } from '../../core'
+import { KTSVG, toAbsoluteUrl } from '../../../helpers'
+import { AsideMenu } from './AsideMenu'
 
 const AsideDefault: FC = () => {
-  const {config, classes} = useLayout()
+  const { config, classes } = useLayout()
   const asideRef = useRef<HTMLDivElement | null>(null)
-  const {aside} = config
+  const { aside } = config
+
+  const [role, setRole] = useState<string | null>(localStorage.getItem('userRole'))
 
   const minimize = () => {
     asideRef.current?.classList.add('animating')
@@ -67,7 +68,7 @@ const AsideDefault: FC = () => {
             className='h-75px logo rounded-circle mb-3'
             src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
           />
-          <h6 className='text-secondary-emphasis'>Aditya Soeharso</h6>
+          <h6 className='text-secondary-emphasis'>Aditya Soeharso ({role}) </h6>
         </div>
         {/* end::Logo */}
 
@@ -120,4 +121,4 @@ const AsideDefault: FC = () => {
   )
 }
 
-export {AsideDefault}
+export { AsideDefault }

@@ -6,14 +6,6 @@
   height: 172px;
 }
 
-#update-tukang .select__control.css-13cymwt-control {
-  height: 43px;
-}
-
-#update-tukang .css-t3ipsp-control:hover {
-  height: 43px !important;
-}
-
 #update-tukang textarea.form-control {
   min-height: 115px;
 }

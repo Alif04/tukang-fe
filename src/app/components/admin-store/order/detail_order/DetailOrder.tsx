@@ -1,13 +1,14 @@
-import React, {useState, FC, useEffect} from 'react'
+import React, { useState, FC, useEffect } from 'react'
 
 import './DetailOrder.css'
 
 import axios from 'axios'
-import {useParams} from 'react-router-dom'
-import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
-import {Steps} from 'antd'
+import { useParams } from 'react-router-dom'
+import { Row, Col, Form, ListGroup, Table } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash, faImage, faFileImage } from '@fortawesome/free-solid-svg-icons'
+import { Steps } from 'antd'
+import { Order } from '../../../../interfaces/order'
 
 const orderHistory = [
   {
@@ -45,7 +46,27 @@ const complaintHistory = [
 const DetailOrderStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
-  const [orderDetail, setOrderDetail] = useState<any>()
+  const [order, setOrder] = useState<Order>({
+    member_id: null,
+    seles_id: null,
+    store_id: null,
+    project_status_id: null,
+    vendor_id: null,
+    tukang_id: null,
+    project_address: '',
+    project_number: '',
+    receipt_number: '',
+    receipt_path: '',
+    total_estimate_workdays: null,
+    payment_type: '',
+    grand_total: '',
+    grand_total_comission: '',
+    print_counter: null,
+    created_by: null,
+    updated_by: null,
+    created_at: '',
+    order_details: []
+  })
 
   const fetchOrderData = async () => {
     try {
@@ -59,8 +80,9 @@ const DetailOrderStore: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data
-          setOrderDetail(data)
+          const data = response.data.data as Order
+
+          setOrder(data)
 
           if (data?.receipt_path) {
             setImage({
@@ -102,34 +124,31 @@ const DetailOrderStore: FC = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
+                  <span className='fs-4 ms-2 fw-normal'>{order.store ? order.store.store_name : ''}</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
+                  Order ID : <span className='fs-4 ms-2 fw-normal'>{order?.id}</span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='fs-4 fw-bold'>
-                  Receipt Number :
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
-                </Form.Label>
-                <br></br>
-                <Form.Label className='fs-4 fw-bold'>
-                  Order Status :
-                  <span className='fs-4 ms-2 fw-bold text-success'>
-                    {orderDetail?.project_status_id === 1
-                      ? 'ON PROGRESS'
-                      : orderDetail?.project_status_id === 2
-                      ? 'ON PROGRESS'
-                      : orderDetail?.project_status_id === 3
-                      ? 'ON PROGRESS'
-                      : ''}
-                  </span>
-                </Form.Label>
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Receipt Number :
+                    <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number}</span>
+                  </Form.Label>
+                </Col>
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Order Status :
+                    <span className='fs-4 ms-2 fw-bold text-success'>
+                      {order?.status?.category}
+                    </span>
+                  </Form.Label>
+                </Col>
               </Col>
             </Row>
 
@@ -143,7 +162,7 @@ const DetailOrderStore: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
+                        <Form.Control plaintext readOnly value={order?.members?.id} />
                       </Col>
                     </Form.Group>
 
@@ -152,7 +171,7 @@ const DetailOrderStore: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
+                        <Form.Control plaintext readOnly value={order?.members?.full_name} />
                       </Col>
                     </Form.Group>
 
@@ -166,7 +185,7 @@ const DetailOrderStore: FC = () => {
                           plaintext
                           readOnly
                           rows={3}
-                          value={orderDetail?.project_address}
+                          value={order?.project_address}
                         />
                       </Col>
                     </Form.Group>
@@ -178,7 +197,7 @@ const DetailOrderStore: FC = () => {
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.project_number} />
+                        <Form.Control plaintext readOnly value={order?.project_number} />
                       </Col>
                     </Form.Group>
 
@@ -187,7 +206,7 @@ const DetailOrderStore: FC = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
+                        <Form.Control plaintext readOnly value={order?.members?.email} />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -202,7 +221,7 @@ const DetailOrderStore: FC = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
+                    <Form.Control plaintext readOnly value={order?.sales?.id} />
                   </Col>
                 </Form.Group>
 
@@ -211,7 +230,7 @@ const DetailOrderStore: FC = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
+                    <Form.Control plaintext readOnly value={order?.sales?.full_name} />
                   </Col>
                 </Form.Group>
               </Col>
@@ -221,20 +240,35 @@ const DetailOrderStore: FC = () => {
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+              <Row>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>
+                    Tanggal request pemasangan :
+                  </Form.Label>
+                  <Col>
+                    <Form.Control
+                      type='text'
+                      plaintext
+                      readOnly
+                      value={order.created_at}
+                    />
+                  </Col>
+                </Form.Group>
 
-              <Form.Group as={Row} className='mb-3' controlId='formPlaintextEmail'>
-                <Form.Label column sm='3'>
-                  Tanggal request pemasangan :
-                </Form.Label>
-                <Col sm='9'>
-                  <Form.Control
-                    type='text'
-                    plaintext
-                    readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
-                  />
-                </Col>
-              </Form.Group>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>
+                    Payment Type:
+                  </Form.Label>
+                  <Col>
+                    <Form.Control
+                      type='text'
+                      plaintext
+                      readOnly
+                      value={order.payment_type.toUpperCase()}
+                    />
+                  </Col>
+                </Form.Group>
+              </Row>
             </div>
 
             <div className='table-warranty-content'>
@@ -250,7 +284,7 @@ const DetailOrderStore: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
+                  {order?.order_details.map((item: any, index: any) => (
                     <>
                       <tr>
                         <td>{item?.item_id}</td>
@@ -268,16 +302,12 @@ const DetailOrderStore: FC = () => {
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                        ? `                      Rp. ${0?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : orderDetail?.payment_type === 'survey'
-                        ? `                      Rp. ${99000?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : `Rp. ${0}`}
+                      {order?.payment_type === 'gratis' ||
+                        order?.payment_type === 'pemasangan_tanpa_survey'
+                        ? `Rp. ${(0).toLocaleString('id')}`
+                        : order?.payment_type === 'survey'
+                          ? `Rp. ${(99000).toLocaleString('id')}`
+                          : `Rp. ${0}`}
                     </td>
                   </tr>
 
@@ -287,14 +317,14 @@ const DetailOrderStore: FC = () => {
                     </td>
                     <td className=' fw-bolder'>
                       {(() => {
-                        if (orderDetail?.payment_type === 'gratis') {
-                          return `Rp. ${0?.toLocaleString('id')}`
-                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                          return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                        } else if (orderDetail?.payment_type === 'survey') {
-                          return `Rp. ${99000?.toLocaleString('id')}`
+                        if (order?.payment_type === 'gratis') {
+                          return `Rp. ${(0).toLocaleString('id')}`
+                        } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
+                          return `Rp. ${parseInt(order?.grand_total).toLocaleString('id')}`
+                        } else if (order?.payment_type === 'survey') {
+                          return `Rp. ${(99000).toLocaleString('id')}`
                         } else {
-                          return `Rp. ${0?.toLocaleString('id')}`
+                          return `Rp. ${(0).toLocaleString('id')}`
                         }
                       })()}
                     </td>
@@ -410,4 +440,4 @@ const DetailOrderStore: FC = () => {
   )
 }
 
-export {DetailOrderStore}
+export { DetailOrderStore }

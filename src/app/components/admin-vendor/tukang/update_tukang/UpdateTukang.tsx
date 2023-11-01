@@ -20,7 +20,7 @@ interface Vendor {
 
 interface TukangService {
   value: BigInteger
-  label: any
+  label: string
 }
 
 interface TukangServiceValues {
@@ -77,14 +77,44 @@ const UpdateTukangVendor: FC = () => {
             setAddress(data.address)
           }
 
-          // if (data?.tukang_services) {
-          //   const tukangService = data.tukang_services.map((item: any) => ({
-          //     value: item.city_id,
-          //     label: item.city.city_name,
-          //   }))
+          if (data?.tukang_service) {
+            const tukangService = data.tukang_service.map((item: any) => ({
+              value: item.service_type.id,
+              label: item.service_type.service_type,
+            }))
 
-          //   setTukangServiceValues(tukangService)
-          // }
+            setTukangServiceValues(tukangService)
+          }
+
+          if (data?.vendor.id && data?.vendor.company_name) {
+            setVendorId(data.vendor.id)
+            setVendorName(data.vendor.company_name)
+          }
+
+          if (data?.tukang_document) {
+            const documentTypes = ['ktp_file']
+
+            type DocumentStateSetter = (state: {blob: string; fileName: string}) => void
+
+            const documentStateSetters: Record<string, DocumentStateSetter> = {
+              ktp_file: setImage,
+            }
+
+            data.tukang_document.forEach((document: any) => {
+              const {document_name, path} = document
+
+              if (documentTypes.includes(document_name)) {
+                const setter = documentStateSetters[document_name]
+
+                if (setter) {
+                  setter({
+                    blob: '',
+                    fileName: path,
+                  })
+                }
+              }
+            })
+          }
         })
     } catch (error) {
       console.log(error)
@@ -154,10 +184,12 @@ const UpdateTukangVendor: FC = () => {
 
   // Tukang Information
   const [tukangId, setTukangId] = useState<any>()
+  const [username, setUsername] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+
   const [tukangName, setTukangName] = useState<string>('')
   const [address, setAddress] = useState<string>('')
   const [email, setEmail] = useState<string>('')
-
   const [phoneNumber, setPhoneNumber] = useState<any>()
   const [dateBirth, setDateBirth] = useState<string>('')
   const [ktpNumber, setKtpNumber] = useState<any>()
@@ -177,9 +209,20 @@ const UpdateTukangVendor: FC = () => {
 
   // Vendor Information
   const [vendor, setVendor] = useState<Vendor[]>([])
-  const [vendorId, setVendorId] = useState<string>('')
+  const [vendorId, setVendorId] = useState<any>()
+  const [vendorName, setVendorName] = useState<string>('')
 
   // Change Input Tukang Information
+  const handleChangeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedUsername = event.target.value
+    setUsername(updatedUsername)
+  }
+
+  const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedPassword = event.target.value
+    setPassword(updatedPassword)
+  }
+
   const handleChangeTukangName = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedTukangName = event.target.value
     setTukangName(updatedTukangName)
@@ -207,7 +250,7 @@ const UpdateTukangVendor: FC = () => {
 
   const handleChangeAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedAddress = event.target.value
-    setKtpNumber(updatedAddress)
+    setAddress(updatedAddress)
   }
 
   // Change Select Tukang Service
@@ -224,9 +267,14 @@ const UpdateTukangVendor: FC = () => {
   }
 
   // Change Select Vendor
-  const handleChangeSelectVendor = (element: any) => {
-    const updatedVendorId = element.value
-    setVendorId(updatedVendorId)
+  const handleChangeSelectVendor = (element: Vendor | null) => {
+    const newVendorInfo: Vendor = {
+      value: element?.value || 0,
+      label: element?.label || '',
+    }
+
+    setVendorId(newVendorInfo.value)
+    setVendorName(newVendorInfo.label)
   }
 
   // Upload Foto Diri
@@ -305,24 +353,24 @@ const UpdateTukangVendor: FC = () => {
     formData.append('phone_number', phoneNumber)
 
     if (tukangServiceId?.length) {
-      tukangServiceId.forEach((item: any) => {
+      tukangServiceId.forEach((item: any, index: number) => {
         if (item) {
-          formData.append(`service_type_id`, item)
+          formData.append(`service_type[${index}][service_type_id]`, item)
         }
       })
     }
 
     if (uploadFotoDiri?.length) {
-      formData.append('file', uploadFotoDiri[0])
+      formData.append('ktp_file', uploadFotoDiri[0])
     }
 
-    if (uploadFiles?.length) {
-      uploadFiles.forEach((item) => {
-        if (item) {
-          formData.append(`files`, item, item?.name)
-        }
-      })
-    }
+    // if (uploadFiles?.length) {
+    //   uploadFiles.forEach((item) => {
+    //     if (item) {
+    //       formData.append(`files`, item, item?.name)
+    //     }
+    //   })
+    // }
 
     const response = await axios
       .post(`${apiUrl}/tukang/${params.id}`, formData, {
@@ -418,6 +466,7 @@ const UpdateTukangVendor: FC = () => {
                       isMulti
                       options={tukangService}
                       onChange={(element) => handleChangeTukangService(element)}
+                      value={tukangServiceValues}
                     />
                   </Form.Group>
 
@@ -439,6 +488,10 @@ const UpdateTukangVendor: FC = () => {
                       placeholder='Pilih Nama Vendor'
                       isSearchable={true}
                       options={vendor}
+                      value={{
+                        value: vendorId,
+                        label: vendorName,
+                      }}
                       onChange={(element) => handleChangeSelectVendor(element)}
                     />
                   </Form.Group>
@@ -460,7 +513,7 @@ const UpdateTukangVendor: FC = () => {
 
             <Col xxl={4}>
               <Form.Group controlId='formFile'>
-                <Form.Label>Upload Photo Diri</Form.Label>
+                <Form.Label>Upload Photo Diri / KTP</Form.Label>
 
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
@@ -472,7 +525,11 @@ const UpdateTukangVendor: FC = () => {
                   />
 
                   {image.blob ? (
-                    <img src={image.blob} alt={image.fileName} className='image-preview' />
+                    <img
+                      src={image.blob ? image.blob : `${apiUrl}/public/tukang/${image.fileName}`}
+                      alt={image.fileName}
+                      className='image-preview'
+                    />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -497,7 +554,7 @@ const UpdateTukangVendor: FC = () => {
               </Form.Group>
 
               <Form.Group>
-                <Form.Label>Upload KTP dan Dokumen Lainnya</Form.Label>
+                <Form.Label>Dokumen Lainnya</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClicks}>
                   <Form.Control
                     id='file-input'

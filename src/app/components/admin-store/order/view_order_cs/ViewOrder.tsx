@@ -1,24 +1,24 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 
 import './ViewOrder.css'
 
 import axios from 'axios'
-import {Table, Tag} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch, faFilter, faPen} from '@fortawesome/free-solid-svg-icons'
+import { Table, Tag } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+import { useNavigate } from 'react-router-dom'
+import { Row, Col, Form, InputGroup } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBook, faSearch, faFilter, faPen } from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
-const {RangePicker} = DatePicker
+import { DatePicker } from 'antd'
+const { RangePicker } = DatePicker
 
 type Props = {
   className: string
 }
 
-const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
+const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
   const navigate = useNavigate()
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -134,8 +134,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [
-        {text: 'BOOK', value: 'BOOK'},
-        {text: 'BOOKED', value: 'BOOKED'},
+        { text: 'BOOK', value: 'BOOK' },
+        { text: 'BOOKED', value: 'BOOKED' },
       ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
@@ -229,7 +229,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
         const orderDate = new Date(item.created_at)
 
         let phoneNumber =
-          item.members.phone_number !== 'null'
+          item.members.whatsapp_number === 'null'
             ? item.members.phone_number
             : item.members.whatsapp_number
 
@@ -313,8 +313,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1500}}
-            pagination={{position: ['bottomRight']}}
+            scroll={{ x: 1500 }}
+            pagination={{ position: ['bottomRight'] }}
           />
         </div>
       </div>
@@ -322,4 +322,4 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ViewOrderStoreCS}
+export { ViewOrderStoreCS }

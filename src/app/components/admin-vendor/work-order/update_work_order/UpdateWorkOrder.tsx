@@ -119,101 +119,73 @@ const UpdateWorkVendor: FC = () => {
     return `${year}-${month}-${day}`
   }
 
-  // Order Id
+  // New Work Order
+
   const [orderId, setOrderId] = useState<any>()
-
-  // Vendor Id
   const [vendorId, setVendorId] = useState<any>()
-
-  // Complaint Status Id
-  const [complaintStatusId, setComplaintStatusId] = useState<any>()
-
-  // Request Work Time
+  const [workOrderStatus, setWorkOrderStatus] = useState<any>()
   const [requestWorkTime, setRequestWorkTime] = useState<string>('')
+  const [surveyDate, setSurveyDate] = useState<any>()
+  const [complaintStatusId, setComplaintStatusId] = useState<any>()
+  const [workStart, setWorkStart] = useState<string>('')
+  const [workEnd, setWorkEnd] = useState<string>('')
 
   // Option Tukang
   const [tukang, setTukang] = useState<Tukang[]>([])
   const [tukangId, setTukangId] = useState<any>([])
 
-  // New Work Order
-  const [workOrder, setWorkOrder] = useState<WorkOrder>({
-    order_id: null,
-    vendor_id: null,
-    tukang_id: [],
-    request_work_time: '',
-    survey_date: '',
-    work_order_status: null,
-    complaint_status: null,
-    work_start_date: '',
-    work_end_date: '',
-  })
-
-  // Order Id and Vendor Id
-  useEffect(() => {
-    setWorkOrder((prevWorkOrderValues) => ({
-      ...prevWorkOrderValues,
-      order_id: orderId,
-      vendor_id: vendorId,
-      complaint_status: complaintStatusId,
-      request_work_time: requestWorkTime,
-    }))
-  }, [orderId, vendorId, complaintStatusId, requestWorkTime])
-
   // Handle Change Work Order Status
   const handleChangeWorkOrderStatus = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const updatedWorkOrderStatus = event.target.value
     const updatedWorkOrderStatusInteger = parseInt(updatedWorkOrderStatus)
-
-    setWorkOrder((prevWorkOrderValues) => ({
-      ...prevWorkOrderValues,
-      work_order_status: updatedWorkOrderStatusInteger,
-    }))
+    setWorkOrderStatus(updatedWorkOrderStatusInteger)
   }
 
   // Change Input Date
   const handleChangeSurveyDate = (element: any) => {
     const updatedSurveyDate = element.target.value
-
-    setWorkOrder((prevWorkOrderValues) => ({
-      ...prevWorkOrderValues,
-      survey_date: updatedSurveyDate,
-    }))
+    setSurveyDate(updatedSurveyDate)
   }
 
   const handleChangeWorkStartDate = (element: any) => {
     const updatedWorkStartDate = element.target.value
-
-    setWorkOrder((prevWorkOrderValues) => ({
-      ...prevWorkOrderValues,
-      work_start_date: updatedWorkStartDate,
-    }))
+    setWorkStart(updatedWorkStartDate)
   }
 
   const handleChangeWorkEndDate = (element: any) => {
     const updatedWorkEndDate = element.target.value
-
-    setWorkOrder((prevWorkOrderValues) => ({
-      ...prevWorkOrderValues,
-      work_end_date: updatedWorkEndDate,
-    }))
+    setWorkEnd(updatedWorkEndDate)
   }
 
   // Change Tukang
   const handleChangeSelectTukang = (element: any) => {
     const updatedTukangId = element.map((option: any) => option.value)
-
-    setWorkOrder((prevWorkOrderValues) => ({
-      ...prevWorkOrderValues,
-      tukang_id: updatedTukangId,
-    }))
-
     setTukangId(updatedTukangId)
   }
 
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
+    const formData = new FormData()
+
+    formData.append('order_id', orderId)
+    formData.append('vendor_id', vendorId)
+    formData.append('work_order_status', workOrderStatus)
+    formData.append('request_work_time', requestWorkTime)
+    formData.append('survey_date', surveyDate)
+    formData.append('complaint_status', complaintStatusId)
+    formData.append('work_start_date', workStart)
+    formData.append('work_end_date', workEnd)
+
+    if (tukangId?.length) {
+      tukangId.forEach((item: any, index: number) => {
+        if (item) {
+          formData.append(`work_order_tukang[${index}][tukang_id]`, item)
+        }
+      })
+    }
+
     const response = await axios
-      .post(`${apiUrl}/work-orders`, workOrder, {
+      .post(`${apiUrl}/work-orders`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
