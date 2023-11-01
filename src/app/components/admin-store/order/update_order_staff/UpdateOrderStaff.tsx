@@ -1,15 +1,15 @@
-import React, {ChangeEvent, FC, useEffect, useState} from 'react'
+import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import axios from 'axios'
-import {useNavigate, useParams} from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import './UpdateOrder.css'
 
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import { Row, Col, Form, InputGroup, Table, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash, faImage, faFileImage } from '@fortawesome/free-solid-svg-icons'
 
 interface StoreItem {
   value: string
@@ -210,7 +210,7 @@ const UpdateOrderStoreStaff: FC = () => {
             address_1: item.address_1,
           }))
 
-          const creatableOption = {value: 'memberOption'}
+          const creatableOption = { value: 'memberOption' }
           tempMember.push(creatableOption)
 
           setMember(tempMember)
@@ -239,7 +239,7 @@ const UpdateOrderStoreStaff: FC = () => {
             label: item.full_name,
           }))
 
-          const creatableOptionSales = {value: 'salesOption'}
+          const creatableOptionSales = { value: 'salesOption' }
           tempSales.push(creatableOptionSales)
 
           setSales(tempSales)
@@ -531,7 +531,7 @@ const UpdateOrderStoreStaff: FC = () => {
   const handleChangeSelectItem = (index: any, element: any) => {
     if (!element) return
 
-    const {label, value: selectedItemId, category: selectedCategoryName, prices} = element
+    const { label, value: selectedItemId, category: selectedCategoryName, prices } = element
 
     const newOrderDetailValues = [...orderDetailValues]
 
@@ -1171,19 +1171,17 @@ const UpdateOrderStoreStaff: FC = () => {
                       <Form.Control
                         readOnly
                         plaintext
-                        value={`Rp. ${
-                          orderDetailValues[index]?.unit_price
+                        value={`Rp. ${orderDetailValues[index]?.unit_price
                             ? orderDetailValues[index]?.unit_price.toLocaleString('id')
                             : 0
-                        }`}
+                          }`}
                       />
                     </td>
 
-                    <td>{`Rp. ${
-                      orderDetailValues[index]?.total
+                    <td>{`Rp. ${orderDetailValues[index]?.total
                         ? orderDetailValues[index]?.total.toLocaleString('id')
                         : 0
-                    }`}</td>
+                      }`}</td>
                   </tr>
                 ))}
 
@@ -1209,11 +1207,10 @@ const UpdateOrderStoreStaff: FC = () => {
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>
-                    {`Rp. ${
-                      grandTotal
+                    {`Rp. ${grandTotal
                         ? grandTotal.toLocaleString('id')
                         : parseInt(orderDetail?.grand_total).toLocaleString('id')
-                    }`}
+                      }`}
                   </td>
                 </tr>
               </tbody>
@@ -1256,7 +1253,7 @@ const UpdateOrderStoreStaff: FC = () => {
                     icon={faTrash}
                     size='sm'
                     color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                     onClick={handleRemoveFile}
                   />
                 </div>
@@ -1282,4 +1279,4 @@ const UpdateOrderStoreStaff: FC = () => {
   )
 }
 
-export {UpdateOrderStoreStaff}
+export { UpdateOrderStoreStaff }
