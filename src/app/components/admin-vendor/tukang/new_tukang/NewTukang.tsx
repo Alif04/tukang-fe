@@ -33,25 +33,25 @@ const NewTukangVendor: FC = () => {
 
   const animatedComponents = makeAnimated()
 
-  // const getTukangId = async () => {
-  //   try {
-  //     const response = await axios.get(`${apiUrl}/tukang/next-code`, {
-  //       headers: {
-  //         Accept: 'application/json',
-  //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //         'Access-Control-Allow-Origin': '*',
-  //         'ngrok-skip-browser-warning': 'true',
-  //       },
-  //     })
+  const getTukangId = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/tukang/next-code`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-  //     if (response.status === 200) {
-  //       const {data} = response
-  //       setTukangId(data.data.code)
-  //     }
-  //   } catch (err) {
-  //     console.error(err)
-  //   }
-  // }
+      if (response.status === 200) {
+        const {data} = response
+        setTukangId(data.data.code)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const getBank = async () => {
     try {
@@ -132,7 +132,7 @@ const NewTukangVendor: FC = () => {
   }
 
   useEffect(() => {
-    // getTukangId()
+    getTukangId()
     getBank()
     getVendor()
     getTukangService()
@@ -174,11 +174,6 @@ const NewTukangVendor: FC = () => {
   const [vendorId, setVendorId] = useState<string>('')
 
   // Change Input Tukang Information
-  const handleChangeTukangID = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedTukangId = event.target.value
-    setTukangId(updatedTukangId)
-  }
-
   const handleChangeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedUsername = event.target.value
     setUsername(updatedUsername)
@@ -383,7 +378,7 @@ const NewTukangVendor: FC = () => {
       }
 
       if (uploadDocument?.length) {
-        formData.append('file', uploadDocument[0])
+        formData.append('ktp_file', uploadDocument[0])
       }
 
       const response = await axios
@@ -443,7 +438,7 @@ const NewTukangVendor: FC = () => {
 
               <Form.Group className='tukang-info'>
                 <Form.Label>Tukang ID</Form.Label>
-                <Form.Control type='number' onChange={handleChangeTukangID} />
+                <Form.Control type='number' readOnly value={tukangId} />
               </Form.Group>
 
               <Form.Group className='tukang-info'>

@@ -229,7 +229,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
         const orderDate = new Date(item.created_at)
 
         let phoneNumber =
-          item.members.phone_number !== 'null'
+          item.members.whatsapp_number === 'null'
             ? item.members.phone_number
             : item.members.whatsapp_number
 
