@@ -136,7 +136,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       const apiUrl = process.env.REACT_APP_API_URL
 
       const response = await axios.get(
-        `${apiUrl}/member/data?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`,
+        `${apiUrl}/member?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`,
         {
           headers: {
             Accept: 'application/json',

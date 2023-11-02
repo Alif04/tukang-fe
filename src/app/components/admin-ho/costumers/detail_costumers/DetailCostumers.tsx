@@ -21,7 +21,7 @@ const DetailCostumerHO: FC = () => {
   const fetchMemberDetail = async () => {
     try {
       await axios
-        .get(`${apiUrl}/member/data/${params.id}`, {
+        .get(`${apiUrl}/member/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

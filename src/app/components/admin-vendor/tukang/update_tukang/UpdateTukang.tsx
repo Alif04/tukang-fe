@@ -149,7 +149,7 @@ const UpdateTukangVendor: FC = () => {
 
   const getTukangService = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/tukang-service/data`, {
+      const response = await axios.get(`${apiUrl}/tukang-service`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

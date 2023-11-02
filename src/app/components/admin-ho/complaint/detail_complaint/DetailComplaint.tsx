@@ -56,7 +56,7 @@ const DetailComplaintHO: FC = () => {
 
   const getCostumer = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/member/data`, {
+      const response = await axios.get(`${apiUrl}/member`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -161,16 +161,22 @@ const DetailComplaintHO: FC = () => {
   }
 
   // Handle Feedback Date Change
-  const today = new Date().toISOString().split('T')[0]
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]
+    setFeedbackStartDate(today)
+  }, [])
 
   const handleChangeFeedbackStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedFeedbackStartDate = event.target.value
-    setFeedbackStartDate(updatedFeedbackStartDate)
+    // setFeedbackStartDate(today)
+    // const updatedFeedbackStartDate = event.target.value
+    // setFeedbackStartDate(updatedFeedbackStartDate)
+    // const updatedFeedbackStartDate = new Date().toISOString().split('T')[0]
+    // setFeedbackStartDate(updatedFeedbackStartDate)
   }
 
   const handleChangeFeedbackEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedFeedbackEndDate = event.target.value
-    setFeedbackEndDate(updatedFeedbackEndDate)
+    // const updatedFeedbackEndDate = event.target.value
+    // setFeedbackEndDate(updatedFeedbackEndDate)
   }
 
   // Handle Upload File
@@ -233,20 +239,6 @@ const DetailComplaintHO: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!feedbackStartDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill feedback start date form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!feedbackEndDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill feedback end date form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!feedbackEvidence) {
       Swal.fire({
         title: 'Error',
@@ -266,7 +258,7 @@ const DetailComplaintHO: FC = () => {
       formData.append('complaint_id', complaintId)
       formData.append('remedial_action', feedbackDesc)
       formData.append('ra_date_start', feedbackStartDate)
-      formData.append('ra_date_end', feedbackEndDate)
+      // formData.append('ra_date_end', feedbackEndDate)
       formData.append('remedial_pic', picFeedbackId)
       formData.append('remedial_status', feedbackStatus)
 
@@ -291,7 +283,7 @@ const DetailComplaintHO: FC = () => {
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Update Feedback',
+              text: 'Success Add Feedback',
               icon: 'success',
             })
           } else {
@@ -596,7 +588,7 @@ const DetailComplaintHO: FC = () => {
                 type='submit'
                 onClick={() => handleApprovalComplaint(complaintStatusApprove)}
               >
-                Approved
+                Accepted
               </Button>
             </div>
           </Row>
@@ -698,6 +690,52 @@ const DetailComplaintHO: FC = () => {
             </Col>
           </Row>
 
+          {/* <Row>
+            <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
+              REMEDIAL HISTORY
+            </div>
+
+            {complaintDetail?.remedials.map((item: any) => {
+              ;<>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='3'>
+                      Remedial Date :
+                    </Form.Label>
+                    <Col sm='9'>
+                      <Form.Control
+                        type='text'
+                        plaintext
+                        readOnly
+                        value={complaintDetail ? formatDate(new Date(item.ra_date_start)) : ''}
+                      />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='3'>
+                      PIC Complaint :
+                    </Form.Label>
+                    <Col sm='9'>
+                      <Form.Control plaintext readOnly value={item.remedial_pic} />
+                    </Col>
+                  </Form.Group>
+                </Col>
+
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label className='mt-3'>Remedial Detail :</Form.Label>
+                  <Form.Control
+                    style={{minHeight: '200px'}}
+                    as='textarea'
+                    plaintext
+                    readOnly
+                    value={item.remedial_action}
+                  ></Form.Control>
+                </Col>
+              </>
+            })}
+          </Row> */}
+
           <hr />
 
           <Row>
@@ -782,27 +820,27 @@ const DetailComplaintHO: FC = () => {
                   placeholder='Pilih PIC Feedback'
                   isSearchable={true}
                   options={picFeedback}
-                  value={{
-                    value: picFeedbackId,
-                    label: picFeedbackName,
-                  }}
+                  // value={{
+                  //   value: picFeedbackId,
+                  //   label: picFeedbackName,
+                  // }}
                   onChange={(element) => handlePicFeedbackChange(element)}
                 />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
+              {/* <Form.Group>
                 <Form.Label>Tanggal Start Feedback : </Form.Label>
                 <Form.Control min={today} type='date' onChange={handleChangeFeedbackStartDate} />
-              </Form.Group>
+              </Form.Group> */}
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
+              {/* <Form.Group>
                 <Form.Label>Tanggal End Feedback : </Form.Label>
                 <Form.Control min={today} type='date' onChange={handleChangeFeedbackEndDate} />
-              </Form.Group>
+              </Form.Group> */}
             </Col>
           </Row>
 
@@ -892,19 +930,6 @@ const DetailComplaintHO: FC = () => {
           </div> */}
         </div>
       </div>
-
-      <Image
-        width={200}
-        style={{display: 'none'}}
-        src='https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60'
-        preview={{
-          visible,
-          src: 'https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60',
-          onVisibleChange: (value) => {
-            setVisible(value)
-          },
-        }}
-      />
     </section>
   )
 }

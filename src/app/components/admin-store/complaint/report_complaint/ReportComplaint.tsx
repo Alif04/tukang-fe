@@ -16,7 +16,7 @@ const {RangePicker} = DatePicker
 const initialStatusState = {
   newComplaint: 0,
   rejectComplaint: 0,
-  approvedComplaint: 0,
+  acceptedComplaint: 0,
   resurveyComplaint: 0,
   reworkComplaint: 0,
   rescheduleComplaint: 0,
@@ -34,7 +34,7 @@ type StatusToStateMap = {
 const statusToStateMap: StatusToStateMap = {
   INVESTIGATE: 'newComplaint',
   REJECT: 'rejectComplaint',
-  APPROVE: 'approvedComplaint',
+  ACCEPTED: 'acceptedComplaint',
   RESURVEY: 'resurveyComplaint',
   REWORK: 'reworkComplaint',
   RESCHEDULE: 'rescheduleComplaint',
@@ -94,19 +94,10 @@ const ReportComplaintStore: FC = () => {
 
         const complaintDate = new Date(item.complaint_date)
 
-        let complaintStatus =
-          item.complaint_status === 3
-            ? 'INVESTIGATED'
-            : item.complaint_status === 19
-            ? 'ACCEPTED'
-            : item.complaint_status === 21
-            ? 'REJECT'
-            : ''
-
         data = {
           order_id: item.orders.id,
           complaint_date: formatDate(complaintDate),
-          complaint_status: complaintStatus,
+          complaint_status: item.status.category,
         }
 
         return data
@@ -166,7 +157,7 @@ const ReportComplaintStore: FC = () => {
   const {
     newComplaint,
     rejectComplaint,
-    approvedComplaint,
+    acceptedComplaint,
     resurveyComplaint,
     reworkComplaint,
     rescheduleComplaint,
@@ -231,8 +222,8 @@ const ReportComplaintStore: FC = () => {
 
                 <div className='order-cancel'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>{approvedComplaint}</h1>
-                    <p className='text-danger'>APPROVED</p>
+                    <h1 className='fw-normal'>{acceptedComplaint}</h1>
+                    <p className='text-danger'>ACCEPTED</p>
                   </div>
                 </div>
               </div>
