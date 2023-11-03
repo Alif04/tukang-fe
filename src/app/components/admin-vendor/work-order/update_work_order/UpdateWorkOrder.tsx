@@ -1,4 +1,4 @@
-import React, {useState, useEffect, FC} from 'react'
+import React, { useState, useEffect, FC, SetStateAction } from 'react'
 
 import './UpdateWorkOrder.css'
 
@@ -6,22 +6,11 @@ import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {Table} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Button, Row, Col} from 'react-bootstrap'
-
-interface WorkOrder {
-  order_id: any
-  vendor_id: any
-  tukang_id: Tukang[]
-  request_work_time: string
-  survey_date: string
-  work_order_status: any
-  complaint_status: any
-  work_start_date: string
-  work_end_date: string
-}
+import { Table } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Form, Button, Row, Col } from 'react-bootstrap'
+import { WorkOrder } from '../../../../interfaces/work-order'
 
 interface Tukang {
   value: any
@@ -34,7 +23,7 @@ const UpdateWorkVendor: FC = () => {
   const params = useParams()
   const animatedComponents = makeAnimated()
 
-  const [orderDetail, setOrderDetail] = useState<any>()
+  const [orderDetail, setOrderDetail] = useState<any>(null)
 
   const fetchOrderData = async () => {
     try {
@@ -52,19 +41,19 @@ const UpdateWorkVendor: FC = () => {
           setOrderDetail(data)
 
           if (data?.id) {
-            setOrderId(data.id)
+            workOrderHandler(data.id, 'order_id')
           }
 
           if (data?.created_at) {
-            setRequestWorkTime(formatDateRequestWorkTime(new Date(data.created_at)))
+            workOrderHandler(formatDateRequestWorkTime(new Date(data.created_at)), 'request_work_time')
           }
 
           if (data?.vendor_id) {
-            setVendorId(data.vendor_id)
+            workOrderHandler(data.vendor_id, 'vendor_id')
           }
 
-          if (data?.complaints[0].complaint_status) {
-            setComplaintStatusId(data.complaints[0].complaint_status)
+          if (data?.complaints[0]?.complaint_status) {
+            workOrderHandler(data.complaints[0].complaint_status, 'complaint_status')
           }
         })
     } catch (error) {
@@ -120,71 +109,75 @@ const UpdateWorkVendor: FC = () => {
   }
 
   // New Work Order
-
-  const [orderId, setOrderId] = useState<any>()
-  const [vendorId, setVendorId] = useState<any>()
-  const [workOrderStatus, setWorkOrderStatus] = useState<any>()
-  const [requestWorkTime, setRequestWorkTime] = useState<string>('')
-  const [surveyDate, setSurveyDate] = useState<any>()
-  const [complaintStatusId, setComplaintStatusId] = useState<any>()
-  const [workStart, setWorkStart] = useState<string>('')
-  const [workEnd, setWorkEnd] = useState<string>('')
+  const [workOrder, setWorkOrder] = useState<WorkOrder>({
+    id: null,
+    order_id: null,
+    vendor_id: null,
+    tukang_id: [],
+    request_work_time: '',
+    survey_date: '',
+    work_order_status: null,
+    complaint_status: null,
+    work_start_date: '',
+    work_end_date: '',
+  })
 
   // Option Tukang
   const [tukang, setTukang] = useState<Tukang[]>([])
-  const [tukangId, setTukangId] = useState<any>([])
 
-  // Handle Change Work Order Status
-  const handleChangeWorkOrderStatus = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const updatedWorkOrderStatus = event.target.value
-    const updatedWorkOrderStatusInteger = parseInt(updatedWorkOrderStatus)
-    setWorkOrderStatus(updatedWorkOrderStatusInteger)
-  }
+  const workOrderHandler = (value: number | string | Array<number | string | null> | null, target: string, setStateAction: SetStateAction<typeof setWorkOrder> = setWorkOrder) => {
+    setWorkOrder((prev) => {
+      const cache = { ...prev, [target]: value }
 
-  // Change Input Date
-  const handleChangeSurveyDate = (element: any) => {
-    const updatedSurveyDate = element.target.value
-    setSurveyDate(updatedSurveyDate)
-  }
+      return cache
+    })
 
-  const handleChangeWorkStartDate = (element: any) => {
-    const updatedWorkStartDate = element.target.value
-    setWorkStart(updatedWorkStartDate)
-  }
+    console.log(workOrder);
 
-  const handleChangeWorkEndDate = (element: any) => {
-    const updatedWorkEndDate = element.target.value
-    setWorkEnd(updatedWorkEndDate)
-  }
-
-  // Change Tukang
-  const handleChangeSelectTukang = (element: any) => {
-    const updatedTukangId = element.map((option: any) => option.value)
-    setTukangId(updatedTukangId)
   }
 
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
+    let errorBags = [];
+    const requiredFields = [{ key: 'order_id', fieldName: 'Order' }, { key: 'vendor_id', fieldName: 'Vendor' }, { key: 'tukang_id', fieldName: 'Tehnisi' }, { key: 'request_work_time', fieldName: 'Tanggal Request Survey' }, { key: 'survey_date', fieldName: 'Tanggal survey' }, { key: 'work_order_status', fieldName: 'Update Work Order Status' }, { key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan' }, { key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan' }]
     const formData = new FormData()
 
-    formData.append('order_id', orderId)
-    formData.append('vendor_id', vendorId)
-    formData.append('work_order_status', workOrderStatus)
-    formData.append('request_work_time', requestWorkTime)
-    formData.append('survey_date', surveyDate)
-    formData.append('complaint_status', complaintStatusId)
-    formData.append('work_start_date', workStart)
-    formData.append('work_end_date', workEnd)
+    for (const key in workOrder) {
+      if (Object.prototype.hasOwnProperty.call(workOrder, key)) {
+        const value = workOrder[key]
+        const required = requiredFields.find((fields: { key: string }) => fields.key === key)
 
-    if (tukangId?.length) {
-      tukangId.forEach((item: any, index: number) => {
-        if (item) {
-          formData.append(`work_order_tukang[${index}][tukang_id]`, item)
+        if (required) {
+          if (value) {
+            if (key === 'tukang_id') {
+              value.forEach((item: any, index: number) => {
+                if (item) {
+                  formData.append(`work_order_tukang[${index}][tukang_id]`, item)
+                }
+              })
+            } else {
+              formData.append(key, workOrder[key])
+            }
+          } else {
+            errorBags.push({
+              message: `${required.fieldName} cannot be empty`
+            })
+          }
         }
-      })
+      }
     }
 
-    const response = await axios
+    if (errorBags.length > 0) {
+      Swal.fire({
+        title: 'warning',
+        text: errorBags[0].message,
+        icon: 'warning'
+      })
+
+      return false
+    }
+
+    await axios
       .post(`${apiUrl}/work-orders`, formData, {
         headers: {
           Accept: 'application/json',
@@ -374,7 +367,7 @@ const UpdateWorkVendor: FC = () => {
               <Col>
                 <Form.Group className='mt-5 mb-5' controlId='exampleForm.ControlInput1'>
                   <Form.Label>Update Work Order</Form.Label>
-                  <Form.Select onChange={handleChangeWorkOrderStatus}>
+                  <Form.Select onChange={(e) => workOrderHandler(+e.target.value, 'work_order_status')}>
                     <option selected>SELECT STATUS</option>
                     <option value='6'>SURVEY START</option>
                     <option value='11'>WORK START</option>
@@ -393,21 +386,21 @@ const UpdateWorkVendor: FC = () => {
               <Col>
                 <Form.Group className='mt-5 mb-5' controlId='exampleForm.ControlInput1'>
                   <Form.Label>Tanggal survey : </Form.Label>
-                  <Form.Control type='date' min={today} onChange={handleChangeSurveyDate} />
+                  <Form.Control type='date' min={today} onChange={(e) => workOrderHandler(e.target.value, 'survey_date')} />
                 </Form.Group>
               </Col>
 
               <Col>
                 <Form.Group className='mt-5 mb-5' controlId='exampleForm.ControlInput1'>
                   <Form.Label>Tanggal mulai pengerjaan : </Form.Label>
-                  <Form.Control type='date' min={today} onChange={handleChangeWorkStartDate} />
+                  <Form.Control type='date' min={today} onChange={(e) => workOrderHandler(e.target.value, 'work_start_date')} />
                 </Form.Group>
               </Col>
 
               <Col>
                 <Form.Group className='mt-5 mb-5' controlId='exampleForm.ControlInput1'>
                   <Form.Label>Tanggal selesai pengerjaan : </Form.Label>
-                  <Form.Control type='date' min={today} onChange={handleChangeWorkEndDate} />
+                  <Form.Control type='date' min={today} onChange={(e) => workOrderHandler(e.target.value, 'work_end_date')} />
                 </Form.Group>
               </Col>
 
@@ -421,7 +414,7 @@ const UpdateWorkVendor: FC = () => {
                     components={animatedComponents}
                     isMulti
                     options={tukang}
-                    onChange={(element) => handleChangeSelectTukang(element)}
+                    onChange={(e) => workOrderHandler(e.map((option: any) => option.value), 'tukang_id')}
                   />
                 </Form.Group>
               </Col>
@@ -443,4 +436,4 @@ const UpdateWorkVendor: FC = () => {
   )
 }
 
-export {UpdateWorkVendor}
+export { UpdateWorkVendor }

@@ -68,7 +68,7 @@ const AsideDefault: FC = () => {
             className='h-75px logo rounded-circle mb-3'
             src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
           />
-          <h6 className='text-secondary-emphasis'>Aditya Soeharso ({role}) </h6>
+          <h6 className='text-secondary-emphasis'>Aditya Soeharso<br />({role}) </h6>
         </div>
         {/* end::Logo */}
 
