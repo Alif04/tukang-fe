@@ -14,6 +14,11 @@ interface StoreItem {
   label: string
 }
 
+interface Status {
+  value: number
+  category: string
+}
+
 const NewQuotationVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -22,6 +27,22 @@ const NewQuotationVendor: FC = () => {
   const [order, setOrder] = useState<any>()
   const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
+
+  // Order Details
+  const [orderDetailValues, setOrderDetailValues] = useState([
+    {
+      id: null,
+      item_id: '',
+      unit: '',
+      quantity: 1,
+      unit_price: 0,
+      total: 0,
+      margin: 0,
+      final_price: 0,
+    },
+  ])
+
+  const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Store
   const [store, setStore] = useState<StoreItem[]>([])
@@ -76,8 +97,27 @@ const NewQuotationVendor: FC = () => {
   }
 
   const getOrder = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData.filter((status: any) =>
+      [
+        'SURVEYSTART',
+        'WORKSTART',
+        'WIP',
+        'WORKEND',
+        'INVESTIGATE',
+        'REWORK',
+        'REWORKSTART',
+        'RIP',
+        'REWORKEND',
+        'RESCHEDULE',
+      ].includes(status.category)
+    )
+
+    if (desiredStatus) {
+      const statuses = desiredStatus.map((x) => x.value)
+
+      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0&status=${statuses}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -96,8 +136,8 @@ const NewQuotationVendor: FC = () => {
       } else {
         console.error('API response data is not an array:', response.data)
       }
-    } catch (err) {
-      console.error(err)
+    } else {
+      console.error('Desired status not found in statusData')
     }
   }
 
@@ -115,6 +155,19 @@ const NewQuotationVendor: FC = () => {
         .then((response) => {
           const data = response.data.data
           setOrderDetail(data)
+
+          if (data?.order_details) {
+            const initialOrderDetailValues = data.order_details.map((item: any) => ({
+              id: item.id,
+              item_id: item.item_id,
+              unit: item.unit,
+              quantity: item.quantity,
+              unit_price: parseInt(item.unit_price),
+              total: item.total,
+            }))
+
+            setOrderDetailValues(initialOrderDetailValues)
+          }
         })
     } catch (err) {
       console.error(err)
@@ -157,12 +210,42 @@ const NewQuotationVendor: FC = () => {
     }
   }, [orderId, storeId])
 
+  // Format Date
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
   }
+
+  // Change Margin Value
+  let handleMarginChange = (index: any, value: any) => {
+    const updatedOrderDetailValues = [...orderDetailValues]
+    const selectedUnitPrice = updatedOrderDetailValues[index].total
+    const profitPercentage = value / 100
+
+    updatedOrderDetailValues[index] = {
+      ...updatedOrderDetailValues[index],
+      margin: value,
+      final_price: selectedUnitPrice + profitPercentage * selectedUnitPrice,
+    }
+
+    setOrderDetailValues(updatedOrderDetailValues)
+  }
+
+  // Calculate Grand Total Jasa
+  const calculatedGrandTotalOrder = () => {
+    return orderDetailValues.reduce((accumulator, item) => {
+      const calculatedTotal = item.final_price
+      return accumulator + calculatedTotal
+    }, 0)
+  }
+
+  useEffect(() => {
+    const calculatedGrandTotal = calculatedGrandTotalOrder()
+
+    setGrandTotal(calculatedGrandTotal)
+  }, [orderDetailValues])
 
   // Add Quotation
   const [quotationStatus, setQuotationStatus] = useState<any>()
@@ -296,7 +379,7 @@ const NewQuotationVendor: FC = () => {
     return valid
   }
 
-  // Handle Submit Complaint
+  // Handle Submit Quotation
   const handleSubmitNewQuotation = async () => {
     if (QuotationValidation()) {
       const formData = new FormData()
@@ -316,6 +399,16 @@ const NewQuotationVendor: FC = () => {
           }
         })
       }
+
+      // orderDetailValues.forEach((order, index) => {
+      //   formData.append(`order_details[${index}][id]`, String(order.id))
+      //   formData.append(`order_details[${index}][item_id]`, String(order.item_id))
+      //   formData.append(`order_details[${index}][unit]`, order.unit)
+      //   formData.append(`order_details[${index}][quantity]`, String(order.quantity))
+      //   formData.append(`order_details[${index}][unit_price]`, String(order.unit_price))
+      //   formData.append(`order_details[${index}][margin]`, String(order.margin))
+      //   formData.append(`order_details[${index}][final_price]`, String(order.final_price))
+      // })
 
       const response = await axios
         .post(`${apiUrl}/quotation`, formData, {
@@ -508,46 +601,87 @@ const NewQuotationVendor: FC = () => {
               <thead>
                 <tr>
                   <th className='text-center'>Jenis Jasa</th>
-                  <th className='text-center'>Quantity</th>
-                  <th className='text-center'>Harga Satuan</th>
-                  <th className='text-center'>Total Harga</th>
+                  <th className='text-center'>QTY</th>
+                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Total</th>
+                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Final Price</th>
                 </tr>
               </thead>
               <tbody>
-                {orderDetail?.payment_type === 'survey' ? (
+                {orderDetailValues.map((element, index) => (
                   <>
-                    <tr>
-                      <td colSpan={6}>Survey</td>
+                    <tr key={element.id}>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={orderDetailValues[index]?.unit || ''}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={`${
+                            orderDetailValues[index]?.quantity
+                              ? orderDetailValues[index]?.quantity
+                              : 0
+                          }`}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={`Rp. ${
+                            orderDetailValues[index]?.unit_price
+                              ? orderDetailValues[index]?.unit_price.toLocaleString('id')
+                              : 0
+                          }`}
+                        />
+                      </td>
+                      <td>
+                        {`Rp. ${
+                          orderDetailValues[index]?.total
+                            ? orderDetailValues[index]?.total.toLocaleString('id')
+                            : 0
+                        }`}
+                      </td>
+                      <td>
+                        <Form.Control
+                          type='number'
+                          plaintext
+                          placeholder='%'
+                          value={element.margin}
+                          onChange={(e) => handleMarginChange(index, e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={`Rp. ${
+                            orderDetailValues[index]?.final_price
+                              ? orderDetailValues[index]?.final_price.toLocaleString('id')
+                              : 0
+                          }`}
+                        />
+                      </td>
                     </tr>
                   </>
-                ) : (
-                  orderDetail?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr>
-                        <td>{item?.unit}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
-                      </tr>
-                    </>
-                  ))
-                )}
+                ))}
 
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Total Jasa
                   </td>
                   <td className=' fw-bolder'>
-                    {orderDetail?.payment_type === 'gratis' ||
-                    orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                      ? `                      Rp. ${0?.toLocaleString(
-                          'id'
-                        )}                        `
-                      : orderDetail?.payment_type === 'survey'
-                      ? `                      Rp. ${99000?.toLocaleString(
-                          'id'
-                        )}                        `
-                      : `Rp. ${0}`}
+                    {`Rp. ${
+                      grandTotal
+                        ? grandTotal.toLocaleString('id')
+                        : parseInt(orderDetail?.grand_total).toLocaleString('id')
+                    }`}
                   </td>
                 </tr>
               </tbody>
@@ -559,9 +693,11 @@ const NewQuotationVendor: FC = () => {
               <thead>
                 <tr>
                   <th className='text-center'>Material Yang Dibutuhkan</th>
-                  <th className='text-center'>Quantity</th>
-                  <th className='text-center'>Harga Satuan</th>
-                  <th className='text-center'>Total Harga</th>
+                  <th className='text-center'>QTY</th>
+                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Total</th>
+                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Final Price</th>
                 </tr>
               </thead>
               <tbody>
@@ -570,33 +706,29 @@ const NewQuotationVendor: FC = () => {
                   <td>1</td>
                   <td>500.000</td>
                   <td>500.000</td>
+                  <td>500.000</td>
+                  <td>500.000</td>
                 </tr>
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Total Material
                   </td>
                   <td className=' fw-bolder'>1.800.000</td>
                 </tr>
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Total Jasa & Material
                   </td>
                   <td className=' fw-bolder'>1.800.000</td>
                 </tr>
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
-                    Promosi ( Free Survey )
+                  <td colSpan={5} className='text-end fw-bolder'>
+                    Promosi / Discount
                   </td>
                   <td className=' fw-bolder'></td>
                 </tr>
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
-                    Additional Promosi
-                  </td>
-                  <td className=' fw-bolder'>-144.000</td>
-                </tr>
-                <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>1.854.000</td>

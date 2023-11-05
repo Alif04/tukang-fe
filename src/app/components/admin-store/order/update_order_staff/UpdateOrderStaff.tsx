@@ -78,7 +78,6 @@ const UpdateOrderStoreStaff: FC = () => {
   const [member, setMember] = useState<Member[]>([])
   const [memberName, setMemberName] = useState<string>('')
   const [memberPhoneNumber, setMemberPhoneNumber] = useState<any>()
-  console.log(memberPhoneNumber)
   const [memberEmail, setMemberEmail] = useState<any>()
   const [memberAddress, setMemberAddress] = useState<any>()
 

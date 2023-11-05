@@ -1,38 +1,14 @@
 // DASHBOARD PAGE ( Admin Store )
-export * from './admin-store/dashboard/TotalOrderStore'
-export * from './admin-store/dashboard/TotalComplaint'
-export * from './admin-store/dashboard/WaitingCostumerPay'
-export * from './admin-store/dashboard/TotalReschedule'
-
-export * from './admin-store/dashboard/SalesReportWidget'
-export * from './admin-store/dashboard/TransactionWidget'
-export * from './admin-store/dashboard/TopSalesWidget'
+export * from './admin-store/dashboard/DashboardStore'
 
 // DASHBOARD PAGE ( Admin HO )
-export * from './admin-ho/dashboard/MoreInformation'
-export * from './admin-ho/dashboard/ChartBarPerformance'
-export * from './admin-ho/dashboard/ChartBarSurvey'
-export * from './admin-ho/dashboard/ChartBarOrder'
-export * from './admin-ho/dashboard/TableList'
-export * from './admin-ho/dashboard/DateRange'
+export * from './admin-ho/dashboard/DashboardHO'
 
 // DASHBOARD PAGE ( Admin Vendor )
-export * from './admin-vendor/dashboard/TotalOrderVendor'
-export * from './admin-vendor/dashboard/TotalWorkVendor'
-export * from './admin-vendor/dashboard/TotalComplaintVendor'
-export * from './admin-vendor/dashboard/ChartBarOrderVendor'
-export * from './admin-vendor/dashboard/ChartLineSurveyVendor'
-export * from './admin-vendor/dashboard/ChartLineComplaintVendor'
-export * from './admin-vendor/dashboard/ChartDonutComplaintVendor'
-export * from './admin-vendor/dashboard/ChartDonutWorkVendor'
+export * from './admin-vendor/dashboard/DashboardVendor'
 
 // DASHBOARD PAGE ( TUKANG )
-export * from './tukang/dashboard/card_item/CardItem'
-export * from './tukang/dashboard/ChartBarOrderTukang'
-export * from './tukang/dashboard/ChartLineSurveyTukang'
-export * from './tukang/dashboard/ChartLineComplaintTukang'
-export * from './tukang/dashboard/ChartDonutWorkTukang'
-export * from './tukang/dashboard/ChartDonutQuotationTukang'
+export * from './tukang/dashboard/DashboardTukang'
 
 // STORE PAGES
 
@@ -289,6 +265,19 @@ export * from './admin-vendor/tukang/detail_tukang/DetailTukang'
 
 // View Tukang
 export * from './admin-vendor/tukang/view_tukang/ViewTukang'
+
+// Material
+// New Material
+export * from './admin-vendor/material/new_material/NewMaterial'
+
+// Update Material
+export * from './admin-vendor/material/update_material/UpdateMaterial'
+
+// Detail Material
+export * from './admin-vendor/material/detail_material/DetailMaterial'
+
+// View Material
+export * from './admin-vendor/material/view_material/ViewMaterial'
 
 // Complaint
 // View Complaint

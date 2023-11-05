@@ -1,17 +1,24 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {useState, useEffect, FC} from 'react'
 
-import './DashboardOrder.css'
+import './DashboardHO.css'
 
-import {ChartBar} from './components/ChartBar'
-import {ChartLine} from './components/ChartLine'
+import {ChartBarPerformance} from './components/ChartBarPerformance'
+import {ChartBarOrder} from './components/ChartBarOrder'
+import {ChartBarSurvey} from './components/ChartBarSurvey'
 import {MoreInformation} from './components/MoreInformation'
 import {TableList} from './components/TableList'
 
 import axios from 'axios'
+import Select from 'react-select'
 import {DatePicker} from 'antd'
-import {Card, Row, Col} from 'react-bootstrap'
+import {Row, Col, Card, Form} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
+
+interface StoreItem {
+  value: string
+  label: string
+}
 
 const initialStatusState = {
   totalOrder: 0,
@@ -19,9 +26,6 @@ const initialStatusState = {
   onProgress: 0,
   complete: 0,
   reschedule: 0,
-  cancel: 0,
-  refund: 0,
-  waitingSurvey: 0,
   waitingPayment: 0,
 }
 
@@ -35,13 +39,10 @@ const statusToStateMap: StatusToStateMap = {
   WIP: 'onProgress',
   SURVEYDONE: 'complete',
   RESCHEDULE: 'reschedule',
-  REJECT: 'cancel',
-  REFUND: 'refund',
-  WAITINGSURVEY: 'waitingSurvey',
-  UNPAID: 'waitingPayment',
+  WORKRELATED: 'waitingPayment',
 }
 
-const DashboardOrderStore: FC = () => {
+const DashboardHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
@@ -53,6 +54,13 @@ const DashboardOrderStore: FC = () => {
 
   const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+  const [store, setStore] = useState<StoreItem[]>([])
+  const [searchByStore, setSearchByStore] = useState<any>('')
+
+  const handleChangeSelectStore = (element: any) => {
+    const updatedStoreId = element.value
+    setSearchByStore(updatedStoreId)
+  }
 
   const fetchOrderList = async () => {
     try {
@@ -82,6 +90,7 @@ const DashboardOrderStore: FC = () => {
 
         data = {
           order_id: item.id,
+          store_name: item.store.store_name,
           costumer_name: item.members.full_name,
         }
 
@@ -112,6 +121,36 @@ const DashboardOrderStore: FC = () => {
     fetchData()
   }, [orderList])
 
+  useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getStore()
+  }, [])
+
   // Catch Value From Response API by Status
   const [statusState, setStatusState] = useState(initialStatusState)
 
@@ -137,30 +176,40 @@ const DashboardOrderStore: FC = () => {
     }
   }, [orderList])
 
-  const {
-    totalOrder,
-    survey,
-    onProgress,
-    complete,
-    reschedule,
-    cancel,
-    refund,
-    waitingSurvey,
-    waitingPayment,
-  } = statusState
+  const {totalOrder, survey, onProgress, complete, reschedule, waitingPayment} = statusState
 
   return (
-    <section id='dashboard-order'>
-      <div className='row'>
-        <div className='col-xxl-4 col-xl-6 col-lg-12 mb-5'>
-          <div className='row'>
-            <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center '>
-              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
-            </div>
+    <section id='dashboard-ho'>
+      <Row>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+          <Row>
+            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+              <h3 className='title-header fs-7 fw-normal'>Lihat Store Dashboard</h3>
+            </Col>
 
-            <div className='col-xxl-8 col-xl-8 col-lg-8'>
+            <Col xxl={8} xl={8} lg={8}>
+              <Select
+                name='store_id'
+                className='form-control p-0'
+                classNamePrefix='select'
+                placeholder='Pilih Toko'
+                isSearchable={true}
+                options={store}
+                onChange={(element) => handleChangeSelectStore(element)}
+              />
+            </Col>
+          </Row>
+        </Col>
+
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+          <Row>
+            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+              <h3 className='title-header fs-7 fw-normal'>Pilih rentang waktu</h3>
+            </Col>
+
+            <Col xxl={8} xl={8} lg={8}>
               <RangePicker
-                className='date-range ms-3'
+                className='date-range'
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -173,18 +222,31 @@ const DashboardOrderStore: FC = () => {
                     setDateTo('')
                   }
                 }}
-              />{' '}
-            </div>
-          </div>
-        </div>
-      </div>
+              />
+            </Col>
+          </Row>
+        </Col>
 
-      {/* begin::Row */}
-      <div className='row g-5 g-xl-8 mb-5'>
-        <div className='col-xl-12'>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+          <Row>
+            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+              <h3 className='title-header fs-7 fw-normal'>Track Order</h3>
+            </Col>
+
+            <Col xxl={8} xl={8} lg={8} className='d-flex align-items-center'>
+              <div className='filter-search w-100'>
+                <Form.Control placeholder='Masukkan Order ID' className='filter' />
+              </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+
+      <Row className='g-5 g-xl-8 mb-5'>
+        <Col xl={12}>
           <Card>
             <Card.Body>
-              <div className='fs-5 fw-normal mb-5'>Order bulan ini</div>
+              <div className='fs-5 fw-normal mb-5'>Order</div>
 
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
@@ -224,27 +286,6 @@ const DashboardOrderStore: FC = () => {
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{cancel}</h1>
-                    <p className='text-danger text-center'>Cancel</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{refund}</h1>
-                    <p className='text-danger text-center'>Refund</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingSurvey}</h1>
-                    <p className='text-brown fw-bold text-center'>Menunggu Survey</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{waitingPayment}</h1>
                     <p className='text-brown fw-bold text-center'>Menunggu Bayar</p>
                   </div>
@@ -252,33 +293,36 @@ const DashboardOrderStore: FC = () => {
               </Row>
             </Card.Body>
           </Card>
-        </div>
-      </div>
-      {/* end::Row */}
+        </Col>
+      </Row>
 
-      {/* begin::Row */}
-      <div className='row g-5 g-xl-8 mb-5'>
-        <div className='col-xl-4'>
-          <MoreInformation className='card-xl-stretch mb-xl-8' />
-        </div>
-        <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' />
-        </div>
-        <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-xl-8' />
-        </div>
-      </div>
-      {/* end::Row */}
+      <Row>
+        <Col xxl={8}>
+          <Row className='g-5 g-xl-8 mb-5'>
+            <Col xl={6}>
+              <MoreInformation className='card-xl-stretch mb-xl-8' />
+            </Col>
+            <Col xl={6}>
+              <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
+            </Col>
+          </Row>
 
-      {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        <div className='col-xl-12'>
+          <Row className='g-5 g-xl-8 mb-5'>
+            <Col xl={6}>
+              <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+            </Col>
+            <Col xl={6}>
+              <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
+            </Col>
+          </Row>
+        </Col>
+
+        <Col xxl={4}>
           <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
-        </div>
-      </div>
-      {/* end::Row */}
+        </Col>
+      </Row>
     </section>
   )
 }
 
-export {DashboardOrderStore}
+export {DashboardHO}

@@ -1,26 +1,28 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useEffect } from 'react'
+import React, {useState, useEffect} from 'react'
 
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
-import { Table, Tag } from 'antd'
-import type { ColumnsType } from 'antd/es/table'
-import { useNavigate } from 'react-router-dom'
-import { Row, Col, Form, InputGroup } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBook, faPen, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons'
+import {Table, Tag} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
+import {useNavigate} from 'react-router-dom'
+import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faBook, faPen, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import { DatePicker } from 'antd'
-const { RangePicker } = DatePicker
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
 
 type Props = {
   className: string
 }
+
 interface Status {
-  value: number,
+  value: number
   category: string
 }
+
 interface DataType {
   order_id: number
   store_name: string
@@ -34,7 +36,8 @@ interface DataType {
   order_status: string
 }
 
-const ViewWorkVendor: React.FC<Props> = ({ className }) => {
+const ViewWorkVendor: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -168,8 +171,8 @@ const ViewWorkVendor: React.FC<Props> = ({ className }) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [
-        { text: 'BOOK', value: 'BOOK' },
-        { text: 'BOOKED', value: 'BOOKED' },
+        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
+        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
       ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
@@ -216,13 +219,8 @@ const ViewWorkVendor: React.FC<Props> = ({ className }) => {
 
   const fetchOrderList = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-
-      // const desiredStatusName = 'SURVEYREQ'
-      // const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
       const desiredStatus = statusData.filter((status: any) => status.category.includes('SURVEY'))
 
       if (desiredStatus) {
@@ -351,8 +349,8 @@ const ViewWorkVendor: React.FC<Props> = ({ className }) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{ x: 1800 }}
-            pagination={{ position: ['bottomRight'] }}
+            scroll={{x: 1800}}
+            pagination={{position: ['bottomRight']}}
           />
         </div>
       </div>
@@ -360,4 +358,4 @@ const ViewWorkVendor: React.FC<Props> = ({ className }) => {
   )
 }
 
-export { ViewWorkVendor }
+export {ViewWorkVendor}
