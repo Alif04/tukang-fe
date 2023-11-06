@@ -38,10 +38,11 @@ const statusToStateMap: StatusToStateMap = {
   REJECT: 'cancel',
   REFUND: 'refund',
   WAITINGSURVEY: 'waitingSurvey',
-  WORKRELATED: 'waitingPayment',
+  UNPAID: 'waitingPayment',
 }
 
 const DashboardOrderStore: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
 
@@ -53,19 +54,10 @@ const DashboardOrderStore: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const fetchOrderList = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
       const response = await axios.get(
-        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=50`,
+        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=0`,
         {
           headers: {
             Accept: 'application/json',

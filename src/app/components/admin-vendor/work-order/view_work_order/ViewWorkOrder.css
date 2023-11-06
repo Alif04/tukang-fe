@@ -5,7 +5,7 @@
   background-color: #398318;
 }
 
-#view-invoice
+#view-work-order-vendor
   .ant-table-wrapper
   .ant-table-container
   table
@@ -15,7 +15,7 @@
   border-start-start-radius: 0;
 }
 
-#view-invoice
+#view-work-order-vendor
   .ant-table-wrapper
   .ant-table-container
   table

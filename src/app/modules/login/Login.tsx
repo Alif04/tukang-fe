@@ -12,7 +12,6 @@ import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'
 export function Login() {
   const navigate = useNavigate()
   const apiUrl = process.env.REACT_APP_API_URL
-  console.log('API URL:', apiUrl)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -106,6 +105,7 @@ export function Login() {
                     name='username'
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    onKeyDown={(e) => (e.key == 'Enter' ? handleLogin() : null)}
                   />
                 </Form.Group>
               </div>
@@ -128,6 +128,7 @@ export function Login() {
                     type={handleTogglePassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => (e.key == 'Enter' ? handleLogin() : null)}
                   />
                   <span className='show-hide-password' onClick={togglePasswordVisiblity}>
                     <FontAwesomeIcon

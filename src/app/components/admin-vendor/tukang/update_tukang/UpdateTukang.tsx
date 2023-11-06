@@ -6,9 +6,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import makeAnimated from 'react-select/animated'
-import {Table} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
-import type {ColumnsType} from 'antd/es/table'
 import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -149,7 +147,7 @@ const UpdateTukangVendor: FC = () => {
 
   const getTukangService = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/tukang-service/data`, {
+      const response = await axios.get(`${apiUrl}/tukang-service`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

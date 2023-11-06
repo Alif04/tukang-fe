@@ -36,7 +36,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     order_id: number
     date_order: string
     costumer_name: string
-    vendor_name: string
+    // vendor_name: string
     payment_status: string
     order_status: string
     quotation_status: string
@@ -88,15 +88,15 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
-    {
-      title: 'Nama Vendor',
-      dataIndex: 'vendor_name',
-      key: 'vendor_name',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.vendor_name.includes(String(value)),
-      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-    },
+    // {
+    //   title: 'Nama Vendor',
+    //   dataIndex: 'vendor_name',
+    //   key: 'vendor_name',
+    //   align: 'left',
+    //   width: 140,
+    //   onFilter: (value, record) => record.vendor_name.includes(String(value)),
+    //   sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    // },
     {
       title: 'Payment Status',
       dataIndex: 'payment_status',
@@ -184,11 +184,34 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 90,
+      width: 50,
+      render: (record) => {
+        const handleDetail = () => {
+          const id = record.quotation_id
+          navigate(`/quotation/detail-quotation/${id}`)
+        }
+
+        const handleEdit = () => {
+          const id = record.quotation_id
+          navigate(`/quotation/update-quotation/${id}`)
+        }
+
+        return (
+          <div className='button-wrapper'>
+            <a className='button-detail' onClick={handleDetail}>
+              <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
+
+            <a className='button-edit' onClick={handleEdit}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
+            </a>
+          </div>
+        )
+      },
     },
   ]
 
-  const [orderData, setOrderData] = useState<DataType[]>([])
+  const [quotationData, setQuotationData] = useState<DataType[]>([])
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -211,31 +234,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       })
 
       return response.data.data
-
-      // const storedStatus = sessionStorage.getItem('statusData')
-      // const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      // const desiredStatusName = 'SURVEYDONE'
-      // const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-
-      // if (desiredStatus) {
-      //   const statusId = desiredStatus.value
-
-      //   const response = await axios.get(
-      //     `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
-      //     {
-      //       headers: {
-      //         Accept: 'application/json',
-      //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      //         'Access-Control-Allow-Origin': '*',
-      //         'ngrok-skip-browser-warning': 'true',
-      //       },
-      //     }
-      //   )
-      //   return response.data.data
-      // } else {
-      //   console.error('Desired status not found in statusData')
-      // }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -262,9 +260,9 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           order_id: item.order.id,
           date_order: formatDate(orderDate),
           costumer_name: item.order.members.full_name,
-          vendor_name: item.vendor.vendor_name,
+          // vendor_name: item.vendor.vendor_name,
           payment_status: paymentStatus,
-          order_status: item.order.status.category,
+          order_status: item.status.category,
           quotation_status: item.quotation_status,
         }
 
@@ -281,7 +279,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await ViewOrder()
-      setOrderData(data)
+      setQuotationData(data)
     }
 
     fetchData()
@@ -322,7 +320,11 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
                     <FontAwesomeIcon icon={faSearch} size='sm' />
                   </InputGroup.Text>
 
-                  <Form.Control placeholder='Filter' className='filter-ltr' />
+                  <Form.Control
+                    placeholder='Filter'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
                 </InputGroup>
               </div>
             </Col>
@@ -356,8 +358,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.key}
+            dataSource={quotationData}
+            rowKey={(record) => record.quotation_id}
             scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
           />

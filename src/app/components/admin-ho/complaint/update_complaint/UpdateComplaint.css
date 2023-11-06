@@ -1,105 +1,105 @@
 /* Form Layout */
 
-#update-complaint .form-wrapper {
+#update-complaint-ho .form-wrapper {
   margin-bottom: 30px;
 }
 
-#update-complaint .form-wrapper .form-header {
+#update-complaint-ho .form-wrapper .form-header {
   margin-bottom: 30px;
 }
 
-#update-complaint .form-wrapper .form-header label.form-label.col-form-label.col-sm-4 {
+#update-complaint-ho .form-wrapper .form-header label.form-label.col-form-label.col-sm-4 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .form-wrapper .form-header input.form-control-plaintext {
+#update-complaint-ho .form-wrapper .form-header input.form-control-plaintext {
   padding: 3px 0px;
 }
 
-#update-complaint .form-wrapper .form-header label.fs-4.fw-bold.form-label {
+#update-complaint-ho .form-wrapper .form-header label.fs-4.fw-bold.form-label {
   margin: 0 !important;
 }
 
-#update-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-complaint-ho .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 60%;
 }
 
-#update-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#update-complaint-ho .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-4 {
+#update-complaint-ho .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-4 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .costumer-info .detail-info.row input.form-control-plaintext {
+#update-complaint-ho .costumer-info .detail-info.row input.form-control-plaintext {
   padding: 3px 0px;
 }
 
-#update-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-complaint-ho .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 40%;
 }
 
-#update-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#update-complaint-ho .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
   padding: 3px 9.75px;
 }
 
-#update-complaint .sales-info .detail-info.row input.form-control-plaintext {
+#update-complaint-ho .sales-info .detail-info.row input.form-control-plaintext {
   padding: 3px 0px;
 }
 
 /* Table Order */
 
-#update-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-ho .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 100px 0 10px;
 }
 
-#update-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-ho .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 30px 0 30px;
 }
 
-#update-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-ho .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 10px 0 100px;
 }
 
-#update-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+#update-complaint-ho .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
   padding: 0 100px 0 10px;
 }
 
 /* Table Complaint*/
 
-#update-complaint .table-picklist .table tr,
+#update-complaint-ho .table-picklist .table tr,
 .table th,
 .table td {
   border: 1px solid gray;
 }
 
-#update-complaint .table-picklist th {
+#update-complaint-ho .table-picklist th {
   text-align: center;
 }
 
 /* Form Input Image */
 
-#update-complaint form.form-input-image {
+#update-complaint-ho form.form-input-image {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border: 2px dashed #858585;
   width: 100%;
-  min-height: 215px;
+  min-height: 100px;
   cursor: pointer;
   border-radius: 5px;
 }
 
-#update-complaint .input-image-text {
+#update-complaint-ho .input-image-text {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px 10px;
 }
 
-#update-complaint .input-image-text p {
+#update-complaint-ho .input-image-text p {
   margin: 10px 10px;
   padding: 5px 10px !important;
   border: 1px solid;
@@ -107,7 +107,7 @@
   color: #858585;
 }
 
-#update-complaint .uploaded-row {
+#update-complaint-ho .uploaded-row {
   margin: 10px 0;
   display: flex;
   justify-content: space-between;
@@ -117,7 +117,7 @@
   background-color: #f4f7fe;
 }
 
-#update-complaint .upload-content {
+#update-complaint-ho .upload-content {
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -125,7 +125,7 @@
   text-overflow: ellipsis;
 }
 
-#update-complaint .list-group-not-approve {
+#update-complaint-ho .list-group-not-approve {
   height: 44px;
   display: flex;
   justify-content: center;
@@ -134,7 +134,7 @@
   font-weight: 600;
 }
 
-#update-complaint .image-preview {
+#update-complaint-ho .image-preview {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -148,18 +148,34 @@ svg.svg-inline--fa.fa-trash.fa-sm {
   margin: 0 0 0 10px;
 }
 
+/* Button Action */
+
+#update-complaint-ho .btn.btn-dark-primary {
+  width: 200px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-complaint-ho .btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300b5 !important;
+}
+
 @media screen and (max-width: 1400px) {
   /* Form Layout */
 
-  #update-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-ho .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-ho .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .alamat-order.row .col {
+  #update-complaint-ho .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 }
@@ -167,38 +183,38 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 1200px) {
   /* Form Layout */
 
-  #update-complaint .form-wrapper {
+  #update-complaint-ho .form-wrapper {
     flex-direction: column;
     gap: 10px;
   }
 
-  #update-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-ho .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 
-  #update-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-ho .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 
-  #update-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-ho .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-complaint-ho .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .alamat-order.row .col {
+  #update-complaint-ho .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 
   /* Form Sales */
 
-  #update-complaint .form-sales .form-header {
+  #update-complaint-ho .form-sales .form-header {
     margin-bottom: 20px;
   }
 
-  #update-complaint .form-sales .form-header h1 {
+  #update-complaint-ho .form-sales .form-header h1 {
     text-align: start !important;
   }
 }
@@ -209,22 +225,22 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 768px) {
   /* Table Order */
 
-  #update-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-ho .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
   }
 
-  #update-complaint .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-ho .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
   }
 
-  #update-complaint .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-ho .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     margin-top: 20px;
     padding: 0 10px 0 10px;
   }
 
-  #update-complaint .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  #update-complaint-ho .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
   }
 }
@@ -232,11 +248,11 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 @media screen and (max-width: 576px) {
   /* Button */
 
-  #update-complaint .btn.btn-dark-primary {
+  #update-complaint-ho .btn.btn-dark-primary {
     height: 40px;
   }
 
-  #update-complaint .btn.btn-dark-danger {
+  #update-complaint-ho .btn.btn-dark-danger {
     height: 40px;
   }
 }

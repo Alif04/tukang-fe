@@ -153,7 +153,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
         const statusId = desiredStatus.value
 
         const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=50&status=${statusId}`,
+          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
           {
             headers: {
               Accept: 'application/json',

@@ -5,18 +5,6 @@ import './DetailWorkOrder.css'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Form, Button, InputGroup, Row, Col, Table} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-  faUserPlus,
-  faFileExcel,
-} from '@fortawesome/free-solid-svg-icons'
 
 const DetailWorkVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -63,7 +51,11 @@ const DetailWorkVendor: FC = () => {
             <div className='information-wrapper'>
               <div className='detail-header'>
                 <div className='order-id'>
-                  <h3>Order ID : {orderDetail?.id}</h3>
+                  <h3>
+                    {orderDetail?.work_orders === null
+                      ? `Order ID : ${orderDetail?.id}`
+                      : `Work Order ID : ${orderDetail?.work_orders.id}`}
+                  </h3>
                 </div>
               </div>
 
@@ -89,7 +81,7 @@ const DetailWorkVendor: FC = () => {
 
                   <div className='email mb-3'>
                     <p className='me-5'>
-                      <span>Email Address :</span> {orderDetail?.email_address}
+                      <span>Email Address :</span> {orderDetail?.members.email}
                     </p>
                   </div>
 
@@ -105,7 +97,10 @@ const DetailWorkVendor: FC = () => {
             <div className='information-wrapper'>
               <div className='detail-header'>
                 <h3>
-                  WORK ORDER STATUS: <span>{orderDetail?.status.category}</span>
+                  WORK ORDER STATUS :{' '}
+                  <span className='text-success text-uppercase'>
+                    {orderDetail?.status.category}
+                  </span>
                 </h3>
               </div>
 
@@ -188,27 +183,41 @@ const DetailWorkVendor: FC = () => {
                   <div className='costumer-id mb-3'>
                     <p className='me-5'>
                       <span>Tanggal Request Survey : </span>
-                      {orderDetail ? formatDate(new Date(orderDetail?.created_at)) : ''}
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.request_work_time))
+                        : ''}
                     </p>
                   </div>
 
-                  {/* <div className='costumer-name mb-3'>
+                  <div className='costumer-name mb-3'>
                     <p className='me-5'>
-                      <span>Tanggal Survey : </span>10/06/2023 <span>Oleh : </span> Saiful
+                      <span>Tanggal Survey : </span>{' '}
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.survey_date))
+                        : ''}
+                      {/* <span>Oleh : </span> Saiful */}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Tanggal Mulai Kerja : </span>19/06/2023 <span>Oleh : </span> Udin, Jamal
+                      <span>Tanggal Mulai Kerja : </span>{' '}
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.work_start_date))
+                        : ''}
+                      {/* <span>Oleh : </span> Udin, Jamal */}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Tanggal Selesai : </span>29/06/2023 <span>Oleh : </span> Udin, Jamal
+                      <span>Tanggal Selesai : </span>{' '}
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.work_end_date))
+                        : ''}
+                      {/* <span>Oleh : </span> Udin, Jamal */}
                     </p>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
@@ -242,10 +251,6 @@ const DetailWorkVendor: FC = () => {
           </div>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit'>
-              Cancel
-            </Button>
-
             <Button variant='info' type='submit'>
               Print Work Order Detail
             </Button>

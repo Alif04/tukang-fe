@@ -286,15 +286,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
         const orderDate = new Date(item.orders.created_at)
         const complaintDate = new Date(item.complaint_date)
 
-        let complaintStatus =
-          item.complaint_status === 3
-            ? 'INVESTIGATED'
-            : item.complaint_status === 19
-            ? 'ACCEPTED'
-            : item.complaint_status === 21
-            ? 'REJECT'
-            : ''
-
         let phoneNumber =
           item.orders.members.phone_number !== 'null'
             ? item.orders.members.phone_number
@@ -313,7 +304,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           // work_status: item,
           complaint_date: formatDate(complaintDate),
           complaint_desc: item.description,
-          complaint_status: complaintStatus,
+          complaint_status: item.status.category,
         }
 
         return data

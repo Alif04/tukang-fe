@@ -24,6 +24,7 @@ const PrivateRoutes = () => {
   const InvoicePage = lazy(() => import('../modules/invoice/InvoicePage'))
   const RefundPage = lazy(() => import('../modules/refund/RefundPage'))
   const TukangPage = lazy(() => import('../modules/tukang/TukangPage'))
+  const MaterialPage = lazy(() => import('../modules/material/MaterialPage'))
 
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const WizardsPage = lazy(() => import('../modules/wizards/WizardsPage'))
@@ -105,6 +106,15 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <WarrantyPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='material/*'
+          element={
+            <SuspensedView>
+              <MaterialPage />
             </SuspensedView>
           }
         />

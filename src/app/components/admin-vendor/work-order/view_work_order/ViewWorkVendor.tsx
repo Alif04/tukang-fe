@@ -18,6 +18,11 @@ type Props = {
   className: string
 }
 
+interface Status {
+  value: number
+  category: string
+}
+
 interface DataType {
   order_id: number
   store_name: string
@@ -32,6 +37,7 @@ interface DataType {
 }
 
 const ViewWorkVendor: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -165,8 +171,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [
-        {text: 'BOOK', value: 'BOOK'},
-        {text: 'BOOKED', value: 'BOOKED'},
+        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
+        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
       ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
@@ -213,19 +219,15 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   const fetchOrderList = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
       const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      const desiredStatusName = 'SURVEYREQ'
-      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+      const desiredStatus = statusData.filter((status: any) => status.category.includes('SURVEY'))
 
       if (desiredStatus) {
-        const statusId = desiredStatus.value
+        const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
+          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statuses}`,
           {
             headers: {
               Accept: 'application/json',

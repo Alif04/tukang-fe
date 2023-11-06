@@ -1,9 +1,10 @@
-import React, {FC, useState, useEffect, useRef, ChangeEvent} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './UpdateComplaint.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import Select from 'react-select'
 import {Image} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
@@ -15,6 +16,11 @@ interface OptionRemedialStatus {
   label: string
 }
 
+interface ComplaintChannel {
+  value: string
+  label: string
+}
+
 const UpdateComplaintHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
@@ -23,8 +29,7 @@ const UpdateComplaintHO: FC = () => {
   const userId = localStorage.getItem('user_id') as any
 
   // Complaint Detail
-  const [orderDetail, setOrderDetail] = useState<any>()
-
+  const [orderId, setOrderId] = useState<any>()
   const [complaintId, setComplaintId] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
 
@@ -44,11 +49,37 @@ const UpdateComplaintHO: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+          setComplaintDetail(data)
+
+          if (data?.orders.id) {
+            setOrderId(data.orders.id)
+          }
+
           if (data?.id) {
             setComplaintId(data.id)
           }
 
-          setComplaintDetail(data)
+          if (data?.description) {
+            setComplaintDesc(data.description)
+          }
+
+          if (data?.complaint_date) {
+            setComplaintDate(new Date(data.complaint_date).toISOString().split('T')[0])
+          }
+
+          if (data?.complaint_channels?.id && data?.complaint_channels?.name) {
+            setComplaintChannelId(data.complaint_channels.id)
+            setComplaintChannelName(data.complaint_channels.name)
+          }
+
+          if (data?.complaint_evidence) {
+            const initialComplaintEvidenceValues = data.complaint_evidence.map((item: any) => ({
+              id: item.id,
+              name: item.evidence_location,
+            }))
+
+            setComplaintEvidence(initialComplaintEvidenceValues)
+          }
         })
     } catch (error) {
       console.error(error)
@@ -81,9 +112,36 @@ const UpdateComplaintHO: FC = () => {
     }
   }
 
+  const fetchComplaintChannel = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/complaint-channels`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempComplaintChannel = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setComplaintChannel(tempComplaintChannel)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     fetchComplaintData()
     fetchRemedialStatus()
+    fetchComplaintChannel()
   }, [])
 
   const phoneNumber =
@@ -98,6 +156,177 @@ const UpdateComplaintHO: FC = () => {
     return `${day}/${month}/${year}`
   }
 
+  const today = new Date().toISOString().split('T')[0]
+
+  // Update Complaint
+  const [complaintDesc, setComplaintDesc] = useState<any>('')
+  const [complaintDate, setComplaintDate] = useState<string>('')
+  const [complaintStatus, setComplaintStatus] = useState<any>(1)
+  const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Complaint Channel
+  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
+  const [complaintChannelName, setComplaintChannelName] = useState<string>('')
+
+  // Handle Input Change
+  const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setComplaintDesc(updatedInputValue)
+  }
+
+  // Handle Change Complaint Channel
+  const handleChangeSelectComplaintChannel = (element: any) => {
+    const updatedComplaintChannelId = element.value
+    const updatedComplaintChannelName = element.label
+
+    setComplaintChannelId(updatedComplaintChannelId)
+    setComplaintChannelName(updatedComplaintChannelName)
+  }
+
+  // Handle Complaint Date Change
+  const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedComplaintDate = event.target.value
+    setComplaintDate(updatedComplaintDate)
+  }
+
+  // Handle Change Complaint File
+  const handleFileComplaintChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+
+      const existingFiles = [...complaintEvidence]
+
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setComplaintEvidence(mergedFiles)
+    }
+  }
+
+  const handleComplaintImageClick = () => {
+    const inputField = document.querySelector('.input-field-image-complaint') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleComplaintRemoveFile = (index: number) => {
+    const newEvidances = [...complaintEvidence]
+
+    newEvidances.splice(index, 1)
+
+    setComplaintEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Update Complaint Validation
+  const UpdateComplaintValidation = () => {
+    let valid = true
+
+    if (!complaintDesc) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint description',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintChannelId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select complaint via form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintDate) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!complaintEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill complaint evidence form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  // Handle Update Complaint
+  const handleUpdateComplaint = async () => {
+    if (UpdateComplaintValidation()) {
+      const formData = new FormData()
+
+      formData.append('order_id', orderId)
+      formData.append('description', complaintDesc)
+      formData.append('complaint_channel', complaintChannelId)
+      formData.append('complaint_date', complaintDate)
+
+      if (complaintEvidence?.length) {
+        complaintEvidence.forEach((item) => {
+          if (item) {
+            formData.append(`complaint_evidences-complaint`, item, item?.name)
+          }
+        })
+      }
+
+      const response = await axios
+        .post(`${apiUrl}/complaints/${params.id}`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Update Complaint',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
+
+          navigate('/complaint/view-complaint')
+        })
+        .catch((error) => {
+          console.error(error)
+
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
+    }
+  }
+
   // Add Remedial Action
   const [picRemedialId, setPicRemedialId] = useState<any>()
   const [remedialDesc, setRemedialDesc] = useState<any>('')
@@ -105,7 +334,7 @@ const UpdateComplaintHO: FC = () => {
   const [remedialEndDate, setremedialEndDate] = useState<string>('')
   const [remedialEvidence, setRemedialEvidence] = useState<Array<File | null>>([])
 
-  const evidenceRef = useRef<HTMLInputElement>(null)
+  const remedialEvidenceRef = useRef<HTMLInputElement>(null)
 
   // Remedial Status
   const [optionRemedialStatus, setOptionRemedialStatus] = useState<OptionRemedialStatus[]>([])
@@ -139,8 +368,6 @@ const UpdateComplaintHO: FC = () => {
   // }
 
   // Handle Complaint Date Change
-  const today = new Date().toISOString().split('T')[0]
-
   const handleChangeremedialStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedremedialStartDate = event.target.value
     setremedialStartDate(updatedremedialStartDate)
@@ -180,7 +407,7 @@ const UpdateComplaintHO: FC = () => {
   }
 
   const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    const inputField = document.querySelector('.input-field-image-remedial') as HTMLInputElement
     inputField.click()
   }
 
@@ -192,8 +419,8 @@ const UpdateComplaintHO: FC = () => {
     setRemedialEvidence(newEvidances)
 
     // Update element value
-    if (evidenceRef.current?.value) {
-      evidenceRef.current.value = ''
+    if (remedialEvidenceRef.current?.value) {
+      remedialEvidenceRef.current.value = ''
     }
   }
 
@@ -298,12 +525,8 @@ const UpdateComplaintHO: FC = () => {
     }
   }
 
-  const handleCancelRemedial = () => {
-    navigate('/complaint/view-complaint')
-  }
-
   return (
-    <section id='update-complaint'>
+    <section id='update-complaint-ho'>
       <div className='card'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -524,102 +747,105 @@ const UpdateComplaintHO: FC = () => {
           <Row>
             <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
               <div className='fs-3 fw-bold text-danger'>COMPLAINT HISTORY</div>
-
               <Row>
                 <Col>
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
-                      Complaint ID :
-                    </Form.Label>
-                    <Col sm='5'>
-                      <Form.Control type='text' plaintext readOnly value={complaintDetail?.id} />
+                  <Form.Group className='detail-info mt-3'>
+                    <Form.Label>Complaint ID :</Form.Label>
+                    <Col>
+                      <Form.Control type='text' readOnly value={complaintDetail?.id} />
                     </Col>
                   </Form.Group>
 
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
-                      Complaint Channel :
-                    </Form.Label>
-                    <Col sm='5'>
-                      <Form.Control
-                        plaintext
-                        readOnly
-                        value={complaintDetail?.complaint_channels.name}
-                      />
-                    </Col>
+                  <Form.Group className='mt-3'>
+                    <Form.Label>Complaint Channel : </Form.Label>
+                    <Select
+                      name='complaint_channel_id'
+                      className='form-control p-0'
+                      classNamePrefix='select'
+                      placeholder='Complaint Via'
+                      isSearchable={true}
+                      options={complaintChannel}
+                      value={{
+                        value: complaintChannelId,
+                        label: complaintChannelName,
+                      }}
+                      onChange={(element) => handleChangeSelectComplaintChannel(element)}
+                    />
                   </Form.Group>
 
-                  <Form.Label className='mt-3'>Complaint Detail :</Form.Label>
-                  <Form.Control
-                    style={{minHeight: '200px'}}
-                    as='textarea'
-                    plaintext
-                    readOnly
-                    value={complaintDetail?.description}
-                  ></Form.Control>
+                  <Form.Group className='mt-3'>
+                    <Form.Label>Complaint Detail :</Form.Label>
+                    <Form.Control
+                      style={{minHeight: '250px'}}
+                      as='textarea'
+                      value={complaintDesc}
+                      onChange={handleInputComplaintDesc}
+                    ></Form.Control>
+                  </Form.Group>
                 </Col>
 
                 <Col>
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
-                      Complaint Date :
-                    </Form.Label>
-                    <Col sm='5'>
+                  <Form.Group className='mt-3'>
+                    <Form.Label>Complaint Date :</Form.Label>
+                    <Form.Control
+                      type='date'
+                      min={today}
+                      value={complaintDate}
+                      onChange={handleChangeComplaintDate}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className='mt-3' controlId='formFile'>
+                    <Form.Label>Complaint Evidence</Form.Label>
+                    <Form className='form-input-image' onClick={handleComplaintImageClick}>
                       <Form.Control
-                        type='text'
-                        plaintext
-                        readOnly
-                        value={
-                          complaintDetail
-                            ? formatDate(new Date(complaintDetail.complaint_date))
-                            : ''
-                        }
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image-complaint'
+                        multiple
+                        hidden
+                        id='file-input'
+                        ref={evidenceRef}
+                        onChange={handleFileComplaintChange}
                       />
-                    </Col>
+
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    </Form>
+
+                    <ListGroup className='pt-3'>
+                      {complaintEvidence.length ? (
+                        complaintEvidence.map((item, index) => (
+                          <ListGroup.Item
+                            key={`${item?.name}-${index}-${item?.type}`}
+                            className='d-flex justify-content-between'
+                            onClick={() => {
+                              setPreviewImage(item?.name)
+                              setVisible(true)
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                            <span className='upload-content'>{item?.name}</span>
+
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleComplaintRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
                   </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
-                      Complaint Handler :
-                    </Form.Label>
-                    <Col sm='5'>
-                      <Form.Control plaintext readOnly defaultValue='HO' />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
-                  <ListGroup>
-                    {complaintDetail?.complaint_evidence.map((item: any) => (
-                      <ListGroup.Item
-                        key={item.id}
-                        action
-                        onClick={() => {
-                          setPreviewImage(item.evidence_location)
-                          setVisible(true)
-                        }}
-                      >
-                        {item.evidence_location}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-
-                  {previewImage && (
-                    <div>
-                      <Image
-                        key={previewImage}
-                        width={200}
-                        style={{display: 'none'}}
-                        src={`${apiUrl}/public/complaints/${previewImage}`}
-                        preview={{
-                          visible,
-                          src: `${apiUrl}/public/complaints/${previewImage}`,
-                          onVisibleChange: (value) => {
-                            setVisible(value)
-                          },
-                        }}
-                      />
-                    </div>
-                  )}
                 </Col>
               </Row>
             </Col>
@@ -674,6 +900,16 @@ const UpdateComplaintHO: FC = () => {
                       </ListGroup>
                     </Form.Group>
                   </Col>
+
+                  <div className='d-flex justify-content-center align-items-center mt-5'>
+                    <Button
+                      variant='dark-success'
+                      className='d-flex justify-content-center align-items-center'
+                      type='submit'
+                    >
+                      Submit Remedial
+                    </Button>
+                  </div>
                 </Row>
               </Col>
             ) : (
@@ -735,11 +971,11 @@ const UpdateComplaintHO: FC = () => {
                         <Form.Control
                           type='file'
                           accept='image/*'
-                          className='input-field-image'
+                          className='input-field-image-remedial'
                           multiple
                           hidden
                           id='file-input'
-                          ref={evidenceRef}
+                          ref={remedialEvidenceRef}
                           onChange={handleFileChange}
                         />
 
@@ -782,25 +1018,33 @@ const UpdateComplaintHO: FC = () => {
             )}
           </Row>
 
-          <div className='d-flex justify-content-center align-items-center mt-5'>
-            <Button
-              variant='dark-danger'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handleCancelRemedial}
-            >
-              Cancel
-            </Button>
+          <Row>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <div className='d-flex justify-content-center align-items-center mt-5'>
+                <Button
+                  variant='dark-primary'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  onClick={handleUpdateComplaint}
+                >
+                  Update Complaint
+                </Button>
+              </div>
+            </Col>
 
-            <Button
-              variant='dark-primary'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handleSubmitRemedialAction}
-            >
-              Submit
-            </Button>
-          </div>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <div className='d-flex justify-content-center align-items-center mt-5'>
+                <Button
+                  variant='dark-success'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  onClick={handleSubmitRemedialAction}
+                >
+                  Submit Remedial
+                </Button>
+              </div>
+            </Col>
+          </Row>
         </div>
       </div>
     </section>
