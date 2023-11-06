@@ -1,13 +1,13 @@
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import './Login.css'
 
-import {Link, useNavigate} from 'react-router-dom'
-import {Form, Button} from 'react-bootstrap'
+import { Link, useNavigate } from 'react-router-dom'
+import { Form, Button } from 'react-bootstrap'
 import Swal from 'sweetalert2'
 import axios from 'axios'
-import {toAbsoluteUrl} from '../../../_metronic/helpers'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'
+import { toAbsoluteUrl } from '../../../_metronic/helpers'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 
 export function Login() {
   const navigate = useNavigate()
@@ -88,11 +88,11 @@ export function Login() {
     <section id='login-page'>
       <div className='d-flex flex-column flex-column-fluid bgi-position-y-bottom position-x-center bgi-no-repeat bgi-size-contain bgi-attachment-fixed'>
         <div className='d-flex flex-center flex-column flex-column-fluid p-10 pb-lg-20'>
-          <a href='#' className='mb-12'>
+          <a href='/' className='mb-12'>
             <img alt='Logo' src={toAbsoluteUrl('/media/auth/logo-mitra.png')} className='h-100px' />
           </a>
           <div className='w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto'>
-            <form className='form w-100'>
+            <form className='form w-100' onSubmit={handleLogin}>
               <div className='text-center mb-10'>
                 <h1 className='text-dark mb-3'>Sign In to Instalasi Website</h1>
               </div>
@@ -105,7 +105,6 @@ export function Login() {
                     name='username'
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    onKeyDown={(e) => (e.key == 'Enter' ? handleLogin() : null)}
                   />
                 </Form.Group>
               </div>
@@ -114,13 +113,13 @@ export function Login() {
                   <div className='d-flex justify-content-between mt-n5'>
                     <div className='d-flex flex-stack mb-2'>
                       <Form.Label className='fw-bolder text-dark fs-6 mb-0'>Password</Form.Label>
-                      <Link
+                      {/* <Link
                         to='/auth/forgot-password'
                         className='link-primary fs-6 fw-bolder'
-                        style={{marginLeft: '5px'}}
+                        style={{ marginLeft: '5px' }}
                       >
                         Forgot Password ?
-                      </Link>
+                      </Link> */}
                     </div>
                   </div>
                   <Form.Control
@@ -128,7 +127,6 @@ export function Login() {
                     type={handleTogglePassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => (e.key == 'Enter' ? handleLogin() : null)}
                   />
                   <span className='show-hide-password' onClick={togglePasswordVisiblity}>
                     <FontAwesomeIcon
@@ -141,6 +139,7 @@ export function Login() {
               </div>
               <div className='text-center'>
                 <Button
+                  type='submit'
                   id='kt_sign_in_submit'
                   className='btn btn-lg btn-primary w-100 mb-5'
                   onClick={handleLogin}
