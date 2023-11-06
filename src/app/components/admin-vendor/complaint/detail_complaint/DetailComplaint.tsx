@@ -121,7 +121,6 @@ const DetailComplaintVendor: FC = () => {
   const [feedbackStatus, setFeedbackStatusId] = useState<any>()
   const [feedbackDesc, setFeedbackDesc] = useState<any>('')
   const [feedbackStartDate, setFeedbackStartDate] = useState<string>('')
-  const [feedbackEndDate, setFeedbackEndDate] = useState<string>('')
   const [feedbackEvidence, setFeedbackEvidence] = useState<Array<File | null>>([])
 
   const evidenceRef = useRef<HTMLInputElement>(null)
@@ -137,12 +136,6 @@ const DetailComplaintVendor: FC = () => {
 
     setFeedbackStatusId(statusId)
   }, [feedbackStatus])
-
-  // Handle Change PIC Feedback
-  // const handleInputMemberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const updatedInputValue = event.target.value
-  //   setPicFeedback(updatedInputValue)
-  // }
 
   const handlePicFeedbackChange = (element: Member | null) => {
     const newMemberInfo: Member = {
@@ -161,17 +154,10 @@ const DetailComplaintVendor: FC = () => {
   }
 
   // Handle Feedback Date Change
-  const today = new Date().toISOString().split('T')[0]
-
-  const handleChangeFeedbackStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedFeedbackStartDate = event.target.value
-    setFeedbackStartDate(updatedFeedbackStartDate)
-  }
-
-  const handleChangeFeedbackEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedFeedbackEndDate = event.target.value
-    setFeedbackEndDate(updatedFeedbackEndDate)
-  }
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]
+    setFeedbackStartDate(today)
+  }, [])
 
   // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -233,20 +219,6 @@ const DetailComplaintVendor: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!feedbackStartDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill feedback start date form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!feedbackEndDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill feedback end date form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!feedbackEvidence) {
       Swal.fire({
         title: 'Error',
@@ -266,7 +238,6 @@ const DetailComplaintVendor: FC = () => {
       formData.append('complaint_id', complaintId)
       formData.append('remedial_action', feedbackDesc)
       formData.append('ra_date_start', feedbackStartDate)
-      formData.append('ra_date_end', feedbackEndDate)
       formData.append('remedial_pic', picFeedbackId)
       formData.append('remedial_status', feedbackStatus)
 
@@ -291,7 +262,7 @@ const DetailComplaintVendor: FC = () => {
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Update Feedback',
+              text: 'Success Add Feedback',
               icon: 'success',
             })
           } else {
@@ -596,7 +567,7 @@ const DetailComplaintVendor: FC = () => {
                 type='submit'
                 onClick={() => handleApprovalComplaint(complaintStatusApprove)}
               >
-                Approved
+                Accepted
               </Button>
             </div>
           </Row>
@@ -767,13 +738,6 @@ const DetailComplaintVendor: FC = () => {
               <Form.Group>
                 <Form.Label>Nama Pemberi Feedback</Form.Label>
 
-                {/* <Form.Control
-                  type='text'
-                  placeholder='John Doe'
-                  value={picFeedback}
-                  onChange={handlePicFeedbackChange}
-                /> */}
-
                 <Select
                   name='member'
                   id='member'
@@ -782,28 +746,18 @@ const DetailComplaintVendor: FC = () => {
                   placeholder='Pilih PIC Feedback'
                   isSearchable={true}
                   options={picFeedback}
-                  value={{
-                    value: picFeedbackId,
-                    label: picFeedbackName,
-                  }}
+                  // value={{
+                  //   value: picFeedbackId,
+                  //   label: picFeedbackName,
+                  // }}
                   onChange={(element) => handlePicFeedbackChange(element)}
                 />
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Tanggal Start Feedback : </Form.Label>
-                <Form.Control min={today} type='date' onChange={handleChangeFeedbackStartDate} />
-              </Form.Group>
-            </Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'></Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Tanggal End Feedback : </Form.Label>
-                <Form.Control min={today} type='date' onChange={handleChangeFeedbackEndDate} />
-              </Form.Group>
-            </Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'></Col>
           </Row>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>
@@ -892,19 +846,6 @@ const DetailComplaintVendor: FC = () => {
           </div> */}
         </div>
       </div>
-
-      <Image
-        width={200}
-        style={{display: 'none'}}
-        src='https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60'
-        preview={{
-          visible,
-          src: 'https://images.unsplash.com/photo-1682686580433-2af05ee670ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHw2fHx8ZW58MHx8fHx8&auto=format&fit=crop&w=500&q=60',
-          onVisibleChange: (value) => {
-            setVisible(value)
-          },
-        }}
-      />
     </section>
   )
 }
