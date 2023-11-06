@@ -1,4 +1,4 @@
-import React, {useState, useEffect, FC, SetStateAction} from 'react'
+import React, { useState, useEffect, FC, SetStateAction } from 'react'
 
 import './UpdateWorkOrder.css'
 
@@ -6,11 +6,11 @@ import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {Table} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Button, Row, Col, Card} from 'react-bootstrap'
-import {WorkOrder} from '../../../../interfaces/work-order'
+import { Table } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Form, Button, Row, Col, Card } from 'react-bootstrap'
+import { WorkOrder } from '../../../../interfaces/work-order'
 
 interface Tukang {
   value: any
@@ -97,9 +97,10 @@ const UpdateWorkVendor: FC = () => {
             workOrderHandler(data.tukang_id, 'tukang_id')
           }
 
-          if (data?.work_orders?.request_work_time) {
+          if (data?.request_survey) {
+            console.log(data)
             workOrderHandler(
-              formatInputDate(new Date(data.work_orders.request_work_time)),
+              formatInputDate(new Date(data.request_survey)),
               'request_work_time'
             )
           }
@@ -236,7 +237,7 @@ const UpdateWorkVendor: FC = () => {
     setStateAction: SetStateAction<typeof setWorkOrder> = setWorkOrder
   ) => {
     setWorkOrder((prev) => {
-      const cache = {...prev, [target]: value}
+      const cache = { ...prev, [target]: value }
       return cache
     })
 
@@ -250,20 +251,20 @@ const UpdateWorkVendor: FC = () => {
 
     let errorBags = []
     const requiredFields = [
-      {key: 'order_id', fieldName: 'Order'},
-      {key: 'vendor_id', fieldName: 'Vendor'},
-      {key: 'tukang_id', fieldName: 'Tehnisi'},
-      {key: 'request_work_time', fieldName: 'Tanggal Request Survey'},
-      {key: 'survey_date', fieldName: 'Tanggal survey'},
-      {key: 'work_order_status', fieldName: 'Update Work Order Status'},
-      {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
-      {key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan'},
+      { key: 'order_id', fieldName: 'Order' },
+      { key: 'vendor_id', fieldName: 'Vendor' },
+      { key: 'tukang_id', fieldName: 'Tehnisi' },
+      { key: 'request_work_time', fieldName: 'Tanggal Request Survey' },
+      { key: 'survey_date', fieldName: 'Tanggal survey' },
+      { key: 'work_order_status', fieldName: 'Update Work Order Status' },
+      { key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan' },
+      { key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan' },
     ]
 
     for (const key in workOrder) {
       if (Object.prototype.hasOwnProperty.call(workOrder, key)) {
         const value = workOrder[key]
-        const required = requiredFields.find((fields: {key: string}) => fields.key === key)
+        const required = requiredFields.find((fields: { key: string }) => fields.key === key)
 
         if (required) {
           if (value) {
@@ -588,11 +589,11 @@ const UpdateWorkVendor: FC = () => {
                     value={
                       workOrder.work_order_status
                         ? {
-                            value: workOrder.work_order_status,
-                            label: workOrderStatus.find(
-                              (option) => option.value === workOrder.work_order_status
-                            )?.category,
-                          }
+                          value: workOrder.work_order_status,
+                          label: workOrderStatus.find(
+                            (option) => option.value === workOrder.work_order_status
+                          )?.category,
+                        }
                         : null
                     }
                     onChange={(e) => {
@@ -698,7 +699,7 @@ const UpdateWorkVendor: FC = () => {
                 dataSource={workOrderHistory}
                 rowKey={(record) => record.work_order_id}
                 // scroll={{x: 1800}}
-                pagination={{position: ['bottomRight']}}
+                pagination={{ position: ['bottomRight'] }}
               />
             </div>
           </Card.Body>
@@ -710,4 +711,4 @@ const UpdateWorkVendor: FC = () => {
   )
 }
 
-export {UpdateWorkVendor}
+export { UpdateWorkVendor }

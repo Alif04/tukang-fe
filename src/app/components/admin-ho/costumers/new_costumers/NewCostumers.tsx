@@ -179,7 +179,7 @@ const NewCostumerHO: FC = () => {
 
   const handleSubmitNewMember = async () => {
     const response = await axios
-      .post(`${apiUrl}/member/create`, memberInfo, {
+      .post(`${apiUrl}/member`, memberInfo, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

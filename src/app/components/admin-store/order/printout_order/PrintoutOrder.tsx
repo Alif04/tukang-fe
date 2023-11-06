@@ -153,7 +153,7 @@ const PrintoutOrder: FC = () => {
                   <Form.Control
                     plaintext
                     readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                    value={orderDetail ? formatDate(new Date(orderDetail.request_survey)) : ''}
                   />
                 </Col>
               </Form.Group>

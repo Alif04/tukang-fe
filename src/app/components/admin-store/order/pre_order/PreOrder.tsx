@@ -1,5 +1,5 @@
-import React, {ChangeEvent, FC, useEffect, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import React, { ChangeEvent, FC, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import './PreOrder.css'
 
@@ -7,9 +7,9 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import { Row, Col, Form, InputGroup, Table, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash, faImage, faFileImage } from '@fortawesome/free-solid-svg-icons'
 
 interface StoreItem {
   value: BigInteger
@@ -128,7 +128,7 @@ const PreOrderStore: FC = () => {
             address_1: item.address_1,
           }))
 
-          const creatableOption = {value: 'memberOption'}
+          const creatableOption = { value: 'memberOption' }
           tempMember.push(creatableOption)
 
           setMember(tempMember)
@@ -157,7 +157,7 @@ const PreOrderStore: FC = () => {
             label: item.full_name,
           }))
 
-          const creatableOptionSales = {value: 'salesOption'}
+          const creatableOptionSales = { value: 'salesOption' }
           tempSales.push(creatableOptionSales)
 
           setSales(tempSales)
@@ -452,7 +452,7 @@ const PreOrderStore: FC = () => {
   const handleChangeSelectItem = (index: any, element: any) => {
     if (!element) return
 
-    const {label, value: selectedItemId, category: selectedCategoryName, prices} = element
+    const { label, value: selectedItemId, category: selectedCategoryName, prices } = element
 
     const newOrderDetailValues = [...orderDetailValues]
 
@@ -650,6 +650,7 @@ const PreOrderStore: FC = () => {
       formData.append('sales_id', salesId)
       formData.append('project_address', memberAddress)
       formData.append('project_number', memberPhoneNumber)
+      formData.append('request_survey', requestDate)
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
       formData.append('total_estimate_workdays', totalEstimateWorkDays.toString())
@@ -1038,19 +1039,17 @@ const PreOrderStore: FC = () => {
                         id={`unit-price-${index}`}
                         readOnly
                         plaintext
-                        value={`Rp. ${
-                          orderDetailValues[index]?.unit_price
+                        value={`Rp. ${orderDetailValues[index]?.unit_price
                             ? orderDetailValues[index]?.unit_price.toLocaleString('id')
                             : 0
-                        }`}
+                          }`}
                       />
                     </td>
 
-                    <td>{`Rp. ${
-                      orderDetailValues[index]?.total
+                    <td>{`Rp. ${orderDetailValues[index]?.total
                         ? orderDetailValues[index]?.total.toLocaleString('id')
                         : 0
-                    }`}</td>
+                      }`}</td>
                   </tr>
                 ))}
 
@@ -1113,7 +1112,7 @@ const PreOrderStore: FC = () => {
                     icon={faTrash}
                     size='sm'
                     color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                     onClick={handleRemoveFile}
                   />
                 </div>
@@ -1135,4 +1134,4 @@ const PreOrderStore: FC = () => {
   )
 }
 
-export {PreOrderStore}
+export { PreOrderStore }

@@ -51,6 +51,7 @@ const DetailOrderStore: FC = () => {
     seles_id: null,
     store_id: null,
     project_status_id: null,
+    request_survey: '',
     vendor_id: null,
     tukang_id: null,
     project_address: '',
@@ -250,7 +251,7 @@ const DetailOrderStore: FC = () => {
                       type='text'
                       plaintext
                       readOnly
-                      value={order.created_at}
+                      value={order.request_survey}
                     />
                   </Col>
                 </Form.Group>

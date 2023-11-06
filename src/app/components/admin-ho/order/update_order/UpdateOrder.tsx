@@ -863,6 +863,7 @@ const UpdateOrderHO: FC = () => {
       formData.append('sales_id', salesId)
       formData.append('vendor_id', vendorId)
       formData.append('project_status_id', projectStatusId)
+      formData.append('request_survey', requestDate)
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())

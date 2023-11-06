@@ -54,6 +54,7 @@ export interface Order {
   project_number: string
   receipt_number: string
   receipt_path: string
+  request_survey: string
   total_estimate_workdays: number | null
   payment_type: string
   grand_total: string

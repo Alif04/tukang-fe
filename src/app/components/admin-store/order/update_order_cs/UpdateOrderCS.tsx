@@ -145,7 +145,7 @@ const UpdateOrderStoreCS: FC = () => {
             }
 
             if (data?.created_at) {
-              setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
+              setRequestDate(new Date(data.request_survey).toISOString().split('T')[0])
             }
 
             if (data?.project_number) {
@@ -758,6 +758,7 @@ const UpdateOrderStoreCS: FC = () => {
       formData.append('project_address', memberAddress)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
+      formData.append('request_survey', requestDate)
       formData.append('grand_total_comission', grandTotalComission.toString())
       formData.append('total_estimate_workdays', totalEstimateWorkDays.toString())
       formData.append('store_id', storeId)

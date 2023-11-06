@@ -770,6 +770,7 @@ const NewOrderHO: FC = () => {
       formData.append('project_status_id', projectStatusId)
       formData.append('project_address', memberAddress)
       formData.append('project_number', memberPhoneNumber)
+      formData.append('request_survey', requestDate)
       formData.append('receipt_number', receiptNumber.toString())
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
