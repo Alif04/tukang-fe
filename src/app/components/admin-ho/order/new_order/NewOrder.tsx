@@ -952,7 +952,6 @@ const NewOrderHO: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        type='number'
                         value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />
