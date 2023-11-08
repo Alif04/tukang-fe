@@ -168,6 +168,10 @@ const NewQuotationVendor: FC = () => {
 
             setOrderDetailValues(initialOrderDetailValues)
           }
+
+          if (data?.store) {
+            setStoreId(data.store.id)
+          }
         })
     } catch (err) {
       console.error(err)
@@ -277,7 +281,7 @@ const NewQuotationVendor: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatus = statusData.find((status: any) => status.category === 'SURVEYDONE')
+    const desiredStatus = statusData.find((status: any) => status.category === 'QUOTEIN')
     const statusId = desiredStatus.value
 
     setQuotationStatus(statusId)
@@ -468,10 +472,10 @@ const NewQuotationVendor: FC = () => {
                 />
 
                 <Form.Group>
-                  <Form.Label>Nama Toko</Form.Label>
+                  <Form.Label>Nama Toko :</Form.Label>
 
                   <Col>
-                    <Select
+                    {/* <Select
                       name='store_id'
                       className='form-control p-0'
                       classNamePrefix='select'
@@ -479,11 +483,14 @@ const NewQuotationVendor: FC = () => {
                       isSearchable={true}
                       options={store}
                       onChange={(element) => handleChangeSelectStore(element)}
-                    />
+                    /> */}
+                    <Form.Label className='mt-5 fs-3 fw-bold'>
+                      {orderDetail?.store?.store_name}
+                    </Form.Label>
                   </Col>
                 </Form.Group>
 
-                <Form.Label className='mt-5 fs-5 fw-bold'>{storeDetail?.address}</Form.Label>
+                <Form.Label className='mt-5 fs-5 fw-bold'>{orderDetail?.store?.address}</Form.Label>
               </div>
             </Col>
 
@@ -603,8 +610,8 @@ const NewQuotationVendor: FC = () => {
                   <th className='text-center'>Jenis Jasa</th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Total</th>
-                  <th className='text-center'>Margin</th>
+                  {/* <th className='text-center'>Total</th> */}
+                  {/* <th className='text-center'>Margin</th> */}
                   <th className='text-center'>Final Price</th>
                 </tr>
               </thead>
@@ -641,14 +648,14 @@ const NewQuotationVendor: FC = () => {
                           }`}
                         />
                       </td>
-                      <td>
+                      {/* <td>
                         {`Rp. ${
                           orderDetailValues[index]?.total
                             ? orderDetailValues[index]?.total.toLocaleString('id')
                             : 0
                         }`}
-                      </td>
-                      <td>
+                      </td> */}
+                      {/* <td>
                         <Form.Control
                           type='number'
                           plaintext
@@ -656,9 +663,9 @@ const NewQuotationVendor: FC = () => {
                           value={element.margin}
                           onChange={(e) => handleMarginChange(index, e.target.value)}
                         />
-                      </td>
+                      </td> */}
                       <td>
-                        <Form.Control
+                        {/* <Form.Control
                           readOnly
                           plaintext
                           value={`Rp. ${
@@ -666,14 +673,19 @@ const NewQuotationVendor: FC = () => {
                               ? orderDetailValues[index]?.final_price.toLocaleString('id')
                               : 0
                           }`}
-                        />
+                        /> */}
+                        {`Rp. ${
+                          orderDetailValues[index]?.total
+                            ? orderDetailValues[index]?.total.toLocaleString('id')
+                            : 0
+                        }`}
                       </td>
                     </tr>
                   </>
                 ))}
 
-                <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                {/* <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
                     Total Jasa
                   </td>
                   <td className=' fw-bolder'>
@@ -683,7 +695,7 @@ const NewQuotationVendor: FC = () => {
                         : parseInt(orderDetail?.grand_total).toLocaleString('id')
                     }`}
                   </td>
-                </tr>
+                </tr> */}
               </tbody>
             </Table>
           </div>
@@ -720,12 +732,6 @@ const NewQuotationVendor: FC = () => {
                     Total Jasa & Material
                   </td>
                   <td className=' fw-bolder'>1.800.000</td>
-                </tr>
-                <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
-                    Promosi / Discount
-                  </td>
-                  <td className=' fw-bolder'></td>
                 </tr>
                 <tr>
                   <td colSpan={5} className='text-end fw-bolder'>

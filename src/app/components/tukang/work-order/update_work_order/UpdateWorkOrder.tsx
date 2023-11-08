@@ -1,280 +1,311 @@
-import React, {useState, FC} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './UpdateWorkOrder.css'
 
+import axios from 'axios'
+import Select from 'react-select'
+import Swal from 'sweetalert2'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, Button, InputGroup, Row, Col} from 'react-bootstrap'
-
+import {useNavigate, useParams} from 'react-router-dom'
+import {Form, Button, Card, Row, Col, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPrint,
-  faImage,
-  faFileImage,
-  faUserPlus,
-  faFileExcel,
-} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-import {useNavigate} from 'react-router-dom'
-
-interface DataType {
-  key: string
-  order_id: string
-  date_order: string
-  item_name: string
-  installation_type: string
-  payment_status: string
-  costumer_id: string
-  costumer_name: string
-  phone_number: string
-  installer_name: string
-  vendor_name: string
-  order_status: string
+interface Status {
+  value: any
+  category: string
+  label: string
 }
 
-const DetailButton = () => {
-  const navigate = useNavigate()
-
-  const handleDetail = () => {
-    navigate('/work-order/Detail-work_order')
-  }
-
-  return (
-    <a className='button-detail' onClick={handleDetail}>
-      <FontAwesomeIcon icon={faBook} size='sm' />
-    </a>
-  )
+interface WorkOrderHistory {
+  work_order_id: number
+  work_order_status: string
+  created_at: string
+  updated_at: string
+  work_date_time: string
+  time_spent: string
+  updated_by: string
 }
 
-const EditButton = () => {
-  const navigate = useNavigate()
-
-  const handleEdit = () => {
-    navigate('/order/update-order')
-  }
-
-  return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
+interface Material {
+  value: BigInteger
+  label: string
+  prices: Array<ItemPrice>
 }
 
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 100,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Date Order',
-    dataIndex: 'date_order',
-    key: 'date_order',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Product Name',
-    dataIndex: 'item_name',
-    key: 'item_name',
-    align: 'left',
-    width: 120,
-  },
-  {
-    title: 'Installation Type',
-    dataIndex: 'installation_type',
-    key: 'installation_type',
-    align: 'left',
-    width: 100,
-  },
-  {
-    title: 'Payment Status',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
-    align: 'left',
-    width: 100,
-  },
-  {
-    title: 'Customer ID',
-    dataIndex: 'costumer_id',
-    key: 'costumer_id',
-    align: 'center',
-    width: 100,
-  },
-  {
-    title: 'Customer Name',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
-    align: 'center',
-    width: 150,
-  },
-  {
-    title: 'Installer Name',
-    dataIndex: 'installer_name',
-    key: 'installer_name',
-    align: 'left',
-    width: 130,
-  },
-  {
-    title: 'Vendor Name',
-    dataIndex: 'vendor_name',
-    key: 'vendor_name',
-    align: 'left',
-    width: 130,
-  },
-  {
-    title: 'Order Status',
-    dataIndex: 'order_status',
-    key: 'order_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <DetailButton />
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 90,
-  },
-]
-
-const data: DataType[] = [
-  {
-    key: '1',
-    order_id: '78453992',
-    date_order: '10/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986747',
-    costumer_name: 'Alia',
-    phone_number: '08158374638',
-    installer_name: 'Patric',
-    vendor_name: 'PT ABC',
-    order_status: 'DONE',
-  },
-  {
-    key: '2',
-    order_id: '78453993',
-    date_order: '13/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986748',
-    costumer_name: 'Abdulah',
-    phone_number: '08158376565',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'DONE',
-  },
-  {
-    key: '3',
-    order_id: '78453994',
-    date_order: '14/2/2023',
-    item_name: 'Water Heater',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986710',
-    costumer_name: 'Alice',
-    phone_number: '08158300987',
-    installer_name: 'Patric',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '4',
-    order_id: '78453995',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '5',
-    order_id: '78453996',
-    date_order: '10/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '6',
-    order_id: '78453997',
-    date_order: '12/3/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-  {
-    key: '7',
-    order_id: '78453998',
-    date_order: '15/2/2023',
-    item_name: 'AC',
-    installation_type: 'New set up',
-    payment_status: 'PAID',
-    costumer_id: '8986123',
-    costumer_name: 'Kobe',
-    phone_number: '0815833346',
-    installer_name: 'Jonas',
-    vendor_name: 'PT ABC',
-    order_status: 'ON PROGRESS',
-  },
-]
+interface ItemPrice {
+  id: BigInteger
+  item_id: BigInteger
+  unit_id: BigInteger
+  store_id: BigInteger
+  periodic_start: string
+  periodic_end: string
+  nominal_discount: string
+  price: string
+}
 
 const UpdateWorkTukang: FC = () => {
-  const [isChecked, setIsChecked] = useState(false)
-  const [fileName, setFileName] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+  const params = useParams()
 
+  // Order Detail
+  const [orderId, setOrderId] = useState<any>()
+  const [orderDetail, setOrderDetail] = useState<any>(null)
+
+  // Work Order History
+  const [workOrderId, setWorkOrderId] = useState<any>()
+  const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
+
+  // Work Order Status
+  const [workOrderStatusId, setWorkOrderStatusId] = useState<any>()
+  const [workOrderStatus, setWorkOrderStatus] = useState<Status[]>([])
+
+  const fetchOrderData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+
+          if (data?.work_orders?.id) {
+            setWorkOrderId(data.work_orders.id)
+          }
+
+          if (data?.id) {
+            setOrderId(data.id)
+          }
+
+          if (data.work_orders) {
+            const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
+              work_order_id: item.work_order_id,
+              work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
+                ?.category,
+              created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
+              updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
+              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '',
+              time_spent: item.time_spent,
+              updated_by: item.updated_by,
+            }))
+
+            setWorkOrderHistory(workOrderHistoryData)
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const getMaterial = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/items?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempMaterial = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.item_name,
+          prices: item.prices.map((priceItem: any) => ({
+            id: priceItem.id,
+            item_id: priceItem.item_id,
+            unit_id: priceItem.unit_id,
+            store_id: priceItem.store_id,
+            periodic_start: priceItem.periodic_start,
+            periodic_end: priceItem.periodic_end,
+            nominal_discount: priceItem.nominal_discount,
+            price: priceItem.price,
+          })),
+        }))
+
+        setMaterial(tempMaterial)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrderData()
+    getMaterial()
+  }, [])
+
+  // Format Date
+  const today = new Date().toISOString().split('T')[0]
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  const formatInputDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${year}-${month}-${day}`
+  }
+
+  // Filter Work Order Status
+  useEffect(() => {
+    const workOrderStatusOption = () => {
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+
+      const desiredStatus = statusData.filter((status: Status) =>
+        ['SURVEYED', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(status.category)
+      )
+
+      const selectedStatus = desiredStatus.map((status: Status) => ({
+        value: status.value,
+        category: status.category,
+        label: status.category,
+      }))
+
+      setWorkOrderStatus(selectedStatus)
+    }
+
+    workOrderStatusOption()
+  }, [])
+
+  // Update Work Order
+  const [additionalNotes, setAdditionalNotes] = useState<string>('')
+  const [dateTimeSurvey, setDateTimeSurvey] = useState<any>()
+  const [workTime, setWorkTime] = useState<any>()
+  const [workOrderEvidence, setWorkOrderEvidence] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Add Material Order
+  const [material, setMaterial] = useState<Material[]>([])
+  const [materialValues, setMaterialValues] = useState([
+    {
+      id: 0,
+      item_id: null,
+      tukang_id: 3,
+      tukang_name: 'Gilang Prananta',
+      unit: '',
+      unit_price: 0,
+      quantity: 1,
+    },
+  ])
+
+  const [indexForm, setIndexForm] = useState<number>(0)
+
+  let handleAddForm = () => {
+    const newId = materialValues.length > 0 ? materialValues[materialValues.length - 1].id + 1 : 0
+
+    const newForm = {
+      id: newId,
+      item_id: null,
+      tukang_id: 3,
+      tukang_name: 'Gilang Prananta',
+      unit: '',
+      unit_price: 0,
+      quantity: 1,
+    }
+
+    setIndexForm(indexForm + 1)
+    setMaterialValues([...materialValues, newForm])
+  }
+
+  let handleRemoveForm = (index: any) => {
+    const newMaterialValues = [...materialValues]
+    newMaterialValues.splice(index, 1)
+    setMaterialValues(newMaterialValues)
+    setIndexForm(indexForm - 1)
+
+    let updatedMaterialValues = newMaterialValues.map((value, newIndex) => {
+      return {
+        ...value,
+        id: newIndex,
+      }
+    })
+
+    setMaterialValues(updatedMaterialValues)
+  }
+
+  // Change Select Item
+  const handleChangeSelectItem = (index: any, element: any) => {
+    if (!element) return
+
+    const {label, value: selectedItemId, prices} = element
+
+    const newMaterialValues = [...materialValues]
+
+    newMaterialValues[index] = {
+      ...newMaterialValues[index],
+      item_id: selectedItemId,
+      unit: label,
+      unit_price: prices[0].price,
+    }
+
+    setMaterialValues(newMaterialValues)
+  }
+
+  // Change Quantity Value
+  let handleQuantityChange = (index: any, value: any) => {
+    const updatedMaterialValues = [...materialValues]
+
+    updatedMaterialValues[index] = {
+      ...updatedMaterialValues[index],
+      quantity: value,
+    }
+
+    setMaterialValues(updatedMaterialValues)
+  }
+
+  // Handle Input Change
+  const handleInputNotes = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setAdditionalNotes(updatedInputValue)
+  }
+
+  const handleInputDateTimeSurvey = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setDateTimeSurvey(updatedInputValue)
+  }
+
+  const handleInputWorkTIme = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setWorkTime(updatedInputValue)
+  }
+
+  // Handle Change Status Work Order
+  const handleChangeSelectWorkOrder = (element: any) => {
+    const selectedWorkOrder = element.value
+    setWorkOrderStatusId(selectedWorkOrder)
+  }
+
+  // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setFileName(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
+
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setWorkOrderEvidence(file)
     }
   }
 
@@ -283,302 +314,434 @@ const UpdateWorkTukang: FC = () => {
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setFileName('No selected file')
-    setImage(null)
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...workOrderEvidence]
+
+    newEvidances.splice(index, 1)
+
+    setWorkOrderEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
   }
 
-  const handleCheckboxChange = () => {
-    setIsChecked(!isChecked)
+  // Update Work Order
+
+  const handleUpdateWorkOrder = async () => {
+    const formData = new FormData()
+
+    formData.append('work_order_status', workOrderStatusId)
+
+    formData.append('status_details[work_date_time]', dateTimeSurvey)
+    formData.append('status_details[time_spent]', workTime)
+
+    materialValues.forEach((order, index) => {
+      formData.append(
+        `status_details[work_order_materials][${index}][item_id]`,
+        String(order.item_id)
+      )
+      formData.append(`status_details[work_order_materials][${index}][item_name]`, order.unit)
+      formData.append(
+        `status_details[work_order_materials][${index}][price]`,
+        order.unit_price.toString()
+      )
+      formData.append(
+        `status_details[work_order_materials][${index}][tukang_id]`,
+        order.tukang_id.toString()
+      )
+      formData.append(
+        `status_details[work_order_materials][${index}][tukang_name]`,
+        order.tukang_name
+      )
+      formData.append(
+        `status_details[work_order_materials][${index}][quantity]`,
+        order.quantity.toString()
+      )
+    })
+
+    if (workOrderEvidence?.length) {
+      workOrderEvidence.forEach((item) => {
+        if (item) {
+          formData.append(`work_order_evidences`, item, item?.name)
+        }
+      })
+    }
+
+    await axios
+      .post(`${apiUrl}/work-orders/${workOrderId}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: response.data.message,
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
   }
+
+  const handleCancelUpdateWorkOrder = () => {
+    navigate('/work-order/view-work-order')
+  }
+
+  // Work Order History
+  const columns: ColumnsType<WorkOrderHistory> = [
+    {
+      title: 'ID',
+      dataIndex: 'work_order_id',
+      key: 'work_order_id',
+      align: 'center',
+      width: 100,
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.work_order_id - b.work_order_id,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'work_order_status',
+      key: 'work_order_status',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.work_order_status.includes(String(value)),
+      sorter: (a, b) => a.work_order_status.length - b.work_order_status.length,
+    },
+    {
+      title: 'Date Order',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.created_at.includes(String(value)),
+      sorter: (a, b) => a.created_at.length - b.created_at.length,
+    },
+    {
+      title: 'Work Date Time',
+      dataIndex: 'work_date_time',
+      key: 'work_date_time',
+      align: 'center',
+      width: 120,
+      onFilter: (value, record) => record.work_date_time.includes(String(value)),
+      sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
+    },
+    {
+      title: 'Time Spent',
+      dataIndex: 'time_spent',
+      key: 'time_spent',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.time_spent.includes(String(value)),
+      sorter: (a, b) => a.time_spent.length - b.time_spent.length,
+    },
+  ]
 
   return (
     <section id='update-work-order-tukang'>
-      <div className='card mb-5'>
-        <div className='card-body'>
-          <div className='form-wrapper'>
-            <div className='form-costumer'>
-              <Row className='form-header'>
-                <Form.Group as={Row} className='mb-5'>
-                  <Form.Label column sm='2' className='fw-bold'>
+      <Card className='mb-5'>
+        <Card.Body>
+          <Row>
+            <Col xxl={6}>
+              <Row>
+                <Form.Group as={Row}>
+                  <Form.Label column sm='4'>
                     Nama Toko :
                   </Form.Label>
 
-                  <Col sm='10'>
-                    <Form.Control plaintext readOnly defaultValue='Mitra 10 - BSD' />
+                  <Col sm='8'>
+                    <Form.Control plaintext readOnly value={orderDetail?.store.store_name} />
                   </Col>
                 </Form.Group>
               </Row>
 
               <Row>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group as={Row} className='form-sub-header'>
+                <Col>
+                  <Form.Group as={Row}>
                     <Form.Label column sm='4'>
                       Order ID :
                     </Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control readOnly defaultValue='213312' />
+                      <Form.Control readOnly value={orderDetail?.id} />
                     </Col>
                   </Form.Group>
 
-                  <div className='costumer-info'>
-                    <div className='fs-4 fw-bold text-decoration-underline'>Costumer Info</div>
+                  <div className='costumer-information mt-5'>
+                    <div className='title mb-5'>
+                      <h1 className='fs-2 fw-bolder text-decoration-underline'>Costumer Info</h1>
+                    </div>
 
-                    <div className='costumer-info-detail mb-3'>
-                      <div className='fs-6 fw-bold mt-1 mb-1'>Ibu Widya Chandra</div>
-                      <div className='fs-6 fw-normal  mt-1 mb-1'>0812 283-7362</div>
-                      <div className='fs-6 fw-normal  mt-1 mb-1'>widya.c@gmail.com</div>
-                      <div className='fs-6 fw-normal  mt-1 mb-1'>
-                        Jalan. ketapang V/12, Jakarta Barat, Jakarta, Indonesia
+                    <div className='detail-information'>
+                      <div className='costumer-name  mb-3'>
+                        <p className='fs-4 fw-bold '>{orderDetail?.members.full_name}</p>
+                      </div>
+
+                      <div className='telp mb-3'>
+                        <p className='fs-5'> {orderDetail?.project_number}</p>
+                      </div>
+
+                      <div className='email mb-3'>
+                        <p className='fs-5'>{orderDetail?.members.email}</p>
+                      </div>
+
+                      <div className='alamat-pemasangan d-flex mb-3'>
+                        <p className='fs-5'>{orderDetail?.project_address}</p>
                       </div>
                     </div>
                   </div>
 
                   <Form.Group controlId='formFile'>
-                    <Form.Label>Upload Foto</Form.Label>
+                    <Form.Label>UPLOAD FOTO</Form.Label>
                     <Form className='form-input-image' onClick={handleImageClick}>
                       <Form.Control
                         type='file'
                         accept='image/*'
                         className='input-field-image'
+                        multiple
                         hidden
+                        id='file-input'
+                        ref={evidenceRef}
                         onChange={handleFileChange}
                       />
 
-                      {image ? (
-                        <img src={image} alt={fileName} className='image-preview' />
-                      ) : (
-                        <div className='input-image-text'>
-                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                          <p>Add File</p>
-                        </div>
-                      )}
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
                     </Form>
 
-                    <div className='uploaded-row'>
-                      <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                    <ListGroup className='pt-3'>
+                      {workOrderEvidence.length ? (
+                        workOrderEvidence.map((item, index) => (
+                          <ListGroup.Item
+                            key={`${item?.name}-${index}-${item?.type}`}
+                            className='d-flex justify-content-between'
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                      <span className='upload-content'>{fileName}</span>
+                            <span className='upload-content'> {item?.name}</span>
 
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        size='sm'
-                        color='#ed2b2a'
-                        style={{cursor: 'pointer'}}
-                        onClick={handleRemoveFile}
-                      />
-                    </div>
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
                   </Form.Group>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group as={Row} className='form-sub-header'>
-                    <Form.Label column sm='5'>
+                <Col>
+                  <Form.Group as={Row} className='mb-3'>
+                    <Form.Label column sm='6'>
                       Work Order ID :
                     </Form.Label>
 
-                    <Col sm='7'>
-                      <Form.Control readOnly defaultValue='213312' />
+                    <Col sm='6'>
+                      <Form.Control readOnly value={orderDetail?.work_orders.id} />
                     </Col>
                   </Form.Group>
 
-                  <div className='work-order-info'>
-                    <div className='fs-4 fw-bold text-decoration-underline'>Work Order Info</div>
-
-                    <div className='work-order-info-detail mb-3'>
-                      <div className='fs-6 fw-normal  mt-1 mb-1'>
-                        Pemasangan Electric water Heater 500L
-                      </div>
-                      <div className='fs-6 fw-normal  mt-1 mb-1'>Eletrolux Water Heater</div>
+                  <div className='work-information mt-5'>
+                    <div className='title mb-5'>
+                      <h1 className='fs-2 fw-bolder text-decoration-underline'>
+                        Work Order Infomation
+                      </h1>
                     </div>
 
-                    <Form.Group className='mb-5'>
-                      <Form.Label className='fs-6 text-decoration-underline text-primary fw-bold h-100'>
-                        Catatan Tambahan
-                      </Form.Label>
-                      <Form.Control as='textarea' />
-                    </Form.Group>
+                    <div className='detail-information'>
+                      <div className='order-name  mb-3'>
+                        <p className='fs-5 me-5'>{orderDetail?.order_details[0].unit}</p>
+                      </div>
+
+                      <div className='category-name  mb-3'>
+                        <p className='fs-5 me-5'>
+                          {orderDetail?.order_details[0].item.category_name}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+
+                  <Form.Group className='mb-3'>
+                    <Form.Label className='fs-5 fw-semibold text-primary text-decoration-underline'>
+                      Catatan Tambahan
+                    </Form.Label>
+                    <Form.Control
+                      style={{minHeight: '220px'}}
+                      as='textarea'
+                      onChange={handleInputNotes}
+                    />
+                  </Form.Group>
                 </Col>
 
-                <div className='d-flex justify-content-end mt-2 mb-2'>
-                  <Button variant='dark-danger' type='submit'>
+                <div className='d-flex justify-content-end'>
+                  <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateWorkOrder}>
                     Cancel
                   </Button>
 
-                  <Button variant='dark-primary' type='submit'>
+                  <Button variant='dark-primary' type='submit' onClick={handleUpdateWorkOrder}>
                     Save
                   </Button>
                 </div>
               </Row>
-            </div>
+            </Col>
 
-            <div className='form-work-order'>
-              <div className='form-header'>
-                <Form.Group as={Row} className=''>
-                  <Form.Label column sm='6' className='fs-1 fw-bold'>
-                    New Work Status :
+            <Col xxl={6}>
+              <Row className='mb-5'>
+                <Form.Group as={Row}>
+                  <Form.Label column sm='6' className='fs-1 fw-bold pt-0 pb-0'>
+                    NEW WORK STATUS :{' '}
                   </Form.Label>
 
                   <Col sm='6'>
-                    <Form.Select>
-                      <option selected value='1'>
-                        SURVEYED
-                      </option>
-                      <option value='2'>WIP</option>
-                      <option value='3'>WORKEND</option>
-                      <option value='4'>INVESTIGATE</option>
-                      <option value='5'>RIP</option>
-                      <option value='6'>REWORKEND</option>
-                      <option value='7'>RESCHEDULE</option>
-                      <option value='8'>DONE</option>
-                    </Form.Select>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='mb-5'>
-                  <Form.Label column sm='6' className='fs-5 fw-bold'>
-                    Work Order Status :
-                  </Form.Label>
-
-                  <Col sm='6'>
-                    <Form.Control
-                      plaintext
-                      readOnly
-                      className='text-success'
-                      defaultValue='SURVEY'
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Select Status'
+                      isSearchable={true}
+                      options={workOrderStatus}
+                      onChange={(e) => handleChangeSelectWorkOrder(e)}
                     />
                   </Col>
                 </Form.Group>
-              </div>
 
-              <Row>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Tanggal & Jam Survey</Form.Label>
-                    <Form.Control type='date' />
+                <Form.Group as={Row}>
+                  <Form.Label column sm='6' className='fs-3 fw-semibold pt-0 pb-0'>
+                    WORK ORDER STATUS :{' '}
+                  </Form.Label>
+
+                  <Col sm='6'>
+                    <p className='fs-3 fw-semibold text-success'>{orderDetail?.status.category}</p>
+                  </Col>
+                </Form.Group>
+              </Row>
+
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label className='fw-semibold'>Tanggal & Jam Survey</Form.Label>
+                    <Form.Control type='datetime-local' onChange={handleInputDateTimeSurvey} />
                   </Form.Group>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Lama Pekerjaan</Form.Label>
-                    <Form.Control type='text' />
+                <Col>
+                  <Form.Group>
+                    <Form.Label className='fw-semibold'>Lama Pekerjaan</Form.Label>
+                    <Form.Control type='text' onChange={handleInputWorkTIme} />
                   </Form.Group>
                 </Col>
               </Row>
 
-              <Row>
-                <div className='fs-5 text-dark fw-bold mb-2'>List Material</div>
-
-                <div className='table-order-content'>
-                  <div className='table-responsive'>
-                    <table className='table'>
-                      <thead className='table-item-head'>
-                        <tr>
-                          <th>Item</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Instalasi AC</td>
-                        </tr>
-                        <tr>
-                          <td>Pipa AC</td>
-                        </tr>
-                        <tr>
-                          <td>Pipa Paralon</td>
-                        </tr>
-                        <tr>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+              <Row className='d-flex justify-content-end mb-5'>
+                <Button variant='button-dark-primary' onClick={() => handleAddForm()}>
+                  Tambah Material
+                </Button>
               </Row>
+
+              <div className='fs-5 text-dark fw-bold mb-2'>List Material</div>
+
+              <table className='table'>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {materialValues.map((element, index) => (
+                    <tr key={element.id}>
+                      <td>
+                        <Select
+                          id={`item-name-${index}`}
+                          className='form-control p-0 form-item-name'
+                          classNamePrefix='select'
+                          placeholder='Pilih/Ketik Nama Material'
+                          isSearchable={true}
+                          options={material}
+                          onChange={(element) => handleChangeSelectItem(index, element)}
+                        />
+                      </td>
+
+                      <td>
+                        <Form.Control
+                          id={`quantity-${index}`}
+                          value={element.quantity}
+                          onChange={(e) => handleQuantityChange(index, e.target.value)}
+                        />
+                      </td>
+
+                      <td>
+                        <Button variant='danger' onClick={() => handleRemoveForm(index)}>
+                          Remove
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
               <div className='d-flex justify-content-end'>
                 <Button variant='info' type='submit'>
                   Print Work Order Detail
                 </Button>
               </div>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {orderDetail?.work_orders ? (
+        <Card className='mb-5'>
+          <Card.Body>
+            <div className='work-order-history'>
+              <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
+
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={workOrderHistory}
+                rowKey={(record) => record.work_order_id}
+                pagination={{position: ['bottomRight']}}
+              />
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className='card'>
-        <div className='card-body table-view-order'>
-          <div className='filter-search'>
-            <InputGroup>
-              <Form.Control placeholder='Filter' className='filter-rtl' />
-
-              <InputGroup.Text className='filter-rtl'>
-                <FontAwesomeIcon icon={faSearch} size='sm' />
-              </InputGroup.Text>
-            </InputGroup>
-          </div>
-
-          <div className='table-head-wrapper'>
-            <div className='left'>
-              <h3>Filter By :</h3>
-            </div>
-
-            <div className='middle'>
-              <div className='date-filter'>
-                <div className='start-date'>
-                  <h3>Start Date : </h3>
-                  <Form.Control type='date' />
-                </div>
-
-                <div className='end-date'>
-                  <h3>End Date : </h3>
-                  <Form.Control type='date' />
-                </div>
-              </div>
-            </div>
-
-            <div className='right d-flex justify-content-end align-items-center'>
-              <div className='select-filter'>
-                <h3>Sort Work Order Status : </h3>
-
-                <select className='form-select filter filter-order'>
-                  <option selected value='1'>
-                    DONE
-                  </option>
-                  <option value='2'>ON PROGRESS</option>
-                </select>
-              </div>
-
-              <button className='button-export'>
-                <FontAwesomeIcon icon={faFileExcel} size='2xl' className='excel-icon' />
-              </button>
-
-              <button className='button-print'>
-                <FontAwesomeIcon icon={faPrint} size='2xl' className='print-icon' />
-              </button>
-            </div>
-          </div>
-
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={data}
-            rowKey={(record) => record.key}
-            scroll={{x: 2000}}
-            pagination={{position: ['bottomRight']}}
-          />
-        </div>
-      </div>
+          </Card.Body>
+        </Card>
+      ) : (
+        ''
+      )}
     </section>
   )
 }

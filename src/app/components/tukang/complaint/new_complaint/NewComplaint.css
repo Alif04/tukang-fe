@@ -37,12 +37,8 @@
   margin: 0 0 6.25px 0;
 }
 
-#new-complaint .form-header label.form-label.col-form-label.col-sm-4 {
+#new-complaint .form-header label.form-label.col-form-label.col-sm-3 {
   padding: 0;
-}
-
-#new-complaint .form-header input.form-control {
-  padding: 0 6.25px;
 }
 
 /* Table Order */
@@ -143,14 +139,14 @@
 
 /* Form Input Image */
 
-form.form-input-image {
+#new-complaint form.form-input-image {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border: 2px dashed #858585;
   width: 100%;
-  min-height: 110px;
+  min-height: 100px;
   cursor: pointer;
   border-radius: 5px;
 }

@@ -263,7 +263,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           // vendor_name: item.vendor.vendor_name,
           payment_status: paymentStatus,
           order_status: item.status.category,
-          quotation_status: item.quotation_status,
+          quotation_status: item.status.category,
         }
 
         return data

@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react'
+import {useState, useEffect} from 'react'
 import './Login.css'
 
-import { Link, useNavigate } from 'react-router-dom'
-import { Form, Button } from 'react-bootstrap'
+import {Link, useNavigate} from 'react-router-dom'
+import {Form, Button} from 'react-bootstrap'
 import Swal from 'sweetalert2'
 import axios from 'axios'
-import { toAbsoluteUrl } from '../../../_metronic/helpers'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import {toAbsoluteUrl} from '../../../_metronic/helpers'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'
 
 export function Login() {
   const navigate = useNavigate()

@@ -1,7 +1,7 @@
 import React, {FC} from 'react'
 
 import {ViewWorkVendor} from '../../../components'
-import {ViewWorkTukang} from '../../../components'
+import {ViewWorkOrderTukang} from '../../../components'
 
 const ViewWork: FC = () => {
   const userRole = localStorage.getItem('userRole')
@@ -14,7 +14,7 @@ const ViewWork: FC = () => {
         </>
       ) : userRole == 'Tukang' ? (
         <>
-          <ViewWorkTukang className='' />
+          <ViewWorkOrderTukang className='' />
         </>
       ) : (
         <></>

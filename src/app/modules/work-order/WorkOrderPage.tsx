@@ -2,6 +2,7 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 import {ViewWork} from './components/ViewWork'
 import {ReportWork} from './components/ReportWorkOrder'
 import {UpdateWork} from './components/UpdateWork'
@@ -23,6 +24,7 @@ const WorkOrderPage: React.FC = () => {
         path='view-work-order'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER LIST</PageTitle>
             <ViewWork />
           </>
@@ -32,6 +34,7 @@ const WorkOrderPage: React.FC = () => {
         path='report-work-order'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER DASHBOARD</PageTitle>
             <ReportWork />
           </>
@@ -41,6 +44,7 @@ const WorkOrderPage: React.FC = () => {
         path='update-work-order/:id'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE WORK ORDER</PageTitle>
             <UpdateWork />
           </>
@@ -50,6 +54,7 @@ const WorkOrderPage: React.FC = () => {
         path='detail-work-order/:id'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL WORK ORDER</PageTitle>
             <DetailWorkOrder />
           </>

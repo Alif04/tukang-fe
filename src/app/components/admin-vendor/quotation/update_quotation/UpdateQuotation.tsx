@@ -275,7 +275,7 @@ const UpdateQuotationVendor: FC = () => {
                           Nama Toko :
                         </Form.Label>
                         <Col sm='6'>
-                          <Select
+                          {/* <Select
                             name='store_id'
                             className='form-control p-0'
                             classNamePrefix='select'
@@ -287,7 +287,8 @@ const UpdateQuotationVendor: FC = () => {
                               value: storeId,
                               label: storeName,
                             }}
-                          />
+                          />  */}
+                          <Form.Control readOnly value={quotationDetail?.store.store_name} />
                         </Col>
                       </Form.Group>
                     </div>

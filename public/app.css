@@ -14,8 +14,12 @@ h6 {
   background-color: #6e010f !important;
 }
 
-.bg-primary-header-ho {
-  background-color: 183383 !important;
+.bg-header-ho {
+  background-color: #183383 !important;
+}
+
+.bg-header-vendor {
+  background-color: #398318 !important;
 }
 
 /* Body Content*/

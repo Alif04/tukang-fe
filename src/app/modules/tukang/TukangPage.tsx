@@ -2,6 +2,7 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 import {ViewTukang} from './components/ViewTukang'
 import {NewTukangin} from './components/NewTukangin'
 import {UpdateTukangin} from './components/UpdateTukangin'
@@ -23,12 +24,25 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const TukangPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-tukang'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>TUKANG LIST</PageTitle>
             <ViewTukang />
           </>
@@ -39,6 +53,17 @@ const TukangPage: React.FC = () => {
         path='new-tukang'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>NEW TUKANG FORM</PageTitle>
             <NewTukangin />
           </>
@@ -49,6 +74,17 @@ const TukangPage: React.FC = () => {
         path='update-tukang/:id'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE TUKANG FORM</PageTitle>
             <UpdateTukangin />
           </>
@@ -59,6 +95,17 @@ const TukangPage: React.FC = () => {
         path='detail-tukang/:id'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL TUKANG</PageTitle>
             <DetailTukangin />
           </>

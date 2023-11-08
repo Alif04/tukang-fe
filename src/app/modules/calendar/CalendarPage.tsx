@@ -2,6 +2,7 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 import {ViewCalendar} from './component/ViewCalendar'
 
 const orderBreadCrumbs: Array<PageLink> = [
@@ -24,6 +25,7 @@ const CalendarPage: React.FC = () => {
           <>
             {userRole == 'Admin Vendor' ? (
               <>
+                <HeaderWrapper className='bg-header-vendor' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>CALENDAR WORK</PageTitle>
               </>
             ) : userRole == 'Tukang' ? (
