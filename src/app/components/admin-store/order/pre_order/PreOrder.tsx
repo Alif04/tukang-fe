@@ -650,6 +650,7 @@ const PreOrderStore: FC = () => {
       formData.append('sales_id', salesId)
       formData.append('project_address', memberAddress)
       formData.append('project_number', memberPhoneNumber)
+      formData.append('request_survey', requestDate)
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
       formData.append('total_estimate_workdays', totalEstimateWorkDays.toString())
@@ -821,7 +822,6 @@ const PreOrderStore: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        type='number'
                         disabled
                         value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}

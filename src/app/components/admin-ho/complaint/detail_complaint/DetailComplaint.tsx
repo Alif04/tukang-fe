@@ -121,7 +121,6 @@ const DetailComplaintHO: FC = () => {
   const [feedbackStatus, setFeedbackStatusId] = useState<any>()
   const [feedbackDesc, setFeedbackDesc] = useState<any>('')
   const [feedbackStartDate, setFeedbackStartDate] = useState<string>('')
-  const [feedbackEndDate, setFeedbackEndDate] = useState<string>('')
   const [feedbackEvidence, setFeedbackEvidence] = useState<Array<File | null>>([])
 
   const evidenceRef = useRef<HTMLInputElement>(null)
@@ -137,12 +136,6 @@ const DetailComplaintHO: FC = () => {
 
     setFeedbackStatusId(statusId)
   }, [feedbackStatus])
-
-  // Handle Change PIC Feedback
-  // const handleInputMemberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const updatedInputValue = event.target.value
-  //   setPicFeedback(updatedInputValue)
-  // }
 
   const handlePicFeedbackChange = (element: Member | null) => {
     const newMemberInfo: Member = {
@@ -165,19 +158,6 @@ const DetailComplaintHO: FC = () => {
     const today = new Date().toISOString().split('T')[0]
     setFeedbackStartDate(today)
   }, [])
-
-  const handleChangeFeedbackStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // setFeedbackStartDate(today)
-    // const updatedFeedbackStartDate = event.target.value
-    // setFeedbackStartDate(updatedFeedbackStartDate)
-    // const updatedFeedbackStartDate = new Date().toISOString().split('T')[0]
-    // setFeedbackStartDate(updatedFeedbackStartDate)
-  }
-
-  const handleChangeFeedbackEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // const updatedFeedbackEndDate = event.target.value
-    // setFeedbackEndDate(updatedFeedbackEndDate)
-  }
 
   // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,7 +238,6 @@ const DetailComplaintHO: FC = () => {
       formData.append('complaint_id', complaintId)
       formData.append('remedial_action', feedbackDesc)
       formData.append('ra_date_start', feedbackStartDate)
-      // formData.append('ra_date_end', feedbackEndDate)
       formData.append('remedial_pic', picFeedbackId)
       formData.append('remedial_status', feedbackStatus)
 
@@ -690,52 +669,6 @@ const DetailComplaintHO: FC = () => {
             </Col>
           </Row>
 
-          {/* <Row>
-            <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
-              REMEDIAL HISTORY
-            </div>
-
-            {complaintDetail?.remedials.map((item: any) => {
-              ;<>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='3'>
-                      Remedial Date :
-                    </Form.Label>
-                    <Col sm='9'>
-                      <Form.Control
-                        type='text'
-                        plaintext
-                        readOnly
-                        value={complaintDetail ? formatDate(new Date(item.ra_date_start)) : ''}
-                      />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='3'>
-                      PIC Complaint :
-                    </Form.Label>
-                    <Col sm='9'>
-                      <Form.Control plaintext readOnly value={item.remedial_pic} />
-                    </Col>
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label className='mt-3'>Remedial Detail :</Form.Label>
-                  <Form.Control
-                    style={{minHeight: '200px'}}
-                    as='textarea'
-                    plaintext
-                    readOnly
-                    value={item.remedial_action}
-                  ></Form.Control>
-                </Col>
-              </>
-            })}
-          </Row> */}
-
           <hr />
 
           <Row>
@@ -805,13 +738,6 @@ const DetailComplaintHO: FC = () => {
               <Form.Group>
                 <Form.Label>Nama Pemberi Feedback</Form.Label>
 
-                {/* <Form.Control
-                  type='text'
-                  placeholder='John Doe'
-                  value={picFeedback}
-                  onChange={handlePicFeedbackChange}
-                /> */}
-
                 <Select
                   name='member'
                   id='member'
@@ -829,19 +755,9 @@ const DetailComplaintHO: FC = () => {
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              {/* <Form.Group>
-                <Form.Label>Tanggal Start Feedback : </Form.Label>
-                <Form.Control min={today} type='date' onChange={handleChangeFeedbackStartDate} />
-              </Form.Group> */}
-            </Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'></Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              {/* <Form.Group>
-                <Form.Label>Tanggal End Feedback : </Form.Label>
-                <Form.Control min={today} type='date' onChange={handleChangeFeedbackEndDate} />
-              </Form.Group> */}
-            </Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'></Col>
           </Row>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>

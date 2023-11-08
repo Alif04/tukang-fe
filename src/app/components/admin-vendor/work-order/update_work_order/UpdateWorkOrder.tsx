@@ -10,12 +10,8 @@ import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
-import {WorkOrder} from '../../../../interfaces/work-order'
-
-interface Tukang {
-  value: any
-  label: string
-}
+import {WorkOrder, WorkOrderTukang} from '../../../../interfaces/work-order'
+import {Tukang} from '../../../../interfaces/tukang'
 
 interface Status {
   value: any
@@ -60,7 +56,7 @@ const UpdateWorkVendor: FC = () => {
   })
 
   // Option Tukang
-  const [tukang, setTukang] = useState<Tukang[]>([])
+  const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
 
   // Option Work Order Status
   const [workOrderStatus, setWorkOrderStatus] = useState<Status[]>([])
@@ -92,16 +88,19 @@ const UpdateWorkVendor: FC = () => {
             workOrderHandler(data.vendor_id, 'vendor_id')
           }
 
-          if (data?.tukang_id) {
-            // data.tukang_id.map((item: any) => workOrderHandler(item.id, 'tukang_id'))
-            workOrderHandler(data.tukang_id, 'tukang_id')
+          if (data?.work_orders?.work_order_tukang) {
+            const tukang = data.work_orders.work_order_tukang.map((item: any) => ({
+              id: item.id,
+              tukang_id: item.tukang_id,
+              tukang_name: item.tukang.full_name,
+            }))
+
+            workOrderHandler(tukang, 'tukang_id')
           }
 
-          if (data?.work_orders?.request_work_time) {
-            workOrderHandler(
-              formatInputDate(new Date(data.work_orders.request_work_time)),
-              'request_work_time'
-            )
+          if (data?.request_survey) {
+            console.log(data)
+            workOrderHandler(formatInputDate(new Date(data.request_survey)), 'request_work_time')
           }
 
           if (data?.work_orders?.survey_date) {
@@ -162,12 +161,11 @@ const UpdateWorkVendor: FC = () => {
       })
 
       if (Array.isArray(response.data.data)) {
-        const tempTukang = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.full_name,
+        const tukang: WorkOrderTukang[] = (response.data.data as Tukang[]).map((item) => ({
+          tukang_id: item.id ?? 0,
+          tukang_name: item.full_name,
         }))
-
-        setTukang(tempTukang)
+        setTukang(tukang)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -231,7 +229,7 @@ const UpdateWorkVendor: FC = () => {
   }, [])
 
   const workOrderHandler = (
-    value: number | string | Array<number | string | null> | null,
+    value: number | string | Array<number | string | null> | any | null,
     target: string,
     setStateAction: SetStateAction<typeof setWorkOrder> = setWorkOrder
   ) => {
@@ -240,7 +238,7 @@ const UpdateWorkVendor: FC = () => {
       return cache
     })
 
-    // console.log(workOrder)
+    console.log(workOrder)
   }
 
   // Handle Update Work Order
@@ -270,7 +268,10 @@ const UpdateWorkVendor: FC = () => {
             if (key === 'tukang_id') {
               value.forEach((item: any, index: number) => {
                 if (item) {
-                  formData.append(`work_order_tukang[${index}][tukang_id]`, item)
+                  if (item?.id) {
+                    formData.append(`work_order_tukang[${index}][id]`, item.id)
+                  }
+                  formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
                 }
               })
             } else {
@@ -524,8 +525,8 @@ const UpdateWorkVendor: FC = () => {
                   <div className='costumer-id mb-3'>
                     <p className='me-5'>
                       Tanggal Request Survey :{' '}
-                      {orderDetail?.work_orders
-                        ? formatDate(new Date(orderDetail?.work_orders.request_work_time))
+                      {orderDetail?.request_survey
+                        ? formatDate(new Date(orderDetail?.request_survey))
                         : ''}
                     </p>
                   </div>
@@ -653,20 +654,12 @@ const UpdateWorkVendor: FC = () => {
                     components={animatedComponents}
                     isMulti
                     options={tukang}
-                    // value={
-                    //   workOrder.tukang_id
-                    //     ? {
-                    // value: workOrder.tukang_id,
-                    //         // label: orderDetail?.tukang.full_name,
-                    //       }
-                    //     : null
-                    // }
-                    onChange={(e) =>
-                      workOrderHandler(
-                        e.map((option: any) => option.value),
-                        'tukang_id'
-                      )
-                    }
+                    getOptionLabel={(option) => `${option.tukang_name}`}
+                    getOptionValue={(option) => `${option.tukang_id}`}
+                    // getOptionLabel='tukang_name'
+                    // getOptionValue='tukang_id'
+                    value={workOrder.tukang_id}
+                    onChange={(e) => workOrderHandler(e, 'tukang_id')}
                   />
                 </Form.Group>
               </Col>

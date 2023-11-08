@@ -141,7 +141,7 @@ const UpdateOrderStoreStaff: FC = () => {
             }
 
             if (data?.created_at) {
-              setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
+              setRequestDate(new Date(data.request_survey).toISOString().split('T')[0])
             }
 
             if (data?.project_number) {
@@ -720,6 +720,7 @@ const UpdateOrderStoreStaff: FC = () => {
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
       formData.append('project_address', memberAddress)
+      formData.append('request_survey', requestDate)
       formData.append('project_number', memberPhoneNumber)
       formData.append('grand_total', grandTotal.toString())
       formData.append('grand_total_comission', grandTotalComission.toString())
@@ -940,7 +941,7 @@ const UpdateOrderStoreStaff: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        type='number'
+                        disabled
                         value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />

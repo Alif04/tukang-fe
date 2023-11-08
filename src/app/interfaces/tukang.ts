@@ -1,5 +1,5 @@
 export interface Tukang {
-  id?: number
+  id?: number | null
   vendor_id: number
   user_id: number
   full_name: string
