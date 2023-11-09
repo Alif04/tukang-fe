@@ -1,0 +1,258 @@
+/* Form Layout */
+
+#update-complaint-vendor .form-wrapper {
+  margin-bottom: 30px;
+}
+
+#update-complaint-vendor .form-wrapper .form-header {
+  margin-bottom: 30px;
+}
+
+#update-complaint-vendor .form-wrapper .form-header label.form-label.col-form-label.col-sm-4 {
+  padding: 3px 9.75px;
+}
+
+#update-complaint-vendor .form-wrapper .form-header input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#update-complaint-vendor .form-wrapper .form-header label.fs-4.fw-bold.form-label {
+  margin: 0 !important;
+}
+
+#update-complaint-vendor .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 60%;
+}
+
+#update-complaint-vendor .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#update-complaint-vendor .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-4 {
+  padding: 3px 9.75px;
+}
+
+#update-complaint-vendor .costumer-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#update-complaint-vendor .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 40%;
+}
+
+#update-complaint-vendor .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#update-complaint-vendor .sales-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+/* Table Order */
+
+#update-complaint-vendor .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
+#update-complaint-vendor .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 30px 0 30px;
+}
+
+#update-complaint-vendor .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 10px 0 100px;
+}
+
+#update-complaint-vendor .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+  padding: 0 100px 0 10px;
+}
+
+/* Table Complaint*/
+
+#update-complaint-vendor .table-picklist .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+#update-complaint-vendor .table-picklist th {
+  text-align: center;
+}
+
+/* Form Input Image */
+
+#update-complaint-vendor form.form-input-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed #858585;
+  width: 100%;
+  min-height: 100px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#update-complaint-vendor .input-image-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px;
+}
+
+#update-complaint-vendor .input-image-text p {
+  margin: 10px 10px;
+  padding: 5px 10px !important;
+  border: 1px solid;
+  border-radius: 5px;
+  color: #858585;
+}
+
+#update-complaint-vendor .uploaded-row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 5px;
+  background-color: #f4f7fe;
+}
+
+#update-complaint-vendor .upload-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#update-complaint-vendor .list-group-not-approve {
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #eff2f5;
+  font-weight: 600;
+}
+
+#update-complaint-vendor .image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+svg.svg-inline--fa.fa-file-image.fa-sm {
+  margin: 0 10px 0 0;
+}
+
+svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0 0 0 10px;
+}
+
+/* Button Action */
+
+#update-complaint-vendor .btn.btn-dark-primary {
+  width: 200px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-complaint-vendor .btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300b5 !important;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #update-complaint-vendor .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-complaint-vendor .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-complaint-vendor .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #update-complaint-vendor .form-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #update-complaint-vendor .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #update-complaint-vendor .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #update-complaint-vendor .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-complaint-vendor .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-complaint-vendor .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+
+  /* Form Sales */
+
+  #update-complaint-vendor .form-sales .form-header {
+    margin-bottom: 20px;
+  }
+
+  #update-complaint-vendor .form-sales .form-header h1 {
+    text-align: start !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+  /* Table Order */
+
+  #update-complaint-vendor .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #update-complaint-vendor .order-status.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+    margin-bottom: 10px;
+  }
+
+  #update-complaint-vendor .button-add.text-end.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    margin-top: 20px;
+    padding: 0 10px 0 10px;
+  }
+
+  #update-complaint-vendor .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+
+  #update-complaint-vendor .btn.btn-dark-primary {
+    height: 40px;
+  }
+
+  #update-complaint-vendor .btn.btn-dark-danger {
+    height: 40px;
+  }
+}

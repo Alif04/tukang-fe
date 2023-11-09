@@ -207,7 +207,6 @@ const UpdateWorkVendor: FC = () => {
           'WORKSTART',
           'WIP',
           'WORKEND',
-          'INVESTIGATE',
           'REWORK',
           'REWORKSTART',
           'RIP',
@@ -340,7 +339,7 @@ const UpdateWorkVendor: FC = () => {
   // Work Order History
   const columns: ColumnsType<WorkOrderHistory> = [
     {
-      title: 'Work Order ID',
+      title: 'ID',
       dataIndex: 'work_order_id',
       key: 'work_order_id',
       align: 'center',
@@ -349,7 +348,7 @@ const UpdateWorkVendor: FC = () => {
       sorter: (a, b) => a.work_order_id - b.work_order_id,
     },
     {
-      title: 'Work Order Status',
+      title: 'Status',
       dataIndex: 'work_order_status',
       key: 'work_order_status',
       align: 'center',
@@ -358,22 +357,13 @@ const UpdateWorkVendor: FC = () => {
       sorter: (a, b) => a.work_order_status.length - b.work_order_status.length,
     },
     {
-      title: 'Created At',
+      title: 'Date Order',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
       width: 110,
       onFilter: (value, record) => record.created_at.includes(String(value)),
       sorter: (a, b) => a.created_at.length - b.created_at.length,
-    },
-    {
-      title: 'Updated At',
-      dataIndex: 'updated_at',
-      key: 'updated_at',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.updated_at.includes(String(value)),
-      sorter: (a, b) => a.updated_at.length - b.updated_at.length,
     },
     {
       title: 'Work Date Time',
@@ -392,15 +382,6 @@ const UpdateWorkVendor: FC = () => {
       width: 140,
       onFilter: (value, record) => record.time_spent.includes(String(value)),
       sorter: (a, b) => a.time_spent.length - b.time_spent.length,
-    },
-    {
-      title: 'Updated By',
-      dataIndex: 'updated_by',
-      key: 'updated_by',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.updated_by.includes(String(value)),
-      sorter: (a, b) => a.updated_by.length - b.updated_by.length,
     },
   ]
 
@@ -656,8 +637,6 @@ const UpdateWorkVendor: FC = () => {
                     options={tukang}
                     getOptionLabel={(option) => `${option.tukang_name}`}
                     getOptionValue={(option) => `${option.tukang_id}`}
-                    // getOptionLabel='tukang_name'
-                    // getOptionValue='tukang_id'
                     value={workOrder.tukang_id}
                     onChange={(e) => workOrderHandler(e, 'tukang_id')}
                   />
@@ -690,7 +669,6 @@ const UpdateWorkVendor: FC = () => {
                 columns={columns}
                 dataSource={workOrderHistory}
                 rowKey={(record) => record.work_order_id}
-                // scroll={{x: 1800}}
                 pagination={{position: ['bottomRight']}}
               />
             </div>

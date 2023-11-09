@@ -4,6 +4,7 @@ import {PageTitle} from '../../../_metronic/layout/core'
 
 import axios from 'axios'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 import {DashboardStore} from '../../components'
 import {DashboardHO} from '../../components'
 import {DashboardVendor} from '../../components'
@@ -63,11 +64,13 @@ const DashboardWrapper: FC = () => {
         </>
       ) : userRole === 'Admin HO' ? (
         <>
+          <HeaderWrapper className='bg-header-ho' />
           <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>
           <DashboardHO />
         </>
       ) : userRole === 'Admin Vendor' ? (
         <>
+          <HeaderWrapper className='bg-header-vendor' />
           <PageTitle>VENDOR DASHBOARD</PageTitle>
           <DashboardVendor />
         </>

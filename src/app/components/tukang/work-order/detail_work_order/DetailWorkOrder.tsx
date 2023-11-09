@@ -1,23 +1,48 @@
-import React, {FC} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './DetailWorkOrder.css'
 
+import axios from 'axios'
+import {useParams} from 'react-router-dom'
 import {Form, Button, InputGroup, Row, Col, Table} from 'react-bootstrap'
 
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faImage,
-  faFileImage,
-  faUserPlus,
-  faFileExcel,
-} from '@fortawesome/free-solid-svg-icons'
-
 const DetailWorkTukang: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  const fetchOrderData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrderData()
+  }, [])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
   return (
     <section id='detail-work-order'>
       <div className='card mb-5'>
@@ -26,8 +51,11 @@ const DetailWorkTukang: FC = () => {
             <div className='information-wrapper'>
               <div className='detail-header'>
                 <div className='order-id'>
-                  <h3>Order ID : 77652739</h3>
-                  <h3>Costumer ID : 876992300239</h3>
+                  <h3>
+                    {orderDetail?.work_orders === null
+                      ? `Order ID : ${orderDetail?.id}`
+                      : `Work Order ID : ${orderDetail?.work_orders.id}`}
+                  </h3>
                 </div>
               </div>
 
@@ -35,31 +63,31 @@ const DetailWorkTukang: FC = () => {
                 <div className='detail-information'>
                   <div className='costumer-id mb-3'>
                     <p className='me-5'>
-                      <span>Costumer ID :</span> 77652739
+                      <span>Costumer ID :</span> {orderDetail?.members.id}
                     </p>
                   </div>
 
                   <div className='costumer-name  mb-3'>
                     <p className='me-5'>
-                      <span>Costumer Name :</span> Ryan Filbert
+                      <span>Costumer Name :</span> {orderDetail?.members.full_name}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Phone/WA :</span> 876992300239
+                      <span>Phone/WA :</span> {orderDetail?.project_number}
                     </p>
                   </div>
 
                   <div className='email mb-3'>
                     <p className='me-5'>
-                      <span>Email Address :</span> ryan.filbert@gmail.com
+                      <span>Email Address :</span> {orderDetail?.members.email}
                     </p>
                   </div>
 
                   <div className='alamat-pemasangan d-flex mb-3'>
                     <p className='me-5'>
-                      <span>Address :</span> Jl. Kijang no.9, Jakarta Timur, DKI Jakarta, Indonesia
+                      <span>Address :</span> {orderDetail?.project_address}
                     </p>
                   </div>
                 </div>
@@ -68,52 +96,73 @@ const DetailWorkTukang: FC = () => {
 
             <div className='information-wrapper'>
               <div className='detail-header'>
-                <h1>
-                  WORK ORDER STATUS: <span>SURVEYED</span>
-                </h1>
+                <h3>
+                  WORK ORDER STATUS :{' '}
+                  <span className='text-success text-uppercase'>
+                    {orderDetail?.status.category}
+                  </span>
+                </h3>
               </div>
 
               <div className='product-information'>
                 <div className='detail-information'>
                   <div className='costumer-id mb-3'>
                     <p className='me-5'>
-                      <span>Order ID : </span>88965329
+                      <span>Order ID : </span>
+                      {orderDetail?.id}
                     </p>
                   </div>
 
-                  <div className='costumer-name mb-3'>
+                  {/* <div className='costumer-name mb-3'>
                     <p className='me-5'>
                       <span>Nama Jasa Pemasangan : </span>Pemasangan Water Heater
                     </p>
-                  </div>
+                  </div> */}
 
                   <div className='email mb-3'>
                     <p className='me-5'>
-                      <span>Item Name : </span>Electrolux Water Heater
+                      <span>Item Name : </span>
+                      {orderDetail?.order_details[0].item_id}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Tipe Pembayaran : </span>FREE
+                      <span>Tipe Pembayaran : </span>
+                      {(() => {
+                        if (orderDetail?.payment_type === 'survey') {
+                          return `Berbayar & Survey`
+                        } else if (orderDetail?.payment_type === 'gratis') {
+                          return `Gratis`
+                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Harga Jasa : </span>1.000.000
+                      <span>Harga Jasa : </span>
+                      {`Rp. ${parseInt(
+                        orderDetail?.order_details[0].survey_price || 0
+                      )?.toLocaleString('id')}`}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Quantity : </span>1
+                      <span>Quantity : </span>
+                      {orderDetail?.order_details[0].quantity}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Total Harga : </span>1.000.000
+                      <span>Total Harga : </span>
+                      {`Rp. ${parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}`}
                     </p>
                   </div>
                 </div>
@@ -124,7 +173,7 @@ const DetailWorkTukang: FC = () => {
               <div className='detail-header'>
                 <div className='order-status'>
                   <h3>
-                    Nama Toko : <span>Mitra10 BSD</span>
+                    Nama Toko : <span>{orderDetail?.store.store_name}</span>
                   </h3>
                 </div>
               </div>
@@ -133,25 +182,40 @@ const DetailWorkTukang: FC = () => {
                 <div className='detail-information'>
                   <div className='costumer-id mb-3'>
                     <p className='me-5'>
-                      <span>Tanggal Request Survey : </span>09/06/2023
+                      <span>Tanggal Request Survey : </span>
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.request_work_time))
+                        : ''}
                     </p>
                   </div>
 
                   <div className='costumer-name mb-3'>
                     <p className='me-5'>
-                      <span>Tanggal Survey : </span>10/06/2023 <span>Oleh : </span> Saiful
+                      <span>Tanggal Survey : </span>{' '}
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.survey_date))
+                        : ''}
+                      {/* <span>Oleh : </span> Saiful */}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Tanggal Mulai Kerja : </span>19/06/2023 <span>Oleh : </span> Udin, Jamal
+                      <span>Tanggal Mulai Kerja : </span>{' '}
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.work_start_date))
+                        : ''}
+                      {/* <span>Oleh : </span> Udin, Jamal */}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
-                      <span>Tanggal Selesai : </span>29/06/2023 <span>Oleh : </span> Udin, Jamal
+                      <span>Tanggal Selesai : </span>{' '}
+                      {orderDetail?.work_orders
+                        ? formatDate(new Date(orderDetail?.work_orders.work_end_date))
+                        : ''}
+                      {/* <span>Oleh : </span> Udin, Jamal */}
                     </p>
                   </div>
                 </div>
@@ -167,24 +231,26 @@ const DetailWorkTukang: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Instalasi AC</td>
-                </tr>
-                <tr>
-                  <td>Pipa AC</td>
-                </tr>
-                <tr>
-                  <td>Pipa Paralon</td>
-                </tr>
+                {orderDetail?.payment_type === 'survey' ? (
+                  <>
+                    <tr>
+                      <td colSpan={6}>Survey</td>
+                    </tr>
+                  </>
+                ) : (
+                  orderDetail?.order_details.map((item: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.unit}</td>
+                      </tr>
+                    </>
+                  ))
+                )}
               </tbody>
             </Table>
           </div>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit'>
-              Cancel
-            </Button>
-
             <Button variant='info' type='submit'>
               Print Work Order Detail
             </Button>

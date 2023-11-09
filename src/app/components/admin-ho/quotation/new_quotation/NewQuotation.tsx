@@ -28,6 +28,12 @@ const NewQuotationHO: FC = () => {
   const [storeId, setStoreId] = useState<string>('')
   const [storeName, setStoreName] = useState<string>('')
 
+  // Status
+  const [status, setStatus] = useState<any>()
+
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
   const getStore = async () => {
     try {
       const response = await axios.get(`${apiUrl}/stores`, {
@@ -57,29 +63,74 @@ const NewQuotationHO: FC = () => {
     }
   }
 
+  // const getOrder = async () => {
+  //   try {
+  //     const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
+  //       headers: {
+  //         Accept: 'application/json',
+  //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  //         'Access-Control-Allow-Origin': '*',
+  //         'ngrok-skip-browser-warning': 'true',
+  //       },
+  //     })
+
+  //     if (Array.isArray(response.data.data)) {
+  //       const tempOrder = response.data.data.map((item: any) => ({
+  //         value: item.id,
+  //         label: item.id,
+  //       }))
+
+  //       setOrder(tempOrder)
+  //     } else {
+  //       console.error('API response data is not an array:', response.data)
+  //     }
+  //   } catch (err) {
+  //     console.error(err)
+  //   }
+  // }
+
   const getOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const apiUrl = process.env.REACT_APP_API_URL
 
-      if (Array.isArray(response.data.data)) {
-        const tempOrder = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.id,
-        }))
+      // const storedStatus = sessionStorage.getItem('statusData')
+      // const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-        setOrder(tempOrder)
+      const desiredStatusName = 'QUOTEIN'
+      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+
+      if (desiredStatus) {
+        const statusId = desiredStatus.value
+
+        const response = await axios.get(
+          `${apiUrl}/orders?order_by=desc&take=0&status=${statusId}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+
+        if (Array.isArray(response.data.data)) {
+          const tempOrder = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.id,
+          }))
+
+          setOrder(tempOrder)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+
+        return response.data.data
       } else {
-        console.error('API response data is not an array:', response.data)
+        console.error('Desired status not found in statusData')
       }
-    } catch (err) {
-      console.error(err)
+    } catch (error) {
+      console.error('Error fetching data:', error)
     }
   }
 
@@ -171,10 +222,7 @@ const NewQuotationHO: FC = () => {
 
   // Quotation Status
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-    const desiredStatus = statusData.find((status: any) => status.category === 'SURVEYDONE')
+    const desiredStatus = statusData.find((status: any) => status.category === 'QOUTEOUT')
     const statusId = desiredStatus.value
 
     setQuotationStatus(statusId)
@@ -358,7 +406,7 @@ const NewQuotationHO: FC = () => {
                   <Form.Label>Nama Toko</Form.Label>
 
                   <Col>
-                    <Select
+                    {/* <Select
                       name='store_id'
                       className='form-control p-0'
                       classNamePrefix='select'
@@ -366,9 +414,15 @@ const NewQuotationHO: FC = () => {
                       isSearchable={true}
                       options={store}
                       onChange={(element) => handleChangeSelectStore(element)}
-                    />
+                    /> */}
+
+                    <Form.Label className='mt-5 fs-3 fw-bold'>
+                      {orderDetail?.store?.store_name}
+                    </Form.Label>
                   </Col>
                 </Form.Group>
+
+                <Form.Label className='mt-5 fs-5 fw-bold'>{orderDetail?.store?.address}</Form.Label>
               </div>
             </Col>
 

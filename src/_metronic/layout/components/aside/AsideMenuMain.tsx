@@ -173,7 +173,7 @@ export function AsideMenuMain() {
         title='Tukang (Maintenance)'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
-        role={['Admin Vendor', 'Tukang']}
+        role={['Admin Vendor']}
       >
         <AsideMenuItem
           to='/tukang/view-tukang'

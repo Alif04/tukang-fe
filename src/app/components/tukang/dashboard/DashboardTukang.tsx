@@ -45,7 +45,7 @@ const DashboardTukang: FC = () => {
 
   const fetchOrderList = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/orders&take=0`, {
+      const response = await axios.get(`${apiUrl}/orders?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

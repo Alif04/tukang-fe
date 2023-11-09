@@ -2,6 +2,7 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 import {ViewQuotation} from './components/ViewQuotation'
 import {NewQuotation} from './components/NewQuotation'
 import {UpdateQuotation} from './components/UpdateQuotation'
@@ -24,12 +25,25 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const VendorPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-quotation'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>QUOTATION LIST</PageTitle>
             <ViewQuotation />
           </>
@@ -40,6 +54,17 @@ const VendorPage: React.FC = () => {
         path='new-quotation'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>NEW QUOTATION</PageTitle>
             <NewQuotation />
           </>
@@ -50,6 +75,17 @@ const VendorPage: React.FC = () => {
         path='update-quotation/:id'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE QUOTATION</PageTitle>
             <UpdateQuotation />
           </>
@@ -60,6 +96,17 @@ const VendorPage: React.FC = () => {
         path='detail-quotation/:id'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL QUOTATION</PageTitle>
             <DetailQuotation />
           </>
@@ -70,6 +117,17 @@ const VendorPage: React.FC = () => {
         path='report-finance'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>FINANCIAL DASHBOARD</PageTitle>
             <DashboardFinance />
           </>

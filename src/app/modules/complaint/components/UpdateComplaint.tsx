@@ -3,6 +3,7 @@ import React, {FC} from 'react'
 import {UpdateComplaintStore} from '../../../components'
 import {UpdateComplaintHO} from '../../../components'
 import {UpdateComplaintVendor} from '../../../components'
+import {UpdateComplaintTukang} from '../../../components'
 
 const UpdateComplaint: FC = () => {
   const userRole = localStorage.getItem('userRole')
@@ -20,6 +21,10 @@ const UpdateComplaint: FC = () => {
       ) : userRole == 'Admin Vendor' ? (
         <>
           <UpdateComplaintVendor />
+        </>
+      ) : userRole == 'Tukang' ? (
+        <>
+          <UpdateComplaintTukang />
         </>
       ) : (
         <></>
