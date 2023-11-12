@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewVendor} from './components/ViewVendor'
 import {NewVendor} from './components/NewVendor'
 import {UpdateVendor} from './components/UpdateVendor'
@@ -24,12 +26,21 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const VendorPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-vendor'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>
               DAFTAR VENDOR INSTALASI & SERVICE MITRA10
             </PageTitle>
@@ -42,6 +53,13 @@ const VendorPage: React.FC = () => {
         path='new-vendor'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR REGISTRASI VENDOR</PageTitle>
             <NewVendor />
           </>
@@ -52,6 +70,13 @@ const VendorPage: React.FC = () => {
         path='update-vendor/:id'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE REGISTRASI VENDOR</PageTitle>
             <UpdateVendor />
           </>
@@ -62,6 +87,13 @@ const VendorPage: React.FC = () => {
         path='detail-vendor/:id'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL VENDOR</PageTitle>
             <DetailVendor />
           </>
@@ -72,6 +104,13 @@ const VendorPage: React.FC = () => {
         path='report-vendor'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR DASHBOARD</PageTitle>
             <ReportVendor />
           </>

@@ -53,20 +53,11 @@ function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const baseLightColor = getCSSVariableValue('--kt-primary-light')
-  const secondaryColor = getCSSVariableValue('--kt-info')
-  const secondaryLightColor = getCSSVariableValue('--kt-info-light')
-
   return {
     series: [
       {
-        name: 'Survey',
+        name: 'Menunggu Bayar',
         data: [60, 50, 80, 40, 100, 60],
-      },
-      {
-        name: 'Work Done',
-        data: [70, 60, 110, 40, 50, 70],
       },
     ],
     chart: {
@@ -87,7 +78,7 @@ function getChartOptions(height: number): ApexOptions {
     },
     fill: {
       type: 'solid',
-      opacity: 0.4,
+      opacity: 1,
     },
     stroke: {
       curve: 'straight',
@@ -158,11 +149,11 @@ function getChartOptions(height: number): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return '$' + val + ' thousands'
+          return '' + val
         },
       },
     },
-    colors: [baseColor, secondaryColor],
+    colors: ['#4DBAFF'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,
@@ -173,9 +164,8 @@ function getChartOptions(height: number): ApexOptions {
       },
     },
     markers: {
-      colors: [baseLightColor, secondaryLightColor],
-      strokeColors: [baseLightColor, secondaryLightColor],
-      strokeWidth: 3,
+      colors: ['#009DFF'],
+      size: 5,
     },
   }
 }

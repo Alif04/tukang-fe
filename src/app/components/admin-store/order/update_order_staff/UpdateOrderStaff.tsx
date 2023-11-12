@@ -1,9 +1,10 @@
 import React, {ChangeEvent, FC, useEffect, useState} from 'react'
-import axios from 'axios'
-import {useNavigate, useParams} from 'react-router-dom'
+import {Order} from '../../../../interfaces/order'
 
 import './UpdateOrder.css'
 
+import axios from 'axios'
+import {useNavigate, useParams} from 'react-router-dom'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -21,7 +22,8 @@ interface StoreItem {
 
 interface Member {
   value: any
-  label: string
+  label: any
+  full_name: any
   email: any
   phone_number: any
   whatsapp_number: any
@@ -30,7 +32,8 @@ interface Member {
 
 interface Sales {
   value: any
-  label: string
+  label: any
+  full_name: any
 }
 
 interface ItemDescription {
@@ -51,7 +54,9 @@ interface ItemPrice {
   price: string
 }
 
-const UpdateOrderStoreStaff: FC = () => {
+const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Order) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -183,13 +188,15 @@ const UpdateOrderStoreStaff: FC = () => {
 
               setOrderDetailValues(initialOrderDetailValues)
             }
+
+            updatePageTitle(data)
           })
       } catch (error) {
         console.error(error)
       }
     }
 
-    const getCostumer = async () => {
+    const getMember = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member`, {
           headers: {
@@ -202,7 +209,8 @@ const UpdateOrderStoreStaff: FC = () => {
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: item.full_name,
+            label: item.id,
+            full_name: item.full_name,
             email: item.email,
             phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
@@ -235,7 +243,8 @@ const UpdateOrderStoreStaff: FC = () => {
         if (Array.isArray(response.data.data)) {
           const tempSales = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.full_name,
+            label: item.id,
+            full_name: item.full_name,
           }))
 
           const creatableOptionSales = {value: 'salesOption'}
@@ -288,7 +297,7 @@ const UpdateOrderStoreStaff: FC = () => {
     }
 
     fetchOrderData()
-    getCostumer()
+    getMember()
     getSales()
     getItem()
   }, [])
@@ -371,6 +380,7 @@ const UpdateOrderStoreStaff: FC = () => {
       const newMemberInfo: Member = {
         value: element?.value || 0,
         label: element?.label || '',
+        full_name: element?.full_name || '',
         email: element?.email || '',
         phone_number: element?.phone_number || '',
         whatsapp_number: element?.whatsapp_number || '',
@@ -379,22 +389,22 @@ const UpdateOrderStoreStaff: FC = () => {
 
       setMemberInfo(newMemberInfo)
       setMemberId(newMemberInfo.value)
-      setMemberName(newMemberInfo.label)
+      setMemberName(newMemberInfo.full_name)
       setMemberEmail(newMemberInfo.email)
       setMemberPhoneNumber(newMemberInfo.whatsapp_number)
       setMemberAddress(newMemberInfo.address_1)
     }
   }
 
-  // Change Select Member Id
-  const handleChangeMemberId = (element: any) => {
-    const newMemberId = element.target.value
+  // Change Select Member Full Name
+  const handleChangeMemberFullName = (element: any) => {
+    const newMemberFullName = element.target.value
     setMemberInfo((prevMemberInfo) => ({
       ...(prevMemberInfo as Member),
-      id: newMemberId,
+      full_name: newMemberFullName,
     }))
 
-    setMemberId(newMemberId)
+    setMemberName(newMemberFullName)
   }
 
   // Change Select Member Email Address
@@ -452,6 +462,7 @@ const UpdateOrderStoreStaff: FC = () => {
       const newSalesInfo: Sales = {
         value: element?.value || 0,
         label: element?.label || '',
+        full_name: element?.full_name || '',
       }
 
       setSalesInfo(newSalesInfo)
@@ -460,16 +471,16 @@ const UpdateOrderStoreStaff: FC = () => {
     }
   }
 
-  // Change Select Sales Id
-  const handleChangeSalesId = (element: any) => {
-    const newSalesId = element.target.value
+  // Change Select Sales Name
+  const handleChangeSalesName = (element: any) => {
+    const newSalesName = element.target.value
 
     setSalesInfo((prevSalesInfo) => ({
       ...(prevSalesInfo as Sales),
-      value: newSalesId,
+      full_name: newSalesName,
     }))
 
-    setSalesId(newSalesId)
+    setSalesName(newSalesName)
   }
 
   // Add New Order
@@ -849,63 +860,82 @@ const UpdateOrderStoreStaff: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <div className='d-flex'>
-                    <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                  <Row>
+                    <Col xxl={3}>
+                      <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                    </Col>
 
-                    <div className='form-check-request'>
-                      <Form.Check
-                        inline
-                        label='Gratis'
-                        id='gratis'
-                        name='type'
-                        type='radio'
-                        value='gratis'
-                        checked={paymentType === 'gratis'}
-                        onChange={handleTypeOptionChange}
-                      />
+                    <Col className='form-check-request' xxl={9}>
+                      <Row>
+                        <Col xxl={5}>
+                          <Form.Check
+                            inline
+                            label='Gratis'
+                            id='gratis'
+                            name='type'
+                            type='radio'
+                            value='gratis'
+                            checked={paymentType === 'gratis'}
+                            onChange={handleTypeOptionChange}
+                          />
+                        </Col>
 
-                      <Form.Check
-                        inline
-                        label='Survey'
-                        id='survey'
-                        name='paymentType'
-                        type='radio'
-                        value='survey'
-                        checked={paymentType === 'survey'}
-                        disabled={paymentType === 'gratis'}
-                        onChange={handlePaymentOptionChange}
-                      />
+                        <Col xxl={7}>
+                          <Form.Check
+                            inline
+                            label='Survey'
+                            id='survey'
+                            name='paymentType'
+                            type='radio'
+                            value='survey'
+                            checked={paymentType === 'survey'}
+                            disabled={paymentType === 'gratis'}
+                            onChange={handlePaymentOptionChange}
+                          />
+                        </Col>
+                      </Row>
 
-                      <Form.Check
-                        inline
-                        label='Berbayar'
-                        id='berbayar'
-                        name='type'
-                        type='radio'
-                        value='berbayar'
-                        checked={
-                          type === 'berbayar' ||
-                          paymentType === 'pemasangan_tanpa_survey' ||
-                          paymentType === 'survey'
-                        }
-                        onChange={handleTypeOptionChange}
-                      />
+                      <Row>
+                        <Col xxl={5}>
+                          <Form.Check
+                            inline
+                            label='Berbayar'
+                            id='berbayar'
+                            name='type'
+                            type='radio'
+                            value='berbayar'
+                            checked={
+                              type === 'berbayar' ||
+                              paymentType === 'pemasangan_tanpa_survey' ||
+                              paymentType === 'survey'
+                            }
+                            onChange={handleTypeOptionChange}
+                          />
+                        </Col>
 
-                      <Form.Check
-                        inline
-                        label='Pemasangan Tanpa Survey'
-                        id='pemasangan_tanpa_survey'
-                        name='paymentType'
-                        type='radio'
-                        value='pemasangan_tanpa_survey'
-                        checked={
-                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
-                        }
-                        disabled={paymentType === 'gratis'}
-                        onChange={handlePaymentOptionChange}
-                      />
-                    </div>
-                  </div>
+                        <Col xxl={7}>
+                          <Form.Check
+                            inline
+                            label='Pemasangan Tanpa Survey'
+                            id='pemasangan_tanpa_survey'
+                            name='paymentType'
+                            type='radio'
+                            value='pemasangan_tanpa_survey'
+                            checked={
+                              paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                            }
+                            disabled={paymentType === 'gratis'}
+                            onChange={handlePaymentOptionChange}
+                          />
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+
+                  <Form.Label className='fs-7 fw-normal'>
+                    <span className='text-danger fw-bold'>Note :</span>
+                    <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
+                  </Form.Label>
                 </Col>
               </Row>
 
@@ -913,10 +943,24 @@ const UpdateOrderStoreStaff: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>No Member</Form.Label>
-                    <Form.Control
-                      type='number'
-                      value={memberId}
-                      onChange={(element) => handleChangeMemberId(element)}
+                    <CreatableSelect
+                      name='member'
+                      id='member'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Pilih/Ketik Nama Member'
+                      isSearchable={true}
+                      options={member}
+                      value={{
+                        value: memberId,
+                        label: memberId,
+                        full_name: memberName,
+                        email: memberEmail,
+                        phone_number: memberPhoneNumber,
+                        whatsapp_number: memberPhoneNumber,
+                        address_1: memberAddress,
+                      }}
+                      onChange={(element) => handleChangeSelectMember(element)}
                     />
                   </Form.Group>
                 </Col>
@@ -954,23 +998,11 @@ const UpdateOrderStoreStaff: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Customer</Form.Label>
-                    <CreatableSelect
-                      name='member'
-                      id='member'
-                      className='form-control p-0 form-item-name'
-                      classNamePrefix='select'
-                      placeholder='Pilih/Ketik Nama Member'
-                      isSearchable={true}
-                      options={member}
-                      value={{
-                        value: memberId,
-                        label: memberName,
-                        email: memberEmail,
-                        phone_number: memberPhoneNumber,
-                        whatsapp_number: memberPhoneNumber,
-                        address_1: memberAddress,
-                      }}
-                      onChange={(element) => handleChangeSelectMember(element)}
+
+                    <Form.Control
+                      type='text'
+                      value={memberName}
+                      onChange={(element) => handleChangeMemberFullName(element)}
                     />
                   </Form.Group>
                 </Col>
@@ -1037,20 +1069,6 @@ const UpdateOrderStoreStaff: FC = () => {
                     </Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control
-                        type='text'
-                        value={salesId}
-                        onChange={(element) => handleChangeSalesId(element)}
-                      />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      Nama Sales :
-                    </Form.Label>
-
-                    <Col sm='8'>
                       <CreatableSelect
                         name='sales'
                         id='sales'
@@ -1061,9 +1079,24 @@ const UpdateOrderStoreStaff: FC = () => {
                         options={sales}
                         value={{
                           value: salesId,
-                          label: salesName,
+                          label: salesId,
+                          full_name: salesName,
                         }}
                         onChange={(element) => handleChangeSelectSales(element)}
+                      />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='mb-5'>
+                    <Form.Label column sm='4'>
+                      Nama Sales :
+                    </Form.Label>
+
+                    <Col sm='8'>
+                      <Form.Control
+                        type='text'
+                        value={salesName}
+                        onChange={(element) => handleChangeSalesName(element)}
                       />
                     </Col>
                   </Form.Group>

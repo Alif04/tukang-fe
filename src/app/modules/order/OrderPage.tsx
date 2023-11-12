@@ -6,7 +6,6 @@ import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderW
 
 import {DashboardOrder} from './components/DashboardOrder'
 import {ViewOrder} from './components/ViewOrder'
-import {PreOrder} from './components/PreOrder'
 import {NewOrder} from './components/NewOrder'
 import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
@@ -45,6 +44,7 @@ const OrderPage: React.FC = () => {
               </>
             ) : userRole == 'Admin HO' ? (
               <>
+                <HeaderWrapper className='bg-header-ho' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
               </>
             ) : (
@@ -65,6 +65,7 @@ const OrderPage: React.FC = () => {
               </>
             ) : userRole == 'Admin HO' ? (
               <>
+                <HeaderWrapper className='bg-header-ho' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   LIST INSTALASI & SERVICE MITRA10
                 </PageTitle>
@@ -78,20 +79,17 @@ const OrderPage: React.FC = () => {
       />
 
       <Route
-        path='pre-order'
-        element={
-          <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PRE ORDER</PageTitle>
-            <PreOrder />
-          </>
-        }
-      />
-
-      <Route
         path='new-order'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR NEW ORDER</PageTitle>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PESANAN BARU</PageTitle>
             <NewOrder />
           </>
         }
@@ -101,7 +99,13 @@ const OrderPage: React.FC = () => {
         path='update-order/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE ORDER FORM</PageTitle>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <UpdateOrder />
           </>
         }
@@ -111,7 +115,13 @@ const OrderPage: React.FC = () => {
         path='detail-order/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL ORDER</PageTitle>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <DetailOrder />
           </>
         }
@@ -121,7 +131,6 @@ const OrderPage: React.FC = () => {
         path='printout-order/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>PRINTOUT ORDER</PageTitle>
             <PrintOutOrder />
           </>
         }
@@ -131,7 +140,6 @@ const OrderPage: React.FC = () => {
         path='preview-email/:id'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>PREVIEW EMAIL</PageTitle>
             <PreviewEmail />
           </>
         }

@@ -95,7 +95,7 @@ const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
         },
       },
     },
-    colors: [baseColor],
+    colors: ['#58DFA5'],
     stroke: {
       lineCap: 'round',
     },

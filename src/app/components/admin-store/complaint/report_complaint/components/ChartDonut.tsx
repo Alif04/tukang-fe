@@ -41,7 +41,9 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
     <div className={`card ${className}`}>
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
-          <h1 className='fs-1 text-danger'>Complaint</h1>
+          <h1 className='fs-1' style={{color: '#6E010F'}}>
+            Complaint
+          </h1>
 
           <div className='d-flex justify-content-center'>
             <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -54,9 +56,6 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-primary')
-  const pendingColor = getCSSVariableValue('--kt-gray-800')
-  const cancelColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [44, 55, 13],
@@ -74,7 +73,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
+    colors: ['#009DFF', '#22E4FF', '#3BFFD0'],
     grid: {
       padding: {
         top: 10,

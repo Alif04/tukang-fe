@@ -1,7 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
 
-import './DashboardTukang.css'
-
 import {ChartBarOrderTukang} from './components/ChartBarOrderTukang'
 import {ChartLineSurveyTukang} from './components/ChartLineSurveyTukang'
 import {ChartLineComplaintTukang} from './components/ChartLineComplaintTukang'
@@ -9,7 +7,7 @@ import {ChartDonutWorkTukang} from './components/ChartDonutWorkTukang'
 import {ChartDonutQuotationTukang} from './components/ChartDonutQuotationTukang'
 
 import axios from 'axios'
-import {Row, Col} from 'react-bootstrap'
+import {Row, Col, Card} from 'react-bootstrap'
 
 const initialStatusState = {
   orderIn: 0,
@@ -105,72 +103,74 @@ const DashboardTukang: FC = () => {
   return (
     <>
       <section className='dashboard-tukang'>
-        <Row className='row-gy-5 g-xl-8 mb-5'>
-          <div className='d-flex justify-content-between'>
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Order in</h1>
-                <h1 className='content-item text-success'>{orderIn}</h1>
-              </div>
-            </div>
+        <Card className='mb-5'>
+          <Card.Body className='mt-5 mb-5'>
+            <Row className='justify-content-md-center'>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>{orderIn}</h1>
+                  <p className='text-center'>Order in</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Quotation sent</h1>
-                <h1 className='content-item text-warning'>{quotationSent}</h1>
-              </div>
-            </div>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>{quotationSent}</h1>
+                  <p className='text-center'>Quotation sent</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Order cancel</h1>
-                <h1 className='content-item text-danger'>{orderCancel}</h1>
-              </div>
-            </div>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>{orderCancel}</h1>
+                  <p className='text-center'>Order cancel</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Order survey</h1>
-                <h1 className='content-item text-warning'>{orderSurvey}</h1>
-              </div>
-            </div>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>{orderSurvey}</h1>
+                  <p className='text-center'>Order survey</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Work in Progress</h1>
-                <h1 className='content-item text-warning'>{workInProgress}</h1>
-              </div>
-            </div>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal'>{workInProgress}</h1>
+                  <p className='text-center'>Work in Progress</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Work done</h1>
-                <h1 className='content-item text-success'>{workDone}</h1>
-              </div>
-            </div>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal text-center'>{workDone}</h1>
+                  <p className='fw-normal'>Work done</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Complaint</h1>
-                <h1 className='content-item text-danger'>{complaint}</h1>
-              </div>
-            </div>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal text-center'>{complaint}</h1>
+                  <p className='fw-normal text-danger'>Complaint</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Complaint resolve</h1>
-                <h1 className='content-item text-success'>{complaintResolve}</h1>
-              </div>
-            </div>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal text-center'>{complaintResolve}</h1>
+                  <p className='fw-normal text-center'>Complaint resolve</p>
+                </div>
+              </Col>
 
-            <div className='card item'>
-              <div className='card-body'>
-                <h1 className='title'>Order Done</h1>
-                <h1 className='content-item text-success'>{orderDone}</h1>
-              </div>
-            </div>
-          </div>
-        </Row>
+              <Col>
+                <div className='d-flex flex-column align-items-center gap-2'>
+                  <h1 className='fw-normal text-center'>{orderDone}</h1>
+                  <p className='fw-normal text-center'>Order Done</p>
+                </div>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
 
         <Row className='row gy-5 g-xl-8'>
           <Col xl={4}>

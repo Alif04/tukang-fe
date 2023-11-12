@@ -18,6 +18,7 @@ const TransactionWidget: React.FC<Props> = () => {
         <div className='transaction-wrapper'>
           <div className='d-flex align-items-center mb-7'>
             <div className='flex-grow-1 me-2'>
+              <div className='fw-bolder text-gray-800 fs-5'>Bpk. Slamet</div>
               <div className='fw-bold text-gray-800 fs-6'>Pemasangan Water Heater</div>
               <span className='text-muted fw-semibold d-block'>16 March 2023</span>
             </div>
@@ -31,6 +32,7 @@ const TransactionWidget: React.FC<Props> = () => {
 
           <div className='d-flex align-items-center mb-7'>
             <div className='flex-grow-1 me-2'>
+              <div className='fw-bolder text-gray-800 fs-5'>Ibu Riana</div>
               <div className='fw-bold text-gray-800 fs-6'>Pemasangan Ubin</div>
               <span className='text-muted fw-semibold d-block'>17 March 2023</span>
             </div>
@@ -43,6 +45,7 @@ const TransactionWidget: React.FC<Props> = () => {
 
           <div className='d-flex align-items-center mb-7'>
             <div className='flex-grow-1 me-2'>
+              <div className='fw-bolder text-gray-800 fs-5'>Ibu Karen</div>
               <div className='fw-bold text-gray-800 fs-6'>Pemasangan Kitchen Set</div>
               <span className='text-muted fw-semibold d-block'>17 March 2023</span>
             </div>
@@ -56,6 +59,7 @@ const TransactionWidget: React.FC<Props> = () => {
 
           <div className='d-flex align-items-center mb-7'>
             <div className='flex-grow-1 me-2'>
+              <div className='fw-bolder text-gray-800 fs-5'>Bpk. Vincent</div>
               <div className='fw-bold text-gray-800 fs-6'>Pemasangan Kloset</div>
               <span className='text-muted fw-semibold d-block'>17 March 2023</span>
             </div>

@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewRefund} from './components/ViewRefund'
 import {NewRefund} from './components/NewRefund'
 import {UpdateRefund} from './components/UpdateRefund'
@@ -23,12 +25,21 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const RefundPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-refund'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>REFUND LIST</PageTitle>
             <ViewRefund />
           </>
@@ -39,6 +50,13 @@ const RefundPage: React.FC = () => {
         path='new-refund'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR REFUND</PageTitle>
             <NewRefund />
           </>
@@ -49,6 +67,13 @@ const RefundPage: React.FC = () => {
         path='update-refund/:id'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE REFUND</PageTitle>
             <UpdateRefund />
           </>
@@ -59,6 +84,13 @@ const RefundPage: React.FC = () => {
         path='detail-refund/:id'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL REFUND</PageTitle>
             <DetailRefund />
           </>

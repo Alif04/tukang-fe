@@ -55,7 +55,7 @@ const TopSalesWidget: React.FC<Props> = ({className}) => {
 
           <div className='d-flex flex-column justify-content-center align-items-end'>
             <span className='fw-bold text-success'>Rp. 10.000.000</span>
-            <span className='text-muted'>11 Invoices</span>
+            <span className='text-muted'>10 Invoices</span>
           </div>
         </div>
 
@@ -76,7 +76,7 @@ const TopSalesWidget: React.FC<Props> = ({className}) => {
           </div>
 
           <div className='d-flex flex-column justify-content-center align-items-end'>
-            <span className='fw-bold text-success'>Rp. 7.000.000</span>
+            <span className='fw-bold text-success'>Rp. 9.000.000</span>
             <span className='text-muted'>9 Invoices</span>
           </div>
         </div>
@@ -121,7 +121,7 @@ const TopSalesWidget: React.FC<Props> = ({className}) => {
 
           <div className='d-flex flex-column justify-content-center align-items-end'>
             <span className='fw-bold text-success'>Rp. 5.000.000</span>
-            <span className='text-muted'>9 Invoices</span>
+            <span className='text-muted'>10 Invoices</span>
           </div>
         </div>
       </div>

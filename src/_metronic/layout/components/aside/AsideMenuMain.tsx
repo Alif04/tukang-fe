@@ -64,13 +64,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/new-order'
           title='Order Baru'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/order/pre-order'
-          title='Pre Order'
-          role={['Store Staff']}
+          role={['Store Staff', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -375,22 +369,6 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
-      {/* Halaman Sales */}
-      <AsideMenuItemWithSub
-        to='/sales'
-        title='Sales'
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-        role={['Admin HO']}
-      >
-        <AsideMenuItem
-          to='/sales/new-sales'
-          title='New Sales'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-      </AsideMenuItemWithSub>
-
       {/* Halaman Refund */}
       <AsideMenuItemWithSub
         to='/refund'
@@ -422,7 +400,7 @@ export function AsideMenuMain() {
         role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
       >
         <AsideMenuItem
-          to='/setting/register-sales'
+          to='/sales/new-sales'
           title='Register Sales'
           role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}

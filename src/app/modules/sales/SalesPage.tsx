@@ -2,7 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
-import {NewSales} from './components/NewSales'
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+import {NewSales} from '../../components'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -20,17 +21,35 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const SalesPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='new-sales'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW SALES</PageTitle>
+            {userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PENDAFTARAN SALES</PageTitle>
             <NewSales />
           </>
         }
       />
+
       <Route index element={<Navigate to='/sales/new-sales' />} />
     </Routes>
   )

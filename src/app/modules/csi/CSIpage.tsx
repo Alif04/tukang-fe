@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewCSI} from './components/ViewCSI'
 import {NewCSI} from './components/NewCSI'
 import {UpdateCSI} from './components/UpdateCSI'
@@ -23,12 +25,21 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const CSIpage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-csi'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>SURVEY KEPUASAN PELANGGAN</PageTitle>
             <ViewCSI />
           </>
@@ -38,6 +49,13 @@ const CSIpage: React.FC = () => {
         path='new-csi'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>NEW CSI FORM</PageTitle>
             <NewCSI />
           </>
@@ -47,6 +65,13 @@ const CSIpage: React.FC = () => {
         path='update-csi'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMAT EMAIL CSI</PageTitle>
             <UpdateCSI />
           </>
@@ -56,6 +81,13 @@ const CSIpage: React.FC = () => {
         path='report-csi'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>CSI DASHBOARD</PageTitle>
             <ReportCSI />
           </>

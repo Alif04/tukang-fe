@@ -1,14 +1,14 @@
-import React, { useState, FC, useEffect } from 'react'
+import React, {useState, FC, useEffect} from 'react'
 
 import './DetailOrder.css'
 
+import {Order} from '../../../../interfaces/order'
 import axios from 'axios'
-import { useParams } from 'react-router-dom'
-import { Row, Col, Form, ListGroup, Table } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faImage, faFileImage } from '@fortawesome/free-solid-svg-icons'
-import { Steps } from 'antd'
-import { Order } from '../../../../interfaces/order'
+import {useParams} from 'react-router-dom'
+import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {Steps} from 'antd'
 
 const orderHistory = [
   {
@@ -43,7 +43,7 @@ const complaintHistory = [
   },
 ]
 
-const DetailOrderStore: FC = () => {
+const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const [order, setOrder] = useState<Order>({
@@ -66,7 +66,7 @@ const DetailOrderStore: FC = () => {
     created_by: null,
     updated_by: null,
     created_at: '',
-    order_details: []
+    order_details: [],
   })
 
   const fetchOrderData = async () => {
@@ -91,6 +91,8 @@ const DetailOrderStore: FC = () => {
               fileName: data.receipt_path,
             })
           }
+
+          updatePageTitle(data)
         })
     } catch (error) {
       console.error(error)
@@ -125,7 +127,9 @@ const DetailOrderStore: FC = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{order.store ? order.store.store_name : ''}</span>
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {order.store ? order.store.store_name : ''}
+                  </span>
                 </Form.Label>
               </Col>
 
@@ -243,23 +247,19 @@ const DetailOrderStore: FC = () => {
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
               <Row>
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>
-                    Tanggal request pemasangan :
-                  </Form.Label>
+                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
                   <Col>
                     <Form.Control
                       type='text'
                       plaintext
                       readOnly
-                      value={order.request_survey}
+                      value={formatDate(new Date(order.request_survey))}
                     />
                   </Col>
                 </Form.Group>
 
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>
-                    Payment Type:
-                  </Form.Label>
+                  <Form.Label column>Payment Type:</Form.Label>
                   <Col>
                     <Form.Control
                       type='text'
@@ -304,11 +304,11 @@ const DetailOrderStore: FC = () => {
                     </td>
                     <td className=' fw-bolder'>
                       {order?.payment_type === 'gratis' ||
-                        order?.payment_type === 'pemasangan_tanpa_survey'
+                      order?.payment_type === 'pemasangan_tanpa_survey'
                         ? `Rp. ${(0).toLocaleString('id')}`
                         : order?.payment_type === 'survey'
-                          ? `Rp. ${(99000).toLocaleString('id')}`
-                          : `Rp. ${0}`}
+                        ? `Rp. ${(99000).toLocaleString('id')}`
+                        : `Rp. ${0}`}
                     </td>
                   </tr>
 
@@ -335,29 +335,38 @@ const DetailOrderStore: FC = () => {
             </div>
           </Row>
 
-          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Group controlId='formFile'>
-                <Form.Label>Bukti Receipt</Form.Label>
-                <Form className='form-input-image'>
-                  <Form.Control type='file' accept='image/*' className='input-field-image' hidden />
+          {order.receipt_path !== '' ? (
+            <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Group controlId='formFile'>
+                  <Form.Label>Bukti Receipt</Form.Label>
+                  <Form className='form-input-image'>
+                    <Form.Control
+                      type='file'
+                      accept='image/*'
+                      className='input-field-image'
+                      hidden
+                    />
 
-                  <img
-                    src={`${apiUrl}/public/receipt/${image.fileName}`}
-                    alt={image.fileName}
-                    className='image-preview'
-                  />
-                </Form>
+                    <img
+                      src={`${apiUrl}/public/receipt/${image.fileName}`}
+                      alt={image.fileName}
+                      className='image-preview'
+                    />
+                  </Form>
 
-                <div className='uploaded-row'>
-                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
-                </div>
-              </Form.Group>
-            </Col>
+                  <div className='uploaded-row'>
+                    <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
+                  </div>
+                </Form.Group>
+              </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-          </Row>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            </Row>
+          ) : (
+            <></>
+          )}
 
           {/* <div className='order-history mt-3 mb-3'>
             <div className='fs-3 fw-bold text-success mb-4'>Order History</div>
@@ -441,4 +450,4 @@ const DetailOrderStore: FC = () => {
   )
 }
 
-export { DetailOrderStore }
+export {DetailOrderStore}

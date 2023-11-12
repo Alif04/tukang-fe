@@ -56,9 +56,6 @@ const VendorInvoice: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-danger')
 
   return {
     series: [44, 55, 13],
@@ -66,7 +63,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['O.IN', 'PAID', 'CANCEL'],
+    labels: ['IN', 'PAID', 'CANCEL'],
     legend: {
       show: true,
       height: 20,
@@ -75,7 +72,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
+    colors: ['#ADAC43', '#80D3F8', '#ADAC43'],
     grid: {
       padding: {
         top: 10,

@@ -40,7 +40,7 @@ interface Sales {
   brand: Brand[]
 }
 
-const NewSalesHO: FC = () => {
+const NewSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
@@ -562,4 +562,4 @@ const NewSalesHO: FC = () => {
   )
 }
 
-export {NewSalesHO}
+export {NewSales}

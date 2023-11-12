@@ -2,12 +2,13 @@ import React, {FC, useState, useEffect} from 'react'
 
 import './PreviewEmail.css'
 
+import {Order} from '../../../../interfaces/order'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Table, Form, Button, Row, Col} from 'react-bootstrap'
 
-const PreviewEmailOrder: FC = () => {
+const PreviewEmailOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const [orderDetail, setOrderDetail] = useState<any>()
@@ -26,6 +27,7 @@ const PreviewEmailOrder: FC = () => {
         .then((response) => {
           const data = response.data.data
           setOrderDetail(data)
+          updatePageTitle(data)
         })
     } catch (error) {
       console.error(error)

@@ -1,9 +1,10 @@
 import React, {FC, useEffect, useState, ChangeEvent} from 'react'
-import axios from 'axios'
-import {useNavigate, useParams} from 'react-router-dom'
+import {Order} from '../../../../interfaces/order'
 
 import './NewOrder.css'
 
+import axios from 'axios'
+import {useNavigate, useParams} from 'react-router-dom'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -21,7 +22,8 @@ interface StoreItem {
 
 interface Member {
   value: any
-  label: string
+  label: any
+  full_name: any
   email: any
   phone_number: any
   whatsapp_number: any
@@ -30,7 +32,8 @@ interface Member {
 
 interface Sales {
   value: any
-  label: string
+  label: any
+  full_name: any
 }
 
 interface Vendor {
@@ -153,7 +156,7 @@ const NewOrderHO: FC = () => {
       }
     }
 
-    const getCostumer = async () => {
+    const getMember = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member`, {
           headers: {
@@ -166,7 +169,8 @@ const NewOrderHO: FC = () => {
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: item.full_name,
+            label: item.id,
+            full_name: item.full_name,
             email: item.email,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
@@ -198,7 +202,8 @@ const NewOrderHO: FC = () => {
         if (Array.isArray(response.data.data)) {
           const tempSales = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.full_name,
+            label: item.id,
+            full_name: item.full_name,
           }))
 
           const creatableOptionSales = {value: 'salesOption'}
@@ -280,7 +285,7 @@ const NewOrderHO: FC = () => {
     }
 
     getStore()
-    getCostumer()
+    getMember()
     getSales()
     getVendor()
     getItem()
@@ -387,7 +392,8 @@ const NewOrderHO: FC = () => {
     } else {
       const newMemberInfo: Member = {
         value: element?.value || 0,
-        label: element?.label || '',
+        label: element?.label || 0,
+        full_name: element?.full_name || '',
         email: element?.email || '',
         phone_number: element?.phone_number || '',
         whatsapp_number: element?.whatsapp_number || '',
@@ -396,22 +402,22 @@ const NewOrderHO: FC = () => {
 
       setMemberInfo(newMemberInfo)
       setMemberId(newMemberInfo.value)
-      setMemberName(newMemberInfo.label)
+      setMemberName(newMemberInfo.full_name)
       setMemberEmail(newMemberInfo.email)
       setMemberPhoneNumber(newMemberInfo.whatsapp_number)
       setMemberAddress(newMemberInfo.address_1)
     }
   }
 
-  // Change Select Member Id
-  const handleChangeMemberId = (element: any) => {
-    const newMemberId = element.target.value
+  // Change Select Member Full Name
+  const handleChangeMemberFullName = (element: any) => {
+    const newMemberFullName = element.target.value
     setMemberInfo((prevMemberInfo) => ({
       ...(prevMemberInfo as Member),
-      id: newMemberId,
+      full_name: newMemberFullName,
     }))
 
-    setMemberId(newMemberId)
+    setMemberName(newMemberFullName)
   }
 
   // Change Select Member Email Address
@@ -466,25 +472,26 @@ const NewOrderHO: FC = () => {
     } else {
       const newSalesInfo: Sales = {
         value: element?.value || 0,
-        label: element?.label || '',
+        label: element?.label || 0,
+        full_name: element?.full_name || '',
       }
 
       setSalesInfo(newSalesInfo)
       setSalesId(newSalesInfo.value)
-      setSalesName(newSalesInfo.label)
+      setSalesName(newSalesInfo.full_name)
     }
   }
 
-  // Change Select Sales Id
-  const handleChangeSalesId = (element: any) => {
-    const newSalesId = element.target.value
+  // Change Select Sales Name
+  const handleChangeSalesName = (element: any) => {
+    const newSalesName = element.target.value
 
     setSalesInfo((prevSalesInfo) => ({
       ...(prevSalesInfo as Sales),
-      value: newSalesId,
+      full_name: newSalesName,
     }))
 
-    setSalesId(newSalesId)
+    setSalesName(newSalesName)
   }
 
   // Change Select Vendor
@@ -860,63 +867,78 @@ const NewOrderHO: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <div className='d-flex'>
-                    <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                  <Row>
+                    <Col xxl={3}>
+                      <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                    </Col>
 
-                    <div className='form-check-request'>
-                      <Form.Check
-                        inline
-                        label='Gratis'
-                        id='gratis'
-                        name='type'
-                        type='radio'
-                        value='gratis'
-                        checked={paymentType === 'gratis'}
-                        onChange={handleTypeOptionChange}
-                      />
+                    <Col className='form-check-request' xxl={9}>
+                      <Row>
+                        <Col xxl={5}>
+                          <Form.Check
+                            inline
+                            label='Gratis'
+                            id='gratis'
+                            name='type'
+                            type='radio'
+                            value='gratis'
+                            checked={paymentType === 'gratis'}
+                            onChange={handleTypeOptionChange}
+                          />
+                        </Col>
 
-                      <Form.Check
-                        inline
-                        label='Survey'
-                        id='survey'
-                        name='paymentType'
-                        type='radio'
-                        value='survey'
-                        checked={paymentType === 'survey'}
-                        disabled={paymentType === 'gratis'}
-                        onChange={handlePaymentOptionChange}
-                      />
+                        <Col xxl={7}>
+                          <Form.Check
+                            inline
+                            label='Survey'
+                            id='survey'
+                            name='paymentType'
+                            type='radio'
+                            value='survey'
+                            checked={paymentType === 'survey'}
+                            disabled={paymentType === 'gratis'}
+                            onChange={handlePaymentOptionChange}
+                          />
+                        </Col>
+                      </Row>
 
-                      <Form.Check
-                        inline
-                        label='Berbayar'
-                        id='berbayar'
-                        name='type'
-                        type='radio'
-                        value='berbayar'
-                        checked={
-                          type === 'berbayar' ||
-                          paymentType === 'pemasangan_tanpa_survey' ||
-                          paymentType === 'survey'
-                        }
-                        onChange={handleTypeOptionChange}
-                      />
+                      <Row>
+                        <Col xxl={5}>
+                          <Form.Check
+                            inline
+                            label='Berbayar'
+                            id='berbayar'
+                            name='type'
+                            type='radio'
+                            value='berbayar'
+                            checked={type === 'berbayar'}
+                            onChange={handleTypeOptionChange}
+                          />
+                        </Col>
 
-                      <Form.Check
-                        inline
-                        label='Pemasangan Tanpa Survey'
-                        id='pemasangan_tanpa_survey'
-                        name='paymentType'
-                        type='radio'
-                        value='pemasangan_tanpa_survey'
-                        checked={
-                          paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
-                        }
-                        disabled={paymentType === 'gratis'}
-                        onChange={handlePaymentOptionChange}
-                      />
-                    </div>
-                  </div>
+                        <Col xxl={7}>
+                          <Form.Check
+                            inline
+                            label='Pemasangan Tanpa Survey'
+                            id='pemasangan_tanpa_survey'
+                            name='paymentType'
+                            type='radio'
+                            value='pemasangan_tanpa_survey'
+                            checked={
+                              paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                            }
+                            disabled={paymentType === 'gratis'}
+                            onChange={handlePaymentOptionChange}
+                          />
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+
+                  <Form.Label className='fs-7 fw-normal'>
+                    <span className='text-danger fw-bold'>Note :</span>
+                    <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
+                  </Form.Label>
                 </Col>
               </Row>
 
@@ -924,10 +946,15 @@ const NewOrderHO: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>No Member</Form.Label>
-                    <Form.Control
-                      type='number'
-                      value={memberId}
-                      onChange={(element) => handleChangeMemberId(element)}
+                    <CreatableSelect
+                      name='member'
+                      id='member'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Ketik No Telepon Member/Nomor Member'
+                      isSearchable={true}
+                      options={member}
+                      onChange={(element) => handleChangeSelectMember(element)}
                     />
                   </Form.Group>
                 </Col>
@@ -952,6 +979,7 @@ const NewOrderHO: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
+                        disabled
                         value={memberPhoneNumber}
                         onChange={(element) => handleChangeMemberPhoneNumber(element)}
                       />
@@ -964,15 +992,10 @@ const NewOrderHO: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Customer</Form.Label>
-                    <CreatableSelect
-                      name='member'
-                      id='member'
-                      className='form-control p-0 form-item-name'
-                      classNamePrefix='select'
-                      placeholder='Pilih/Ketik Nama Member'
-                      isSearchable={true}
-                      options={member}
-                      onChange={(element) => handleChangeSelectMember(element)}
+                    <Form.Control
+                      type='text'
+                      value={memberName}
+                      onChange={(element) => handleChangeMemberFullName(element)}
                     />
                   </Form.Group>
                 </Col>
@@ -1039,10 +1062,15 @@ const NewOrderHO: FC = () => {
                     </Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control
-                        type='text'
-                        value={salesId}
-                        onChange={(element) => handleChangeSalesId(element)}
+                      <CreatableSelect
+                        name='sales'
+                        id='sales'
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Pilih/Ketik ID Sales'
+                        isSearchable={true}
+                        options={sales}
+                        onChange={(element) => handleChangeSelectSales(element)}
                       />
                     </Col>
                   </Form.Group>
@@ -1053,15 +1081,10 @@ const NewOrderHO: FC = () => {
                     </Form.Label>
 
                     <Col sm='8'>
-                      <CreatableSelect
-                        name='sales'
-                        id='sales'
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Sales'
-                        isSearchable={true}
-                        options={sales}
-                        onChange={(element) => handleChangeSelectSales(element)}
+                      <Form.Control
+                        type='text'
+                        value={salesName}
+                        onChange={(element) => handleChangeSalesName(element)}
                       />
                     </Col>
                   </Form.Group>
@@ -1287,10 +1310,8 @@ const NewOrderHO: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            {/* <Button variant='warning'>Reprint Order</Button> */}
-
             <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
-              New Order & Print
+              Submit Order & Print
             </Button>
           </div>
         </div>

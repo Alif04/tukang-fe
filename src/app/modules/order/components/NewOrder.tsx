@@ -1,5 +1,6 @@
 import React, {FC} from 'react'
 
+import {NewOrderStore} from '../../../components'
 import {NewOrderHO} from '../../../components'
 
 const NewOrder: FC = () => {
@@ -7,11 +8,17 @@ const NewOrder: FC = () => {
 
   return (
     <>
-      {userRole === 'Admin HO' ? (
+      {userRole == 'Store CS' || userRole === 'Store Staff' ? (
+        <>
+          <NewOrderStore />
+        </>
+      ) : userRole == 'Admin HO' ? (
         <>
           <NewOrderHO />
         </>
-      ) : null}
+      ) : (
+        <></>
+      )}
     </>
   )
 }

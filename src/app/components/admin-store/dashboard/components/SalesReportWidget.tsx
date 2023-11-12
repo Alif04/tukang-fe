@@ -63,8 +63,6 @@ const SalesReportWidget: React.FC<Props> = ({className, backGroundColor, chartHe
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const secondaryColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [
@@ -125,7 +123,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
         },
       },
     },
-    colors: [baseColor, secondaryColor],
+    colors: ['#009DFF', '#22E4FF'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

@@ -69,7 +69,7 @@ const ReportComplaintStore: FC = () => {
       const apiUrl = process.env.REACT_APP_API_URL
 
       const response = await axios.get(
-        `${apiUrl}/complaints?date_from=${dateFrom}&date_to=${dateTo}&take=0`,
+        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
         {
           headers: {
             Accept: 'application/json',

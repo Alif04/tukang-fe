@@ -65,7 +65,7 @@ const DashboardHO: FC = () => {
   const fetchOrderList = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=0`,
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
         {
           headers: {
             Accept: 'application/json',
@@ -227,19 +227,7 @@ const DashboardHO: FC = () => {
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
-          <Row>
-            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='title-header fs-7 fw-normal'>Track Order</h3>
-            </Col>
-
-            <Col xxl={8} xl={8} lg={8} className='d-flex align-items-center'>
-              <div className='filter-search w-100'>
-                <Form.Control placeholder='Masukkan Order ID' className='filter' />
-              </div>
-            </Col>
-          </Row>
-        </Col>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'></Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
@@ -252,42 +240,42 @@ const DashboardHO: FC = () => {
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{totalOrder}</h1>
-                    <p className='text-center'>Total Order</p>
+                    <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{survey}</h1>
-                    <p className='text-center'>Survey</p>
+                    <p className='fs-6 text-center'>Survey</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{onProgress}</h1>
-                    <p className='text-center'>On Progress</p>
+                    <p className='fs-6 text-center'>On Progress</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{complete}</h1>
-                    <p className='text-center'>Complete</p>
+                    <p className='fs-6 text-center'>Complete</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{reschedule}</h1>
-                    <p className='text-danger text-center'>Reschedule</p>
+                    <p className='fs-6 text-danger text-center'>Reschedule</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{waitingPayment}</h1>
-                    <p className='text-brown fw-bold text-center'>Menunggu Bayar</p>
+                    <p className='fs-6 text-brown fw-bold text-center'>Menunggu Bayar</p>
                   </div>
                 </Col>
               </Row>
@@ -300,7 +288,7 @@ const DashboardHO: FC = () => {
         <Col xxl={8}>
           <Row className='g-5 g-xl-8 mb-5'>
             <Col xl={6}>
-              <MoreInformation className='card-xl-stretch mb-xl-8' />
+              <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
             </Col>
             <Col xl={6}>
               <ChartBarSurvey className='card-xl-stretch mb-xl-8' />

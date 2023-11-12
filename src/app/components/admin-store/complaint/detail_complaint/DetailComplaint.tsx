@@ -16,7 +16,9 @@ interface Member {
   label: string
 }
 
-const DetailComplaintStore: FC = () => {
+const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -44,6 +46,7 @@ const DetailComplaintStore: FC = () => {
         .then((response) => {
           const data = response.data.data
           setComplaintDetail(data)
+          updatePageTitle(data)
 
           if (data?.id) {
             setComplaintId(data.id)
@@ -264,6 +267,8 @@ const DetailComplaintStore: FC = () => {
               title: 'Success',
               text: 'Success Add Feedback',
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
             })
           } else {
             Swal.fire({
@@ -290,45 +295,6 @@ const DetailComplaintStore: FC = () => {
   // Cancel Complaint
   const handleCancel = () => {
     navigate('/complaint/view-complaint')
-  }
-
-  // Handle Approve & Cancel
-  const handleApprovalComplaint = async (status: number) => {
-    await axios
-      .post(`${apiUrl}/complaints/${complaintId}/set-status/${status}`, null, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: response.data.message,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-        navigate('/complaint/view-complaint')
-      })
-      .catch((error) => {
-        console.error(error)
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
   }
 
   return (
@@ -551,28 +517,6 @@ const DetailComplaintStore: FC = () => {
           <hr />
 
           <Row>
-            <div className='d-flex justify-content-end align-items-center'>
-              <Button
-                variant='light-danger'
-                className='d-flex justify-content-center align-items-center'
-                type='submit'
-                onClick={() => handleApprovalComplaint(complaintStatusCancel)}
-              >
-                Rejected
-              </Button>
-
-              <Button
-                variant='dark-success'
-                className='d-flex justify-content-center align-items-center'
-                type='submit'
-                onClick={() => handleApprovalComplaint(complaintStatusApprove)}
-              >
-                Accepted
-              </Button>
-            </div>
-          </Row>
-
-          <Row>
             <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
               COMPLAINT HISTORY
             </div>
@@ -669,6 +613,78 @@ const DetailComplaintStore: FC = () => {
             </Col>
           </Row>
 
+          {complaintDetail?.remedials && complaintDetail.remedials.length > 0 && (
+            <>
+              <hr />
+
+              <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
+                REMEDIAL HISTORY
+              </div>
+
+              {complaintDetail.remedials.map((item: any) => (
+                <Row key={item.id}>
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        PIC Feedback:
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly value={item.remedial_pic} />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Feedback Description:</Form.Label>
+                    <Form.Control
+                      style={{minHeight: '200px'}}
+                      as='textarea'
+                      plaintext
+                      readOnly
+                      value={item.remedial_action}
+                    ></Form.Control>
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Remedial Evidence:</Form.Label>
+                    {/* <ListGroup>
+                      {item.remedial_evidence.map((evidenceItem: any) => (
+                        <ListGroup.Item
+                          key={evidenceItem.id}
+                          action
+                          onClick={() => {
+                            setPreviewImage(evidenceItem.evidence_location)
+                            setVisible(true)
+                          }}
+                        >
+                          {evidenceItem.evidence_location}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+
+                    {previewImage && (
+                      <div>
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/remedials/${previewImage}`}
+                          preview={{
+                            visible,
+                            src: `${apiUrl}/public/remedials/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisible(value)
+                            },
+                          }}
+                        />
+                      </div>
+                    )} */}
+                  </Col>
+                </Row>
+              ))}
+            </>
+          )}
+
           <hr />
 
           <Row>
@@ -746,10 +762,6 @@ const DetailComplaintStore: FC = () => {
                   placeholder='Pilih PIC Feedback'
                   isSearchable={true}
                   options={picFeedback}
-                  // value={{
-                  //   value: picFeedbackId,
-                  //   label: picFeedbackName,
-                  // }}
                   onChange={(element) => handlePicFeedbackChange(element)}
                 />
               </Form.Group>

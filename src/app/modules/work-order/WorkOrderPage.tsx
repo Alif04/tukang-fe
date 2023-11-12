@@ -18,13 +18,25 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const WorkOrderPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-work-order'
         element={
           <>
-            <HeaderWrapper className='bg-header-vendor' />
+            {userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER LIST</PageTitle>
             <ViewWork />
           </>
@@ -34,7 +46,17 @@ const WorkOrderPage: React.FC = () => {
         path='report-work-order'
         element={
           <>
-            <HeaderWrapper className='bg-header-vendor' />
+            {userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>WORK ORDER DASHBOARD</PageTitle>
             <ReportWork />
           </>
@@ -44,7 +66,17 @@ const WorkOrderPage: React.FC = () => {
         path='update-work-order/:id'
         element={
           <>
-            <HeaderWrapper className='bg-header-vendor' />
+            {userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE WORK ORDER</PageTitle>
             <UpdateWork />
           </>
@@ -54,7 +86,17 @@ const WorkOrderPage: React.FC = () => {
         path='detail-work-order/:id'
         element={
           <>
-            <HeaderWrapper className='bg-header-vendor' />
+            {userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL WORK ORDER</PageTitle>
             <DetailWorkOrder />
           </>

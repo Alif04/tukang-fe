@@ -5,9 +5,14 @@ import './MoreInformation.css'
 
 type Props = {
   className: string
+  orderData: any[]
 }
 
-const MoreInformation: React.FC<Props> = ({className}) => {
+const getStatusCount = (orderData: any[], status: string): number => {
+  return orderData.filter((order) => order.status === status).length
+}
+
+const MoreInformation: React.FC<Props> = ({className, orderData}) => {
   return (
     <div className={`card ${className}`} id='more-information'>
       <div className='card-body'>
@@ -16,51 +21,51 @@ const MoreInformation: React.FC<Props> = ({className}) => {
 
           <div className='col-xl-3 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-              05
+              {getStatusCount(orderData, 'INVESTIGATED')}
             </h1>
-            <p className='text-danger text-center mt-1 mb-1'>COMPLAINT</p>
+            <p className='fs-7 text-danger text-center mt-1 mb-1'>COMPLAINT</p>
           </div>
 
           <div className='col-xl-3 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-              02
+              {getStatusCount(orderData, 'RESCHEDULE')}
             </h1>
-            <p className='text-danger text-center mt-1 mb-1'>RESCHEDULE</p>
+            <p className='fs-7 text-danger text-center mt-1 mb-1'>RESCHEDULE</p>
           </div>
 
           <div className='col-xl-3 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-              01
+              {getStatusCount(orderData, 'REJECTED')}
             </h1>
-            <p className='text-danger text-center mt-1 mb-1'>CANCEL</p>
+            <p className='fs-7 text-danger text-center mt-1 mb-1'>CANCEL</p>
           </div>
 
           <div className='col-xl-3 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-              01
+              {getStatusCount(orderData, 'REFUND')}
             </h1>
-            <p className='text-danger text-center mt-1 mb-1'>REFUND</p>
+            <p className='fs-7 text-danger text-center mt-1 mb-1'>REFUND</p>
           </div>
         </div>
 
         <div className='row mt-5 h-50'>
           <div className='col-xl-3 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-              01
+              {getStatusCount(orderData, 'REWORK')}
             </h1>
-            <p className='text-danger text-center mt-1 mb-1'>REVISIT</p>
+            <p className='fs-7 text-danger text-center mt-1 mb-1'>REVISIT</p>
           </div>
 
           <div className='col-xl-3 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-              01
+              {getStatusCount(orderData, 'REWORK')}
             </h1>
-            <p className='text-danger text-center mt-1 mb-1'>REWORK</p>
+            <p className='fs-7 text-danger text-center mt-1 mb-1'>REWORK</p>
           </div>
 
           <div className='col-xl-3 pt-5 pb-5'>
             <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-              01
+              {getStatusCount(orderData, 'REWORKEND')}
             </h1>
             <p className='text-success text-center mt-1 mb-1'>RESOLVE</p>
           </div>

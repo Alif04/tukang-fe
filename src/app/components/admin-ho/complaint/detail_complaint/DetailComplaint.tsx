@@ -16,7 +16,7 @@ interface Member {
   label: string
 }
 
-const DetailComplaintHO: FC = () => {
+const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -44,6 +44,7 @@ const DetailComplaintHO: FC = () => {
         .then((response) => {
           const data = response.data.data
           setComplaintDetail(data)
+          updatePageTitle(data)
 
           if (data?.id) {
             setComplaintId(data.id)
