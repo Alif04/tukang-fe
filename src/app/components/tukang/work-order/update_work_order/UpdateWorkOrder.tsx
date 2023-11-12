@@ -379,7 +379,7 @@ const UpdateWorkTukang: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.status === 201) {
+        if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
             text: response.data.message,
@@ -394,6 +394,8 @@ const UpdateWorkTukang: FC = () => {
             icon: 'error',
           })
         }
+
+        navigate('/work-order/view-work-order')
       })
       .catch((error) => {
         console.error(error)

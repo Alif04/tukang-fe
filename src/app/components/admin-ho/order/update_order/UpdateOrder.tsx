@@ -80,8 +80,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
   const [storeName, setStoreName] = useState<string>('')
 
   // Member
-  const [memberId, setMemberId] = useState<any>()
   const [member, setMember] = useState<Member[]>([])
+  const [memberId, setMemberId] = useState<any>()
+  const [memberLabel, setMemberLabel] = useState<any>()
   const [memberName, setMemberName] = useState<string>('')
   const [memberPhoneNumber, setMemberPhoneNumber] = useState<any>()
   const [memberEmail, setMemberEmail] = useState<any>()
@@ -174,13 +175,13 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
               data?.members?.id &&
               data?.members?.full_name &&
               data?.members.email &&
-              data?.members.whatsapp_number &&
+              data?.members.phone_number &&
               data?.members.address_1
             ) {
               setMemberId(data.members.id)
+              setMemberLabel(`${data.members.id} / ${data.members.phone_number}`)
               setMemberName(data.members.full_name)
               setMemberEmail(data.members.email)
-              setMemberPhoneNumber(data.members.whatsapp_number)
               setMemberAddress(data.members.address_1)
             }
 
@@ -256,8 +257,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: item.id,
+            label: `${item.id} / ${item.phone_number}`,
             full_name: item.full_name,
+            email: item.email,
+            phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
@@ -472,6 +475,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
     if (element && element.value == 'memberOption') {
       setMemberInfo(null)
       setMemberId(null)
+      setMemberLabel('')
       setMemberName('')
       setMemberEmail('')
       setMemberPhoneNumber('')
@@ -489,6 +493,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
 
       setMemberInfo(newMemberInfo)
       setMemberId(newMemberInfo.value)
+      setMemberLabel(newMemberInfo.label)
       setMemberName(newMemberInfo.full_name)
       setMemberEmail(newMemberInfo.email)
       setMemberPhoneNumber(newMemberInfo.whatsapp_number)
@@ -1093,7 +1098,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                       options={member}
                       value={{
                         value: memberId,
-                        label: memberId,
+                        label: memberLabel,
                         full_name: memberName,
                         email: memberEmail,
                         phone_number: memberPhoneNumber,

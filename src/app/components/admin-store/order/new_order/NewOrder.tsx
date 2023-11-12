@@ -123,7 +123,7 @@ const NewOrderStore: FC = () => {
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: item.id,
+            label: `${item.id} / ${item.phone_number}`,
             full_name: item.full_name,
             email: item.email,
             phone_number: item.phone_number,

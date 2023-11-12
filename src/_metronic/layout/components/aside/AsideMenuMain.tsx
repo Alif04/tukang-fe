@@ -39,13 +39,13 @@ export function AsideMenuMain() {
       />
 
       {/* Halaman Calendar */}
-      <AsideMenuItem
+      {/* <AsideMenuItem
         to='/calendar/view-calendar'
         icon='/media/icons/duotune/art/art002.svg'
         title='Calendar ( Maintenance )'
         fontIcon='bi-app-indicator'
         role={['Admin Vendor', 'Tukang']}
-      />
+      /> */}
 
       {/* Halaman Order */}
       <AsideMenuItemWithSub
