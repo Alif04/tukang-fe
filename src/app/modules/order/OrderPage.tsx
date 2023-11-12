@@ -131,6 +131,22 @@ const OrderPage: React.FC = () => {
         path='printout-order/:id'
         element={
           <>
+            {userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
             <PrintOutOrder />
           </>
         }
@@ -140,6 +156,22 @@ const OrderPage: React.FC = () => {
         path='preview-email/:id'
         element={
           <>
+            {userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
             <PreviewEmail />
           </>
         }
