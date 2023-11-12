@@ -10,6 +10,8 @@ h6 {
 }
 
 /* Color */
+
+/* Header */
 .bg-danger-complaint {
   background-color: #6e010f !important;
 }
@@ -19,7 +21,17 @@ h6 {
 }
 
 .bg-header-vendor {
-  background-color: #398318 !important;
+  background-color: #3d6500 !important;
+}
+
+.bg-header-tukang {
+  background-color: #484747 !important;
+}
+
+/* Font Color */
+
+.text-brown {
+  color: #c1af99 !important;
 }
 
 /* Body Content*/

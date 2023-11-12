@@ -15,7 +15,9 @@ interface ComplaintChannel {
   label: string
 }
 
-const UpdateComplaintStore: FC = () => {
+const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -44,6 +46,7 @@ const UpdateComplaintStore: FC = () => {
         .then((response) => {
           const data = response.data.data
           setComplaintDetail(data)
+          updatePageTitle(data)
 
           if (data?.description) {
             setComplaintDesc(data.description)

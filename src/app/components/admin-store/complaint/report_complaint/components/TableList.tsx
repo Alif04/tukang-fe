@@ -21,7 +21,6 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_id',
     key: 'order_id',
     align: 'center',
-    defaultSortOrder: 'descend',
     sorter: (a, b) => a.order_id - b.order_id,
     width: 100,
   },

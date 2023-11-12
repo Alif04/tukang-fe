@@ -53,11 +53,6 @@ function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const baseLightColor = getCSSVariableValue('--kt-primary-light')
-  const secondaryColor = getCSSVariableValue('--kt-info')
-  const secondaryLightColor = getCSSVariableValue('--kt-info-light')
-
   return {
     series: [
       {
@@ -158,11 +153,11 @@ function getChartOptions(height: number): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return '$' + val + ' thousands'
+          return ' ' + val
         },
       },
     },
-    colors: [baseColor, secondaryColor],
+    colors: ['#009DFF', '#22E4FF'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,
@@ -173,9 +168,8 @@ function getChartOptions(height: number): ApexOptions {
       },
     },
     markers: {
-      colors: [baseLightColor, secondaryLightColor],
-      strokeColors: [baseLightColor, secondaryLightColor],
-      strokeWidth: 3,
+      colors: ['#009DFF'],
+      size: 5,
     },
   }
 }

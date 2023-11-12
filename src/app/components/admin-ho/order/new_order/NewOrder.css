@@ -37,10 +37,6 @@
   margin-bottom: 30px;
 }
 
-#new-order .form-header label.payment-type.form-label {
-  width: 230px;
-}
-
 #new-order .form-header .form-check-request label.form-check-label {
   font-size: 11px;
 }

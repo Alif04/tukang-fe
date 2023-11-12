@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewPayment} from './components/ViewPayment'
 import {NewPayment} from './components/NewPayment'
 import {DetailPayment} from './components/DetailPayment'
@@ -22,12 +24,21 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const PaymentPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-payment'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>PAYMENT LIST</PageTitle>
             <ViewPayment />
           </>
@@ -37,6 +48,13 @@ const PaymentPage: React.FC = () => {
         path='new-payment'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>NEW PAYMENT</PageTitle>
             <NewPayment />
           </>
@@ -46,6 +64,13 @@ const PaymentPage: React.FC = () => {
         path='detail-payment'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>PAYMENT REQUEST</PageTitle>
             <DetailPayment />
           </>

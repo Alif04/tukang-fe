@@ -76,6 +76,7 @@ const DashboardWrapper: FC = () => {
         </>
       ) : userRole === 'Tukang' ? (
         <>
+          <HeaderWrapper className='bg-header-tukang' />
           <PageTitle>TUKANG DASHBOARD</PageTitle>
           <DashboardTukang />
         </>

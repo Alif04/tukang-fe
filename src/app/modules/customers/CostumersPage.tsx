@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewCostumer} from '../customers/components/ViewCostumers'
 import {NewCostumers} from '../customers/components/NewCostumers'
 import {DetailCostumer} from './components/DetailCostumers'
@@ -17,12 +19,25 @@ const costumersBreadCrumbs: Array<PageLink> = [
 ]
 
 const CostumersPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-costumers'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={costumersBreadCrumbs}>COSTUMERS LIST</PageTitle>
             <ViewCostumer />
           </>
@@ -33,6 +48,17 @@ const CostumersPage: React.FC = () => {
         path='new-costumers'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={costumersBreadCrumbs}>NEW COSTUMER FORM</PageTitle>
             <NewCostumers />
           </>
@@ -43,6 +69,17 @@ const CostumersPage: React.FC = () => {
         path='detail-costumers/:id'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={costumersBreadCrumbs}>PROFILE COSTUMER</PageTitle>
             <DetailCostumer />
           </>
@@ -53,6 +90,17 @@ const CostumersPage: React.FC = () => {
         path='report-costumers'
         element={
           <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={costumersBreadCrumbs}>COSTUMERS DASHBOARD</PageTitle>
             <ReportCostumer />
           </>

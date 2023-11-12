@@ -53,8 +53,6 @@ export {ChartBar}
 
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const secondaryColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [
@@ -151,7 +149,7 @@ function getChartOptions(height: number): ApexOptions {
         },
       },
     },
-    colors: [baseColor, secondaryColor],
+    colors: ['#009DFF', '#22E4FF'],
     grid: {
       strokeDashArray: 4,
       yaxis: {

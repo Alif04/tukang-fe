@@ -56,9 +56,6 @@ const SalesIntensitive: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-danger')
 
   return {
     series: [44, 55, 13],
@@ -75,7 +72,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
+    colors: ['#70B503', '#F59B22', '#D8001B'],
     grid: {
       padding: {
         top: 10,

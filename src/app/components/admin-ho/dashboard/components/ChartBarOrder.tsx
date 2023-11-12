@@ -52,8 +52,6 @@ export {ChartBarOrder}
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const secondaryColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [
@@ -150,7 +148,7 @@ function getChartOptions(height: number): ApexOptions {
         },
       },
     },
-    colors: [baseColor, secondaryColor],
+    colors: ['#009DFF', '#22E4FF'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

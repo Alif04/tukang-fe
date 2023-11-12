@@ -2,13 +2,14 @@ import React, {FC, useState, useEffect} from 'react'
 
 import './PrintoutOrder.css'
 
+import {Order} from '../../../../interfaces/order'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Table, Form, Button, Row, Col} from 'react-bootstrap'
 
-const PrintoutOrder: FC = () => {
+const PrintoutOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -29,6 +30,7 @@ const PrintoutOrder: FC = () => {
         .then((response) => {
           const data = response.data.data
           setOrderDetail(data)
+          updatePageTitle(data)
         })
     } catch (error) {
       console.error(error)

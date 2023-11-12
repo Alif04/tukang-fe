@@ -25,8 +25,6 @@ const complaintBreadCrumbs: Array<PageLink> = [
 ]
 
 const ComplaintPage: React.FC = () => {
-  const params = useParams()
-
   return (
     <Routes>
       <Route
@@ -56,7 +54,6 @@ const ComplaintPage: React.FC = () => {
         element={
           <>
             <HeaderWrapper className='bg-danger-complaint' />
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>UPDATE COMPLAINT FORM</PageTitle>
             <UpdateComplaint />
           </>
         }
@@ -67,7 +64,6 @@ const ComplaintPage: React.FC = () => {
         element={
           <>
             <HeaderWrapper className='bg-danger-complaint' />
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>DETAIL PENGADUAN</PageTitle>
             <DetailComplaint />
           </>
         }

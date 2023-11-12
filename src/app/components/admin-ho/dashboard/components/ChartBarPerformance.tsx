@@ -40,8 +40,14 @@ const ChartBarPerformance: React.FC<Props> = ({className}) => {
 
   return (
     <div className={`card ${className}`}>
-      <div className='card-body'>
-        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '350px'}} />
+      <div className='card-body p-2'>
+        <div className='d-flex flex-column'>
+          <h1 className='fs-1' style={{color: '#04792A'}}>
+            Performance Toko
+          </h1>
+
+          <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '350px'}}></div>
+        </div>
       </div>
     </div>
   )
@@ -52,10 +58,6 @@ export {ChartBarPerformance}
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const secondaryColor = getCSSVariableValue('--kt-info')
-  const thirdColor = getCSSVariableValue('--kt-success')
-  const fourthColor = getCSSVariableValue('--kt-danger')
 
   return {
     series: [
@@ -160,7 +162,7 @@ function getChartOptions(height: number): ApexOptions {
         },
       },
     },
-    colors: [baseColor, secondaryColor, thirdColor, fourthColor],
+    colors: ['#B8741A', '#70B503', '#007EB4', '#0300BF'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

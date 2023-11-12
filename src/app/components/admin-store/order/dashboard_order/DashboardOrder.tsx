@@ -23,6 +23,7 @@ const initialStatusState = {
   refund: 0,
   waitingSurvey: 0,
   waitingPayment: 0,
+  waitingQuotation: 0,
 }
 
 type StatusToStateMap = {
@@ -39,6 +40,7 @@ const statusToStateMap: StatusToStateMap = {
   REFUND: 'refund',
   WAITINGSURVEY: 'waitingSurvey',
   UNPAID: 'waitingPayment',
+  QUOTEIN: 'waitingQuotation',
 }
 
 const DashboardOrderStore: FC = () => {
@@ -57,7 +59,7 @@ const DashboardOrderStore: FC = () => {
   const fetchOrderList = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=0`,
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
         {
           headers: {
             Accept: 'application/json',
@@ -147,6 +149,7 @@ const DashboardOrderStore: FC = () => {
     refund,
     waitingSurvey,
     waitingPayment,
+    waitingQuotation,
   } = statusState
 
   return (
@@ -245,6 +248,13 @@ const DashboardOrderStore: FC = () => {
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
+                    <h1 className='fw-normal'>{waitingQuotation}</h1>
+                    <p className='text-brown fw-bold text-center'>Menunggu Quotation</p>
+                  </div>
+                </Col>
+
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{waitingPayment}</h1>
                     <p className='text-brown fw-bold text-center'>Menunggu Bayar</p>
                   </div>
@@ -259,7 +269,7 @@ const DashboardOrderStore: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8 mb-5'>
         <div className='col-xl-4'>
-          <MoreInformation className='card-xl-stretch mb-xl-8' />
+          <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderList} />
         </div>
         <div className='col-xl-4'>
           <ChartBar className='card-xl-stretch mb-xl-8' />

@@ -55,17 +55,17 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-danger')
+  // const processColor = getCSSVariableValue('--kt-success')
+  // const pendingColor = getCSSVariableValue('--kt-warning')
+  // const cancelColor = getCSSVariableValue('--kt-danger')
 
   return {
-    series: [44, 55, 13],
+    series: [65, 15, 5],
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['Complete', 'Refund', 'Cancel'],
+    labels: ['Complete', 'Cancel', 'Refund'],
     legend: {
       show: true,
       height: 35,
@@ -75,7 +75,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
+    colors: ['#F59B22', '#1D7710', '#D8001B'],
     grid: {
       padding: {
         top: 10,

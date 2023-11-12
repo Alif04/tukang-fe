@@ -38,10 +38,6 @@
   margin-bottom: 30px;
 }
 
-#pre-order .form-header label.payment-type.form-label {
-  width: 230px;
-}
-
 #pre-order .form-header .form-check-request label.form-check-label {
   font-size: 11px;
 }
@@ -167,9 +163,9 @@
     width: 100%;
   }
 
-  #pre-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  /* #pre-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
-  }
+  } */
 
   #pre-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;

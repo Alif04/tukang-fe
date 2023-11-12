@@ -44,7 +44,9 @@ const ChartBar2: React.FC<Props> = ({className}) => {
     <div className={`card ${className}`}>
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
-          <h1 className='fs-1 text-success'>Insentive</h1>
+          <h1 className='fs-1' style={{color: '#568344'}}>
+            Insentive
+          </h1>
 
           <div className='d-flex justify-content-center'>
             <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '270px'}} />
@@ -60,8 +62,6 @@ export {ChartBar2}
 function getChartOptions(height: number): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const secondaryColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [
@@ -158,7 +158,7 @@ function getChartOptions(height: number): ApexOptions {
         },
       },
     },
-    colors: [baseColor, secondaryColor],
+    colors: ['#009DFF', '#22E4FF'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

@@ -22,8 +22,8 @@ export * from './admin-store/order/view_order_staff/ViewOrder'
 // View Order CS
 export * from './admin-store/order/view_order_cs/ViewOrder'
 
-// Pre Order
-export * from './admin-store/order/pre_order/PreOrder'
+// New Order Store
+export * from './admin-store/order/new_order/NewOrder'
 
 // Update Order Staff
 export * from './admin-store/order/update_order_staff/UpdateOrderStaff'
@@ -192,10 +192,6 @@ export * from './admin-ho/payment/new_payment/NewPayment'
 // Detail Payment HO
 export * from './admin-ho/payment/detail_payment/DetailPayment'
 
-// SALES
-// New Sales
-export * from './admin-ho/sales/new_sales/NewSales'
-
 // INVOICE
 // View Invoice
 export * from './admin-ho/invoice/view_invoice/ViewInvoice'
@@ -331,3 +327,9 @@ export * from './tukang/complaint/update_complaint/UpdateComplaint'
 
 // Detail Complaint
 export * from './tukang/complaint/detail_complaint/DetailComplaint'
+
+// PENGATURAN PAGE
+
+// SALES
+// New Sales
+export * from './admin-ho/sales/new_sales/NewSales'
