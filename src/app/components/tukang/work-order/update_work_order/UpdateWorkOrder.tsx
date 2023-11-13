@@ -85,6 +85,22 @@ const UpdateWorkTukang: FC = () => {
             setOrderId(data.id)
           }
 
+          // if (data?.work_orders?.work_order_status[0]?.status_id) {
+          //   setWorkOrderStatusId(data.work_orders.work_order_status[0].status_id)
+          // }
+
+          // if (data?.work_orders?.work_order_status[0]?.description) {
+          //   setAdditionalNotes(data.work_orders.work_order_status[0].description)
+          // }
+
+          // if (data?.work_orders?.work_order_status[0]?.work_date_time) {
+          //   setDateTimeSurvey(data.work_orders.work_order_status[0].work_date_time)
+          // }
+
+          // if (data?.work_orders?.work_order_status[0]?.time_spent) {
+          //   setWorkTime(data.work_orders.work_order_status[0].time_spent)
+          // }
+
           if (data.work_orders) {
             const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
@@ -168,7 +184,6 @@ const UpdateWorkTukang: FC = () => {
     const workOrderStatusOption = () => {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-
       const desiredStatus = statusData.filter((status: Status) =>
         ['SURVEYED', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(status.category)
       )
@@ -334,6 +349,7 @@ const UpdateWorkTukang: FC = () => {
 
     formData.append('work_order_status', workOrderStatusId)
 
+    formData.append('status_details[description]', additionalNotes)
     formData.append('status_details[work_date_time]', dateTimeSurvey)
     formData.append('status_details[time_spent]', workTime)
 
@@ -620,8 +636,8 @@ const UpdateWorkTukang: FC = () => {
             </Col>
 
             <Col xxl={6}>
-              <Row className='mb-5'>
-                <Form.Group as={Row}>
+              <Row className='mb-4'>
+                <Form.Group as={Row} className='mb-5'>
                   <Form.Label column sm='6' className='fs-1 fw-bold pt-0 pb-0'>
                     NEW WORK STATUS :{' '}
                   </Form.Label>
@@ -637,7 +653,7 @@ const UpdateWorkTukang: FC = () => {
                   </Col>
                 </Form.Group>
 
-                <Form.Group as={Row}>
+                <Form.Group as={Row} className='mb-4'>
                   <Form.Label column sm='6' className='fs-3 fw-semibold pt-0 pb-0'>
                     WORK ORDER STATUS :{' '}
                   </Form.Label>
@@ -664,11 +680,11 @@ const UpdateWorkTukang: FC = () => {
                 </Col>
               </Row>
 
-              <Row className='d-flex justify-content-end mb-5'>
+              <div className='d-flex justify-content-end'>
                 <Button variant='button-dark-primary' onClick={() => handleAddForm()}>
                   Tambah Material
                 </Button>
-              </Row>
+              </div>
 
               <div className='fs-5 text-dark fw-bold mb-2'>List Material</div>
 

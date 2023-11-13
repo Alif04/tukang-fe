@@ -31,11 +31,13 @@ const DetailComplaint: FC = () => {
         </>
       ) : userRole == 'Admin Vendor' ? (
         <>
-          <DetailComplaintVendor />
+          <PageTitle>{pageTitle}</PageTitle>
+          <DetailComplaintVendor updatePageTitle={updatePageTitle} />
         </>
       ) : userRole == 'Tukang' ? (
         <>
-          <DetailComplaintTukang />
+          <PageTitle>{pageTitle}</PageTitle>
+          <DetailComplaintTukang updatePageTitle={updatePageTitle} />
         </>
       ) : (
         <></>

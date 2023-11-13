@@ -427,27 +427,31 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Sales ID :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
-                  </Col>
-                </Form.Group>
+                <div className='d-flex'>
+                  <Form.Group as={Row}>
+                    <Form.Label column md='4'>
+                      Sales ID :
+                    </Form.Label>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Sales Person :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control
-                      plaintext
-                      readOnly
-                      value={complaintDetail?.orders.sales.full_name}
-                    />
-                  </Col>
-                </Form.Group>
+                    <Col md='8'>
+                      <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row}>
+                    <Form.Label column md='5'>
+                      Sales Person :
+                    </Form.Label>
+
+                    <Col md='7'>
+                      <Form.Control
+                        plaintext
+                        readOnly
+                        value={complaintDetail?.orders.sales.full_name}
+                      />
+                    </Col>
+                  </Form.Group>
+                </div>
               </Col>
             </Row>
           </div>
@@ -647,7 +651,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
                   <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                     <Form.Label className='mt-3'>Remedial Evidence:</Form.Label>
-                    {/* <ListGroup>
+                    <ListGroup>
                       {item.remedial_evidence.map((evidenceItem: any) => (
                         <ListGroup.Item
                           key={evidenceItem.id}
@@ -678,7 +682,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                           }}
                         />
                       </div>
-                    )} */}
+                    )}
                   </Col>
                 </Row>
               ))}

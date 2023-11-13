@@ -170,7 +170,7 @@ const NewOrderHO: FC = () => {
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: `${item.id} / ${item.phone_number}`,
+            label: item.id,
             full_name: item.full_name,
             email: item.email,
             whatsapp_number: item.whatsapp_number,

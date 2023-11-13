@@ -77,7 +77,6 @@ const VendorPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE REGISTRASI VENDOR</PageTitle>
             <UpdateVendor />
           </>
         }
@@ -94,7 +93,6 @@ const VendorPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL VENDOR</PageTitle>
             <DetailVendor />
           </>
         }

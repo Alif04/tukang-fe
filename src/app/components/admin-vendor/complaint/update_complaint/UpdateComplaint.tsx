@@ -15,7 +15,9 @@ interface OptionRemedialStatus {
   label: string
 }
 
-const UpdateComplaintVendor: FC = () => {
+const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -44,11 +46,13 @@ const UpdateComplaintVendor: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+
+          setComplaintDetail(data)
+          updatePageTitle(data)
+
           if (data?.id) {
             setComplaintId(data.id)
           }
-
-          setComplaintDetail(data)
         })
     } catch (error) {
       console.error(error)

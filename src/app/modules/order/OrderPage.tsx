@@ -61,13 +61,15 @@ const OrderPage: React.FC = () => {
           <>
             {userRole == 'Store CS' || userRole == 'Store Staff' ? (
               <>
-                <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER LIST</PageTitle>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>
+                  LIST ORDER INSTALASI & SERVICE MITRA10
+                </PageTitle>
               </>
             ) : userRole == 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
-                  LIST INSTALASI & SERVICE MITRA10
+                  LIST ORDER INSTALASI & SERVICE MITRA10
                 </PageTitle>
               </>
             ) : (

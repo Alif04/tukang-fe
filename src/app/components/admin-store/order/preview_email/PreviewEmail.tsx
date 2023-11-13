@@ -139,7 +139,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updat
                       <tr>
                         <td>{item?.item_id}</td>
                         <td>{item?.unit}</td>
-                        <td>{item?.status?.description}</td>
+                        <td>{item?.item?.category_name}</td>
                         <td>{item?.quantity}</td>
                         <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
                         <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>

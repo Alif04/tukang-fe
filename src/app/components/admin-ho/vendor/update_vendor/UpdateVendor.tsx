@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import {Vendor} from '../../../../interfaces/vendor'
 
 import './UpdateVendor.css'
 
@@ -43,7 +44,7 @@ interface CheckStates {
   suip: boolean
 }
 
-const UpdateVendorHO: FC = () => {
+const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -66,6 +67,7 @@ const UpdateVendorHO: FC = () => {
         .then((response) => {
           const data = response.data.data
           setVendorDetail(data)
+          updatePageTitle(data)
 
           if (data?.id) {
             setVendorId(data.id)
@@ -275,7 +277,6 @@ const UpdateVendorHO: FC = () => {
   const [npwpNumber, setNpwpNumber] = useState<any>('')
 
   const [serviceAreaId, setserviceAreaId] = useState<any>([])
-  console.log(serviceAreaId)
 
   const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
   const [serviceAreaValues, setServiceAreaValues] = useState<ServiceAreaValues[]>([])
