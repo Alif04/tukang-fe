@@ -265,7 +265,17 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                       type='text'
                       plaintext
                       readOnly
-                      value={order.payment_type.toUpperCase()}
+                      value={(() => {
+                        if (order?.payment_type === 'survey') {
+                          return `Berbayar & Survey`
+                        } else if (order?.payment_type === 'gratis') {
+                          return `Gratis`
+                        } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
                     />
                   </Col>
                 </Form.Group>
