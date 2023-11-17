@@ -320,7 +320,7 @@ const UpdateWorkVendor: FC = () => {
             icon: 'error',
           })
         }
-        navigate('/home')
+        navigate('/work-order/view-work-order')
       })
       .catch((error) => {
         console.error(error)
@@ -333,7 +333,7 @@ const UpdateWorkVendor: FC = () => {
   }
 
   const handleCancelUpdateWorkOrder = () => {
-    navigate('/home')
+    navigate('/work-order/view-work-order')
   }
 
   // Work Order History

@@ -374,13 +374,7 @@ const NewComplaintVendor: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {orderDetail?.project_status_id === 1
-                      ? 'BOOK'
-                      : orderDetail?.project_status_id === 2
-                      ? 'BOOKED'
-                      : orderDetail?.project_status_id === 3
-                      ? 'SURVEY REQ'
-                      : ''}
+                    {orderDetail?.status?.category}
                   </span>
                 </Form.Label>
               </Col>
@@ -512,7 +506,7 @@ const NewComplaintVendor: FC = () => {
                       <tr>
                         <td>{item?.item_id}</td>
                         <td>{item?.unit}</td>
-                        <td>{item?.status?.description}</td>
+                        <td>{item?.item?.category_name}</td>
                         <td>{item?.quantity}</td>
                         <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
                         <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>

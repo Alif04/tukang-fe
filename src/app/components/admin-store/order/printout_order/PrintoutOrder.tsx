@@ -129,7 +129,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
 
               <Form.Group as={Row} className='detail-info'>
                 <Form.Label column sm='6'>
-                  Customer Name :
+                  Member Name :
                 </Form.Label>
                 <Col sm='6'>
                   <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />

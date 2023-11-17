@@ -179,7 +179,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
               data?.members.address_1
             ) {
               setMemberId(data.members.id)
-              setMemberLabel(`${data.members.id} / ${data.members.phone_number}`)
+              setMemberLabel(data.members.id)
               setMemberName(data.members.full_name)
               setMemberEmail(data.members.email)
               setMemberAddress(data.members.address_1)
@@ -196,7 +196,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                 item_id: item.item_id,
                 order_status_id: item.order_status_id,
                 unit: item.unit,
-                category_name: item.category_name,
+                category_name: item.item.category_name,
                 unit_price: parseInt(item.unit_price),
                 quote_price: item.quote_price,
                 quantity: item.quantity,
@@ -257,7 +257,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: `${item.id} / ${item.phone_number}`,
+            label: item.id,
             full_name: item.full_name,
             email: item.email,
             phone_number: item.phone_number,

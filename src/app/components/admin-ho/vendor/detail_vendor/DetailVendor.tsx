@@ -1,5 +1,6 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {Vendor} from '../../../../interfaces/vendor'
 
 import './DetailVendor.css'
 
@@ -15,15 +16,12 @@ import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
-const DetailVendorHO: FC = () => {
+const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
 
   const [vendorDetail, setVendorDetail] = useState<any>()
-
-  const [uploadFiles, setUploadFiles] = useState<Array<File | null>>([])
-  const evidenceRef = useRef<HTMLInputElement>(null)
 
   // Fetch API
   const fetchVendorData = async () => {
@@ -40,6 +38,35 @@ const DetailVendorHO: FC = () => {
         .then((response) => {
           const data = response.data.data
           setVendorDetail(data)
+          updatePageTitle(data)
+
+          if (data?.vendor_document) {
+            const documentTypes = ['npwp_file', 'ktp_file', 'compro_file', 'surat_permohonan_file']
+
+            type DocumentStateSetter = (state: {blob: string; fileName: string}) => void
+
+            const documentStateSetters: Record<string, DocumentStateSetter> = {
+              npwp_file: setimageNPWP,
+              ktp_file: setimageKTP,
+              compro_file: setimageCompro,
+              surat_permohonan_file: setimageSuratPermohonan,
+            }
+
+            data.vendor_document.forEach((document: any) => {
+              const {document_name, path} = document
+
+              if (documentTypes.includes(document_name)) {
+                const setter = documentStateSetters[document_name]
+
+                if (setter) {
+                  setter({
+                    blob: '',
+                    fileName: path,
+                  })
+                }
+              }
+            })
+          }
         })
     } catch (error) {
       console.error(error)
@@ -57,89 +84,38 @@ const DetailVendorHO: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  // Handle Change Upload File
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files
-    if (fileList) {
-      const file: Array<File | null> = new Array<File>()
-      const {length} = fileList
+  // Vendor Evidence
+  const [imageKTP, setimageKTP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
-      for (let i = 0; i < length; i++) {
-        file[i] = fileList.item(i)
-      }
+  const [imageNPWP, setimageNPWP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
-      setUploadFiles(file)
-    }
-  }
+  const [imageCompro, setimageCompro] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
-  const handleImageClick = () => {
-    const inputField = document.getElementById('file-input') as HTMLInputElement
-    inputField.click()
-  }
-
-  const handleRemoveFile = (index: number) => {
-    const newEvidances = [...uploadFiles]
-
-    newEvidances.splice(index, 1)
-
-    setUploadFiles(newEvidances)
-
-    // Update element value
-    if (evidenceRef.current?.value) {
-      evidenceRef.current.value = ''
-    }
-  }
-
-  // Handle Submit Upload File
-  const handleSubmitUploadFile = async () => {
-    // const formData = new FormData()
-    // if (uploadFiles?.length) {
-    //   uploadFiles.forEach((item) => {
-    //     if (item) {
-    //       formData.append(`vendor_document`, item, item?.name)
-    //     }
-    //   })
-    // }
-    // const response = await axios
-    //   .post(`${apiUrl}/vendor`, formData, {
-    //     headers: {
-    //       Accept: 'application/json',
-    //       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    //       'Access-Control-Allow-Origin': '*',
-    //       'ngrok-skip-browser-warning': 'true',
-    //     },
-    //   })
-    //   .then((response) => {
-    //     if (response.data.status === 200 || response.data.status === 201) {
-    //       Swal.fire({
-    //         title: 'Success',
-    //         text: 'Success Upload Document Vendor',
-    //         icon: 'success',
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //       })
-    //     } else {
-    //       Swal.fire({
-    //         title: 'Error',
-    //         text: response.data.message,
-    //         icon: 'error',
-    //       })
-    //     }
-    //     navigate('/vendor/view-vendor')
-    //   })
-    //   .catch((error) => {
-    //     console.error(error)
-    //     Swal.fire({
-    //       title: 'Error',
-    //       text: error.response.data.message,
-    //       icon: 'error',
-    //     })
-    //   })
-  }
-
-  const handleCancelUploadFile = () => {
-    navigate('/vendor/view-vendor')
-  }
+  const [imageSuratPermohonan, setimageSuratPermohonan] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
 
   return (
     <section id='detail-vendor'>
@@ -268,12 +244,13 @@ const DetailVendorHO: FC = () => {
                   </Form.Label>
                   <Col sm='6'>
                     <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail?.vendor_service.map((item: any) => (
-                        <>
-                          <Form.Label className='fw-normal mt-3'>
-                            {item?.service_type_name}
-                          </Form.Label>
-                        </>
+                      {vendorDetail?.vendor_service.map((item: any, key: number) => (
+                        <Form.Label
+                          className='fw-normal mt-3'
+                          key={`${item.service_type_name} - ${key}`}
+                        >
+                          {item?.service_type_name}
+                        </Form.Label>
                       ))}
                     </Form.Label>
                   </Col>
@@ -284,10 +261,10 @@ const DetailVendorHO: FC = () => {
                     Service Area :
                   </Form.Label>
                   <Col sm='6'>
-                    {vendorDetail?.vendor_area.map((item: any) => (
-                      <>
-                        <Form.Label className='fw-normal mt-3'>{item?.city_name}</Form.Label>
-                      </>
+                    {vendorDetail?.vendor_area.map((item: any, key: number) => (
+                      <Form.Label className='fw-normal mt-3' key={`${item.city_name} - ${key}`}>
+                        {item?.city_name}
+                      </Form.Label>
                     ))}
                   </Col>
                 </Form.Group>
@@ -305,161 +282,165 @@ const DetailVendorHO: FC = () => {
 
             <Col xl={9}>
               <Row>
-                <Col xl={6}>
+                <Col xxl={4}>
                   <div className='d-flex flex-column'>
-                    <div className='stats mt-5 mb-5'>
-                      <div className='card'>
-                        <ChartPie className='' chartHeight='280px' />
-                      </div>
+                    <div className='mb-5'>
+                      <Form.Group controlId='formFile'>
+                        <Form.Label>Foto KTP</Form.Label>
+                        <Form className='form-input-image'>
+                          <Form.Control
+                            type='file'
+                            accept='image/*'
+                            className='input-field-image'
+                            hidden
+                          />
+
+                          {imageKTP?.fileName ? (
+                            <img
+                              src={`${apiUrl}/public/vendors/${imageKTP.fileName}`}
+                              alt={imageKTP.fileName}
+                              className='image-preview'
+                            />
+                          ) : (
+                            <></>
+                          )}
+                        </Form>
+                      </Form.Group>
                     </div>
 
-                    <div className='table border p-1'>
-                      <TableList />
+                    <div className='mb-5'>
+                      <Form.Group controlId='formFile'>
+                        <Form.Label>Foto NPWP</Form.Label>
+                        <Form className='form-input-image'>
+                          <Form.Control
+                            type='file'
+                            accept='image/*'
+                            className='input-field-image'
+                            hidden
+                          />
+
+                          {imageNPWP?.fileName ? (
+                            <img
+                              src={`${apiUrl}/public/vendors/${imageNPWP.fileName}`}
+                              alt={imageNPWP.fileName}
+                              className='image-preview'
+                            />
+                          ) : (
+                            <></>
+                          )}
+                        </Form>
+                      </Form.Group>
                     </div>
                   </div>
                 </Col>
 
-                <Col xl={6}>
-                  <div className='table border p-1'>
-                    <TableList2 />
-                  </div>
+                <Col xxl={4}>
+                  <Form.Group controlId='formFile'>
+                    <Form.Label>Foto Company Profile</Form.Label>
+                    <Form className='form-input-image'>
+                      <Form.Control
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image'
+                        hidden
+                      />
+
+                      {imageCompro?.fileName ? (
+                        <img
+                          src={`${apiUrl}/public/vendors/${imageCompro.fileName}`}
+                          alt={imageCompro.fileName}
+                          className='image-preview'
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </Form>
+                  </Form.Group>
+                </Col>
+
+                <Col xxl={4}>
+                  <Form.Group controlId='formFile'>
+                    <Form.Label>Foto Surat Permohonan</Form.Label>
+                    <Form className='form-input-image'>
+                      <Form.Control
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image'
+                        hidden
+                      />
+
+                      {imageSuratPermohonan?.fileName ? (
+                        <img
+                          src={`${apiUrl}/public/vendors/${imageSuratPermohonan.fileName}`}
+                          alt={imageSuratPermohonan.fileName}
+                          className='image-preview'
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </Form>
+                  </Form.Group>
                 </Col>
               </Row>
 
               <hr />
 
               <Row>
-                <Col xl={6}>
-                  <Form.Group>
-                    <Form.Label>Upload Dokumen Lain</Form.Label>
-                    <Form className='form-input-image' onClick={handleImageClick}>
-                      <Form.Control
-                        id='file-input'
-                        type='file'
-                        accept='image/*'
-                        multiple
-                        hidden
-                        ref={evidenceRef}
-                        onChange={handleFileChange}
-                      />
+                <div className='bank-information'>
+                  <h1 className='fs-3 text-decoration-underline fw-bold mb-2'>INFORMASI BANK</h1>
 
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    </Form>
-
-                    <ListGroup className='pt-3'>
-                      {uploadFiles.length ? (
-                        uploadFiles.map((item, index) => (
-                          <ListGroup.Item
-                            key={`${item?.name}-${index}-${item?.type}`}
-                            className='d-flex justify-content-between'
-                          >
-                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                            <span className='upload-content'>{item?.name}</span>
-
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              size='sm'
-                              color='#ed2b2a'
-                              style={{cursor: 'pointer'}}
-                              onClick={(e) => handleRemoveFile(index)}
-                            />
-                          </ListGroup.Item>
-                        ))
-                      ) : (
-                        <ListGroup.Item className='d-flex justify-content-center'>
-                          Tidak ada file yang dipilih
-                        </ListGroup.Item>
-                      )}
-                    </ListGroup>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='2' className='fw-semibold'>
+                      NAMA BANK :
+                    </Form.Label>
+                    <Col sm='10'>
+                      <Form.Label className='fw-normal mt-3'>
+                        {vendorDetail?.vendor_bank[0].bank.bank_name}
+                      </Form.Label>
+                    </Col>
                   </Form.Group>
-                </Col>
 
-                <Col xl={6}>
-                  <Row>
-                    <Col xl={6}>
-                      <div className='documents'>
-                        <h1 className='fs-3 text-decoration-underline fw-bold mb-3'>DOCUMENTS</h1>
-
-                        <ul style={{listStyle: 'none', padding: '0'}}>
-                          {vendorDetail?.vendor_document.map((document: any) => (
-                            <>
-                              <li className='fs-6 text-decoration-underline fw-semibold'>
-                                {document.document_name}
-                              </li>
-                            </>
-                          ))}
-                        </ul>
-                      </div>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='2' className='fw-semibold'>
+                      NAMA CABANG :
+                    </Form.Label>
+                    <Col sm='10'>
+                      <Form.Label className='fw-normal mt-3'></Form.Label>
                     </Col>
+                  </Form.Group>
 
-                    <Col xl={6}>
-                      <div className='bank-information'>
-                        <h1 className='fs-3 text-decoration-underline fw-bold mb-2'>
-                          INFORMASI BANK
-                        </h1>
-
-                        <Form.Group as={Row} className='detail-info'>
-                          <Form.Label column sm='6' className='fw-semibold'>
-                            NAMA BANK :
-                          </Form.Label>
-                          <Col sm='6'>
-                            <Form.Label className='fw-normal mt-3'>
-                              {vendorDetail?.vendor_bank[0].bank_name}
-                            </Form.Label>
-                          </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className='detail-info'>
-                          <Form.Label column sm='6' className='fw-semibold'>
-                            NAMA CABANG :
-                          </Form.Label>
-                          <Col sm='6'>
-                            <Form.Label className='fw-normal mt-3'>
-                              {vendorDetail?.vendor_bank[0].bank_name}
-                            </Form.Label>
-                          </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className='detail-info'>
-                          <Form.Label column sm='6' className='fw-semibold'>
-                            NOMOR REKENING :
-                          </Form.Label>
-                          <Col sm='6'>
-                            <Form.Label className='fw-normal mt-3'>
-                              {vendorDetail?.vendor_bank[0].account_number}
-                            </Form.Label>
-                          </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className='detail-info'>
-                          <Form.Label column sm='6' className='fw-semibold'>
-                            PEMILIK REKENING :
-                          </Form.Label>
-                          <Col sm='6'>
-                            <Form.Label className='fw-normal mt-3'>
-                              {vendorDetail?.vendor_bank[0].account_name}
-                            </Form.Label>
-                          </Col>
-                        </Form.Group>
-                      </div>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='2' className='fw-semibold'>
+                      NOMOR REKENING :
+                    </Form.Label>
+                    <Col sm='10'>
+                      <Form.Label className='fw-normal mt-3'>
+                        {vendorDetail?.vendor_bank[0].account_number}
+                      </Form.Label>
                     </Col>
-                  </Row>
-                </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='2' className='fw-semibold'>
+                      PEMILIK REKENING :
+                    </Form.Label>
+                    <Col sm='10'>
+                      <Form.Label className='fw-normal mt-3'>
+                        {vendorDetail?.vendor_bank[0].account_name}
+                      </Form.Label>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='2' className='fw-semibold'>
+                      PTKP :
+                    </Form.Label>
+                    <Col sm='10'>
+                      <Form.Label className='fw-normal mt-3'>{vendorDetail?.ktp_number}</Form.Label>
+                    </Col>
+                  </Form.Group>
+                </div>
               </Row>
-
-              <div className='d-flex justify-content-center mt-5'>
-                <Button variant='dark-danger' type='submit' onClick={handleCancelUploadFile}>
-                  Cancel
-                </Button>
-
-                <Button variant='dark-primary' type='submit' onClick={handleSubmitUploadFile}>
-                  Save
-                </Button>
-              </div>
             </Col>
           </Row>
         </div>

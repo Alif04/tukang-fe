@@ -265,7 +265,17 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                       type='text'
                       plaintext
                       readOnly
-                      value={order.payment_type.toUpperCase()}
+                      value={(() => {
+                        if (order?.payment_type === 'survey') {
+                          return `Berbayar & Survey`
+                        } else if (order?.payment_type === 'gratis') {
+                          return `Gratis`
+                        } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
                     />
                   </Col>
                 </Form.Group>
@@ -290,7 +300,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                       <tr>
                         <td>{item?.item_id}</td>
                         <td>{item?.unit}</td>
-                        <td>{item?.status?.description}</td>
+                        <td>{item?.item?.category_name}</td>
                         <td>{item?.quantity}</td>
                         <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
                         <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>

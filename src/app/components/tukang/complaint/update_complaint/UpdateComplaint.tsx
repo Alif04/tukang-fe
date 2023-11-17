@@ -21,7 +21,9 @@ interface ComplaintChannel {
   label: string
 }
 
-const UpdateComplaintTukang: FC = () => {
+const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()

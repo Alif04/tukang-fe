@@ -123,7 +123,7 @@ const NewOrderStore: FC = () => {
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: `${item.id} / ${item.phone_number}`,
+            label: item.id,
             full_name: item.full_name,
             email: item.email,
             phone_number: item.phone_number,
@@ -333,8 +333,6 @@ const NewOrderStore: FC = () => {
 
   // Change Select Member Phone Number
   const handleChangeRadio = (element: ChangeEvent<HTMLInputElement>) => {
-    // console.log('Checkbox :', element, element.target, element.target.value)
-
     setIsWhatsapp(!isWhatsapp)
 
     if (isWhatsapp) {
@@ -821,6 +819,7 @@ const NewOrderStore: FC = () => {
                       classNamePrefix='select'
                       placeholder='Ketik No Telepon Member/Nomor Member'
                       isSearchable={true}
+                      isClearable={true}
                       options={member}
                       onChange={(element) => handleChangeSelectMember(element)}
                     />
