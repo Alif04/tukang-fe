@@ -546,24 +546,16 @@ const NewQuotationHO: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {orderDetail?.payment_type === 'survey' ? (
+                {orderDetail?.order_details.map((item: any, index: any) => (
                   <>
                     <tr>
-                      <td colSpan={6}>Survey</td>
+                      <td>{item?.unit}</td>
+                      <td>{item?.quantity}</td>
+                      <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                      <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
                     </tr>
                   </>
-                ) : (
-                  orderDetail?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr>
-                        <td>{item?.unit}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
-                      </tr>
-                    </>
-                  ))
-                )}
+                ))}
 
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>

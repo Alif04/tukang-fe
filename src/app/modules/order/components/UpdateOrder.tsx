@@ -14,7 +14,7 @@ const UpdateOrder: FC = () => {
     const orderId = order?.id || undefined
     const customerName = order?.members?.full_name || ''
 
-    setPageTitle(`UPDATE PESANAN - ${orderId} ${customerName}`)
+    setPageTitle(`ORDER NUMBER : ${orderId} ${customerName}`)
   }
 
   return (

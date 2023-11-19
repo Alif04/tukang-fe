@@ -187,11 +187,13 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
           <div className='detail-table'>
             <Table hover>
               <thead>
-                <tr>
-                  <th colSpan={2} className='text-start'>
-                    Nama Item
-                  </th>
-                </tr>
+                {orderDetail?.payment_type !== 'survey' && (
+                  <tr>
+                    <th colSpan={2} className='text-start'>
+                      Nama Pemasangan
+                    </th>
+                  </tr>
+                )}
               </thead>
               <tbody>
                 {orderDetail?.payment_type === 'survey' ? (

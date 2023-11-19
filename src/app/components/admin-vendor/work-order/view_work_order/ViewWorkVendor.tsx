@@ -334,7 +334,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                   </InputGroup.Text>
 
                   <Form.Control
-                    placeholder='Filter'
+                    placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />

@@ -70,7 +70,7 @@ const InvoicePage: React.FC = () => {
       />
 
       <Route
-        path='detail-invoice'
+        path='detail-invoice/:id'
         element={
           <>
             {userRole === 'Admin HO' ? (

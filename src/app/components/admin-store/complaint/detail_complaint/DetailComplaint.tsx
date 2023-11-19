@@ -26,7 +26,6 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
   const [complaintId, setComplaintId] = useState<any>()
   const [complaintStatusApprove, setComplaintStatusApprove] = useState<any>()
   const [complaintStatusCancel, setComplaintStatusCancel] = useState<any>()
-
   const [complaintDetail, setComplaintDetail] = useState<any>()
 
   const [previewImage, setPreviewImage] = useState<any>()

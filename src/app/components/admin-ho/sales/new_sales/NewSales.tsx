@@ -22,13 +22,17 @@ interface Bank {
   label: string
 }
 
-interface Brand {
+interface Brands {
+  value: any
+  label: string
+}
+
+interface Categories {
   value: any
   label: string
 }
 
 interface Sales {
-  id: any
   store_id: any
   bank_id: any
   full_name: string
@@ -37,7 +41,8 @@ interface Sales {
   // nik: string
   phone_number: any
   account_number: any
-  brand: Brand[]
+  sales_brands: Brands[]
+  sales_categories: Categories[]
 }
 
 const NewSales: FC = () => {
@@ -48,6 +53,29 @@ const NewSales: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
+    const getSalesId = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/sales/next-code`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        const data = response.data.code
+        console.log(data)
+
+        if (response.status === 200) {
+          const {data} = response
+          setSalesId(data.data.code)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     const getStore = async () => {
       try {
         const response = await axios.get(`${apiUrl}/stores`, {
@@ -103,9 +131,9 @@ const NewSales: FC = () => {
       }
     }
 
-    const getServiceType = async () => {
+    const getBrands = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/service-type`, {
+        const response = await axios.get(`${apiUrl}/brands`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -115,12 +143,12 @@ const NewSales: FC = () => {
         })
 
         if (Array.isArray(response.data.data)) {
-          const tempServiceType = response.data.data.map((item: any) => ({
+          const tempBrands = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.service_type,
+            label: item.name,
           }))
 
-          setBrands(tempServiceType)
+          setBrands(tempBrands)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -129,9 +157,37 @@ const NewSales: FC = () => {
       }
     }
 
+    const getCategories = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/categories`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempCategories = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.category_name,
+          }))
+
+          setCategories(tempCategories)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getSalesId()
     getStore()
     getBank()
-    getServiceType()
+    getBrands()
+    getCategories()
   }, [])
 
   // Store
@@ -141,7 +197,6 @@ const NewSales: FC = () => {
 
   // Sales
   const [salesInfo, setSalesInfo] = useState<Sales>({
-    id: null,
     store_id: null,
     bank_id: null,
     full_name: '',
@@ -150,7 +205,8 @@ const NewSales: FC = () => {
     phone_number: '',
     // bank_branch: '',
     account_number: '',
-    brand: [],
+    sales_brands: [],
+    sales_categories: [],
   })
 
   const [salesId, setSalesId] = useState<any>()
@@ -164,7 +220,10 @@ const NewSales: FC = () => {
   const [accountName, setAccountName] = useState<string>('')
 
   const [brandsId, setBrandsId] = useState<any>([])
-  const [brands, setBrands] = useState<Brand[]>([])
+  const [brands, setBrands] = useState<Brands[]>([])
+
+  const [categoryId, setCategoryId] = useState<any>([])
+  const [categories, setCategories] = useState<Categories[]>([])
 
   // Change Select Store
   const handleChangeSelectStore = (element: any) => {
@@ -178,18 +237,6 @@ const NewSales: FC = () => {
 
     setStoreId(updatedStoreId)
     setStoreName(updatedStoreName)
-  }
-
-  // Change Select Sales Id
-  const handleChangeSalesId = (element: any) => {
-    const newSalesId = element.target.value
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      id: newSalesId,
-    }))
-
-    setSalesId(newSalesId)
   }
 
   // Change Select Bank
@@ -256,81 +303,29 @@ const NewSales: FC = () => {
 
   // Change Select Brand
   const handleChangeBrandsId = (element: any) => {
-    const newBrandsId = element.map((option: any) => option.value)
+    const newBrandsId = element.map((option: any) => ({brand_id: option.value}))
 
     setSalesInfo((prevSalesInfo) => ({
       ...prevSalesInfo,
-      brand: newBrandsId,
+      sales_brands: newBrandsId,
     }))
 
     setBrandsId(newBrandsId)
   }
 
+  // Change Select Category
+  const handleChangeCategoryId = (element: any) => {
+    const newCategoryId = element.map((option: any) => ({category_id: option.value}))
+
+    setSalesInfo((prevSalesInfo) => ({
+      ...prevSalesInfo,
+      sales_categories: newCategoryId,
+    }))
+
+    setCategoryId(newCategoryId)
+  }
+
   // Sales Validation
-  // const SalesValidation = () => {
-  //   let valid = true
-
-  //   if (!storeId) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please select Store form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!salesId) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill Sales Id form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!salesName) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill Name Sales Consultant form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!salesPhoneNumber) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill WA / Phone Number form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!brandsId) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please select Brands form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!bankName) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill Nama Bank form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!accountNumber) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill Nomor Akun Bank form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!accountName) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill Nama Pemilik Akun form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   }
-
-  //   return valid
-  // }
-
   const SalesValidation = () => {
     let valid = true
 
@@ -355,10 +350,45 @@ const NewSales: FC = () => {
         icon: 'error',
       })
       valid = false
+    } else if (!salesPhoneNumber) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill WA / Phone Number form',
+        icon: 'error',
+      })
+      valid = false
     } else if (!brandsId) {
       Swal.fire({
         title: 'Error',
         text: 'Please select Brands form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!categoryId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select Brands form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!bankName) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nama Bank form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!accountNumber) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nomor Akun Bank form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!accountName) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nama Pemilik Akun form',
         icon: 'error',
       })
       valid = false
@@ -367,11 +397,48 @@ const NewSales: FC = () => {
     return valid
   }
 
+  // const SalesValidation = () => {
+  //   let valid = true
+
+  //   if (!storeId) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please select Store form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!salesId) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill Sales Id form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!salesName) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please fill Name Sales Consultant form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   } else if (!brandsId) {
+  //     Swal.fire({
+  //       title: 'Error',
+  //       text: 'Please select Brands form',
+  //       icon: 'error',
+  //     })
+  //     valid = false
+  //   }
+
+  //   return valid
+  // }
+
   // Handle Submit New Sales
   const handleSubmitNewSales = async () => {
+    // console.log(salesInfo)
     if (SalesValidation()) {
       const response = await axios
-        .post(`${apiUrl}/sales/create`, salesInfo, {
+        .post(`${apiUrl}/sales`, salesInfo, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -447,24 +514,11 @@ const NewSales: FC = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
                   <Form.Label>Sales ID</Form.Label>
-                  <Form.Control
-                    type='number'
-                    value={salesId}
-                    onChange={(element) => handleChangeSalesId(element)}
-                  />
+                  <Form.Control readOnly type='number' value={salesId} />
                 </Form.Group>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                {/* <Form.Group className='mb-5'>
-                  <Form.Label>Nama Sales Consultant</Form.Label>
-                  <Form.Control
-                    type='text'
-                    value={salesName}
-                    onChange={(element) => handleChangeSalesName(element)}
-                  />
-                </Form.Group> */}
-
                 <Form.Group className='mb-5'>
                   <Form.Label>Nama Bank</Form.Label>
 
@@ -517,7 +571,20 @@ const NewSales: FC = () => {
                 </Form.Group>
               </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Category</Form.Label>
+
+                  <Select
+                    placeholder='Pilih Category'
+                    closeMenuOnSelect={false}
+                    components={animatedComponents}
+                    isMulti
+                    options={categories}
+                    onChange={(element) => handleChangeCategoryId(element)}
+                  />
+                </Form.Group>
+              </Col>
             </Row>
 
             <Row>

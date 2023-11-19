@@ -1,8 +1,8 @@
 import React, {useState, FC} from 'react'
 
 import './UpdateInvoice.css'
-import {Table, Row, Col, Form, Button} from 'react-bootstrap'
 
+import {Table, Row, Col, Form, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 

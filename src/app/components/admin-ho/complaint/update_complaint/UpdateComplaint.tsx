@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateComplaint.css'
 
@@ -6,7 +7,6 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import {Image} from 'antd'
-import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -32,9 +32,6 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   const [orderId, setOrderId] = useState<any>()
   const [complaintId, setComplaintId] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
-
-  const [previewImage, setPreviewImage] = useState<any>()
-  const [visible, setVisible] = useState(false)
 
   const fetchComplaintData = async () => {
     try {
@@ -164,8 +161,11 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   const [complaintDate, setComplaintDate] = useState<string>('')
   const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
-
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   // Complaint Channel
   const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
@@ -231,6 +231,12 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
     if (evidenceRef.current?.value) {
       evidenceRef.current.value = ''
     }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(complaintEvidence[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
   }
 
   // Update Complaint Validation
@@ -796,12 +802,12 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                     />
                   </Form.Group>
 
-                  <Form.Group className='mt-3' controlId='formFile'>
+                  <Form.Group className='mt-3'>
                     <Form.Label>Complaint Evidence</Form.Label>
                     <Form className='form-input-image' onClick={handleComplaintImageClick}>
                       <Form.Control
                         type='file'
-                        accept='image/*'
+                        accept='image/jpeg, image/png'
                         className='input-field-image-complaint'
                         multiple
                         hidden
@@ -819,26 +825,52 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                     <ListGroup className='pt-3'>
                       {complaintEvidence.length ? (
                         complaintEvidence.map((item, index) => (
-                          <ListGroup.Item
-                            key={`${item?.name}-${index}-${item?.type}`}
-                            className='d-flex justify-content-between'
-                            onClick={() => {
-                              setPreviewImage(item?.name)
-                              setVisible(true)
-                            }}
-                          >
-                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                          <ListGroup>
+                            <ListGroup.Item
+                              key={`${item?.name}-${index}-${item?.type}`}
+                              className='d-flex justify-content-between align-items-center'
+                            >
+                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                            <span className='upload-content'>{item?.name}</span>
+                              <span
+                                className='upload-content'
+                                onClick={() => handleFileClick(index)}
+                              >
+                                {item?.name}
+                              </span>
 
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              size='sm'
-                              color='#ed2b2a'
-                              style={{cursor: 'pointer'}}
-                              onClick={(e) => handleComplaintRemoveFile(index)}
-                            />
-                          </ListGroup.Item>
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size='sm'
+                                color='#ed2b2a'
+                                style={{cursor: 'pointer'}}
+                                onClick={(e) => handleComplaintRemoveFile(index)}
+                              />
+                            </ListGroup.Item>
+
+                            {selectedFileIndex === index && item && (
+                              <Image
+                                key={`${previewImage} - ${index}`}
+                                width={200}
+                                style={{display: 'none'}}
+                                src={
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/complaints/${previewImage}`
+                                }
+                                preview={{
+                                  visible,
+                                  src:
+                                    item instanceof File
+                                      ? URL.createObjectURL(item)
+                                      : `${apiUrl}/public/complaints/${previewImage}`,
+                                  onVisibleChange: (value) => {
+                                    setVisible(value)
+                                  },
+                                }}
+                              />
+                            )}
+                          </ListGroup>
                         ))
                       ) : (
                         <ListGroup.Item className='d-flex justify-content-center'>

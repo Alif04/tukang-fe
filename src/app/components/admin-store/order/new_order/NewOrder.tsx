@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FC, useEffect, useState} from 'react'
+import React, {ChangeEvent, FC, useEffect, useState, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './NewOrder.css'
@@ -7,7 +7,8 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
+import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -66,8 +67,6 @@ const NewOrderStore: FC = () => {
 
   const [indexForm, setIndexForm] = useState<number>(0)
 
-  // Order Information Detail
-
   // Store
   const [store, setStore] = useState<StoreItem[]>([])
   const [storeId, setStoreId] = useState<string>('')
@@ -92,14 +91,12 @@ const NewOrderStore: FC = () => {
 
   const [requestDate, setRequestDate] = useState<string>('')
 
-  const [receiptFile, setReceiptFile] = useState<FileList | []>()
-  const [image, setImage] = useState<{
-    blob: string
-    fileName: string
-  }>({
-    blob: '',
-    fileName: '',
-  })
+  const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   // Order Table
   const [item, setItem] = useState<ItemDescription[]>([])
@@ -249,15 +246,16 @@ const NewOrderStore: FC = () => {
 
   // Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
 
-    if (files && files[0]) {
-      setReceiptFile(files)
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
 
-      setImage({
-        blob: URL.createObjectURL(files[0]),
-        fileName: files[0].name,
-      })
+      setReceiptFiles(file)
     }
   }
 
@@ -266,12 +264,23 @@ const NewOrderStore: FC = () => {
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setImage({
-      blob: '',
-      fileName: '',
-    })
-    setReceiptFile([])
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...receiptFiles]
+
+    newEvidances.splice(index, 1)
+
+    setReceiptFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(receiptFiles[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
   }
 
   // Member Information
@@ -611,13 +620,6 @@ const NewOrderStore: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!image) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill upload receipt form',
-        icon: 'error',
-      })
-      valid = false
     }
 
     orderDetailValues.map((item) => {
@@ -631,7 +633,7 @@ const NewOrderStore: FC = () => {
       } else if (item.quantity == 0) {
         Swal.fire({
           title: 'Error',
-          text: 'Please fill quantity  form',
+          text: 'Please fill quantity form',
           icon: 'error',
         })
         valid = false
@@ -646,8 +648,12 @@ const NewOrderStore: FC = () => {
     if (PreOrderValidation()) {
       const formData = new FormData()
 
-      if (receiptFile?.length) {
-        formData.append('receipt_file', receiptFile[0])
+      if (receiptFiles?.length) {
+        receiptFiles.forEach((item) => {
+          if (item) {
+            formData.append(`order_files`, item, item?.name)
+          }
+        })
       }
 
       formData.append('member_id', memberId)
@@ -971,6 +977,11 @@ const NewOrderStore: FC = () => {
                   onChange={handleChangeRequestDate}
                   min={today}
                 />
+                <Form.Text className='fs-8 text-dark-danger'>
+                  *Tanggal Request{' '}
+                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
+                  Konfirmasi kunjungan dilakukan oleh Vendor
+                </Form.Text>
               </Form.Group>
             </Col>
 
@@ -1001,8 +1012,12 @@ const NewOrderStore: FC = () => {
                   <th>Item Name</th>
                   <th>Nama Pemasangan</th>
                   <th>QTY Pemasangan</th>
-                  <th>Harga Item</th>
-                  <th>Jumlah</th>
+                  {paymentType !== 'gratis' && (
+                    <>
+                      <th>Harga Jasa</th>
+                      <th>Total</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -1023,7 +1038,7 @@ const NewOrderStore: FC = () => {
                       />
                     </td>
 
-                    <td>
+                    <td style={{maxWidth: '200px', minWidth: '200px'}}>
                       <Select
                         id={`item-name-${index}`}
                         className='form-control p-0 form-item-name'
@@ -1052,46 +1067,57 @@ const NewOrderStore: FC = () => {
                       />
                     </td>
 
-                    <td>
-                      <Form.Control
-                        id={`unit-price-${index}`}
-                        readOnly
-                        plaintext
-                        value={`Rp. ${
-                          orderDetailValues[index]?.unit_price
-                            ? orderDetailValues[index]?.unit_price.toLocaleString('id')
-                            : 0
-                        }`}
-                      />
-                    </td>
+                    {paymentType !== 'gratis' && (
+                      <>
+                        <td>
+                          <Form.Control
+                            id={`unit-price-${index}`}
+                            readOnly
+                            plaintext
+                            value={`Rp. ${
+                              orderDetailValues[index]?.unit_price
+                                ? orderDetailValues[index]?.unit_price.toLocaleString('id')
+                                : 0
+                            }`}
+                          />
+                        </td>
 
-                    <td>{`Rp. ${
-                      orderDetailValues[index]?.total
-                        ? orderDetailValues[index]?.total.toLocaleString('id')
-                        : 0
-                    }`}</td>
+                        <td>
+                          <Form.Control
+                            id={`total-${index}`}
+                            readOnly
+                            plaintext
+                            value={`Rp. ${
+                              orderDetailValues[index]?.total
+                                ? orderDetailValues[index]?.total.toLocaleString('id')
+                                : 0
+                            }`}
+                          />
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
 
-                <tr>
-                  <td colSpan={6} className='text-end fw-bolder'>
-                    Biaya Survey
-                  </td>
-                  <td className=' fw-bolder'>
-                    {(() => {
-                      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
-                        return `Rp. 0`
-                      } else if (paymentType === 'survey') {
-                        return `Rp. 99.000`
-                      } else {
-                        return `Rp. 0`
-                      }
-                    })()}
-                  </td>
-                </tr>
+                {paymentType !== 'gratis' && (
+                  <tr>
+                    <td colSpan={6} className='text-end fw-bolder'>
+                      Biaya Survey
+                    </td>
+                    <td className=' fw-bolder'>
+                      {(() => {
+                        if (paymentType === 'survey') {
+                          return `Rp. 99.000`
+                        } else {
+                          return `Rp. 0`
+                        }
+                      })()}
+                    </td>
+                  </tr>
+                )}
 
                 <tr>
-                  <td colSpan={6} className='text-end fw-bolder'>
+                  <td colSpan={paymentType !== 'gratis' ? 6 : 4} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
@@ -1102,40 +1128,72 @@ const NewOrderStore: FC = () => {
 
           <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Group controlId='formFile'>
-                <Form.Label>Upload Receipt</Form.Label>
+              <Form.Group>
+                <Form.Label>Upload File</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
                     type='file'
-                    accept='image/*'
+                    accept='image/jpeg, image/png'
                     className='input-field-image'
+                    multiple
                     hidden
+                    id='file-input'
+                    ref={evidenceRef}
                     onChange={handleFileChange}
                   />
 
-                  {image.blob ? (
-                    <img src={image.blob} alt={image.fileName} className='image-preview' />
-                  ) : (
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  )}
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
                 </Form>
 
-                <div className='uploaded-row'>
-                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                <ListGroup className='pt-3'>
+                  {receiptFiles.length ? (
+                    receiptFiles.map((item, index) => (
+                      <ListGroup>
+                        <ListGroup.Item
+                          className='d-flex justify-content-between align-items-center'
+                          key={`${item?.name}-${index}-${item?.type}`}
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
+                          <span className='upload-content' onClick={() => handleFileClick(index)}>
+                            {item?.name}
+                          </span>
 
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    size='sm'
-                    color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
-                  />
-                </div>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+
+                        {selectedFileIndex === index && item && (
+                          <Image
+                            key={`${previewImage} - ${index}`}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={URL.createObjectURL(item)}
+                            preview={{
+                              visible,
+                              src: URL.createObjectURL(item),
+                              onVisibleChange: (value) => {
+                                setVisible(value)
+                              },
+                            }}
+                          />
+                        )}
+                      </ListGroup>
+                    ))
+                  ) : (
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
               </Form.Group>
             </Col>
 

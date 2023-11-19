@@ -708,10 +708,6 @@ const NewVendorHO: FC = () => {
     }
   }
 
-  const handleCancelCreateVendor = () => {
-    navigate('/vendor/view-vendor')
-  }
-
   return (
     <section id='new-vendor'>
       <div className='card mb-5'>
@@ -1112,10 +1108,6 @@ const NewVendorHO: FC = () => {
           </Row>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelCreateVendor}>
-              Cancel
-            </Button>
-
             <Button variant='dark-primary' type='submit' onClick={handleSubmitNewVendor}>
               Save
             </Button>

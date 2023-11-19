@@ -1,9 +1,48 @@
-import React, {FC} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './DetailInvoice.css'
-import {Table, Button, Row, Col} from 'react-bootstrap'
+
+import axios from 'axios'
+import {useParams} from 'react-router-dom'
+import {Form, Table, Row, Col} from 'react-bootstrap'
 
 const DetailInvoiceVendor: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
+
+  const [invoiceDetail, setInvoiceDetail] = useState<any>()
+
+  const fetchInvoiceData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/invoices/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setInvoiceDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchInvoiceData()
+  }, [])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
   return (
     <section id='detail-invoice'>
       <div className='card'>
@@ -11,13 +50,10 @@ const DetailInvoiceVendor: FC = () => {
           <div className='invoice-detail d-flex justify-content-between'>
             <div className='vendor-information'>
               <div className='vendor-detail'>
-                <h1 className='fw-bolder'>PT ABC</h1>
+                <h1 className='fw-bolder'>{invoiceDetail?.store.store_name}</h1>
 
                 <div className='address'>
-                  <h3 className='fw-normal'>Jalan Gading Serpong Boulevard Blok Mitra10</h3>
-                  <h3 className='fw-normal'>Curug Sangereng, Klp. Dua, Tangerang, </h3>
-                  <h3 className='fw-normal'>Banten Kode Pos : 15310 </h3>
-                  <h3 className='fw-normal'> Telp: (021) 54217373</h3>
+                  <h3 className='fw-normal'>{invoiceDetail?.store.address}</h3>
                 </div>
               </div>
             </div>
@@ -26,15 +62,18 @@ const DetailInvoiceVendor: FC = () => {
               <h1 className='fw-bolder'>INVOICE</h1>
 
               <h3 className='fw-bolder'>
-                Tanggal : <span className='fw-normal'>16/3/2023</span>
+                Tanggal :
+                <span className='fw-normal'>
+                  {invoiceDetail ? formatDate(new Date(invoiceDetail.created_at)) : ''}
+                </span>
               </h3>
 
               <h3 className='fw-bolder'>
-                Quotation ID : <span className='fw-normal'>897983245</span>
+                Quotation ID : <span className='fw-normal'>{invoiceDetail?.quotation.id}</span>
               </h3>
 
               <h3 className='fw-bolder'>
-                Costumer ID : <span className='fw-normal'>121768</span>
+                Costumer ID : <span className='fw-normal'>{invoiceDetail?.members.id}</span>
               </h3>
             </div>
           </div>
@@ -43,25 +82,39 @@ const DetailInvoiceVendor: FC = () => {
             <div className='receiver-information'>
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                <h1 className='fw-bolder'>Mitra 10 BSD</h1>
+                <h1 className='fw-bolder mt-3'>{invoiceDetail?.members?.full_name}</h1>
               </div>
 
               <div className='address'>
-                <h3 className='fw-normal'>Jalan Gading Serpong Boulevard Blok Mitra10</h3>
-                <h3 className='fw-normal'>Curug Sangereng, Klp. Dua, Tangerang, </h3>
-                <h3 className='fw-normal'>Banten Kode Pos : 15310 </h3>
-                <h3 className='fw-normal'> Telp: (021) 54217373</h3>
+                <h3 className='fw-normal'>{invoiceDetail?.order.project_address}</h3>
+                <h3 className='fw-normal'>
+                  {invoiceDetail ? `Telp ${invoiceDetail?.order.project_number}` : ``}
+                </h3>
               </div>
             </div>
 
             <div className='payment-request'>
-              <h3 className='fw-bolder'>
-                Quotation valid until : <span className='fw-normal'>21/3/2023</span>
-              </h3>
+              <Form.Group as={Row}>
+                <Form.Label className='fs-5 fw-bolder' column sm='7'>
+                  Quotation valid until :
+                </Form.Label>
 
-              <h3 className='fw-bolder'>
-                Instruksi spesial : <span className='fw-normal'>Tidak ada</span>
-              </h3>
+                <Col sm='5'>
+                  <Form.Control
+                    type='text'
+                    plaintext
+                    readOnly
+                    value={
+                      invoiceDetail ? formatDate(new Date(invoiceDetail.quotation_validity)) : ''
+                    }
+                  />
+                </Col>
+              </Form.Group>
+
+              <Form.Group className='detail-info'>
+                <Form.Label className='fs-5 fw-bolder'>Instruksi Spesial :</Form.Label>
+                <Form.Control as='textarea' plaintext readOnly value={invoiceDetail?.description} />
+              </Form.Group>
             </div>
           </div>
 
@@ -76,47 +129,38 @@ const DetailInvoiceVendor: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Instalasi AC</td>
-                  <td>500.000</td>
-                  <td>1</td>
-                  <td>500.000</td>
-                </tr>
-                <tr>
-                  <td>Pipa AC</td>
-                  <td>50.000</td>
-                  <td>16</td>
-                  <td>800.000</td>
-                </tr>
-                <tr>
-                  <td>Pipa Paralon</td>
-                  <td>50.000</td>
-                  <td>10</td>
-                  <td>500.000</td>
-                </tr>
+                {invoiceDetail?.order.m_order_details.map((item: any) => (
+                  <>
+                    <tr>
+                      <td>{item?.unit}</td>
+                      <td>{item?.quantity}</td>
+                      <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
+                      <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                    </tr>
+                  </>
+                ))}
+
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
                     Total
                   </td>
-                  <td className=' fw-bolder'>1.800.000</td>
+                  <td className=' fw-bolder'>Rp. 100.000</td>
                 </tr>
+
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
-                    Tax (11%)
+                    Tax ( 11 % )
                   </td>
-                  <td className=' fw-bolder'>198.000</td>
+                  <td className=' fw-bolder'>Rp. 100.000</td>
                 </tr>
-                <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
-                    Discount (8%)
-                  </td>
-                  <td className=' fw-bolder'>-144.000</td>
-                </tr>
+
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>1.854.000</td>
+                  <td className=' fw-bolder'>
+                    {`Rp. ${parseInt(invoiceDetail?.order?.grand_total).toLocaleString('id')}`}
+                  </td>
                 </tr>
               </tbody>
             </Table>

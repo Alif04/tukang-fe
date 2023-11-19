@@ -1,24 +1,30 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
+import React, {useEffect, useState} from 'react'
 
 import './ViewOrder.css'
 
 import axios from 'axios'
-import { Table, Tag } from 'antd'
-import type { ColumnsType } from 'antd/es/table'
-import { useNavigate } from 'react-router-dom'
-import { Row, Col, Form, InputGroup } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBook, faSearch, faFilter, faPen } from '@fortawesome/free-solid-svg-icons'
+import {Table, Tag} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
+import {useNavigate} from 'react-router-dom'
+import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faBook, faSearch, faFilter, faPen} from '@fortawesome/free-solid-svg-icons'
 
-import { DatePicker } from 'antd'
-const { RangePicker } = DatePicker
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
 
 type Props = {
   className: string
 }
 
-const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
+interface Status {
+  value: number
+  category: string
+}
+
+const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -37,8 +43,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
     no_member: number
     costumer_name: string
     phone_number: number
-    installer_name: string
-    // payment_status: string
+    service_name: string
+    payment_status: string
     order_status: string
   }
 
@@ -81,7 +87,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
-      title: 'Costumer Name',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -90,12 +96,34 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'No Telp / WA',
+      title: 'No. Telp / WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
       width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
+    },
+    {
+      title: 'Nama Jasa Pemasangan',
+      dataIndex: 'service_name',
+      key: 'service_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.service_name.includes(String(value)),
+      sorter: (a, b) => a.service_name.length - b.service_name.length,
+    },
+    {
+      title: 'Status Pembayaran',
+      dataIndex: 'payment_status',
+      key: 'payment_status',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.payment_status.includes(String(value)),
+      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+      filters: [
+        {text: 'UNPAID', value: 'UNPAID'},
+        {text: 'PAID', value: 'PAID'},
+      ],
     },
     {
       title: 'Status Order',
@@ -106,6 +134,12 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
         let color = ''
 
         switch (orderStatus) {
+          case 'UNPAID':
+            color = 'red'
+            break
+          case 'PAID':
+            color = 'green'
+            break
           case 'BOOK':
             color = 'green'
             break
@@ -134,8 +168,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [
-        { text: 'BOOK', value: 'BOOK' },
-        { text: 'BOOKED', value: 'BOOKED' },
+        {text: 'BOOK', value: 'BOOK'},
+        {text: 'BOOKED', value: 'BOOKED'},
       ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
@@ -184,19 +218,17 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
 
   const fetchOrderList = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
       const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      const desiredStatusName = 'BOOK'
-      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+      const desiredStatus = statusData.filter((status: any) =>
+        status.category.includes('BOOK', 'BOOKED')
+      )
 
       if (desiredStatus) {
-        const statusId = desiredStatus.value
+        const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
+          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statuses}`,
           {
             headers: {
               Accept: 'application/json',
@@ -233,6 +265,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
             ? item.members.phone_number
             : item.members.whatsapp_number
 
+        let paymentStatus = item.receipt_path === 'null' ? 'UNPAID' : 'PAID'
+
         data = {
           order_id: item.id,
           assign_from: item.store.store_name,
@@ -240,7 +274,9 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
           no_member: item.members.id,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          order_status: item.status.description,
+          service_name: item.m_order_details[0].item.category_name,
+          payment_status: paymentStatus,
+          order_status: item.status.category,
         }
 
         return data
@@ -269,8 +305,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
-                <h3 className='fs-3 fw-normal'>Date : </h3>
+                <FontAwesomeIcon icon={faFilter} size='lg' className='me-2' />
+                <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
 
               <RangePicker
@@ -298,7 +334,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
                   </InputGroup.Text>
 
                   <Form.Control
-                    placeholder='Filter'
+                    placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
@@ -313,8 +349,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{ x: 1500 }}
-            pagination={{ position: ['bottomRight'] }}
+            scroll={{x: 1800}}
+            pagination={{position: ['bottomRight']}}
           />
         </div>
       </div>
@@ -322,4 +358,4 @@ const ViewOrderStoreCS: React.FC<Props> = ({ className }) => {
   )
 }
 
-export { ViewOrderStoreCS }
+export {ViewOrderStoreCS}

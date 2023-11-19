@@ -11,7 +11,7 @@ const TransactionWidget: React.FC<Props> = () => {
   return (
     <div className='card card-xl-stretch mb-5 mb-xl-8'>
       <div className='card-header border-0'>
-        <h3 className='card-title fw-bold text-dark'>Transaction</h3>
+        <h3 className='card-title fw-bold text-dark'>Transactions</h3>
       </div>
 
       <div className='card-body pt-2'>
