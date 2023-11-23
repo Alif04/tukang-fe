@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
+import {ViewCalendarHO} from '../../../components'
 import {ViewCalendarVendor} from '../../../components'
 import {ViewCalendarTukang} from '../../../components'
 
@@ -9,7 +10,11 @@ const ViewCalendar: React.FC = () => {
 
   return (
     <>
-      {userRole == 'Admin Vendor' ? (
+      {userRole == 'Admin HO' ? (
+        <>
+          <ViewCalendarHO />
+        </>
+      ) : userRole == 'Admin Vendor' ? (
         <>
           <ViewCalendarVendor />
         </>

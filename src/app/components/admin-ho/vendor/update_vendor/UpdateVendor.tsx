@@ -881,10 +881,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     }
   }
 
-  const handleCancelUpdateVendor = () => {
-    navigate('/vendor/view-vendor')
-  }
-
   return (
     <section id='update-vendor'>
       <div className='card mb-5'>
@@ -1296,10 +1292,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           </Row>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateVendor}>
-              Cancel
-            </Button>
-
             <Button variant='dark-primary' type='submit' onClick={handleUpdateVendor}>
               Save
             </Button>

@@ -5,6 +5,7 @@ import './DetailOrder.css'
 import {Order} from '../../../../interfaces/order'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
+import {Image} from 'antd'
 import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -67,6 +68,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
     updated_by: null,
     created_at: '',
     order_details: [],
+    order_files: [],
   })
 
   const fetchOrderData = async () => {
@@ -82,16 +84,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
         })
         .then((response) => {
           const data = response.data.data as Order
-
           setOrder(data)
-
-          if (data?.receipt_path) {
-            setImage({
-              blob: '',
-              fileName: data.receipt_path,
-            })
-          }
-
           updatePageTitle(data)
         })
     } catch (error) {
@@ -103,13 +96,8 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
     fetchOrderData()
   }, [])
 
-  const [image, setImage] = useState<{
-    blob: string
-    fileName: string
-  }>({
-    blob: '',
-    fileName: '',
-  })
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -348,27 +336,39 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
           {order.receipt_path !== '' ? (
             <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Group controlId='formFile'>
-                  <Form.Label>Bukti Receipt</Form.Label>
-                  <Form className='form-input-image'>
-                    <Form.Control
-                      type='file'
-                      accept='image/*'
-                      className='input-field-image'
-                      hidden
-                    />
+                <Form.Label className='mt-3'>Bukti Receipt :</Form.Label>
+                <ListGroup>
+                  {order?.order_files.map((item: any) => (
+                    <ListGroup.Item
+                      key={item.id}
+                      action
+                      onClick={() => {
+                        setPreviewImage(item.path)
+                        setVisible(true)
+                      }}
+                    >
+                      {item.path}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
 
-                    <img
-                      src={`${apiUrl}/public/receipt/${image.fileName}`}
-                      alt={image.fileName}
-                      className='image-preview'
+                {previewImage && (
+                  <div>
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/receipt/${previewImage}`}
+                      preview={{
+                        visible,
+                        src: `${apiUrl}/public/receipt/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisible(value)
+                        },
+                      }}
                     />
-                  </Form>
-
-                  <div className='uploaded-row'>
-                    <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
                   </div>
-                </Form.Group>
+                )}
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>

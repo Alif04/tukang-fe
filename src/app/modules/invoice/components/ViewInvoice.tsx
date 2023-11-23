@@ -15,7 +15,7 @@ const ViewInvoice: React.FC = () => {
         </>
       ) : userRole == 'Admin Vendor' ? (
         <>
-          <ViewInvoiceVendor className='' />
+          <ViewInvoiceVendor />
         </>
       ) : (
         <></>

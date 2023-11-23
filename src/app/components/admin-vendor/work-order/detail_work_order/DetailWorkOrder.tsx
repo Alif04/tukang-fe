@@ -231,21 +231,11 @@ const DetailWorkVendor: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {orderDetail?.payment_type === 'survey' ? (
-                  <>
-                    <tr>
-                      <td colSpan={6}>Survey</td>
-                    </tr>
-                  </>
-                ) : (
-                  orderDetail?.order_details.map((item: any) => (
-                    <>
-                      <tr>
-                        <td>{item?.unit}</td>
-                      </tr>
-                    </>
-                  ))
-                )}
+                {orderDetail?.order_details.map((item: any) => (
+                  <tr>
+                    <td>{item?.unit}</td>
+                  </tr>
+                ))}
               </tbody>
             </Table>
           </div>

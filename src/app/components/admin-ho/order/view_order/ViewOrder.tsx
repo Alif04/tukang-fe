@@ -18,6 +18,11 @@ type Props = {
   className: string
 }
 
+interface Status {
+  value: number
+  category: string
+}
+
 const ViewOrderHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
@@ -37,8 +42,8 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
     no_member: number
     costumer_name: string
     phone_number: number
-    installer_name: string
-    // payment_status: string
+    service_name: string
+    payment_status: string
     order_status: string
   }
 
@@ -81,7 +86,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
-      title: 'Costumer Name',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -90,12 +95,34 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'No Telp / WA',
+      title: 'No. Telp / WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
       width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
+    },
+    {
+      title: 'Nama Jasa Pemasangan',
+      dataIndex: 'service_name',
+      key: 'service_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.service_name.includes(String(value)),
+      sorter: (a, b) => a.service_name.length - b.service_name.length,
+    },
+    {
+      title: 'Status Pembayaran',
+      dataIndex: 'payment_status',
+      key: 'payment_status',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.payment_status.includes(String(value)),
+      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+      filters: [
+        {text: 'UNPAID', value: 'UNPAID'},
+        {text: 'PAID', value: 'PAID'},
+      ],
     },
     {
       title: 'Status Order',
@@ -233,6 +260,8 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
             ? item.members.phone_number
             : item.members.whatsapp_number
 
+        let paymentStatus = item.receipt_path === 'null' ? 'UNPAID' : 'PAID'
+
         data = {
           order_id: item.id,
           assign_from: item.store.store_name,
@@ -240,6 +269,8 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
           no_member: item.members.id,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
+          service_name: item.m_order_details[0].item.category_name,
+          payment_status: paymentStatus,
           order_status: item.status.category,
         }
 
@@ -269,8 +300,8 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
-                <h3 className='fs-3 fw-normal'>Date : </h3>
+                <FontAwesomeIcon icon={faFilter} size='lg' className='me-2' />
+                <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
 
               <RangePicker
@@ -298,7 +329,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
                   </InputGroup.Text>
 
                   <Form.Control
-                    placeholder='Filter'
+                    placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
@@ -313,7 +344,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1500}}
+            scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

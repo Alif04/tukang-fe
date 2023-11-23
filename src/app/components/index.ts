@@ -91,6 +91,9 @@ export * from './admin-store/reports/total_order_report/TotalOrderReport'
 
 // HO PAGES
 
+// CALENDAR WORK
+export * from './admin-ho/calendar/view_calendar/ViewCalendar'
+
 // ORDER
 // Dashboard Order
 export * from './admin-ho/order/dashboard_order/DashboardOrder'

@@ -1,5 +1,4 @@
-import React, {FC, useRef} from 'react'
-import {useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './NewComplaint.css'
 
@@ -8,6 +7,7 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
+import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -157,8 +157,11 @@ const NewComplaintHO: FC = () => {
   const [complaintDate, setComplaintDate] = useState<string>('')
   const [complaintStatus, setComplaintStatus] = useState<any>()
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
-
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   // Complaint Status
   useEffect(() => {
@@ -216,6 +219,12 @@ const NewComplaintHO: FC = () => {
     if (evidenceRef.current?.value) {
       evidenceRef.current.value = ''
     }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(complaintEvidence[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
   }
 
   // Handle Change Complaint Channel
@@ -584,7 +593,7 @@ const NewComplaintHO: FC = () => {
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
                     type='file'
-                    accept='image/*'
+                    accept='image/jpeg, image/png'
                     className='input-field-image'
                     multiple
                     hidden
@@ -602,22 +611,42 @@ const NewComplaintHO: FC = () => {
                 <ListGroup className='pt-3'>
                   {complaintEvidence.length ? (
                     complaintEvidence.map((item, index) => (
-                      <ListGroup.Item
-                        key={`${item?.name}-${index}-${item?.type}`}
-                        className='d-flex justify-content-between'
-                      >
-                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <ListGroup>
+                        <ListGroup.Item
+                          key={`${item?.name}-${index}-${item?.type}`}
+                          className='d-flex justify-content-between align-items-center'
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                        <span className='upload-content'> {item?.name}</span>
+                          <span className='upload-content' onClick={() => handleFileClick(index)}>
+                            {item?.name}
+                          </span>
 
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          size='sm'
-                          color='#ed2b2a'
-                          style={{cursor: 'pointer'}}
-                          onClick={(e) => handleRemoveFile(index)}
-                        />
-                      </ListGroup.Item>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+
+                        {selectedFileIndex === index && item && (
+                          <Image
+                            key={`${previewImage} - ${index}`}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={URL.createObjectURL(item)}
+                            preview={{
+                              visible,
+                              src: URL.createObjectURL(item),
+                              onVisibleChange: (value) => {
+                                setVisible(value)
+                              },
+                            }}
+                          />
+                        )}
+                      </ListGroup>
                     ))
                   ) : (
                     <ListGroup.Item className='d-flex justify-content-center'>

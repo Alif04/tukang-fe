@@ -372,7 +372,7 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
                   </InputGroup.Text>
 
                   <Form.Control
-                    placeholder='Filter'
+                    placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
@@ -387,7 +387,7 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={complaintData}
             rowKey={(record) => record.complaint_id}
-            scroll={{x: 1700}}
+            scroll={{x: 2000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

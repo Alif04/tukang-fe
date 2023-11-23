@@ -94,6 +94,10 @@
   border: none;
 }
 
+#pre-order .table-order-content .form-control-plaintext:focus {
+  outline: none !important;
+}
+
 /* Button */
 
 #pre-order .button-add button {

@@ -94,6 +94,10 @@
   border: none;
 }
 
+#update-order .table-order-content .form-control-plaintext:focus {
+  outline: none !important;
+}
+
 /* Button */
 
 #update-order .button-add button {

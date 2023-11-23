@@ -107,6 +107,10 @@ input[type='number'] {
   color: brown;
 }
 
+.text-dark-danger {
+  color: #d8001b !important;
+}
+
 /* Apex Chart Legend */
 
 .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {

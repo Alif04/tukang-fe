@@ -1,14 +1,15 @@
-import React, {ChangeEvent, FC, useEffect, useState} from 'react'
+import React, {ChangeEvent, FC, useEffect, useState, useRef} from 'react'
 import {Order} from '../../../../interfaces/order'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateOrder.css'
 
 import axios from 'axios'
-import {useNavigate, useParams} from 'react-router-dom'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
+import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -94,22 +95,16 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
 
   const [type, setType] = useState<string>('')
   const [paymentType, setPaymentType] = useState<string>('')
-
   const [projectStatusId, setProjectStatusId] = useState<any>()
-
   const [requestDate, setRequestDate] = useState<string>('')
-
   const [receiptNumber, setReceiptNumber] = useState<any>()
 
-  const [receiptFile, setReceiptFile] = useState<FileList | []>()
+  const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
 
-  const [image, setImage] = useState<{
-    blob: string
-    fileName: string
-  }>({
-    blob: '',
-    fileName: '',
-  })
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   // Order Table
   const [item, setItem] = useState<ItemDescription[]>([])
@@ -156,11 +151,13 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
               setMemberPhoneNumber(data.project_number)
             }
 
-            if (data?.receipt_path) {
-              setImage({
-                blob: '',
-                fileName: data.receipt_path,
-              })
+            if (data?.order_files) {
+              const initialOrderFilesValues = data.order_files.map((item: any) => ({
+                id: item.id,
+                name: item.path,
+              }))
+
+              setReceiptFiles(initialOrderFilesValues)
             }
 
             if (data?.receipt_number) {
@@ -242,35 +239,35 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
       }
     }
 
-    const getSales = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/sales`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+    // const getSales = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/sales`, {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //         'Access-Control-Allow-Origin': '*',
+    //         'ngrok-skip-browser-warning': 'true',
+    //       },
+    //     })
 
-        if (Array.isArray(response.data.data)) {
-          const tempSales = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.id,
-            full_name: item.full_name,
-          }))
+    //     if (Array.isArray(response.data.data)) {
+    //       const tempSales = response.data.data.map((item: any) => ({
+    //         value: item.id,
+    //         label: item.id,
+    //         full_name: item.full_name,
+    //       }))
 
-          const creatableOptionSales = {value: 'salesOption'}
-          tempSales.push(creatableOptionSales)
+    //       const creatableOptionSales = {value: 'salesOption'}
+    //       tempSales.push(creatableOptionSales)
 
-          setSales(tempSales)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
+    //       setSales(tempSales)
+    //     } else {
+    //       console.error('API response data is not an array:', response.data)
+    //     }
+    //   } catch (err) {
+    //     console.error(err)
+    //   }
+    // }
 
     const getItem = async () => {
       try {
@@ -311,7 +308,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
 
     fetchOrderData()
     getMember()
-    getSales()
+    // getSales()
     getItem()
   }, [])
 
@@ -367,15 +364,21 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
 
   // Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    const fileList = event.target.files
 
-    if (files && files[0]) {
-      setReceiptFile(files)
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...receiptFiles]
+      const mergedFiles = existingFiles.concat(file)
 
-      setImage({
-        blob: URL.createObjectURL(files[0]),
-        fileName: files[0].name,
-      })
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setReceiptFiles(mergedFiles)
     }
   }
 
@@ -384,12 +387,23 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setImage({
-      blob: '',
-      fileName: '',
-    })
-    setReceiptFile([])
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...receiptFiles]
+
+    newEvidances.splice(index, 1)
+
+    setReceiptFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(receiptFiles[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
   }
 
   // Member Information
@@ -484,35 +498,35 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
   }
 
   // Change Select Sales
-  const handleChangeSelectSales = (element: Sales | null) => {
-    if (element && element.value === 'salesOption') {
-      setSalesInfo(null)
-      setSalesId(null)
-      setSalesName('')
-    } else {
-      const newSalesInfo: Sales = {
-        value: element?.value || 0,
-        label: element?.label || 0,
-        full_name: element?.full_name || '',
-      }
+  // const handleChangeSelectSales = (element: Sales | null) => {
+  //   if (element && element.value === 'salesOption') {
+  //     setSalesInfo(null)
+  //     setSalesId(null)
+  //     setSalesName('')
+  //   } else {
+  //     const newSalesInfo: Sales = {
+  //       value: element?.value || 0,
+  //       label: element?.label || 0,
+  //       full_name: element?.full_name || '',
+  //     }
 
-      setSalesInfo(newSalesInfo)
-      setSalesId(newSalesInfo.value)
-      setSalesName(newSalesInfo.full_name)
-    }
-  }
+  //     setSalesInfo(newSalesInfo)
+  //     setSalesId(newSalesInfo.value)
+  //     setSalesName(newSalesInfo.full_name)
+  //   }
+  // }
 
   // Change Select Sales Name
-  const handleChangeSalesName = (element: any) => {
-    const newSalesName = element.target.value
+  // const handleChangeSalesName = (element: any) => {
+  //   const newSalesName = element.target.value
 
-    setSalesInfo((prevSalesInfo) => ({
-      ...(prevSalesInfo as Sales),
-      full_name: newSalesName,
-    }))
+  //   setSalesInfo((prevSalesInfo) => ({
+  //     ...(prevSalesInfo as Sales),
+  //     full_name: newSalesName,
+  //   }))
 
-    setSalesName(newSalesName)
-  }
+  //   setSalesName(newSalesName)
+  // }
 
   // Add New Order
 
@@ -760,9 +774,12 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
     if (UpdateOrderValidation()) {
       const formData = new FormData()
 
-      if (receiptFile?.length) {
-        formData.append('receipt_file', receiptFile[0])
-        formData.append('receipt_name', receiptFile[0].name)
+      if (receiptFiles?.length) {
+        receiptFiles.forEach((item) => {
+          if (item) {
+            formData.append(`order_files`, item)
+          }
+        })
       }
 
       formData.append('member_id', memberId)
@@ -1104,7 +1121,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
                     </Form.Label>
 
                     <Col sm='8'>
-                      <CreatableSelect
+                      <Form.Control type='number' disabled value={salesId} />
+                      {/* <CreatableSelect
                         name='sales'
                         id='sales'
                         className='form-control p-0 form-item-name'
@@ -1118,7 +1136,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
                           full_name: salesName,
                         }}
                         onChange={(element) => handleChangeSelectSales(element)}
-                      />
+                      /> */}
                     </Col>
                   </Form.Group>
 
@@ -1128,11 +1146,13 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
                     </Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control
+                      <Form.Control type='text' disabled value={salesName} />
+
+                      {/* <Form.Control
                         type='text'
                         value={salesName}
                         onChange={(element) => handleChangeSalesName(element)}
-                      />
+                      /> */}
                     </Col>
                   </Form.Group>
                 </>
@@ -1150,6 +1170,9 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
                   value={receiptNumber}
                   onChange={handleChangeNoReceipt}
                 />
+                <Form.Text className='fs-8 text-dark'>
+                  *Silakan isi no. receipt pembayaran installasi / service
+                </Form.Text>
               </Form.Group>
             </Col>
 
@@ -1163,6 +1186,11 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
                   onChange={handleChangeRequestDate}
                   min={today}
                 />
+                <Form.Text className='fs-8 text-dark-danger'>
+                  *Tanggal Request{' '}
+                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
+                  Konfirmasi kunjungan dilakukan oleh Vendor
+                </Form.Text>
               </Form.Group>
             </Col>
 
@@ -1194,8 +1222,12 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
                   <th>Item Name</th>
                   <th>Nama Pemasangan</th>
                   <th>QTY Pemasangan</th>
-                  <th>Harga Item</th>
-                  <th>Jumlah</th>
+                  {paymentType !== 'gratis' && (
+                    <>
+                      <th>Harga Jasa</th>
+                      <th>Total</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -1209,16 +1241,17 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
 
                     <td>
                       <Form.Control
+                        id={`item-id-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.item_id || ''}
                       />
                     </td>
 
-                    <td>
+                    <td style={{maxWidth: '200px', minWidth: '200px'}}>
                       <Select
                         name={`item-${index}`}
-                        id={`item${index}`}
+                        id={`item-name-${index}`}
                         className='form-control p-0 form-item-name'
                         classNamePrefix='select'
                         placeholder='Pilih/Ketik Nama Item'
@@ -1234,6 +1267,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
 
                     <td>
                       <Form.Control
+                        id={`category-name-${index}`}
                         readOnly
                         plaintext
                         value={orderDetailValues[index]?.category_name || ''}
@@ -1242,59 +1276,66 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
 
                     <td>
                       <Form.Control
+                        id={`quantity-${index}`}
                         value={element.quantity}
                         onChange={(e) => handleQuantityChange(index, e.target.value)}
                       />
                     </td>
 
-                    <td>
-                      <Form.Control
-                        readOnly
-                        plaintext
-                        value={`Rp. ${
-                          orderDetailValues[index]?.unit_price
-                            ? orderDetailValues[index]?.unit_price.toLocaleString('id')
-                            : 0
-                        }`}
-                      />
-                    </td>
+                    {paymentType !== 'gratis' && (
+                      <>
+                        <td>
+                          <Form.Control
+                            id={`unit-price-${index}`}
+                            readOnly
+                            plaintext
+                            value={`Rp. ${
+                              orderDetailValues[index]?.unit_price
+                                ? orderDetailValues[index]?.unit_price.toLocaleString('id')
+                                : 0
+                            }`}
+                          />
+                        </td>
 
-                    <td>{`Rp. ${
-                      orderDetailValues[index]?.total
-                        ? orderDetailValues[index]?.total.toLocaleString('id')
-                        : 0
-                    }`}</td>
+                        <td>
+                          <Form.Control
+                            id={`total-${index}`}
+                            readOnly
+                            plaintext
+                            value={`Rp. ${
+                              orderDetailValues[index]?.total
+                                ? orderDetailValues[index]?.total.toLocaleString('id')
+                                : 0
+                            }`}
+                          />
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
 
-                <tr>
-                  <td colSpan={6} className='text-end fw-bolder'>
-                    Biaya Survey
-                  </td>
-                  <td className=' fw-bolder'>
-                    {(() => {
-                      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
-                        return `Rp. 0`
-                      } else if (paymentType === 'survey') {
-                        return `Rp. 99.000`
-                      } else {
-                        return `Rp. 0`
-                      }
-                    })()}
-                  </td>
-                </tr>
+                {paymentType !== 'gratis' && (
+                  <tr>
+                    <td colSpan={6} className='text-end fw-bolder'>
+                      Biaya Survey
+                    </td>
+                    <td className=' fw-bolder'>
+                      {(() => {
+                        if (paymentType === 'survey') {
+                          return `Rp. 99.000`
+                        } else {
+                          return `Rp. 0`
+                        }
+                      })()}
+                    </td>
+                  </tr>
+                )}
 
                 <tr>
-                  <td colSpan={6} className='text-end fw-bolder'>
+                  <td colSpan={paymentType !== 'gratis' ? 6 : 4} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>
-                    {`Rp. ${
-                      grandTotal
-                        ? grandTotal.toLocaleString('id')
-                        : parseInt(orderDetail?.grand_total).toLocaleString('id')
-                    }`}
-                  </td>
+                  <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
                 </tr>
               </tbody>
             </Table>
@@ -1302,44 +1343,79 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Order) => void}> = ({upda
 
           <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Group controlId='formFile'>
-                <Form.Label>Upload Receipt</Form.Label>
+              <Form.Group>
+                <Form.Label>Upload File</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
                     type='file'
-                    accept='image/*'
+                    accept='image/jpeg, image/png'
                     className='input-field-image'
+                    multiple
                     hidden
+                    id='file-input'
+                    ref={evidenceRef}
                     onChange={handleFileChange}
                   />
 
-                  {image ? (
-                    <img
-                      src={image.blob ? image.blob : `${apiUrl}/public/receipt/${image.fileName}`}
-                      alt={image.fileName}
-                      className='image-preview'
-                    />
-                  ) : (
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  )}
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
                 </Form>
 
-                <div className='uploaded-row'>
-                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                <ListGroup className='pt-3'>
+                  {receiptFiles.length ? (
+                    receiptFiles.map((item, index) => (
+                      <ListGroup>
+                        <ListGroup.Item
+                          className='d-flex justify-content-between align-items-center'
+                          key={`${item?.name}-${index}-${item?.type}`}
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
+                          <span className='upload-content' onClick={() => handleFileClick(index)}>
+                            {item?.name}
+                          </span>
 
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    size='sm'
-                    color='#ed2b2a'
-                    style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
-                  />
-                </div>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+
+                        {selectedFileIndex === index && item && (
+                          <Image
+                            key={`${previewImage} - ${index}`}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={
+                              item instanceof File
+                                ? URL.createObjectURL(item)
+                                : `${apiUrl}/public/receipt/${previewImage}`
+                            }
+                            preview={{
+                              visible,
+                              src:
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/receipt/${previewImage}`,
+                              onVisibleChange: (value) => {
+                                setVisible(value)
+                              },
+                            }}
+                          />
+                        )}
+                      </ListGroup>
+                    ))
+                  ) : (
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
               </Form.Group>
             </Col>
 

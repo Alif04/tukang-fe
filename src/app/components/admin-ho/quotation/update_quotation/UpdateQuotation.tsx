@@ -315,7 +315,7 @@ const UpdateQuotationHO: FC = () => {
               <Row>
                 <Col xxl={6}>
                   <Form.Group controlId='formFile' className='mb-5'>
-                    <Form.Label>Upload Receipt</Form.Label>
+                    <Form.Label>Upload File </Form.Label>{' '}
                     <Form className='form-input-image' onClick={handleImageClick}>
                       <Form.Control
                         type='file'
@@ -334,7 +334,6 @@ const UpdateQuotationHO: FC = () => {
                         </div>
                       )}
                     </Form>
-
                     <div className='uploaded-row'>
                       <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 

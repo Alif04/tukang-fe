@@ -1,11 +1,12 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateComplaint.css'
 
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {useNavigate, useParams} from 'react-router-dom'
+import {Image} from 'antd'
 import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -26,11 +27,6 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
   const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
-
-  // Complaint Channel
-  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
-  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
-  const [complaintChannelName, setComplaintChannelName] = useState<string>('')
 
   const fetchComplaintData = async () => {
     try {
@@ -148,13 +144,17 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
   // Add Complaint
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintStatus, setComplaintStatus] = useState<any>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
-
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
 
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+
+  // Complaint Channel
+  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
+  const [complaintChannelName, setComplaintChannelName] = useState<string>('')
 
   // Handle Input Change
   const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,9 +185,7 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
-
       const existingFiles = [...complaintEvidence]
-
       const mergedFiles = existingFiles.concat(file)
 
       const {length: existingFilesLength} = existingFiles
@@ -217,6 +215,12 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
     if (evidenceRef.current?.value) {
       evidenceRef.current.value = ''
     }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(complaintEvidence[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
   }
 
   // Update Complaint Validation
@@ -268,7 +272,7 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
       if (complaintEvidence?.length) {
         complaintEvidence.forEach((item) => {
           if (item) {
-            formData.append(`complaint_evidences`, item, item?.name)
+            formData.append(`complaint_evidences`, item)
           }
         })
       }
@@ -550,12 +554,12 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group controlId='formFile'>
+              <Form.Group>
                 <Form.Label>Upload Bukti</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
                     type='file'
-                    accept='image/*'
+                    accept='image/jpeg, image/png'
                     className='input-field-image'
                     multiple
                     hidden
@@ -573,26 +577,49 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 <ListGroup className='pt-3'>
                   {complaintEvidence.length ? (
                     complaintEvidence.map((item, index) => (
-                      <ListGroup.Item
-                        key={`${item?.name}-${index}-${item?.type}`}
-                        className='d-flex justify-content-between'
-                        onClick={() => {
-                          setPreviewImage(item?.name)
-                          setVisible(true)
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <ListGroup>
+                        <ListGroup.Item
+                          className='d-flex justify-content-between align-items-center'
+                          key={`${item?.name}-${index}-${item?.type}`}
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                        <span className='upload-content'>{item?.name}</span>
+                          <span className='upload-content' onClick={() => handleFileClick(index)}>
+                            {item?.name}
+                          </span>
 
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          size='sm'
-                          color='#ed2b2a'
-                          style={{cursor: 'pointer'}}
-                          onClick={(e) => handleRemoveFile(index)}
-                        />
-                      </ListGroup.Item>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+
+                        {selectedFileIndex === index && item && (
+                          <Image
+                            key={`${previewImage} - ${index}`}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={
+                              item instanceof File
+                                ? URL.createObjectURL(item)
+                                : `${apiUrl}/public/complaints/${previewImage}`
+                            }
+                            preview={{
+                              visible,
+                              src:
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/complaints/${previewImage}`,
+                              onVisibleChange: (value) => {
+                                setVisible(value)
+                              },
+                            }}
+                          />
+                        )}
+                      </ListGroup>
                     ))
                   ) : (
                     <ListGroup.Item className='d-flex justify-content-center'>

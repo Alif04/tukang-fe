@@ -29,6 +29,20 @@ interface OrderDetail {
   updated_at?: string | null // Assuming this is a date string or null
 }
 
+interface OrderFiles {
+  id: number
+  order_id: number
+
+  path: string
+
+  created_at?: string
+  updated_at?: string
+  deleted_at?: string
+  created_by: number | null
+  updated_by?: number | null
+  deleted_by?: number | null
+}
+
 export interface Order {
   id?: number | null
 
@@ -68,4 +82,5 @@ export interface Order {
   work_orders?: any[]
 
   order_details: OrderDetail[]
+  order_files: OrderFiles[]
 }

@@ -237,7 +237,7 @@ const ViewMaterialVendor: React.FC = () => {
                   </InputGroup.Text>
 
                   <Form.Control
-                    placeholder='Filter'
+                    placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />

@@ -136,8 +136,8 @@ const UpdateWorkVendor: FC = () => {
                 ?.category,
               created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
-              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '',
-              time_spent: item.time_spent,
+              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
+              time_spent: item.time_spent ? item.time_spent : '-',
               updated_by: item.updated_by,
             }))
 
@@ -378,7 +378,7 @@ const UpdateWorkVendor: FC = () => {
       title: 'Time Spent',
       dataIndex: 'time_spent',
       key: 'time_spent',
-      align: 'left',
+      align: 'center',
       width: 140,
       onFilter: (value, record) => record.time_spent.includes(String(value)),
       sorter: (a, b) => a.time_spent.length - b.time_spent.length,

@@ -187,10 +187,72 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updat
               <h3 className='fw-normal'>123-876-90</h3>
             </div>
 
+            <div className='payment-method'>
+              <h1 className='fw-bolder'>Syarat & Ketentuan :</h1>
+
+              <ol>
+                <li className='fw-normal'>
+                  Jadwal survey/pengerjaan akan ditentukan oleh teknisi, setelah material tersedia
+                  dan barang diterima customer, serta barang yang akan dikerjakan jasa instalasi
+                  adalah barang dari Mitra10.
+                </li>
+
+                <li className='fw-normal'>
+                  Penjadwalan ulang pada H-1 tidak dikenakan biaya, penjadwalan ulang pada hari H
+                  akan dikenakan biaya tambahan minimal sebesar Rp 75.000.
+                </li>
+
+                <li className='fw-normal'>
+                  Pekerjaan tambahan (Pekerjaan diluar yang sudah diajukan & di transaksikan) akan
+                  dikenakan biaya tambahan.
+                </li>
+
+                <li className='fw-normal'>
+                  Semua jasa pemasangan wajib dilakukan survey. Biaya survey akan dikembalikan
+                  apabila biaya jasa instalasi/service minimal Rp 500.000.
+                </li>
+
+                <li className='fw-normal'>
+                  Quotation diberikan kepada customer maksimal H+2 hari kerja setelah survey
+                  selesai.
+                </li>
+
+                <li className='fw-normal'>
+                  Garansi 7 (Tujuh) hari untuk instalasi/service terhitung sejak tanggal serah
+                  terima pekerjaan dan hanya 1x kunjungan. Kerusakan produk yang terpasang, tidak
+                  menjadi bagian garansi dan proses instalasi/service.
+                </li>
+
+                <li className='fw-normal'>
+                  Biaya transportasi, jarak dari toko Mitra10 lokasi pengerjaan kurang dari 10KM
+                  adalah FREE : Lebih dari 10KM dikenakan biaya transportasi Rp 25.000 Max 40KM
+                </li>
+              </ol>
+            </div>
+
+            <div className='payment-method'>
+              <h1 className='fw-bolder'>Informasi :</h1>
+
+              <ol>
+                <li className='fw-normal'>
+                  Kontak layanan pelanggan Instalasi/Service (WA Only) : 0878-8482-1089.
+                </li>
+
+                <li className='fw-normal'>
+                  Operasional hari senin s/d jumat - Office hour 09:00 s/d 16:00.
+                </li>
+
+                <li className='fw-normal'>
+                  Orderan instalasi/service yang masuk diluar jam operasional akan diproses pada jam
+                  operasional.
+                </li>
+              </ol>
+            </div>
+
             <div className='payment-evidence'>
               <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>WA: 0813748392</h1>
-              <h1 className='fw-bolder'>Email: Installation.support@mitra10.com</h1>
+              <h1 className='fw-bolder'>WA : 0813748392</h1>
+              <h1 className='fw-bolder'>Email : Installation.support@mitra10.com</h1>
             </div>
 
             <h1 className='fw-bolder'>

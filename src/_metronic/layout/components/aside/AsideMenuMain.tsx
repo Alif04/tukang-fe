@@ -44,7 +44,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         title='Calendar ( Maintenance )'
         fontIcon='bi-app-indicator'
-        role={['Admin Vendor', 'Tukang']}
+        role={['Admin HO']}
       /> */}
 
       {/* Halaman Order */}
@@ -302,12 +302,6 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/invoice/new-invoice'
           title='New Invoice'
-          role={['Admin Vendor', 'Admin HO']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/invoice/detail-invoice'
-          title='Detail Invoice'
           role={['Admin Vendor', 'Admin HO']}
           hasBullet={true}
         />

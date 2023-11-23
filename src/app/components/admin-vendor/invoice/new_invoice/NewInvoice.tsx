@@ -1,20 +1,138 @@
-import React, {useState, FC} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './NewInvoice.css'
-import {Table, Row, Col, Form, Button} from 'react-bootstrap'
 
+import axios from 'axios'
+import Select from 'react-select'
+import Swal from 'sweetalert2'
+import {useNavigate} from 'react-router-dom'
+import {Table, Row, Col, Form, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
-const NewInvoiceVendor: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+interface Status {
+  value: number
+  category: string
+}
 
+const NewInvoiceVendor: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+
+  // Fetch Data Order
+  const [order, setOrder] = useState<any>()
+  const [orderId, setOrderId] = useState<string>('')
+  const [orderDetail, setOrderDetail] = useState<any>()
+
+  const getOrder = async () => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData.filter((status: any) =>
+      [
+        'SURVEYSTART',
+        'WORKSTART',
+        'WIP',
+        'WORKEND',
+        'INVESTIGATE',
+        'REWORK',
+        'REWORKSTART',
+        'RIP',
+        'REWORKEND',
+        'RESCHEDULE',
+      ].includes(status.category)
+    )
+
+    if (desiredStatus) {
+      const statuses = desiredStatus.map((x) => x.value)
+
+      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0&status=${statuses}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempOrder = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.id,
+        }))
+
+        setOrder(tempOrder)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } else {
+      console.error('Desired status not found in statusData')
+    }
+  }
+
+  const getOrderDetail = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${orderId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getOrder()
+
+    if (orderId) {
+      getOrderDetail()
+    }
+  }, [orderId])
+
+  // Format Date
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  // Select Order
+  const handleChangeSelectOrder = (element: any) => {
+    const selectedOrder = element.value
+    setOrderId(selectedOrder)
+  }
+
+  // Add Invoice
+  const [requestWorkTime, setRequestWorkTime] = useState<string>('')
+  const [surveyDate, setSurveyDate] = useState<string>('')
+  const [workStartDate, setWorkStartDate] = useState<string>('')
+  const [workEndDate, setworkEndDate] = useState<string>('')
+  const [invoiceFiles, setInvoiceFiles] = useState<Array<File | null>>([])
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setFileName(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
+
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setInvoiceFiles(file)
     }
   }
 
@@ -23,9 +141,17 @@ const NewInvoiceVendor: FC = () => {
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setFileName('No selected file')
-    setImage(null)
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...invoiceFiles]
+
+    newEvidances.splice(index, 1)
+
+    setInvoiceFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
   }
 
   return (
@@ -36,31 +162,24 @@ const NewInvoiceVendor: FC = () => {
             <Col lg={8}>
               <Row>
                 <Col>
-                  <Form>
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Order ID</Form.Label>
-                      <Form.Control type='text' />
-                    </Form.Group>
-
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Nama Jasa Pemasangan</Form.Label>
-                      <Form.Control type='text' readOnly />
-                    </Form.Group>
-                  </Form>
+                  <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
+                    <Form.Label>Order ID</Form.Label>
+                    <Select
+                      name='order-id'
+                      className='form-control p-0'
+                      placeholder='Ketik/Pilih Order Id'
+                      isSearchable={true}
+                      options={order}
+                      onChange={(e) => handleChangeSelectOrder(e)}
+                    />
+                  </Form.Group>
                 </Col>
 
                 <Col>
-                  <Form>
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Qoutation ID</Form.Label>
-                      <Form.Control type='text' />
-                    </Form.Group>
-
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Nama Lengkap Barang</Form.Label>
-                      <Form.Control type='text' readOnly />
-                    </Form.Group>
-                  </Form>
+                  <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
+                    <Form.Label>Qoutation ID</Form.Label>
+                    <Form.Control type='number' readOnly value={orderDetail?.quotation.Id} />
+                  </Form.Group>
                 </Col>
               </Row>
 
@@ -76,33 +195,16 @@ const NewInvoiceVendor: FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>Atas Pekerjaan</td>
-                        <td>500.000</td>
-                        <td>1</td>
-                        <td>500.000</td>
-                      </tr>
-
-                      <tr>
-                        <td>Pipa Air Panas</td>
-                        <td>3.000</td>
-                        <td>10</td>
-                        <td>30.000</td>
-                      </tr>
-
-                      <tr>
-                        <td>Paku</td>
-                        <td>50</td>
-                        <td>10</td>
-                        <td>500</td>
-                      </tr>
-
-                      <tr>
-                        <td>Pipa Paralon</td>
-                        <td>16.000</td>
-                        <td>10</td>
-                        <td>160.000</td>
-                      </tr>
+                      {orderDetail?.order_details.map((item: any) => (
+                        <>
+                          <tr>
+                            <td>{item?.unit}</td>
+                            <td>{item?.quantity}</td>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                          </tr>
+                        </>
+                      ))}
 
                       <tr>
                         <td colSpan={3} className='text-end fw-bolder'>
@@ -120,7 +222,9 @@ const NewInvoiceVendor: FC = () => {
                         <td colSpan={3} className='text-end fw-bolder'>
                           Grand Total
                         </td>
-                        <td className=' fw-bolder'>759.550</td>
+                        <td className=' fw-bolder'>
+                          {`Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`}
+                        </td>
                       </tr>
                     </tbody>
                   </Table>
@@ -130,24 +234,24 @@ const NewInvoiceVendor: FC = () => {
               <Row className='mb-5'>
                 <div className='costumer-information'>
                   <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Customer Name : MItra10 BSD
+                    Customer Name : {orderDetail?.members.full_name}
                   </h3>
                   <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    WA/Phone Number : 0812.867.6367
+                    WA/Phone Number : {orderDetail?.members.project_number}
                   </h3>
                   <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Email Address : alia.rosana@gmail.com
+                    Email Address : {orderDetail?.members.email}
                   </h3>
                   <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Address : Jl. Semangka IV/32 Jakarta Utara, DKI JAKARTA
+                    Address : {orderDetail?.project_address}
                   </h3>
                   <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Tanggal Request Survey: 10/2/2023
+                    Tanggal Request Survey: {formatDate(new Date(orderDetail?.survey_date))}
                   </h3>
                 </div>
               </Row>
 
-              <div className='d-flex justify-content-start'>
+              <div className='d-flex justify-content-center'>
                 <Button variant='dark-danger m-0' type='submit'>
                   Cancel
                 </Button>
@@ -161,55 +265,80 @@ const NewInvoiceVendor: FC = () => {
             <Col lg={4}>
               <div className='survey-information'>
                 <div className='form-header'>
-                  <h1 className='fw-bold'>WORK STATUS: </h1>
+                  <h1 className='fw-bold'>WORK STATUS : </h1>
                   <h1 className='fw-bold text-success'>INVOICED</h1>
                 </div>
 
                 <div className='form-body'>
-                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>Tanggal Survey : 12/2/2023</h3>
+                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>
+                    Tanggal Survey :{' '}
+                    {orderDetail?.survey_date ? formatDate(new Date(orderDetail?.survey_date)) : ''}
+                  </h3>
                   <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>
                     Tanggal Pengerjaan : 12/2/2023
                   </h3>
-                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>Lama Pengerjaan : 10 hari</h3>
-                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>Tanggal Selesai : 12/2/2023</h3>
+                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>
+                    Lama Pengerjaan :{' '}
+                    {orderDetail?.work_orders
+                      ? formatDate(new Date(orderDetail?.work_orders.time_spent))
+                      : ''}
+                  </h3>
+                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>
+                    Tanggal Selesai :{' '}
+                    {orderDetail?.work_orders
+                      ? formatDate(new Date(orderDetail?.work_orders.work_end_date))
+                      : ''}
+                  </h3>
                 </div>
               </div>
 
               <div className='invoice-evidence'>
                 <Form.Group controlId='formFile'>
-                  <Form.Label>UPLOAD DOCUMENT</Form.Label>
+                  <Form.Label>UPLOAD BUKTI</Form.Label>
                   <Form className='form-input-image' onClick={handleImageClick}>
                     <Form.Control
                       type='file'
                       accept='image/*'
                       className='input-field-image'
+                      multiple
                       hidden
+                      id='file-input'
+                      ref={evidenceRef}
                       onChange={handleFileChange}
                     />
 
-                    {image ? (
-                      <img src={image} alt={fileName} className='image-preview' />
-                    ) : (
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    )}
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
                   </Form>
 
-                  <div className='uploaded-row'>
-                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                  <ListGroup className='pt-3'>
+                    {invoiceFiles.length ? (
+                      invoiceFiles.map((item, index) => (
+                        <ListGroup.Item
+                          key={`${item?.name}-${index}-${item?.type}`}
+                          className='d-flex justify-content-between'
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                    <span className='upload-content'>{fileName}</span>
+                          <span className='upload-content'> {item?.name}</span>
 
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      size='sm'
-                      color='#ed2b2a'
-                      style={{cursor: 'pointer'}}
-                      onClick={handleRemoveFile}
-                    />
-                  </div>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
+                      </ListGroup.Item>
+                    )}
+                  </ListGroup>
                 </Form.Group>
               </div>
 

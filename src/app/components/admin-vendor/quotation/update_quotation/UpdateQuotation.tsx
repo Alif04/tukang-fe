@@ -439,7 +439,7 @@ const UpdateQuotationVendor: FC = () => {
                 <div className='form-body'>
                   <div className='update-quotation-evidence'>
                     <Form.Group controlId='formFile' className='mt-3'>
-                      <Form.Label>Upload Receipt</Form.Label>
+                      <Form.Label>Upload File </Form.Label>{' '}
                       <Form className='form-input-image' onClick={handleImageClick}>
                         <Form.Control
                           type='file'
@@ -457,7 +457,6 @@ const UpdateQuotationVendor: FC = () => {
                           <p>Add File</p>
                         </div>
                       </Form>
-
                       <ListGroup className='pt-3'>
                         {quotationFiles.length ? (
                           quotationFiles.map((item, index) => (
