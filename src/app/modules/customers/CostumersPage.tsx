@@ -38,7 +38,9 @@ const CostumersPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={costumersBreadCrumbs}>COSTUMERS LIST</PageTitle>
+            <PageTitle breadcrumbs={costumersBreadCrumbs}>
+              Daftar Customer Installasi & Service Mitra10
+            </PageTitle>
             <ViewCostumer />
           </>
         }

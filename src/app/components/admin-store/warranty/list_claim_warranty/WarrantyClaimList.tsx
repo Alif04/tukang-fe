@@ -37,8 +37,8 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     no_member: number
     costumer_name: string
     phone_number: number
-    installer_name: string
-    payment_status: string
+    services_name: string
+    status_order: string
     tanggal_aktif_garansi: string
   }
 
@@ -71,7 +71,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
-      title: 'Costumer Name',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -80,24 +80,24 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'No Telp / WA',
+      title: 'No. Telp / WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
       width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
-    // {
-    //   title: 'Nama Jasa Pemasangan',
-    //   dataIndex: 'installer_name',
-    //   key: 'installer_name',
-    //   align: 'left',
-    //   width: 180,
-    // },
     {
-      title: 'Status Pembayaran',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
+      title: 'Nama Jasa Pemasangan',
+      dataIndex: 'services_name',
+      key: 'services_name',
+      align: 'left',
+      width: 180,
+    },
+    {
+      title: 'Status Order',
+      dataIndex: 'status_order',
+      key: 'status_order',
       align: 'left',
       width: 150,
     },
@@ -268,7 +268,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={claimWarrantyData}
             rowKey={(record) => record.key}
-            scroll={{x: 1500}}
+            scroll={{x: 1800}}
             pagination={{position: ['bottomCenter']}}
           />
         </div>

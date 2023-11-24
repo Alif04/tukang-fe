@@ -212,6 +212,10 @@ export * from './admin-ho/refund/update_refund/UpdateRefund'
 // Detail Refund
 export * from './admin-ho/refund/detail_refund/DetailRefund'
 
+// REPORT
+// View Report
+export * from './admin-ho/reports/view_report/ViewReportHO'
+
 // VENDOR PAGE
 
 // CALENDAR WORK

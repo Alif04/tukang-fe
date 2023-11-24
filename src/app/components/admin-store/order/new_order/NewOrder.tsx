@@ -20,7 +20,7 @@ interface StoreItem {
   zip_code: string
 }
 
-interface Member {
+interface MemberSelectOptions {
   value: any
   label: any
   full_name: any
@@ -54,6 +54,11 @@ interface ItemPrice {
   price: string
 }
 
+interface Member {
+  id: number | null
+  city_id: number | null
+}
+
 const NewOrderStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -73,7 +78,7 @@ const NewOrderStore: FC = () => {
 
   // Member
   const [memberId, setMemberId] = useState<any>()
-  const [member, setMember] = useState<Member[]>([])
+  const [member, setMember] = useState<MemberSelectOptions[]>([])
   const [memberName, setMemberName] = useState<string>('')
   const [memberPhoneNumber, setMemberPhoneNumber] = useState<any>()
   const [memberEmail, setMemberEmail] = useState<any>()
@@ -106,6 +111,45 @@ const NewOrderStore: FC = () => {
   const [totalEstimateWorkDays, setTotalEstimateWorkDays] = useState<number>(10)
 
   // Fetch API Data
+  const getItem = async (itemNameSearch: string) => {
+    try {
+      if (orderDetailValues[0].item_name) {
+        const response = await axios.get(`${apiUrl}/items?take=0&search=${itemNameSearch}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempItem = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.service_name,
+            category_id: item.category_id,
+            default_price: item.default_price,
+            prices: item.prices.map((priceItem: any) => ({
+              id: priceItem.id,
+              item_id: priceItem.item_id,
+              store_id: priceItem.store_id,
+              periodic_start: priceItem.periodic_start,
+              periodic_end: priceItem.periodic_end,
+              min_order: priceItem.min_order,
+              price: priceItem.price,
+            })),
+          }))
+
+          setItem(tempItem)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     const getMember = async () => {
       try {
@@ -170,46 +214,9 @@ const NewOrderStore: FC = () => {
       }
     }
 
-    const getItem = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/items?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempItem = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.item_name,
-            category: item.category_name,
-            prices: item.prices.map((priceItem: any) => ({
-              id: priceItem.id,
-              item_id: priceItem.item_id,
-              unit_id: priceItem.unit_id,
-              store_id: priceItem.store_id,
-              periodic_start: priceItem.periodic_start,
-              periodic_end: priceItem.periodic_end,
-              nominal_discount: priceItem.nominal_discount,
-              price: priceItem.price,
-            })),
-          }))
-
-          setItem(tempItem)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     getMember()
     getSales()
-    getItem()
+    getItem('')
   }, [])
 
   // Store
@@ -284,13 +291,13 @@ const NewOrderStore: FC = () => {
   }
 
   // Member Information
-  const [memberInfo, setMemberInfo] = useState<Member | null>(null)
+  const [memberInfo, setMemberInfo] = useState<MemberSelectOptions | null>(null)
 
   // Sales Information
   const [salesInfo, setSalesInfo] = useState<Sales | null>(null)
 
   // Change Select Member
-  const handleChangeSelectMember = (element: Member | null) => {
+  const handleChangeSelectMember = (element: MemberSelectOptions | null) => {
     if (element && element.value == 'memberOption') {
       setMemberInfo(null)
       setMemberId(null)
@@ -299,7 +306,7 @@ const NewOrderStore: FC = () => {
       setMemberPhoneNumber('')
       setMemberAddress('')
     } else {
-      const newMemberInfo: Member = {
+      const newMemberInfo: MemberSelectOptions = {
         value: element?.value || 0,
         label: element?.label || '',
         full_name: element?.full_name || '',
@@ -322,7 +329,7 @@ const NewOrderStore: FC = () => {
   const handleChangeMemberFullName = (element: any) => {
     const newMemberFullName = element.target.value
     setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
+      ...(prevMemberInfo as MemberSelectOptions),
       full_name: newMemberFullName,
     }))
 
@@ -333,7 +340,7 @@ const NewOrderStore: FC = () => {
   const handleChangeMemberEmailAddress = (element: any) => {
     const newMemberEmail = element.target.value
     setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
+      ...(prevMemberInfo as MemberSelectOptions),
       email: newMemberEmail,
     }))
 
@@ -355,7 +362,7 @@ const NewOrderStore: FC = () => {
     const newMemberPhoneNumber = element.target.value
 
     setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
+      ...(prevMemberInfo as MemberSelectOptions),
       whatsapp_number: newMemberPhoneNumber,
     }))
 
@@ -366,7 +373,7 @@ const NewOrderStore: FC = () => {
   const handleChangeMemberAddress = (element: any) => {
     const newMemberAddress = element.target.value
     setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
+      ...(prevMemberInfo as MemberSelectOptions),
       address_1: newMemberAddress,
     }))
 
@@ -374,34 +381,31 @@ const NewOrderStore: FC = () => {
   }
 
   // Change Select Sales
-  const handleChangeSelectSales = (element: Sales | null) => {
-    if (element && element.value === 'salesOption') {
-      setSalesInfo(null)
-      setSalesId(null)
-      setSalesName('')
-    } else {
-      const newSalesInfo: Sales = {
-        value: element?.value || 0,
-        label: element?.label || 0,
-        full_name: element?.full_name || '',
+  const handleChangeSales = (element: any, value: any, name: string) => {
+    if (name === 'sales') {
+      if (element && element.value === 'salesOption') {
+        setSalesInfo(null)
+        setSalesId(null)
+        setSalesName('')
+      } else {
+        const newSalesInfo: Sales = {
+          value: element?.value || 0,
+          label: element?.label || 0,
+          full_name: element?.full_name || '',
+        }
+
+        setSalesInfo(newSalesInfo)
+        setSalesId(newSalesInfo.value)
+        setSalesName(newSalesInfo.full_name)
       }
+    } else if (name === 'full_name') {
+      setSalesInfo((prevSalesInfo) => ({
+        ...(prevSalesInfo as Sales),
+        [name]: value,
+      }))
 
-      setSalesInfo(newSalesInfo)
-      setSalesId(newSalesInfo.value)
-      setSalesName(newSalesInfo.full_name)
+      setSalesName(value)
     }
-  }
-
-  // Change Select Sales Name
-  const handleChangeSalesName = (element: any) => {
-    const newSalesName = element.target.value
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...(prevSalesInfo as Sales),
-      full_name: newSalesName,
-    }))
-
-    setSalesName(newSalesName)
   }
 
   // Add New Order
@@ -409,10 +413,13 @@ const NewOrderStore: FC = () => {
   // Order Details
   const [orderDetailValues, setOrderDetailValues] = useState([
     {
-      index_id: 0,
       item_id: null,
-      unit: '',
-      category_name: '',
+      item_code: '',
+      item_name: '',
+      installation_name: '',
+      min_order: 0,
+      default_price: 0,
+      discount_price: 0,
       unit_price: 0,
       quote_price: 0,
       quantity: 1,
@@ -423,16 +430,14 @@ const NewOrderStore: FC = () => {
   ])
 
   let handleAddForm = () => {
-    const newId =
-      orderDetailValues.length > 0
-        ? orderDetailValues[orderDetailValues.length - 1].index_id + 1
-        : 0
-
     const newForm = {
-      index_id: newId,
       item_id: null,
-      unit: '',
-      category_name: '',
+      item_code: '',
+      item_name: '',
+      installation_name: '',
+      min_order: 0,
+      default_price: 0,
+      discount_price: 0,
       unit_price: 0,
       quote_price: 0,
       quantity: 1,
@@ -454,7 +459,7 @@ const NewOrderStore: FC = () => {
     let updatedOrderDetailValues = newOrderDetailValues.map((value, newIndex) => {
       return {
         ...value,
-        index_id: newIndex,
+        id: newIndex,
       }
     })
 
@@ -462,34 +467,80 @@ const NewOrderStore: FC = () => {
   }
 
   // Change Select Item
-  const handleChangeSelectItem = (index: any, element: any) => {
-    if (!element) return
+  const handleChangeSelectItem = (index: any, item: any) => {
+    if (!item) return
 
-    const {label, value: selectedItemId, category: selectedCategoryName, prices} = element
-
+    const {label, value: selectedItemId, prices, default_price} = item
     const newOrderDetailValues = [...orderDetailValues]
+
+    const unitPrice =
+      newOrderDetailValues[index].quantity >= prices[0].min_order
+        ? +prices[0].price
+        : +default_price
+
+    // const total = unitPrice * newOrderDetailValues[index].quantity
 
     newOrderDetailValues[index] = {
       ...newOrderDetailValues[index],
       item_id: selectedItemId,
-      unit: label,
-      category_name: selectedCategoryName,
-      unit_price: prices[0].price,
-      total: prices[0].price,
+      installation_name: label,
+      min_order: prices[0].min_order,
+      default_price: default_price,
+      discount_price: prices[0].price,
+      unit_price: unitPrice,
+      // total,
     }
 
+    // setOrderDetailValues(() => {
+    //   const cache = [...orderDetailValues]
+
+    //   cache[index] = {
+    //     ...cache[index],
+    //     installation_name: label,
+    //     item_id: selectedItemId,
+    //     min_order: prices[0].min_order,
+    //     default_price: default_price,
+    //     unit_price: prices[0].price,
+    //     // total: total,
+    //   }
+
+    //   return cache
+    // })
+
     setOrderDetailValues(newOrderDetailValues)
+
+    // console.log(newOrderDetailValues)
   }
 
-  // Change Quantity Value
-  let handleQuantityChange = (index: any, value: any) => {
+  // Handle Change Order Detail
+  let handleChangeOrderDetail = (index: any, value: any, name: string) => {
     const updatedOrderDetailValues = [...orderDetailValues]
-    const selectedUnitPrice = updatedOrderDetailValues[index].unit_price
+
+    const quantity = updatedOrderDetailValues[index].quantity
+    const minOrder = orderDetailValues[index].min_order
+    const unitPrice = updatedOrderDetailValues[index].unit_price
+
+    // console.log('updatedOrderDetailValues:', updatedOrderDetailValues)
+    console.log('quantity:', quantity)
+    // console.log('minOrder:', minOrder)
+    // console.log('unitPrice:', unitPrice)
+
+    const servicePrice =
+      updatedOrderDetailValues[index].quantity >= orderDetailValues[index].min_order
+        ? orderDetailValues[index].discount_price
+        : orderDetailValues[index].default_price
+
+    // const total = servicePrice * updatedOrderDetailValues[index].quantity
 
     updatedOrderDetailValues[index] = {
       ...updatedOrderDetailValues[index],
-      quantity: value,
-      total: value * selectedUnitPrice,
+      [name]: value,
+      unit_price: servicePrice,
+      // total: total,
+    }
+
+    if (name === 'item_name') {
+      getItem(updatedOrderDetailValues[index].item_name)
     }
 
     setOrderDetailValues(updatedOrderDetailValues)
@@ -623,7 +674,7 @@ const NewOrderStore: FC = () => {
     }
 
     orderDetailValues.map((item) => {
-      if (item.unit === null || item.unit === '') {
+      if (item.item_id === null || item.item_name === '') {
         Swal.fire({
           title: 'Error',
           text: 'Please fill select item name form',
@@ -658,24 +709,17 @@ const NewOrderStore: FC = () => {
 
       formData.append('member_id', memberId)
       formData.append('sales_id', salesId)
+      formData.append('store_id', storeId)
       formData.append('project_address', memberAddress)
       formData.append('project_number', memberPhoneNumber)
       formData.append('request_survey', requestDate)
-      formData.append('grand_total', grandTotal.toString())
-      formData.append('grand_total_comission', grandTotalComission.toString())
-      formData.append('total_estimate_workdays', totalEstimateWorkDays.toString())
-      formData.append('store_id', storeId)
       formData.append('payment_type', paymentType)
 
       orderDetailValues.forEach((order, index) => {
         formData.append(`order_details[${index}][item_id]`, String(order.item_id))
-        formData.append(`order_details[${index}][unit]`, order.unit)
         formData.append(`order_details[${index}][unit_price]`, String(order.unit_price))
-        formData.append(`order_details[${index}][quote_price]`, String(order.quote_price))
         formData.append(`order_details[${index}][quantity]`, String(order.quantity))
         formData.append(`order_details[${index}][total]`, String(order.total))
-        formData.append(`order_details[${index}][survey_price]`, String(order.survey_price))
-        formData.append(`order_details[${index}][comission]`, String(order.comission))
       })
 
       const response = await axios
@@ -943,7 +987,7 @@ const NewOrderStore: FC = () => {
                         placeholder='Pilih/Ketik ID Sales'
                         isSearchable={true}
                         options={sales}
-                        onChange={(element) => handleChangeSelectSales(element)}
+                        onChange={(element) => handleChangeSales(element, element?.value, 'sales')}
                       />
                     </Col>
                   </Form.Group>
@@ -957,7 +1001,9 @@ const NewOrderStore: FC = () => {
                       <Form.Control
                         type='text'
                         value={salesName}
-                        onChange={(element) => handleChangeSalesName(element)}
+                        onChange={(element) =>
+                          handleChangeSales(element, element.target.value, 'full_name')
+                        }
                       />
                     </Col>
                   </Form.Group>
@@ -1022,7 +1068,7 @@ const NewOrderStore: FC = () => {
               </thead>
               <tbody>
                 {orderDetailValues.map((element, index) => (
-                  <tr key={element.index_id}>
+                  <tr key={`${element.item_id} - ${element.item_id} - ${element.quantity}`}>
                     <td>
                       <Button variant='danger' onClick={() => handleRemoveForm(index)}>
                         Remove
@@ -1031,39 +1077,55 @@ const NewOrderStore: FC = () => {
 
                     <td>
                       <Form.Control
-                        id={`item-id-${index}`}
-                        readOnly
+                        id={`item-code-${index}`}
+                        name={`order_details[${index}][item_code]`}
                         plaintext
-                        value={orderDetailValues[index]?.item_id || ''}
+                        // value={element.item_code}
+                        value={orderDetailValues[index]?.item_code || ''}
+                        onChange={(e) =>
+                          handleChangeOrderDetail(index, e.target.value, 'item_code')
+                        }
                       />
                     </td>
 
                     <td style={{maxWidth: '200px', minWidth: '200px'}}>
-                      <Select
+                      <Form.Control
                         id={`item-name-${index}`}
+                        plaintext
+                        name={`order_details[${index}][item_name]`}
+                        value={orderDetailValues[index]?.item_name || ''}
+                        onChange={(e) =>
+                          handleChangeOrderDetail(index, e.target.value, 'item_name')
+                        }
+                      />
+                    </td>
+
+                    <td>
+                      <Select
+                        id={`installation-name-${index}`}
                         className='form-control p-0 form-item-name'
                         classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Item'
+                        placeholder='Pilih/Ketik Nama Pemasangan'
                         isSearchable={true}
                         options={item}
+                        name={`order_details[${index}][item_id]`}
+                        value={{
+                          // value: orderDetailValues[index]?.item_id,
+                          label: orderDetailValues[index]?.installation_name,
+                        }}
                         onChange={(element) => handleChangeSelectItem(index, element)}
                       />
                     </td>
 
                     <td>
                       <Form.Control
-                        id={`category-name-${index}`}
-                        readOnly
-                        plaintext
-                        value={orderDetailValues[index]?.category_name || ''}
-                      />
-                    </td>
-
-                    <td>
-                      <Form.Control
                         id={`quantity-${index}`}
-                        value={element.quantity}
-                        onChange={(e) => handleQuantityChange(index, e.target.value)}
+                        // value={element.quantity}
+                        name={`order_details[${index}][quantity]`}
+                        value={orderDetailValues[index]?.quantity || ''}
+                        onChange={(e) =>
+                          handleChangeOrderDetail(index, parseInt(e.target.value), 'quantity')
+                        }
                       />
                     </td>
 

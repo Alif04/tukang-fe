@@ -311,14 +311,14 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/reports'
         title='Laporan'
-        role={['Store CS', 'Store Staff']}
+        role={['Store CS', 'Store Staff', 'Admin HO']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
       >
         <AsideMenuItem
           to='/reports/view-report'
           title='List Laporan'
-          role={['Store CS', 'Store Staff']}
+          role={['Store CS', 'Store Staff', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
