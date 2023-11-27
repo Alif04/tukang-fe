@@ -13,7 +13,7 @@ interface DataType {
   order_id: string
   store_name: string
   costumer_name: string
-  nama_pemasaran: string
+  service_name: string
   total: string
 }
 
@@ -40,9 +40,9 @@ const columns: ColumnsType<DataType> = [
     width: 140,
   },
   {
-    title: 'Nama Pemasaran',
-    dataIndex: 'nama_pemasaran',
-    key: 'nama_pemasaran',
+    title: 'Nama Pemasangan',
+    dataIndex: 'service_name',
+    key: 'service_name',
     align: 'left',
     width: 150,
   },

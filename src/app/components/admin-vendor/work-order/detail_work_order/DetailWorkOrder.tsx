@@ -63,13 +63,13 @@ const DetailWorkVendor: FC = () => {
                 <div className='detail-information'>
                   <div className='costumer-id mb-3'>
                     <p className='me-5'>
-                      <span>Costumer ID :</span> {orderDetail?.members.id}
+                      <span>Customer ID :</span> {orderDetail?.members.member_number}
                     </p>
                   </div>
 
                   <div className='costumer-name  mb-3'>
                     <p className='me-5'>
-                      <span>Costumer Name :</span> {orderDetail?.members.full_name}
+                      <span>Customer Name :</span> {orderDetail?.members.full_name}
                     </p>
                   </div>
 
@@ -113,16 +113,17 @@ const DetailWorkVendor: FC = () => {
                     </p>
                   </div>
 
-                  {/* <div className='costumer-name mb-3'>
+                  <div className='costumer-name mb-3'>
                     <p className='me-5'>
-                      <span>Nama Jasa Pemasangan : </span>Pemasangan Water Heater
+                      <span>Nama Jasa Pemasangan : </span>
+                      {orderDetail?.order_details[0].item.service_name}
                     </p>
-                  </div> */}
+                  </div>
 
                   <div className='email mb-3'>
                     <p className='me-5'>
                       <span>Item Name : </span>
-                      {orderDetail?.order_details[0].item_id}
+                      {orderDetail?.order_details[0].item_name}
                     </p>
                   </div>
 
@@ -147,7 +148,7 @@ const DetailWorkVendor: FC = () => {
                     <p className='me-5'>
                       <span>Harga Jasa : </span>
                       {`Rp. ${parseInt(
-                        orderDetail?.order_details[0].survey_price || 0
+                        orderDetail?.order_details[0].unit_price || 0
                       )?.toLocaleString('id')}`}
                     </p>
                   </div>
@@ -230,10 +231,11 @@ const DetailWorkVendor: FC = () => {
                   <th>Item</th>
                 </tr>
               </thead>
+
               <tbody>
                 {orderDetail?.order_details.map((item: any) => (
                   <tr>
-                    <td>{item?.unit}</td>
+                    <td>{item?.item_name}</td>
                   </tr>
                 ))}
               </tbody>

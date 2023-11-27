@@ -43,7 +43,7 @@ interface OrderFiles {
   deleted_by?: number | null
 }
 
-export interface Order {
+export interface Orders {
   id?: number | null
 
   member_id: number | null

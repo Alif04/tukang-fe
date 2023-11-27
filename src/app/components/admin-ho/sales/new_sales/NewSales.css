@@ -21,3 +21,16 @@
   width: 15px;
   height: 15px;
 }
+
+#new-sales button.button-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #04562b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}

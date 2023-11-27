@@ -1,4 +1,5 @@
 import React, {useState, useEffect, FC} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './NewSales.css'
 
@@ -6,30 +7,32 @@ import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, FormGroup, Table, Button} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
-interface StoreItem {
-  value: string
+interface StoreItemSelect {
+  value: number | null
   label: string
   address: string
-  city_id: BigInteger
+  city_id: number | null
   zip_code: string
 }
 
-interface Bank {
-  value: any
+interface BankSelect {
+  value: number | null
   label: string
 }
 
-interface Brands {
-  value: any
+interface BrandSelect {
+  value: number | null
   label: string
 }
 
-interface Categories {
-  value: any
+interface CategorySelect {
+  value: number | null
   label: string
+  commission: number
 }
 
 interface Sales {
@@ -37,12 +40,10 @@ interface Sales {
   bank_id: any
   full_name: string
   account_name: string
-  // bank_branch: string
-  // nik: string
   phone_number: any
   account_number: any
-  sales_brands: Brands[]
-  sales_categories: Categories[]
+  sales_brands: BrandSelect[]
+  sales_categories: CategorySelect[]
 }
 
 const NewSales: FC = () => {
@@ -191,7 +192,7 @@ const NewSales: FC = () => {
   }, [])
 
   // Store
-  const [store, setStore] = useState<StoreItem[]>([])
+  const [store, setStore] = useState<StoreItemSelect[]>([])
   const [storeId, setStoreId] = useState<string>('')
   const [storeName, setStoreName] = useState<string>('')
 
@@ -201,9 +202,7 @@ const NewSales: FC = () => {
     bank_id: null,
     full_name: '',
     account_name: '',
-    // nik: '',
     phone_number: '',
-    // bank_branch: '',
     account_number: '',
     sales_brands: [],
     sales_categories: [],
@@ -213,17 +212,24 @@ const NewSales: FC = () => {
   const [salesName, setSalesName] = useState<string>('')
   const [salesPhoneNumber, setSalesPhoneNumber] = useState<any>()
 
-  const [bank, setBank] = useState<Bank[]>([])
+  const [bank, setBank] = useState<BankSelect[]>([])
   const [bankId, setBankId] = useState<string>('')
   const [bankName, setBankName] = useState<string>('')
   const [accountNumber, setAccountNumber] = useState<any>()
   const [accountName, setAccountName] = useState<string>('')
 
   const [brandsId, setBrandsId] = useState<any>([])
-  const [brands, setBrands] = useState<Brands[]>([])
+  const [brands, setBrands] = useState<BrandSelect[]>([])
 
   const [categoryId, setCategoryId] = useState<any>([])
-  const [categories, setCategories] = useState<Categories[]>([])
+  const [categories, setCategories] = useState<CategorySelect[]>([])
+  const [categoryForm, setCategoryForm] = useState<CategorySelect[]>([
+    {
+      value: null,
+      label: '',
+      commission: 0,
+    },
+  ])
 
   // Change Select Store
   const handleChangeSelectStore = (element: any) => {
@@ -286,7 +292,7 @@ const NewSales: FC = () => {
       account_name: newAccountName,
     }))
 
-    setAccountName(newAccountName)
+    // setAccountName(newAccountName)
   }
 
   // Change Input WA / Phone Number
@@ -325,6 +331,42 @@ const NewSales: FC = () => {
     setCategoryId(newCategoryId)
   }
 
+  // Add Sales Category
+  const addSalesCategory = () => {
+    const newSalesCategory = {
+      value: null,
+      label: '',
+      commission: 0,
+    }
+
+    setCategoryForm((prevCategories) => [...prevCategories, newSalesCategory])
+  }
+
+  const handleRemoveSalesCategory = (index: any) => {
+    setCategoryForm((prevCategories) => {
+      const updatedCategories = [...prevCategories]
+      updatedCategories.splice(index, 1)
+      return updatedCategories
+    })
+  }
+
+  // Commission Handler
+  const categoryFormHandler = (e: any, index: number) => {
+    setCategoryForm((prevValues) => {
+      const updatedValues = [...prevValues]
+      console.log(updatedValues)
+
+      updatedValues[index] = {
+        ...updatedValues[index],
+        [e.target.name]: e.target.value,
+      }
+      console.log(updatedValues)
+      return updatedValues
+    })
+
+    console.log(categoryForm)
+  }
+
   // Sales Validation
   const SalesValidation = () => {
     let valid = true
@@ -336,21 +378,14 @@ const NewSales: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!salesId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Sales Id form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesName) {
+    } else if (!salesInfo.full_name) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Name Sales Consultant form',
         icon: 'error',
       })
       valid = false
-    } else if (!salesPhoneNumber) {
+    } else if (!salesInfo.phone_number) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill WA / Phone Number form',
@@ -364,28 +399,28 @@ const NewSales: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!categoryId) {
+    } else if (!salesInfo.sales_categories) {
       Swal.fire({
         title: 'Error',
         text: 'Please select Brands form',
         icon: 'error',
       })
       valid = false
-    } else if (!bankName) {
+    } else if (!salesInfo.bank_id) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nama Bank form',
         icon: 'error',
       })
       valid = false
-    } else if (!accountNumber) {
+    } else if (!salesInfo.account_number) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nomor Akun Bank form',
         icon: 'error',
       })
       valid = false
-    } else if (!accountName) {
+    } else if (!salesInfo.account_name) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nama Pemilik Akun form',
@@ -397,84 +432,57 @@ const NewSales: FC = () => {
     return valid
   }
 
-  // const SalesValidation = () => {
-  //   let valid = true
-
-  //   if (!storeId) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please select Store form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!salesId) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill Sales Id form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!salesName) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please fill Name Sales Consultant form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   } else if (!brandsId) {
-  //     Swal.fire({
-  //       title: 'Error',
-  //       text: 'Please select Brands form',
-  //       icon: 'error',
-  //     })
-  //     valid = false
-  //   }
-
-  //   return valid
-  // }
-
   // Handle Submit New Sales
   const handleSubmitNewSales = async () => {
-    // console.log(salesInfo)
-    if (SalesValidation()) {
-      const response = await axios
-        .post(`${apiUrl}/sales`, salesInfo, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          if (response.data.status === 200 || response.data.status === 201) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Success Create Sales',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500,
-            })
-          } else {
-            Swal.fire({
-              title: 'Error',
-              text: response.data.message,
-              icon: 'error',
-            })
-          }
+    if (!SalesValidation()) {
+      return false
+    }
 
-          navigate('/home')
-        })
-        .catch((error) => {
-          console.error(error)
+    const form = {
+      ...salesInfo,
+      sales_categories: categoryForm.map((value) => ({
+        category_id: value.value,
+        commission: value.commission,
+      })),
+    }
 
+    const response = await axios
+      .post(`${apiUrl}/sales`, form, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Create Sales',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
           Swal.fire({
             title: 'Error',
-            text: error.response.data.message,
+            text: response.data.message,
             icon: 'error',
           })
+        }
+
+        navigate('/home')
+      })
+      .catch((error) => {
+        console.error(error)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
         })
-    }
+      })
   }
 
   const handleCancelCreateSales = () => {
@@ -554,7 +562,7 @@ const NewSales: FC = () => {
                   <Form.Label>Nama Sales Consultant</Form.Label>
                   <Form.Control
                     type='text'
-                    value={salesName}
+                    value={salesInfo.full_name}
                     onChange={(element) => handleChangeSalesName(element)}
                   />
                 </Form.Group>
@@ -565,23 +573,8 @@ const NewSales: FC = () => {
                   <Form.Label>Nomor Akun Bank</Form.Label>
                   <Form.Control
                     type='number'
-                    value={accountNumber}
+                    value={salesInfo.account_number}
                     onChange={(element) => handleChangeAccountNumber(element)}
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Category</Form.Label>
-
-                  <Select
-                    placeholder='Pilih Category'
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    isMulti
-                    options={categories}
-                    onChange={(element) => handleChangeCategoryId(element)}
                   />
                 </Form.Group>
               </Col>
@@ -593,7 +586,7 @@ const NewSales: FC = () => {
                   <Form.Label>WA / Phone Number</Form.Label>
                   <Form.Control
                     type='number'
-                    value={salesPhoneNumber}
+                    value={salesInfo.phone_number}
                     onChange={(element) => handleChangeSalesPhoneNumber(element)}
                   />
                 </Form.Group>
@@ -604,7 +597,7 @@ const NewSales: FC = () => {
                   <Form.Label>Nama Pemilik Akun</Form.Label>
                   <Form.Control
                     type='text'
-                    value={accountName}
+                    value={salesInfo.account_name}
                     onChange={(element) => handleChangeAccountName(element)}
                   />
                 </Form.Group>
@@ -614,12 +607,81 @@ const NewSales: FC = () => {
             </Row>
           </div>
 
+          <div className='sales-category'>
+            <div className='d-flex justify-content-end align-items-center'>
+              <button className='button-add' onClick={() => addSalesCategory()}>
+                Tambah Sales Category
+              </button>
+            </div>
+
+            <Table hover responsive='md'>
+              <thead className='table-order-head'>
+                <tr>
+                  <th>Sales Category</th>
+                  <th>Commission</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categoryForm.map((value, index) => (
+                  <tr key={`${index}-sales_categories`}>
+                    <td>
+                      <Select
+                        id={`sales-category-${index}`}
+                        name={`category_id`}
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Pilih/Ketik Sales Category'
+                        isSearchable={true}
+                        options={categories}
+                        onChange={(newValue) => {
+                          setCategoryForm((prevValues) => {
+                            const updatedValues = [...prevValues]
+                            updatedValues[index] = {
+                              ...updatedValues[index],
+                              value: newValue?.value ?? null,
+                              label: newValue?.label ?? '',
+                            }
+                            return updatedValues
+                          })
+                        }}
+                      />
+                    </td>
+
+                    <td>
+                      <Form.Control
+                        id={`sales-commission-${index}`}
+                        name='commission'
+                        value={`${categoryForm[index].commission}`}
+                        onChange={(e) => {
+                          categoryFormHandler(e, index)
+                        }}
+                      />
+                    </td>
+
+                    <td>
+                      <Button variant='danger' onClick={() => handleRemoveSalesCategory(value)}>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+
           <div className='d-flex justify-content-center mt-5'>
             <Button variant='dark-danger' type='submit' onClick={handleCancelCreateSales}>
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitNewSales}>
+            <Button
+              variant='dark-primary'
+              type='submit'
+              onClick={() => {
+                handleSubmitNewSales()
+              }}
+            >
               Save
             </Button>
           </div>

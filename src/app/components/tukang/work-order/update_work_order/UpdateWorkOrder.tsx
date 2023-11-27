@@ -3,9 +3,9 @@ import React, {FC, useState, useEffect, useRef} from 'react'
 import './UpdateWorkOrder.css'
 
 import axios from 'axios'
-import Select from 'react-select'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import {Table} from 'antd'
+import {Table, Image} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Card, Row, Col, ListGroup} from 'react-bootstrap'
@@ -13,7 +13,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface Status {
-  value: any
+  value: number | null
   category: string
   label: string
 }
@@ -28,21 +28,15 @@ interface WorkOrderHistory {
   updated_by: string
 }
 
-interface Material {
-  value: BigInteger
-  label: string
-  prices: Array<ItemPrice>
-}
-
-interface ItemPrice {
-  id: BigInteger
-  item_id: BigInteger
-  unit_id: BigInteger
-  store_id: BigInteger
-  periodic_start: string
-  periodic_end: string
-  nominal_discount: string
-  price: string
+interface WorkOrderItem {
+  id: number | null
+  index: string
+  item_name: string
+  tukang_id: number | null
+  tukang_name: string
+  is_user: boolean
+  type: number
+  quantity: number | null
 }
 
 const UpdateWorkTukang: FC = () => {
@@ -51,7 +45,6 @@ const UpdateWorkTukang: FC = () => {
   const params = useParams()
 
   // Order Detail
-  const [orderId, setOrderId] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>(null)
 
   // Work Order History
@@ -59,8 +52,47 @@ const UpdateWorkTukang: FC = () => {
   const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
 
   // Work Order Status
-  const [workOrderStatusId, setWorkOrderStatusId] = useState<any>()
   const [workOrderStatus, setWorkOrderStatus] = useState<Status[]>([])
+  const [selectedWorkOrderStatus, setSelectedWorkOrderStatus] = useState<SingleValue<Status>>({
+    value: null,
+    label: '',
+    category: '',
+  })
+
+  // Add Work Order Item
+  const [workOrderItem, setWorkOrderItem] = useState<WorkOrderItem[]>([
+    {
+      id: null,
+      index: Date.now().toString(),
+      item_name: '',
+      tukang_id: null,
+      tukang_name: '',
+      is_user: false,
+      type: 1,
+      quantity: null,
+    },
+    {
+      id: null,
+      index: (Date.now() + 1).toString(),
+      item_name: '',
+      tukang_id: null,
+      tukang_name: '',
+      is_user: false,
+      type: 2,
+      quantity: null,
+    },
+  ])
+
+  // Update Work Order
+  const [additionalNotes, setAdditionalNotes] = useState<string>('')
+  const [dateTimeSurvey, setDateTimeSurvey] = useState<any>()
+  const [workTime, setWorkTime] = useState<any>()
+  const [workOrderEvidence, setWorkOrderEvidence] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const fetchOrderData = async () => {
     try {
@@ -81,39 +113,69 @@ const UpdateWorkTukang: FC = () => {
             setWorkOrderId(data.work_orders.id)
           }
 
-          if (data?.id) {
-            setOrderId(data.id)
+          if (data?.work_orders?.work_order_status[0]?.status_id) {
+            setSelectedWorkOrderStatus((prev) => ({
+              ...prev,
+              value: data.work_orders?.work_order_status[0]?.status_id,
+              label: data.work_orders?.work_order_status[0]?.status.category,
+              category: data.work_orders?.work_order_status[0]?.status.category,
+            }))
           }
 
-          // if (data?.work_orders?.work_order_status[0]?.status_id) {
-          //   setWorkOrderStatusId(data.work_orders.work_order_status[0].status_id)
-          // }
+          if (data?.work_orders?.work_order_status[0]?.description) {
+            setAdditionalNotes(data.work_orders.work_order_status[0].description)
+          }
 
-          // if (data?.work_orders?.work_order_status[0]?.description) {
-          //   setAdditionalNotes(data.work_orders.work_order_status[0].description)
-          // }
+          if (data?.work_orders?.work_order_status[0]?.work_date_time) {
+            setDateTimeSurvey(
+              formatDateTime(new Date(data.work_orders.work_order_status[0].work_date_time))
+            )
+          }
 
-          // if (data?.work_orders?.work_order_status[0]?.work_date_time) {
-          //   setDateTimeSurvey(data.work_orders.work_order_status[0].work_date_time)
-          // }
+          if (data?.work_orders?.work_order_status[0]?.time_spent) {
+            setWorkTime(data.work_orders.work_order_status[0].time_spent)
+          }
 
-          // if (data?.work_orders?.work_order_status[0]?.time_spent) {
-          //   setWorkTime(data.work_orders.work_order_status[0].time_spent)
-          // }
+          if (data?.work_orders?.work_order_evidences) {
+            const initialWorkOrderFiles = data.work_orders.work_order_evidences.map(
+              (item: any) => ({
+                id: item.id,
+                name: item.evidence_location,
+              })
+            )
 
-          if (data.work_orders) {
+            setWorkOrderEvidence(initialWorkOrderFiles)
+          }
+
+          if (data?.work_orders?.work_order_status) {
             const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
-              work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
-                ?.category,
+              work_order_status: item.status.category,
               created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
-              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '',
-              time_spent: item.time_spent,
+              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
+              time_spent: item.time_spent ? item.time_spent : '-',
               updated_by: item.updated_by,
             }))
 
             setWorkOrderHistory(workOrderHistoryData)
+          }
+
+          if (data?.work_orders?.work_order_status) {
+            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+              (item: any, index: number) => ({
+                id: item.id,
+                index: (Date.now() + index).toString(),
+                item_name: item.name,
+                tukang_id: item?.tukang_id,
+                tukang_name: item?.tukang_name,
+                is_user: item.is_customer,
+                type: item.type,
+                quantity: item.quantity,
+              })
+            )
+
+            setWorkOrderItem(workOrderItem)
           }
         })
     } catch (error) {
@@ -121,45 +183,8 @@ const UpdateWorkTukang: FC = () => {
     }
   }
 
-  const getMaterial = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/items?take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempMaterial = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.item_name,
-          prices: item.prices.map((priceItem: any) => ({
-            id: priceItem.id,
-            item_id: priceItem.item_id,
-            unit_id: priceItem.unit_id,
-            store_id: priceItem.store_id,
-            periodic_start: priceItem.periodic_start,
-            periodic_end: priceItem.periodic_end,
-            nominal_discount: priceItem.nominal_discount,
-            price: priceItem.price,
-          })),
-        }))
-
-        setMaterial(tempMaterial)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   useEffect(() => {
     fetchOrderData()
-    getMaterial()
   }, [])
 
   // Format Date
@@ -172,11 +197,15 @@ const UpdateWorkTukang: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const formatInputDate = (date: any) => {
+  const formatDateTime = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
-    return `${year}-${month}-${day}`
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const seconds = date.getSeconds().toString().padStart(2, '0')
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
   }
 
   // Filter Work Order Status
@@ -200,91 +229,73 @@ const UpdateWorkTukang: FC = () => {
     workOrderStatusOption()
   }, [])
 
-  // Update Work Order
-  const [additionalNotes, setAdditionalNotes] = useState<string>('')
-  const [dateTimeSurvey, setDateTimeSurvey] = useState<any>()
-  const [workTime, setWorkTime] = useState<any>()
-  const [workOrderEvidence, setWorkOrderEvidence] = useState<Array<File | null>>([])
-
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  // Add Material Order
-  const [material, setMaterial] = useState<Material[]>([])
-  const [materialValues, setMaterialValues] = useState([
-    {
-      id: 0,
-      item_id: null,
-      tukang_id: 3,
-      tukang_name: 'Gilang Prananta',
-      unit: '',
-      unit_price: 0,
-      quantity: 1,
-    },
-  ])
-
-  const [indexForm, setIndexForm] = useState<number>(0)
-
-  let handleAddForm = () => {
-    const newId = materialValues.length > 0 ? materialValues[materialValues.length - 1].id + 1 : 0
-
+  // Form Handler
+  let handleAddForm = (type: number) => {
     const newForm = {
-      id: newId,
-      item_id: null,
-      tukang_id: 3,
-      tukang_name: 'Gilang Prananta',
-      unit: '',
-      unit_price: 0,
-      quantity: 1,
+      id: null,
+      index: Date.now().toString(),
+      item_name: '',
+      tukang_id: null,
+      tukang_name: '',
+      is_user: false,
+      type: type,
+      quantity: null,
     }
 
-    setIndexForm(indexForm + 1)
-    setMaterialValues([...materialValues, newForm])
+    setWorkOrderItem((prev) => [...prev, newForm])
   }
 
-  let handleRemoveForm = (index: any) => {
-    const newMaterialValues = [...materialValues]
-    newMaterialValues.splice(index, 1)
-    setMaterialValues(newMaterialValues)
-    setIndexForm(indexForm - 1)
+  let handleRemoveForm = (index: any, type: number) => {
+    setWorkOrderItem((prev) => {
+      const updatedValues = [...prev]
+      const typeIndex = updatedValues.findIndex((item) => item.index === index)
 
-    let updatedMaterialValues = newMaterialValues.map((value, newIndex) => {
-      return {
-        ...value,
-        id: newIndex,
+      if (typeIndex !== -1) {
+        updatedValues.splice(typeIndex, 1)
       }
+
+      return updatedValues
     })
-
-    setMaterialValues(updatedMaterialValues)
   }
 
-  // Change Select Item
-  const handleChangeSelectItem = (index: any, element: any) => {
-    if (!element) return
+  let handleItemNameChange = (index: any, value: any, type: number) => {
+    const updatedMaterialValues = [...workOrderItem]
+    const filteredMaterialValues = updatedMaterialValues.filter((x) => x.type === type)
 
-    const {label, value: selectedItemId, prices} = element
+    if (filteredMaterialValues[index]) {
+      filteredMaterialValues[index] = {
+        ...filteredMaterialValues[index],
+        item_name: value,
+      }
 
-    const newMaterialValues = [...materialValues]
-
-    newMaterialValues[index] = {
-      ...newMaterialValues[index],
-      item_id: selectedItemId,
-      unit: label,
-      unit_price: prices[0].price,
+      setWorkOrderItem((prev) =>
+        prev.map((element) => (element.type === type ? filteredMaterialValues.shift()! : element))
+      )
     }
-
-    setMaterialValues(newMaterialValues)
   }
 
-  // Change Quantity Value
-  let handleQuantityChange = (index: any, value: any) => {
-    const updatedMaterialValues = [...materialValues]
+  let handleQuantityChange = (index: any, value: any, type: number) => {
+    const updatedMaterialValues = [...workOrderItem]
 
-    updatedMaterialValues[index] = {
-      ...updatedMaterialValues[index],
-      quantity: value,
+    if (type === 1) {
+      updatedMaterialValues[index] = {
+        ...updatedMaterialValues[index],
+        quantity: value,
+      }
     }
 
-    setMaterialValues(updatedMaterialValues)
+    setWorkOrderItem(updatedMaterialValues)
+  }
+
+  // Handle Checkbox Change
+  let handleCheckboxChange = (index: any, isChecked: boolean) => {
+    const updatedMaterialValues = [...workOrderItem]
+    const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
+    if (elementIndex) {
+      updatedMaterialValues[elementIndex].is_user = isChecked
+    }
+
+    setWorkOrderItem(updatedMaterialValues)
   }
 
   // Handle Input Change
@@ -303,24 +314,22 @@ const UpdateWorkTukang: FC = () => {
     setWorkTime(updatedInputValue)
   }
 
-  // Handle Change Status Work Order
-  const handleChangeSelectWorkOrder = (element: any) => {
-    const selectedWorkOrder = element.value
-    setWorkOrderStatusId(selectedWorkOrder)
-  }
-
   // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
-      const {length} = fileList
+      const existingFiles = [...workOrderEvidence]
+      const mergedFiles = existingFiles.concat(file)
 
-      for (let i = 0; i < length; i++) {
-        file[i] = fileList.item(i)
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
       }
 
-      setWorkOrderEvidence(file)
+      setWorkOrderEvidence(mergedFiles)
     }
   }
 
@@ -329,11 +338,29 @@ const UpdateWorkTukang: FC = () => {
     inputField.click()
   }
 
+  const handleFileClick = (index: number) => {
+    setPreviewImage(workOrderEvidence[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
+  }
+
+  const stringToHash = (string: string) => {
+    let hash = 0
+
+    if (string.length == 0) return hash
+
+    for (let i = 0; i < string.length; i++) {
+      const char = string.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash
+    }
+
+    return hash
+  }
+
   const handleRemoveFile = (index: number) => {
     const newEvidances = [...workOrderEvidence]
-
     newEvidances.splice(index, 1)
-
     setWorkOrderEvidence(newEvidances)
 
     // Update element value
@@ -343,50 +370,44 @@ const UpdateWorkTukang: FC = () => {
   }
 
   // Update Work Order
-
   const handleUpdateWorkOrder = async () => {
     const formData = new FormData()
 
-    formData.append('work_order_status', workOrderStatusId)
-
+    formData.append('work_order_status', selectedWorkOrderStatus?.value?.toString() ?? '')
     formData.append('status_details[description]', additionalNotes)
     formData.append('status_details[work_date_time]', dateTimeSurvey)
     formData.append('status_details[time_spent]', workTime)
 
-    materialValues.forEach((order, index) => {
-      formData.append(
-        `status_details[work_order_materials][${index}][item_id]`,
-        String(order.item_id)
-      )
-      formData.append(`status_details[work_order_materials][${index}][item_name]`, order.unit)
-      formData.append(
-        `status_details[work_order_materials][${index}][price]`,
-        order.unit_price.toString()
-      )
-      formData.append(
-        `status_details[work_order_materials][${index}][tukang_id]`,
-        order.tukang_id.toString()
-      )
-      formData.append(
-        `status_details[work_order_materials][${index}][tukang_name]`,
-        order.tukang_name
-      )
-      formData.append(
-        `status_details[work_order_materials][${index}][quantity]`,
-        order.quantity.toString()
-      )
-    })
+    if (workOrderItem) {
+      workOrderItem.forEach((order, index) => {
+        formData.append(`work_order_items[${index}][type]`, order.type.toString())
+        formData.append(`work_order_items[${index}][item_name]`, order.item_name)
+        formData.append(`work_order_items[${index}][is_customer]`, order.is_user.toString())
+
+        if (order.quantity) {
+          formData.append(`work_order_items[${index}][quantity]`, order.quantity.toString())
+        }
+
+        if (order.tukang_id) {
+          formData.append(`work_order_items[${index}][tukang_id]`, order.tukang_id.toString())
+        }
+
+        if (order.tukang_name) {
+          formData.append(`work_order_items[${index}][tukang_name]`, order.tukang_name)
+        }
+      })
+    }
 
     if (workOrderEvidence?.length) {
       workOrderEvidence.forEach((item) => {
-        if (item) {
+        if (item instanceof Blob) {
           formData.append(`work_order_evidences`, item, item?.name)
         }
       })
     }
 
     await axios
-      .post(`${apiUrl}/work-orders/${workOrderId}`, formData, {
+      .post(`${apiUrl}/work-orders/${workOrderId}/set-materials`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -470,7 +491,7 @@ const UpdateWorkTukang: FC = () => {
       title: 'Time Spent',
       dataIndex: 'time_spent',
       key: 'time_spent',
-      align: 'left',
+      align: 'center',
       width: 140,
       onFilter: (value, record) => record.time_spent.includes(String(value)),
       sorter: (a, b) => a.time_spent.length - b.time_spent.length,
@@ -482,7 +503,7 @@ const UpdateWorkTukang: FC = () => {
       <Card className='mb-5'>
         <Card.Body>
           <Row>
-            <Col xxl={6}>
+            <Col sm={12} md={12} xl={12} xxl={6} className='mb-5'>
               <Row>
                 <Form.Group as={Row}>
                   <Form.Label column sm='4'>
@@ -554,22 +575,49 @@ const UpdateWorkTukang: FC = () => {
                     <ListGroup className='pt-3'>
                       {workOrderEvidence.length ? (
                         workOrderEvidence.map((item, index) => (
-                          <ListGroup.Item
-                            key={`${item?.name}-${index}-${item?.type}`}
-                            className='d-flex justify-content-between'
-                          >
-                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                          <ListGroup key={`${stringToHash(item?.name ?? 'randomImageHash')}`}>
+                            <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                            <span className='upload-content'> {item?.name}</span>
+                              <span
+                                className='upload-content'
+                                onClick={() => handleFileClick(index)}
+                              >
+                                {item?.name}
+                              </span>
 
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              size='sm'
-                              color='#ed2b2a'
-                              style={{cursor: 'pointer'}}
-                              onClick={(e) => handleRemoveFile(index)}
-                            />
-                          </ListGroup.Item>
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size='sm'
+                                color='#ed2b2a'
+                                style={{cursor: 'pointer'}}
+                                onClick={(e) => handleRemoveFile(index)}
+                              />
+                            </ListGroup.Item>
+
+                            {selectedFileIndex === index && item && (
+                              <Image
+                                key={`${stringToHash(previewImage)} - ${index} - ${item?.name}`}
+                                width={200}
+                                style={{display: 'none'}}
+                                src={
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/work-orders/${previewImage}`
+                                }
+                                preview={{
+                                  visible,
+                                  src:
+                                    item instanceof File
+                                      ? URL.createObjectURL(item)
+                                      : `${apiUrl}/public/work-orders/${previewImage}`,
+                                  onVisibleChange: (value) => {
+                                    setVisible(value)
+                                  },
+                                }}
+                              />
+                            )}
+                          </ListGroup>
                         ))
                       ) : (
                         <ListGroup.Item className='d-flex justify-content-center'>
@@ -616,6 +664,7 @@ const UpdateWorkTukang: FC = () => {
                       Catatan Tambahan
                     </Form.Label>
                     <Form.Control
+                      value={additionalNotes}
                       style={{minHeight: '220px'}}
                       as='textarea'
                       onChange={handleInputNotes}
@@ -635,7 +684,7 @@ const UpdateWorkTukang: FC = () => {
               </Row>
             </Col>
 
-            <Col xxl={6}>
+            <Col sm={12} md={12} xl={12} xxl={6} className='mb-5'>
               <Row className='mb-4'>
                 <Form.Group as={Row} className='mb-5'>
                   <Form.Label column sm='6' className='fs-1 fw-bold pt-0 pb-0'>
@@ -647,8 +696,14 @@ const UpdateWorkTukang: FC = () => {
                       classNamePrefix='select'
                       placeholder='Select Status'
                       isSearchable={true}
+                      isClearable={true}
                       options={workOrderStatus}
-                      onChange={(e) => handleChangeSelectWorkOrder(e)}
+                      value={{
+                        value: selectedWorkOrderStatus?.value ?? null,
+                        label: selectedWorkOrderStatus?.label ?? '',
+                        category: selectedWorkOrderStatus?.category ?? '',
+                      }}
+                      onChange={(newValue) => setSelectedWorkOrderStatus(newValue)}
                     />
                   </Col>
                 </Form.Group>
@@ -659,7 +714,9 @@ const UpdateWorkTukang: FC = () => {
                   </Form.Label>
 
                   <Col sm='6'>
-                    <p className='fs-3 fw-semibold text-success'>{orderDetail?.status.category}</p>
+                    <p className='fs-3 fw-semibold text-success'>
+                      {orderDetail?.work_orders?.work_order_status[0]?.status.category}
+                    </p>
                   </Col>
                 </Form.Group>
               </Row>
@@ -668,20 +725,24 @@ const UpdateWorkTukang: FC = () => {
                 <Col>
                   <Form.Group>
                     <Form.Label className='fw-semibold'>Tanggal & Jam Survey</Form.Label>
-                    <Form.Control type='datetime-local' onChange={handleInputDateTimeSurvey} />
+                    <Form.Control
+                      type='datetime-local'
+                      value={dateTimeSurvey}
+                      onChange={handleInputDateTimeSurvey}
+                    />
                   </Form.Group>
                 </Col>
 
                 <Col>
                   <Form.Group>
                     <Form.Label className='fw-semibold'>Lama Pekerjaan</Form.Label>
-                    <Form.Control type='text' onChange={handleInputWorkTIme} />
+                    <Form.Control type='text' value={workTime} onChange={handleInputWorkTIme} />
                   </Form.Group>
                 </Col>
               </Row>
 
               <div className='d-flex justify-content-end'>
-                <Button variant='button-dark-primary' onClick={() => handleAddForm()}>
+                <Button variant='button-dark-primary' onClick={() => handleAddForm(1)}>
                   Tambah Material
                 </Button>
               </div>
@@ -691,6 +752,7 @@ const UpdateWorkTukang: FC = () => {
               <table className='table'>
                 <thead className='table-item-head'>
                   <tr>
+                    <th>Disediakan Customer</th>
                     <th>Item</th>
                     <th>Quantity</th>
                     <th>Action</th>
@@ -698,35 +760,93 @@ const UpdateWorkTukang: FC = () => {
                 </thead>
 
                 <tbody>
-                  {materialValues.map((element, index) => (
-                    <tr key={element.id}>
-                      <td>
-                        <Select
-                          id={`item-name-${index}`}
-                          className='form-control p-0 form-item-name'
-                          classNamePrefix='select'
-                          placeholder='Pilih/Ketik Nama Material'
-                          isSearchable={true}
-                          options={material}
-                          onChange={(element) => handleChangeSelectItem(index, element)}
-                        />
-                      </td>
+                  {workOrderItem
+                    .filter((x) => x.type === 1)
+                    .map((element, index) => (
+                      <tr
+                        key={`${stringToHash(element.index)}-material`}
+                        id={`${element.index}-material`}
+                      >
+                        <td>
+                          <Form.Check
+                            id={`is-user-${index}`}
+                            type='checkbox'
+                            checked={element.is_user}
+                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                          />
+                        </td>
 
-                      <td>
-                        <Form.Control
-                          id={`quantity-${index}`}
-                          value={element.quantity}
-                          onChange={(e) => handleQuantityChange(index, e.target.value)}
-                        />
-                      </td>
+                        <td>
+                          <Form.Control
+                            id={`item-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
+                          />
+                        </td>
 
-                      <td>
-                        <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                          Remove
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                        <td>
+                          <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity?.toString()}
+                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Button
+                            variant='danger'
+                            onClick={() => handleRemoveForm(element.index, 1)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+
+              <div className='d-flex justify-content-end'>
+                <Button variant='button-dark-primary' onClick={() => handleAddForm(2)}>
+                  Tambah Jasa Pemasangan
+                </Button>
+              </div>
+
+              <div className='fs-5 text-dark fw-bold mb-2'>List Jasa Pemasangan</div>
+
+              <table className='table'>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th>Jasa Pemasangan</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {workOrderItem
+                    .filter((x) => x.type === 2)
+                    .map((element, index) => (
+                      <tr
+                        key={`${stringToHash(element.index)}-service`}
+                        id={`${element.index}-service`}
+                      >
+                        <td>
+                          <Form.Control
+                            id={`service-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Button
+                            variant='danger'
+                            onClick={() => handleRemoveForm(element.index, 2)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
 

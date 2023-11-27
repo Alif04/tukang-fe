@@ -2,11 +2,24 @@
 import React from 'react'
 
 import {ViewReportStore} from '../../../components'
+import {ViewReportHO} from '../../../components'
 
 const ViewReport: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ViewReportStore />
+      {userRole == 'Store CS' || userRole === 'Store Staff' ? (
+        <>
+          <ViewReportStore />
+        </>
+      ) : userRole == 'Admin HO' ? (
+        <>
+          <ViewReportHO />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

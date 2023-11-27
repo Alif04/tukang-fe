@@ -1,4 +1,6 @@
 import React, {useState, useEffect, FC, SetStateAction} from 'react'
+import {WorkOrder, WorkOrderTukang} from '../../../../interfaces/work-order'
+import {Tukang} from '../../../../interfaces/tukang'
 
 import './UpdateWorkOrder.css'
 
@@ -10,8 +12,6 @@ import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
-import {WorkOrder, WorkOrderTukang} from '../../../../interfaces/work-order'
-import {Tukang} from '../../../../interfaces/tukang'
 
 interface Status {
   value: any
@@ -404,11 +404,11 @@ const UpdateWorkVendor: FC = () => {
 
                 <div className='detail-information'>
                   <div className='costumer-id mb-3'>
-                    <p className='me-5'>Costumer ID : {orderDetail?.members.id}</p>
+                    <p className='me-5'>Customer ID : {orderDetail?.members.member_number}</p>
                   </div>
 
                   <div className='costumer-name  mb-3'>
-                    <p className='me-5'>Costumer Name : {orderDetail?.members.full_name}</p>
+                    <p className='me-5'>Customer Name : {orderDetail?.members.full_name}</p>
                   </div>
 
                   <div className='telp mb-3'>
@@ -458,23 +458,40 @@ const UpdateWorkVendor: FC = () => {
 
                   <div className='costumer-name mb-3'>
                     <p className='me-5'>
-                      Nama Jasa Pemasangan : {orderDetail?.order_details[0].unit}
+                      Nama Jasa Pemasangan : {orderDetail?.order_details[0].item?.service_name}
                     </p>
                   </div>
 
                   <div className='email mb-3'>
-                    <p className='me-5'>Item Name : {orderDetail?.order_details[0].unit}</p>
+                    <p className='me-5'>Item Name : {orderDetail?.order_details[0].item_name}</p>
                   </div>
 
                   <div className='telp mb-3'>
                     <p className='me-5'>
                       Tipe Pembayaran :
-                      <span className='ms-1 text-uppercase'>{orderDetail?.payment_type}</span>
+                      <span className='ms-1 text-uppercase'>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'survey') {
+                            return `Berbayar & Survey`
+                          } else if (orderDetail?.payment_type === 'gratis') {
+                            return `Gratis`
+                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Berbayar & Pemasangan Tanpa Survey`
+                          } else {
+                            return ``
+                          }
+                        })()}
+                      </span>
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Harga Jasa : {orderDetail?.order_details[0].total}</p>
+                    <p className='me-5'>
+                      Harga Jasa :{' '}
+                      {`Rp. ${parseInt(
+                        orderDetail?.order_details[0].unit_price || 0
+                      )?.toLocaleString('id')}`}
+                    </p>
                   </div>
 
                   <div className='telp mb-3'>
@@ -482,7 +499,10 @@ const UpdateWorkVendor: FC = () => {
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Total Harga : {orderDetail?.grand_total}</p>
+                    <p className='me-5'>
+                      Total Harga :{' '}
+                      {`Rp. ${parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}`}
+                    </p>
                   </div>
                 </div>
               </div>

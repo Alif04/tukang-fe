@@ -32,7 +32,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     costumer_name: string
     phone_number: number
     email: string
-    nama_pemasangan: string
+    service_name: string
     quantity: number
     harga: number
     grand_total: number
@@ -86,12 +86,12 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     },
     {
       title: 'Nama Pemasangan',
-      dataIndex: 'nama_pemasangan',
-      key: 'nama_pemasangan',
+      dataIndex: 'service_name',
+      key: 'service_name',
       align: 'left',
       width: 135,
-      onFilter: (value, record) => record.nama_pemasangan.includes(String(value)),
-      sorter: (a, b) => a.nama_pemasangan.length - b.nama_pemasangan.length,
+      onFilter: (value, record) => record.service_name.includes(String(value)),
+      sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
     {
       title: 'Quantity',
@@ -198,7 +198,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
           email: item.members.email,
-          nama_pemasangan: item.m_order_details[0].item.category_name,
+          service_name: item.m_order_details[0].item.service_name,
           quantity: quantity,
           harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,

@@ -1,0 +1,11 @@
+#view-report-ho .title h1 {
+  width: fit-content;
+  position: relative;
+  margin-top: -28px;
+  padding: 0 10px 10px 10px;
+  background-color: white;
+}
+
+#view-report-ho .content-card.card {
+  margin: 0 0 20px 0;
+}

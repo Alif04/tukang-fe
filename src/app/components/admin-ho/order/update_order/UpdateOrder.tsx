@@ -1,113 +1,135 @@
-import React, {FC, useEffect, useState, ChangeEvent, useRef} from 'react'
-import {Order} from '../../../../interfaces/order'
+import React, {FC, useEffect, useState, useRef} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
+import {Orders} from '../../../../interfaces/order'
 
 import './UpdateOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
+import Select, {SingleValue} from 'react-select'
 import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface StoreItem {
-  value: string
+interface StoreItemSelect {
+  value: number | null
   label: string
   address: string
-  city_id: BigInteger
+  city_id: number | null
   zip_code: string
 }
 
-interface Member {
-  value: any
-  label: any
-  full_name: any
-  email: any
-  phone_number: any
-  whatsapp_number: any
-  address_1: any
+interface MemberSelect {
+  value: number | null
+  label: number | null
+  full_name: string
+  email: string
+  phone_number: string
+  whatsapp_number: string
+  address_1: string
 }
 
-interface Sales {
-  value: any
-  label: any
-  full_name: any
+interface SalesSelect {
+  value: number | null
+  label: number | null
+  full_name: string
 }
 
-interface Vendor {
-  value: any
+interface VendorSelect {
+  value: number | null
   label: string
 }
 
-interface ItemDescription {
-  value: string
+interface ItemSelect {
+  value: number | null
   label: string
-  category: string
-  prices: Array<ItemPrice>
+  category_id: number | null
+  default_price: number | null
+  prices: Array<{
+    id: number | null
+    item_id: number | null
+    store_id: number | null
+    periodic_start: string
+    periodic_end: string
+    price: string
+    min_order: string
+  }>
 }
 
-interface ItemPrice {
-  id: BigInteger
-  item_id: BigInteger
-  unit_id: BigInteger
-  store_id: BigInteger
-  periodic_start: string
-  periodic_end: string
-  nominal_discount: string
-  price: string
+interface Order {
+  member_id: number | null
+  sales_id: number | null
+  store_id: number | null
+  vendor_id: number | null
+  project_status_id: number | null
+  project_address: string
+  project_number: string
+  request_survey: string
+  payment_type: string
+  receipt_number: string
+  order_details: Array<{
+    id: number | null
+    item?: ItemSelect | null
+    item_id: number | null
+    item_code: string | null
+    item_name: string | null
+    quantity: number
+
+    unit_price: string | null
+    total: string | null
+  }>
+  order_files: Array<any>
+
+  [key: string]: any
 }
 
-const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePageTitle}) => {
+const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-
-  // If User Login is Admin Sales
-  const userId = localStorage.getItem('user_id') as any
-  const username = localStorage.getItem('username') as string
-  const userRole = localStorage.getItem('userRole')
-
-  const [indexForm, setIndexForm] = useState<number>(0)
 
   // Order Information Detail
   const [orderDetail, setOrderDetail] = useState<any>()
 
   // Store
-  const [store, setStore] = useState<StoreItem[]>([])
-  const [storeId, setStoreId] = useState<string>('')
-  const [storeName, setStoreName] = useState<string>('')
+  const [store, setStore] = useState<StoreItemSelect[]>([])
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItemSelect>>({
+    value: null,
+    label: '',
+    address: '',
+    city_id: null,
+    zip_code: '',
+  })
 
-  // Member
-  const [member, setMember] = useState<Member[]>([])
-  const [memberId, setMemberId] = useState<any>()
-  const [memberLabel, setMemberLabel] = useState<any>()
-  const [memberName, setMemberName] = useState<string>('')
-  const [memberPhoneNumber, setMemberPhoneNumber] = useState<any>()
-  const [memberEmail, setMemberEmail] = useState<any>()
-  const [memberAddress, setMemberAddress] = useState<any>()
+  // Order
+  const [orderForm, setOrderForm] = useState<Order>({
+    member_id: null,
+    sales_id: null,
+    store_id: null,
+    vendor_id: null,
+    project_status_id: null,
+    project_address: '',
+    project_number: '',
+    request_survey: '',
+    payment_type: '',
+    receipt_number: '',
+    order_details: [
+      {
+        id: null,
+        item: null,
+        item_id: null,
+        item_code: null,
+        item_name: null,
+        quantity: 1,
+        unit_price: null,
+        total: null,
+      },
+    ],
+    order_files: [],
+  })
 
-  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
-
-  // Sales
-  const [salesId, setSalesId] = useState<any>()
-  const [sales, setSales] = useState<Sales[]>([])
-  const [salesName, setSalesName] = useState<string>('')
-
-  // Vendor
-  const [vendorId, setVendorId] = useState<any>()
-  const [vendor, setVendor] = useState<Vendor[]>([])
-  const [vendorName, setVendorName] = useState<string>('')
-
-  const [type, setType] = useState<string>('')
-  const [paymentType, setPaymentType] = useState<string>('')
-
-  const [projectStatusId, setProjectStatusId] = useState<any>()
-  const [requestDate, setRequestDate] = useState<string>('')
-  const [receiptNumber, setReceiptNumber] = useState<any>()
-
+  const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
@@ -115,14 +137,78 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
 
-  // Order Table
-  const [item, setItem] = useState<ItemDescription[]>([])
+  // Member
+  const [member, setMember] = useState<MemberSelect[]>([])
+  const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
+    value: null,
+    label: null,
+    full_name: '',
+    email: '',
+    phone_number: '',
+    whatsapp_number: '',
+    address_1: '',
+  })
+
+  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
+
+  // Sales
+  const [sales, setSales] = useState<SalesSelect[]>([])
+  const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
+    value: null,
+    label: null,
+    full_name: '',
+  })
+
+  // Vendor
+  const [vendor, setVendor] = useState<VendorSelect[]>([])
+  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorSelect>>({
+    value: null,
+    label: '',
+  })
+
+  // Order Detail Table
+  const [item, setItem] = useState<ItemSelect[]>([])
   const [total, setTotal] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<number>(0)
-  const [grandTotalComission, setGrandTotalComission] = useState<number>(0)
-  const [totalEstimateWorkDays, setTotalEstimateWorkDays] = useState<number>(10)
 
   // Fetch API Data
+  const getItem = async (itemNameSearch: string) => {
+    try {
+      const response = await axios.get(`${apiUrl}/items?take=0&search=${itemNameSearch}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const item = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.service_name,
+          category_id: item.category_id,
+          default_price: item.default_price,
+          prices: item.prices.map((priceItem: any) => ({
+            id: priceItem.id,
+            item_id: priceItem.item_id,
+            store_id: priceItem.store_id,
+            periodic_start: priceItem.periodic_start,
+            periodic_end: priceItem.periodic_end,
+            min_order: priceItem.min_order,
+            price: priceItem.price,
+          })),
+        }))
+
+        setItem(item)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     const fetchOrderData = async () => {
       try {
@@ -139,21 +225,145 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
             const data = response.data.data
             setOrderDetail(data)
 
-            if (data?.store?.id && data?.store?.store_name) {
-              setStoreId(data.store.id)
-              setStoreName(data.store.store_name)
+            if (data?.store) {
+              setSelectedStore((prev) => ({
+                ...prev,
+                value: data.store.id,
+                label: data.store.store_name,
+                address: data.store.address,
+                city_id: data.store.city_id,
+                zip_code: data.store.zip_code,
+              }))
+
+              setOrderForm((prev) => ({
+                ...prev,
+                store_id: data.store_id,
+              }))
             }
 
             if (data?.payment_type) {
-              setPaymentType(data.payment_type)
+              if (data.payment_type === 'survey') {
+                setPaymentTypeValue(['berbayar', 'survey'])
+              } else if (data.payment_type === 'gratis') {
+                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+              } else if (data.payment_type === 'pemasangan_tanpa_survey') {
+                setPaymentTypeValue(['berbayar', 'pemasangan_tanpa_survey'])
+              } else {
+                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+              }
             }
 
-            if (data?.created_at) {
-              setRequestDate(new Date(data.created_at).toISOString().split('T')[0])
+            if (data?.members) {
+              setSelectedMember((prev) => ({
+                ...prev,
+                value: data.members.member_number,
+                label: data.members.member_number,
+                full_name: data.members.full_name,
+                email: data.members.email,
+                phone_number: data.members.phone_number,
+                whatsapp_number: data.members.whatsapp_number,
+                address_1: data.members.address_1,
+              }))
+
+              setOrderForm((prev) => ({
+                ...prev,
+                member_id: data.members.member_number,
+              }))
+            }
+
+            if (data?.project_address) {
+              setOrderForm((prev) => ({
+                ...prev,
+                project_address: data.project_address,
+              }))
             }
 
             if (data?.project_number) {
-              setMemberPhoneNumber(data.project_number)
+              setOrderForm((prev) => ({
+                ...prev,
+                project_number: data.project_number,
+              }))
+            }
+
+            if (data?.receipt_number) {
+              setOrderForm((prev) => ({
+                ...prev,
+                receipt_number: data.receipt_number,
+              }))
+            }
+
+            if (data?.sales) {
+              setSelectedSales((prev) => ({
+                ...prev,
+                value: data.sales.id,
+                label: data.sales.id,
+                full_name: data.sales.full_name,
+              }))
+
+              setOrderForm((prev) => ({
+                ...prev,
+                sales_id: data.sales.id,
+              }))
+            }
+
+            if (data?.vendor) {
+              setSelectedVendor((prev) => ({
+                ...prev,
+                value: data.vendor.id,
+                label: data.vendor.company_name,
+              }))
+
+              setOrderForm((prev) => ({
+                ...prev,
+                vendor_id: data.vendor.id,
+              }))
+            }
+
+            if (data?.request_survey) {
+              setOrderForm((prev) => ({
+                ...prev,
+                request_survey: new Date(data.request_survey).toISOString().split('T')[0],
+              }))
+            }
+
+            if (data?.order_details) {
+              setOrderForm((prev) => {
+                const previousDetailValues = data.order_details.map((item: any) => {
+                  const previousItem = {
+                    value: item.id,
+                    label: item.item.service_name,
+                    category_id: item.item.category.id,
+                    default_price: item.item.default_price,
+                    prices: [
+                      {
+                        id: item.item.prices[0].id,
+                        item_id: item.item.prices[0].item_id,
+                        store_id: item.item.prices[0].store_id,
+                        periodic_start: item.item.prices[0].periodic_start,
+                        periodic_end: item.item.prices[0].periodic_end,
+                        price: item.item.prices[0].price,
+                        min_order: item.item.prices[0].min_order,
+                      },
+                    ],
+                  }
+
+                  return {
+                    item: previousItem,
+                    id: item.id,
+                    item_id: item.item_id,
+                    item_code: item.item_code,
+                    item_name: item.item_name,
+                    quantity: item.quantity,
+                    unit_price: item.unit_price,
+                    total: item.total,
+                  }
+                })
+
+                return {
+                  ...prev,
+                  order_details: previousDetailValues,
+                }
+              })
             }
 
             if (data?.order_files) {
@@ -163,47 +373,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
               }))
 
               setReceiptFiles(initialOrderFilesValues)
-            }
-
-            if (data?.receipt_number) {
-              setReceiptNumber(data.receipt_number)
-            }
-
-            if (
-              data?.members?.id &&
-              data?.members?.full_name &&
-              data?.members.email &&
-              data?.members.phone_number &&
-              data?.members.address_1
-            ) {
-              setMemberId(data.members.id)
-              setMemberLabel(data.members.id)
-              setMemberName(data.members.full_name)
-              setMemberEmail(data.members.email)
-              setMemberAddress(data.members.address_1)
-            }
-
-            if (data?.sales?.id && data?.sales?.full_name) {
-              setSalesId(data.sales.id)
-              setSalesName(data.sales.full_name)
-            }
-
-            if (data?.order_details) {
-              const initialOrderDetailValues = data.order_details.map((item: any) => ({
-                id: item.id,
-                item_id: item.item_id,
-                order_status_id: item.order_status_id,
-                unit: item.unit,
-                category_name: item.item.category_name,
-                unit_price: parseInt(item.unit_price),
-                quote_price: item.quote_price,
-                quantity: item.quantity,
-                total: item.total,
-                survey_price: item.survey_price,
-                comission: item.comission,
-              }))
-
-              setOrderDetailValues(initialOrderDetailValues)
             }
 
             updatePageTitle(data)
@@ -254,17 +423,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
         })
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
-            value: item.id,
-            label: item.id,
+            value: item.member_number,
+            label: item.member_number,
             full_name: item.full_name,
             email: item.email,
             phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
-
-          const creatableOption = {value: 'memberOption'}
-          tempMember.push(creatableOption)
 
           setMember(tempMember)
         } else {
@@ -275,35 +441,32 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
       }
     }
 
-    // const getSales = async () => {
-    //   try {
-    //     const response = await axios.get(`${apiUrl}/sales`, {
-    //       headers: {
-    //         Accept: 'application/json',
-    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    //         'Access-Control-Allow-Origin': '*',
-    //         'ngrok-skip-browser-warning': 'true',
-    //       },
-    //     })
+    const getSales = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/sales`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
-    //     if (Array.isArray(response.data.data)) {
-    //       const tempSales = response.data.data.map((item: any) => ({
-    //         value: item.id,
-    //         label: item.id,
-    //         full_name: item.full_name,
-    //       }))
+        if (Array.isArray(response.data.data)) {
+          const tempSales = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.id,
+            full_name: item.full_name,
+          }))
 
-    //       const creatableOptionSales = {value: 'salesOption'}
-    //       tempSales.push(creatableOptionSales)
-
-    //       setSales(tempSales)
-    //     } else {
-    //       console.error('API response data is not an array:', response.data)
-    //     }
-    //   } catch (err) {
-    //     console.error(err)
-    //   }
-    // }
+          setSales(tempSales)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
 
     const getVendor = async () => {
       try {
@@ -322,47 +485,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
             label: item.company_name,
           }))
 
-          const creatableOptionVendor = {value: 'vendorOption'}
-          tempVendor.push(creatableOptionVendor)
-
           setVendor(tempVendor)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    const getItem = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/items?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempItem = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.item_name,
-            category: item.category_name,
-            prices: item.prices.map((priceItem: any) => ({
-              id: priceItem.id,
-              item_id: priceItem.item_id,
-              unit_id: priceItem.unit_id,
-              store_id: priceItem.store_id,
-              periodic_start: priceItem.periodic_start,
-              periodic_end: priceItem.periodic_end,
-              nominal_discount: priceItem.nominal_discount,
-              price: priceItem.price,
-            })),
-          }))
-
-          setItem(tempItem)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -374,12 +497,71 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
     fetchOrderData()
     getStore()
     getMember()
-    // getSales()
+    getSales()
     getVendor()
-    getItem()
+    getItem('')
   }, [])
 
-  // Order Status
+  // Order Form Handler
+  const orderFormHandler = (e: any) => {
+    setOrderForm({
+      ...orderForm,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const orderDetailsFormHandler = (e: any, index: number) => {
+    setOrderForm((prev) => {
+      const cache = {...prev}
+      cache.order_details[index] = {
+        ...cache.order_details[index],
+        [e.target.name]: e.target.value,
+      }
+
+      return cache
+    })
+  }
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      store_id: selectedStore?.value ?? null,
+    })
+  }, [selectedStore])
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      project_address: selectedMember?.address_1 ?? '',
+      project_number:
+        (isWhatsapp ? selectedMember?.whatsapp_number : selectedMember?.phone_number) ?? '',
+      member_id: selectedMember?.value ?? null,
+    })
+    // console.log('2. selectedMember, isWhatsapp')
+  }, [selectedMember, isWhatsapp])
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      sales_id: selectedSales?.value ?? null,
+    })
+    // console.log('2. selectedSales', selectedSales)
+  }, [selectedSales])
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      vendor_id: selectedVendor?.value ?? null,
+    })
+  }, [selectedVendor])
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
+    })
+  }, [paymentTypeValue])
+
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
@@ -388,54 +570,46 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
     const statusId = desiredStatus.value
 
-    setProjectStatusId(statusId)
-  }, [projectStatusId])
-
-  // Select Store
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    const updatedStoreName = element.label
-
-    setStoreId(updatedStoreId)
-    setStoreName(updatedStoreName)
-  }
+    setOrderForm({
+      ...orderForm,
+      project_status_id: statusId,
+    })
+  }, [orderForm.project_status_id])
 
   // Select Date Request
   const today = new Date().toISOString().split('T')[0]
 
-  const handleChangeRequestDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedRequestDate = event.target.value
-    setRequestDate(updatedRequestDate)
+  // Calculate each details
+  const calcEachDetails = () => {
+    setOrderForm((prev) => {
+      const order_details = prev.order_details.map((detail) => {
+        let newDetail = {...detail}
+
+        if (detail.item) {
+          const {item, quantity} = detail
+          const {prices, default_price} = item
+
+          const unitPrice =
+            prices && prices.length > 0 && quantity >= +prices[0].min_order
+              ? +prices[0].price
+              : default_price !== null
+              ? +default_price
+              : 0 // Provide a default value if default_price is null
+          const total = unitPrice * quantity
+
+          newDetail = {...newDetail, unit_price: unitPrice.toString(), total: total.toString()}
+        }
+
+        return newDetail
+      })
+
+      return {...prev, order_details}
+    })
   }
 
-  // Input No Receipt
-  const handleChangeNoReceipt = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedNoReceipt = event.target.value
-    setReceiptNumber(updatedNoReceipt)
-  }
-
-  // Payment Type ( Radio Button )
-  const handlePaymentOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedOptionPayment = event.target.value
-    setPaymentType(selectedOptionPayment)
-  }
-
-  const handleTypeOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedOptionType = event.target.value
-
-    if (selectedOptionType === 'gratis') {
-      setPaymentType('gratis')
-    } else if (selectedOptionType === 'berbayar') {
-      setPaymentType('survey')
-    }
-
-    setType(selectedOptionType)
-  }
-
-  // Upload File
+  // Upload Order File Handler
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
-
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
       const existingFiles = [...receiptFiles]
@@ -459,9 +633,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
 
   const handleRemoveFile = (index: number) => {
     const newEvidances = [...receiptFiles]
-
     newEvidances.splice(index, 1)
-
     setReceiptFiles(newEvidances)
 
     // Update element value
@@ -476,264 +648,45 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
     setSelectedFileIndex(index)
   }
 
-  // Member Information
-  const [memberInfo, setMemberInfo] = useState<Member | null>(null)
-
-  // Sales Information
-  const [salesInfo, setSalesInfo] = useState<Sales | null>(null)
-
-  // Vendor Information
-  const [vendorInfo, setVendorInfo] = useState<Vendor | null>(null)
-
-  // Change Select Member
-  const handleChangeSelectMember = (element: Member | null) => {
-    if (element && element.value == 'memberOption') {
-      setMemberInfo(null)
-      setMemberId(null)
-      setMemberLabel('')
-      setMemberName('')
-      setMemberEmail('')
-      setMemberPhoneNumber('')
-      setMemberAddress('')
-    } else {
-      const newMemberInfo: Member = {
-        value: element?.value || 0,
-        label: element?.label || 0,
-        full_name: element?.full_name || '',
-        email: element?.email || '',
-        phone_number: element?.phone_number || '',
-        whatsapp_number: element?.whatsapp_number || '',
-        address_1: element?.address_1 || '',
-      }
-
-      setMemberInfo(newMemberInfo)
-      setMemberId(newMemberInfo.value)
-      setMemberLabel(newMemberInfo.label)
-      setMemberName(newMemberInfo.full_name)
-      setMemberEmail(newMemberInfo.email)
-      setMemberPhoneNumber(newMemberInfo.whatsapp_number)
-      setMemberAddress(newMemberInfo.address_1)
-    }
-  }
-
-  // Change Select Member Full Name
-  const handleChangeMemberFullName = (element: any) => {
-    const newMemberFullName = element.target.value
-    setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
-      full_name: newMemberFullName,
-    }))
-
-    setMemberName(newMemberFullName)
-  }
-
-  // Change Select Member Email Address
-  const handleChangeMemberEmailAddress = (element: any) => {
-    const newMemberEmail = element.target.value
-    setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
-      email: newMemberEmail,
-    }))
-
-    setMemberEmail(newMemberEmail)
-  }
-
-  // Change Select Member Phone Number
-  const handleChangeRadio = (element: ChangeEvent<HTMLInputElement>) => {
-    setIsWhatsapp(!isWhatsapp)
-
-    if (isWhatsapp) {
-      setMemberPhoneNumber(memberInfo?.whatsapp_number)
-    } else {
-      setMemberPhoneNumber(memberInfo?.phone_number)
-    }
-  }
-
-  const handleChangeMemberPhoneNumber = (element: any) => {
-    const newMemberPhoneNumber = element.target.value
-    setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
-      whatsapp_number: newMemberPhoneNumber,
-    }))
-
-    setMemberPhoneNumber(newMemberPhoneNumber)
-  }
-
-  // Change Select Member Address
-  const handleChangeMemberAddress = (element: any) => {
-    const newMemberAddress = element.target.value
-    setMemberInfo((prevMemberInfo) => ({
-      ...(prevMemberInfo as Member),
-      address_1: newMemberAddress,
-    }))
-
-    setMemberAddress(newMemberAddress)
-  }
-
-  // Change Select Sales
-  // const handleChangeSelectSales = (element: Sales | null) => {
-  //   if (element && element.value === 'salesOption') {
-  //     setSalesInfo(null)
-  //     setSalesId(null)
-  //     setSalesName('')
-  //   } else {
-  //     const newSalesInfo: Sales = {
-  //       value: element?.value || 0,
-  //       label: element?.label || 0,
-  //       full_name: element?.full_name || '',
-  //     }
-
-  //     setSalesInfo(newSalesInfo)
-  //     setSalesId(newSalesInfo.value)
-  //     setSalesName(newSalesInfo.full_name)
-  //   }
-  // }
-
-  // Change Select Sales Name
-  // const handleChangeSalesName = (element: any) => {
-  //   const newSalesName = element.target.value
-
-  //   setSalesInfo((prevSalesInfo) => ({
-  //     ...(prevSalesInfo as Sales),
-  //     full_name: newSalesName,
-  //   }))
-
-  //   setSalesName(newSalesName)
-  // }
-
-  // Change Select Vendor
-  const handleChangeSelectVendor = (element: Vendor | null) => {
-    if (element && element.value == 'vendorOption') {
-      setVendorInfo(null)
-      setVendorId(null)
-      setVendorName('')
-    } else {
-      const newVendorInfo: Vendor = {
-        value: element?.value || 0,
-        label: element?.label || '',
-      }
-
-      setVendorInfo(newVendorInfo)
-      setVendorId(newVendorInfo.value)
-      setVendorName(newVendorInfo.label)
-    }
-  }
-
-  // Add New Order
-
   // Order Details
-  const [orderDetailValues, setOrderDetailValues] = useState([
-    {
-      id: '',
-      item_id: '',
-      order_status_id: 6,
-      unit: '',
-      category_name: '',
-      unit_price: 0,
-      quote_price: 0,
-      quantity: 0,
-      total: 0,
-      survey_price: 0,
-      comission: 0,
-    },
-  ])
-
-  let handleAddForm = () => {
-    const newForm = {
-      id: '',
-      item_id: '',
-      order_status_id: 6,
-      unit: '',
-      category_name: '',
-      unit_price: 0,
-      quote_price: 0,
-      quantity: 0,
-      total: 0,
-      survey_price: 0,
-      comission: 0,
+  const addOrderDetails = () => {
+    const newDetail = {
+      id: null,
+      item_id: null,
+      item_code: null,
+      item_name: null,
+      quantity: 1,
+      unit_price: null,
+      total: null,
     }
 
-    setIndexForm(indexForm + 1)
-    setOrderDetailValues([...orderDetailValues, newForm])
-  }
-
-  let handleRemoveForm = (index: any) => {
-    const newOrderDetailValues = [...orderDetailValues]
-    newOrderDetailValues.splice(index, 1)
-    setOrderDetailValues(newOrderDetailValues)
-    setIndexForm(indexForm - 1)
-
-    let updatedOrderDetailValues = newOrderDetailValues.map((value) => {
-      return {
-        ...value,
-        id: '',
-      }
+    setOrderForm((prev) => {
+      const cache = {...prev}
+      cache.order_details.push(newDetail)
+      return cache
     })
-
-    setOrderDetailValues(updatedOrderDetailValues)
   }
 
-  // Change Select Item
-  const handleChangeSelectItem = (index: any, element: any) => {
-    if (!element) return
-
-    const {label, value: selectedItemId, category: selectedCategoryName, prices} = element
-
-    const newOrderDetailValues = [...orderDetailValues]
-    newOrderDetailValues[index] = {
-      ...newOrderDetailValues[index],
-      item_id: selectedItemId,
-      unit: label,
-      category_name: selectedCategoryName,
-      unit_price: prices[0].price,
-      total: prices[0].price,
-    }
-
-    setOrderDetailValues(newOrderDetailValues)
-  }
-
-  // Change Quantity Value
-  let handleQuantityChange = (index: any, value: any) => {
-    const updatedOrderDetailValues = [...orderDetailValues]
-    const selectedUnitPrice = updatedOrderDetailValues[index].unit_price
-
-    updatedOrderDetailValues[index] = {
-      ...updatedOrderDetailValues[index],
-      quantity: value,
-      total: value * selectedUnitPrice,
-    }
-
-    setOrderDetailValues(updatedOrderDetailValues)
-  }
-
-  // Calculate Order Total Amount
-  const calculatedOrderTotal = () => {
-    return orderDetailValues.reduce((accumulator, item) => {
-      const quantity = item.quantity || 1
-      let hargaJasa = 0
-
-      if (paymentType === 'gratis') {
-        hargaJasa = 0
-      } else {
-        hargaJasa = item.unit_price
-      }
-
-      const calculatedTotal = quantity * hargaJasa
-      return accumulator + calculatedTotal
-    }, 0)
+  const handleRemoveForm = (index: any) => {
+    setOrderForm((prev) => {
+      const cache = {...prev}
+      cache.order_details.splice(index, 1)
+      return cache
+    })
   }
 
   // Calculate Grand Total Order Amount
-
   const calculatedGrandTotalOrder = () => {
-    return orderDetailValues.reduce(() => {
+    const grandTotal = orderForm.order_details.reduce((accumulator, element) => {
       let totalOrderAmount = 0
       let biayaSurvey = 0
 
-      if (paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey') {
+      const total = element.total ? parseInt(element.total) : 0
+
+      if (paymentTypeValue[0] === 'gratis') {
         biayaSurvey = 0
-        totalOrderAmount = total
-      } else if (paymentType === 'survey') {
+        totalOrderAmount = 0
+      } else if (paymentTypeValue[1] === 'survey') {
         biayaSurvey = 99000
         totalOrderAmount = 0
       } else {
@@ -742,215 +695,137 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
       }
 
       const calculatedGrandTotal = totalOrderAmount + biayaSurvey
-      return calculatedGrandTotal
+      return paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? accumulator + calculatedGrandTotal
+        : calculatedGrandTotal
     }, 0)
+
+    return grandTotal
   }
 
   useEffect(() => {
-    const calculatedTotal = calculatedOrderTotal()
     const calculatedGrandTotal = calculatedGrandTotalOrder()
-
-    setTotal(calculatedTotal)
     setGrandTotal(calculatedGrandTotal)
-  }, [orderDetailValues, total, paymentType, type])
-
-  // Update Order Validation
-  const UpdateOrderValidation = () => {
-    let valid = true
-
-    if (!storeId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select store',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!paymentType) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select payment type',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!memberId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill member id form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!memberName) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select or create member name form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!memberPhoneNumber) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill phone number field',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!memberEmail) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill member email form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!memberAddress) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill member address form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill sales id form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesName) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select or create sales name form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!requestDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill request date form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!receiptNumber) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill receipt number form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!vendorName) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select or create vendor name form',
-        icon: 'error',
-      })
-      valid = false
-    }
-
-    orderDetailValues.map((item) => {
-      if (item.unit === null || item.unit === '') {
-        Swal.fire({
-          title: 'Error',
-          text: 'Please fill select item name form',
-          icon: 'error',
-        })
-        valid = false
-      } else if (item.quantity == 0) {
-        Swal.fire({
-          title: 'Error',
-          text: 'Please fill quantity  form',
-          icon: 'error',
-        })
-        valid = false
-      }
-    })
-    return valid
-  }
+  }, [orderForm.order_details, paymentTypeValue])
 
   // Submit Update Order
+  const handleUpdateOrder = async () => {
+    const url = `${apiUrl}/orders/${params.id}`
+    const formData = new FormData()
+    let errorBags = []
+    const requiredOrderFields = [
+      {key: 'member_id', fieldName: 'Nomor Member'},
+      {key: 'sales_id', fieldName: 'Sales Information'},
+      {key: 'store_id', fieldName: 'Store'},
+      {key: 'vendor_id', fieldName: 'Vendor'},
+      {key: 'project_status_id', fieldName: 'Proyek Status'},
+      {key: 'project_address', fieldName: 'Alamat Proyek'},
+      {key: 'project_number', fieldName: 'Nomor Proyek'},
+      {key: 'request_survey', fieldName: 'Request Survey'},
+      {key: 'payment_type', fieldName: 'Payment Type'},
+      {key: 'receipt_number', fieldName: 'Nomor Receipt'},
+      {key: 'order_details', fieldName: 'Order Details'},
+    ]
 
-  const handleSubmitUpdateOrder = async () => {
-    if (UpdateOrderValidation()) {
-      const formData = new FormData()
+    const requiredOrderDetailsFields = [
+      {key: 'item_id', fieldName: 'Jasa Pemasangan'},
+      {key: 'quantity', fieldName: 'Quantity'},
+    ]
 
-      if (receiptFiles?.length) {
-        receiptFiles.forEach((item) => {
-          if (item) {
-            formData.append(`order_files`, item)
+    for (const key in orderForm) {
+      if (Object.prototype.hasOwnProperty.call(orderForm, key)) {
+        const value = orderForm[key]
+        const required = requiredOrderFields.find((fields: {key: string}) => fields.key === key)
+
+        if (required) {
+          if (value) {
+            if (key === 'order_details') {
+              orderForm.order_details.forEach((item: any, index: number) => {
+                if (item) {
+                  if (item.id) {
+                    formData.append(`order_details[${index}][id]`, item.id)
+                  }
+                  formData.append(`order_details[${index}][item_code]`, item.item_code)
+                  formData.append(`order_details[${index}][item_name]`, item.item_name)
+                  formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  formData.append(`order_details[${index}][quantity]`, item.quantity)
+                }
+              })
+            } else {
+              formData.append(key, orderForm[key])
+            }
+          } else {
+            errorBags.push({
+              message: `${required.fieldName} cannot be empty`,
+            })
           }
-        })
+        }
       }
+    }
 
-      formData.append('member_id', memberId)
-      formData.append('sales_id', salesId)
-      formData.append('vendor_id', vendorId)
-      formData.append('project_status_id', projectStatusId)
-      formData.append('request_survey', requestDate)
-      formData.append('project_address', memberAddress)
-      formData.append('receipt_number', receiptNumber.toString())
-      formData.append('grand_total', grandTotal.toString())
-      formData.append('grand_total_comission', grandTotalComission.toString())
-      formData.append('total_estimate_workdays', totalEstimateWorkDays.toString())
-      formData.append('store_id', storeId)
-      formData.append('payment_type', paymentType)
-
-      orderDetailValues.forEach((order, index) => {
-        formData.append(`order_details[${index}][id]`, String(order.id))
-        formData.append(`order_details[${index}][item_id]`, String(order.item_id))
-        formData.append(`order_details[${index}][order_status_id]`, String(order.order_status_id))
-        formData.append(`order_details[${index}][unit]`, order.unit)
-        formData.append(`order_details[${index}][unit_price]`, String(order.unit_price))
-        formData.append(`order_details[${index}][quote_price]`, String(order.quote_price))
-        formData.append(`order_details[${index}][quantity]`, String(order.quantity))
-        formData.append(`order_details[${index}][total]`, String(order.total))
-        formData.append(`order_details[${index}][survey_price]`, String(order.survey_price))
-        formData.append(`order_details[${index}][comission]`, String(order.comission))
+    if (errorBags.length > 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: errorBags[0].message,
+        icon: 'warning',
       })
 
-      const response = await axios
-        .post(`${apiUrl}/orders/${params.id}`, formData, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          const orderId = response.data.data.id
+      return false
+    }
 
-          if (response.data.status === 200 || response.data.status === 201) {
-            Swal.fire({
-              title: 'Success',
-              text: response.data.message,
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500,
-            }).then(() => {
-              navigate(`/order/preview-email/${orderId}`)
-            })
-          } else {
-            Swal.fire({
-              title: 'Error',
-              text: response.data.message,
-              icon: 'error',
-            })
-          }
-          navigate('/order/view-order')
-        })
-        .catch((error) => {
-          console.error(error)
+    if (receiptFiles?.length) {
+      receiptFiles.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`order_files`, item, item.name)
+        }
+      })
+    }
 
+    await axios
+      .post(url, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        const orderId = response.data.data.id
+
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Update Order',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            navigate(`/order/preview-email/${orderId}`)
+          })
+        } else {
           Swal.fire({
             title: 'Error',
-            text: error.response.data.message,
+            text: response.data.message,
             icon: 'error',
           })
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
         })
-    }
+      })
   }
 
   // Reprint Order
 
   const handleReprintOrder = async () => {
-    const response = await axios
+    await axios
       .request({
         url: `${apiUrl}/orders/${params.id}/counter`,
         method: 'post',
@@ -978,7 +853,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
           })
         }
 
-        navigate(`/order/preview-email/${params.id}`)
+        navigate(`/order/printout-order/${params.id}`)
       })
       .catch((error) => {
         console.error(error)
@@ -1011,12 +886,16 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                         classNamePrefix='select'
                         placeholder='Pilih Toko'
                         isSearchable={true}
+                        isClearable={true}
                         options={store}
                         value={{
-                          value: storeId,
-                          label: storeName,
+                          value: selectedStore?.value ?? null,
+                          label: selectedStore?.label ?? '',
+                          address: selectedStore?.address ?? '',
+                          city_id: selectedStore?.city_id ?? null,
+                          zip_code: selectedStore?.zip_code ?? '',
                         }}
-                        onChange={(element) => handleChangeSelectStore(element)}
+                        onChange={(newValue) => setSelectedStore(newValue)}
                       />
                     </Col>
                   </Form.Group>
@@ -1024,11 +903,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Row>
-                    <Col xxl={4}>
+                    <Col xxl={3}>
                       <Form.Label className='payment-type'>Payment Type :</Form.Label>
                     </Col>
 
-                    <Col className='form-check-request' xxl={8}>
+                    <Col className='form-check-request' xxl={9}>
                       <Row>
                         <Col xxl={5}>
                           <Form.Check
@@ -1038,8 +917,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                             name='type'
                             type='radio'
                             value='gratis'
-                            checked={paymentType === 'gratis'}
-                            onChange={handleTypeOptionChange}
+                            checked={paymentTypeValue[0] === 'gratis'}
+                            onChange={() =>
+                              setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+                            }
                           />
                         </Col>
 
@@ -1051,9 +932,13 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                             name='paymentType'
                             type='radio'
                             value='survey'
-                            checked={paymentType === 'survey'}
-                            disabled={paymentType === 'gratis'}
-                            onChange={handlePaymentOptionChange}
+                            checked={
+                              paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'survey'
+                            }
+                            disabled={paymentTypeValue[0] === 'gratis'}
+                            onChange={() => {
+                              setPaymentTypeValue(['berbayar', 'survey'])
+                            }}
                           />
                         </Col>
                       </Row>
@@ -1067,12 +952,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                             name='type'
                             type='radio'
                             value='berbayar'
-                            checked={
-                              type === 'berbayar' ||
-                              paymentType === 'pemasangan_tanpa_survey' ||
-                              paymentType === 'survey'
-                            }
-                            onChange={handleTypeOptionChange}
+                            checked={paymentTypeValue[0] === 'berbayar'}
+                            onChange={() => {
+                              setPaymentTypeValue(['berbayar', 'survey'])
+                            }}
                           />
                         </Col>
 
@@ -1085,10 +968,15 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                             type='radio'
                             value='pemasangan_tanpa_survey'
                             checked={
-                              paymentType === 'gratis' || paymentType === 'pemasangan_tanpa_survey'
+                              (paymentTypeValue[0] === 'gratis' &&
+                                paymentTypeValue[1] === 'pemasangan_tanpa_survey') ||
+                              (paymentTypeValue[0] === 'berbayar' &&
+                                paymentTypeValue[1] === 'pemasangan_tanpa_survey')
                             }
-                            disabled={paymentType === 'gratis'}
-                            onChange={handlePaymentOptionChange}
+                            disabled={paymentTypeValue[0] === 'gratis'}
+                            onChange={() => {
+                              setPaymentTypeValue([paymentTypeValue[0], 'pemasangan_tanpa_survey'])
+                            }}
                           />
                         </Col>
                       </Row>
@@ -1106,24 +994,25 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>No Member</Form.Label>
-                    <CreatableSelect
+                    <Select
                       name='member'
                       id='member'
                       className='form-control p-0 form-item-name'
                       classNamePrefix='select'
-                      placeholder='Pilih/Ketik Nama Member'
+                      placeholder='Ketik No Telepon Member/Nomor Member'
                       isSearchable={true}
+                      isClearable={true}
                       options={member}
                       value={{
-                        value: memberId,
-                        label: memberLabel,
-                        full_name: memberName,
-                        email: memberEmail,
-                        phone_number: memberPhoneNumber,
-                        whatsapp_number: memberPhoneNumber,
-                        address_1: memberAddress,
+                        value: selectedMember?.value ?? null,
+                        label: selectedMember?.value ?? null,
+                        full_name: selectedMember?.full_name ?? '',
+                        email: selectedMember?.email ?? '',
+                        phone_number: selectedMember?.phone_number ?? '',
+                        whatsapp_number: selectedMember?.whatsapp_number ?? '',
+                        address_1: selectedMember?.address_1 ?? '',
                       }}
-                      onChange={(element) => handleChangeSelectMember(element)}
+                      onChange={(newValue) => setSelectedMember(newValue)}
                     />
                   </Form.Group>
                 </Col>
@@ -1140,7 +1029,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                           name='group1'
                           value='1'
                           type='checkbox'
-                          onChange={handleChangeRadio}
+                          onChange={() => setIsWhatsapp(!isWhatsapp)}
                         />
                       </div>
                     </div>
@@ -1149,8 +1038,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
                         disabled
-                        value={memberPhoneNumber}
-                        onChange={(element) => handleChangeMemberPhoneNumber(element)}
+                        name='project_number'
+                        value={orderForm.project_number}
+                        onChange={(event) => orderFormHandler(event)}
                       />
                     </InputGroup>
                   </Form.Group>
@@ -1161,22 +1051,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Customer</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={memberName}
-                      onChange={(element) => handleChangeMemberFullName(element)}
-                    />
+                    <Form.Control type='text' value={selectedMember?.full_name || ''} />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={memberEmail}
-                      onChange={(element) => handleChangeMemberEmailAddress(element)}
-                    />
+                    <Form.Control type='text' value={selectedMember?.email || ''} />
                   </Form.Group>
                 </Col>
               </Row>
@@ -1188,8 +1070,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
-                      value={memberAddress}
-                      onChange={(element) => handleChangeMemberAddress(element)}
+                      value={orderForm.project_address}
+                      onChange={(event) => orderFormHandler(event)}
                     />
                   </Form.Group>
                 </Col>
@@ -1200,88 +1082,54 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
               <div className='form-header'>
                 <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
               </div>
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label column sm='4'>
+                  Sales ID :
+                </Form.Label>
 
-              {userRole === 'SALES' ? (
-                <>
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      Sales ID :
-                    </Form.Label>
+                <Col sm='8'>
+                  <Select
+                    name='sales'
+                    id='sales'
+                    className='form-control p-0 form-item-name'
+                    classNamePrefix='select'
+                    placeholder='Pilih/Ketik Nama Sales'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={sales}
+                    value={{
+                      value: selectedSales?.value ?? null,
+                      label: selectedSales?.value ?? null,
+                      full_name: selectedSales?.full_name ?? '',
+                    }}
+                    onChange={(newValue) => setSelectedSales(newValue)}
+                  />
+                </Col>
+              </Form.Group>
 
-                    <Col sm='8'>
-                      <Form.Control type='number' readOnly value={userId} />
-                    </Col>
-                  </Form.Group>
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label column sm='4'>
+                  Nama Sales :
+                </Form.Label>
 
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      Nama Sales :
-                    </Form.Label>
+                <Col sm='8'>
+                  <Form.Control type='text' value={selectedSales?.full_name || ''} />
+                </Col>
+              </Form.Group>
 
-                    <Col sm='8'>
-                      <Form.Control type='text' readOnly value={username} />
-                    </Col>
-                  </Form.Group>
-                </>
-              ) : (
-                <>
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      Sales ID :
-                    </Form.Label>
-
-                    <Col sm='8'>
-                      <Form.Control type='number' disabled value={salesId} />
-
-                      {/* <CreatableSelect
-                        name='sales'
-                        id='sales'
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Sales'
-                        isSearchable={true}
-                        options={sales}
-                        value={{
-                          value: salesId,
-                          label: salesId,
-                          full_name: salesName,
-                        }}
-                        onChange={(element) => handleChangeSelectSales(element)}
-                      /> */}
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      Nama Sales :
-                    </Form.Label>
-
-                    <Col sm='8'>
-                      <Form.Control type='text' disabled value={salesName} />
-                      {/* 
-                      <Form.Control
-                        type='text'
-                        value={salesName}
-                        onChange={(element) => handleChangeSalesName(element)}
-                      /> */}
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      No Receipt
-                    </Form.Label>
-                    <Col sm='8'>
-                      <Form.Control
-                        name='no-receipt'
-                        type='number'
-                        value={receiptNumber}
-                        onChange={handleChangeNoReceipt}
-                      />
-                    </Col>
-                  </Form.Group>
-                </>
-              )}
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label column sm='4'>
+                  No Receipt
+                </Form.Label>
+                <Col sm='8'>
+                  <Form.Control
+                    name='receipt_number'
+                    type='number'
+                    value={orderForm.receipt_number}
+                    onChange={(e) => orderFormHandler(e)}
+                  />
+                </Col>
+              </Form.Group>
             </div>
           </div>
 
@@ -1290,39 +1138,50 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
               <Form.Group>
                 <Form.Label>Nama Vendor :</Form.Label>
 
-                <CreatableSelect
+                <Select
                   name='vendor'
                   id='vendor'
                   className='form-control p-0 form-item-name'
                   classNamePrefix='select'
                   placeholder='Pilih/Ketik Nama Vendor'
                   isSearchable={true}
+                  isClearable={true}
                   options={vendor}
                   value={{
-                    value: vendorId,
-                    label: vendorName,
+                    value: selectedVendor?.value ?? null,
+                    label: selectedVendor?.label ?? '',
                   }}
-                  onChange={(element) => handleChangeSelectVendor(element)}
+                  onChange={(newValue) => setSelectedVendor(newValue)}
                 />
               </Form.Group>
+              <Form.Text className='fs-8 text-transparent'>
+                *Tanggal Request <span className='fw-bolder text-decoration-underline'>bukan</span>{' '}
+                tanggal pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+              </Form.Text>
             </Col>
 
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3}>
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date'>
               <Form.Group>
                 <Form.Label>Tanggal Request</Form.Label>
                 <Form.Control
-                  name='request-date'
+                  name='request_survey'
                   type='date'
-                  value={requestDate}
-                  onChange={handleChangeRequestDate}
+                  value={orderForm.request_survey}
+                  onChange={(e) => orderFormHandler(e)}
+                  min={today}
                 />
+                <Form.Text className='fs-8 text-dark-danger'>
+                  *Tanggal Request{' '}
+                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
+                  Konfirmasi kunjungan dilakukan oleh Vendor
+                </Form.Text>
               </Form.Group>
             </Col>
 
             <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
               <h1 className='fs-3 fw-bold'>
-                ORDER STATUS : {''}
-                <span className='fw-bold text-success'>{orderDetail?.status.description}</span>
+                ORDER STATUS :{' '}
+                <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
               </h1>
             </Col>
 
@@ -1334,7 +1193,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
               xxl={3}
               className='button-add text-end order-3 order-md-3'
             >
-              <button onClick={() => handleAddForm()}>Tambah Order</button>
+              <button onClick={() => addOrderDetails()}>Tambah Order</button>
             </Col>
           </Row>
 
@@ -1347,7 +1206,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                   <th>Item Name</th>
                   <th>Nama Pemasangan</th>
                   <th>QTY Pemasangan</th>
-                  {paymentType !== 'gratis' && (
+                  {paymentTypeValue[0] !== 'gratis' && (
                     <>
                       <th>Harga Jasa</th>
                       <th>Total</th>
@@ -1356,8 +1215,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                 </tr>
               </thead>
               <tbody>
-                {orderDetailValues.map((element, index) => (
-                  <tr key={element.id}>
+                {orderForm.order_details.map((element, index) => (
+                  <tr key={`${index}-order_details`}>
                     <td>
                       <Button variant='danger' onClick={() => handleRemoveForm(index)}>
                         Remove
@@ -1366,48 +1225,72 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
 
                     <td>
                       <Form.Control
-                        id={`item-id-${index}`}
-                        readOnly
+                        id={`item-code-${index}`}
+                        name={`item_code`}
                         plaintext
-                        value={orderDetailValues[index]?.item_id || ''}
+                        value={element.item_code ?? ''}
+                        onChange={(e) => orderDetailsFormHandler(e, index)}
                       />
                     </td>
 
                     <td style={{maxWidth: '200px', minWidth: '200px'}}>
-                      <Select
-                        name={`item-${index}`}
+                      <Form.Control
                         id={`item-name-${index}`}
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Item'
-                        isSearchable={true}
-                        options={item}
-                        value={{
-                          value: orderDetailValues[index]?.item_id,
-                          label: orderDetailValues[index]?.unit,
+                        plaintext
+                        name={`item_name`}
+                        value={element.item_name ?? ''}
+                        onChange={(e) => {
+                          orderDetailsFormHandler(e, index)
+                          getItem(e.target.value)
                         }}
-                        onChange={(element) => handleChangeSelectItem(index, element)}
                       />
                     </td>
 
                     <td>
-                      <Form.Control
-                        id={`category-name-${index}`}
-                        readOnly
-                        plaintext
-                        value={orderDetailValues[index]?.category_name || ''}
+                      <Select
+                        id={`item_id-${index}`}
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Pilih/Ketik Nama Pemasangan'
+                        isSearchable={true}
+                        options={item}
+                        name={`item_id`}
+                        value={{
+                          value: orderForm.order_details[index]?.item_id ?? null,
+                          label: orderForm.order_details[index]?.item?.label ?? '',
+                          category_id: orderForm.order_details[index]?.item?.category_id ?? null,
+                          default_price:
+                            orderForm.order_details[index]?.item?.default_price ?? null,
+                          prices: orderForm.order_details[index]?.item?.prices ?? [],
+                        }}
+                        onChange={(newValue) => {
+                          setOrderForm((prev) => {
+                            const cache = {...prev}
+                            cache.order_details[index] = {
+                              ...cache.order_details[index],
+                              item_id: newValue?.value ?? null,
+                              item: newValue,
+                            }
+                            return cache
+                          })
+                          calcEachDetails()
+                        }}
                       />
                     </td>
 
                     <td>
                       <Form.Control
                         id={`quantity-${index}`}
-                        value={element.quantity}
-                        onChange={(e) => handleQuantityChange(index, e.target.value)}
+                        name={`quantity`}
+                        value={element.quantity ?? ''}
+                        onChange={(e) => {
+                          orderDetailsFormHandler(e, index)
+                          calcEachDetails()
+                        }}
                       />
                     </td>
 
-                    {paymentType !== 'gratis' && (
+                    {paymentTypeValue[0] !== 'gratis' && (
                       <>
                         <td>
                           <Form.Control
@@ -1415,8 +1298,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                             readOnly
                             plaintext
                             value={`Rp. ${
-                              orderDetailValues[index]?.unit_price
-                                ? orderDetailValues[index]?.unit_price.toLocaleString('id')
+                              element?.unit_price
+                                ? parseInt(element?.unit_price).toLocaleString('id')
                                 : 0
                             }`}
                           />
@@ -1428,9 +1311,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                             readOnly
                             plaintext
                             value={`Rp. ${
-                              orderDetailValues[index]?.total
-                                ? orderDetailValues[index]?.total.toLocaleString('id')
-                                : 0
+                              element?.total ? parseInt(element?.total).toLocaleString('id') : 0
                             }`}
                           />
                         </td>
@@ -1439,14 +1320,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                   </tr>
                 ))}
 
-                {paymentType !== 'gratis' && (
+                {paymentTypeValue[0] !== 'gratis' && (
                   <tr>
                     <td colSpan={6} className='text-end fw-bolder'>
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
                       {(() => {
-                        if (paymentType === 'survey') {
+                        if (paymentTypeValue[1] === 'survey') {
                           return `Rp. 99.000`
                         } else {
                           return `Rp. 0`
@@ -1457,7 +1338,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
                 )}
 
                 <tr>
-                  <td colSpan={paymentType !== 'gratis' ? 6 : 4} className='text-end fw-bolder'>
+                  <td
+                    colSpan={paymentTypeValue[0] !== 'gratis' ? 6 : 4}
+                    className='text-end fw-bolder'
+                  >
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
@@ -1549,12 +1433,12 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Order) => void}> = ({updatePag
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='warning' onClick={handleReprintOrder}>
-              Resend Email
+            <Button variant='dark-success' onClick={handleReprintOrder}>
+              Reprint Order
             </Button>
 
-            <Button onClick={handleSubmitUpdateOrder} variant='dark-primary'>
-              Update Order & Email
+            <Button onClick={handleUpdateOrder} variant='dark-primary'>
+              Submit Order & Email
             </Button>
           </div>
         </div>

@@ -30,6 +30,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   }
 
   interface DataType {
+    number: number
     // nama_toko: string
     costumer_id: number
     full_name: string
@@ -45,14 +46,21 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'No Member',
+      title: 'No. Urut',
+      dataIndex: 'number',
+      key: 'number',
+      align: 'center',
+      sorter: (a, b) => a.number - b.number,
+    },
+    {
+      title: 'Nomor Member',
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
       sorter: (a, b) => a.costumer_id - b.costumer_id,
     },
     {
-      title: 'Nama Costumer',
+      title: 'Nama Customer',
       dataIndex: 'full_name',
       key: 'full_name',
       onFilter: (value, record) => record.full_name.includes(String(value)),
@@ -161,7 +169,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         return []
       }
 
-      const memberData = apiData.map((item: any) => {
+      const memberData = apiData.map((item: any, index: number) => {
         let data
 
         const joinDate = new Date(item.join_date)
@@ -169,6 +177,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         let phoneNumber = item.phone_number !== 'null' ? item.phone_number : item.whatsapp_number
 
         data = {
+          number: index + 1,
           costumer_id: item.id,
           full_name: item.full_name,
           phone_number: phoneNumber,

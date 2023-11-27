@@ -5,7 +5,7 @@ import './WarrantyClaimList.css'
 
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
-import {Table} from 'antd'
+import {Table, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -37,8 +37,8 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     no_member: number
     costumer_name: string
     phone_number: number
-    installer_name: string
-    payment_status: string
+    services_name: string
+    status_order: string
     tanggal_aktif_garansi: string
   }
 
@@ -71,7 +71,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
-      title: 'Costumer Name',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -80,26 +80,72 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'No Telp / WA',
+      title: 'No. Telp / WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
       width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
-    // {
-    //   title: 'Nama Jasa Pemasangan',
-    //   dataIndex: 'installer_name',
-    //   key: 'installer_name',
-    //   align: 'left',
-    //   width: 180,
-    // },
     {
-      title: 'Status Pembayaran',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
+      title: 'Nama Jasa Pemasangan',
+      dataIndex: 'services_name',
+      key: 'services_name',
+      align: 'left',
+      width: 180,
+      onFilter: (value, record) => record.services_name.includes(String(value)),
+      sorter: (a, b) => a.services_name.length - b.services_name.length,
+    },
+    {
+      title: 'Status Order',
+      dataIndex: 'status_order',
+      key: 'status_order',
       align: 'left',
       width: 150,
+      render: (status_order) => {
+        const orderStatus = status_order
+        let color = ''
+
+        switch (orderStatus) {
+          case 'UNPAID':
+            color = 'red'
+            break
+          case 'PAID':
+            color = 'green'
+            break
+          case 'PICKLIST':
+            color = 'green'
+            break
+          case 'BOOKED':
+            color = 'lime'
+            break
+          case 'SURVEYREQ':
+            color = 'blue'
+            break
+          case 'SURVEYSTART':
+          case 'SURVEYDONE':
+          case 'QUOTE IN':
+          case 'QUOTE OUT':
+          case 'WORKREQ':
+          case 'WORKSTART':
+          case 'WIP':
+          case 'WORKEND':
+          case 'CISOUT':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
+      filters: [
+        {text: 'PICKLIST', value: 'PICKLIST'},
+        {text: 'BOOKED', value: 'BOOKED'},
+      ],
+      onFilter: (value, record) => record.status_order.includes(String(value)),
+      sorter: (a, b) => a.status_order.length - b.status_order.length,
     },
     {
       title: 'Tanggal Aktif Garansi',
@@ -146,7 +192,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-      const desiredStatusName = 'BOOK'
+      const desiredStatusName = 'PICKLIST'
       const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
 
       if (desiredStatus) {
@@ -193,10 +239,11 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
         data = {
           order_id: item.id,
           date_order: formatDate(orderDate),
-          no_member: item.members.id,
+          no_member: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          order_status: item.status.description,
+          services_name: item.m_order_details[0].item.service_name,
+          status_order: item.status.category,
         }
 
         return data
@@ -268,7 +315,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={claimWarrantyData}
             rowKey={(record) => record.key}
-            scroll={{x: 1500}}
+            scroll={{x: 1800}}
             pagination={{position: ['bottomCenter']}}
           />
         </div>

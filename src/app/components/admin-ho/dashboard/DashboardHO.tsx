@@ -92,6 +92,8 @@ const DashboardHO: FC = () => {
           order_id: item.id,
           store_name: item.store.store_name,
           costumer_name: item.members.full_name,
+          service_name: item.m_order_details[0].item.service_name,
+          total: `Rp. ${parseInt(item.grand_total).toLocaleString('id')}`,
         }
 
         return data

@@ -252,7 +252,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
         let data
         const orderDate = new Date(item.order.created_at)
 
-        let paymentStatus = item.receipt_path === 'null' ? 'UNPAID' : 'PAID'
+        let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
 
         data = {
           quotation_id: item.id,
