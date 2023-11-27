@@ -1,5 +1,9 @@
 /* Form Layout */
 
+#detail-order p {
+  padding: 3px 9.75px;
+}
+
 #detail-order .form-wrapper {
   margin-bottom: 30px;
 }
@@ -12,6 +16,10 @@
   width: 60%;
 }
 
+#detail-order .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-5 {
+  padding: 3px 9.75px;
+}
+
 #detail-order .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
   padding: 3px 9.75px;
 }
@@ -22,6 +30,10 @@
 
 #detail-order .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 40%;
+}
+
+#detail-order .sales-info .detail-info.row label.form-label.col-form-label.col-sm-3 {
+  padding: 3px 9.75px;
 }
 
 #detail-order .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {

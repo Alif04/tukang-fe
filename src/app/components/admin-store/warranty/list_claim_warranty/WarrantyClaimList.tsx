@@ -5,7 +5,7 @@ import './WarrantyClaimList.css'
 
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
-import {Table} from 'antd'
+import {Table, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -93,6 +93,8 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'services_name',
       align: 'left',
       width: 180,
+      onFilter: (value, record) => record.services_name.includes(String(value)),
+      sorter: (a, b) => a.services_name.length - b.services_name.length,
     },
     {
       title: 'Status Order',
@@ -100,6 +102,50 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'status_order',
       align: 'left',
       width: 150,
+      render: (status_order) => {
+        const orderStatus = status_order
+        let color = ''
+
+        switch (orderStatus) {
+          case 'UNPAID':
+            color = 'red'
+            break
+          case 'PAID':
+            color = 'green'
+            break
+          case 'PICKLIST':
+            color = 'green'
+            break
+          case 'BOOKED':
+            color = 'lime'
+            break
+          case 'SURVEYREQ':
+            color = 'blue'
+            break
+          case 'SURVEYSTART':
+          case 'SURVEYDONE':
+          case 'QUOTE IN':
+          case 'QUOTE OUT':
+          case 'WORKREQ':
+          case 'WORKSTART':
+          case 'WIP':
+          case 'WORKEND':
+          case 'CISOUT':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
+      filters: [
+        {text: 'PICKLIST', value: 'PICKLIST'},
+        {text: 'BOOKED', value: 'BOOKED'},
+      ],
+      onFilter: (value, record) => record.status_order.includes(String(value)),
+      sorter: (a, b) => a.status_order.length - b.status_order.length,
     },
     {
       title: 'Tanggal Aktif Garansi',
@@ -146,7 +192,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-      const desiredStatusName = 'BOOK'
+      const desiredStatusName = 'PICKLIST'
       const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
 
       if (desiredStatus) {
@@ -193,10 +239,11 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
         data = {
           order_id: item.id,
           date_order: formatDate(orderDate),
-          no_member: item.members.id,
+          no_member: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          order_status: item.status.description,
+          services_name: item.m_order_details[0].item.service_name,
+          status_order: item.status.category,
         }
 
         return data

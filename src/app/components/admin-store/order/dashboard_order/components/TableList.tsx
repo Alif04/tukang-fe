@@ -12,7 +12,7 @@ type Props = {
 interface DataType {
   order_id: number
   costumer_name: string
-  nama_jasa: string
+  service_name: string
   total: string
 }
 
@@ -33,8 +33,8 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: 'Nama Jasa',
-    dataIndex: 'nama_jasa',
-    key: 'nama_jasa',
+    dataIndex: 'service_name',
+    key: 'service_name',
     align: 'left',
     width: 150,
   },

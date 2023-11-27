@@ -2,7 +2,7 @@ import React, {useState, FC, useEffect} from 'react'
 
 import './DetailOrder.css'
 
-import {Order} from '../../../../interfaces/order'
+import {Orders} from '../../../../interfaces/order'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Image} from 'antd'
@@ -44,10 +44,10 @@ const complaintHistory = [
   },
 ]
 
-const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({updatePageTitle}) => {
+const DetailOrderStore: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
-  const [order, setOrder] = useState<Order>({
+  const [order, setOrder] = useState<Orders>({
     member_id: null,
     seles_id: null,
     store_id: null,
@@ -83,7 +83,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
           },
         })
         .then((response) => {
-          const data = response.data.data as Order
+          const data = response.data.data as Orders
           setOrder(data)
           updatePageTitle(data)
         })
@@ -155,7 +155,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={order?.members?.id} />
+                        <p className='fs-7'>{order?.members?.member_number}</p>
                       </Col>
                     </Form.Group>
 
@@ -164,7 +164,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={order?.members?.full_name} />
+                        <p className='fs-7'>{order?.members?.full_name}</p>
                       </Col>
                     </Form.Group>
 
@@ -173,33 +173,27 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                         Alamat Pemasangan :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          as='textarea'
-                          plaintext
-                          readOnly
-                          rows={3}
-                          value={order?.project_address}
-                        />
+                        <p className='fs-7'>{order?.project_address}</p>
                       </Col>
                     </Form.Group>
                   </Col>
 
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
+                      <Form.Label column sm='5'>
                         Nomor Telp/WA :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control plaintext readOnly value={order?.project_number} />
+                      <Col sm='7'>
+                        <p className='fs-7'>{order?.project_number}</p>
                       </Col>
                     </Form.Group>
 
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
+                      <Form.Label column sm='5'>
                         Alamat Email :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control plaintext readOnly value={order?.members?.email} />
+                      <Col sm='7'>
+                        <p className='fs-7'>{order?.members?.email} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -210,20 +204,20 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                 <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
                 <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
+                  <Form.Label column sm='3'>
                     Sales ID :
                   </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={order?.sales?.id} />
+                  <Col sm='9'>
+                    <p className='fs-7'>{order?.sales?.id} </p>
                   </Col>
                 </Form.Group>
 
                 <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
+                  <Form.Label column sm='3'>
                     Sales Person :
                   </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={order?.sales?.full_name} />
+                  <Col sm='9'>
+                    <p className='fs-7'>{order?.sales?.full_name} </p>
                   </Col>
                 </Form.Group>
               </Col>
@@ -237,23 +231,15 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>Tanggal request pemasangan :</Form.Label>
                   <Col>
-                    <Form.Control
-                      type='text'
-                      plaintext
-                      readOnly
-                      value={formatDate(new Date(order.request_survey))}
-                    />
+                    <p className='fs-7 p-0'>{formatDate(new Date(order.request_survey))}</p>
                   </Col>
                 </Form.Group>
 
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>Payment Type:</Form.Label>
                   <Col>
-                    <Form.Control
-                      type='text'
-                      plaintext
-                      readOnly
-                      value={(() => {
+                    <p className='fs-7 p-0'>
+                      {(() => {
                         if (order?.payment_type === 'survey') {
                           return `Berbayar & Survey`
                         } else if (order?.payment_type === 'gratis') {
@@ -264,7 +250,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                           return ``
                         }
                       })()}
-                    />
+                    </p>
                   </Col>
                 </Form.Group>
               </Row>
@@ -278,40 +264,55 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Order) => void}> = ({update
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {order?.payment_type !== 'gratis' && (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
                   {order?.order_details.map((item: any, index: any) => (
                     <>
                       <tr>
-                        <td>{item?.item_id}</td>
-                        <td>{item?.unit}</td>
-                        <td>{item?.item?.category_name}</td>
+                        <td>{item?.item_code}</td>
+                        <td>{item?.item_name}</td>
+                        <td>{item?.item?.service_name}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                        {order?.payment_type !== 'gratis' && (
+                          <>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
+                          </>
+                        )}
                       </tr>
                     </>
                   ))}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Biaya Survey
-                    </td>
-                    <td className=' fw-bolder'>
-                      {order?.payment_type === 'gratis' ||
-                      order?.payment_type === 'pemasangan_tanpa_survey'
-                        ? `Rp. ${(0).toLocaleString('id')}`
-                        : order?.payment_type === 'survey'
-                        ? `Rp. ${(99000).toLocaleString('id')}`
-                        : `Rp. ${0}`}
-                    </td>
-                  </tr>
+                  {order?.payment_type !== 'gratis' && (
+                    <tr>
+                      <td colSpan={5} className='text-end fw-bolder'>
+                        Biaya Survey
+                      </td>
+                      <td className=' fw-bolder'>
+                        {order?.payment_type === 'gratis' ||
+                        order?.payment_type === 'pemasangan_tanpa_survey'
+                          ? `Rp. ${(0).toLocaleString('id')}`
+                          : order?.payment_type === 'survey'
+                          ? `Rp. ${(99000).toLocaleString('id')}`
+                          : `Rp. ${0}`}
+                      </td>
+                    </tr>
+                  )}
 
                   <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
+                    <td
+                      colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
+                      className='text-end fw-bolder'
+                    >
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>

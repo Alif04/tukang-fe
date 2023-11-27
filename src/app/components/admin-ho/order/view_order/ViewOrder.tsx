@@ -260,16 +260,16 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
             ? item.members.phone_number
             : item.members.whatsapp_number
 
-        let paymentStatus = item.receipt_path === 'null' ? 'UNPAID' : 'PAID'
+        let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
 
         data = {
           order_id: item.id,
           assign_from: item.store.store_name,
           date_order: formatDate(orderDate),
-          no_member: item.members.id,
+          no_member: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          service_name: item.m_order_details[0].item.category_name,
+          service_name: item.m_order_details[0].item.service_name,
           payment_status: paymentStatus,
           order_status: item.status.category,
         }

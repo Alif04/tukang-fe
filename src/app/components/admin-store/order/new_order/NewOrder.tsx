@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FC, useEffect, useState, useRef} from 'react'
+import React, {FC, useEffect, useState, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './NewOrder.css'
@@ -6,19 +6,16 @@ import './NewOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import CreatableSelect from 'react-select/creatable'
 import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-import {Member} from '../../../../interfaces/member'
-
 interface StoreItemSelect {
-  value: BigInteger
+  value: number | null
   label: string
   address: string
-  city_id: BigInteger
+  city_id: number | null
   zip_code: string
 }
 
@@ -32,14 +29,14 @@ interface MemberSelect {
   address_1: string
 }
 
-interface SelesSelect {
+interface SalesSelect {
   value: number | null
-  label: any
-  full_name: any
+  label: string
+  full_name: string
 }
 
 interface ItemSelect {
-  value: number
+  value: number | null
   label: string
   category: string
   default_price: number
@@ -70,7 +67,6 @@ interface Order {
     item_code: string | null
     item_name: string | null
     quantity: number
-
     unit_price: string | null
     total: string | null
   }>
@@ -116,7 +112,16 @@ const NewOrderStore: FC = () => {
     order_files: [],
   })
 
+  const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
+  const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
   // Member
+  const [member, setMember] = useState<MemberSelect[]>([])
   const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
     value: null,
     label: '',
@@ -127,35 +132,20 @@ const NewOrderStore: FC = () => {
     address_1: '',
   })
 
-  const [member, setMember] = useState<MemberSelect[]>([])
-  const [sales, setSales] = useState<SelesSelect[]>([])
-
   const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
 
   // Sales
-  const [selectedSales, setSelectedSales] = useState<SingleValue<SelesSelect>>({
-    full_name: '',
-    label: '',
+  const [sales, setSales] = useState<SalesSelect[]>([])
+  const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
+    label: '',
+    full_name: '',
   })
 
-  const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
-
-  const [requestDate, setRequestDate] = useState<string>('')
-
-  const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
-  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  const [previewImage, setPreviewImage] = useState<any>()
-  const [visible, setVisible] = useState(false)
-
-  // Order Table
+  // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
   const [total, setTotal] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<number>(0)
-  const [grandTotalComission, setGrandTotalComission] = useState<number>(0)
-  const [totalEstimateWorkDays, setTotalEstimateWorkDays] = useState<number>(10)
 
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
@@ -208,17 +198,14 @@ const NewOrderStore: FC = () => {
         })
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
-            value: item.id,
-            label: item.id,
+            value: item.member_number,
+            label: item.member_number,
             full_name: item.full_name,
             email: item.email,
             phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
           }))
-
-          const creatableOption = {value: 'memberOption'}
-          tempMember.push(creatableOption)
 
           setMember(tempMember)
         } else {
@@ -247,9 +234,6 @@ const NewOrderStore: FC = () => {
             full_name: item.full_name,
           }))
 
-          const creatableOptionSales = {value: 'salesOption'}
-          tempSales.push(creatableOptionSales)
-
           setSales(tempSales)
         } else {
           console.error('API response data is not an array:', response.data)
@@ -264,6 +248,7 @@ const NewOrderStore: FC = () => {
     getItem('')
   }, [])
 
+  // Order Form Handler
   const orderFormHandler = (e: any) => {
     setOrderForm({
       ...orderForm,
@@ -291,7 +276,6 @@ const NewOrderStore: FC = () => {
         (isWhatsapp ? selectedMember?.whatsapp_number : selectedMember?.phone_number) ?? '',
       member_id: selectedMember?.value ?? null,
     })
-    console.log('2. selectedMember, isWhatsapp')
   }, [selectedMember, isWhatsapp])
 
   useEffect(() => {
@@ -299,7 +283,6 @@ const NewOrderStore: FC = () => {
       ...orderForm,
       sales_id: selectedSales?.value ?? null,
     })
-    console.log('2. selectedSales', selectedSales)
   }, [selectedSales])
 
   useEffect(() => {
@@ -336,7 +319,7 @@ const NewOrderStore: FC = () => {
     })
   }
 
-  // Upload File
+  // Upload Order File Handler
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
     if (fileList) {
@@ -358,9 +341,7 @@ const NewOrderStore: FC = () => {
 
   const handleRemoveFile = (index: number) => {
     const newEvidances = [...receiptFiles]
-
     newEvidances.splice(index, 1)
-
     setReceiptFiles(newEvidances)
 
     // Update element value
@@ -376,24 +357,6 @@ const NewOrderStore: FC = () => {
   }
 
   // Order Details
-  const [orderDetailValues, setOrderDetailValues] = useState([
-    {
-      item_id: null,
-      item_code: '',
-      item_name: '',
-      installation_name: '',
-      min_order: 0,
-      default_price: 0,
-      discount_price: 0,
-      unit_price: 0,
-      quote_price: 0,
-      quantity: 1,
-      total: 0,
-      survey_price: 0,
-      comission: 0,
-    },
-  ])
-
   const addOrderDetails = () => {
     const newDetail = {
       item_id: null,
@@ -407,7 +370,6 @@ const NewOrderStore: FC = () => {
     setOrderForm((prev) => {
       const cache = {...prev}
       cache.order_details.push(newDetail)
-
       return cache
     })
   }
@@ -415,41 +377,22 @@ const NewOrderStore: FC = () => {
   const handleRemoveForm = (index: any) => {
     setOrderForm((prev) => {
       const cache = {...prev}
-
       cache.order_details.splice(index, 1)
       return cache
     })
   }
 
-  // Calculate Order Total Amount
-  const calculatedOrderTotal = () => {
-    return orderDetailValues.reduce((accumulator, item) => {
-      const quantity = item.quantity || 1
-      let hargaJasa = 0
-
-      if (paymentTypeValue[0] === 'gratis') {
-        hargaJasa = 0
-      } else {
-        hargaJasa = item.unit_price
-      }
-
-      const calculatedTotal = quantity * hargaJasa
-      return accumulator + calculatedTotal
-    }, 0)
-  }
-
   // Calculate Grand Total Order Amount
   const calculatedGrandTotalOrder = () => {
-    return orderDetailValues.reduce(() => {
+    const grandTotal = orderForm.order_details.reduce((accumulator, element) => {
       let totalOrderAmount = 0
       let biayaSurvey = 0
+
+      const total = element.total ? parseInt(element.total) : 0
 
       if (paymentTypeValue[0] === 'gratis') {
         biayaSurvey = 0
         totalOrderAmount = 0
-      } else if (paymentTypeValue[1] === 'pemasangan_tanpa_survey') {
-        biayaSurvey = 0
-        totalOrderAmount = total
       } else if (paymentTypeValue[1] === 'survey') {
         biayaSurvey = 99000
         totalOrderAmount = 0
@@ -459,20 +402,21 @@ const NewOrderStore: FC = () => {
       }
 
       const calculatedGrandTotal = totalOrderAmount + biayaSurvey
-      return calculatedGrandTotal
+      return paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? accumulator + calculatedGrandTotal
+        : calculatedGrandTotal
     }, 0)
+
+    return grandTotal
   }
 
   useEffect(() => {
-    const calculatedTotal = calculatedOrderTotal()
     const calculatedGrandTotal = calculatedGrandTotalOrder()
-
-    setTotal(calculatedTotal)
     setGrandTotal(calculatedGrandTotal)
-  }, [orderDetailValues, total, paymentTypeValue])
+  }, [orderForm.order_details, paymentTypeValue])
 
-  // Submit Pre Order
-  const handleSubmitPreOrder = async () => {
+  // Submit New Order
+  const handleSubmitNewOrder = async () => {
     const url = `${apiUrl}/orders`
     const formData = new FormData()
     let errorBags = []
@@ -481,6 +425,7 @@ const NewOrderStore: FC = () => {
       {key: 'sales_id', fieldName: 'Sales Information'},
       {key: 'store_id', fieldName: 'Store'},
       {key: 'project_address', fieldName: 'Alamat Proyek'},
+      {key: 'project_number', fieldName: 'Nomor Proyek'},
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
       {key: 'order_details', fieldName: 'Order Details'},
@@ -499,17 +444,14 @@ const NewOrderStore: FC = () => {
         if (required) {
           if (value) {
             if (key === 'order_details') {
-              console.log(key)
-              console.log(value)
-
-              let index = 0
-              for (const detailKey in value) {
-                if (Object.prototype.hasOwnProperty.call(value, detailKey)) {
-                  const detailValue = value[detailKey]
-                  formData.append(`order_details[${index}][${detailKey}]`, detailValue)
-                  index += 1
+              orderForm.order_details.forEach((item: any, index: number) => {
+                if (item) {
+                  formData.append(`order_details[${index}][item_code]`, item.item_code)
+                  formData.append(`order_details[${index}][item_name]`, item.item_name)
+                  formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
-              }
+              })
             } else {
               formData.append(key, orderForm[key])
             }
@@ -524,7 +466,7 @@ const NewOrderStore: FC = () => {
 
     if (errorBags.length > 0) {
       Swal.fire({
-        title: 'warning',
+        title: 'Warning',
         text: errorBags[0].message,
         icon: 'warning',
       })
@@ -540,7 +482,7 @@ const NewOrderStore: FC = () => {
       })
     }
 
-    const response = await axios
+    await axios
       .post(url, formData, {
         headers: {
           Accept: 'application/json',
@@ -742,7 +684,7 @@ const NewOrderStore: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Customer</Form.Label>
-                    <Form.Control type='text' value={selectedMember?.full_name} />
+                    <Form.Control type='text' value={selectedMember?.full_name || ''} />
                   </Form.Group>
                 </Col>
 
@@ -779,18 +721,21 @@ const NewOrderStore: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Select
-                    name='sales_id'
-                    id='sales_id'
-                    isDisabled={userRole === 'SALES'}
-                    className='form-control p-0 form-item-name'
-                    classNamePrefix='select'
-                    placeholder='Pilih/Ketik ID Sales'
-                    isSearchable={true}
-                    options={sales}
-                    value={userRole === 'SALES' ? userId : selectedSales}
-                    onChange={(newValue) => setSelectedSales(newValue)}
-                  />
+                  {userRole === 'SALES' ? (
+                    <Form.Control type='number' disabled value={userId} />
+                  ) : (
+                    <Select
+                      name='sales_id'
+                      id='sales_id'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Pilih/Ketik ID Sales'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={sales}
+                      onChange={(newValue) => setSelectedSales(newValue)}
+                    />
+                  )}
                 </Col>
               </Form.Group>
 
@@ -803,7 +748,7 @@ const NewOrderStore: FC = () => {
                   <Form.Control
                     type='text'
                     disabled={userRole === 'SALES'}
-                    value={userRole === 'SALES' ? username : selectedSales?.full_name}
+                    value={userRole === 'SALES' ? username : selectedSales?.full_name || ''}
                   />
                 </Col>
               </Form.Group>
@@ -1065,7 +1010,7 @@ const NewOrderStore: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button onClick={handleSubmitPreOrder} variant='dark-primary'>
+            <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
               Submit Order & Print
             </Button>
           </div>

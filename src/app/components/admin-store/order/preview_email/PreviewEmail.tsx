@@ -2,13 +2,13 @@ import React, {FC, useState, useEffect} from 'react'
 
 import './PreviewEmail.css'
 
-import {Order} from '../../../../interfaces/order'
+import {Orders} from '../../../../interfaces/order'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Table, Form, Button, Row, Col} from 'react-bootstrap'
 
-const PreviewEmailOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updatePageTitle}) => {
+const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const [orderDetail, setOrderDetail] = useState<any>()
@@ -92,7 +92,8 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Order) => void}> = ({updat
 
             <div className='payment-request'>
               <h3 className='fw-bolder'>
-                Costumer ID : <span className='fw-normal'>{orderDetail?.members.id}</span>
+                Customer ID :{' '}
+                <span className='fw-normal'>{orderDetail?.members.member_number}</span>
               </h3>
 
               <h3 className='fw-bolder'>

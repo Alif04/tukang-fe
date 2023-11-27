@@ -31,7 +31,7 @@ interface DataType {
   costumer_name: string
   phone_number: number
   item_name: string
-  installation_type: string
+  services_name: string
   payment_status: string
   order_status: string
 }
@@ -116,12 +116,12 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     },
     {
       title: 'Nama Jasa Pemasangan',
-      dataIndex: 'installation_type',
-      key: 'installation_type',
+      dataIndex: 'services_name',
+      key: 'services_name',
       align: 'left',
       width: 140,
-      onFilter: (value, record) => record.installation_type.includes(String(value)),
-      sorter: (a, b) => a.installation_type.length - b.installation_type.length,
+      onFilter: (value, record) => record.services_name.includes(String(value)),
+      sorter: (a, b) => a.services_name.length - b.services_name.length,
     },
     {
       title: 'Payment Status',
@@ -181,7 +181,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 80,
+      width: 50,
       render: (record) => {
         const handleDetailId = () => {
           const id = record.order_id
@@ -264,17 +264,17 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             ? item.members.phone_number
             : item.members.whatsapp_number
 
-        let paymentStatus = item.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
+        let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
 
         data = {
           order_id: item.id,
           store_name: item.store.store_name,
           date_order: formatDate(orderDate),
-          costumer_id: item.members.id,
+          costumer_id: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          item_name: item.m_order_details[0].item.item_name,
-          installation_type: item.m_order_details[0].item.category_name,
+          item_name: item.m_order_details[0].item_name,
+          services_name: item.m_order_details[0].item.service_name,
           payment_status: paymentStatus,
           order_status: item.status.category,
         }
@@ -349,7 +349,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1800}}
+            scroll={{x: 2000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>
