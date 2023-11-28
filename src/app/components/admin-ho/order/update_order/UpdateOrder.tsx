@@ -1002,6 +1002,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       placeholder='Ketik No Telepon Member/Nomor Member'
                       isSearchable={true}
                       isClearable={true}
+                      isDisabled={true}
                       options={member}
                       value={{
                         value: selectedMember?.value ?? null,
@@ -1025,6 +1026,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       <div className='form-check-request'>
                         <Form.Check
                           inline
+                          disabled
                           label='Bukan Whatsapp'
                           name='group1'
                           value='1'
@@ -1051,14 +1053,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Customer</Form.Label>
-                    <Form.Control type='text' value={selectedMember?.full_name || ''} />
+                    <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Email</Form.Label>
-                    <Form.Control type='text' value={selectedMember?.email || ''} />
+                    <Form.Control type='text' disabled value={selectedMember?.email || ''} />
                   </Form.Group>
                 </Col>
               </Row>
@@ -1069,6 +1071,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     <Form.Label>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
+                      disabled
                       className='field-alamat'
                       value={orderForm.project_address}
                       onChange={(event) => orderFormHandler(event)}
@@ -1206,7 +1209,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   <th>Item Name</th>
                   <th>Nama Pemasangan</th>
                   <th>QTY Pemasangan</th>
-                  {paymentTypeValue[0] !== 'gratis' && (
+                  {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                     <>
                       <th>Harga Jasa</th>
                       <th>Total</th>
@@ -1290,7 +1293,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       />
                     </td>
 
-                    {paymentTypeValue[0] !== 'gratis' && (
+                    {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                       <>
                         <td>
                           <Form.Control
@@ -1320,9 +1323,15 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   </tr>
                 ))}
 
-                {paymentTypeValue[0] !== 'gratis' && (
+                {!(
+                  paymentTypeValue[0] === 'gratis' ||
+                  paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+                ) && (
                   <tr>
-                    <td colSpan={6} className='text-end fw-bolder'>
+                    <td
+                      colSpan={paymentTypeValue[1] !== 'survey' ? 6 : 4}
+                      className='text-end fw-bolder'
+                    >
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
@@ -1337,17 +1346,28 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   </tr>
                 )}
 
-                <tr>
-                  <td
-                    colSpan={paymentTypeValue[0] !== 'gratis' ? 6 : 4}
-                    className='text-end fw-bolder'
-                  >
-                    Grand Total
-                  </td>
-                  <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
-                </tr>
+                {paymentTypeValue[1] !== 'survey' && (
+                  <tr>
+                    <td
+                      colSpan={
+                        !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
+                          ? 6
+                          : 4
+                      }
+                      className='text-end fw-bolder'
+                    >
+                      Grand Total
+                    </td>
+                    <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
+                  </tr>
+                )}
               </tbody>
             </Table>
+
+            <Form.Text className='fs-8 fs-l text-dark-danger'>
+              *Usahakan agar penulisan Item code dan Item Name sama persis dengan yang tercantum di
+              NAV
+            </Form.Text>
           </div>
 
           <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>

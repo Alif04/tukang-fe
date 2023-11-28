@@ -36,7 +36,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     order_id: number
     date_order: string
     costumer_name: string
-    // vendor_name: string
+    vendor_name: string
     payment_status: string
     order_status: string
     quotation_status: string
@@ -88,15 +88,15 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
-    // {
-    //   title: 'Nama Vendor',
-    //   dataIndex: 'vendor_name',
-    //   key: 'vendor_name',
-    //   align: 'left',
-    //   width: 140,
-    //   onFilter: (value, record) => record.vendor_name.includes(String(value)),
-    //   sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-    // },
+    {
+      title: 'Nama Vendor',
+      dataIndex: 'vendor_name',
+      key: 'vendor_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.vendor_name.includes(String(value)),
+      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    },
     {
       title: 'Payment Status',
       dataIndex: 'payment_status',
@@ -224,7 +224,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(`${apiUrl}/quotation`, {
+      const response = await axios.get(`${apiUrl}/quotation?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -260,10 +260,10 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           order_id: item.order.id,
           date_order: formatDate(orderDate),
           costumer_name: item.order.members.full_name,
-          // vendor_name: item.vendor.vendor_name,
+          vendor_name: item.order.vendor.company_name,
           payment_status: paymentStatus,
           order_status: item.status.category,
-          quotation_status: item.quotation_status,
+          quotation_status: item.status.category,
         }
 
         return data

@@ -65,7 +65,7 @@ const VendorPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW QUOTATION</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW QUOTATION FORM</PageTitle>
             <NewQuotation />
           </>
         }

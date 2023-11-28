@@ -801,7 +801,7 @@ const NewOrderStore: FC = () => {
                   <th>Item Name</th>
                   <th>Nama Pemasangan</th>
                   <th>QTY Pemasangan</th>
-                  {paymentTypeValue[0] !== 'gratis' && (
+                  {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                     <>
                       <th>Harga Jasa</th>
                       <th>Total</th>
@@ -874,7 +874,7 @@ const NewOrderStore: FC = () => {
                       />
                     </td>
 
-                    {paymentTypeValue[0] !== 'gratis' && (
+                    {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                       <>
                         <td>
                           <Form.Control
@@ -904,9 +904,15 @@ const NewOrderStore: FC = () => {
                   </tr>
                 ))}
 
-                {paymentTypeValue[0] !== 'gratis' && (
+                {!(
+                  paymentTypeValue[0] === 'gratis' ||
+                  paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+                ) && (
                   <tr>
-                    <td colSpan={6} className='text-end fw-bolder'>
+                    <td
+                      colSpan={paymentTypeValue[1] !== 'survey' ? 6 : 4}
+                      className='text-end fw-bolder'
+                    >
                       Biaya Survey
                     </td>
                     <td className=' fw-bolder'>
@@ -921,17 +927,28 @@ const NewOrderStore: FC = () => {
                   </tr>
                 )}
 
-                <tr>
-                  <td
-                    colSpan={paymentTypeValue[0] !== 'gratis' ? 6 : 4}
-                    className='text-end fw-bolder'
-                  >
-                    Grand Total
-                  </td>
-                  <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
-                </tr>
+                {paymentTypeValue[1] !== 'survey' && (
+                  <tr>
+                    <td
+                      colSpan={
+                        !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
+                          ? 6
+                          : 4
+                      }
+                      className='text-end fw-bolder'
+                    >
+                      Grand Total
+                    </td>
+                    <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
+                  </tr>
+                )}
               </tbody>
             </Table>
+
+            <Form.Text className='fs-8 fs-l text-dark-danger'>
+              *Usahakan agar penulisan Item code dan Item Name sama persis dengan yang tercantum di
+              NAV
+            </Form.Text>
           </div>
 
           <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>

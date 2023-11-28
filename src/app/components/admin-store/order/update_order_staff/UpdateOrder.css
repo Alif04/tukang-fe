@@ -42,6 +42,17 @@
   font-size: 11px;
 }
 
+/* Form Customer */
+
+#update-order .select__control.select__control--is-disabled.css-16xfy0z-control {
+  background-color: #eff2f5 !important;
+  border-color: #e4e6ef !important;
+}
+
+#update-order .select__single-value.select__single-value--is-disabled.css-olqui2-singleValue {
+  color: #181c32;
+}
+
 /* Form Sales */
 
 #update-order .form-sales .form-header {

@@ -8,15 +8,39 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
-interface StoreItem {
-  value: string
+interface SelectedStoreItem {
+  value: number | null
+  label: string
+}
+
+interface CategorySelect {
+  value: number | null
   label: string
 }
 
 interface Status {
-  value: number
+  value: number | null
   category: string
+}
+
+interface QuotationDetail {
+  id: number | null
+  index: string
+  item_id: number | null
+  work_order_item_id: number | null
+  category_id: number | null
+  category_name: string
+  type: number
+  item_name: string
+  unit_price: number
+  total: number
+  final_price: number
+  margin: number
+  quantity: number
+  is_user: number
 }
 
 const NewQuotationVendor: FC = () => {
@@ -28,27 +52,65 @@ const NewQuotationVendor: FC = () => {
   const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
 
-  // Order Details
-  const [orderDetailValues, setOrderDetailValues] = useState([
+  // Add Quotation
+  const [quotationStatus, setQuotationStatus] = useState<any>()
+  const [quotationNumber, setQuotationNumber] = useState<string | number>('NaN')
+  const [quotationDescription, setQuotationDescription] = useState<string>('')
+  const [quotationDate, setQuotationDate] = useState<string>('')
+  const [quotationValidity, setQuotationValidity] = useState<string>('')
+  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
+
+  const [totalMaterial, setTotalMaterial] = useState<number>(0)
+  const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
+  const [promosiDiscount, setPromosiDiscount] = useState<number>(0)
+  const [grandTotal, setGrandTotal] = useState<number>(0)
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Quotation Detail
+  const [quotationDetail, setQuotationDetail] = useState<QuotationDetail[]>([
     {
       id: null,
-      item_id: '',
-      unit: '',
-      quantity: 1,
+      index: Date.now().toString(),
+      item_id: null,
+      work_order_item_id: null,
+      category_id: null,
+      category_name: '',
+      type: 1,
+      item_name: '',
       unit_price: 0,
       total: 0,
-      margin: 0,
       final_price: 0,
+      margin: 0,
+      quantity: 0,
+      is_user: 0,
+    },
+    {
+      id: null,
+      index: Date.now().toString(),
+      item_id: null,
+      category_id: null,
+      category_name: '',
+      work_order_item_id: null,
+      type: 2,
+      item_name: '',
+      unit_price: 0,
+      total: 0,
+      final_price: 0,
+      margin: 0,
+      quantity: 0,
+      is_user: 0,
     },
   ])
 
-  const [grandTotal, setGrandTotal] = useState<number>(0)
-
   // Store
-  const [store, setStore] = useState<StoreItem[]>([])
+  const [store, setStore] = useState<SelectedStoreItem[]>([])
   const [storeId, setStoreId] = useState<string>('')
   const [storeName, setStoreName] = useState<string>('')
   const [storeDetail, setStoreDetail] = useState<any>()
+
+  // Category
+  const [categories, setCategories] = useState<CategorySelect[]>([])
 
   const getStore = async () => {
     try {
@@ -91,6 +153,32 @@ const NewQuotationVendor: FC = () => {
       })
       const data = response.data.data
       setStoreDetail(data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getCategories = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/categories`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempCategories = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.category_name,
+        }))
+
+        setCategories(tempCategories)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
     } catch (err) {
       console.error(err)
     }
@@ -156,17 +244,38 @@ const NewQuotationVendor: FC = () => {
           const data = response.data.data
           setOrderDetail(data)
 
-          if (data?.order_details) {
-            const initialOrderDetailValues = data.order_details.map((item: any) => ({
-              id: item.id,
-              item_id: item.item_id,
-              unit: item.unit,
-              quantity: item.quantity,
-              unit_price: parseInt(item.unit_price),
-              total: item.total,
-            }))
+          if (data?.order_details && data?.work_orders?.work_order_status) {
+            // const orderDetailItem = data.order_details.map((item: any, index: number) => ({
+            //   id: item.id,
+            //   item_id: item.item_id,
+            //   work_order_item_id: null,
+            //   type: null,
+            //   item_name: item.item.service_name,
+            //   quantity: item.quantity,
+            //   unit_price: parseInt(item.unit_price),
+            //   final_price: parseInt(item.total),
+            // }))
 
-            setOrderDetailValues(initialOrderDetailValues)
+            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+              (item: any, index: number) => ({
+                id: item.id,
+                index: (Date.now() + index).toString(),
+                type: item.type,
+                item_id: null,
+                work_order_item_id: item.item_id,
+                category_id: null,
+                item_name: item.name,
+                quantity: item.quantity,
+                is_user: item.is_customer ? 1 : 0,
+                unit_price: 0,
+                final_price: 0,
+                margin: 0,
+              })
+            )
+
+            // const mergedItem = orderDetailItem.concat(workOrderItem)
+            // setQuotationDetail(mergedItem)
+            setQuotationDetail(workOrderItem)
           }
 
           if (data?.store) {
@@ -201,6 +310,7 @@ const NewQuotationVendor: FC = () => {
   useEffect(() => {
     getOrder()
     getStore()
+    getCategories()
     getCode()
   }, [])
 
@@ -220,54 +330,6 @@ const NewQuotationVendor: FC = () => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
-  }
-
-  // Change Margin Value
-  let handleMarginChange = (index: any, value: any) => {
-    const updatedOrderDetailValues = [...orderDetailValues]
-    const selectedUnitPrice = updatedOrderDetailValues[index].total
-    const profitPercentage = value / 100
-
-    updatedOrderDetailValues[index] = {
-      ...updatedOrderDetailValues[index],
-      margin: value,
-      final_price: selectedUnitPrice + profitPercentage * selectedUnitPrice,
-    }
-
-    setOrderDetailValues(updatedOrderDetailValues)
-  }
-
-  // Calculate Grand Total Jasa
-  const calculatedGrandTotalOrder = () => {
-    return orderDetailValues.reduce((accumulator, item) => {
-      const calculatedTotal = item.final_price
-      return accumulator + calculatedTotal
-    }, 0)
-  }
-
-  useEffect(() => {
-    const calculatedGrandTotal = calculatedGrandTotalOrder()
-
-    setGrandTotal(calculatedGrandTotal)
-  }, [orderDetailValues])
-
-  // Add Quotation
-  const [quotationStatus, setQuotationStatus] = useState<any>()
-  const [quotationNumber, setQuotationNumber] = useState<string | number>('NaN')
-  const [quotationDescription, setQuotationDescription] = useState<string>('')
-  const [quotationDate, setQuotationDate] = useState<string>('')
-  const [quotationValidity, setQuotationValidity] = useState<string>('')
-  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
-
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  // Select Store
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    const updatedStoreName = element.label
-
-    setStoreId(updatedStoreId)
-    setStoreName(updatedStoreName)
   }
 
   // Select Order
@@ -307,38 +369,201 @@ const NewQuotationVendor: FC = () => {
     setQuotationValidity(updatedQuotationValidity)
   }
 
-  // Handle Upload Quotation File
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files
-    if (fileList) {
-      const file: Array<File | null> = new Array<File>()
-      const {length} = fileList
+  // Quotation Detail Form Handler
+  let handleAddForm = (type: number) => {
+    const newForm = {
+      id: null,
+      index: Date.now().toString(),
+      item_id: null,
+      work_order_item_id: null,
+      category_id: null,
+      category_name: '',
+      type: type,
+      item_name: '',
+      unit_price: 0,
+      total: 0,
+      final_price: 0,
+      margin: 0,
+      quantity: 0,
+      is_user: 0,
+    }
 
-      for (let i = 0; i < length; i++) {
-        file[i] = fileList.item(i)
+    setQuotationDetail((prev) => [...prev, newForm])
+  }
+
+  let handleRemoveForm = (index: any) => {
+    setQuotationDetail((prev) => {
+      const updatedValues = [...prev]
+      const typeIndex = updatedValues.findIndex((item) => item.index === index)
+
+      if (typeIndex !== -1) {
+        updatedValues.splice(typeIndex, 1)
       }
 
-      setQuotationFiles(file)
+      return updatedValues
+    })
+  }
+
+  // Handle Checkbox Change
+  let handleCheckboxChange = (index: any, isChecked: boolean) => {
+    const updatedDetailValues = [...quotationDetail]
+    const elementIndex = updatedDetailValues.findIndex((item) => item.index === index)
+
+    if (elementIndex !== -1) {
+      updatedDetailValues[elementIndex].is_user = isChecked ? 1 : 0
+    }
+
+    setQuotationDetail(updatedDetailValues)
+  }
+
+  // Handle Category Change
+  let handleCategoryChange = (index: any, value: any) => {
+    const updatedDetailValues = [...quotationDetail]
+    const elementIndex = updatedDetailValues.findIndex((item) => item.index === index)
+
+    if (elementIndex !== -1) {
+      updatedDetailValues[elementIndex].category_id = value.value
+      updatedDetailValues[elementIndex].category_name = value.label
+    }
+
+    setQuotationDetail(updatedDetailValues)
+  }
+
+  // Handle Item Name Change
+  let handleItemNameChange = (index: any, value: any, type: number) => {
+    const updatedQuotationDetail = [...quotationDetail]
+    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
+
+    if (filteredDetailValues[index]) {
+      filteredDetailValues[index] = {
+        ...filteredDetailValues[index],
+        item_name: value,
+      }
+
+      setQuotationDetail((prev) =>
+        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
+      )
     }
   }
 
-  const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
-    inputField.click()
-  }
+  // Handle Quantity Change
+  let handleQuantityChange = (index: any, value: any, type: number) => {
+    const updatedQuotationDetail = [...quotationDetail]
+    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
 
-  const handleRemoveFile = (index: number) => {
-    const newEvidances = [...quotationFiles]
+    if (filteredDetailValues[index]) {
+      let quantity = 0
 
-    newEvidances.splice(index, 1)
+      if (filteredDetailValues[index].is_user === 1) {
+        quantity = 0
+      } else {
+        filteredDetailValues[index] = {
+          ...filteredDetailValues[index],
+          quantity: value,
+          total: value * filteredDetailValues[index].unit_price,
+          final_price:
+            Number(value * filteredDetailValues[index].unit_price) +
+            Number(filteredDetailValues[index].margin),
+        }
+      }
 
-    setQuotationFiles(newEvidances)
-
-    // Update element value
-    if (evidenceRef.current?.value) {
-      evidenceRef.current.value = ''
+      setQuotationDetail((prev) =>
+        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
+      )
     }
   }
+
+  // Handle Unit Price Change
+  let handleUnitPriceChange = (index: any, value: any, type: number) => {
+    const updatedQuotationDetail = [...quotationDetail]
+    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
+
+    if (filteredDetailValues[index]) {
+      let unit_price = 0
+
+      if (filteredDetailValues[index].is_user === 1) {
+        unit_price = 0
+      } else {
+        filteredDetailValues[index] = {
+          ...filteredDetailValues[index],
+          unit_price: value,
+          total: value * filteredDetailValues[index].quantity,
+          final_price:
+            Number(value * filteredDetailValues[index].quantity) +
+            Number(filteredDetailValues[index].margin),
+        }
+      }
+
+      setQuotationDetail((prev) =>
+        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
+      )
+    }
+  }
+
+  // Handle Margin Change
+  let handleMarginChange = (index: any, value: any, type: number) => {
+    const updatedQuotationDetail = [...quotationDetail]
+    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
+
+    if (filteredDetailValues[index]) {
+      let margin = 0
+
+      if (filteredDetailValues[index].is_user === 1) {
+        margin = 0
+      } else {
+        filteredDetailValues[index] = {
+          ...filteredDetailValues[index],
+          margin: value,
+          final_price:
+            Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) +
+            Number(value),
+        }
+      }
+
+      setQuotationDetail((prev) =>
+        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
+      )
+    }
+  }
+
+  // Total Material
+  const calculateTotalMaterial = () => {
+    const materialDetails = quotationDetail.filter((detail) => detail.type === 1)
+    const total = materialDetails.reduce(
+      (accumulator, detail) => accumulator + detail.final_price,
+      0
+    )
+    setTotalMaterial(total)
+  }
+
+  // Total Material & Jasa
+  const calculateTotalJasaMaterial = () => {
+    let total = 0
+    for (const detail of quotationDetail) {
+      if (detail.type === 1 || detail.type === 2) {
+        total += detail.final_price
+      }
+    }
+    setTotalJasaMaterial(total)
+  }
+
+  // Promosi & Discount
+  let handlePromosiChange = (value: any) => {
+    const updatedPromosiValue = value
+    setPromosiDiscount(updatedPromosiValue)
+  }
+
+  // Grand Total
+  const calculatedGrandTotal = () => {
+    const grandTotal = Number(totalJasaMaterial) - Number(promosiDiscount)
+    setGrandTotal(grandTotal)
+  }
+
+  useEffect(() => {
+    calculateTotalMaterial()
+    calculateTotalJasaMaterial()
+    calculatedGrandTotal()
+  }, [quotationDetail, totalJasaMaterial, promosiDiscount])
 
   // Quotation Validation
   const QuotationValidation = () => {
@@ -395,26 +620,41 @@ const NewQuotationVendor: FC = () => {
       formData.append('quotation_number', quotationNumber.toString())
       formData.append('quotation_date', quotationDate)
       formData.append('quotation_validity', quotationValidity)
+      formData.append('quotation_disc', promosiDiscount.toString())
 
-      if (quotationFiles?.length) {
-        quotationFiles.forEach((item) => {
-          if (item) {
-            formData.append(`quotation_files`, item, item?.name)
-          }
-        })
-      }
+      // if (quotationFiles?.length) {
+      //   quotationFiles.forEach((item) => {
+      //     if (item) {
+      //       formData.append(`quotation_files`, item, item?.name)
+      //     }
+      //   })
+      // }
 
-      // orderDetailValues.forEach((order, index) => {
-      //   formData.append(`order_details[${index}][id]`, String(order.id))
-      //   formData.append(`order_details[${index}][item_id]`, String(order.item_id))
-      //   formData.append(`order_details[${index}][unit]`, order.unit)
-      //   formData.append(`order_details[${index}][quantity]`, String(order.quantity))
-      //   formData.append(`order_details[${index}][unit_price]`, String(order.unit_price))
-      //   formData.append(`order_details[${index}][margin]`, String(order.margin))
-      //   formData.append(`order_details[${index}][final_price]`, String(order.final_price))
-      // })
+      quotationDetail.forEach((quotation, index) => {
+        if (quotation.item_id !== null) {
+          formData.append(`quotation_details[${index}][item_id]`, String(quotation.item_id))
+        }
 
-      const response = await axios
+        if (quotation.item_id !== null) {
+          formData.append(
+            `quotation_details[${index}][work_order_item_id]`,
+            String(quotation.work_order_item_id)
+          )
+        }
+
+        if (quotation.category_id !== null) {
+          formData.append(`quotation_details[${index}][category_id]`, String(quotation.category_id))
+        }
+
+        formData.append(`quotation_details[${index}][type]`, String(quotation.type))
+        formData.append(`quotation_details[${index}][name]`, quotation.item_name)
+        formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
+        formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
+        formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
+        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+      })
+
+      await axios
         .post(`${apiUrl}/quotation`, formData, {
           headers: {
             Accept: 'application/json',
@@ -484,13 +724,13 @@ const NewQuotationVendor: FC = () => {
                       options={store}
                       onChange={(element) => handleChangeSelectStore(element)}
                     /> */}
-                    <Form.Label className='mt-5 fs-3 fw-bold'>
+                    <Form.Label className='fs-3 fw-bold'>
                       {orderDetail?.store?.store_name}
                     </Form.Label>
                   </Col>
                 </Form.Group>
 
-                <Form.Label className='mt-5 fs-5 fw-bold'>{orderDetail?.store?.address}</Form.Label>
+                <Form.Label className='fs-5 fw-bold'>{orderDetail?.store?.address}</Form.Label>
               </div>
             </Col>
 
@@ -508,7 +748,7 @@ const NewQuotationVendor: FC = () => {
                     plaintext
                     className='fs-2 fw-bold text-black'
                     type='text'
-                    value={orderDetail?.status.category}
+                    value={orderDetail?.work_orders?.work_order_status[0]?.status.category}
                   />
                 </Col>
               </Form.Group>
@@ -556,7 +796,7 @@ const NewQuotationVendor: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='number' readOnly value={orderDetail?.members.id} />
+                  <Form.Control type='number' readOnly value={orderDetail?.members.member_number} />
                 </Col>
               </Form.Group>
 
@@ -603,141 +843,224 @@ const NewQuotationVendor: FC = () => {
             </Col>
           </Row>
 
+          <div className='d-flex justify-content-end'>
+            <Button
+              className='add-jasa'
+              variant='button-dark-success'
+              onClick={() => handleAddForm(2)}
+            >
+              Tambah Jasa Pemasangan
+            </Button>
+          </div>
+
           <div className='detail-table-jasa'>
             <Table hover>
               <thead>
                 <tr>
                   <th className='text-center'>Jenis Jasa</th>
+                  <th className='text-center'>Category</th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
-                  {/* <th className='text-center'>Total</th> */}
-                  {/* <th className='text-center'>Margin</th> */}
                   <th className='text-center'>Final Price</th>
+                  <th className='text-center'>Action</th>
                 </tr>
               </thead>
-              <tbody>
-                {orderDetailValues.map((element, index) => (
-                  <>
-                    <tr key={element.id}>
-                      <td>
-                        <Form.Control
-                          readOnly
-                          plaintext
-                          value={orderDetailValues[index]?.unit || ''}
-                        />
-                      </td>
-                      <td>
-                        <Form.Control
-                          readOnly
-                          plaintext
-                          value={`${
-                            orderDetailValues[index]?.quantity
-                              ? orderDetailValues[index]?.quantity
-                              : 0
-                          }`}
-                        />
-                      </td>
-                      <td>
-                        <Form.Control
-                          readOnly
-                          plaintext
-                          value={`Rp. ${
-                            orderDetailValues[index]?.unit_price
-                              ? orderDetailValues[index]?.unit_price.toLocaleString('id')
-                              : 0
-                          }`}
-                        />
-                      </td>
-                      {/* <td>
-                        {`Rp. ${
-                          orderDetailValues[index]?.total
-                            ? orderDetailValues[index]?.total.toLocaleString('id')
-                            : 0
-                        }`}
-                      </td> */}
-                      {/* <td>
-                        <Form.Control
-                          type='number'
-                          plaintext
-                          placeholder='%'
-                          value={element.margin}
-                          onChange={(e) => handleMarginChange(index, e.target.value)}
-                        />
-                      </td> */}
-                      <td>
-                        {/* <Form.Control
-                          readOnly
-                          plaintext
-                          value={`Rp. ${
-                            orderDetailValues[index]?.final_price
-                              ? orderDetailValues[index]?.final_price.toLocaleString('id')
-                              : 0
-                          }`}
-                        /> */}
-                        {`Rp. ${
-                          orderDetailValues[index]?.total
-                            ? orderDetailValues[index]?.total.toLocaleString('id')
-                            : 0
-                        }`}
-                      </td>
-                    </tr>
-                  </>
-                ))}
 
-                {/* <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
-                    Total Jasa
-                  </td>
-                  <td className=' fw-bolder'>
-                    {`Rp. ${
-                      grandTotal
-                        ? grandTotal.toLocaleString('id')
-                        : parseInt(orderDetail?.grand_total).toLocaleString('id')
-                    }`}
-                  </td>
-                </tr> */}
+              <tbody>
+                {quotationDetail
+                  .filter((x) => x.type === 2)
+                  .map((element, index) => (
+                    <>
+                      <tr key={`${element.index}-service`}>
+                        <td>
+                          <Form.Control
+                            id={`item-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Select
+                            name='category_id'
+                            className='form-control p-0'
+                            classNamePrefix='select'
+                            placeholder='Pilih Kategori'
+                            isSearchable={true}
+                            options={categories}
+                            onChange={(newValue) => handleCategoryChange(element.index, newValue)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity}
+                            onChange={(e) => handleQuantityChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`unit-price-${index}`}
+                            type='number'
+                            value={element.unit_price}
+                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            readOnly
+                            plaintext
+                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
+                          />
+                        </td>
+
+                        <td>
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    </>
+                  ))}
               </tbody>
             </Table>
           </div>
 
           <div className='detail-table-material'>
+            <div className='d-flex justify-content-end'>
+              <Button
+                className='add-material'
+                variant='button-warning'
+                onClick={() => handleAddForm(1)}
+              >
+                Tambah Material
+              </Button>
+            </div>
+
             <Table hover>
               <thead>
                 <tr>
-                  <th className='text-center'>Material Yang Dibutuhkan</th>
+                  <th></th>
+                  <th className='text-center' style={{minWidth: '250px'}}>
+                    Material Yang Dibutuhkan
+                  </th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Total</th>
                   <th className='text-center'>Margin</th>
-                  <th className='text-center'>Final Price</th>
+                  <th className='text-center' style={{minWidth: '100px'}}>
+                    Final Price
+                  </th>
+                  <th className='text-center' style={{maxWidth: '130px', minWidth: '130px'}}>
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
+                {quotationDetail
+                  .filter((x) => x.type === 1)
+                  .map((element, index) => (
+                    <>
+                      <tr key={`${element.index}-material`}>
+                        <td>
+                          <Form.Check
+                            id={`is-user-${index}`}
+                            type='checkbox'
+                            checked={element.is_user === 1}
+                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`item-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity}
+                            disabled={element.is_user === 1 ? true : false}
+                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`unit-price-${index}`}
+                            type='number'
+                            value={element.unit_price}
+                            disabled={element.is_user === 1 ? true : false}
+                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`margin-${index}`}
+                            type='number'
+                            value={element.margin}
+                            disabled={element.is_user === 1 ? true : false}
+                            onChange={(e) => handleMarginChange(index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            readOnly
+                            plaintext
+                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
+                          />
+                        </td>
+
+                        <td align='center'>
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    </>
+                  ))}
+
                 <tr>
-                  <td>Instalasi AC</td>
-                  <td>1</td>
-                  <td>500.000</td>
-                  <td>500.000</td>
-                  <td>500.000</td>
-                  <td>500.000</td>
-                </tr>
-                <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Total Material
                   </td>
-                  <td className=' fw-bolder'>1.800.000</td>
+                  <td className=' fw-bolder'>{`Rp. ${totalMaterial.toLocaleString('id')}`}</td>
                 </tr>
+
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Total Jasa & Material
                   </td>
-                  <td className=' fw-bolder'>1.800.000</td>
+                  <td className=' fw-bolder'>{`Rp. ${totalJasaMaterial.toLocaleString('id')}`}</td>
                 </tr>
+
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
+                    Promosi / Discount
+                  </td>
+
+                  <td>
+                    <Form.Control
+                      id='promosi'
+                      type='number'
+                      value={promosiDiscount}
+                      onChange={(e) => handlePromosiChange(e.target.value)}
+                    />
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Grand Total
                   </td>
-                  <td className=' fw-bolder'>1.854.000</td>
+                  <td className=' fw-bolder'>{`Rp. ${grandTotal.toLocaleString('id')}`}</td>
                 </tr>
               </tbody>
             </Table>

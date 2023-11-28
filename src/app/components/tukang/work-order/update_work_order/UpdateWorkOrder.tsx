@@ -245,7 +245,7 @@ const UpdateWorkTukang: FC = () => {
     setWorkOrderItem((prev) => [...prev, newForm])
   }
 
-  let handleRemoveForm = (index: any, type: number) => {
+  let handleRemoveForm = (index: any) => {
     setWorkOrderItem((prev) => {
       const updatedValues = [...prev]
       const typeIndex = updatedValues.findIndex((item) => item.index === index)
@@ -258,6 +258,7 @@ const UpdateWorkTukang: FC = () => {
     })
   }
 
+  // Handle Item Name Change
   let handleItemNameChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
     const filteredMaterialValues = updatedMaterialValues.filter((x) => x.type === type)
@@ -274,6 +275,7 @@ const UpdateWorkTukang: FC = () => {
     }
   }
 
+  // Handle Quantity Change
   let handleQuantityChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
 
@@ -793,10 +795,7 @@ const UpdateWorkTukang: FC = () => {
                         </td>
 
                         <td>
-                          <Button
-                            variant='danger'
-                            onClick={() => handleRemoveForm(element.index, 1)}
-                          >
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
                             <FontAwesomeIcon icon={faTrash} />
                           </Button>
                         </td>
@@ -838,10 +837,7 @@ const UpdateWorkTukang: FC = () => {
                         </td>
 
                         <td>
-                          <Button
-                            variant='danger'
-                            onClick={() => handleRemoveForm(element.index, 2)}
-                          >
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
                             <FontAwesomeIcon icon={faTrash} />
                           </Button>
                         </td>
