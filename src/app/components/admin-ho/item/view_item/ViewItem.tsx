@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
 
-import './ViewMaterial.css'
+import './ViewItem.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -13,7 +13,7 @@ import {faBook, faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icon
 
 import {Table} from 'antd'
 
-const ViewMaterialVendor: React.FC = () => {
+const ViewItemHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
@@ -86,14 +86,14 @@ const ViewMaterialVendor: React.FC = () => {
       render: (record) => {
         const handleDetail = () => {
           const id = record.material_id
-          navigate(`/material/detail-material/${id}`)
+          navigate(`/item/detail-item/${id}`)
         }
 
         const handleDeleteId = () => {
           const id = record.material_id
 
           Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Material ini ?`,
+            title: `Apakah anda yakin akan menghapus data Item ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -156,7 +156,7 @@ const ViewMaterialVendor: React.FC = () => {
   ]
 
   // Fetch Data Material
-  const [materialData, setMaterialData] = useState<DataType[]>([])
+  const [itemData, setItemData] = useState<DataType[]>([])
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -165,7 +165,7 @@ const ViewMaterialVendor: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchMaterialList = async () => {
+  const getItemList = async () => {
     try {
       const response = await axios.get(`${apiUrl}/items?take=0&search=${searchFilter}`, {
         headers: {
@@ -181,31 +181,31 @@ const ViewMaterialVendor: React.FC = () => {
     }
   }
 
-  const ViewMaterial = async () => {
+  const ViewItem = async () => {
     try {
-      const apiData = await fetchMaterialList()
+      const apiData = await getItemList()
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
         return []
       }
 
-      const materialData = apiData.map((item: any) => {
+      const itemData = apiData.map((item: any) => {
         let data
 
         data = {
-          material_id: item.id,
-          store_name: item.prices[0].store_id,
+          material_id: item?.id,
+          store_name: item?.prices[0]?.store.store_name,
           product_name: item?.item_name,
           service_name: item?.service_name,
           default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
-          min_order: item.prices[0].min_order,
+          min_order: item?.prices[0]?.min_order,
         }
 
         return data
       })
 
-      return materialData
+      return itemData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
@@ -214,15 +214,15 @@ const ViewMaterialVendor: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await ViewMaterial()
-      setMaterialData(data)
+      const data = await ViewItem()
+      setItemData(data)
     }
 
     fetchData()
   }, [searchFilter])
 
   return (
-    <section id='view-material'>
+    <section id='view-item'>
       <div className='card'>
         <div className='card-body'>
           <Row className='table-head-wrapper'>
@@ -251,7 +251,7 @@ const ViewMaterialVendor: React.FC = () => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={materialData}
+            dataSource={itemData}
             rowKey={(record) => record.material_id}
             // scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
@@ -262,4 +262,4 @@ const ViewMaterialVendor: React.FC = () => {
   )
 }
 
-export {ViewMaterialVendor}
+export {ViewItemHO}

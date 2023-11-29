@@ -1,0 +1,92 @@
+/* Table Item List */
+
+#new-material .table .table-item-head tr th {
+  font-weight: 400;
+  text-align: center;
+  color: #ffff;
+  background-color: #464646;
+}
+
+/* Table Work Order Item List */
+#new-material .table-head-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+#new-material .table-head-wrapper .left {
+  display: flex;
+  align-items: center;
+}
+
+#new-material .table-head-wrapper .middle {
+  display: flex;
+  justify-content: space-between;
+}
+
+#new-material .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#new-material
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#new-material .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#new-material .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#new-material .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#new-material .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Button Action */
+
+#new-material button.btn.btn-button-dark-primary {
+  width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 5px;
+  background-color: #183383;
+  color: white;
+}
+
+#new-material button.btn.btn-button-warning {
+  width: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 5px;
+  background-color: #183383;
+  color: white;
+}

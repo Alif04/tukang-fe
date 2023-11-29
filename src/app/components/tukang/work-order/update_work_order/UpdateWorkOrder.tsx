@@ -34,7 +34,7 @@ interface WorkOrderItem {
   item_name: string
   tukang_id: number | null
   tukang_name: string
-  is_user: boolean
+  is_user: number
   type: number
   quantity: number | null
 }
@@ -67,7 +67,7 @@ const UpdateWorkTukang: FC = () => {
       item_name: '',
       tukang_id: null,
       tukang_name: '',
-      is_user: false,
+      is_user: 0,
       type: 1,
       quantity: null,
     },
@@ -77,7 +77,7 @@ const UpdateWorkTukang: FC = () => {
       item_name: '',
       tukang_id: null,
       tukang_name: '',
-      is_user: false,
+      is_user: 0,
       type: 2,
       quantity: null,
     },
@@ -169,7 +169,7 @@ const UpdateWorkTukang: FC = () => {
                 item_name: item.name,
                 tukang_id: item?.tukang_id,
                 tukang_name: item?.tukang_name,
-                is_user: item.is_customer,
+                is_user: item.is_customer ? 1 : 0,
                 type: item.type,
                 quantity: item.quantity,
               })
@@ -237,7 +237,7 @@ const UpdateWorkTukang: FC = () => {
       item_name: '',
       tukang_id: null,
       tukang_name: '',
-      is_user: false,
+      is_user: 0,
       type: type,
       quantity: null,
     }
@@ -293,8 +293,8 @@ const UpdateWorkTukang: FC = () => {
   let handleCheckboxChange = (index: any, isChecked: boolean) => {
     const updatedMaterialValues = [...workOrderItem]
     const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
-    if (elementIndex) {
-      updatedMaterialValues[elementIndex].is_user = isChecked
+    if (elementIndex !== -1) {
+      updatedMaterialValues[elementIndex].is_user = isChecked ? 1 : 0
     }
 
     setWorkOrderItem(updatedMaterialValues)
@@ -773,7 +773,7 @@ const UpdateWorkTukang: FC = () => {
                           <Form.Check
                             id={`is-user-${index}`}
                             type='checkbox'
-                            checked={element.is_user}
+                            checked={element.is_user === 1}
                             onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
                           />
                         </td>

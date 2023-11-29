@@ -1,0 +1,82 @@
+/* Header */
+#detail-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#detail-item .card {
+  width: 900px;
+}
+
+#detail-item .card .card-body {
+  min-height: 100vh;
+  padding: 3rem 3rem !important;
+}
+
+#detail-item .card .card-body .invoice-detail {
+  margin: 0 0 30px 0;
+}
+
+#detail-item .card .card-body .vendor-information .vendor-detail h1 {
+  color: #007eb4;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#detail-item .receiver-information .receiver-detail {
+  padding: 0 0 10px 0;
+}
+
+#detail-item .receiver-information .receiver-detail h1 {
+  font-size: 18px;
+}
+
+#detail-item .address h3 {
+  font-size: 16px;
+  padding: 0 0 10px 0;
+}
+
+#detail-item .payment-request {
+  width: 300px;
+}
+
+#detail-item .payment-request h1 {
+  color: #484747;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#detail-item .payment-request h3 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+/* Table */
+
+#detail-item .detail-table {
+  margin: 0 0 30px 0;
+}
+
+#detail-item .detail-table table tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #555555;
+}
+
+#detail-item
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(even)
+  td {
+  background-color: #e4e9f7;
+}
+
+#detail-item
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(odd)
+  td {
+  background-color: #ffff;
+}

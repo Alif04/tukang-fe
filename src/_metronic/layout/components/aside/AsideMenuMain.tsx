@@ -264,7 +264,7 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       {/* Halaman Material */}
-      {/* <AsideMenuItemWithSub
+      <AsideMenuItemWithSub
         to='/material'
         title='Material (Maintenance)'
         icon='/media/icons/duotune/communication/com006.svg'
@@ -283,7 +283,25 @@ export function AsideMenuMain() {
           role={['Admin Vendor']}
           hasBullet={true}
         />
-      </AsideMenuItemWithSub> */}
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Item */}
+      <AsideMenuItemWithSub
+        to='/item'
+        title='Item (Maintenance)'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+        role={['Admin HO']}
+      >
+        <AsideMenuItem
+          to='/item/view-item'
+          title='View Item'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+
+        <AsideMenuItem to='/item/new-item' title='New Item' role={['Admin HO']} hasBullet={true} />
+      </AsideMenuItemWithSub>
 
       {/* Halaman Invoice */}
       <AsideMenuItemWithSub

@@ -185,6 +185,19 @@ export * from './admin-ho/quotation/dashboard_finance/DashboardFinance'
 // Detail Quotation HO
 export * from './admin-ho/quotation/detail_quotation/DetailQuotation'
 
+// ITEM
+// View Item HO
+export * from './admin-ho/item/view_item/ViewItem'
+
+// New Item HO
+export * from './admin-ho/item/new_item/NewItem'
+
+// Detail Item HO
+export * from './admin-ho/item/detail_item/DetailItem'
+
+// Update Item HO
+export * from './admin-ho/item/update_item/UpdateItem'
+
 // PAYMENT
 // View Payment HO
 export * from './admin-ho/payment/view_payment/ViewPayment'
