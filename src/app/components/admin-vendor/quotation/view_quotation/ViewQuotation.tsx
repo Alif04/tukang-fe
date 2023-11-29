@@ -220,11 +220,11 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async () => {
+  const fetchQuotationList = async () => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(`${apiUrl}/quotation`, {
+      const response = await axios.get(`${apiUrl}/quotation?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -239,9 +239,9 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewOrder = async () => {
+  const ViewQuotation = async () => {
     try {
-      const apiData = await fetchOrderList()
+      const apiData = await fetchQuotationList()
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -260,7 +260,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           order_id: item.order.id,
           date_order: formatDate(orderDate),
           costumer_name: item.order.members.full_name,
-          // vendor_name: item.vendor.vendor_name,
+          vendor_name: item.order.vendor.company_name,
           payment_status: paymentStatus,
           order_status: item.status.category,
           quotation_status: item.status.category,
@@ -278,7 +278,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await ViewOrder()
+      const data = await ViewQuotation()
       setOrderData(data)
     }
 

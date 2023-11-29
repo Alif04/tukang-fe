@@ -80,7 +80,8 @@ const DetailQuotationHO: FC = () => {
               </h3>
 
               <h3 className='fw-bolder'>
-                Costumer ID : <span className='fw-normal'>{quotationDetail?.order.member_id}</span>
+                Customer ID :{' '}
+                <span className='fw-normal'>{quotationDetail?.order?.members?.member_number}</span>
               </h3>
             </div>
           </div>
@@ -89,7 +90,7 @@ const DetailQuotationHO: FC = () => {
             <div className='receiver-information'>
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                <h1 className='fw-bolder mt-3'>Ibu Ami</h1>
+                <h1 className='fw-bolder mt-3'>{quotationDetail?.order?.members?.full_name}</h1>
               </div>
 
               <div className='address'>
@@ -141,41 +142,33 @@ const DetailQuotationHO: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {quotationDetail?.order.payment_type === 'survey' ? (
+                {quotationDetail?.quotation_details.map((item: any) => (
                   <>
                     <tr>
-                      <td colSpan={4}>Survey</td>
+                      <td>{item?.name}</td>
+                      <td>{item?.quantity}</td>
+                      <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                      <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
                     </tr>
                   </>
-                ) : (
-                  quotationDetail?.order.m_order_details.map((item: any, index: any) => (
-                    <>
-                      <tr>
-                        <td>{item?.unit}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
-                      </tr>
-                    </>
-                  ))
-                )}
+                ))}
+
+                {/* <tr>
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Total
+                  </td>
+                  <td className=' fw-bolder'>{`Rp. ${parseInt(
+                    quotationDetail?.quotation_grand_total
+                  ).toLocaleString('id')}`}</td>
+                </tr> */}
 
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
-                    Biaya Survey
+                    Tax ( 11 % )
                   </td>
-                  <td className=' fw-bolder'>
-                    {quotationDetail?.order.payment_type === 'gratis' ||
-                    quotationDetail?.order.payment_type === 'pemasangan_tanpa_survey'
-                      ? `                      Rp. ${0?.toLocaleString(
-                          'id'
-                        )}                        `
-                      : quotationDetail?.order.payment_type === 'survey'
-                      ? `                      Rp. ${99000?.toLocaleString(
-                          'id'
-                        )}                        `
-                      : `Rp. ${0}`}
-                  </td>
+                  <td className=' fw-bolder'>{`Rp. ${parseInt(
+                    quotationDetail?.quotation_disc
+                  ).toLocaleString('id')}`}</td>
                 </tr>
 
                 <tr>
@@ -183,7 +176,7 @@ const DetailQuotationHO: FC = () => {
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>
-                    Rp. {parseInt(quotationDetail?.order.grand_total || 0)?.toLocaleString('id')}
+                    {`Rp. ${parseInt(quotationDetail?.quotation_grand_total).toLocaleString('id')}`}
                   </td>
                 </tr>
               </tbody>

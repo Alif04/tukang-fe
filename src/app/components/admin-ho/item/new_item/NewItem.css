@@ -1,0 +1,90 @@
+/* Header */
+#new-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#new-item .card {
+  width: 900px;
+}
+
+#new-item .card .card-body {
+  min-height: 100vh;
+  padding: 3rem 3rem !important;
+}
+
+#new-item .card .card-body .invoice-detail {
+  margin: 0 0 30px 0;
+}
+
+#new-item .card .card-body .vendor-information .vendor-detail h1 {
+  color: #007eb4;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#new-item .receiver-information .receiver-detail {
+  padding: 0 0 10px 0;
+}
+
+#new-item .receiver-information .receiver-detail h1 {
+  font-size: 18px;
+}
+
+#new-item .address h3 {
+  font-size: 16px;
+  padding: 0 0 10px 0;
+}
+
+#new-item .payment-request h1 {
+  color: #484747;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#new-item .payment-request h3 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+/* Table */
+
+#new-item .detail-table {
+  margin: 0 0 30px 0;
+}
+
+#new-item .detail-table table tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #555555;
+}
+
+#new-item .detail-table table.table.table-striped.table-bordered.table-hover tr:nth-child(even) td {
+  background-color: #e4e9f7;
+}
+
+#new-item .detail-table table.table.table-striped.table-bordered.table-hover tr:nth-child(odd) td {
+  background-color: #ffff;
+}
+
+/* Button Action */
+
+#new-item .btn.btn-dark-primary {
+  width: 220px;
+  height: 40px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#new-item button.btn-submit.d-flex.justify-content-center.align-items-center.btn.btn-dark-primary {
+  width: 100px;
+  height: 40px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}

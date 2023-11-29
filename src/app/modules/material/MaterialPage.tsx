@@ -53,7 +53,7 @@ const MaterialPage: React.FC = () => {
         path='detail-material/:id'
         element={
           <>
-            <PageTitle breadcrumbs={materialBreadCrumbs}>DETAIL MMATERIAL</PageTitle>
+            <PageTitle breadcrumbs={materialBreadCrumbs}>DETAIL MATERIAL</PageTitle>
             <DetailMaterial />
           </>
         }
