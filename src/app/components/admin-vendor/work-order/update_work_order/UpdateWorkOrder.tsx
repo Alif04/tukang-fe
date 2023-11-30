@@ -236,8 +236,6 @@ const UpdateWorkVendor: FC = () => {
       const cache = {...prev, [target]: value}
       return cache
     })
-
-    console.log(workOrder)
   }
 
   // Handle Update Work Order

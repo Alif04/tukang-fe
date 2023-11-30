@@ -50,6 +50,7 @@ const UpdateQuotationVendor: FC = () => {
   const [quotationValidity, setQuotationValidity] = useState<string>('')
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
+  const [totalJasa, setTotalJasa] = useState<number>(0)
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
   const [promosiDiscount, setPromosiDiscount] = useState<number>(0)
@@ -153,7 +154,7 @@ const UpdateQuotationVendor: FC = () => {
           if (data?.quotation_details) {
             const quotationDetails = data.quotation_details.map((item: any, index: number) => ({
               id: item.id,
-              index: (Date.now() + index).toString(),
+              index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
               type: item.item_type,
               item_id: item.item_id,
               work_order_item_id: item.work_order_items_id,
@@ -212,6 +213,21 @@ const UpdateQuotationVendor: FC = () => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
+  }
+
+  // Hash Key
+  const stringToHash = (string: string): number => {
+    let hash = 0
+
+    if (string.length == 0) return hash
+
+    for (let i = 0; i < string.length; i++) {
+      const char = string.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash
+    }
+
+    return hash
   }
 
   // Quotation Status
@@ -402,6 +418,16 @@ const UpdateQuotationVendor: FC = () => {
     }
   }
 
+  // Total Jasa
+  const calculateTotalJasa = () => {
+    const serviceDetails = quotationDetail.filter((detail) => detail.type === 2)
+    const total = serviceDetails.reduce(
+      (accumulator, detail) => accumulator + detail.final_price,
+      0
+    )
+    setTotalJasa(total)
+  }
+
   // Total Material
   const calculateTotalMaterial = () => {
     const materialDetails = quotationDetail.filter((detail) => detail.type === 1)
@@ -436,6 +462,7 @@ const UpdateQuotationVendor: FC = () => {
   }
 
   useEffect(() => {
+    calculateTotalJasa()
     calculateTotalMaterial()
     calculateTotalJasaMaterial()
     calculatedGrandTotal()
@@ -739,7 +766,8 @@ const UpdateQuotationVendor: FC = () => {
                   <th className='text-center'>Jenis Jasa</th>
                   <th className='text-center'>Category</th>
                   <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Harga Satuan (Rp.)</th>
+                  <th className='text-center'>Margin (Rp.)</th>
                   <th className='text-center'>Final Price</th>
                   <th className='text-center'>Action</th>
                 </tr>
@@ -787,6 +815,15 @@ const UpdateQuotationVendor: FC = () => {
 
                         <td>
                           <Form.Control
+                            id={`margin-${index}`}
+                            type='number'
+                            value={element.margin}
+                            onChange={(e) => handleMarginChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
                             id={`unit-price-${index}`}
                             type='number'
                             value={element.unit_price}
@@ -810,6 +847,13 @@ const UpdateQuotationVendor: FC = () => {
                       </tr>
                     </>
                   ))}
+
+                <tr>
+                  <td colSpan={6} className='text-end fw-bolder'>
+                    Total Jasa
+                  </td>
+                  <td className=' fw-bolder'>{`Rp. ${totalJasa.toLocaleString('id')}`}</td>
+                </tr>
               </tbody>
             </Table>
           </div>
@@ -833,8 +877,8 @@ const UpdateQuotationVendor: FC = () => {
                     Material Yang Dibutuhkan
                   </th>
                   <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Harga Satuan (Rp.)</th>
+                  <th className='text-center'>Margin (Rp.)</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Final Price
                   </th>

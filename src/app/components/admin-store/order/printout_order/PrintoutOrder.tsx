@@ -206,7 +206,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   orderDetail?.order_details.map((item: any, index: any) => (
                     <>
                       <tr>
-                        <td colSpan={2}>{item?.unit}</td>
+                        <td colSpan={2}>{item?.item.service_name}</td>
                       </tr>
                     </>
                   ))
