@@ -198,7 +198,7 @@ const NewOrderStore: FC = () => {
         })
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
-            value: item.member_number,
+            value: item.id,
             label: item.member_number,
             full_name: item.full_name,
             email: item.email,
@@ -306,7 +306,7 @@ const NewOrderStore: FC = () => {
           const {prices, default_price} = item
 
           const unitPrice =
-            quantity >= +prices[0].min_order.toString() ? +prices[0].price : +default_price
+            quantity >= +prices[0]?.min_order.toString() ? +prices[0].price : +default_price
           const total = unitPrice * quantity
 
           newDetail = {...newDetail, unit_price: unitPrice.toString(), total: total.toString()}

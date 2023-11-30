@@ -1,3 +1,4 @@
+import {Dayjs} from 'dayjs'
 import {Tukang} from './tukang'
 
 export interface WorkOrderTukang {

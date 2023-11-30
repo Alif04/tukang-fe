@@ -248,7 +248,7 @@ const NewOrderHO: FC = () => {
         })
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
-            value: item.member_number,
+            value: item.id,
             label: item.member_number,
             full_name: item.full_name,
             email: item.email,
@@ -413,7 +413,7 @@ const NewOrderHO: FC = () => {
           const {prices, default_price} = item
 
           const unitPrice =
-            prices && prices.length > 0 && quantity >= +prices[0].min_order
+            prices && prices.length > 0 && quantity >= +prices[0]?.min_order
               ? +prices[0].price
               : default_price !== null
               ? +default_price

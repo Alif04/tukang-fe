@@ -22,7 +22,7 @@ interface StoreItemSelect {
 
 interface MemberSelect {
   value: number | null
-  label: number | null
+  label: string
   full_name: string
   email: string
   phone_number: string
@@ -141,7 +141,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const [member, setMember] = useState<MemberSelect[]>([])
   const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
     value: null,
-    label: null,
+    label: '',
     full_name: '',
     email: '',
     phone_number: '',
@@ -256,7 +256,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             if (data?.members) {
               setSelectedMember((prev) => ({
                 ...prev,
-                value: data.members.member_number,
+                value: data.members.id,
                 label: data.members.member_number,
                 full_name: data.members.full_name,
                 email: data.members.email,
@@ -267,7 +267,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
               setOrderForm((prev) => ({
                 ...prev,
-                member_id: data.members.member_number,
+                member_id: data.members.id,
               }))
             }
 
@@ -423,7 +423,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         })
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
-            value: item.member_number,
+            value: item.id,
             label: item.member_number,
             full_name: item.full_name,
             email: item.email,
@@ -590,7 +590,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           const {prices, default_price} = item
 
           const unitPrice =
-            prices && prices.length > 0 && quantity >= +prices[0].min_order
+            prices && prices.length > 0 && quantity >= +prices[0]?.min_order
               ? +prices[0].price
               : default_price !== null
               ? +default_price
@@ -1006,7 +1006,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       options={member}
                       value={{
                         value: selectedMember?.value ?? null,
-                        label: selectedMember?.value ?? null,
+                        label: selectedMember?.label ?? '',
                         full_name: selectedMember?.full_name ?? '',
                         email: selectedMember?.email ?? '',
                         phone_number: selectedMember?.phone_number ?? '',

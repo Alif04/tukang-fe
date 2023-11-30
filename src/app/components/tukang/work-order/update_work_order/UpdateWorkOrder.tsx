@@ -183,10 +183,6 @@ const UpdateWorkTukang: FC = () => {
     }
   }
 
-  useEffect(() => {
-    fetchOrderData()
-  }, [])
-
   // Format Date
   const today = new Date().toISOString().split('T')[0]
 
@@ -208,29 +204,8 @@ const UpdateWorkTukang: FC = () => {
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
   }
 
-  // Filter Work Order Status
-  useEffect(() => {
-    const workOrderStatusOption = () => {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: Status) =>
-        ['SURVEYED', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(status.category)
-      )
-
-      const selectedStatus = desiredStatus.map((status: Status) => ({
-        value: status.value,
-        category: status.category,
-        label: status.category,
-      }))
-
-      setWorkOrderStatus(selectedStatus)
-    }
-
-    workOrderStatusOption()
-  }, [])
-
   // Form Handler
-  let handleAddForm = (type: number) => {
+  const handleAddForm = (type: number) => {
     const newForm = {
       id: null,
       index: Date.now().toString(),
@@ -245,7 +220,7 @@ const UpdateWorkTukang: FC = () => {
     setWorkOrderItem((prev) => [...prev, newForm])
   }
 
-  let handleRemoveForm = (index: any) => {
+  const handleRemoveForm = (index: any) => {
     setWorkOrderItem((prev) => {
       const updatedValues = [...prev]
       const typeIndex = updatedValues.findIndex((item) => item.index === index)
@@ -259,7 +234,7 @@ const UpdateWorkTukang: FC = () => {
   }
 
   // Handle Item Name Change
-  let handleItemNameChange = (index: any, value: any, type: number) => {
+  const handleItemNameChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
     const filteredMaterialValues = updatedMaterialValues.filter((x) => x.type === type)
 
@@ -276,7 +251,7 @@ const UpdateWorkTukang: FC = () => {
   }
 
   // Handle Quantity Change
-  let handleQuantityChange = (index: any, value: any, type: number) => {
+  const handleQuantityChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
 
     if (type === 1) {
@@ -290,7 +265,7 @@ const UpdateWorkTukang: FC = () => {
   }
 
   // Handle Checkbox Change
-  let handleCheckboxChange = (index: any, isChecked: boolean) => {
+  const handleCheckboxChange = (index: any, isChecked: boolean) => {
     const updatedMaterialValues = [...workOrderItem]
     const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
     if (elementIndex !== -1) {
@@ -447,8 +422,20 @@ const UpdateWorkTukang: FC = () => {
       })
   }
 
-  const handleCancelUpdateWorkOrder = () => {
-    navigate('/work-order/view-work-order')
+  const workOrderStatusOption = () => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData.filter((status: Status) =>
+      ['SURVEYED', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(status.category)
+    )
+
+    const selectedStatus = desiredStatus.map((status: Status) => ({
+      value: status.value,
+      category: status.category,
+      label: status.category,
+    }))
+
+    setWorkOrderStatus(selectedStatus)
   }
 
   // Work Order History
@@ -499,6 +486,11 @@ const UpdateWorkTukang: FC = () => {
       sorter: (a, b) => a.time_spent.length - b.time_spent.length,
     },
   ]
+
+  useEffect(() => {
+    workOrderStatusOption()
+    fetchOrderData()
+  }, [])
 
   return (
     <section id='update-work-order-tukang'>
@@ -674,15 +666,19 @@ const UpdateWorkTukang: FC = () => {
                   </Form.Group>
                 </Col>
 
-                <div className='d-flex justify-content-end'>
-                  <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateWorkOrder}>
+                {/* <div className='d-flex justify-content-end'>
+                  <Button
+                    variant='dark-danger'
+                    type='submit'
+                    onClick={() => navigate('/work-order/view-work-order')}
+                  >
                     Cancel
                   </Button>
 
                   <Button variant='dark-primary' type='submit' onClick={handleUpdateWorkOrder}>
                     Save
                   </Button>
-                </div>
+                </div> */}
               </Row>
             </Col>
 
@@ -852,6 +848,22 @@ const UpdateWorkTukang: FC = () => {
                 </Button>
               </div>
             </Col>
+          </Row>
+
+          <Row>
+            <div className='d-flex justify-content-center'>
+              <Button
+                variant='dark-danger'
+                type='submit'
+                onClick={() => navigate('/work-order/view-work-order')}
+              >
+                Cancel
+              </Button>
+
+              <Button variant='dark-primary' type='submit' onClick={handleUpdateWorkOrder}>
+                Save
+              </Button>
+            </div>
           </Row>
         </Card.Body>
       </Card>

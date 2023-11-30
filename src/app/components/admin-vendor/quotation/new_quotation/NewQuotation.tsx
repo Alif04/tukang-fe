@@ -60,6 +60,7 @@ const NewQuotationVendor: FC = () => {
   const [quotationValidity, setQuotationValidity] = useState<string>('')
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
+  const [totalJasa, setTotalJasa] = useState<number>(0)
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
   const [promosiDiscount, setPromosiDiscount] = useState<number>(0)
@@ -102,6 +103,8 @@ const NewQuotationVendor: FC = () => {
       is_user: 0,
     },
   ])
+
+  console.log(quotationDetail)
 
   // Store
   const [store, setStore] = useState<SelectedStoreItem[]>([])
@@ -245,21 +248,24 @@ const NewQuotationVendor: FC = () => {
           setOrderDetail(data)
 
           if (data?.order_details && data?.work_orders?.work_order_status) {
-            // const orderDetailItem = data.order_details.map((item: any, index: number) => ({
-            //   id: item.id,
-            //   item_id: item.item_id,
-            //   work_order_item_id: null,
-            //   type: null,
-            //   item_name: item.item.service_name,
-            //   quantity: item.quantity,
-            //   unit_price: parseInt(item.unit_price),
-            //   final_price: parseInt(item.total),
-            // }))
+            const orderDetailItem = data.order_details.map((item: any, index: number) => ({
+              id: item.id,
+              index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
+              type: 1,
+              item_id: item.item_id,
+              work_order_item_id: null,
+              category_id: null,
+              item_name: item.item.service_name,
+              quantity: item.quantity,
+              is_user: item.is_customer ? 1 : 0,
+              unit_price: parseInt(item.unit_price),
+              final_price: parseInt(item.total),
+            }))
 
             const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
-                index: (Date.now() + index).toString(),
+                index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
                 type: item.type,
                 item_id: null,
                 work_order_item_id: item.item_id,
@@ -273,9 +279,9 @@ const NewQuotationVendor: FC = () => {
               })
             )
 
-            // const mergedItem = orderDetailItem.concat(workOrderItem)
-            // setQuotationDetail(mergedItem)
-            setQuotationDetail(workOrderItem)
+            const mergedItem = orderDetailItem.concat(workOrderItem)
+            setQuotationDetail(mergedItem)
+            // setQuotationDetail(workOrderItem)
           }
 
           if (data?.store) {
@@ -330,6 +336,21 @@ const NewQuotationVendor: FC = () => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
+  }
+
+  // Hash Key
+  const stringToHash = (string: string): number => {
+    let hash = 0
+
+    if (string.length == 0) return hash
+
+    for (let i = 0; i < string.length; i++) {
+      const char = string.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash
+    }
+
+    return hash
   }
 
   // Select Order
@@ -526,6 +547,16 @@ const NewQuotationVendor: FC = () => {
     }
   }
 
+  // Total Jasa
+  const calculateTotalJasa = () => {
+    const serviceDetails = quotationDetail.filter((detail) => detail.type === 2)
+    const total = serviceDetails.reduce(
+      (accumulator, detail) => accumulator + detail.final_price,
+      0
+    )
+    setTotalJasa(total)
+  }
+
   // Total Material
   const calculateTotalMaterial = () => {
     const materialDetails = quotationDetail.filter((detail) => detail.type === 1)
@@ -560,6 +591,7 @@ const NewQuotationVendor: FC = () => {
   }
 
   useEffect(() => {
+    calculateTotalJasa()
     calculateTotalMaterial()
     calculateTotalJasaMaterial()
     calculatedGrandTotal()
@@ -860,7 +892,8 @@ const NewQuotationVendor: FC = () => {
                   <th className='text-center'>Jenis Jasa</th>
                   <th className='text-center'>Category</th>
                   <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Harga Satuan (Rp.)</th>
+                  <th className='text-center'>Margin (Rp.)</th>
                   <th className='text-center'>Final Price</th>
                   <th className='text-center'>Action</th>
                 </tr>
@@ -902,6 +935,15 @@ const NewQuotationVendor: FC = () => {
 
                         <td>
                           <Form.Control
+                            id={`margin-${index}`}
+                            type='number'
+                            value={element.margin}
+                            onChange={(e) => handleMarginChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
                             id={`unit-price-${index}`}
                             type='number'
                             value={element.unit_price}
@@ -925,6 +967,13 @@ const NewQuotationVendor: FC = () => {
                       </tr>
                     </>
                   ))}
+
+                <tr>
+                  <td colSpan={6} className='text-end fw-bolder'>
+                    Total Jasa
+                  </td>
+                  <td className=' fw-bolder'>{`Rp. ${totalJasa.toLocaleString('id')}`}</td>
+                </tr>
               </tbody>
             </Table>
           </div>
@@ -948,8 +997,8 @@ const NewQuotationVendor: FC = () => {
                     Material Yang Dibutuhkan
                   </th>
                   <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Harga Satuan (Rp.)</th>
+                  <th className='text-center'>Margin (Rp.)</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Final Price
                   </th>
