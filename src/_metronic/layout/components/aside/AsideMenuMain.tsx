@@ -409,12 +409,12 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         title='Pengaturan'
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+        role={['Store CS', 'Store Staff', 'Admin HO']}
       >
         <AsideMenuItem
           to='/sales/new-sales'
           title='Register Sales'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+          role={['Store CS', 'Store Staff', 'Admin HO']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
