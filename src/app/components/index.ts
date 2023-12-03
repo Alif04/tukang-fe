@@ -153,6 +153,13 @@ export * from './admin-ho/csi/report_csi/ReportCSI'
 // Update CSI
 export * from './admin-ho/csi/update_csi/UpdateCSI'
 
+// SALES
+// Update Sales
+export * from './admin-ho/sales/update_sales/UpdateSales'
+
+// View Sales
+export * from './admin-ho/sales/view_sales/ViewSales'
+
 // VENDOR
 // View Vendor
 export * from './admin-ho/vendor/view_vendor/ViewVendor'

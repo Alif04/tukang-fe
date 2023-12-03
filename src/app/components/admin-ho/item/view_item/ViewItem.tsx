@@ -84,6 +84,11 @@ const ViewItemHO: React.FC = () => {
       title: 'Action',
       key: 'action',
       render: (record) => {
+        const handleUpdate = () => {
+          const id = record.material_id
+          navigate(`/item/update-item/${id}`)
+        }
+
         const handleDetail = () => {
           const id = record.material_id
           navigate(`/item/detail-item/${id}`)
@@ -144,6 +149,10 @@ const ViewItemHO: React.FC = () => {
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
+            <a className='button-detail' onClick={handleUpdate}>
+              <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
+            </a>
+
             <a className='button-delete' onClick={handleDeleteId}>
               <FontAwesomeIcon icon={faTrash} size='sm' />
             </a>
@@ -195,11 +204,11 @@ const ViewItemHO: React.FC = () => {
 
         data = {
           material_id: item?.id,
-          store_name: item?.prices[0]?.store.store_name,
-          product_name: item?.item_name,
-          service_name: item?.service_name,
+          store_name: item?.prices[0]?.store.store_name || '-',
+          product_name: item?.item_name || '-',
+          service_name: item?.service_name || '-',
           default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
-          min_order: item?.prices[0]?.min_order,
+          min_order: item?.prices[0]?.min_order || '-',
         }
 
         return data

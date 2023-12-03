@@ -39,13 +39,13 @@ export function AsideMenuMain() {
       />
 
       {/* Halaman Calendar */}
-      {/* <AsideMenuItem
+      <AsideMenuItem
         to='/calendar/view-calendar'
         icon='/media/icons/duotune/art/art002.svg'
-        title='Calendar ( Maintenance )'
+        title='Calendar'
         fontIcon='bi-app-indicator'
-        role={['Admin HO']}
-      /> */}
+        role={['Admin HO', 'Admin Vendor', 'Tukang']}
+      />
 
       {/* Halaman Order */}
       <AsideMenuItemWithSub
@@ -179,6 +179,28 @@ export function AsideMenuMain() {
           to='/tukang/new-tukang'
           title='New Tukang'
           role={['Admin Vendor']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
+      {/* Halaman Sales */}
+      <AsideMenuItemWithSub
+        to='/sales'
+        title='Sales'
+        icon='/media/icons/duotune/communication/com006.svg'
+        fontIcon='bi-person'
+        role={['Admin HO']}
+      >
+        <AsideMenuItem
+          to='/sales/view-sales'
+          title='View Sales'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/sales/new-sales'
+          title='Register Sales'
+          role={['Admin HO']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -414,7 +436,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/sales/new-sales'
           title='Register Sales'
-          role={['Store CS', 'Store Staff', 'Admin HO']}
+          role={['Store CS', 'Store Staff']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

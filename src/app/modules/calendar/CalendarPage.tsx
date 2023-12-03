@@ -26,17 +26,17 @@ const CalendarPage: React.FC = () => {
             {userRole == 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
-                <PageTitle breadcrumbs={orderBreadCrumbs}>CALENDAR WORK</PageTitle>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR VENDOR</PageTitle>
               </>
             ) : userRole == 'Admin Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
-                <PageTitle breadcrumbs={orderBreadCrumbs}>CALENDAR WORK</PageTitle>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR KERJA</PageTitle>
               </>
             ) : userRole == 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
-                <PageTitle breadcrumbs={orderBreadCrumbs}>CALENDAR WORK ORDER</PageTitle>
+                <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR KERJA</PageTitle>
               </>
             ) : (
               <></>

@@ -3,7 +3,10 @@ import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
-import {NewSales} from '../../components'
+
+import {RegisterSales} from './components/NewSales'
+import {ViewSales} from './components/ViewSales'
+import {EditSales} from './components/UpdateSales'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -29,15 +32,7 @@ const SalesPage: React.FC = () => {
         path='new-sales'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -45,7 +40,43 @@ const SalesPage: React.FC = () => {
               <></>
             )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PENDAFTARAN SALES</PageTitle>
-            <NewSales />
+            <RegisterSales />
+          </>
+        }
+      />
+
+      <Route
+        path='update-sales/:id'
+        element={
+          <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE SALES</PageTitle>
+            <EditSales />
+          </>
+        }
+      />
+
+      <Route
+        path='view-sales'
+        element={
+          <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              DAFTAR SALES INSTALASI & SERVICE MITRA10
+            </PageTitle>
+            <ViewSales />
           </>
         }
       />

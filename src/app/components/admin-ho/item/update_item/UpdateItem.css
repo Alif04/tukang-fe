@@ -1,0 +1,99 @@
+/* Header */
+#update-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#update-item .card {
+  width: 900px;
+}
+
+#update-item .card .card-body {
+  min-height: 100vh;
+  padding: 3rem 3rem !important;
+}
+
+#update-item .card .card-body .invoice-detail {
+  margin: 0 0 30px 0;
+}
+
+#update-item .card .card-body .vendor-information .vendor-detail h1 {
+  color: #007eb4;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#update-item .receiver-information .receiver-detail {
+  padding: 0 0 10px 0;
+}
+
+#update-item .receiver-information .receiver-detail h1 {
+  font-size: 18px;
+}
+
+#update-item .address h3 {
+  font-size: 16px;
+  padding: 0 0 10px 0;
+}
+
+#update-item .payment-request h1 {
+  color: #484747;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#update-item .payment-request h3 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+/* Table */
+
+#update-item .detail-table {
+  margin: 0 0 30px 0;
+}
+
+#update-item .detail-table table tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #555555;
+}
+
+#update-item
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(even)
+  td {
+  background-color: #e4e9f7;
+}
+
+#update-item
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(odd)
+  td {
+  background-color: #ffff;
+}
+
+/* Button Action */
+
+#update-item .btn.btn-dark-primary {
+  width: 220px;
+  height: 40px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-item
+  button.btn-submit.d-flex.justify-content-center.align-items-center.btn.btn-dark-primary {
+  width: 100px;
+  height: 40px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}

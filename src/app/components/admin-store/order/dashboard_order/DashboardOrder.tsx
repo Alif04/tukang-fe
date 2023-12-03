@@ -31,7 +31,7 @@ type StatusToStateMap = {
 }
 
 const statusToStateMap: StatusToStateMap = {
-  BOOK: 'totalOrder',
+  PICKLIST: 'totalOrder',
   SURVEYREQ: 'survey',
   WIP: 'onProgress',
   SURVEYDONE: 'complete',
