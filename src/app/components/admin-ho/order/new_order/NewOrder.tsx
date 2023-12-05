@@ -874,6 +874,7 @@ const NewOrderHO: FC = () => {
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
+                      name='project_address'
                       value={orderForm.project_address}
                       onChange={(event) => orderFormHandler(event)}
                     />

@@ -140,7 +140,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
           case 'PAID':
             color = 'green'
             break
-          case 'BOOK':
+          case 'PICKLIST':
             color = 'green'
             break
           case 'BOOKED':
@@ -150,13 +150,41 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
             color = 'blue'
             break
           case 'SURVEYSTART':
+            color = 'blue'
+            break
           case 'SURVEYDONE':
+            color = 'blue'
+            break
+          case 'RESURVEYREQ':
+            color = 'blue'
+            break
+          case 'RESURVEYSTART':
+            color = 'blue'
+            break
+          case 'RESURVEYDONE':
+            color = 'blue'
+            break
           case 'QUOTE IN':
+            color = 'blue'
+            break
           case 'QUOTE OUT':
+            color = 'blue'
+            break
           case 'WORKREQ':
+            color = 'blue'
+            break
           case 'WORKSTART':
+            color = 'blue'
+            break
           case 'WIP':
+            color = 'blue'
+            break
           case 'WORKEND':
+            color = 'blue'
+            break
+          case 'INVOICED':
+            color = 'blue'
+            break
           case 'CISOUT':
             color = 'green'
             break
@@ -168,8 +196,22 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [
-        {text: 'BOOK', value: 'BOOK'},
+        {text: 'PICKLIST', value: 'PICKLIST'},
         {text: 'BOOKED', value: 'BOOKED'},
+        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
+        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
+        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
+        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
+        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
+        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
+        {text: 'WORKREQ', value: 'WORKREQ'},
+        {text: 'WORKSTART', value: 'WORKSTART'},
+        {text: 'WIP', value: 'WIP'},
+        {text: 'WORKEND', value: 'WORKEND'},
+        {text: 'QUOTEIN', value: 'QUOTEIN'},
+        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
+        {text: 'CISOUT', value: 'CISOUT'},
+        {text: 'INVOICED', value: 'INVOICED'},
       ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
@@ -218,30 +260,18 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
 
   const fetchOrderList = async () => {
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: any) =>
-        status.category.includes('PICKLIST', 'BOOKED')
+      const response = await axios.get(
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
       )
-
-      if (desiredStatus) {
-        const statuses = desiredStatus.map((x) => x.value)
-
-        const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statuses}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

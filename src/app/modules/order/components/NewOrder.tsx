@@ -1,16 +1,19 @@
 import React, {FC} from 'react'
 
-import {NewOrderStore} from '../../../components'
-import {NewOrderHO} from '../../../components'
+import {NewOrderStoreStaff, NewOrderStoreCS, NewOrderHO} from '../../../components'
 
 const NewOrder: FC = () => {
   const userRole = localStorage.getItem('userRole')
 
   return (
     <>
-      {userRole == 'Store CS' || userRole === 'Store Staff' ? (
+      {userRole == 'Store Staff' ? (
         <>
-          <NewOrderStore />
+          <NewOrderStoreStaff />
+        </>
+      ) : userRole == 'Store CS' ? (
+        <>
+          <NewOrderStoreCS />
         </>
       ) : userRole == 'Admin HO' ? (
         <>

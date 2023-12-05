@@ -22,8 +22,11 @@ export * from './admin-store/order/view_order_staff/ViewOrder'
 // View Order CS
 export * from './admin-store/order/view_order_cs/ViewOrder'
 
-// New Order Store
-export * from './admin-store/order/new_order/NewOrder'
+// New Order Staff
+export * from './admin-store/order/new_order_staff/NewOrderStaff'
+
+// New Order CS
+export * from './admin-store/order/new_order_cs/NewOrderCS'
 
 // Update Order Staff
 export * from './admin-store/order/update_order_staff/UpdateOrderStaff'

@@ -651,7 +651,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                   <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                     <Form.Label className='mt-3'>Remedial Evidence:</Form.Label>
                     <ListGroup>
-                      {item.remedial_evidence.map((evidenceItem: any) => (
+                      {item?.remedial_evidence?.map((evidenceItem: any) => (
                         <ListGroup.Item
                           key={evidenceItem.id}
                           action

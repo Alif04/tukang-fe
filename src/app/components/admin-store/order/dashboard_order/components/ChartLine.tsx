@@ -68,11 +68,12 @@ function getChartOptions(height: number): ApexOptions {
         show: false,
       },
     },
-    plotOptions: {},
     legend: {
       show: true,
-      position: bottom,
+      showForSingleSeries: true,
+      position: 'bottom',
     },
+    plotOptions: {},
     dataLabels: {
       enabled: false,
     },

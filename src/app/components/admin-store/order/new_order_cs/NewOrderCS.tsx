@@ -57,10 +57,12 @@ interface Order {
   member_id: number | null
   sales_id: number | null
   store_id: number | null
+  project_status_id: number | null
   project_address: string
   project_number: string
   request_survey: string
   payment_type: string
+  receipt_number: string
   order_details: Array<{
     item?: ItemSelect | null
     item_id: number | null
@@ -75,7 +77,7 @@ interface Order {
   [key: string]: any
 }
 
-const NewOrderStore: FC = () => {
+const NewOrderStoreCS: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
@@ -95,10 +97,12 @@ const NewOrderStore: FC = () => {
     member_id: null,
     sales_id: null,
     store_id: Number.parseInt(staffStoreId),
+    project_status_id: null,
     project_address: '',
     project_number: '',
     request_survey: '',
-    payment_type: '',
+    payment_type: 'gratis',
+    receipt_number: '',
     order_details: [
       {
         item_id: null,
@@ -292,6 +296,20 @@ const NewOrderStore: FC = () => {
     })
   }, [paymentTypeValue])
 
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatusName = 'BOOKED'
+    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const statusId = desiredStatus.value
+
+    setOrderForm({
+      ...orderForm,
+      project_status_id: statusId,
+    })
+  }, [orderForm.project_status_id])
+
   // Select Date Request
   const today = new Date().toISOString().split('T')[0]
 
@@ -428,6 +446,7 @@ const NewOrderStore: FC = () => {
       {key: 'project_number', fieldName: 'Nomor Proyek'},
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
+      {key: 'receipt_number', fieldName: 'Nomor Receipt'},
       {key: 'order_details', fieldName: 'Order Details'},
     ]
 
@@ -702,6 +721,7 @@ const NewOrderStore: FC = () => {
                     <Form.Label>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
+                      name='project_address'
                       className='field-alamat'
                       value={orderForm.project_address}
                       onChange={(event) => orderFormHandler(event)}
@@ -756,7 +776,22 @@ const NewOrderStore: FC = () => {
           </div>
 
           <Row className='table-order-header d-flex align-items-center mb-5'>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
+              <Form.Group>
+                <Form.Label>No Receipt</Form.Label>
+                <Form.Control
+                  name='receipt_number'
+                  type='number'
+                  value={orderForm.receipt_number}
+                  onChange={(e) => orderFormHandler(e)}
+                />
+                <Form.Text className='fs-8 text-dark'>
+                  *Silakan isi no. receipt pembayaran installasi / service
+                </Form.Text>
+              </Form.Group>
+            </Col>
+
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date'>
               <Form.Group>
                 <Form.Label>Tanggal Request</Form.Label>
                 <Form.Control
@@ -774,18 +809,18 @@ const NewOrderStore: FC = () => {
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='order-status order-1 order-md-2'>
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
               <h1 className='fs-3 fw-bold'>
-                ORDER STATUS : <span className='fw-bold text-success'>PICKLIST</span>
+                ORDER STATUS : <span className='fw-bold text-success'>BOOKED</span>
               </h1>
             </Col>
 
             <Col
               xs={12}
-              md={4}
-              lg={4}
-              xl={4}
-              xxl={4}
+              md={3}
+              lg={3}
+              xl={3}
+              xxl={3}
               className='button-add text-end order-3 order-md-3'
             >
               <button onClick={() => addOrderDetails()}>Tambah Order</button>
@@ -867,6 +902,7 @@ const NewOrderStore: FC = () => {
                       <Form.Control
                         id={`quantity-${index}`}
                         name={`quantity`}
+                        value={element.quantity}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
                           calcEachDetails()
@@ -1037,4 +1073,4 @@ const NewOrderStore: FC = () => {
   )
 }
 
-export {NewOrderStore}
+export {NewOrderStoreCS}

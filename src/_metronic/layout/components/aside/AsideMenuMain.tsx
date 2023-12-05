@@ -64,7 +64,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/new-order'
           title='Order Baru'
-          role={['Store Staff', 'Admin HO']}
+          role={['Store Staff', 'Store CS', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -137,26 +137,26 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/complaint'
         title='Pengaduan'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+        role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
       >
         <AsideMenuItem
           to='/complaint/report-complaint'
           title='Pengaduan Konsumen Dashboard'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+          role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/complaint/new-complaint'
           title='Request Pengaduan'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor']}
+          role={['Store CS', 'Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/complaint/view-complaint'
           title='List Pengaduan'
-          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+          role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

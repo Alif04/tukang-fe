@@ -296,6 +296,40 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   color: #7f7f7f;
 }
 
+/* Table Scrollbar */
+
+.ant-table-content::-webkit-scrollbar {
+  width: 5px;
+  height: 7px;
+}
+
+.ant-table-content::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px #0f4cff;
+}
+
+.ant-table-content::-webkit-scrollbar-thumb {
+  background: #183383;
+  border-radius: 10px;
+}
+
+.ant-table-content:hover ::-webkit-scrollbar-thumb {
+  background: #183383 !important;
+}
+
+.hover-scroll-overlay-y::-webkit-scrollbar-thumb {
+  scrollbar-width: thin !important;
+  background-color: gainsboro !important;
+}
+
+main::-webkit-scrollbar-thumb,
+span::-webkit-scrollbar-thumb,
+ol::-webkit-scrollbar-thumb,
+ul::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb,
+div::-webkit-scrollbar-thumb {
+  background-color: #183383 !important;
+}
+
 span.anticon.anticon-filter svg {
   color: white !important;
 }

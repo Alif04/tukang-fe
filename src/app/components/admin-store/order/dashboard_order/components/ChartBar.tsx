@@ -82,7 +82,7 @@ function getChartOptions(height: number): ApexOptions {
     },
     legend: {
       show: true,
-      position: bottom,
+      position: 'bottom',
     },
     dataLabels: {
       enabled: false,

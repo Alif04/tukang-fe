@@ -910,9 +910,9 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                     <Form.Label>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
+                      name='project_address'
                       className='field-alamat'
                       value={orderForm.project_address}
-                      disabled
                       onChange={(event) => orderFormHandler(event)}
                     />
                   </Form.Group>

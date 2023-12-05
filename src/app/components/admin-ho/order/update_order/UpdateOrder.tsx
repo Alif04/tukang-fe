@@ -1071,7 +1071,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     <Form.Label>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
-                      disabled
+                      name='project_address'
                       className='field-alamat'
                       value={orderForm.project_address}
                       onChange={(event) => orderFormHandler(event)}

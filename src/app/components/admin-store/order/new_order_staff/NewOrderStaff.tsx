@@ -1,8 +1,7 @@
 import React, {FC, useEffect, useState, useRef} from 'react'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Orders} from '../../../../interfaces/order'
+import {useNavigate} from 'react-router-dom'
 
-import './UpdateOrder.css'
+import './NewOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -39,14 +38,16 @@ interface SalesSelect {
 interface ItemSelect {
   value: number | null
   label: string
-  category_id: number | null
-  default_price: number | null
+  category: string
+  default_price: number
   prices: Array<{
     id: number | null
     item_id: number | null
+    unit_id: number | null
     store_id: number | null
     periodic_start: string
     periodic_end: string
+    nominal_discount: string
     price: string
     min_order: string
   }>
@@ -56,20 +57,16 @@ interface Order {
   member_id: number | null
   sales_id: number | null
   store_id: number | null
-  project_status_id: number | null
   project_address: string
   project_number: string
   request_survey: string
   payment_type: string
-  receipt_number: string
   order_details: Array<{
-    id: number | null
     item?: ItemSelect | null
     item_id: number | null
     item_code: string | null
     item_name: string | null
     quantity: number
-
     unit_price: string | null
     total: string | null
   }>
@@ -78,10 +75,9 @@ interface Order {
   [key: string]: any
 }
 
-const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
+const NewOrderStoreStaff: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const params = useParams()
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -89,9 +85,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
-
-  // Order Information Detail
-  const [orderDetail, setOrderDetail] = useState<any>()
 
   // Store
   const [storeSelectOptions, setStoreSelectOptions] = useState<StoreItemSelect[]>([])
@@ -102,16 +95,12 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     member_id: null,
     sales_id: null,
     store_id: Number.parseInt(staffStoreId),
-    project_status_id: null,
     project_address: '',
     project_number: '',
     request_survey: '',
-    payment_type: '',
-    receipt_number: '',
+    payment_type: 'gratis',
     order_details: [
       {
-        id: null,
-        item: null,
         item_id: null,
         item_code: null,
         item_name: null,
@@ -155,6 +144,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
   // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
+  const [total, setTotal] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Fetch API Data
@@ -196,149 +186,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   }
 
   useEffect(() => {
-    const fetchOrderData = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/orders/${params.id}`, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          .then((response) => {
-            const data = response.data.data
-            setOrderDetail(data)
-
-            if (data?.payment_type) {
-              if (data.payment_type === 'survey') {
-                setPaymentTypeValue(['berbayar', 'survey'])
-              } else if (data.payment_type === 'gratis') {
-                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
-              } else if (data.payment_type === 'pemasangan_tanpa_survey') {
-                setPaymentTypeValue(['berbayar', 'pemasangan_tanpa_survey'])
-              } else {
-                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
-              }
-            }
-
-            if (data?.members) {
-              setSelectedMember((prev) => ({
-                ...prev,
-                value: data.members.id,
-                label: data.members.member_number,
-                full_name: data.members.full_name,
-                email: data.members.email,
-                phone_number: data.members.phone_number,
-                whatsapp_number: data.members.whatsapp_number,
-                address_1: data.members.address_1,
-              }))
-
-              setOrderForm((prev) => ({
-                ...prev,
-                member_id: data.members.id,
-              }))
-            }
-
-            if (data?.project_address) {
-              setOrderForm((prev) => ({
-                ...prev,
-                project_address: data.project_address,
-              }))
-            }
-
-            if (data?.project_number) {
-              setOrderForm((prev) => ({
-                ...prev,
-                project_number: data.project_number,
-              }))
-            }
-
-            if (data?.receipt_number) {
-              setOrderForm((prev) => ({
-                ...prev,
-                receipt_number: data.receipt_number,
-              }))
-            }
-
-            if (data?.sales) {
-              setSelectedSales((prev) => ({
-                ...prev,
-                value: data.sales.id,
-                label: data.sales.id,
-                full_name: data.sales.full_name,
-              }))
-
-              setOrderForm((prev) => ({
-                ...prev,
-                sales_id: data.sales.id,
-              }))
-            }
-
-            if (data?.request_survey) {
-              setOrderForm((prev) => ({
-                ...prev,
-                request_survey: new Date(data.request_survey).toISOString().split('T')[0],
-              }))
-            }
-
-            if (data?.order_details) {
-              setOrderForm((prev) => {
-                const previousDetailValues = data.order_details.map((item: any) => {
-                  const previousItem = {
-                    value: item.id,
-                    label: item.item.service_name,
-                    category_id: item.item.category.id,
-                    default_price: item.item.default_price,
-                    prices: [
-                      {
-                        id: item.item.prices[0].id,
-                        item_id: item.item.prices[0].item_id,
-                        store_id: item.item.prices[0].store_id,
-                        periodic_start: item.item.prices[0].periodic_start,
-                        periodic_end: item.item.prices[0].periodic_end,
-                        price: item.item.prices[0].price,
-                        min_order: item.item.prices[0].min_order,
-                      },
-                    ],
-                  }
-
-                  return {
-                    item: previousItem,
-                    id: item.id,
-                    item_id: item.item_id,
-                    item_code: item.item_code,
-                    item_name: item.item_name,
-                    quantity: item.quantity,
-                    unit_price: item.unit_price,
-                    total: item.total,
-                  }
-                })
-
-                return {
-                  ...prev,
-                  order_details: previousDetailValues,
-                }
-              })
-            }
-
-            if (data?.order_files) {
-              const initialOrderFilesValues = data.order_files.map((item: any) => ({
-                id: item.id,
-                name: item.path,
-              }))
-
-              setReceiptFiles(initialOrderFilesValues)
-            }
-
-            updatePageTitle(data)
-          })
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
     const getMember = async () => {
       try {
         const response = await axios.get(`${apiUrl}/member`, {
@@ -396,7 +243,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
       }
     }
 
-    fetchOrderData()
     getMember()
     getSales()
     getItem('')
@@ -446,20 +292,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     })
   }, [paymentTypeValue])
 
-  useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-    const desiredStatusName = 'BOOKED'
-    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-    const statusId = desiredStatus.value
-
-    setOrderForm({
-      ...orderForm,
-      project_status_id: statusId,
-    })
-  }, [orderForm.project_status_id])
-
   // Select Date Request
   const today = new Date().toISOString().split('T')[0]
 
@@ -474,11 +306,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           const {prices, default_price} = item
 
           const unitPrice =
-            prices && prices.length > 0 && quantity >= +prices[0]?.min_order
-              ? +prices[0].price
-              : default_price !== null
-              ? +default_price
-              : 0 // Provide a default value if default_price is null
+            quantity >= +prices[0]?.min_order.toString() ? +prices[0].price : +default_price
           const total = unitPrice * quantity
 
           newDetail = {...newDetail, unit_price: unitPrice.toString(), total: total.toString()}
@@ -496,17 +324,13 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     const fileList = event.target.files
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
-      const existingFiles = [...receiptFiles]
-      const mergedFiles = existingFiles.concat(file)
+      const {length} = fileList
 
-      const {length: existingFilesLength} = existingFiles
-      const {length: fileListLength} = fileList
-
-      for (let i = 0; i < fileListLength; i++) {
-        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
       }
 
-      setReceiptFiles(mergedFiles)
+      setReceiptFiles(file)
     }
   }
 
@@ -535,7 +359,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   // Order Details
   const addOrderDetails = () => {
     const newDetail = {
-      id: null,
       item_id: null,
       item_code: null,
       item_name: null,
@@ -592,21 +415,19 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     setGrandTotal(calculatedGrandTotal)
   }, [orderForm.order_details, paymentTypeValue])
 
-  // Submit Update Order
-  const handleUpdateOrder = async () => {
-    const url = `${apiUrl}/orders/${params.id}`
+  // Submit New Order
+  const handleSubmitNewOrder = async () => {
+    const url = `${apiUrl}/orders`
     const formData = new FormData()
     let errorBags = []
     const requiredOrderFields = [
       {key: 'member_id', fieldName: 'Nomor Member'},
       {key: 'sales_id', fieldName: 'Sales Information'},
       {key: 'store_id', fieldName: 'Store'},
-      {key: 'project_status_id', fieldName: 'Status Proyek'},
       {key: 'project_address', fieldName: 'Alamat Proyek'},
       {key: 'project_number', fieldName: 'Nomor Proyek'},
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
-      {key: 'receipt_number', fieldName: 'Nomor Receipt'},
       {key: 'order_details', fieldName: 'Order Details'},
     ]
 
@@ -625,9 +446,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             if (key === 'order_details') {
               orderForm.order_details.forEach((item: any, index: number) => {
                 if (item) {
-                  if (item.id) {
-                    formData.append(`order_details[${index}][id]`, item.id)
-                  }
                   formData.append(`order_details[${index}][item_code]`, item.item_code)
                   formData.append(`order_details[${index}][item_name]`, item.item_name)
                   formData.append(`order_details[${index}][item_id]`, item.item_id)
@@ -658,8 +476,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
     if (receiptFiles?.length) {
       receiptFiles.forEach((item) => {
-        if (item instanceof Blob) {
-          formData.append(`order_files`, item, item.name)
+        if (item) {
+          formData.append(`order_files`, item, item?.name)
         }
       })
     }
@@ -676,15 +494,15 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
       .then((response) => {
         const orderId = response.data.data.id
 
-        if (response.data.status === 200 || response.data.status === 201) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Order',
+            text: response.data.message,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/order/preview-email/${orderId}`)
+            navigate(`/order/printout-order/${orderId}`)
           })
         } else {
           Swal.fire({
@@ -693,50 +511,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             icon: 'error',
           })
         }
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
-  }
-
-  // Reprint Order
-
-  const handleReprintOrder = async () => {
-    await axios
-      .request({
-        url: `${apiUrl}/orders/${params.id}/counter`,
-        method: 'post',
-        maxBodyLength: Infinity,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Reprint Order',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1000,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-
-        navigate(`/order/printout-order/${params.id}`)
       })
       .catch((error) => {
         console.error(error)
@@ -750,14 +524,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   }
 
   return (
-    <section id='update-order'>
+    <section id='pre-order'>
       <div className='card mb-5'>
         <div className='card-body'>
           <div className='form-wrapper'>
             <div className='form-costumer'>
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Form.Group>
+                  <Form.Group className='form-header'>
                     <Form.Label>
                       Nama Toko
                       <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
@@ -818,7 +592,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                             name='type'
                             type='radio'
                             value='berbayar'
-                            checked={paymentTypeValue[0] === 'berbayar'}
                             onChange={() => {
                               setPaymentTypeValue(['berbayar', 'survey'])
                             }}
@@ -841,6 +614,9 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                             }
                             disabled={paymentTypeValue[0] === 'gratis'}
                             onChange={() => {
+                              console.log('pemasangan_tanpa_survey')
+                              console.log(paymentTypeValue[1])
+
                               setPaymentTypeValue([paymentTypeValue[0], 'pemasangan_tanpa_survey'])
                             }}
                           />
@@ -868,17 +644,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                       placeholder='Ketik No Telepon Member/Nomor Member'
                       isSearchable={true}
                       isClearable={true}
-                      isDisabled={true}
                       options={member}
-                      value={{
-                        value: selectedMember?.value ?? null,
-                        label: selectedMember?.label ?? '',
-                        full_name: selectedMember?.full_name ?? '',
-                        email: selectedMember?.email ?? '',
-                        phone_number: selectedMember?.phone_number ?? '',
-                        whatsapp_number: selectedMember?.whatsapp_number ?? '',
-                        address_1: selectedMember?.address_1 ?? '',
-                      }}
                       onChange={(newValue) => setSelectedMember(newValue)}
                     />
                   </Form.Group>
@@ -892,7 +658,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                       <div className='form-check-request'>
                         <Form.Check
                           inline
-                          disabled
                           label='Bukan Whatsapp'
                           name='group1'
                           value='1'
@@ -919,14 +684,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Customer</Form.Label>
-                    <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
+                    <Form.Control type='text' value={selectedMember?.full_name || ''} />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Email</Form.Label>
-                    <Form.Control type='text' disabled value={selectedMember?.email || ''} />
+                    <Form.Control type='text' value={selectedMember?.email || ''} />
                   </Form.Group>
                 </Col>
               </Row>
@@ -957,11 +722,21 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control
-                    type='number'
-                    disabled
-                    value={userRole === 'SALES' ? userId : selectedSales?.value?.toString() || ''}
-                  />
+                  {userRole === 'SALES' ? (
+                    <Form.Control type='number' disabled value={userId} />
+                  ) : (
+                    <Select
+                      name='sales_id'
+                      id='sales_id'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Pilih/Ketik ID Sales'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={sales}
+                      onChange={(newValue) => setSelectedSales(newValue)}
+                    />
+                  )}
                 </Col>
               </Form.Group>
 
@@ -973,7 +748,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 <Col sm='8'>
                   <Form.Control
                     type='text'
-                    disabled
+                    disabled={userRole === 'SALES'}
                     value={userRole === 'SALES' ? username : selectedSales?.full_name || ''}
                   />
                 </Col>
@@ -982,22 +757,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           </div>
 
           <Row className='table-order-header d-flex align-items-center mb-5'>
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
-              <Form.Group>
-                <Form.Label>No Receipt</Form.Label>
-                <Form.Control
-                  name='receipt_number'
-                  type='number'
-                  value={orderForm.receipt_number}
-                  onChange={(e) => orderFormHandler(e)}
-                />
-                <Form.Text className='fs-8 text-dark'>
-                  *Silakan isi no. receipt pembayaran installasi / service
-                </Form.Text>
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
               <Form.Group>
                 <Form.Label>Tanggal Request</Form.Label>
                 <Form.Control
@@ -1015,19 +775,18 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='order-status order-1 order-md-2'>
               <h1 className='fs-3 fw-bold'>
-                ORDER STATUS :{' '}
-                <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
+                ORDER STATUS : <span className='fw-bold text-success'>PICKLIST</span>
               </h1>
             </Col>
 
             <Col
               xs={12}
-              md={3}
-              lg={3}
-              xl={3}
-              xxl={3}
+              md={4}
+              lg={4}
+              xl={4}
+              xxl={4}
               className='button-add text-end order-3 order-md-3'
             >
               <button onClick={() => addOrderDetails()}>Tambah Order</button>
@@ -1065,7 +824,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                         id={`item-code-${index}`}
                         name={`item_code`}
                         plaintext
-                        value={element.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
                       />
                     </td>
@@ -1075,7 +833,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                         id={`item-name-${index}`}
                         plaintext
                         name={`item_name`}
-                        value={element.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
                           getItem(e.target.value)
@@ -1092,14 +849,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                         isSearchable={true}
                         options={item}
                         name={`item_id`}
-                        value={{
-                          value: orderForm.order_details[index]?.item_id ?? null,
-                          label: orderForm.order_details[index]?.item?.label ?? '',
-                          category_id: orderForm.order_details[index]?.item?.category_id ?? null,
-                          default_price:
-                            orderForm.order_details[index]?.item?.default_price ?? null,
-                          prices: orderForm.order_details[index]?.item?.prices ?? [],
-                        }}
                         onChange={(newValue) => {
                           setOrderForm((prev) => {
                             const cache = {...prev}
@@ -1119,7 +868,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                       <Form.Control
                         id={`quantity-${index}`}
                         name={`quantity`}
-                        value={element.quantity ?? ''}
+                        value={element.quantity}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
                           calcEachDetails()
@@ -1254,17 +1003,10 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                             key={`${previewImage} - ${index}`}
                             width={200}
                             style={{display: 'none'}}
-                            src={
-                              item instanceof File
-                                ? URL.createObjectURL(item)
-                                : `${apiUrl}/public/receipt/${previewImage}`
-                            }
+                            src={URL.createObjectURL(item)}
                             preview={{
                               visible,
-                              src:
-                                item instanceof File
-                                  ? URL.createObjectURL(item)
-                                  : `${apiUrl}/public/receipt/${previewImage}`,
+                              src: URL.createObjectURL(item),
                               onVisibleChange: (value) => {
                                 setVisible(value)
                               },
@@ -1287,12 +1029,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='dark-success' onClick={handleReprintOrder}>
-              Reprint Order
-            </Button>
-
-            <Button onClick={handleUpdateOrder} variant='dark-primary'>
-              Submit Order & Email
+            <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
+              Submit Order & Print
             </Button>
           </div>
         </div>
@@ -1301,4 +1039,4 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   )
 }
 
-export {UpdateOrderStoreCS}
+export {NewOrderStoreStaff}
