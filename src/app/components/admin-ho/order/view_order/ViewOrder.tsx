@@ -42,6 +42,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
     no_member: number
     costumer_name: string
     phone_number: number
+    item_name: string
     service_name: string
     payment_status: string
     order_status: string
@@ -59,7 +60,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Assign From',
+      title: 'Nama Toko',
       dataIndex: 'assign_from',
       key: 'assign_from',
       align: 'center',
@@ -101,6 +102,15 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
       align: 'left',
       width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
+    },
+    {
+      title: 'Item Name',
+      dataIndex: 'item_name',
+      key: 'item_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.item_name.includes(String(value)),
+      sorter: (a, b) => a.item_name.length - b.item_name.length,
     },
     {
       title: 'Nama Jasa Pemasangan',
@@ -269,6 +279,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
           no_member: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
+          item_name: item.m_order_details[0].item.item_name ?? '-',
           service_name: item.m_order_details[0].item.service_name,
           payment_status: paymentStatus,
           order_status: item.status.category,
@@ -344,7 +355,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1800}}
+            scroll={{x: 2000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

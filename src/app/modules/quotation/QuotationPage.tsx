@@ -44,7 +44,7 @@ const VendorPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DAFTAR QUOTATION</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>QUOTATION LIST</PageTitle>
             <ViewQuotation />
           </>
         }

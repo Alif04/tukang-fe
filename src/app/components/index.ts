@@ -13,6 +13,9 @@ export * from './tukang/dashboard/DashboardTukang'
 // STORE PAGES
 
 // ORDER
+// Calendar Installation
+export * from './admin-store/order/calendar/view_calendar/ViewCalendar'
+
 // Dashboard Order
 export * from './admin-store/order/dashboard_order/DashboardOrder'
 

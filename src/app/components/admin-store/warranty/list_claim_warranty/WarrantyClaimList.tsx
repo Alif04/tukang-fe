@@ -188,31 +188,18 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
   const fetchOrderList = async () => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
-
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      const desiredStatusName = 'PICKLIST'
-      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-
-      if (desiredStatus) {
-        const statusId = desiredStatus.value
-
-        const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      const response = await axios.get(
+        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

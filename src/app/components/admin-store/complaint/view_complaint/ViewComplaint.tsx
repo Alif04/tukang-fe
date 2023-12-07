@@ -37,9 +37,8 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     no_member: number
     costumer_name: string
     phone_number: number
-    // installer_name: string
+    service_name: string
     order_status: string
-    // work_status: string
     complaint_date: string
     complaint_desc: string
     complaint_status: string
@@ -55,7 +54,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.complaint_id - b.complaint_id,
     },
     {
-      title: 'Assign From',
+      title: 'Store Name',
       dataIndex: 'assign_from',
       key: 'assign_from',
       align: 'center',
@@ -97,18 +96,18 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'No Telp / WA',
+      title: 'Phone Number',
       dataIndex: 'phone_number',
       key: 'phone_number',
       width: 160,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
-    // {
-    //   title: 'Installer Name',
-    //   dataIndex: 'installer_name',
-    //   key: 'installer_name',
-    //   width: 180,
-    // },
+    {
+      title: 'Nama Jasa Pemasangan',
+      dataIndex: 'service_name',
+      key: 'service_name',
+      width: 180,
+    },
     {
       title: 'Status Order',
       dataIndex: 'order_status',
@@ -153,13 +152,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_status.length - b.order_status.length,
       width: 180,
     },
-    // {
-    //   title: 'Work Status',
-    //   dataIndex: 'work_status',
-    //   key: 'work_status',
-    //   className: 'col-work-status',
-    //   width: 180,
-    // },
     {
       title: 'Complaint Date',
       dataIndex: 'complaint_date',
@@ -296,12 +288,11 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           assign_from: item.orders.store.store_name,
           order_id: item.orders.id,
           date_order: formatDate(orderDate),
-          no_member: item.orders.members.id,
+          no_member: item.orders.members.member_number,
           costumer_name: item.orders.members.full_name,
           phone_number: phoneNumber,
-          // installer_name: item.orders.tukang.full_name,
+          service_name: item.orders.m_order_details[0].item_name ?? '-',
           order_status: item.orders.status.category,
-          // work_status: item,
           complaint_date: formatDate(complaintDate),
           complaint_desc: item.description,
           complaint_status: item.status.category,
@@ -377,7 +368,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={complaintData}
             rowKey={(record) => record.complaint_id}
-            scroll={{x: 2000}}
+            scroll={{x: 2100}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

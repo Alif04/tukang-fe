@@ -1,16 +1,23 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
-import {ViewCalendarHO} from '../../../components'
-import {ViewCalendarVendor} from '../../../components'
-import {ViewCalendarTukang} from '../../../components'
+import {
+  ViewCalendarCS,
+  ViewCalendarHO,
+  ViewCalendarVendor,
+  ViewCalendarTukang,
+} from '../../../components'
 
 const ViewCalendar: React.FC = () => {
   const userRole = localStorage.getItem('userRole')
 
   return (
     <>
-      {userRole == 'Admin HO' ? (
+      {userRole == 'Store CS' ? (
+        <>
+          <ViewCalendarCS />
+        </>
+      ) : userRole == 'Admin HO' ? (
         <>
           <ViewCalendarHO />
         </>

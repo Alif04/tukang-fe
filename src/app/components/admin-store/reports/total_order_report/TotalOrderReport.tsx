@@ -32,6 +32,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     costumer_name: string
     phone_number: number
     email: string
+    address: string
     service_name: string
     quantity: number
     harga: number
@@ -83,6 +84,15 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       width: 135,
       onFilter: (value, record) => record.email.includes(String(value)),
       sorter: (a, b) => a.email.length - b.email.length,
+    },
+    {
+      title: 'Alamat',
+      dataIndex: 'address',
+      key: 'address',
+      align: 'left',
+      width: 135,
+      onFilter: (value, record) => record.address.includes(String(value)),
+      sorter: (a, b) => a.address.length - b.address.length,
     },
     {
       title: 'Nama Pemasangan',
@@ -198,6 +208,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
           email: item.members.email,
+          address: item.project_address,
           service_name: item.m_order_details[0].item.service_name,
           quantity: quantity,
           harga: formattedUnitPrice,
@@ -272,7 +283,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1500}}
+            scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
           />
 

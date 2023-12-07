@@ -1,0 +1,33 @@
+/* Searchbar */
+
+#view-calendar .fc-event-title.fc-sticky {
+  cursor: pointer !important;
+}
+
+#view-calendar .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+#view-calendar .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
+}
+
+#view-calendar .select__control.css-13cymwt-control {
+  height: 44px;
+}
+
+#view-calendar .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+  border: none;
+}
+
+#view-calendar .css-t3ipsp-control:hover {
+  border-color: #183383 !important;
+  height: 44px !important;
+}
+
+#view-calendar .css-t3ipsp-control {
+  border-color: #183383 !important;
+  height: 44px !important;
+}
