@@ -41,6 +41,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     order_status: string
     work_status: string
     complaint_date: string
+    complaint_age: string
     complaint_status: string
   }
 
@@ -241,6 +242,15 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.complaint_date.length - b.complaint_date.length,
     },
     {
+      title: 'Umur Complaint',
+      dataIndex: 'complaint_age',
+      key: 'complaint_age',
+      className: 'col-complaint-date',
+      width: 150,
+      onFilter: (value, record) => record.complaint_age.includes(String(value)),
+      sorter: (a, b) => a.complaint_age.length - b.complaint_age.length,
+    },
+    {
       title: 'Complaint Status',
       dataIndex: 'complaint_status',
       key: 'complaint_status',
@@ -347,6 +357,24 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
 
         const orderDate = new Date(item.orders.created_at)
         const complaintDate = new Date(item.complaint_date)
+        const currentDate = new Date()
+
+        const timeDifferenceInMilliseconds = Number(currentDate) - Number(complaintDate)
+        const timeDifferenceInMinutes = Math.floor(timeDifferenceInMilliseconds / (1000 * 60))
+        const timeDifferenceInHours = Math.floor(timeDifferenceInMilliseconds / (1000 * 60 * 60))
+        const timeDifferenceInDays = Math.floor(
+          timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
+        )
+
+        let complaintAge
+
+        if (timeDifferenceInDays >= 1) {
+          complaintAge = `${timeDifferenceInDays} Hari`
+        } else if (timeDifferenceInHours >= 1) {
+          complaintAge = `${timeDifferenceInHours} Jam`
+        } else {
+          complaintAge = `${timeDifferenceInMinutes} Menit`
+        }
 
         let phoneNumber =
           item.orders.members.phone_number !== 'null'
@@ -365,6 +393,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           order_status: item.orders.status.category,
           work_status: item.orders.status.category,
           complaint_date: formatDate(complaintDate),
+          complaint_age: complaintAge,
           complaint_status: item.status.category,
         }
 

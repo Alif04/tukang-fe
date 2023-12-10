@@ -34,7 +34,7 @@ const RefundPage: React.FC = () => {
         path='report-insentif'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL ORDER</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN INSENTIF</PageTitle>
             <ReportInsentifList />
           </>
         }
@@ -44,7 +44,7 @@ const RefundPage: React.FC = () => {
         path='report-performance'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL ORDER</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PERFORMANCE</PageTitle>
             <ReportPerformanceList />
           </>
         }

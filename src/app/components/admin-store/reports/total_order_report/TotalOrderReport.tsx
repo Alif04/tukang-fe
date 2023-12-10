@@ -187,29 +187,24 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.created_at)
+        const orderDate = new Date(item.request_survey)
 
-        const price = parseInt(item.m_order_details[0].unit_price, 10)
+        const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
         const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
 
-        const quantity = parseInt(item.m_order_details[0].quantity, 10)
+        const quantity = parseInt(item.m_order_details[0]?.quantity ?? 0, 10)
 
-        const grandTotalPrice = price * quantity
+        const grandTotalPrice = parseInt(item.grand_total)
         const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
-
-        let phoneNumber =
-          item.members.whatsapp_number === 'null'
-            ? item.members.phone_number
-            : item.members.whatsapp_number
 
         data = {
           order_id: item.id,
           date_order: formatDate(orderDate),
           costumer_name: item.members.full_name,
-          phone_number: phoneNumber,
+          phone_number: item.project_number,
           email: item.members.email,
           address: item.project_address,
-          service_name: item.m_order_details[0].item.service_name,
+          service_name: item.m_order_details[0]?.item?.service_name ?? '-',
           quantity: quantity,
           harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,

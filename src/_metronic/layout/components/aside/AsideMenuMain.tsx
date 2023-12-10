@@ -144,7 +144,7 @@ export function AsideMenuMain() {
       {/* Halaman Pengaduan */}
       <AsideMenuItemWithSub
         to='/complaint'
-        title='Complaint'
+        title='Pengaduan'
         role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'

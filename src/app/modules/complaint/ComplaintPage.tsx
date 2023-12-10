@@ -11,7 +11,7 @@ import {ReportComplaint} from './components/ReportComplaint'
 
 const complaintBreadCrumbs: Array<PageLink> = [
   {
-    title: 'Complaint',
+    title: 'Pengaduan',
     path: '/complaint/view-complaint',
     isSeparator: false,
     isActive: false,
@@ -43,7 +43,7 @@ const ComplaintPage: React.FC = () => {
         element={
           <>
             <HeaderWrapper className='bg-danger-complaint' />
-            <PageTitle breadcrumbs={complaintBreadCrumbs}>FORMULIR PENGADUAN</PageTitle>
+            <PageTitle breadcrumbs={complaintBreadCrumbs}>REQUEST PENGADUAN</PageTitle>
             <NewComplaint />
           </>
         }

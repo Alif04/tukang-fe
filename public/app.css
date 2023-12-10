@@ -286,7 +286,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 /* Table Styling */
 :where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-title {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 :where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
@@ -308,7 +308,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   > thead
   > tr
   > th {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 :where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
@@ -330,7 +330,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   > thead
   > tr
   > th {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 /* Tag */
