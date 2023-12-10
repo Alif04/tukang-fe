@@ -255,12 +255,12 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/costumers/new-costumers'
           title='Register Customers'
           role={['Admin HO']}
           hasBullet={true}
-        />
+        /> */}
         <AsideMenuItem
           to='/costumers/report-costumers'
           title='Report Customers'
@@ -337,12 +337,12 @@ export function AsideMenuMain() {
         title='Invoice'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Admin Vendor']}
+        role={['Admin Vendor']}
       >
         <AsideMenuItem
           to='/invoice/view-invoice'
           title='List Invoice'
-          role={['Admin HO', 'Admin Vendor']}
+          role={['Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -356,7 +356,7 @@ export function AsideMenuMain() {
       {/* Halaman Reports */}
       <AsideMenuItemWithSub
         to='/reports'
-        title='Laporan'
+        title={userRole === 'Store CS' || userRole === 'Store Staff' ? 'Laporan' : 'Report'}
         role={['Store CS', 'Store Staff', 'Admin HO']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
@@ -382,7 +382,7 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       {/* Halaman Payment */}
-      <AsideMenuItemWithSub
+      {/* <AsideMenuItemWithSub
         to='/payment'
         title='Payment'
         icon='/media/icons/duotune/communication/com006.svg'
@@ -407,7 +407,7 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
-      </AsideMenuItemWithSub>
+      </AsideMenuItemWithSub> */}
 
       {/* Halaman Refund */}
       <AsideMenuItemWithSub
@@ -415,18 +415,18 @@ export function AsideMenuMain() {
         title='Refund'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin HO']}
+        role={['Admin Vendor']}
       >
         <AsideMenuItem
           to='/refund/view-refund'
           title='View Refund'
-          role={['Admin HO', 'Admin Vendor']}
+          role={['Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/refund/new-refund'
           title='New Refund'
-          role={['Admin HO', 'Admin Vendor']}
+          role={['Admin Vendor']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -457,13 +457,13 @@ export function AsideMenuMain() {
           role={['Store CS']}
           hasBullet={true}
         />
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/item/view-item'
           title='List Item'
           role={['Admin HO']}
           hasBullet={true}
-        />
-        <AsideMenuItem to='/item/new-item' title='New Item' role={['Admin HO']} hasBullet={true} />
+        /> */}
+        {/* <AsideMenuItem to='/item/new-item' title='New Item' role={['Admin HO']} hasBullet={true} /> */}
       </AsideMenuItemWithSub>
 
       {/* Logout */}

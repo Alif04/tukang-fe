@@ -1,6 +1,6 @@
 import React, {useState, useEffect, FC} from 'react'
 
-import './DashboardHO.css'
+import './DashboardVendor.css'
 
 import {ChartBarPerformance} from './components/ChartBarPerformance'
 import {ChartBarOrder} from './components/ChartBarOrder'
@@ -47,7 +47,7 @@ const statusToStateMap: StatusToStateMap = {
   WORKRELATED: 'waitingPayment',
 }
 
-const DashboardHO: FC = () => {
+const DashboardVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
@@ -406,4 +406,4 @@ const DashboardHO: FC = () => {
   )
 }
 
-export {DashboardHO}
+export {DashboardVendor}

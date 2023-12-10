@@ -24,13 +24,13 @@ import {
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
-interface StoreItemSelect {
-  value: number | null
-  label: string
-  address: string
-  city_id: number | null
-  zip_code: string
-}
+// interface StoreItemSelect {
+//   value: number | null
+//   label: string
+//   address: string
+//   city_id: number | null
+//   zip_code: string
+// }
 
 interface BankSelect {
   value: number | null
@@ -72,13 +72,16 @@ const NewSales: FC = () => {
   const [searchByStore, setSearchByStore] = useState<any>('')
 
   // Store
-  const [store, setStore] = useState<StoreItemSelect[]>([])
-  const [storeId, setStoreId] = useState<string>('')
-  const [storeName, setStoreName] = useState<string>('')
+  // const [store, setStore] = useState<StoreItemSelect[]>([])
+  // const [storeId, setStoreId] = useState<string>('')
+  // const [storeName, setStoreName] = useState<string>('')
+
+  const staffStoreId = localStorage.getItem('storeId') as any
+  const staffStoreName = localStorage.getItem('storeName') as string
 
   // Sales
   const [salesInfo, setSalesInfo] = useState<Sales>({
-    store_id: null,
+    store_id: Number.parseInt(staffStoreId),
     bank_id: null,
     full_name: '',
     account_name: '',
@@ -135,34 +138,34 @@ const NewSales: FC = () => {
       }
     }
 
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+    // const getStore = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/stores`, {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //         'Access-Control-Allow-Origin': '*',
+    //         'ngrok-skip-browser-warning': 'true',
+    //       },
+    //     })
 
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            address: item.address,
-            city_id: item.city_id,
-            zip_code: item.zip_code,
-          }))
+    //     if (Array.isArray(response.data.data)) {
+    //       const tempStore = response.data.data.map((item: any) => ({
+    //         value: item.id,
+    //         label: item.store_name,
+    //         address: item.address,
+    //         city_id: item.city_id,
+    //         zip_code: item.zip_code,
+    //       }))
 
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
+    //       setStore(tempStore)
+    //     } else {
+    //       console.error('API response data is not an array:', response.data)
+    //     }
+    //   } catch (err) {
+    //     console.error(err)
+    //   }
+    // }
 
     const getBank = async () => {
       try {
@@ -217,7 +220,7 @@ const NewSales: FC = () => {
     }
 
     getSalesId()
-    getStore()
+    // getStore()
     getBank()
     getCategories()
   }, [])
@@ -295,18 +298,18 @@ const NewSales: FC = () => {
   }, [dateFrom, dateTo, searchFilter])
 
   // Change Select Store
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    const updatedStoreName = element.label
+  // const handleChangeSelectStore = (element: any) => {
+  //   const updatedStoreId = element.value
+  //   const updatedStoreName = element.label
 
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      store_id: updatedStoreId,
-    }))
+  //   setSalesInfo((prevSalesInfo) => ({
+  //     ...prevSalesInfo,
+  //     store_id: updatedStoreId,
+  //   }))
 
-    setStoreId(updatedStoreId)
-    setStoreName(updatedStoreName)
-  }
+  //   setStoreId(updatedStoreId)
+  //   setStoreName(updatedStoreName)
+  // }
 
   // Change Select Bank
   const handleChangeSelectBank = (element: any) => {
@@ -546,14 +549,7 @@ const NewSales: FC = () => {
   const SalesValidation = () => {
     let valid = true
 
-    if (!storeId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Store form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.full_name) {
+    if (!salesInfo.full_name) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Name Sales Consultant form',
@@ -663,14 +659,15 @@ const NewSales: FC = () => {
           <div className='card-body'>
             <div className='form-wrapper'>
               <Row className='form-header'>
-                <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='mb-3'>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
-                      Nama Toko
-                    </Form.Label>
+                <Form.Group as={Row}>
+                  <Form.Label column sm='4'>
+                    Nama Toko
+                    <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                      {staffStoreName}
+                    </span>
+                  </Form.Label>
 
-                    <Col sm='8'>
-                      <Select
+                  {/* <Select
                         name='store_id'
                         className='form-control p-0'
                         classNamePrefix='select'
@@ -678,12 +675,8 @@ const NewSales: FC = () => {
                         isSearchable={true}
                         options={store}
                         onChange={(element) => handleChangeSelectStore(element)}
-                      />
-                    </Col>
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={9} lg={9} xl={9} xxl={9}></Col>
+                      /> */}
+                </Form.Group>
               </Row>
 
               <Row>

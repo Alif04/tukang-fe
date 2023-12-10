@@ -155,10 +155,17 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   }
 
   // Handle Feedback Date Change
-  useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]
-    setFeedbackStartDate(today)
-  }, [])
+  const today = new Date().toISOString().split('T')[0]
+
+  const handleChangeFeedbackDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedFeedbackDate = event.target.value
+    setFeedbackStartDate(updatedFeedbackDate)
+  }
+
+  // useEffect(() => {
+  //   const today = new Date().toISOString().split('T')[0]
+  //   setFeedbackStartDate(today)
+  // }, [])
 
   // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -734,7 +741,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
 
           <Row>
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-              <Form.Label className='fs-3 fw-bold'>FEEDBACK :</Form.Label>
+              <Form.Label className='fs-3 fw-bold'>Feedback Store</Form.Label>
               <Form.Control
                 style={{minHeight: '170px'}}
                 as='textarea'
@@ -816,9 +823,19 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Group>
+                <Form.Label>Jabatan</Form.Label>
+                <Form.Control type='text' />
+              </Form.Group>
+            </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Group>
+                <Form.Label>Tanggal</Form.Label>
+                <Form.Control type='date' min={today} onChange={handleChangeFeedbackDate} />
+              </Form.Group>
+            </Col>
           </Row>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>

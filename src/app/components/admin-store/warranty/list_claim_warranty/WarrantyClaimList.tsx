@@ -273,7 +273,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
           no_member: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          services_name: item.m_order_details[0].item.service_name,
+          services_name: item?.m_order_details[0]?.item?.service_name ?? '-',
           status_order: item.status.category,
         }
 

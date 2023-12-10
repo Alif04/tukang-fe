@@ -348,7 +348,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             </div>
           </Row>
 
-          {order.receipt_path !== '' ? (
+          {order.order_files.length >= 1 ? (
             <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='mt-3'>Bukti Receipt :</Form.Label>
@@ -393,7 +393,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             <></>
           )}
 
-          {/* <div className='order-history mt-3 mb-3'>
+          <div className='order-history mt-3 mb-3'>
             <div className='fs-3 fw-bold text-success mb-4'>Order History</div>
             <Steps
               className='order-history-timeline'
@@ -403,7 +403,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             />
           </div>
 
-          <div className='complaint-history  mt-3 mb-3'>
+          {/* <div className='complaint-history  mt-3 mb-3'>
             <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
             <Steps
               className='complaint-history-timeline'

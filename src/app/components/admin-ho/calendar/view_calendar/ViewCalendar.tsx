@@ -203,36 +203,36 @@ const ViewCalendarHO: React.FC = () => {
     setShowModal(false)
   }
 
-  useEffect(() => {
-    const updatedWorkOrder = workOrder.map((order) => {
-      const status = order?.work_order_status
+  // useEffect(() => {
+  //   const updatedWorkOrder = workOrder.map((order) => {
+  //     const status = order?.work_order_status
 
-      switch (status) {
-        case 'SURVEYSTART':
-          return {...order, className: 'bg-primary'}
-        case 'WORKSTART':
-          return {...order, className: 'bg-success'}
-        case 'WIP':
-          return {...order, className: 'bg-primary'}
-        case 'WORKEND':
-          return {...order, className: 'bg-success'}
-        case 'REWORK':
-          return {...order, className: 'bg-primary'}
-        case 'REWORKSTART':
-          return {...order, className: 'bg-secondary'}
-        case 'RIP':
-          return {...order, className: 'bg-secondary'}
-        case 'REWORKEND':
-          return {...order, className: 'bg-warning'}
-        case 'RESCHEDULE':
-          return {...order, className: 'bg-primary'}
-        default:
-          return {...order, className: 'bg-primary'}
-      }
-    })
+  //     switch (status) {
+  //       case 'SURVEYSTART':
+  //         return {...order, className: 'bg-primary'}
+  //       case 'WORKSTART':
+  //         return {...order, className: 'bg-success'}
+  //       case 'WIP':
+  //         return {...order, className: 'bg-primary'}
+  //       case 'WORKEND':
+  //         return {...order, className: 'bg-success'}
+  //       case 'REWORK':
+  //         return {...order, className: 'bg-primary'}
+  //       case 'REWORKSTART':
+  //         return {...order, className: 'bg-secondary'}
+  //       case 'RIP':
+  //         return {...order, className: 'bg-secondary'}
+  //       case 'REWORKEND':
+  //         return {...order, className: 'bg-warning'}
+  //       case 'RESCHEDULE':
+  //         return {...order, className: 'bg-primary'}
+  //       default:
+  //         return {...order, className: 'bg-primary'}
+  //     }
+  //   })
 
-    setWorkOrder(updatedWorkOrder)
-  }, [selectedWorkOrder?.work_order_status])
+  //   setWorkOrder(updatedWorkOrder)
+  // }, [selectedWorkOrder?.work_order_status])
 
   return (
     <section id='view-calendar'>

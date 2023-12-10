@@ -194,12 +194,12 @@ const ViewMaterialVendor: React.FC = () => {
         let data
 
         data = {
-          material_id: item.id,
-          store_name: item.prices[0].store_id,
-          product_name: item?.item_name,
-          service_name: item?.service_name,
-          default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
-          min_order: item.prices[0].min_order,
+          material_id: item?.id,
+          store_name: item?.prices[0]?.store_id ?? '-',
+          product_name: item?.item_name ?? '-',
+          service_name: item?.service_name ?? '-',
+          default_price: `Rp. ${parseInt(item?.default_price ?? 0).toLocaleString('id')}`,
+          min_order: item?.prices[0]?.min_order ?? '-',
         }
 
         return data

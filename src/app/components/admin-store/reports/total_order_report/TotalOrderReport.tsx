@@ -278,7 +278,6 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            // scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
           />
 

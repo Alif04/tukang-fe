@@ -1,0 +1,5 @@
+@media screen and (max-width: 992px) {
+  h3.title-header {
+    margin-bottom: 10px !important;
+  }
+}

@@ -1,6 +1,6 @@
 import React, {useState, useEffect, FC} from 'react'
 
-import './DashboardHO.css'
+import './DashboardTukang.css'
 
 import {ChartBarPerformance} from './components/ChartBarPerformance'
 import {ChartBarOrder} from './components/ChartBarOrder'
@@ -47,7 +47,7 @@ const statusToStateMap: StatusToStateMap = {
   WORKRELATED: 'waitingPayment',
 }
 
-const DashboardHO: FC = () => {
+const DashboardTukang: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
@@ -387,14 +387,12 @@ const DashboardHO: FC = () => {
         </Col>
 
         <Col lg={4} md={12} className='mb-3'>
-          <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+          {/* <ChartBarOrder className='card-xl-stretch mb-xl-8' /> */}
         </Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
-        <Col md={12}>
-          <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
-        </Col>
+        <Col md={12}>{/* <ChartBarPerformance className='card-xl-stretch mb-xl-8' /> */}</Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
@@ -406,4 +404,4 @@ const DashboardHO: FC = () => {
   )
 }
 
-export {DashboardHO}
+export {DashboardTukang}

@@ -110,7 +110,7 @@ const NewOrderHO: FC = () => {
     project_address: '',
     project_number: '',
     request_survey: '',
-    payment_type: '',
+    payment_type: 'gratis',
     receipt_number: '',
     order_details: [
       {
@@ -550,7 +550,6 @@ const NewOrderHO: FC = () => {
       {key: 'project_number', fieldName: 'Nomor Proyek'},
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
-      {key: 'receipt_number', fieldName: 'Nomor Receipt'},
       {key: 'order_details', fieldName: 'Order Details'},
     ]
 

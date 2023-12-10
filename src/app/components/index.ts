@@ -5,10 +5,12 @@ export * from './admin-store/dashboard/DashboardStore'
 export * from './admin-ho/dashboard/DashboardHO'
 
 // DASHBOARD PAGE ( Admin Vendor )
-export * from './admin-vendor/dashboard/DashboardVendor'
+// export * from './admin-vendor/dashboard/DashboardVendor'
+export * from './admin-vendor/dashboard copy/DashboardVendor'
 
 // DASHBOARD PAGE ( TUKANG )
-export * from './tukang/dashboard/DashboardTukang'
+// export * from './tukang/dashboard/DashboardTukang'
+export * from './tukang/dashboard copy/DashboardTukang'
 
 // STORE PAGES
 
