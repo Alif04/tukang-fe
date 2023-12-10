@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewMaterial} from './components/ViewMaterial'
 import {NewMaterial} from './components/NewMaterial'
 import {UpdateMaterial} from './components/UpdateMaterial'
@@ -23,6 +25,7 @@ const MaterialPage: React.FC = () => {
         path='view-material'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={materialBreadCrumbs}>MATERIAL LIST</PageTitle>
             <ViewMaterial />
           </>
@@ -33,6 +36,7 @@ const MaterialPage: React.FC = () => {
         path='new-material'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={materialBreadCrumbs}>NEW MATERIAL FORM</PageTitle>
             <NewMaterial />
           </>
@@ -43,6 +47,7 @@ const MaterialPage: React.FC = () => {
         path='update-material/:id'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={materialBreadCrumbs}>UPDATE MATERIAL</PageTitle>
             <UpdateMaterial />
           </>
@@ -53,6 +58,7 @@ const MaterialPage: React.FC = () => {
         path='detail-material/:id'
         element={
           <>
+            <HeaderWrapper className='bg-header-vendor' />
             <PageTitle breadcrumbs={materialBreadCrumbs}>DETAIL MATERIAL</PageTitle>
             <DetailMaterial />
           </>

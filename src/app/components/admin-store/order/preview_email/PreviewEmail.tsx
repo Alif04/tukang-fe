@@ -59,8 +59,10 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 />
 
                 <div className='address'>
-                  <h3 className='fs-1 fw-bolder text-uppercase'>{orderDetail?.store.store_name}</h3>
-                  <h3 className='fw-normal'>{orderDetail?.store.address}</h3>
+                  <h3 className='fs-1 fw-bolder text-uppercase'>
+                    {orderDetail?.store?.store_name}
+                  </h3>
+                  <h3 className='fw-normal'>{orderDetail?.store?.address}</h3>
                 </div>
               </div>
             </div>
@@ -71,7 +73,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               <h3 className='fw-bolder'>
                 Tanggal Order :{' '}
                 <span className='fw-normal'>
-                  {orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                  {orderDetail ? formatDate(new Date(orderDetail.request_survey)) : '-'}
                 </span>
               </h3>
             </div>
@@ -81,19 +83,19 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
             <div className='receiver-information'>
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                <h1 className='fw-bolder'>{orderDetail?.members.full_name}</h1>
+                <h1 className='fw-bolder'>{orderDetail?.members?.full_name}</h1>
               </div>
 
               <div className='address'>
                 <h3 className='fw-normal'>{orderDetail?.project_address}</h3>
-                <h3 className='fw-normal'> Telp : {orderDetail?.members.phone_number}</h3>
+                <h3 className='fw-normal'> Telp : {orderDetail?.project_number}</h3>
               </div>
             </div>
 
             <div className='payment-request'>
               <h3 className='fw-bolder'>
                 Customer ID :{' '}
-                <span className='fw-normal'>{orderDetail?.members.member_number}</span>
+                <span className='fw-normal'>{orderDetail?.members?.member_number}</span>
               </h3>
 
               <h3 className='fw-bolder'>
@@ -121,10 +123,16 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 <tr>
                   <th>Item Code</th>
                   <th>Item Name</th>
-                  <th>Nama Pemasangan</th>
+                  <th>Nama Jasa Pemasangan</th>
                   <th>QTY Pemasangan</th>
-                  <th>Harga Jasa</th>
-                  <th>Jumlah</th>
+                  {!(
+                    orderDetail?.payment_type === 'gratis' || orderDetail?.payment_type === 'survey'
+                  ) && (
+                    <>
+                      <th>Harga Jasa</th>
+                      <th>Jumlah</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -137,44 +145,69 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 ) : (
                   orderDetail?.order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
+                      <tr key={`${index} - order_detail`}>
                         <td>{item?.item_id}</td>
                         <td>{item?.item_name}</td>
                         <td>{item?.item?.service_name}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                        {!(
+                          orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                          </>
+                        )}
                       </tr>
                     </>
                   ))
                 )}
 
-                <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
-                    Biaya Survey
-                  </td>
-                  <td className=' fw-bolder'>
-                    {orderDetail?.payment_type === 'gratis' ||
-                    orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                      ? `                      Rp. ${0?.toLocaleString(
-                          'id'
-                        )}                        `
-                      : orderDetail?.payment_type === 'survey'
-                      ? `                      Rp. ${99000?.toLocaleString(
-                          'id'
-                        )}                        `
-                      : `Rp. ${0}`}
-                  </td>
-                </tr>
+                {orderDetail?.payment_type !== 'gratis' &&
+                  orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                    <tr>
+                      <td colSpan={3} className='text-end fw-bolder'>
+                        Biaya Survey
+                      </td>
 
-                <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
-                    Grand Total
-                  </td>
-                  <td className=' fw-bolder'>
-                    Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
-                  </td>
-                </tr>
+                      <td className=' fw-bolder'>
+                        {orderDetail?.payment_type === 'gratis' ||
+                        orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                          ? `Rp. ${(0).toLocaleString('id')}`
+                          : orderDetail?.payment_type === 'survey'
+                          ? `Rp. ${(99000).toLocaleString('id')}`
+                          : `Rp. ${0}`}
+                      </td>
+                    </tr>
+                  )}
+
+                {orderDetail?.payment_type !== 'survey' && (
+                  <tr>
+                    <td
+                      colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                      className='text-end fw-bolder'
+                    >
+                      Grand Total
+                    </td>
+
+                    <td className=' fw-bolder'>
+                      {(() => {
+                        if (orderDetail?.payment_type === 'gratis') {
+                          return `Rp. ${(0).toLocaleString('id')}`
+                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                          return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
+                        } else if (orderDetail?.payment_type === 'survey') {
+                          return `Rp. ${(99000).toLocaleString('id')}`
+                        } else {
+                          return `Rp. ${(0).toLocaleString('id')}`
+                        }
+                      })()}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </Table>
           </div>

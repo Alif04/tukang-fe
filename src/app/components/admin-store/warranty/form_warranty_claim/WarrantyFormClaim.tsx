@@ -44,11 +44,6 @@ const WarrantyFormClaim = () => {
     getOrderDetail()
   }, [])
 
-  const phoneNumber =
-    orderDetail?.members.phone_number !== null
-      ? orderDetail?.members.phone_number
-      : orderDetail?.members.whatsapp_number
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -184,19 +179,13 @@ const WarrantyFormClaim = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Receipt Number :
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
                   Order Status :
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {orderDetail?.project_status_id === 1
-                      ? 'ON PROGRESS'
-                      : orderDetail?.project_status_id === 2
-                      ? 'ON PROGRESS'
-                      : orderDetail?.project_status_id === 3
-                      ? 'ON PROGRESS'
-                      : ''}
+                    {orderDetail?.status?.category}
                   </span>
                 </Form.Label>
               </Col>
@@ -212,7 +201,11 @@ const WarrantyFormClaim = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={orderDetail?.members?.member_number}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -247,7 +240,7 @@ const WarrantyFormClaim = () => {
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={phoneNumber} />
+                        <Form.Control plaintext readOnly value={orderDetail?.project_number} />
                       </Col>
                     </Form.Group>
 
@@ -256,7 +249,7 @@ const WarrantyFormClaim = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
+                        <Form.Control plaintext readOnly value={orderDetail?.members?.email} />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -271,7 +264,7 @@ const WarrantyFormClaim = () => {
                     Sales ID :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales?.id} />
                   </Col>
                 </Form.Group>
 
@@ -280,7 +273,7 @@ const WarrantyFormClaim = () => {
                     Sales Person :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
+                    <Form.Control plaintext readOnly value={orderDetail?.sales?.full_name} />
                   </Col>
                 </Form.Group>
               </Col>
@@ -300,7 +293,7 @@ const WarrantyFormClaim = () => {
                     type='text'
                     plaintext
                     readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                    value={orderDetail ? formatDate(new Date(orderDetail.request_survey)) : ''}
                   />
                 </Col>
               </Form.Group>
@@ -314,50 +307,82 @@ const WarrantyFormClaim = () => {
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {!(
+                      orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'survey'
+                    ) && (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
                   {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
-                        <td>{item?.item_id}</td>
-                        <td>{item?.unit}</td>
-                        <td>{item?.item?.category_name}</td>
+                      <tr key={`${index} - order_detail`}>
+                        <td>{item?.item_code}</td>
+                        <td>{item?.item_name}</td>
+                        <td>{item?.item?.service_name}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                        {!(
+                          orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                          </>
+                        )}
                       </tr>
                     </>
                   ))}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Biaya Survey
-                    </td>
-                    <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                        ? `                      Rp. ${0?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : orderDetail?.payment_type === 'survey'
-                        ? `                      Rp. ${99000?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : `Rp. ${0}`}
-                    </td>
-                  </tr>
+                  {orderDetail?.payment_type !== 'gratis' &&
+                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Biaya Survey
+                        </td>
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
-                    </td>
-                  </tr>
+                        <td className=' fw-bolder'>
+                          {orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `Rp. ${(0).toLocaleString('id')}`
+                            : orderDetail?.payment_type === 'survey'
+                            ? `Rp. ${(99000).toLocaleString('id')}`
+                            : `Rp. ${0}`}
+                        </td>
+                      </tr>
+                    )}
+
+                  {orderDetail?.payment_type !== 'survey' && (
+                    <tr>
+                      <td
+                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
+                          } else if (orderDetail?.payment_type === 'survey') {
+                            return `Rp. ${(99000).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>

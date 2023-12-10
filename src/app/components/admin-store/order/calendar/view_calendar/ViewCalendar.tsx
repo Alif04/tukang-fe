@@ -61,7 +61,7 @@ const ViewCalendarCS: React.FC = () => {
 
             if (data) {
               const workOrderDetail = data.map((item: any) => {
-                const workOrderItems = item?.work_order_status[1]?.work_order_items
+                const workOrderItems = item?.work_order_status[0]?.work_order_items
                   .map((service: any) => service.name ?? '')
                   .join(', ')
 

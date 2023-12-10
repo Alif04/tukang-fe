@@ -284,6 +284,60 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   border-right: none;
 }
 
+/* Table Styling */
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-title {
+  font-size: 10px;
+}
+
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+  .ant-table.ant-table-bordered
+  > .ant-table-container
+  > .ant-table-content
+  > table
+  > tbody
+  > tr
+  > td {
+  font-size: 10px;
+}
+
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+  .ant-table.ant-table-bordered
+  > .ant-table-container
+  > .ant-table-content
+  > table
+  > thead
+  > tr
+  > th {
+  font-size: 10px;
+}
+
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+  .ant-table.ant-table-bordered
+  > .ant-table-container
+  > .ant-table-body
+  > table
+  > tbody
+  > tr
+  > td {
+  font-size: 10px;
+}
+
+:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+  .ant-table.ant-table-bordered
+  > .ant-table-container
+  > .ant-table-header
+  > table
+  > thead
+  > tr
+  > th {
+  font-size: 10px;
+}
+
+/* Tag */
+:where(.css-dev-only-do-not-override-1ck3jst).ant-tag {
+  font-size: 10px !important;
+}
+
 /* Table Filter */
 
 :where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-sorter-inner {

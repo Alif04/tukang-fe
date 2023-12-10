@@ -1,11 +1,11 @@
 import React, {FC} from 'react'
 
-import {NewQuotationHO} from '../../../components'
+import {NewCSIHO} from '../../../components'
 
 const NewCSI: FC = () => {
   return (
     <>
-      <NewQuotationHO />
+      <NewCSIHO />
     </>
   )
 }

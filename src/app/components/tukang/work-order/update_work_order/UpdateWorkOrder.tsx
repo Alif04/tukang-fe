@@ -357,6 +357,10 @@ const UpdateWorkTukang: FC = () => {
 
     if (workOrderItem) {
       workOrderItem.forEach((order, index) => {
+        if (order.id) {
+          formData.append(`work_order_items[${index}][id]`, order.id.toString())
+        }
+
         formData.append(`work_order_items[${index}][type]`, order.type.toString())
         formData.append(`work_order_items[${index}][item_name]`, order.item_name)
         formData.append(`work_order_items[${index}][is_customer]`, order.is_user.toString())
@@ -629,7 +633,7 @@ const UpdateWorkTukang: FC = () => {
                     </Form.Label>
 
                     <Col sm='6'>
-                      <Form.Control readOnly value={orderDetail?.work_orders.id} />
+                      <Form.Control readOnly value={orderDetail?.work_orders?.id ?? '-'} />
                     </Col>
                   </Form.Group>
 
@@ -642,13 +646,11 @@ const UpdateWorkTukang: FC = () => {
 
                     <div className='detail-information'>
                       <div className='order-name  mb-3'>
-                        <p className='fs-5 me-5'>{orderDetail?.order_details[0].unit}</p>
-                      </div>
-
-                      <div className='category-name  mb-3'>
-                        <p className='fs-5 me-5'>
-                          {orderDetail?.order_details[0].item.category_name}
-                        </p>
+                        {orderDetail?.work_orders?.work_order_status[0].work_order_items.map(
+                          (item: any) => (
+                            <p className='fs-5 me-5'>{item?.name ?? '-'}</p>
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
@@ -665,20 +667,6 @@ const UpdateWorkTukang: FC = () => {
                     />
                   </Form.Group>
                 </Col>
-
-                {/* <div className='d-flex justify-content-end'>
-                  <Button
-                    variant='dark-danger'
-                    type='submit'
-                    onClick={() => navigate('/work-order/view-work-order')}
-                  >
-                    Cancel
-                  </Button>
-
-                  <Button variant='dark-primary' type='submit' onClick={handleUpdateWorkOrder}>
-                    Save
-                  </Button>
-                </div> */}
               </Row>
             </Col>
 

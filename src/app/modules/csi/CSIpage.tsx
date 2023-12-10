@@ -46,7 +46,7 @@ const CSIpage: React.FC = () => {
         }
       />
       <Route
-        path='new-csi'
+        path='format-pertanyaan-csi'
         element={
           <>
             {userRole == 'Admin HO' ? (
@@ -56,13 +56,13 @@ const CSIpage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW CSI FORM</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMAT PERTANYAAN CSI</PageTitle>
             <NewCSI />
           </>
         }
       />
       <Route
-        path='update-csi'
+        path='format-email-csi'
         element={
           <>
             {userRole == 'Admin HO' ? (

@@ -45,7 +45,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 100,
+      width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -55,7 +55,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
+      width: 130,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -64,7 +64,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      width: 140,
+      width: 150,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -73,7 +73,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 150,
+      width: 110,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -81,7 +81,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'email',
       key: 'email',
       align: 'left',
-      width: 135,
+      width: 150,
       onFilter: (value, record) => record.email.includes(String(value)),
       sorter: (a, b) => a.email.length - b.email.length,
     },
@@ -90,7 +90,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'address',
       key: 'address',
       align: 'left',
-      width: 135,
+      width: 150,
       onFilter: (value, record) => record.address.includes(String(value)),
       sorter: (a, b) => a.address.length - b.address.length,
     },
@@ -99,7 +99,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'service_name',
       key: 'service_name',
       align: 'left',
-      width: 135,
+      width: 160,
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
@@ -108,7 +108,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       dataIndex: 'quantity',
       key: 'quantity',
       align: 'center',
-      width: 135,
+      width: 100,
       sorter: (a, b) => a.quantity - b.quantity,
     },
     {
@@ -283,7 +283,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1800}}
+            // scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
           />
 

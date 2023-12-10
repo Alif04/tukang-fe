@@ -14,7 +14,7 @@ type Props = {
 
 interface DataType {
   key: string
-  order_id: string
+  order_id: number
   date_order: string
   costumer_name: string
   phone_number: string
@@ -37,29 +37,36 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_id',
     key: 'order_id',
     align: 'center',
-    width: 100,
+    width: 110,
     className: 'col_order_id',
+    sorter: (a, b) => a.order_id - b.order_id,
   },
   {
     title: 'Tanggal Order',
     dataIndex: 'date_order',
     key: 'date_order',
     align: 'center',
-    width: 110,
+    width: 130,
+    onFilter: (value, record) => record.date_order.includes(String(value)),
+    sorter: (a, b) => a.date_order.length - b.date_order.length,
   },
   {
     title: 'Nama Costumer',
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',
-    width: 140,
+    width: 150,
+    onFilter: (value, record) => record.costumer_name.includes(String(value)),
+    sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
   },
   {
     title: 'No Telepon',
     dataIndex: 'phone_number',
     key: 'phone_number',
     align: 'center',
-    width: 150,
+    width: 110,
+    onFilter: (value, record) => record.phone_number.includes(String(value)),
+    sorter: (a, b) => a.phone_number.length - b.phone_number.length,
   },
   {
     title: 'Email',
@@ -67,6 +74,8 @@ const columns: ColumnsType<DataType> = [
     key: 'email',
     align: 'center',
     width: 135,
+    onFilter: (value, record) => record.email.includes(String(value)),
+    sorter: (a, b) => a.email.length - b.email.length,
   },
   {
     title: 'Nama Pemasangan',
@@ -74,6 +83,8 @@ const columns: ColumnsType<DataType> = [
     key: 'nama_pemasangan',
     align: 'center',
     width: 135,
+    onFilter: (value, record) => record.nama_pemasangan.includes(String(value)),
+    sorter: (a, b) => a.nama_pemasangan.length - b.nama_pemasangan.length,
   },
   {
     title: 'Quantity',
@@ -81,6 +92,8 @@ const columns: ColumnsType<DataType> = [
     key: 'quantity',
     align: 'center',
     width: 135,
+    onFilter: (value, record) => record.quantity.includes(String(value)),
+    sorter: (a, b) => a.quantity.length - b.quantity.length,
   },
   {
     title: 'Harga',
@@ -88,6 +101,8 @@ const columns: ColumnsType<DataType> = [
     key: 'harga',
     align: 'center',
     width: 135,
+    onFilter: (value, record) => record.harga.includes(String(value)),
+    sorter: (a, b) => a.harga.length - b.harga.length,
   },
   {
     title: 'Grand Total',
@@ -95,13 +110,15 @@ const columns: ColumnsType<DataType> = [
     key: 'grand_total',
     align: 'center',
     width: 135,
+    onFilter: (value, record) => record.grand_total.includes(String(value)),
+    sorter: (a, b) => a.grand_total.length - b.grand_total.length,
   },
 ]
 
 const data: DataType[] = [
   {
     key: '1',
-    order_id: '78453995',
+    order_id: 78453995,
     date_order: '15/2/2023',
     costumer_name: 'Kobe',
     phone_number: '0815833346',
@@ -113,7 +130,7 @@ const data: DataType[] = [
   },
   {
     key: '2',
-    order_id: '78453995',
+    order_id: 78453995,
     date_order: '15/2/2023',
     costumer_name: 'Kobe',
     phone_number: '0815833346',
@@ -125,7 +142,7 @@ const data: DataType[] = [
   },
   {
     key: '3',
-    order_id: '78453995',
+    order_id: 78453995,
     date_order: '15/2/2023',
     costumer_name: 'Kobe',
     phone_number: '0815833346',
@@ -137,7 +154,7 @@ const data: DataType[] = [
   },
   {
     key: '4',
-    order_id: '78453995',
+    order_id: 78453995,
     date_order: '15/2/2023',
     costumer_name: 'Kobe',
     phone_number: '0815833346',
@@ -149,7 +166,7 @@ const data: DataType[] = [
   },
   {
     key: '5',
-    order_id: '78453996',
+    order_id: 78453996,
     date_order: '10/3/2023',
     costumer_name: 'Kobe',
     phone_number: '0815833346',
@@ -161,7 +178,7 @@ const data: DataType[] = [
   },
   {
     key: '6',
-    order_id: '78453997',
+    order_id: 78453997,
     date_order: '12/3/2023',
     costumer_name: 'Kobe',
     phone_number: '0815833346',
@@ -173,7 +190,7 @@ const data: DataType[] = [
   },
   {
     key: '7',
-    order_id: '78453998',
+    order_id: 78453998,
     date_order: '15/2/2023',
     costumer_name: 'Kobe',
     phone_number: '0815833346',
@@ -227,7 +244,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={data}
             rowKey={(record) => record.key}
-            scroll={{x: 1500}}
+            // scroll={{x: 1500}}
             pagination={{position: ['bottomCenter']}}
           />
 

@@ -65,7 +65,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'assign_from',
       key: 'assign_from',
       align: 'center',
-      width: 150,
+      width: 110,
       className: 'col_order_id',
       onFilter: (value, record) => record.assign_from.includes(String(value)),
       sorter: (a, b) => a.assign_from.length - b.assign_from.length,
@@ -75,7 +75,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
+      width: 100,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -84,7 +84,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'no_member',
       key: 'no_member',
       align: 'center',
-      width: 90,
+      width: 110,
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
@@ -92,7 +92,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      width: 140,
+      width: 130,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -109,7 +109,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'item_name',
       key: 'item_name',
       align: 'left',
-      width: 140,
+      width: 110,
       onFilter: (value, record) => record.item_name.includes(String(value)),
       sorter: (a, b) => a.item_name.length - b.item_name.length,
     },
@@ -118,7 +118,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'service_name',
       key: 'service_name',
       align: 'left',
-      width: 140,
+      width: 120,
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
@@ -127,7 +127,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      width: 140,
+      // width: 140,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
       filters: [
@@ -226,7 +226,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
       align: 'left',
-      width: 140,
+      // width: 140,
     },
     {
       title: 'Action',
@@ -255,7 +255,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
         )
       },
       fixed: 'right',
-      width: 50,
+      // width: 50,
     },
   ]
 
@@ -390,7 +390,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 2000}}
+            // scroll={{x: 2000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

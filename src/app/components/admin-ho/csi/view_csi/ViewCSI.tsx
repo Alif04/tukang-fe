@@ -67,7 +67,6 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 100,
       className: 'col_order_id',
     },
     {
@@ -75,49 +74,42 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 100,
     },
     {
       title: 'Date Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
     },
     {
       title: 'No Member',
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
-      width: 120,
     },
     {
       title: 'Nama Costumer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      width: 120,
     },
     {
       title: 'WA/No Handphone',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 135,
     },
     {
       title: 'Nama Jasa Pemasangan',
       dataIndex: 'service_name',
       key: 'service_name',
       align: 'center',
-      width: 135,
     },
     {
       title: 'Order Status',
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 140,
     },
     {
       title: 'Action',
@@ -264,7 +256,6 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={data}
             rowKey={(record) => record.key}
-            scroll={{x: 1700}}
             pagination={{position: ['bottomCenter']}}
           />
         </div>

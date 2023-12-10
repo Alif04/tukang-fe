@@ -481,10 +481,6 @@ const NewQuotationVendor: FC = () => {
         filteredDetailValues[index] = {
           ...filteredDetailValues[index],
           quantity: value,
-          total: value * filteredDetailValues[index].unit_price,
-          final_price:
-            Number(value * filteredDetailValues[index].unit_price) +
-            Number(filteredDetailValues[index].margin),
         }
       }
 
@@ -935,15 +931,6 @@ const NewQuotationVendor: FC = () => {
 
                         <td>
                           <Form.Control
-                            id={`margin-${index}`}
-                            type='number'
-                            value={element.margin}
-                            onChange={(e) => handleMarginChange(index, e.target.value, 2)}
-                          />
-                        </td>
-
-                        <td>
-                          <Form.Control
                             id={`unit-price-${index}`}
                             type='number'
                             value={element.unit_price}
@@ -953,9 +940,21 @@ const NewQuotationVendor: FC = () => {
 
                         <td>
                           <Form.Control
+                            id={`margin-${index}`}
+                            type='number'
+                            value={element.margin}
+                            onChange={(e) => handleMarginChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
                             readOnly
                             plaintext
-                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
+                            value={`Rp. ${(
+                              Number(element.quantity) * Number(element.unit_price) +
+                              Number(element.margin)
+                            ).toLocaleString()}`}
                           />
                         </td>
 

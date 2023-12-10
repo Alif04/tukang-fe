@@ -16,7 +16,12 @@ import {Row, Col, Card, Form} from 'react-bootstrap'
 const {RangePicker} = DatePicker
 
 interface StoreItem {
-  value: string
+  value: number | null
+  label: string
+}
+
+interface ProvinceItem {
+  value: number | null
   label: string
 }
 
@@ -55,11 +60,18 @@ const DashboardHO: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [store, setStore] = useState<StoreItem[]>([])
+  const [province, setProvince] = useState<ProvinceItem[]>([])
   const [searchByStore, setSearchByStore] = useState<any>('')
+  const [searchByProvince, setSearchByProvince] = useState<any>('')
 
   const handleChangeSelectStore = (element: any) => {
     const updatedStoreId = element.value
     setSearchByStore(updatedStoreId)
+  }
+
+  const handleChangeSelectProvince = (element: any) => {
+    const updatedProvinceId = element.value
+    setSearchByStore(updatedProvinceId)
   }
 
   const fetchOrderList = async () => {
@@ -92,7 +104,7 @@ const DashboardHO: FC = () => {
           order_id: item.id,
           store_name: item.store.store_name,
           costumer_name: item.members.full_name,
-          service_name: item.m_order_details[0].item.service_name,
+          service_name: item.m_order_details[0]?.item?.service_name ?? '-',
           total: `Rp. ${parseInt(item.grand_total).toLocaleString('id')}`,
         }
 
@@ -180,33 +192,84 @@ const DashboardHO: FC = () => {
 
   const {totalOrder, survey, onProgress, complete, reschedule, waitingPayment} = statusState
 
+  // Province Data
+  const provinces = [
+    {value: 'aceh', label: 'Aceh'},
+    {value: 'bali', label: 'Bali'},
+    {value: 'bangka_belitung', label: 'Bangka Belitung'},
+    {value: 'banten', label: 'Banten'},
+    {value: 'bengkulu', label: 'Bengkulu'},
+    {value: 'di_yogyakarta', label: 'DI Yogyakarta'},
+    {value: 'dki_jakarta', label: 'DKI Jakarta'},
+    {value: 'gorontalo', label: 'Gorontalo'},
+    {value: 'jambi', label: 'Jambi'},
+    {value: 'jawa_barat', label: 'Jawa Barat'},
+    {value: 'jawa_tengah', label: 'Jawa Tengah'},
+    {value: 'jawa_timur', label: 'Jawa Timur'},
+    {value: 'kalimantan_barat', label: 'Kalimantan Barat'},
+    {value: 'kalimantan_selatan', label: 'Kalimantan Selatan'},
+    {value: 'kalimantan_tengah', label: 'Kalimantan Tengah'},
+    {value: 'kalimantan_timur', label: 'Kalimantan Timur'},
+    {value: 'kalimantan_utara', label: 'Kalimantan Utara'},
+    {value: 'kepulauan_bangka_belitung', label: 'Kepulauan Bangka Belitung'},
+    {value: 'kepulauan_riau', label: 'Kepulauan Riau'},
+    {value: 'lampung', label: 'Lampung'},
+    {value: 'maluku', label: 'Maluku'},
+    {value: 'maluku_utara', label: 'Maluku Utara'},
+    {value: 'nusa_tenggara_barat', label: 'Nusa Tenggara Barat'},
+    {value: 'nusa_tenggara_timur', label: 'Nusa Tenggara Timur'},
+    {value: 'papua', label: 'Papua'},
+    {value: 'papua_barat', label: 'Papua Barat'},
+    {value: 'riau', label: 'Riau'},
+    {value: 'sulawesi_barat', label: 'Sulawesi Barat'},
+    {value: 'sulawesi_selatan', label: 'Sulawesi Selatan'},
+    {value: 'sulawesi_tengah', label: 'Sulawesi Tengah'},
+    {value: 'sulawesi_tenggara', label: 'Sulawesi Tenggara'},
+    {value: 'sulawesi_utara', label: 'Sulawesi Utara'},
+    {value: 'sumatera_barat', label: 'Sumatera Barat'},
+    {value: 'sumatera_selatan', label: 'Sumatera Selatan'},
+    {value: 'sumatera_utara', label: 'Sumatera Utara'},
+  ]
+
   return (
     <section id='dashboard-ho'>
       <Row>
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+        <Col xxl={6} xl={6} lg={12} className='mb-5'>
           <Row>
-            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='title-header fs-7 fw-normal'>Lihat Store Dashboard</h3>
+            <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
+              <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
             </Col>
 
-            <Col xxl={8} xl={8} lg={8}>
-              <Select
-                name='store_id'
-                className='form-control p-0'
-                classNamePrefix='select'
-                placeholder='Pilih Toko'
-                isSearchable={true}
-                options={store}
-                onChange={(element) => handleChangeSelectStore(element)}
-              />
+            <Col xxl={8} xl={8} lg={12}>
+              <div className='d-flex'>
+                <Select
+                  name='store_id'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  placeholder='Pilih Toko'
+                  isSearchable={true}
+                  options={store}
+                  onChange={(element) => handleChangeSelectStore(element)}
+                />
+
+                <Select
+                  name='province_id'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  placeholder='Pilih Zona'
+                  isSearchable={true}
+                  options={provinces}
+                  onChange={(element) => handleChangeSelectProvince(element)}
+                />
+              </div>
             </Col>
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+        <Col xxl={6} xl={6} lg={12} className='mb-5'>
           <Row>
             <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='title-header fs-7 fw-normal'>Pilih rentang waktu</h3>
+              <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
             </Col>
 
             <Col xxl={8} xl={8} lg={8}>
@@ -228,8 +291,6 @@ const DashboardHO: FC = () => {
             </Col>
           </Row>
         </Col>
-
-        <Col xxl={4} xl={4} lg={12} className='mb-5'></Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
@@ -287,27 +348,33 @@ const DashboardHO: FC = () => {
       </Row>
 
       <Row>
-        <Col xxl={8}>
-          <Row className='g-5 g-xl-8 mb-5'>
-            <Col xl={6}>
-              <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
-            </Col>
-            <Col xl={6}>
-              <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
-            </Col>
-          </Row>
+        <Col xxl={7}>
+          <Col>
+            <Row className='g-5 g-xl-8 mb-5'>
+              <Col xl={6}>
+                <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
+              </Col>
 
-          <Row className='g-5 g-xl-8 mb-5'>
-            <Col xl={6}>
-              <ChartBarOrder className='card-xl-stretch mb-xl-8' />
-            </Col>
-            <Col xl={6}>
-              <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
-            </Col>
-          </Row>
+              <Col xl={6}>
+                <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
+              </Col>
+            </Row>
+          </Col>
+
+          <Col>
+            <Row className='g-5 g-xl-8 mb-5'>
+              <Col xl={6}>
+                <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+              </Col>
+
+              <Col xl={6}>
+                <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
+              </Col>
+            </Row>
+          </Col>
         </Col>
 
-        <Col xxl={4}>
+        <Col xxl={5}>
           <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
         </Col>
       </Row>

@@ -115,7 +115,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
                     Work Order ID :{' '}
-                    <span className='fs-4 ms-2 fw-normal'>{orderDetail?.work_orders.id}</span>
+                    <span className='fs-4 ms-2 fw-normal'>
+                      {orderDetail?.work_orders?.id ?? '-'}
+                    </span>
                   </Form.Label>
                 </Col>
               </Col>
@@ -206,7 +208,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <Form.Control
                           type='date'
                           readOnly
-                          value={formatDate(new Date(orderDetail?.work_orders.survey_date))}
+                          value={formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))}
                         />
                       </Form.Group>
                     </Col>
@@ -274,7 +276,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
+                  {/* {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
                       <tr>
                         <td>{item?.item_code}</td>
@@ -285,9 +287,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
                       </tr>
                     </>
-                  ))}
+                  ))} */}
 
-                  {/* {orderDetail?.work_orders.work_order_status[0].work_order_items.map(
+                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                     (item: any, index: any) => (
                       <>
                         <tr>
@@ -300,7 +302,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         </tr>
                       </>
                     )
-                  )} */}
+                  )}
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>

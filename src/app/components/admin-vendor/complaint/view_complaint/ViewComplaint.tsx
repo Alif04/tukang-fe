@@ -39,8 +39,8 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
     phone_number: number
     service_name: string
     order_status: string
+    work_status: string
     complaint_date: string
-    complaint_desc: string
     complaint_status: string
   }
 
@@ -50,7 +50,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'complaint_id',
       key: 'complaint_id',
       align: 'center',
-      width: 130,
+      width: 110,
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.complaint_id - b.complaint_id,
     },
@@ -68,7 +68,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 120,
+      width: 110,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -76,7 +76,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 130,
+      width: 100,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -85,7 +85,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'no_member',
       key: 'no_member',
       align: 'center',
-      width: 130,
+      width: 110,
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
@@ -100,26 +100,31 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
       title: 'Phone Number',
       dataIndex: 'phone_number',
       key: 'phone_number',
-      width: 160,
+      width: 125,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
       title: 'Nama Jasa Pemasangan',
       dataIndex: 'service_name',
       key: 'service_name',
-      width: 180,
+      width: 150,
     },
     {
       title: 'Order Status',
       dataIndex: 'order_status',
       key: 'order_status',
-      width: 180,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
 
         switch (orderStatus) {
-          case 'BOOK':
+          case 'UNPAID':
+            color = 'red'
+            break
+          case 'PAID':
+            color = 'green'
+            break
+          case 'PICKLIST':
             color = 'green'
             break
           case 'BOOKED':
@@ -129,13 +134,41 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
             color = 'blue'
             break
           case 'SURVEYSTART':
+            color = 'blue'
+            break
           case 'SURVEYDONE':
+            color = 'blue'
+            break
+          case 'RESURVEYREQ':
+            color = 'blue'
+            break
+          case 'RESURVEYSTART':
+            color = 'blue'
+            break
+          case 'RESURVEYDONE':
+            color = 'blue'
+            break
           case 'QUOTE IN':
+            color = 'blue'
+            break
           case 'QUOTE OUT':
+            color = 'blue'
+            break
           case 'WORKREQ':
+            color = 'blue'
+            break
           case 'WORKSTART':
+            color = 'blue'
+            break
           case 'WIP':
+            color = 'blue'
+            break
           case 'WORKEND':
+            color = 'blue'
+            break
+          case 'INVOICED':
+            color = 'blue'
+            break
           case 'CISOUT':
             color = 'green'
             break
@@ -147,11 +180,57 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [
-        {text: 'BOOK', value: 'BOOK'},
+        {text: 'PICKLIST', value: 'PICKLIST'},
         {text: 'BOOKED', value: 'BOOKED'},
+        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
+        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
+        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
+        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
+        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
+        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
+        {text: 'WORKREQ', value: 'WORKREQ'},
+        {text: 'WORKSTART', value: 'WORKSTART'},
+        {text: 'WIP', value: 'WIP'},
+        {text: 'WORKEND', value: 'WORKEND'},
+        {text: 'QUOTEIN', value: 'QUOTEIN'},
+        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
+        {text: 'CISOUT', value: 'CISOUT'},
+        {text: 'INVOICED', value: 'INVOICED'},
       ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
+      width: 130,
+    },
+    {
+      title: 'Work Status',
+      dataIndex: 'work_status',
+      key: 'work_status',
+      className: 'col-complaint-date',
+      width: 180,
+      onFilter: (value, record) => record.work_status.includes(String(value)),
+      sorter: (a, b) => a.work_status.length - b.work_status.length,
+      render: (complaint_status) => {
+        const complaintStatus = complaint_status
+        let color = ''
+
+        switch (complaintStatus) {
+          case 'INVESTIGATED':
+            color = 'volcano'
+            break
+          case 'ACCEPTED':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{complaintStatus}</Tag>
+      },
+      filters: [
+        {text: 'INVESTIGATED', value: 'INVESTIGATED'},
+        {text: 'ACCEPTED', value: 'ACCEPTED'},
+      ],
     },
     {
       title: 'Complaint Date',
@@ -161,15 +240,6 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
       width: 150,
       onFilter: (value, record) => record.complaint_date.includes(String(value)),
       sorter: (a, b) => a.complaint_date.length - b.complaint_date.length,
-    },
-    {
-      title: 'Complaint Description',
-      dataIndex: 'complaint_desc',
-      key: 'complaint_desc',
-      className: 'col-complaint-date',
-      width: 180,
-      onFilter: (value, record) => record.complaint_desc.includes(String(value)),
-      sorter: (a, b) => a.complaint_desc.length - b.complaint_desc.length,
     },
     {
       title: 'Complaint Status',
@@ -294,8 +364,8 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
           phone_number: phoneNumber,
           service_name: item.orders.m_order_details[0].item_name ?? '-',
           order_status: item.orders.status.category,
+          work_status: item.orders.status.category,
           complaint_date: formatDate(complaintDate),
-          complaint_desc: item.description,
           complaint_status: item.status.category,
         }
 
@@ -369,7 +439,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={complaintData}
             rowKey={(record) => record.complaint_id}
-            scroll={{x: 2100}}
+            scroll={{x: 1500}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

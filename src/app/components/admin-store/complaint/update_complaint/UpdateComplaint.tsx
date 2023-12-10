@@ -25,7 +25,6 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
   // Complaint Detail
   const [orderId, setOrderId] = useState<string>('')
-  const [orderDetail, setOrderDetail] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
 
   const fetchComplaintData = async () => {
@@ -43,6 +42,10 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
           const data = response.data.data
           setComplaintDetail(data)
           updatePageTitle(data)
+
+          if (data?.orders?.id) {
+            setOrderId(data.orders.id)
+          }
 
           if (data?.description) {
             setComplaintDesc(data.description)
@@ -65,27 +68,6 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
             setComplaintEvidence(initialComplaintEvidenceValues)
           }
-        })
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  const fetchOrderData = async () => {
-    const orderId = complaintDetail?.order_id
-    try {
-      await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          const data = response.data.data
-          setOrderDetail(data)
         })
     } catch (error) {
       console.error(error)
@@ -122,17 +104,6 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
     fetchComplaintData()
     fetchComplaintChannel()
   }, [])
-
-  useEffect(() => {
-    if (complaintDetail) {
-      fetchOrderData()
-    }
-  }, [complaintDetail])
-
-  const phoneNumber =
-    orderDetail?.members.phone_number !== null
-      ? orderDetail?.members.phone_number
-      : orderDetail?.members.whatsapp_number
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -331,7 +302,9 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {complaintDetail?.orders?.store.store_name}
+                  </span>
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
@@ -341,7 +314,8 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
+                  Order ID :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>{complaintDetail?.orders?.id}</span>
                 </Form.Label>
 
                 <Form.Group as={Row}>
@@ -353,7 +327,11 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                       type='text'
                       plaintext
                       readOnly
-                      value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                      value={
+                        complaintDetail?.orders
+                          ? formatDate(new Date(complaintDetail?.orders?.request_survey))
+                          : ''
+                      }
                     />
                   </Col>
                 </Form.Group>
@@ -362,7 +340,9 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Receipt Number :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {complaintDetail?.orders?.receipt_number ?? '-'}
+                  </span>
                 </Form.Label>
               </Col>
             </Row>
@@ -377,7 +357,11 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.id} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.members.member_number}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -386,7 +370,11 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.members.full_name}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -400,7 +388,7 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                           plaintext
                           readOnly
                           rows={3}
-                          value={orderDetail?.project_address}
+                          value={complaintDetail?.orders?.project_address}
                         />
                       </Col>
                     </Form.Group>
@@ -412,7 +400,11 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='8'>
-                        <Form.Control plaintext readOnly value={phoneNumber} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.project_number}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -421,7 +413,11 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                         Alamat Email :
                       </Form.Label>
                       <Col sm='8'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.email} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.members.email}
+                        />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -429,25 +425,59 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               </Col>
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <div className='fs-3 fw-bold'>Informasi Penjual</div>
+                <Row>
+                  <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Sales ID :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.id} />
-                  </Col>
-                </Form.Group>
+                  <div className='d-flex'>
+                    <Form.Group as={Row}>
+                      <Form.Label column md='4'>
+                        Sales ID :
+                      </Form.Label>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Sales Person :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name} />
-                  </Col>
-                </Form.Group>
+                      <Col md='8'>
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.sales.id}
+                        />
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row}>
+                      <Form.Label column md='5'>
+                        Sales Person :
+                      </Form.Label>
+
+                      <Col md='7'>
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.sales?.full_name}
+                        />
+                      </Col>
+                    </Form.Group>
+                  </div>
+                </Row>
+
+                <Row>
+                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
+
+                  <div className='d-flex'>
+                    <Form.Group as={Row}>
+                      <Form.Label column md='5'>
+                        Vendor Name :
+                      </Form.Label>
+
+                      <Col md='7'>
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.vendor?.company_name ?? '-'}
+                        />
+                      </Col>
+                    </Form.Group>
+                  </div>
+                </Row>
               </Col>
             </Row>
           </div>
@@ -463,51 +493,86 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                   <tr>
                     <th>Item Code</th>
                     <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
+                    <th>Nama Jasa Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {!(
+                      complaintDetail?.orders?.payment_type === 'gratis' ||
+                      complaintDetail?.orders?.payment_type === 'survey'
+                    ) && (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
+                  {complaintDetail?.orders?.m_order_details.map((item: any, index: any) => (
                     <>
-                      <tr key={index}>
-                        <td>{item?.item_id}</td>
-                        <td>{item?.unit}</td>
-                        <td>{item?.status?.description}</td>
+                      <tr key={`${index} - detail-order`}>
+                        <td>{item?.item_code}</td>
+                        <td>{item?.item_name}</td>
+                        <td>{item?.item?.service_name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                        {!(
+                          complaintDetail?.orders?.payment_type === 'gratis' ||
+                          complaintDetail?.orders?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                          </>
+                        )}
                       </tr>
                     </>
                   ))}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Biaya Survey
-                    </td>
-                    <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'GRATIS'
-                        ? `                      Rp. ${0?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : orderDetail?.payment_type === 'BERBAYAR'
-                        ? `                      Rp. ${99000?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : `Rp. ${0}`}
-                    </td>
-                  </tr>
+                  {complaintDetail?.orders?.payment_type !== 'gratis' &&
+                    complaintDetail?.orders?.payment_type !== 'pemasangan_tanpa_survey' && (
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Biaya Survey
+                        </td>
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
-                    </td>
-                  </tr>
+                        <td className=' fw-bolder'>
+                          {complaintDetail?.orders?.payment_type === 'gratis' ||
+                          complaintDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `Rp. ${(0).toLocaleString('id')}`
+                            : complaintDetail?.orders?.payment_type === 'survey'
+                            ? `Rp. ${(99000).toLocaleString('id')}`
+                            : `Rp. ${0}`}
+                        </td>
+                      </tr>
+                    )}
+
+                  {complaintDetail?.orders?.payment_type !== 'survey' && (
+                    <tr>
+                      <td
+                        colSpan={complaintDetail?.orders?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (complaintDetail?.orders?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (
+                            complaintDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                          ) {
+                            return `Rp. ${parseInt(
+                              complaintDetail?.orders?.grand_total
+                            ).toLocaleString('id')}`
+                          } else if (complaintDetail?.orders?.payment_type === 'survey') {
+                            return `Rp. ${(99000).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>

@@ -48,7 +48,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'quotation_id',
       key: 'quotation_id',
       align: 'center',
-      width: 100,
+      width: 110,
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.quotation_id - b.quotation_id,
     },
@@ -57,7 +57,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 100,
+      width: 130,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -66,7 +66,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 100,
+      width: 90,
       className: 'col_order_id',
       sorter: (a, b) => a.order_id - b.order_id,
     },
@@ -84,7 +84,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      width: 140,
+      width: 130,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -93,7 +93,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'vendor_name',
       key: 'vendor_name',
       align: 'left',
-      width: 140,
+      width: 130,
       onFilter: (value, record) => record.vendor_name.includes(String(value)),
       sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
     },
@@ -102,7 +102,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      width: 140,
+      width: 120,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
@@ -111,16 +111,16 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 140,
+      width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
 
         switch (orderStatus) {
-          case 'SURVEYDONE':
+          case 'QUOTEIN':
             color = 'green'
             break
-          case 'RESURVEYDONE':
+          case 'QUOTEOUT':
           default:
             color = 'blue'
             break
@@ -128,10 +128,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'BOOK', value: 'BOOK'},
-        {text: 'BOOKED', value: 'BOOKED'},
-      ],
+      filters: [{text: 'QUOTEOUT', value: 'QUOTEOUT'}],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
     },
@@ -146,24 +143,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         let color = ''
 
         switch (orderStatus) {
-          case 'BOOK':
-            color = 'green'
-            break
-          case 'BOOKED':
-            color = 'lime'
-            break
-          case 'SURVEYREQ':
-            color = 'blue'
-            break
-          case 'SURVEYSTART':
-          case 'SURVEYDONE':
-          case 'QUOTE IN':
-          case 'QUOTE OUT':
-          case 'WORKREQ':
-          case 'WORKSTART':
-          case 'WIP':
-          case 'WORKEND':
-          case 'CISOUT':
+          case 'QUOTEOUT':
             color = 'green'
             break
           default:
@@ -174,8 +154,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [
-        {text: 'BOOK', value: 'BOOK'},
-        {text: 'BOOKED', value: 'BOOKED'},
+        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
+        {text: 'QUOTEIN', value: 'QUOTEIN'},
       ],
       onFilter: (value, record) => record.quotation_status.includes(String(value)),
       sorter: (a, b) => a.quotation_status.length - b.quotation_status.length,
@@ -360,7 +340,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={quotationData}
             rowKey={(record) => record.quotation_id}
-            scroll={{x: 1800}}
+            // scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

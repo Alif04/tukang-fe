@@ -34,7 +34,7 @@ export function AsideMenuMain() {
       <AsideMenuItem
         to='/home'
         icon='/media/icons/duotune/art/art002.svg'
-        title='Home'
+        title={userRole === 'Store CS' || userRole === 'Store Staff' ? 'Home' : 'Dashboard'}
         fontIcon='bi-app-indicator'
         role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
       />
@@ -59,7 +59,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/dashboard-order'
           title='Dashboard'
-          role={['Store CS', 'Admin HO']}
+          role={['Store CS']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -76,16 +76,17 @@ export function AsideMenuMain() {
         />
         <AsideMenuItem
           to='/calendar/view-calendar'
-          title={userRole === 'Admin Ho' ? 'Kalender Order' : 'Kalender Instalasi'}
+          title={userRole === 'Admin HO' ? 'Kalender Order' : 'Kalender Instalasi'}
           role={['Store CS', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/warranty/claim-warranty-list'
           title='Claim Garansi'
-          role={['Store CS', 'Admin HO']}
+          role={['Store CS']}
           hasBullet={true}
         />
+        <AsideMenuItem to='/csi/view-csi' title='List CSI' role={['Admin HO']} hasBullet={true} />
       </AsideMenuItemWithSub>
 
       {/* Halaman Work Order */}
@@ -143,7 +144,7 @@ export function AsideMenuMain() {
       {/* Halaman Pengaduan */}
       <AsideMenuItemWithSub
         to='/complaint'
-        title='Pengaduan'
+        title='Complaint'
         role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
@@ -243,33 +244,33 @@ export function AsideMenuMain() {
       {/* Halaman Costumers */}
       <AsideMenuItemWithSub
         to='/costumers'
-        title='Costumers'
+        title='Customers'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
         role={['Admin HO']}
       >
         <AsideMenuItem
           to='/costumers/view-costumers'
-          title='List Costumers'
+          title='View Customers'
           role={['Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/costumers/new-costumers'
-          title='Register Costumers'
+          title='Register Customers'
           role={['Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/costumers/report-costumers'
-          title='Report Costumers'
+          title='Report Customers'
           role={['Admin HO']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
 
       {/* Halaman CSI */}
-      <AsideMenuItemWithSub
+      {/* <AsideMenuItemWithSub
         to='/cis'
         title='CSI'
         icon='/media/icons/duotune/communication/com006.svg'
@@ -290,7 +291,7 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
-      </AsideMenuItemWithSub>
+      </AsideMenuItemWithSub> */}
 
       {/* Halaman Material */}
       <AsideMenuItemWithSub
@@ -315,7 +316,7 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       {/* Halaman Item */}
-      <AsideMenuItemWithSub
+      {/* <AsideMenuItemWithSub
         to='/item'
         title='Item'
         icon='/media/icons/duotune/communication/com006.svg'
@@ -328,7 +329,7 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
-      </AsideMenuItemWithSub>
+      </AsideMenuItemWithSub> */}
 
       {/* Halaman Invoice */}
       <AsideMenuItemWithSub
@@ -434,14 +435,32 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/setting'
         icon='/media/icons/duotune/art/art002.svg'
-        title='Setting'
+        title={userRole === 'Store CS' || userRole === 'Store Staff' ? 'Pengaturan' : 'Setting'}
         fontIcon='bi-app-indicator'
         role={['Store CS', 'Store Staff', 'Admin HO']}
       >
         <AsideMenuItem
+          to='/csi/format-email-csi'
+          title='Format Email CSI'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/csi/format-pertanyaan-csi'
+          title='Format Pertanyaan CSI'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
           to='/sales/new-sales'
           title='Register Sales'
           role={['Store CS']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/item/view-item'
+          title='List Item'
+          role={['Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem to='/item/new-item' title='New Item' role={['Admin HO']} hasBullet={true} />

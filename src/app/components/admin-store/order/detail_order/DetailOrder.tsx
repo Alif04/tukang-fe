@@ -44,7 +44,7 @@ const complaintHistory = [
   },
 ]
 
-const DetailOrderStore: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
+const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const [order, setOrder] = useState<Orders>({
@@ -131,7 +131,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
                     Receipt Number :
-                    <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number}</span>
+                    <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number ?? '-'}</span>
                   </Form.Label>
                 </Col>
                 <Col>
@@ -236,6 +236,13 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 </Form.Group>
 
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>{order.vendor?.company_name ?? '-'}</p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>Payment Type:</Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>
@@ -264,7 +271,7 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    {order?.payment_type !== 'gratis' && (
+                    {!(order?.payment_type === 'gratis' || order?.payment_type === 'survey') && (
                       <>
                         <th>Harga Jasa</th>
                         <th>Jumlah</th>
@@ -275,60 +282,67 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <tbody>
                   {order?.order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
+                      <tr key={`${index} - order_detail`}>
                         <td>{item?.item_code}</td>
                         <td>{item?.item_name}</td>
                         <td>{item?.item?.service_name}</td>
                         <td>{item?.quantity}</td>
-                        {order?.payment_type !== 'gratis' && (
+                        {!(
+                          order?.payment_type === 'gratis' || order?.payment_type === 'survey'
+                        ) && (
                           <>
                             <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
                               'id'
                             )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
                           </>
                         )}
                       </tr>
                     </>
                   ))}
 
-                  {order?.payment_type !== 'gratis' && (
+                  {order?.payment_type !== 'gratis' &&
+                    order?.payment_type !== 'pemasangan_tanpa_survey' && (
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Biaya Survey
+                        </td>
+
+                        <td className=' fw-bolder'>
+                          {order?.payment_type === 'gratis' ||
+                          order?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `Rp. ${(0).toLocaleString('id')}`
+                            : order?.payment_type === 'survey'
+                            ? `Rp. ${(99000).toLocaleString('id')}`
+                            : `Rp. ${0}`}
+                        </td>
+                      </tr>
+                    )}
+
+                  {order?.payment_type !== 'survey' && (
                     <tr>
-                      <td colSpan={5} className='text-end fw-bolder'>
-                        Biaya Survey
+                      <td
+                        colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
                       </td>
+
                       <td className=' fw-bolder'>
-                        {order?.payment_type === 'gratis' ||
-                        order?.payment_type === 'pemasangan_tanpa_survey'
-                          ? `Rp. ${(0).toLocaleString('id')}`
-                          : order?.payment_type === 'survey'
-                          ? `Rp. ${(99000).toLocaleString('id')}`
-                          : `Rp. ${0}`}
+                        {(() => {
+                          if (order?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Rp. ${parseInt(order?.grand_total).toLocaleString('id')}`
+                          } else if (order?.payment_type === 'survey') {
+                            return `Rp. ${(99000).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
                       </td>
                     </tr>
                   )}
-
-                  <tr>
-                    <td
-                      colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
-                      className='text-end fw-bolder'
-                    >
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      {(() => {
-                        if (order?.payment_type === 'gratis') {
-                          return `Rp. ${(0).toLocaleString('id')}`
-                        } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
-                          return `Rp. ${parseInt(order?.grand_total).toLocaleString('id')}`
-                        } else if (order?.payment_type === 'survey') {
-                          return `Rp. ${(99000).toLocaleString('id')}`
-                        } else {
-                          return `Rp. ${(0).toLocaleString('id')}`
-                        }
-                      })()}
-                    </td>
-                  </tr>
                 </tbody>
               </Table>
             </div>
@@ -461,4 +475,4 @@ const DetailOrderStore: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   )
 }
 
-export {DetailOrderStore}
+export {DetailOrders}

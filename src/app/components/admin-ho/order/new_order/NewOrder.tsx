@@ -488,6 +488,8 @@ const NewOrderHO: FC = () => {
       cache.order_details.push(newDetail)
       return cache
     })
+
+    getItem('')
   }
 
   const handleRemoveForm = (index: any) => {
@@ -496,6 +498,8 @@ const NewOrderHO: FC = () => {
       cache.order_details.splice(index, 1)
       return cache
     })
+
+    getItem('')
   }
 
   // Calculate Grand Total Order Amount
@@ -996,7 +1000,7 @@ const NewOrderHO: FC = () => {
             <Table hover responsive='md'>
               <thead className='table-order-head'>
                 <tr>
-                  <th>Action</th>
+                  {orderForm.order_details.length >= 2 && <th>Action</th>}
                   <th>Item Code</th>
                   <th>Item Name</th>
                   <th>Nama Pemasangan</th>
@@ -1012,11 +1016,13 @@ const NewOrderHO: FC = () => {
               <tbody>
                 {orderForm.order_details.map((element, index) => (
                   <tr key={`${index}-order_details`}>
-                    <td>
-                      <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                        Remove
-                      </Button>
-                    </td>
+                    {orderForm.order_details.length >= 2 && (
+                      <td align='center'>
+                        <Button variant='danger' onClick={() => handleRemoveForm(index)}>
+                          Remove
+                        </Button>
+                      </td>
+                    )}
 
                     <td>
                       <Form.Control
@@ -1113,11 +1119,12 @@ const NewOrderHO: FC = () => {
                 ) && (
                   <tr>
                     <td
-                      colSpan={paymentTypeValue[1] !== 'survey' ? 6 : 4}
                       className='text-end fw-bolder'
+                      colSpan={orderForm.order_details.length >= 2 ? 4 : 3}
                     >
                       Biaya Survey
                     </td>
+
                     <td className=' fw-bolder'>
                       {(() => {
                         if (paymentTypeValue[1] === 'survey') {
@@ -1133,12 +1140,16 @@ const NewOrderHO: FC = () => {
                 {paymentTypeValue[1] !== 'survey' && (
                   <tr>
                     <td
+                      className='text-end fw-bolder'
                       colSpan={
                         !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
-                          ? 6
+                          ? orderForm.order_details.length >= 2
+                            ? 6
+                            : 5
+                          : orderForm.order_details.length === 1
+                          ? 3
                           : 4
                       }
-                      className='text-end fw-bolder'
                     >
                       Grand Total
                     </td>

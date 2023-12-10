@@ -27,8 +27,10 @@ interface BrandSelect {
 }
 
 interface CategorySelect {
+  index: string
   value: number | null
   label: string
+  commission: number
 }
 
 interface Sales {
@@ -36,13 +38,13 @@ interface Sales {
   bank_id: any
   full_name: string
   account_name: string
-  phone_number: string
-  account_number: string
-  sales_brands: string
+  phone_number: any
+  account_number: any
+  sales_brands: BrandSelect[]
   sales_categories: CategorySelect[]
 }
 
-const UpdateSales: FC = () => {
+const UpdateSalesOld: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -64,7 +66,7 @@ const UpdateSales: FC = () => {
     account_name: '',
     phone_number: '',
     account_number: '',
-    sales_brands: '',
+    sales_brands: [],
     sales_categories: [],
   })
 
@@ -76,13 +78,19 @@ const UpdateSales: FC = () => {
   })
 
   // Brand
-  const [brandsId, setBrandsId] = useState<any>([])
   const [brands, setBrands] = useState<BrandSelect[]>([])
   const [selectedBrands, setSelectedBrands] = useState<BrandSelect[]>([])
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<CategorySelect[]>([])
+  const [categoryForm, setCategoryForm] = useState<CategorySelect[]>([
+    {
+      index: Date.now().toString(),
+      value: null,
+      label: '',
+      commission: 0,
+    },
+  ])
 
   // Fetch API Data
   useEffect(() => {
@@ -131,17 +139,17 @@ const UpdateSales: FC = () => {
             }
 
             if (data) {
-              // const salesBrands = data.sales_brands.map((item: any, index: number) => ({
-              //   index: (Date.now() + index).toString(),
-              //   value: item.brands.id,
-              //   label: item.brands.name,
-              // }))
+              const salesBrands = data.sales_brands.map((item: any, index: number) => ({
+                index: (Date.now() + index).toString(),
+                value: item.brands.id,
+                label: item.brands.name,
+              }))
 
-              // const salesCategory = data.sales_categories.map((item: any) => ({
-              //   value: item.categories.id,
-              //   label: item.categories.category_name,
-              //   commission: item.commission,
-              // }))
+              const salesCategory = data.sales_categories.map((item: any) => ({
+                value: item.categories.id,
+                label: item.categories.category_name,
+                commission: item.commission,
+              }))
 
               setSalesInfo((prev) => ({
                 ...prev,
@@ -149,12 +157,12 @@ const UpdateSales: FC = () => {
                 account_name: data.account_name,
                 phone_number: data?.phone_number,
                 account_number: data?.account_number,
-                // sales_brands: salesBrands,
-                // sales_categories: salesCategory,
+                sales_brands: salesBrands,
+                sales_categories: salesCategory,
               }))
 
-              // setSelectedBrands(salesBrands)
-              // setCategoryForm(salesCategory)
+              setSelectedBrands(salesBrands)
+              setCategoryForm(salesCategory)
             }
           })
       } catch (error) {
@@ -284,39 +292,61 @@ const UpdateSales: FC = () => {
     }))
   }
 
-  // Change Select Store
-  useEffect(() => {
-    setSalesInfo((prev) => ({
-      ...prev,
-      store_id: selectedStore?.value ?? null,
-    }))
-  }, [selectedStore])
-
-  // Change Select Bank
-  useEffect(() => {
-    setSalesInfo((prev) => ({
-      ...prev,
-      bank_id: selectedBank?.value ?? null,
-    }))
-  }, [selectedBank])
-
-  // Change Select Category
-  const handleChangeCategories = (element: any) => {
-    const updatedCategories = element.map((option: any) => ({
+  // Change Select Service Area
+  const handleChangeBrands = (element: any) => {
+    const updatedBrands = element.map((option: any) => ({
       value: option.value,
       label: option.label,
     }))
 
-    setSelectedCategories(updatedCategories)
-
-    const updatedCategoriesId = element.map((option: any) => ({
-      category_id: option.value,
+    const updatedBrandsId = element.map((option: any) => ({
+      brand_id: option.value,
     }))
+
+    setSelectedBrands(updatedBrands)
 
     setSalesInfo((prevSalesInfo) => ({
       ...prevSalesInfo,
-      sales_categories: updatedCategoriesId,
+      sales_brands: updatedBrandsId,
     }))
+  }
+
+  // Add Sales Category
+  const addSalesCategory = () => {
+    const newSalesCategory = {
+      index: Date.now().toString(),
+      value: null,
+      label: '',
+      commission: 0,
+    }
+
+    setCategoryForm((prevCategories) => [...prevCategories, newSalesCategory])
+  }
+
+  const handleRemoveSalesCategory = (index: any) => {
+    setCategoryForm((prevCategories) => {
+      const updatedCategories = [...prevCategories]
+      const typeIndex = updatedCategories.findIndex((item) => item.index === index)
+
+      if (typeIndex !== -1) {
+        updatedCategories.splice(typeIndex, 1)
+      }
+
+      return updatedCategories
+    })
+  }
+
+  // Commission Handler
+  const categoryFormHandler = (e: any, index: number) => {
+    setCategoryForm((prevValues) => {
+      const updatedValues = [...prevValues]
+
+      updatedValues[index] = {
+        ...updatedValues[index],
+        [e.target.name]: e.target.value,
+      }
+      return updatedValues
+    })
   }
 
   // Sales Validation
@@ -390,8 +420,16 @@ const UpdateSales: FC = () => {
       return false
     }
 
+    const form = {
+      ...salesInfo,
+      sales_categories: categoryForm.map((value) => ({
+        category_id: value.value,
+        commission: value.commission,
+      })),
+    }
+
     await axios
-      .post(`${apiUrl}/sales/${params.id}`, salesInfo, {
+      .post(`${apiUrl}/sales/${params.id}`, form, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -403,7 +441,7 @@ const UpdateSales: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Sales',
+            text: 'Success Create Sales',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -416,7 +454,7 @@ const UpdateSales: FC = () => {
           })
         }
 
-        navigate('/sales/new-sales')
+        navigate('/home')
       })
       .catch((error) => {
         console.error(error)
@@ -495,11 +533,15 @@ const UpdateSales: FC = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
                   <Form.Label>Brands</Form.Label>
-                  <Form.Control
-                    name='sales_brands'
-                    type='text'
-                    value={salesInfo.sales_brands}
-                    onChange={(e) => salesInfoFormHandler(e)}
+
+                  <Select
+                    placeholder='Pilih Brands'
+                    closeMenuOnSelect={false}
+                    components={animatedComponents}
+                    isMulti
+                    options={brands}
+                    value={selectedBrands}
+                    onChange={(element) => handleChangeBrands(element)}
                   />
                 </Form.Group>
               </Col>
@@ -526,21 +568,6 @@ const UpdateSales: FC = () => {
                     type='number'
                     value={salesInfo.account_number}
                     onChange={(e) => salesInfoFormHandler(e)}
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Category</Form.Label>
-                  <Select
-                    placeholder='Pilih Category'
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    isMulti
-                    options={categories}
-                    value={selectedCategories}
-                    onChange={(element) => handleChangeCategories(element)}
                   />
                 </Form.Group>
               </Col>
@@ -575,6 +602,76 @@ const UpdateSales: FC = () => {
             </Row>
           </div>
 
+          <div className='sales-category'>
+            <div className='d-flex justify-content-end align-items-center'>
+              <button className='button-add' onClick={() => addSalesCategory()}>
+                Tambah Sales Category
+              </button>
+            </div>
+
+            <Table hover responsive='md'>
+              <thead className='table-order-head'>
+                <tr>
+                  <th>Sales Category</th>
+                  <th>Commission</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categoryForm.map((element, index) => (
+                  <tr key={`${element.index}-sales_categories`}>
+                    <td>
+                      <Select
+                        id={`sales-category-${index}`}
+                        name={`category_id`}
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Pilih/Ketik Sales Category'
+                        isSearchable={true}
+                        options={categories}
+                        value={{
+                          value: element.value,
+                          label: element.label,
+                        }}
+                        onChange={(newValue) => {
+                          setCategoryForm((prevValues) => {
+                            const updatedValues = [...prevValues]
+                            updatedValues[index] = {
+                              ...updatedValues[index],
+                              value: newValue?.value ?? null,
+                              label: newValue?.label ?? '',
+                            }
+                            return updatedValues
+                          })
+                        }}
+                      />
+                    </td>
+
+                    <td>
+                      <Form.Control
+                        id={`sales-commission-${index}`}
+                        name='commission'
+                        value={element.commission}
+                        onChange={(e) => {
+                          categoryFormHandler(e, index)
+                        }}
+                      />
+                    </td>
+
+                    <td>
+                      <Button
+                        variant='danger'
+                        onClick={() => handleRemoveSalesCategory(element.index)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+
           <div className='d-flex justify-content-center mt-5'>
             <Button variant='dark-danger' type='submit' onClick={handleCancelCreateSales}>
               Cancel
@@ -596,4 +693,4 @@ const UpdateSales: FC = () => {
   )
 }
 
-export {UpdateSales}
+export {UpdateSalesOld}

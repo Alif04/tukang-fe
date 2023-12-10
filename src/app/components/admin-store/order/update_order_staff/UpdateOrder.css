@@ -109,6 +109,10 @@
   outline: none !important;
 }
 
+#update-order span.upload-content {
+  cursor: pointer;
+}
+
 /* Button */
 
 #update-order .button-add button {

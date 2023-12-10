@@ -31,6 +31,7 @@ interface CheckStates {
   suratPermohonan: boolean
   pks: boolean
   suip: boolean
+  ptkp: boolean
 }
 
 const NewVendorHO: FC = () => {
@@ -177,6 +178,7 @@ const NewVendorHO: FC = () => {
   const [suratPermohonanEvidence, setSuratPermohonanEvidence] = useState<FileList | []>()
   const [pksEvidence, setPksEvidence] = useState<FileList | []>()
   const [suipEvidence, setSuipEvidence] = useState<FileList | []>()
+  const [ptkpEvidence, setPtkpEvidence] = useState<FileList | []>()
 
   const [uploadFiles, setUploadFiles] = useState<Array<File | null>>([])
   const evidenceRef = useRef<HTMLInputElement>(null)
@@ -222,6 +224,14 @@ const NewVendorHO: FC = () => {
   })
 
   const [imageSuipEvidence, setimageSuipEvidence] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  const [imagePtkpEvidence, setimagePtkpEvidence] = useState<{
     blob: string
     fileName: string
   }>({
@@ -278,6 +288,7 @@ const NewVendorHO: FC = () => {
     suratPermohonan: false,
     pks: false,
     suip: false,
+    ptkp: false,
   })
 
   // console.log('isActive Compro', isActive.compro)
@@ -398,6 +409,25 @@ const NewVendorHO: FC = () => {
 
   const handleUploadSuipEvidence = () => {
     const inputField = document.getElementById('input-suip-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Upload PTKP Evidence
+  const handleFileChangePtkpEvidence = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+
+    if (files && files[0]) {
+      setPtkpEvidence(files)
+
+      setimagePtkpEvidence({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadPtkpEvidence = () => {
+    const inputField = document.getElementById('input-ptkp-file') as HTMLInputElement
     inputField.click()
   }
 
@@ -632,6 +662,10 @@ const NewVendorHO: FC = () => {
 
       if (isActive && suipEvidence?.length) {
         formData.append('suip_file', suipEvidence[0])
+      }
+
+      if (isActive && ptkpEvidence?.length) {
+        formData.append('ptkp_file', ptkpEvidence[0])
       }
 
       if (uploadFiles?.length) {
@@ -989,6 +1023,31 @@ const NewVendorHO: FC = () => {
                     {imageSuipEvidence.blob ? imageSuipEvidence.fileName : ''}
                   </Form.Label>
                 </Form.Group>
+
+                <Form.Group className='d-flex justify-content-between mb-2'>
+                  <Form.Control
+                    id='input-ptkp-file'
+                    type='file'
+                    accept='image/*'
+                    hidden
+                    className='input-field-image'
+                    onChange={handleFileChangePtkpEvidence}
+                  />
+
+                  <div className='upload d-flex align-items-center'>
+                    <Form.Check
+                      checked={isActive.ptkp}
+                      onChange={() => handleFormCheckbox('ptkp')}
+                    />
+                    <Form.Label className='ms-2' onClick={handleUploadPtkpEvidence}>
+                      PTKP
+                    </Form.Label>
+                  </div>
+
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                    {imagePtkpEvidence.blob ? imagePtkpEvidence.fileName : ''}
+                  </Form.Label>
+                </Form.Group>
               </Row>
 
               <Row className='form-body'>
@@ -1097,13 +1156,13 @@ const NewVendorHO: FC = () => {
                 </Form.Group>
               </Row>
 
-              <Row className='form-body'>
+              {/* <Row className='form-body'>
                 <Form.Group>
                   <Form.Label>Discount</Form.Label>
 
                   <Form.Control type='number' onChange={handleChangeDiscount} value={discount} />
                 </Form.Group>
-              </Row>
+              </Row> */}
             </Col>
           </Row>
 

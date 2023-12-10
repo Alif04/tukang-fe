@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewItem} from './components/ViewItem'
 import {NewItem} from './components/NewItem'
 import {UpdateItem} from './components/UpdateItem'
@@ -23,6 +25,7 @@ const ItemPage: React.FC = () => {
         path='view-item'
         element={
           <>
+            <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={itemBreadCrumbs}>ITEM LIST</PageTitle>
             <ViewItem />
           </>
@@ -33,6 +36,7 @@ const ItemPage: React.FC = () => {
         path='new-item'
         element={
           <>
+            <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={itemBreadCrumbs}>NEW ITEM FORM</PageTitle>
             <NewItem />
           </>
@@ -43,6 +47,7 @@ const ItemPage: React.FC = () => {
         path='update-item/:id'
         element={
           <>
+            <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={itemBreadCrumbs}>UPDATE ITEM</PageTitle>
             <UpdateItem />
           </>
@@ -53,6 +58,7 @@ const ItemPage: React.FC = () => {
         path='detail-item/:id'
         element={
           <>
+            <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={itemBreadCrumbs}>DETAIL ITEM</PageTitle>
             <DetailItem />
           </>

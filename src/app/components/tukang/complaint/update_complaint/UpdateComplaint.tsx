@@ -693,7 +693,7 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                   <tr>
                     <th>Item Code</th>
                     <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
+                    <th>Nama Jasa Pemasangan</th>
                     <th>QTY Pemasangan</th>
                     <th>Harga Jasa</th>
                     <th>Jumlah</th>
@@ -702,13 +702,13 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                 <tbody>
                   {complaintDetail?.orders.m_order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
+                      <tr key={`${index} - detail-order`}>
                         <td>{item?.item_id}</td>
-                        <td>{item?.unit}</td>
-                        <td>{item?.status?.description}</td>
+                        <td>{item?.item_name}</td>
+                        <td>{item?.item?.service_name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
                       </tr>
                     </>
                   ))}

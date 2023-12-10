@@ -273,10 +273,10 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           costumer_id: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
-          item_name: item.m_order_details[0].item_name,
-          services_name: item.m_order_details[0].item.service_name,
+          item_name: item.m_order_details[0]?.item_name ?? '-',
+          services_name: item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item.status.category,
+          order_status: item?.work_orders?.work_order_status[0]?.status?.category ?? '',
         }
 
         return data
@@ -349,7 +349,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 2000}}
+            // scroll={{x: 2000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

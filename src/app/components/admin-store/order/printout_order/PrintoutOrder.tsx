@@ -15,6 +15,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const navigate = useNavigate()
 
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [isPrinting, setIsPrinting] = useState<boolean>(false)
 
   const fetchOrderData = async () => {
     try {
@@ -41,6 +42,13 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     fetchOrderData()
   }, [])
 
+  useEffect(() => {
+    if (isPrinting) {
+      window.print()
+      setIsPrinting(false)
+    }
+  }, [isPrinting])
+
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -50,8 +58,8 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Handle Print Order
   const handlePrintOrder = async () => {
-    const response = await axios
-      .request({
+    try {
+      await axios.request({
         url: `${apiUrl}/orders/${params.id}/counter`,
         method: 'post',
         maxBodyLength: Infinity,
@@ -61,35 +69,28 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
-        printElement('printout-order')
-      })
-      .catch((error) => {
-        console.error(error)
 
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
+      fetchOrderData()
+        .then(() => {
+          setIsPrinting(true)
         })
-      })
+        .catch((error) => {
+          console.error(error)
+
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   // Handle Cancel Print
   const handleCancelPrint = () => {
     navigate(`/order/update-order/${params.id}`)
-  }
-
-  // Fungsi untuk mencetak elemen
-  const printElement = (elementId: string) => {
-    const printContents = document.getElementById(elementId)
-    const originalContents = document.body.innerHTML
-
-    if (printContents) {
-      document.body.innerHTML = printContents.innerHTML
-      window.print()
-      document.body.innerHTML = originalContents
-    }
   }
 
   return (
@@ -149,7 +150,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             <Col>
               <Form.Group as={Row} className='detail-info'>
                 <Form.Label column sm='6'>
-                  Request Tanggal Survey :
+                  Tanggal Order :
                 </Form.Label>
                 <Col sm='6'>
                   <Form.Control
@@ -171,15 +172,22 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
               <Form.Group as={Row} className='detail-info'>
                 <Form.Label column sm='6'>
-                  Tanggal Order :
+                  Request Tanggal Survey :
                 </Form.Label>
+
                 <Col sm='6'>
                   <Form.Control
                     plaintext
                     readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                    value={orderDetail ? formatDate(new Date(orderDetail.request_survey)) : ''}
                   />
                 </Col>
+
+                <Form.Text className='m-0 fs-8 text-dark-danger'>
+                  *Tanggal Request{' '}
+                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
+                  Konfirmasi kunjungan dilakukan oleh Vendor
+                </Form.Text>
               </Form.Group>
             </Col>
           </Row>
@@ -217,10 +225,12 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   <td className='fs-3'>
                     {(() => {
                       if (orderDetail?.payment_type === 'gratis') {
-                        return `Rp. ${0?.toLocaleString('id')}`
-                      } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                        return `Rp. ${0?.toLocaleString('id')} ( GRATIS )`
+                      }
+                      if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
                         return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                      } else if (orderDetail?.payment_type === 'survey') {
+                      }
+                      if (orderDetail?.payment_type === 'survey') {
                         return `Rp. ${99000?.toLocaleString('id')}`
                       } else {
                         return `Rp. ${0?.toLocaleString('id')}`

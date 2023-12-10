@@ -75,7 +75,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       dataIndex: 'vendor_id',
       key: 'vendor_id',
       align: 'center',
-      width: 70,
+      width: 90,
       className: 'col_order_id',
     },
     {
@@ -83,14 +83,14 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       dataIndex: 'pic_name',
       key: 'pic_name',
       align: 'left',
-      width: 140,
+      width: 130,
     },
     {
       title: 'Nama Perusahaan',
       dataIndex: 'company_name',
       key: 'company_name',
       align: 'left',
-      width: 140,
+      width: 130,
     },
     {
       title: 'Email Address',
@@ -104,7 +104,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
-      width: 110,
+      width: 120,
     },
     {
       title: 'Service Type',
@@ -125,7 +125,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       dataIndex: 'date_join',
       key: 'date_join',
       align: 'center',
-      width: 90,
+      width: 110,
     },
     {
       title: 'Rating',
@@ -293,7 +293,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
           date_join: formatDate(joinDate),
           service_type: vendorService,
           serving_area: vendorArea || '',
-          // rating: string
+          rating: '-',
           vendor_status: item.is_active ? 'ACTIVE' : 'NON ACTIVE',
         }
 
@@ -413,7 +413,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={vendorData}
             rowKey={(record) => record.vendor_id}
-            scroll={{x: 2000}}
+            // scroll={{x: 2000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

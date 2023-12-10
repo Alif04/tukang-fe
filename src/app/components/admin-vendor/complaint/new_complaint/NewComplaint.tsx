@@ -368,7 +368,7 @@ const NewComplaintVendor: FC = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Receipt Number :
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number || ''}</span>
+                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
@@ -446,25 +446,51 @@ const NewComplaintVendor: FC = () => {
               </Col>
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <div className='fs-3 fw-bold'>Informasi Penjual</div>
+                <Row>
+                  <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Sales ID :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.id || ''} />
-                  </Col>
-                </Form.Group>
+                  <div className='d-flex'>
+                    <Form.Group as={Row}>
+                      <Form.Label column md='4'>
+                        Sales ID :
+                      </Form.Label>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Sales Person :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Control plaintext readOnly value={orderDetail?.sales.full_name || ''} />
-                  </Col>
-                </Form.Group>
+                      <Col md='8'>
+                        <Form.Control plaintext readOnly value={orderDetail?.sales?.id} />
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row}>
+                      <Form.Label column md='5'>
+                        Sales Person :
+                      </Form.Label>
+
+                      <Col md='7'>
+                        <Form.Control plaintext readOnly value={orderDetail?.sales?.full_name} />
+                      </Col>
+                    </Form.Group>
+                  </div>
+                </Row>
+
+                <Row>
+                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
+
+                  <div className='d-flex'>
+                    <Form.Group as={Row}>
+                      <Form.Label column md='5'>
+                        Vendor Name :
+                      </Form.Label>
+
+                      <Col md='7'>
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={orderDetail?.orders?.vendor?.company_name ?? '-'}
+                        />
+                      </Col>
+                    </Form.Group>
+                  </div>
+                </Row>
               </Col>
             </Row>
           </div>
@@ -496,50 +522,85 @@ const NewComplaintVendor: FC = () => {
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {!(
+                      orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'survey'
+                    ) && (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
                   {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
-                        <td>{item?.item_id}</td>
-                        <td>{item?.unit}</td>
-                        <td>{item?.item?.category_name}</td>
+                      <tr key={`${index} - detail-order`}>
+                        <td>{item?.item_code}</td>
+                        <td>{item?.item_name}</td>
+                        <td>{item?.item?.service_name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                        {!(
+                          orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
+                          </>
+                        )}
                       </tr>
                     </>
                   ))}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Biaya Survey
-                    </td>
-                    <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                        ? `                      Rp. ${0?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : orderDetail?.payment_type === 'survey'
-                        ? `                      Rp. ${99000?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : `Rp. ${0}`}
-                    </td>
-                  </tr>
+                  {orderDetail?.payment_type !== 'gratis' &&
+                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                      <tr>
+                        <td
+                          colSpan={orderDetail?.payment_type === 'survey' ? 3 : 5}
+                          className='text-end fw-bolder'
+                        >
+                          Biaya Survey
+                        </td>
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      Rp. {parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}
-                    </td>
-                  </tr>
+                        <td className=' fw-bolder'>
+                          {orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `Rp. ${(0).toLocaleString('id')}`
+                            : orderDetail?.payment_type === 'survey'
+                            ? `Rp. ${(99000).toLocaleString('id')}`
+                            : `Rp. ${0}`}
+                        </td>
+                      </tr>
+                    )}
+
+                  {orderDetail?.payment_type !== 'survey' && (
+                    <tr>
+                      <td
+                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
+                          } else if (orderDetail?.payment_type === 'survey') {
+                            return `Rp. ${(99000).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>

@@ -94,6 +94,10 @@
   border: none;
 }
 
+#update-order span.upload-content {
+  cursor: pointer;
+}
+
 /* Button */
 
 #update-order .button-add button {

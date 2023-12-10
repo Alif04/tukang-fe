@@ -95,7 +95,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
     const desiredStatusApprove = statusData.find((status: any) => status.category === 'ACCEPTED')
     const statusApproveId = desiredStatusApprove.value
 
-    const desiredStatusCancel = statusData.find((status: any) => status.category === 'REJECT')
+    const desiredStatusCancel = statusData.find((status: any) => status.category === 'REJECTED')
     const statusCancelId = desiredStatusCancel.value
 
     setComplaintStatusApprove(statusApproveId)
@@ -462,33 +462,55 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
               </Col>
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <div className='fs-3 fw-bold'>Informasi Penjual</div>
+                <Row>
+                  <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
-                <div className='d-flex'>
-                  <Form.Group as={Row}>
-                    <Form.Label column md='4'>
-                      Sales ID :
-                    </Form.Label>
+                  <div className='d-flex'>
+                    <Form.Group as={Row}>
+                      <Form.Label column md='4'>
+                        Sales ID :
+                      </Form.Label>
 
-                    <Col md='8'>
-                      <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
-                    </Col>
-                  </Form.Group>
+                      <Col md='8'>
+                        <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
+                      </Col>
+                    </Form.Group>
 
-                  <Form.Group as={Row}>
-                    <Form.Label column md='5'>
-                      Sales Person :
-                    </Form.Label>
+                    <Form.Group as={Row}>
+                      <Form.Label column md='5'>
+                        Sales Person :
+                      </Form.Label>
 
-                    <Col md='7'>
-                      <Form.Control
-                        plaintext
-                        readOnly
-                        value={complaintDetail?.orders.sales.full_name}
-                      />
-                    </Col>
-                  </Form.Group>
-                </div>
+                      <Col md='7'>
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.sales.full_name}
+                        />
+                      </Col>
+                    </Form.Group>
+                  </div>
+                </Row>
+
+                <Row>
+                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
+
+                  <div className='d-flex'>
+                    <Form.Group as={Row}>
+                      <Form.Label column md='5'>
+                        Vendor Name :
+                      </Form.Label>
+
+                      <Col md='7'>
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders.vendor.company_name}
+                        />
+                      </Col>
+                    </Form.Group>
+                  </div>
+                </Row>
               </Col>
             </Row>
           </div>
@@ -504,7 +526,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                   <tr>
                     <th>Item Code</th>
                     <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
+                    <th>Nama Jasa Pemasangan</th>
                     <th>QTY Pemasangan</th>
                     <th>Harga Jasa</th>
                     <th>Jumlah</th>
@@ -513,13 +535,13 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                 <tbody>
                   {complaintDetail?.orders.m_order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
+                      <tr key={`${index} - detail-order`}>
                         <td>{item?.item_id}</td>
-                        <td>{item?.unit}</td>
-                        <td>{item?.item?.category_name}</td>
+                        <td>{item?.item_name}</td>
+                        <td>{item?.item?.service_name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
                       </tr>
                     </>
                   ))}

@@ -48,7 +48,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 100,
+      width: 90,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -58,7 +58,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
+      width: 100,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -84,7 +84,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
-      width: 140,
+      width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -101,7 +101,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       dataIndex: 'status_order',
       key: 'status_order',
       align: 'left',
-      width: 150,
+      width: 110,
       render: (status_order) => {
         const orderStatus = status_order
         let color = ''
@@ -123,13 +123,41 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
             color = 'blue'
             break
           case 'SURVEYSTART':
+            color = 'blue'
+            break
           case 'SURVEYDONE':
+            color = 'blue'
+            break
+          case 'RESURVEYREQ':
+            color = 'blue'
+            break
+          case 'RESURVEYSTART':
+            color = 'blue'
+            break
+          case 'RESURVEYDONE':
+            color = 'blue'
+            break
           case 'QUOTE IN':
+            color = 'blue'
+            break
           case 'QUOTE OUT':
+            color = 'blue'
+            break
           case 'WORKREQ':
+            color = 'blue'
+            break
           case 'WORKSTART':
+            color = 'blue'
+            break
           case 'WIP':
+            color = 'blue'
+            break
           case 'WORKEND':
+            color = 'blue'
+            break
+          case 'INVOICED':
+            color = 'blue'
+            break
           case 'CISOUT':
             color = 'green'
             break
@@ -143,6 +171,20 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       filters: [
         {text: 'PICKLIST', value: 'PICKLIST'},
         {text: 'BOOKED', value: 'BOOKED'},
+        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
+        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
+        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
+        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
+        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
+        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
+        {text: 'WORKREQ', value: 'WORKREQ'},
+        {text: 'WORKSTART', value: 'WORKSTART'},
+        {text: 'WIP', value: 'WIP'},
+        {text: 'WORKEND', value: 'WORKEND'},
+        {text: 'QUOTEIN', value: 'QUOTEIN'},
+        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
+        {text: 'CISOUT', value: 'CISOUT'},
+        {text: 'INVOICED', value: 'INVOICED'},
       ],
       onFilter: (value, record) => record.status_order.includes(String(value)),
       sorter: (a, b) => a.status_order.length - b.status_order.length,
@@ -153,10 +195,12 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'tanggal_aktif_garansi',
       align: 'left',
       width: 140,
+      sorter: (a, b) => a.tanggal_aktif_garansi.length - b.tanggal_aktif_garansi.length,
     },
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
       render: (record) => {
         const handleDetailId = () => {
           const id = record.order_id
@@ -164,7 +208,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
+          <div className='button-wrapper d-flex justify-content-center'>
             <a className='button-new-claim-garansi-form' onClick={handleDetailId}>
               <FontAwesomeIcon icon={faTicket} size='sm' />
             </a>
@@ -302,7 +346,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={claimWarrantyData}
             rowKey={(record) => record.key}
-            scroll={{x: 1800}}
+            // scroll={{x: 1800}}
             pagination={{position: ['bottomCenter']}}
           />
         </div>

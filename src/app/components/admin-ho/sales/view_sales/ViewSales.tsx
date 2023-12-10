@@ -215,7 +215,7 @@ const ViewSalesHO: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchVendorList = async () => {
+  const fetchSalesList = async () => {
     try {
       const response = await axios.get(
         `${apiUrl}/sales?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0`,
@@ -237,7 +237,7 @@ const ViewSalesHO: React.FC = () => {
 
   const ViewSales = async () => {
     try {
-      const apiData = await fetchVendorList()
+      const apiData = await fetchSalesList()
 
       if (!apiData) {
         console.error('No data received from fetchVendorList')

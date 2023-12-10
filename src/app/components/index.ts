@@ -113,9 +113,6 @@ export * from './admin-ho/order/new_order/NewOrder'
 // Update Order
 export * from './admin-ho/order/update_order/UpdateOrder'
 
-// Detail Order
-export * from './admin-ho/order/detail_order/DetailOrder'
-
 // Report Order
 export * from './admin-ho/order/report_order/ReportOrder'
 
@@ -153,11 +150,14 @@ export * from './admin-ho/costumers/report_costumers/ReportCostumers'
 // View CSI
 export * from './admin-ho/csi/view_csi/ViewCSI'
 
-// Report CSI
-export * from './admin-ho/csi/report_csi/ReportCSI'
+// New CSI
+export * from './admin-ho/csi/new_csi/NewCSI'
 
 // Update CSI
 export * from './admin-ho/csi/update_csi/UpdateCSI'
+
+// Report CSI
+export * from './admin-ho/csi/report_csi/ReportCSI'
 
 // SALES
 // Update Sales

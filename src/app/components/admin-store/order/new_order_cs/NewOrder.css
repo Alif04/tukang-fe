@@ -32,6 +32,10 @@
   height: 15px;
 }
 
+#pre-order span.upload-content {
+  cursor: pointer;
+}
+
 /* Form Header */
 
 #pre-order .form-header.row {

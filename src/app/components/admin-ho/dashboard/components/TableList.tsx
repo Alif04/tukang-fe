@@ -23,35 +23,30 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_id',
     key: 'order_id',
     align: 'center',
-    width: 10,
   },
   {
     title: 'Nama Toko',
     dataIndex: 'store_name',
     key: 'store_name',
     align: 'left',
-    width: 140,
   },
   {
     title: 'Nama Konsumen',
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',
-    width: 140,
   },
   {
     title: 'Nama Pemasangan',
     dataIndex: 'service_name',
     key: 'service_name',
     align: 'left',
-    width: 150,
   },
   {
     title: 'Grand Total',
     dataIndex: 'total',
     key: 'total',
     align: 'center',
-    width: 135,
   },
 ]
 
@@ -67,7 +62,7 @@ const TableList: React.FC<Props> = ({className, orderData}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1000}}
+            scroll={{x: 400, y: 625}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

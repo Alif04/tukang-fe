@@ -1,0 +1,152 @@
+/* Header */
+#new-csi .header-information {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+#new-csi .header-information .information-detail {
+  width: 270px;
+}
+
+#new-csi .header-information .information-detail h3 {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+#new-csi .question {
+  margin: 30px 0 30px 0;
+}
+
+#new-csi .question .list-question .list-item {
+  margin: 10px 0 10px;
+}
+
+#new-csi .question .list-question .list-item h3 {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+#new-csi .question .list-question .list-item .form-check-question .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#new-csi .notes h3 {
+  font-size: 16px;
+  text-decoration: underline;
+  font-weight: normal;
+}
+
+/* Table */
+
+#new-csi .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#new-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#new-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#new-csi .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#new-csi .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#new-csi .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#new-csi .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#new-csi .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#new-csi .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+/* Searchbar */
+
+#new-csi .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+#new-csi .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
+}
+
+/* Button Action */
+
+#new-csi .button-export {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
+  width: 140px;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #04844b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+#new-csi .button-print {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 0 10px;
+  width: 130px;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #555555;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+#new-csi svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
+  margin: 5px;
+}
+
+#new-csi svg.svg-inline--fa.fa-print.fa-lg.print-icon {
+  margin: 5px;
+}
+
+#new-csi svg.svg-inline--fa.fa-plus.fa-sm {
+  color: black;
+  margin: 5px;
+}
+
+#new-csi .button-detail svg.svg-inline--fa.fa-book.fa-sm {
+  color: black;
+}
+
+#new-csi .button-edit svg.svg-inline--fa.fa-pen.fa-sm {
+  color: black;
+}
+
+#new-csi .button-delete svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0;
+  color: #d50119;
+}

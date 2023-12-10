@@ -71,4 +71,38 @@
   .hide-print-button {
     display: none;
   }
+
+  div#kt_header {
+    display: none;
+    background-color: #ffff;
+  }
+
+  .header-fixed.toolbar-fixed .wrapper {
+    background-color: #ffff;
+  }
+
+  div#kt_page_title {
+    display: none;
+    visibility: hidden;
+  }
+
+  div#kt_scrolltop {
+    display: none;
+  }
+
+  #printout-order .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  @media screen and (max-width: 991px) {
+    div#kt_page_title {
+      display: none;
+      visibility: hidden;
+    }
+
+    .header-fixed.toolbar-fixed .wrapper {
+      background-color: #ffff;
+    }
+  }
 }

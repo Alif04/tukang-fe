@@ -456,12 +456,15 @@ const UpdateWorkVendor: FC = () => {
 
                   <div className='costumer-name mb-3'>
                     <p className='me-5'>
-                      Nama Jasa Pemasangan : {orderDetail?.order_details[0].item?.service_name}
+                      Nama Jasa Pemasangan :{' '}
+                      {orderDetail?.order_details[0]?.item?.service_name ?? '-'}
                     </p>
                   </div>
 
                   <div className='email mb-3'>
-                    <p className='me-5'>Item Name : {orderDetail?.order_details[0].item_name}</p>
+                    <p className='me-5'>
+                      Item Name : {orderDetail?.order_details[0]?.item_name ?? '-'}
+                    </p>
                   </div>
 
                   <div className='telp mb-3'>
@@ -487,13 +490,15 @@ const UpdateWorkVendor: FC = () => {
                     <p className='me-5'>
                       Harga Jasa :{' '}
                       {`Rp. ${parseInt(
-                        orderDetail?.order_details[0].unit_price || 0
+                        orderDetail?.order_details[0]?.unit_price || 0
                       )?.toLocaleString('id')}`}
                     </p>
                   </div>
 
                   <div className='telp mb-3'>
-                    <p className='me-5'>Quantity : {orderDetail?.order_details[0].quantity}</p>
+                    <p className='me-5'>
+                      Quantity : {orderDetail?.order_details[0]?.quantity ?? '-'}
+                    </p>
                   </div>
 
                   <div className='telp mb-3'>
