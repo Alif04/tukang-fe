@@ -324,14 +324,14 @@ const DashboardVendor: FC = () => {
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{complete}</h1>
-                    <p className='fs-6 text-center'>Complete</p>
+                    <p className='fs-6 text-brown fw-bold text-center'>Menunggu Survey</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{reschedule}</h1>
-                    <p className='fs-6 text-danger text-center'>Reschedule</p>
+                    <p className='fs-6 text-brown fw-bold text-center'>Menunggu Quotation</p>
                   </div>
                 </Col>
 

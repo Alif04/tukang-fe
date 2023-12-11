@@ -38,7 +38,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
   interface DataType {
     order_id: number
     assign_from: string
-    date_order: string
+    date_order: Date
     no_member: number
     costumer_name: string
     phone_number: number
@@ -73,9 +73,8 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 100,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      width: 120,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'No Member',
@@ -203,7 +202,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
         const statusId = desiredStatus.value
 
         const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
+          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
           {
             headers: {
               Accept: 'application/json',

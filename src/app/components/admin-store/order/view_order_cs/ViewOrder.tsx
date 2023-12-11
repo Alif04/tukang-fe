@@ -39,7 +39,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
   interface DataType {
     order_id: number
     assign_from: string
-    date_order: string
+    date_order: Date
     no_member: number
     costumer_name: string
     phone_number: number
@@ -54,7 +54,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 90,
+      width: 100,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -64,7 +64,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'assign_from',
       key: 'assign_from',
       align: 'center',
-      width: 110,
+      width: 120,
       className: 'col_order_id',
       onFilter: (value, record) => record.assign_from.includes(String(value)),
       sorter: (a, b) => a.assign_from.length - b.assign_from.length,
@@ -74,16 +74,15 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 100,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      width: 120,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'No Member',
       dataIndex: 'no_member',
       key: 'no_member',
       align: 'center',
-      width: 110,
+      width: 120,
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
@@ -108,7 +107,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'service_name',
       key: 'service_name',
       align: 'left',
-      width: 120,
+      width: 130,
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
@@ -117,7 +116,6 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      // width: 140,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
       filters: [

@@ -33,7 +33,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
   interface DataType {
     key: string
     order_id: number
-    date_order: string
+    date_order: Date
     no_member: number
     costumer_name: string
     phone_number: number
@@ -59,8 +59,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 100,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'No Member',

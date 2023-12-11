@@ -29,7 +29,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
 
   interface DataType {
     order_id: number
-    date_order: string
+    date_order: Date
     costumer_name: string
     phone_number: number
     email: string
@@ -55,17 +55,16 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
-      align: 'center',
-      width: 130,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      align: 'left',
+      width: 110,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'Nama Costumer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      width: 150,
+      width: 140,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -74,7 +73,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 110,
+      width: 130,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -82,7 +81,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       dataIndex: 'email',
       key: 'email',
       align: 'left',
-      width: 150,
+      width: 170,
       onFilter: (value, record) => record.email.includes(String(value)),
       sorter: (a, b) => a.email.length - b.email.length,
     },
@@ -100,7 +99,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       dataIndex: 'service_name',
       key: 'service_name',
       align: 'left',
-      width: 160,
+      width: 170,
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
@@ -109,7 +108,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       dataIndex: 'quantity',
       key: 'quantity',
       align: 'center',
-      width: 100,
+      width: 90,
       sorter: (a, b) => a.quantity - b.quantity,
     },
     {

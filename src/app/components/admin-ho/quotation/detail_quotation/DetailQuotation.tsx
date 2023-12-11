@@ -146,7 +146,7 @@ const DetailQuotationHO: FC = () => {
                 {quotationDetail?.quotation_details.map((item: any) => (
                   <>
                     <tr>
-                      <td>{item?.name}</td>
+                      <td>{item?.name ?? '-'}</td>
                       <td>{item?.quantity}</td>
                       <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
                       <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>

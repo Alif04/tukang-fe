@@ -567,7 +567,7 @@ const UpdateQuotationHO: FC = () => {
   }
 
   return (
-    <section id='new-quotation'>
+    <section id='update-quotation'>
       <div className='card'>
         <div className='card-body'>
           <Row className='mb-4'>
@@ -717,8 +717,8 @@ const UpdateQuotationHO: FC = () => {
             </Col>
           </Row>
 
-          <div className='detail-table-jasa'>
-            <Table hover>
+          <div className='detail-table'>
+            <Table hover className='table-jasa'>
               <thead>
                 <tr>
                   <th className='text-center'>Jenis Jasa</th>
@@ -744,7 +744,7 @@ const UpdateQuotationHO: FC = () => {
                             readOnly
                             onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
                           /> */}
-                          <p>{element.item_name}</p>
+                          <p>{element?.item_name ?? '-'}</p>
                         </td>
 
                         <td align='center'>
@@ -763,7 +763,7 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(newValue) => handleCategoryChange(element.index, newValue)}
                           /> */}
 
-                          <p>{element.category_name}</p>
+                          <p>{element?.category_name ?? '-'}</p>
                         </td>
 
                         <td>
@@ -776,7 +776,7 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleQuantityChange(index, e.target.value, 2)}
                           /> */}
 
-                          <p>{element.quantity}</p>
+                          <p>{element?.quantity ?? 0}</p>
                         </td>
 
                         <td>
@@ -790,7 +790,7 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
                           /> */}
 
-                          <p>{`Rp. ${element.unit_price?.toLocaleString('id')}`}</p>
+                          <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
                         </td>
 
                         <td>
@@ -800,17 +800,15 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
                           /> */}
-                          <p>{`Rp. ${element.final_price?.toLocaleString('id')}`}</p>
+                          <p>{`Rp. ${element?.final_price?.toLocaleString('id')}`}</p>
                         </td>
                       </tr>
                     </>
                   ))}
               </tbody>
             </Table>
-          </div>
 
-          <div className='detail-table-material'>
-            <Table hover>
+            <Table hover className='table-material'>
               <thead>
                 <tr>
                   <th></th>
@@ -850,7 +848,7 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{element.item_name}</p>
+                          <p>{element?.item_name ?? '-'}</p>
                         </td>
 
                         <td>
@@ -862,7 +860,7 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{element.quantity}</p>
+                          <p>{element?.quantity ?? 0}</p>
                         </td>
 
                         <td>
@@ -875,7 +873,7 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{`Rp. ${element.unit_price?.toLocaleString('id')}`}</p>
+                          <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
                         </td>
 
                         <td>
@@ -888,7 +886,7 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleMarginChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{`Rp. ${element.margin?.toLocaleString('id')}`}</p>
+                          <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
                         </td>
 
                         <td>

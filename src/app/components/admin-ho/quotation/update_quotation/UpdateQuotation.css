@@ -1,139 +1,85 @@
-#update-quotation .table-head-wrapper {
+/* Header */
+#update-quotation {
   display: flex;
-  justify-content: space-between;
-}
-
-#update-quotation .bank-information .form-header {
-  display: flex;
-  justify-content: space-between;
-  min-height: 70px;
-}
-
-#update-quotation .quotation-information .form-body {
-  margin-bottom: 50px;
-}
-
-#update-quotation .quotation-information .form-header {
-  display: flex;
-  justify-content: space-between;
-  min-height: 45px;
-}
-
-#update-quotation .quotation-information .form-body {
-  margin-bottom: 50px;
-}
-
-#update-quotation .bank-information .form-body .field-alamat {
-  min-height: 100px;
-}
-
-#update-quotation .bank-information .form-body .form-check-request .form-check-input {
-  margin-top: 0;
-  width: 15px;
-  height: 15px;
-}
-
-#update-quotation button.btn.btn-dark-success {
-  margin: 0;
-  width: 250px;
-}
-
-#update-quotation .table-item .table tr,
-.table th,
-.table td {
-  border: 1px solid gray;
-}
-
-#update-quotation .ant-table-wrapper .ant-table-thead > tr > th {
-  color: #ffff;
-  font-weight: 500;
-  background-color: #183383;
-}
-
-#update-quotation .table-item th {
-  background-color: #555555;
-  color: #ffff;
-  font-weight: 400;
-  text-align: center;
-}
-
-/* Searchbar */
-
-#update-quotation .table-head-wrapper .filter-search .input-group {
-  width: 600px;
-  height: 45px;
-}
-
-#update-quotation .table-head-wrapper .filter-search .input-group .form-control.filter-rtl {
-  border-right: none;
-}
-
-#update-quotation .table-head-wrapper .filter-search .input-group-text.filter-rtl {
-  background-color: transparent;
-}
-
-/* Update Quotation File Upload */
-#update-quotation .update-quotation-evidence {
-  margin-bottom: 20px;
-}
-
-#update-quotation form.form-input-image {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 2px dashed #858585;
-  width: 100%;
-  min-height: 160px;
-  cursor: pointer;
-  border-radius: 5px;
 }
 
-#update-quotation .input-image-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 10px;
+#update-quotation .card {
+  width: 900px;
 }
 
-#update-quotation .input-image-text p {
-  margin: 10px 10px;
-  padding: 5px 10px !important;
-  border: 1px solid;
-  border-radius: 5px;
-  color: #858585;
+#update-quotation .card .card-body {
+  min-height: 100vh;
+  padding: 3rem 3rem !important;
 }
 
-#update-quotation .uploaded-row {
-  margin: 10px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-radius: 5px;
-  background-color: #f4f7fe;
+#update-quotation .card .card-body .invoice-detail {
+  margin: 0 0 30px 0;
 }
 
-#update-quotation .upload-content {
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+#update-quotation .card .card-body .vendor-information .vendor-detail h1 {
+  color: #007eb4;
+  font-size: 41px;
+  padding: 0 0 10px 0;
 }
 
-#update-quotation .image-preview {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+#update-quotation .receiver-information .receiver-detail {
+  padding: 0 0 10px 0;
 }
 
-#update-quotation svg.svg-inline--fa.fa-file-image.fa-sm {
-  margin: 0 10px 0 0;
+#update-quotation .receiver-information .receiver-detail h1 {
+  font-size: 18px;
 }
 
-#update-quotation svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0 0 0 10px;
+#update-quotation .address h3 {
+  font-size: 16px;
+  padding: 0 0 10px 0;
+}
+
+#update-quotation .payment-request h1 {
+  color: #484747;
+  font-size: 41px;
+  padding: 0 0 10px 0;
+}
+
+#update-quotation .payment-request h3 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+/* Table Jasa */
+
+#update-quotation .detail-table {
+  margin: 0 0 30px 0;
+}
+
+#update-quotation table.table-jasa.table.table-hover {
+  margin: 0;
+}
+
+#update-quotation table.table-jasa.table.table-hover tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #055900 !important;
+}
+
+#update-quotation .detail-table table.table-jasa.table.table-hover tr:nth-child(even) td {
+  background-color: #e4e9f7;
+}
+
+#update-quotation .detail-table table.table-jasa.table.table-hover tr:nth-child(odd) td {
+  background-color: #ffff;
+}
+
+/* Table Material */
+
+#update-quotation .detail-table table.table-material.table.table-hover tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #a16d00;
 }
 
 /* Button Add Quotation */
@@ -150,4 +96,34 @@
   color: black;
   border: none;
   border-radius: 5px;
+}
+
+/* Footer */
+
+#update-quotation .payment-detail .payment-method {
+  margin: 10px 0;
+}
+
+#update-quotation .payment-detail .payment-method {
+  margin: 10px 0;
+}
+
+#update-quotation .payment-detail h1 {
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+#update-quotation .payment-detail .payment-method h1 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+#update-quotation .payment-detail .payment-evidence h1 {
+  padding: 0 0 10px 0;
+  font-size: 16px;
+}
+
+#update-quotation .payment-detail .payment-method h3 {
+  padding: 0 0 10px 0;
+  font-size: 14px;
 }

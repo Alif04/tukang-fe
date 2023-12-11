@@ -33,14 +33,14 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     complaint_id: number
     assign_from: string
     order_id: number
-    date_order: string
+    date_order: Date
     no_member: number
     costumer_name: string
     phone_number: number
     service_name: string
     order_status: string
     work_status: string
-    complaint_date: string
+    complaint_date: Date
     complaint_age: string
     complaint_status: string
   }
@@ -76,9 +76,8 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 100,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      width: 120,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'No Member',
@@ -238,8 +237,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'complaint_date',
       className: 'col-complaint-date',
       width: 150,
-      onFilter: (value, record) => record.complaint_date.includes(String(value)),
-      sorter: (a, b) => a.complaint_date.length - b.complaint_date.length,
+      sorter: (a, b) => new Date(a.complaint_date).getTime() - new Date(b.complaint_date).getTime(),
     },
     {
       title: 'Umur Complaint',

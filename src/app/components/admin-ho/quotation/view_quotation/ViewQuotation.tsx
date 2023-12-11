@@ -34,7 +34,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     quotation_id: number
     store_name: string
     order_id: number
-    date_order: string
+    date_order: Date
     costumer_name: string
     vendor_name: string
     payment_status: string
@@ -76,8 +76,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 110,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'Costumer Name',
@@ -204,7 +203,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(`${apiUrl}/quotation?take=0`, {
+      const response = await axios.get(`${apiUrl}/quotation?order_by=desc&take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

@@ -59,7 +59,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/dashboard-order'
           title='Dashboard'
-          role={['Store CS']}
+          role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -83,7 +83,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/warranty/claim-warranty-list'
           title='Claim Garansi'
-          role={['Store CS']}
+          role={['Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem to='/csi/view-csi' title='List CSI' role={['Admin HO']} hasBullet={true} />
@@ -99,7 +99,7 @@ export function AsideMenuMain() {
       >
         <AsideMenuItem
           to='/work-order/view-work-order'
-          title='View Work Order'
+          title='List Work Order'
           role={['Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
@@ -165,6 +165,12 @@ export function AsideMenuMain() {
           to='/complaint/view-complaint'
           title='List Pengaduan'
           role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/warranty/claim-warranty-list'
+          title='Claim Garansi'
+          role={['Store CS']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -457,13 +463,13 @@ export function AsideMenuMain() {
           role={['Store CS']}
           hasBullet={true}
         />
-        {/* <AsideMenuItem
+        <AsideMenuItem
           to='/item/view-item'
-          title='List Item'
+          title='List Items'
           role={['Admin HO']}
           hasBullet={true}
-        /> */}
-        {/* <AsideMenuItem to='/item/new-item' title='New Item' role={['Admin HO']} hasBullet={true} /> */}
+        />
+        <AsideMenuItem to='/item/new-item' title='New Items' role={['Admin HO']} hasBullet={true} />
       </AsideMenuItemWithSub>
 
       {/* Logout */}

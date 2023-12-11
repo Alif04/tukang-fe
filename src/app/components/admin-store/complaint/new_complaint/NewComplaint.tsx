@@ -534,10 +534,10 @@ const NewComplaintStore: FC = () => {
                   {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
                       <tr key={`${index} - detail-order`}>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
+                        <td>{item?.item_code ?? '-'}</td>
+                        <td>{item?.item_name ?? '-'}</td>
                         <td>{item?.item?.service_name ?? '-'}</td>
-                        <td>{item?.quantity}</td>
+                        <td>{item?.quantity ?? '-'}</td>
                         {!(
                           orderDetail?.payment_type === 'gratis' ||
                           orderDetail?.payment_type === 'survey'
@@ -546,7 +546,7 @@ const NewComplaintStore: FC = () => {
                             <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
                               'id'
                             )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
                           </>
                         )}
                       </tr>

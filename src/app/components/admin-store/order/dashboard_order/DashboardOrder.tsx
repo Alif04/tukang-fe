@@ -84,9 +84,9 @@ const DashboardOrderStore: FC = () => {
 
         data = {
           order_id: item.id,
-          costumer_name: item.members.full_name,
-          service_name: item.m_order_details[0].item.service_name,
-          total: `Rp. ${parseInt(item.grand_total).toLocaleString('id')}`,
+          costumer_name: item?.members?.full_name ?? '-',
+          service_name: item?.m_order_details[0]?.item?.service_name ?? '-',
+          total: `Rp. ${parseInt(item?.grand_total || 0).toLocaleString('id')}`,
         }
 
         return data

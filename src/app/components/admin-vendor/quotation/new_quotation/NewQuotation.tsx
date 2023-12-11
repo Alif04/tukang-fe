@@ -604,13 +604,6 @@ const NewQuotationVendor: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!quotationDescription) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill instruksi spesial form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!storeId) {
       Swal.fire({
         title: 'Error',
