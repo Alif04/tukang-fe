@@ -9,7 +9,7 @@ import {Table, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPrint, faFileExcel, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -31,26 +31,34 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
   interface DataType {
     number: number
-    // nama_toko: string
+    store_name: string
     costumer_id: number
     full_name: string
     phone_number: number
     email_address: string
-    customer_since: string
-    // total_services: number
-    // total_spend: number
-    // total_complaint: number
-    // total_cis_score: number
-    // status: string
+    customer_since: Date
+    total_services: number
+    total_spend: number
+    total_complaint: number
+    total_cis_score: number
+    status: string
   }
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'No. Urut',
+      title: 'Nomor Urut',
       dataIndex: 'number',
       key: 'number',
       align: 'center',
       sorter: (a, b) => a.number - b.number,
+    },
+    {
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
     {
       title: 'Nomor Member',
@@ -84,30 +92,26 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       dataIndex: 'customer_since',
       key: 'customer_since',
       align: 'center',
-      onFilter: (value, record) => record.customer_since.includes(String(value)),
-      sorter: (a, b) => a.customer_since.length - b.customer_since.length,
+      sorter: (a, b) => new Date(a.customer_since).getTime() - new Date(b.customer_since).getTime(),
     },
-    // {
-    //   title: 'Total Invoice',
-    //   dataIndex: 'total_services',
-    //   key: 'total_services',
-    //   align: 'center',
-    //   width: 140,
-    //   sorter: (a, b) => a.total_services - b.total_services,
-    // },
-    // {
-    //   title: 'Total Value',
-    //   dataIndex: 'total_spend',
-    //   key: 'total_spend',
-    //   width: 160,
-    //   sorter: (a, b) => a.total_spend - b.total_spend,
-    // },
-    // {
-    //   title: 'Status',
-    //   dataIndex: 'status',
-    //   key: 'status',
-    //   width: 140,
-    // },
+    {
+      title: 'Total Invoice',
+      dataIndex: 'total_services',
+      key: 'total_services',
+      align: 'center',
+      sorter: (a, b) => a.total_services - b.total_services,
+    },
+    {
+      title: 'Total Value',
+      dataIndex: 'total_spend',
+      key: 'total_spend',
+      sorter: (a, b) => a.total_spend - b.total_spend,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+    },
     {
       title: 'Action',
       key: 'action',
@@ -172,17 +176,23 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       const memberData = apiData.map((item: any, index: number) => {
         let data
 
-        const joinDate = new Date(item.join_date)
+        const joinDate = new Date(item?.join_date ?? '-')
 
         let phoneNumber = item.phone_number !== 'null' ? item.phone_number : item.whatsapp_number
 
         data = {
           number: index + 1,
-          costumer_id: item.id,
+          store_name: item?.store?.store_name ?? '-',
+          costumer_id: item.member_number,
           full_name: item.full_name,
           phone_number: phoneNumber,
-          email_address: item.email,
+          email_address: item?.email ?? '-',
           customer_since: formatDate(joinDate),
+          total_services: item?.total_service ?? '-',
+          total_spend: item?.total_spend ?? '-',
+          total_complaint: item?.total_complaint ?? '-',
+          total_cis_score: item?.total_cis_score ?? '-',
+          status: item?.is_active === true ? 'ACTIVE' : '-',
         }
 
         return data
@@ -207,47 +217,76 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   return (
     <section id='view-costumer'>
       <div className={`card ${className}`}>
-        <div className='card-body table-view-member'>
-          <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
-              <div className='d-flex align-items-center me-3'>
-                <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
-                <h3 className='fs-3 fw-normal'>Date : </h3>
-              </div>
-
-              <RangePicker
-                className='date-range ms-3'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
-
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
+        <div className='card-body table-view-order'>
+          <div className='filter-search'>
+            <InputGroup>
+              <Form.Control
+                placeholder='Find Customer'
+                className='filter-rtl'
+                onChange={handleChangeSearchFilter}
               />
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
-              <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
+              <InputGroup.Text className='filter-rtl'>
+                <FontAwesomeIcon icon={faSearch} size='sm' />
+              </InputGroup.Text>
+            </InputGroup>
+          </div>
 
-                  <Form.Control
-                    placeholder='Search'
-                    className='filter-ltr'
-                    onChange={handleChangeSearchFilter}
+          <div className='table-head-wrapper'>
+            <div className='left'>
+              <h3>Filter By :</h3>
+
+              <Form.Group as={Row} className='date-filter mb-5'>
+                <Form.Label column sm='4'>
+                  Start Date :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <RangePicker
+                    className='date-range ms-3'
+                    onChange={(values) => {
+                      if (values && values.length === 2) {
+                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                        setDateFrom(dateFromFormatted)
+                        setDateTo(dateToFormatted)
+                      } else {
+                        setDateFrom('')
+                        setDateTo('')
+                      }
+                    }}
                   />
-                </InputGroup>
+                </Col>
+              </Form.Group>
+            </div>
+
+            <div className='middle'>
+              <div className='select-filter'>
+                <h3>Nama Store : </h3>
+
+                <select className='form-select filter filter-order'>
+                  <option value='1'>MITRA 10 - BSD</option>
+                  <option selected value='2'>
+                    MITRA 10 - SBY
+                  </option>
+                  <option value='3'> MITRA 10 - JAKARTA</option>
+                  <option value='4'> MITRA 10 - BANDUNG</option>
+                  <option value='5'> MITRA 10 - CIANJUR</option>
+                </select>
               </div>
-            </Col>
-          </Row>
+            </div>
+
+            <div className='right'>
+              <button className='button-export'>
+                <FontAwesomeIcon icon={faFileExcel} size='2xl' className='excel-icon' />
+              </button>
+
+              <button className='button-print'>
+                <FontAwesomeIcon icon={faPrint} size='2xl' className='print-icon' />
+              </button>
+            </div>
+          </div>
 
           <Table
             className='table-striped-rows'

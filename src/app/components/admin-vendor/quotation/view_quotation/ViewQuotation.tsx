@@ -36,7 +36,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     order_id: number
     date_order: string
     costumer_name: string
-    vendor_name: string
+    service_name: string
     payment_status: string
     order_status: string
     quotation_status: string
@@ -71,7 +71,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Date Order',
+      title: 'Order Date',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
@@ -80,7 +80,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
-      title: 'Costumer Name',
+      title: 'Customer Name',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -89,13 +89,13 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'Nama Vendor',
-      dataIndex: 'vendor_name',
-      key: 'vendor_name',
+      title: 'Nama Pekerjaan',
+      dataIndex: 'service_name',
+      key: 'service_name',
       align: 'left',
       width: 130,
-      onFilter: (value, record) => record.vendor_name.includes(String(value)),
-      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+      onFilter: (value, record) => record.service_name.includes(String(value)),
+      sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
     {
       title: 'Payment Status',
@@ -233,7 +233,12 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.order.created_at)
+
+        const orderDate = new Date(item?.order?.request_survey ?? '-')
+
+        const workOrderItems = item?.quotation_details
+          .map((service: any) => service.name ?? '-')
+          .join(', ')
 
         let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
 
@@ -243,7 +248,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           order_id: item.order.id,
           date_order: formatDate(orderDate),
           costumer_name: item.order.members.full_name,
-          vendor_name: item.order.vendor.company_name,
+          service_name: workOrderItems,
           payment_status: paymentStatus,
           order_status: item.status.category,
           quotation_status: item.status.category,

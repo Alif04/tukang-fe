@@ -28,6 +28,7 @@ interface TukangService {
 const ViewTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const userRole = localStorage.getItem('userRole')
 
   const [joinDate, setJoinDate] = useState<any>('')
   const [endDate, setEndDate] = useState<any>('')
@@ -127,6 +128,7 @@ const ViewTukangVendor: FC = () => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
+      align: 'center',
       render: (record) => {
         const handleDetailId = () => {
           const id = record.tukang_id
@@ -188,18 +190,28 @@ const ViewTukangVendor: FC = () => {
         }
 
         return (
-          <div className='button-wrapper'>
+          <div
+            className={
+              userRole === 'Admin HO'
+                ? 'button-wrapper justify-content-center'
+                : 'button-wrapper justify-content-between'
+            }
+          >
             <a className='button-detail' onClick={handleDetailId}>
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            {userRole !== 'Admin HO' && (
+              <>
+                <a className='button-edit' onClick={handleUpdateId}>
+                  <FontAwesomeIcon icon={faPen} size='sm' />
+                </a>
 
-            <a className='button-delete' onClick={handleDeleteId}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+                <a className='button-delete' onClick={handleDeleteId}>
+                  <FontAwesomeIcon icon={faTrash} size='sm' />
+                </a>
+              </>
+            )}
           </div>
         )
       },

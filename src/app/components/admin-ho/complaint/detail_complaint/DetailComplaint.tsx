@@ -349,7 +349,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>
-                    {complaintDetail?.orders.store.store_name}
+                    {complaintDetail?.orders?.store?.store_name ?? '-'}
                   </span>
                 </Form.Label>
                 <br></br>
@@ -406,7 +406,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                         <Form.Control
                           plaintext
                           readOnly
-                          value={complaintDetail?.orders.members.id}
+                          value={complaintDetail?.orders?.members?.id ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -419,7 +419,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                         <Form.Control
                           plaintext
                           readOnly
-                          value={complaintDetail?.orders.members.full_name}
+                          value={complaintDetail?.orders?.members?.full_name ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -434,7 +434,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                           plaintext
                           readOnly
                           rows={3}
-                          value={complaintDetail?.orders.project_address}
+                          value={complaintDetail?.orders?.project_address ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -458,7 +458,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                         <Form.Control
                           plaintext
                           readOnly
-                          value={complaintDetail?.orders.members.email}
+                          value={complaintDetail?.orders?.members?.email ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -477,7 +477,11 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                       </Form.Label>
 
                       <Col md='8'>
-                        <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.sales?.id ?? '-'}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -490,7 +494,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                         <Form.Control
                           plaintext
                           readOnly
-                          value={complaintDetail?.orders.sales.full_name}
+                          value={complaintDetail?.orders?.sales?.full_name ?? '-'}
                         />
                       </Col>
                     </Form.Group>

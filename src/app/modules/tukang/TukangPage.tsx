@@ -43,7 +43,7 @@ const TukangPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>TUKANG LIST</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LIST TUKANG</PageTitle>
             <ViewTukang />
           </>
         }
@@ -64,7 +64,7 @@ const TukangPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW TUKANG FORM</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>REGISTER TUKANG</PageTitle>
             <NewTukangin />
           </>
         }

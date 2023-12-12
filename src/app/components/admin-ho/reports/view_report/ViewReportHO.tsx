@@ -194,7 +194,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Penalty Refund</div>
+                    <div className='fs-3 fw-normal'>Laporan Refund</div>
                   </Card.Body>
                 </Card>
               </Col>

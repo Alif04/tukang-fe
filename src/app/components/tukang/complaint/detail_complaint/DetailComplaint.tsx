@@ -351,7 +351,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>
-                    {complaintDetail?.orders.store.store_name}
+                    {complaintDetail?.orders?.store?.store_name ?? '-'}
                   </span>
                 </Form.Label>
                 <br></br>
@@ -408,7 +408,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <Form.Control
                           plaintext
                           readOnly
-                          value={complaintDetail?.orders.members.id}
+                          value={complaintDetail?.orders?.members?.id ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -421,7 +421,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <Form.Control
                           plaintext
                           readOnly
-                          value={complaintDetail?.orders.members.full_name}
+                          value={complaintDetail?.orders?.members?.full_name ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -436,7 +436,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                           plaintext
                           readOnly
                           rows={3}
-                          value={complaintDetail?.orders.project_address}
+                          value={complaintDetail?.orders?.project_address ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -460,7 +460,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <Form.Control
                           plaintext
                           readOnly
-                          value={complaintDetail?.orders.members.email}
+                          value={complaintDetail?.orders?.members?.email ?? '-'}
                         />
                       </Col>
                     </Form.Group>
@@ -479,7 +479,11 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                       </Form.Label>
 
                       <Col md='8'>
-                        <Form.Control plaintext readOnly value={complaintDetail?.orders.sales.id} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={complaintDetail?.orders?.sales?.id ?? '-'}
+                        />
                       </Col>
                     </Form.Group>
 
@@ -535,8 +539,15 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                     <th>Item Name</th>
                     <th>Nama Jasa Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {!(
+                      complaintDetail?.orders?.payment_type === 'gratis' ||
+                      complaintDetail?.orders?.payment_type === 'survey'
+                    ) && (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -547,38 +558,65 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <td>{item?.item_name}</td>
                         <td>{item?.item?.service_name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                        {!(
+                          complaintDetail?.orders?.payment_type === 'gratis' ||
+                          complaintDetail?.orders?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                          </>
+                        )}
                       </tr>
                     </>
                   ))}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Biaya Survey
-                    </td>
-                    <td className=' fw-bolder'>
-                      {complaintDetail?.orders.payment_type === 'gratis' ||
-                      complaintDetail?.orders.payment_type === 'pemasangan_tanpa_survey'
-                        ? `                      Rp. ${0?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : complaintDetail?.orders.payment_type === 'survey'
-                        ? `                      Rp. ${99000?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : `Rp. ${0}`}
-                    </td>
-                  </tr>
+                  {complaintDetail?.orders?.payment_type !== 'gratis' &&
+                    complaintDetail?.orders?.payment_type !== 'pemasangan_tanpa_survey' && (
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Biaya Survey
+                        </td>
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      Rp. {parseInt(complaintDetail?.orders.grand_total || 0)?.toLocaleString('id')}
-                    </td>
-                  </tr>
+                        <td className=' fw-bolder'>
+                          {complaintDetail?.orders?.payment_type === 'gratis' ||
+                          complaintDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `Rp. ${(0).toLocaleString('id')}`
+                            : complaintDetail?.orders?.payment_type === 'survey'
+                            ? `Rp. ${(99000).toLocaleString('id')}`
+                            : `Rp. ${0}`}
+                        </td>
+                      </tr>
+                    )}
+
+                  {complaintDetail?.orders?.payment_type !== 'survey' && (
+                    <tr>
+                      <td
+                        colSpan={complaintDetail?.orders?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (complaintDetail?.orders?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (
+                            complaintDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                          ) {
+                            return `Rp. ${parseInt(
+                              complaintDetail?.orders?.grand_total
+                            ).toLocaleString('id')}`
+                          } else if (complaintDetail?.orders?.payment_type === 'survey') {
+                            return `Rp. ${(99000).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>

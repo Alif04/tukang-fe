@@ -125,7 +125,7 @@ const DetailQuotationHO: FC = () => {
                   as='textarea'
                   plaintext
                   readOnly
-                  value={quotationDetail?.description}
+                  value={quotationDetail?.description ?? ''}
                 />
               </Form.Group>
             </div>

@@ -53,36 +53,56 @@ const DetailCostumerHO: FC = () => {
   }
 
   interface DataTypeOrder {
-    key: string
     number: number
     order_id: number
+    store_name: string
+    receipt_number: string
     date_order: string
+    total_invoice: string
+    status: string
   }
 
   const columnsOrder: ColumnsType<DataTypeOrder> = [
     {
-      title: 'No',
+      title: 'Nomor Urut',
       dataIndex: 'number',
       key: 'number',
       align: 'center',
       width: 10,
     },
     {
-      title: 'Order ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
       align: 'center',
-      width: 250,
+      width: 150,
     },
     {
-      title: 'Tanggal',
+      title: 'Nomor Resi',
+      dataIndex: 'receipt_number',
+      key: 'receipt_number',
+      align: 'center',
+      width: 130,
+    },
+    {
+      title: 'Tanggal Pembelian',
       dataIndex: 'date_order',
       key: 'date_order',
+      width: 150,
+    },
+    {
+      title: 'Total Invoice',
+      dataIndex: 'total_invoice',
+      key: 'total_invoice',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
     },
   ]
 
   interface DataTypeComplaint {
-    key: string
     number: number
     complaint_id: number
     complaint_date: string
@@ -117,12 +137,16 @@ const DetailCostumerHO: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.created_at)
+        const orderDate = new Date(item?.request_survey ?? '-')
 
         data = {
           number: apiData.indexOf(item) + 1,
           order_id: item.id,
+          store_name: item?.store?.store_name ?? '-',
+          receipt_number: item?.receipt_number ?? '-',
           date_order: formatDate(orderDate),
+          total_invoice: item?.total_invoice ?? '-',
+          status: item?.status?.category ?? '-',
         }
 
         return data
@@ -288,10 +312,12 @@ const DetailCostumerHO: FC = () => {
         <Col xxl={3} xl={3} lg={12} md={12} sm={12}></Col>
 
         <Col xxl={9} xl={9} lg={12} md={12} sm={12}>
+          <hr />
+
           <Tabs fill defaultActiveKey={1} className='navtab-detail-costumer'>
             <Tab eventKey={1} title='Historical Pemesanan' className='tab-1'>
               <Table
-                className='mt-3'
+                className='table-striped-rows mt-3'
                 bordered
                 columns={columnsOrder}
                 dataSource={orderData}
@@ -302,7 +328,7 @@ const DetailCostumerHO: FC = () => {
 
             <Tab eventKey={2} title='Historical Pengaduan' className='tab-2'>
               <Table
-                className='mt-3'
+                className='table-striped-rows mt-3'
                 bordered
                 columns={columnsComplaint}
                 dataSource={complaintData}

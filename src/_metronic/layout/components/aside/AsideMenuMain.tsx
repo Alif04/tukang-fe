@@ -45,7 +45,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         title='Kalender Kerja'
         fontIcon='bi-app-indicator'
-        role={['Admin Vendor', 'Tukang']}
+        role={['Tukang']}
       />
 
       {/* Halaman Order */}
@@ -104,10 +104,22 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
         <AsideMenuItem
+          to='/calendar/view-calendar'
+          title='Kalender Kerja'
+          hasBullet={true}
+          role={['Admin Vendor']}
+        />
+        <AsideMenuItem
           to='/work-order/report-work-order'
           title='Report Work Order'
           hasBullet={true}
           role={['Admin Vendor', 'Tukang']}
+        />
+        <AsideMenuItem
+          to='/warranty/claim-warranty-list'
+          title='Claim Garansi'
+          role={['Admin Vendor']}
+          hasBullet={true}
         />
       </AsideMenuItemWithSub>
 
@@ -245,6 +257,12 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
+        <AsideMenuItem
+          to='/tukang/view-tukang'
+          title='List Tukang'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
       {/* Halaman Costumers */}
@@ -363,14 +381,14 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/reports'
         title={userRole === 'Store CS' || userRole === 'Store Staff' ? 'Laporan' : 'Report'}
-        role={['Store CS', 'Store Staff', 'Admin HO']}
+        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
       >
         <AsideMenuItem
           to='/reports/view-report'
           title={userRole === 'StoreCS' ? 'List Laporan' : 'Performance'}
-          role={['Store CS', 'Store Staff', 'Admin HO']}
+          role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -463,12 +481,12 @@ export function AsideMenuMain() {
           role={['Store CS']}
           hasBullet={true}
         />
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/item/view-item'
           title='List Items'
           role={['Admin HO']}
           hasBullet={true}
-        />
+        /> */}
         <AsideMenuItem to='/item/new-item' title='New Items' role={['Admin HO']} hasBullet={true} />
       </AsideMenuItemWithSub>
 

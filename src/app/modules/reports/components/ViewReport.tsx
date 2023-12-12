@@ -17,6 +17,10 @@ const ViewReport: React.FC = () => {
         <>
           <ViewReportHO />
         </>
+      ) : userRole == 'Admin Vendor' ? (
+        <>
+          <ViewReportHO />
+        </>
       ) : (
         <></>
       )}

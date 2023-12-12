@@ -12,6 +12,23 @@
   padding: 5px 9.75px;
 }
 
+/* Table */
+#detail-costumer .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#detail-costumer
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0px !important;
+}
+
 /* Content Top */
 
 #detail-costumer .row.row-1 {
@@ -106,26 +123,44 @@
 }
 
 /* Content Bottom */
+#detail-costumer .nav-fill > .nav-link,
+.nav-fill .nav-item {
+  width: fit-content;
+  position: relative;
+  color: grey;
+  font-weight: 500;
+  border-right: 2.5px solid grey;
+  line-height: 5px;
+}
+
+#detail-costumer .nav-fill > .nav-link,
+.nav-fill .nav-item:nth-child(2) {
+  border-right: none;
+}
 
 #detail-costumer ul.navtab-detail-costumer.nav.nav-tabs {
-  background: var(--main, #fff0f3);
-  margin: 10px 0 10px 0;
+  margin: -23px 0px 10px 0;
+  width: 350px !important;
 }
 
 #detail-costumer .navtab-detail-costumer.nav.nav-tabs .nav-link.active,
 .nav-tabs .nav-item.show .nav-link {
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
+  color: grey;
   text-decoration-line: underline;
-  text-decoration-thickness: 3px;
-  background: var(--main, #fff0f3);
+  text-decoration-thickness: 2px;
   border-color: transparent;
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
 }
 
 #detail-costumer .navtab-detail-costumer.nav.nav-tabs .nav-link {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  background-color: white;
   border-color: transparent;
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;

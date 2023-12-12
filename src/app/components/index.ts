@@ -131,10 +131,6 @@ export * from './admin-ho/complaint/update_complaint/UpdateComplaint'
 // Detail Complaint
 export * from './admin-ho/complaint/detail_complaint/DetailComplaint'
 
-// CLAIM WARRANTY
-// List Claim Warranty
-export * from './admin-ho/warranty/list_claim_warranty/WarrantyClaimList'
-
 // COSTUMER
 // View Costumers HO
 export * from './admin-ho/costumers/view_costumers/ViewCostumer'
@@ -283,6 +279,13 @@ export * from './admin-vendor/work-order/report_work_order/ReportWorkOrder'
 
 // Detail Work Order
 export * from './admin-vendor/work-order/detail_work_order/DetailWorkOrder'
+
+// CLAIM WARRANTY
+// List Claim Warranty
+export * from './admin-vendor/warranty/list_claim_warranty/WarrantyClaimList'
+
+// New Warranty Claim
+export * from './admin-vendor/warranty/form_warranty_claim/WarrantyFormClaim'
 
 // TUKANG
 // New Tukang

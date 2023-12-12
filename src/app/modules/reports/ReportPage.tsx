@@ -2,6 +2,8 @@ import React from 'react'
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
+import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {TotalOrderReportStore} from '../../components'
 import {PrintReport} from './components/PrintReport'
 import {ViewReport} from './components/ViewReport'
@@ -18,12 +20,25 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const RefundPage: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <Routes>
       <Route
         path='view-report'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole == 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>LIST LAPORAN</PageTitle>
             <ViewReport />
           </>
@@ -34,6 +49,13 @@ const RefundPage: React.FC = () => {
         path='report-insentif'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN INSENTIF</PageTitle>
             <ReportInsentifList />
           </>
@@ -44,6 +66,13 @@ const RefundPage: React.FC = () => {
         path='report-performance'
         element={
           <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PERFORMANCE</PageTitle>
             <ReportPerformanceList />
           </>
