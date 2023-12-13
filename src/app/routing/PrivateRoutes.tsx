@@ -12,6 +12,7 @@ const PrivateRoutes = () => {
   const CalendarPage = lazy(() => import('../modules/calendar/CalendarPage'))
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
+  const ReschedulePage = lazy(() => import('../modules/reschedule/ReschedulePage'))
   const WarrantyPage = lazy(() => import('../modules/warranty/WarrantyPage'))
   const ReportPage = lazy(() => import('../modules/reports/ReportPage'))
   const CostumersPage = lazy(() => import('../modules/customers/CostumersPage'))
@@ -98,6 +99,15 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <ComplaintPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='reschedule/*'
+          element={
+            <SuspensedView>
+              <ReschedulePage />
             </SuspensedView>
           }
         />

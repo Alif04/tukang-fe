@@ -347,12 +347,12 @@ const DashboardVendor: FC = () => {
         </Col>
       </Row>
 
-      <Row>
+      <Row className='g-5 g-xl-8 mb-5'>
         {/* <Col xxl={7}>
           <Col>
             <Row className='g-5 g-xl-8 mb-5'>
               <Col xl={6}>
-                <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
+                <MoreInformation className='card-xl-stretch' orderData={orderData} />
               </Col>
 
               <Col xl={6}>
@@ -379,27 +379,27 @@ const DashboardVendor: FC = () => {
         </Col> */}
 
         <Col lg={4} md={12} className='mb-3'>
-          <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
+          <MoreInformation className='card-xl-stretch' orderData={orderData} />
         </Col>
 
         <Col lg={4} md={12} className='mb-3'>
-          <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
+          <ChartBarSurvey className='card-xl-stretch' />
         </Col>
 
         <Col lg={4} md={12} className='mb-3'>
-          <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+          <ChartBarOrder className='card-xl-stretch' />
         </Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
         <Col md={12}>
-          <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
+          <ChartBarPerformance className='card-xl-stretch' />
         </Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
+          <TableList className='card-xl-stretch mb-5' orderData={orderData} />
         </Col>
       </Row>
     </section>

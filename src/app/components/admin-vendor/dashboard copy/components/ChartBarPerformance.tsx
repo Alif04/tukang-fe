@@ -62,19 +62,19 @@ function getChartOptions(height: number): ApexOptions {
   return {
     series: [
       {
-        name: 'HO',
+        name: 'Sutoyo',
         data: [44, 55, 57, 56, 61, 58],
       },
       {
-        name: 'Fatmawati',
+        name: 'Slamet',
         data: [76, 85, 101, 98, 87, 105],
       },
       {
-        name: 'Bekasi',
+        name: 'Adi',
         data: [56, 35, 11, 48, 84, 25],
       },
       {
-        name: 'Cianjur',
+        name: 'Surya',
         data: [66, 45, 31, 58, 94, 55],
       },
     ],

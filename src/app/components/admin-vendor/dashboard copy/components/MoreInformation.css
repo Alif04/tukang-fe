@@ -1,23 +1,23 @@
-#more-information .card .card-body {
-  min-height: 390px;
+#more-information-vendor .card .card-body {
+  min-height: 365px;
 }
 
 @media screen and (max-width: 1200px) {
-  #more-information .fs-1.text-gray-800 {
+  #more-information-vendor .fs-1.text-gray-800 {
     text-align: center;
   }
 
-  #more-information .fs-1.text-danger {
+  #more-information-vendor .fs-1.text-danger {
     text-align: center;
   }
 }
 
 @media screen and (max-width: 991px) {
-  #more-information .fs-1.text-gray-800 {
+  #more-information-vendor .fs-1.text-gray-800 {
     text-align: center;
   }
 
-  #more-information .card .card-body {
+  #more-information-vendor .card .card-body {
     min-height: auto;
   }
 }

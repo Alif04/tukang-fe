@@ -292,7 +292,7 @@ const UpdateRefundHO: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>
-                    {refundDetail?.orders.store.store_name}
+                    {refundDetail?.store?.store_name ?? ''}
                   </span>
                 </Form.Label>
               </Col>
@@ -300,7 +300,8 @@ const UpdateRefundHO: FC = () => {
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group as={Row} className='order-id-complaint'>
                   <Form.Label className='fs-4 fw-bold'>
-                    Order ID :<span className='fs-4 ms-2 fw-normal'>{refundDetail?.orders.id}</span>
+                    Order ID :
+                    <span className='fs-4 ms-2 fw-normal'>{refundDetail?.orders?.id ?? ''}</span>
                   </Form.Label>
                 </Form.Group>
               </Col>
@@ -309,7 +310,7 @@ const UpdateRefundHO: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Receipt Number :
                   <span className='fs-4 ms-2 fw-normal'>
-                    {refundDetail?.orders.receipt_number || ''}
+                    {refundDetail?.orders?.receipt_number ?? '-'}
                   </span>
                 </Form.Label>
               </Col>
@@ -325,11 +326,7 @@ const UpdateRefundHO: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={refundDetail?.orders.members.id || ''}
-                        />
+                        <p className='fs-7'>{refundDetail?.orders?.members?.member_number}</p>
                       </Col>
                     </Form.Group>
 
@@ -338,11 +335,7 @@ const UpdateRefundHO: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={refundDetail?.orders.members.full_name || ''}
-                        />
+                        <p className='fs-7'>{refundDetail?.orders?.members?.full_name}</p>
                       </Col>
                     </Form.Group>
 
@@ -351,37 +344,27 @@ const UpdateRefundHO: FC = () => {
                         Alamat Pemasangan :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          as='textarea'
-                          plaintext
-                          readOnly
-                          rows={3}
-                          value={refundDetail?.orders.project_address || ''}
-                        />
+                        <p className='fs-7'>{refundDetail?.orders?.project_address}</p>
                       </Col>
                     </Form.Group>
                   </Col>
 
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
+                      <Form.Label column sm='5'>
                         Nomor Telp/WA :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control plaintext readOnly value={phoneNumber || ''} />
+                      <Col sm='7'>
+                        <p className='fs-7'>{refundDetail?.orders?.project_number}</p>
                       </Col>
                     </Form.Group>
 
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
+                      <Form.Label column sm='5'>
                         Alamat Email :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={refundDetail?.orders.members.email || ''}
-                        />
+                      <Col sm='7'>
+                        <p className='fs-7'>{refundDetail?.orders?.members?.email} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -392,24 +375,20 @@ const UpdateRefundHO: FC = () => {
                 <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
                 <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='4'>
+                  <Form.Label column sm='3'>
                     Sales ID :
                   </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control plaintext readOnly value={refundDetail?.orders.sales.id || ''} />
+                  <Col sm='9'>
+                    <p className='fs-7'>{refundDetail?.orders?.sales?.id} </p>
                   </Col>
                 </Form.Group>
 
                 <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='4'>
+                  <Form.Label column sm='3'>
                     Sales Person :
                   </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control
-                      plaintext
-                      readOnly
-                      value={refundDetail?.orders.sales.full_name || ''}
-                    />
+                  <Col sm='9'>
+                    <p className='fs-7'>{refundDetail?.orders?.sales?.full_name} </p>
                   </Col>
                 </Form.Group>
               </Col>
@@ -419,22 +398,46 @@ const UpdateRefundHO: FC = () => {
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+              <Row>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {refundDetail?.orders?.request_survey
+                        ? formatDate(new Date(refundDetail?.orders?.request_survey))
+                        : ''}
+                    </p>
+                  </Col>
+                </Form.Group>
 
-              <Form.Group as={Row} className='mb-3' controlId='formPlaintextEmail'>
-                <Form.Label column sm='3'>
-                  Tanggal request pemasangan :
-                </Form.Label>
-                <Col sm='9'>
-                  <Form.Control
-                    type='text'
-                    plaintext
-                    readOnly
-                    value={
-                      refundDetail ? formatDate(new Date(refundDetail?.orders.created_at)) : ''
-                    }
-                  />
-                </Col>
-              </Form.Group>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>{refundDetail?.orders?.vendor?.company_name ?? '-'}</p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Payment Type:</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {(() => {
+                        if (refundDetail?.orders?.payment_type === 'survey') {
+                          return `Berbayar & Survey`
+                        } else if (refundDetail?.orders?.payment_type === 'gratis') {
+                          return `Gratis`
+                        } else if (
+                          refundDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                        ) {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
+                    </p>
+                  </Col>
+                </Form.Group>
+              </Row>
             </div>
 
             <div className='table-warranty-content'>
@@ -445,50 +448,89 @@ const UpdateRefundHO: FC = () => {
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {!(
+                      refundDetail?.orders?.payment_type === 'gratis' ||
+                      refundDetail?.orders?.payment_type === 'survey'
+                    ) && (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
-                  {refundDetail?.orders.m_order_details.map((item: any, index: any) => (
+                  {refundDetail?.orders?.order_details.map((item: any, index: any) => (
                     <>
-                      <tr>
-                        <td>{item?.item_id}</td>
-                        <td>{item?.unit}</td>
-                        <td>{item?.status?.description}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      <tr key={`${index} - detail-order`}>
+                        <td>{item?.item_code ?? '-'}</td>
+                        <td>{item?.item_name ?? '-'}</td>
+                        <td>{item?.item?.service_name ?? '-'}</td>
+                        <td>{item?.quantity ?? '-'}</td>
+                        {!(
+                          refundDetail?.orders?.payment_type === 'gratis' ||
+                          refundDetail?.orders?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                          </>
+                        )}
                       </tr>
                     </>
                   ))}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Biaya Survey
-                    </td>
-                    <td className=' fw-bolder'>
-                      {refundDetail?.payment_type === 'gratis' ||
-                      refundDetail?.payment_type === 'pemasangan_tanpa_survey'
-                        ? `                      Rp. ${0?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : refundDetail?.payment_type === 'survey'
-                        ? `                      Rp. ${99000?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : `Rp. ${0}`}
-                    </td>
-                  </tr>
+                  {refundDetail?.orders?.payment_type !== 'gratis' &&
+                    refundDetail?.orders?.payment_type !== 'pemasangan_tanpa_survey' && (
+                      <tr>
+                        <td
+                          colSpan={refundDetail?.orders?.payment_type === 'survey' ? 3 : 5}
+                          className='text-end fw-bolder'
+                        >
+                          Biaya Survey
+                        </td>
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      Rp. {parseInt(refundDetail?.grand_total || 0)?.toLocaleString('id')}
-                    </td>
-                  </tr>
+                        <td className=' fw-bolder'>
+                          {refundDetail?.orders?.payment_type === 'gratis' ||
+                          refundDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `Rp. ${(0).toLocaleString('id')}`
+                            : refundDetail?.orders?.payment_type === 'survey'
+                            ? `Rp. ${(99000).toLocaleString('id')}`
+                            : `Rp. ${0}`}
+                        </td>
+                      </tr>
+                    )}
+
+                  {refundDetail?.orders?.payment_type !== 'survey' && (
+                    <tr>
+                      <td
+                        colSpan={refundDetail?.orders?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (refundDetail?.orders?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (
+                            refundDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                          ) {
+                            return `Rp. ${parseInt(
+                              refundDetail?.orders?.grand_total
+                            ).toLocaleString('id')}`
+                          } else if (refundDetail?.orders?.payment_type === 'survey') {
+                            return `Rp. ${(99000).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>

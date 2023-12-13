@@ -387,7 +387,7 @@ const NewComplaintStore: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.id || ''} />
+                        <Form.Control plaintext readOnly value={orderDetail?.members?.id ?? ''} />
                       </Col>
                     </Form.Group>
 
@@ -505,7 +505,7 @@ const NewComplaintStore: FC = () => {
                     type='text'
                     plaintext
                     readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail?.created_at)) : ''}
+                    value={orderDetail ? formatDate(new Date(orderDetail?.request_survey)) : ''}
                   />
                 </Col>
               </Form.Group>

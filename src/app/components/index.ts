@@ -81,6 +81,14 @@ export * from './admin-store/costumers/detail_costumers/DetailCostumers'
 // Report Costumers
 export * from './admin-store/costumers/report_costumers/ReportCostumers'
 
+// RESCHEDULE
+
+// New Reschedule
+export * from './admin-store/reschedule/new_reschedule/NewReschedule'
+
+// Update Reschedule
+export * from './admin-store/reschedule/update_reschedule/UpdateReschedule'
+
 // REPORT
 // View Report
 export * from './admin-store/reports/view_report/ViewReport'
@@ -336,6 +344,10 @@ export * from './admin-vendor/invoice/new_invoice/NewInvoice'
 // Detail Invoice
 export * from './admin-vendor/invoice/detail_invoice/DetailInvoice'
 
+// REPORT VENDOR
+// View Report
+export * from './admin-vendor/reports/view_report/ViewReportVendor'
+
 // ADMIN TUKANG PAGE
 // CALENDAR WORK ORDER
 export * from './tukang/calendar/view_calendar/ViewCalendar'
@@ -365,6 +377,10 @@ export * from './tukang/complaint/update_complaint/UpdateComplaint'
 
 // Detail Complaint
 export * from './tukang/complaint/detail_complaint/DetailComplaint'
+
+// REPORT TUKANG
+// View Report
+export * from './tukang/reports/view_report/ViewReportTukang'
 
 // PENGATURAN PAGE
 

@@ -1,13 +1,5 @@
 /* Card */
 
-#new-refund .card .card-body .information-wrapper {
-  width: 330px;
-}
-
-#new-refund .information-wrapper .detail-header {
-  min-height: 70px;
-}
-
 #new-refund .order-history {
   margin-top: 20px;
   margin-bottom: 50px;
@@ -20,37 +12,32 @@
 
 /* Informasi Pemasangan */
 
-#new-refund .complaint-information h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#new-refund .form-wrapper {
+  margin-bottom: 30px;
 }
 
-#new-refund .complaint-detail h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#new-refund .form-wrapper .form-header {
+  margin-bottom: 30px;
 }
 
-#new-refund .complaint-detail p {
-  font-size: 14px;
-  font-weight: 400;
+#new-refund p {
+  padding: 3px 9.75px;
 }
 
-#new-refund .complaint-evidence h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-#new-refund .table.detail-complaint-table tr,
-.table.detail-complaint-table th,
-.table.detail-complaint-table td {
-  border: none;
+#new-refund .detail-info.row label.form-label {
+  padding: 3px 9.75px;
 }
 
 #new-refund textarea.desc-notes.form-control {
   min-height: 135px !important;
+}
+
+#new-refund .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 60%;
+}
+
+#new-refund .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 40%;
 }
 
 /* Button */
@@ -65,7 +52,7 @@
   transition: 0.3s ease-in-out;
 }
 
-.btn.btn-dark-danger:hover:not(.btn-active) {
+#new-refund .btn.btn-dark-danger:hover:not(.btn-active) {
   background-color: #d80019 !important;
 }
 
@@ -79,6 +66,16 @@
   transition: 0.3s ease-in-out;
 }
 
-.btn.btn-dark-primary:hover:not(.btn-active) {
+#new-refund .btn.btn-dark-primary:hover:not(.btn-active) {
   background-color: #0300b5 !important;
+}
+
+@media screen and (max-width: 1200px) {
+  #new-refund .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #new-refund .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
 }

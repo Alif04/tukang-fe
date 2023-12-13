@@ -35,15 +35,19 @@ const TukangPage: React.FC = () => {
             {userRole === 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
+                <PageTitle breadcrumbs={orderBreadCrumbs}>
+                  DAFTAR TUKANG INSTALASI & SERVICE MITRA10
+                </PageTitle>
               </>
             ) : userRole === 'Admin Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
+                <PageTitle breadcrumbs={orderBreadCrumbs}>LIST TUKANG</PageTitle>
               </>
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LIST TUKANG</PageTitle>
+
             <ViewTukang />
           </>
         }
@@ -53,18 +57,15 @@ const TukangPage: React.FC = () => {
         path='new-tukang'
         element={
           <>
-            {userRole === 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
+                <PageTitle breadcrumbs={orderBreadCrumbs}>NEW TUKANG FORM</PageTitle>
               </>
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>REGISTER TUKANG</PageTitle>
+
             <NewTukangin />
           </>
         }
@@ -74,18 +75,15 @@ const TukangPage: React.FC = () => {
         path='update-tukang/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
+                <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE TUKANG FORM</PageTitle>
               </>
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE TUKANG FORM</PageTitle>
+
             <UpdateTukangin />
           </>
         }
@@ -106,6 +104,7 @@ const TukangPage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL TUKANG</PageTitle>
             <DetailTukangin />
           </>

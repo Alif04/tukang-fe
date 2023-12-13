@@ -11,7 +11,6 @@ type Props = {
 
 interface DataType {
   order_id: string
-  store_name: string
   costumer_name: string
   service_name: string
   total: string
@@ -25,25 +24,19 @@ const columns: ColumnsType<DataType> = [
     align: 'center',
   },
   {
-    title: 'Nama Toko',
-    dataIndex: 'store_name',
-    key: 'store_name',
-    align: 'left',
-  },
-  {
     title: 'Nama Konsumen',
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',
   },
   {
-    title: 'Nama Pemasangan',
+    title: 'Nama Jasa',
     dataIndex: 'service_name',
     key: 'service_name',
     align: 'left',
   },
   {
-    title: 'Grand Total',
+    title: 'Total',
     dataIndex: 'total',
     key: 'total',
     align: 'center',

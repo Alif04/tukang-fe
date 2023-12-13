@@ -1,4 +1,4 @@
-#view-report-ho .title h1 {
+#view-report-tukang .title h1 {
   width: fit-content;
   position: relative;
   margin-top: -28px;
@@ -6,23 +6,23 @@
   background-color: white;
 }
 
-#view-report-ho .content-card.card {
+#view-report-tukang .content-card.card {
   margin: 0 0 20px 0;
   background-color: #fff0f3 !important;
 }
 
-#view-report-ho .content-card.border-green.card {
+#view-report-tukang .content-card.border-green.card {
   border: 3px solid #6f990d;
 }
 
-#view-report-ho .content-card.border-red.card {
+#view-report-tukang .content-card.border-red.card {
   border: 3px solid #db0521 !important;
 }
 
-#view-report-ho .content-card.border-blue.card {
+#view-report-tukang .content-card.border-blue.card {
   border: 3px solid #383bb8 !important;
 }
 
-#view-report-ho .content-card.border-yellow.card {
+#view-report-tukang .content-card.border-yellow.card {
   border: 3px solid #bbba18 !important;
 }

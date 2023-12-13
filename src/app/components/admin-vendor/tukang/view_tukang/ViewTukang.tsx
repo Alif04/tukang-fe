@@ -62,12 +62,14 @@ const ViewTukangVendor: FC = () => {
 
   interface DataType {
     tukang_id: number
-    tanggal_join: string
-    nama_lengkap: string
-    tanggal_lahir: string
+    full_name: string
+    email: string
+    phone_number: number
+    address: string
+    birth_day: string
     keahlian: string
     ktp: number
-    no_telp: number
+    status: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -79,28 +81,50 @@ const ViewTukangVendor: FC = () => {
       sorter: (a, b) => a.tukang_id - b.tukang_id,
     },
     {
-      title: 'Tanggal Join',
-      dataIndex: 'tanggal_join',
-      key: 'tanggal_join',
-      align: 'center',
-      onFilter: (value, record) => record.tanggal_join.includes(String(value)),
-      sorter: (a, b) => a.tanggal_join.length - b.tanggal_join.length,
+      title: 'Nama Tukang',
+      dataIndex: 'full_name',
+      key: 'full_name',
+      align: 'left',
+      onFilter: (value, record) => record.full_name.includes(String(value)),
+      sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
     {
-      title: 'Nama Lengkap',
-      dataIndex: 'nama_lengkap',
-      key: 'nama_lengkap',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
       align: 'left',
-      onFilter: (value, record) => record.nama_lengkap.includes(String(value)),
-      sorter: (a, b) => a.nama_lengkap.length - b.nama_lengkap.length,
+      onFilter: (value, record) => record.email.includes(String(value)),
+      sorter: (a, b) => a.email.length - b.email.length,
+    },
+    {
+      title: 'No. Handphone',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
+      align: 'left',
+      sorter: (a, b) => a.phone_number - b.phone_number,
+    },
+    {
+      title: 'Alamat',
+      dataIndex: 'address',
+      key: 'address',
+      align: 'left',
+      onFilter: (value, record) => record.address.includes(String(value)),
+      sorter: (a, b) => a.address.length - b.address.length,
     },
     {
       title: 'Tanggal Lahir ',
-      dataIndex: 'tanggal_lahir',
-      key: 'tanggal_lahir',
+      dataIndex: 'birth_day',
+      key: 'birth_day',
       align: 'center',
-      onFilter: (value, record) => record.tanggal_lahir.includes(String(value)),
-      sorter: (a, b) => a.tanggal_lahir.length - b.tanggal_lahir.length,
+      onFilter: (value, record) => record.birth_day.includes(String(value)),
+      sorter: (a, b) => a.birth_day.length - b.birth_day.length,
+    },
+    {
+      title: 'No. KTP',
+      dataIndex: 'ktp',
+      key: 'ktp',
+      align: 'center',
+      sorter: (a, b) => a.ktp - b.ktp,
     },
     {
       title: 'Keahlian',
@@ -111,18 +135,12 @@ const ViewTukangVendor: FC = () => {
       sorter: (a, b) => a.keahlian.length - b.keahlian.length,
     },
     {
-      title: 'KTP',
-      dataIndex: 'ktp',
-      key: 'ktp',
-      align: 'center',
-      sorter: (a, b) => a.ktp - b.ktp,
-    },
-    {
-      title: 'No. Telp/WA',
-      dataIndex: 'no_telp',
-      key: 'no_telp',
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
       align: 'left',
-      sorter: (a, b) => a.no_telp - b.no_telp,
+      onFilter: (value, record) => record.status.includes(String(value)),
+      sorter: (a, b) => a.status.length - b.status.length,
     },
     {
       title: 'Action',
@@ -140,54 +158,54 @@ const ViewTukangVendor: FC = () => {
           navigate(`/tukang/update-tukang/${id}`)
         }
 
-        const handleDeleteId = () => {
-          const id = record.tukang_id
+        // const handleDeleteId = () => {
+        //   const id = record.tukang_id
 
-          Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Tukang ini ?`,
-            icon: 'warning',
-            showConfirmButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Ya',
-            denyButtonText: 'Cancel',
-          })
-            .then((willDelete) => {
-              if (willDelete.value) {
-                axios
-                  .delete(`${apiUrl}/tukang/${id}`, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
-                    },
-                  })
-                  .then((response) => {
-                    Swal.fire({
-                      title: 'Success',
-                      text: response.data.message,
-                      icon: 'success',
-                    }).then(() => {
-                      window.location.reload()
-                    })
-                  })
-                  .catch((error) => {
-                    Swal.fire({
-                      title: 'Error',
-                      text: error.response.data.message,
-                      icon: 'error',
-                    })
-                  })
-              }
-            })
-            .catch((error) => {
-              Swal.fire({
-                title: 'Error',
-                text: error.response.data.message,
-                icon: 'error',
-              })
-            })
-        }
+        //   Swal.fire({
+        //     title: `Apakah anda yakin akan menghapus data Tukang ini ?`,
+        //     icon: 'warning',
+        //     showConfirmButton: true,
+        //     showDenyButton: true,
+        //     confirmButtonText: 'Ya',
+        //     denyButtonText: 'Cancel',
+        //   })
+        //     .then((willDelete) => {
+        //       if (willDelete.value) {
+        //         axios
+        //           .delete(`${apiUrl}/tukang/${id}`, {
+        //             headers: {
+        //               Accept: 'application/json',
+        //               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        //               'Access-Control-Allow-Origin': '*',
+        //               'ngrok-skip-browser-warning': 'true',
+        //             },
+        //           })
+        //           .then((response) => {
+        //             Swal.fire({
+        //               title: 'Success',
+        //               text: response.data.message,
+        //               icon: 'success',
+        //             }).then(() => {
+        //               window.location.reload()
+        //             })
+        //           })
+        //           .catch((error) => {
+        //             Swal.fire({
+        //               title: 'Error',
+        //               text: error.response.data.message,
+        //               icon: 'error',
+        //             })
+        //           })
+        //       }
+        //     })
+        //     .catch((error) => {
+        //       Swal.fire({
+        //         title: 'Error',
+        //         text: error.response.data.message,
+        //         icon: 'error',
+        //       })
+        //     })
+        // }
 
         return (
           <div
@@ -207,9 +225,9 @@ const ViewTukangVendor: FC = () => {
                   <FontAwesomeIcon icon={faPen} size='sm' />
                 </a>
 
-                <a className='button-delete' onClick={handleDeleteId}>
+                {/* <a className='button-delete' onClick={handleDeleteId}>
                   <FontAwesomeIcon icon={faTrash} size='sm' />
-                </a>
+                </a> */}
               </>
             )}
           </div>
@@ -258,21 +276,21 @@ const ViewTukangVendor: FC = () => {
       const tukangData = apiData.map((item: any) => {
         let data
 
-        const joinDate = new Date(item.join_date)
-        const tanggalLahir = new Date(item.bod)
-
+        const BirthOfDay = new Date(item?.bod ?? '-')
         const tukangService = item?.tukang_service
           .map((tukang_service: any) => tukang_service?.service_type_id ?? '-')
           .join(', ')
 
         data = {
-          tukang_id: item.id,
-          tanggal_join: formatDate(joinDate),
-          nama_lengkap: item.full_name,
-          tanggal_lahir: formatDate(tanggalLahir),
-          keahlian: tukangService,
-          ktp: item.ktp_number,
-          no_telp: item.phone_number,
+          tukang_id: item?.id ?? '-',
+          full_name: item?.full_name ?? '-',
+          email: item?.email ?? '-',
+          phone_number: item?.phone_number ?? '-',
+          address: item?.address ?? '-',
+          birth_day: formatDate(BirthOfDay),
+          ktp: item?.ktp_number ?? '-',
+          keahlian: tukangService ?? '-',
+          status: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
         }
 
         return data

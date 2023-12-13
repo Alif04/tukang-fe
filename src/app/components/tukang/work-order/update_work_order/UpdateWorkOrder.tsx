@@ -728,7 +728,49 @@ const UpdateWorkTukang: FC = () => {
               </Row>
 
               <div className='d-flex justify-content-end'>
-                <Button variant='button-dark-primary' onClick={() => handleAddForm(1)}>
+                <Button variant='btn-jasa button-dark-primary' onClick={() => handleAddForm(2)}>
+                  Tambah Jasa Pemasangan
+                </Button>
+              </div>
+
+              <div className='fs-5 text-dark fw-bold mb-2'>List Jasa Pemasangan</div>
+
+              <table className='table'>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th>Jasa Pemasangan</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {workOrderItem
+                    .filter((x) => x.type === 2)
+                    .map((element, index) => (
+                      <tr
+                        key={`${stringToHash(element.index)}-service`}
+                        id={`${element.index}-service`}
+                      >
+                        <td>
+                          <Form.Control
+                            id={`service-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+
+              <div className='d-flex justify-content-end'>
+                <Button variant='btn-material button-dark-primary' onClick={() => handleAddForm(1)}>
                   Tambah Material
                 </Button>
               </div>
@@ -775,48 +817,6 @@ const UpdateWorkTukang: FC = () => {
                             id={`quantity-${index}`}
                             value={element.quantity?.toString()}
                             onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
-                          />
-                        </td>
-
-                        <td>
-                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-
-              <div className='d-flex justify-content-end'>
-                <Button variant='button-dark-primary' onClick={() => handleAddForm(2)}>
-                  Tambah Jasa Pemasangan
-                </Button>
-              </div>
-
-              <div className='fs-5 text-dark fw-bold mb-2'>List Jasa Pemasangan</div>
-
-              <table className='table'>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th>Jasa Pemasangan</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderItem
-                    .filter((x) => x.type === 2)
-                    .map((element, index) => (
-                      <tr
-                        key={`${stringToHash(element.index)}-service`}
-                        id={`${element.index}-service`}
-                      >
-                        <td>
-                          <Form.Control
-                            id={`service-name-${index}`}
-                            value={element.item_name}
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
                           />
                         </td>
 

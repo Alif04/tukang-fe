@@ -14,7 +14,7 @@ const getStatusCount = (orderData: any[], status: string): number => {
 
 const MoreInformation: React.FC<Props> = ({className, orderData}) => {
   return (
-    <section id='more-information'>
+    <section id='more-information-ho'>
       <div className={`card ${className}`} id='more-information'>
         <div className='card-body'>
           <div className='row mb-5'>

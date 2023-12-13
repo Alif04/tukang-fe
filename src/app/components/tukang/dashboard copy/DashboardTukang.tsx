@@ -31,6 +31,10 @@ const initialStatusState = {
   onProgress: 0,
   complete: 0,
   reschedule: 0,
+  cancel: 0,
+  refund: 0,
+  waitingSurvey: 0,
+  waitingQuotation: 0,
   waitingPayment: 0,
 }
 
@@ -44,6 +48,10 @@ const statusToStateMap: StatusToStateMap = {
   WIP: 'onProgress',
   SURVEYDONE: 'complete',
   RESCHEDULE: 'reschedule',
+  CANCELED: 'cancel',
+  REFUND: 'refund',
+  WORKREQ: 'waitingSurvey',
+  QUOTEIN: 'waitingQuotation',
   WORKRELATED: 'waitingPayment',
 }
 
@@ -102,10 +110,9 @@ const DashboardTukang: FC = () => {
 
         data = {
           order_id: item.id,
-          store_name: item.store.store_name,
-          costumer_name: item.members.full_name,
-          service_name: item.m_order_details[0]?.item?.service_name ?? '-',
-          total: `Rp. ${parseInt(item.grand_total).toLocaleString('id')}`,
+          costumer_name: item?.members?.full_name ?? '-',
+          service_name: item?.m_order_details[0]?.item?.service_name ?? '-',
+          total: `Rp. ${parseInt(item?.grand_total ?? 0).toLocaleString('id')}`,
         }
 
         return data
@@ -190,7 +197,18 @@ const DashboardTukang: FC = () => {
     }
   }, [orderList])
 
-  const {totalOrder, survey, onProgress, complete, reschedule, waitingPayment} = statusState
+  const {
+    totalOrder,
+    survey,
+    onProgress,
+    complete,
+    reschedule,
+    cancel,
+    refund,
+    waitingSurvey,
+    waitingQuotation,
+    waitingPayment,
+  } = statusState
 
   // Province Data
   const provinces = [
@@ -236,6 +254,30 @@ const DashboardTukang: FC = () => {
       <Row>
         <Col xxl={6} xl={6} lg={12} className='mb-5'>
           <Row>
+            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+              <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
+            </Col>
+
+            <Col xxl={8} xl={8} lg={8}>
+              <RangePicker
+                className='date-range'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
+            </Col>
+          </Row>
+
+          {/* <Row>
             <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
             </Col>
@@ -263,11 +305,11 @@ const DashboardTukang: FC = () => {
                 />
               </div>
             </Col>
-          </Row>
+          </Row> */}
         </Col>
 
         <Col xxl={6} xl={6} lg={12} className='mb-5'>
-          <Row>
+          {/* <Row>
             <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
             </Col>
@@ -289,7 +331,7 @@ const DashboardTukang: FC = () => {
                 }}
               />
             </Col>
-          </Row>
+          </Row> */}
         </Col>
       </Row>
 
@@ -337,6 +379,34 @@ const DashboardTukang: FC = () => {
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
+                    <h1 className='fw-normal'>{cancel}</h1>
+                    <p className='fs-6 text-danger text-center'>Cancel</p>
+                  </div>
+                </Col>
+
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
+                    <h1 className='fw-normal'>{refund}</h1>
+                    <p className='fs-6 text-danger text-center'>Refund</p>
+                  </div>
+                </Col>
+
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
+                    <h1 className='fw-normal'>{waitingSurvey}</h1>
+                    <p className='fs-6 text-brown text-center'>Menunggu Survey</p>
+                  </div>
+                </Col>
+
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
+                    <h1 className='fw-normal'>{waitingQuotation}</h1>
+                    <p className='fs-6 text-brown text-center'>Menunggu Quotation</p>
+                  </div>
+                </Col>
+
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{waitingPayment}</h1>
                     <p className='fs-6 text-brown fw-bold text-center'>Menunggu Bayar</p>
                   </div>
@@ -378,16 +448,12 @@ const DashboardTukang: FC = () => {
           <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
         </Col> */}
 
-        <Col lg={4} md={12} className='mb-3'>
-          <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
+        <Col lg={5} md={12} className='mb-3'>
+          <MoreInformation className='card-xl-stretch' orderData={orderData} />
         </Col>
 
-        <Col lg={4} md={12} className='mb-3'>
-          <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
-        </Col>
-
-        <Col lg={4} md={12} className='mb-3'>
-          {/* <ChartBarOrder className='card-xl-stretch mb-xl-8' /> */}
+        <Col lg={7} md={12} className='mb-3'>
+          <ChartBarSurvey className='card-xl-stretch' />
         </Col>
       </Row>
 

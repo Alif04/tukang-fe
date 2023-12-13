@@ -1,20 +1,20 @@
 import React from 'react'
 
-import './ViewReportHO.css'
+import './ViewReportVendor.css'
 
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Card} from 'react-bootstrap'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
-const ViewReportHO = () => {
+const ViewReportVendor = () => {
   const navigate = useNavigate()
 
   const goToReport = (reportType: string) => {
-    navigate(`/reports/ho/report-${reportType}`)
+    navigate(`/reports/vendor/report-${reportType}`)
   }
 
   return (
-    <section id='view-report-ho'>
+    <section id='view-report-vendor'>
       <Card>
         <Card.Body>
           <div className='sales-reports mb-5'>
@@ -26,7 +26,7 @@ const ViewReportHO = () => {
 
             <Row>
               <Col md={4}>
-                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                   <Card.Body className='d-flex  justify-content-left align-items-center'>
                     <img
                       className='m-2'
@@ -35,13 +35,13 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Transaksi All ( Omset )</div>
+                    <div className='fs-3 fw-normal'>Laporan Transaksi All (omset)</div>
                   </Card.Body>
                 </Card>
               </Col>
 
               <Col md={4}>
-                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                   <Card.Body className='d-flex justify-content-left align-items-center'>
                     <img
                       className='m-2'
@@ -50,13 +50,13 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Survey ( Omset )</div>
+                    <div className='fs-3 fw-normal'>Laporan Survey (omset)</div>
                   </Card.Body>
                 </Card>
               </Col>
 
               <Col md={4}>
-                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                   <Card.Body className='d-flex justify-content-left align-items-center'>
                     <img
                       className='m-2'
@@ -65,7 +65,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Quotation ( Omset )</div>
+                    <div className='fs-3 fw-normal'>Laporan Quotation (omset)</div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -90,7 +90,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Pending Payment</div>
+                    <div className='fs-3 fw-normal'>Laporan Quotation</div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -194,7 +194,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Refund</div>
+                    <div className='fs-3 fw-normal'>Laporan Penalty atas Refund</div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -213,40 +213,6 @@ const ViewReportHO = () => {
                   </Card.Body>
                 </Card>
               </Col>
-            </Row>
-
-            <Row>
-              <Col md={4}>
-                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan Total Penalty</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={4}>
-                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan Claim Voucher</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={4}></Col>
             </Row>
           </div>
 
@@ -268,7 +234,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Tagihan Bulanan</div>
+                    <div className='fs-3 fw-normal'>Laporan tagihan bulanan</div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -298,13 +264,57 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Tagihan Dibayar</div>
+                    <div className='fs-3 fw-normal'>Laporan tagihan dibayar</div>
                   </Card.Body>
                 </Card>
               </Col>
             </Row>
 
             <Row>
+              <Col md={4}>
+                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
+                    <div className='fs-3 fw-normal'>Laporan tagihan belum dibayar</div>
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              <Col md={4}></Col>
+
+              <Col md={4}></Col>
+            </Row>
+          </div>
+
+          <div className='pembayaran-reports mb-5'>
+            <div className='title'>
+              <hr />
+
+              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Pembayaran Tukang Reports</h1>
+            </div>
+
+            <Row>
+              <Col md={4}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex  justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
+                    <div className='fs-3 fw-normal'>Laporan tagihan bulanan</div>
+                  </Card.Body>
+                </Card>
+              </Col>
+
               <Col md={4}>
                 <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
                   <Card.Body className='d-flex justify-content-left align-items-center'>
@@ -315,51 +325,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Tagihan Belum Dibayar</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={4}></Col>
-
-              <Col md={4}></Col>
-            </Row>
-          </div>
-
-          <div className='csi-reports mb-5'>
-            <div className='title'>
-              <hr />
-
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>CSI Reports</h1>
-            </div>
-
-            <Row>
-              <Col md={4}>
-                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex  justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan CSI terkirim</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={4}>
-                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan CSI belum terkirim</div>
+                    <div className='fs-3 fw-normal'>Laporan Pending Payment</div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -374,7 +340,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan CSI direspon</div>
+                    <div className='fs-3 fw-normal'>Laporan tagihan dibayar</div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -391,83 +357,7 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan CSI belum direspon</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={4}></Col>
-
-              <Col md={4}></Col>
-            </Row>
-          </div>
-
-          <div className='insentive-reports mb-5'>
-            <div className='title'>
-              <hr />
-
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Insentive Reports</h1>
-            </div>
-
-            <Row>
-              <Col md={4}>
-                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex  justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan Order komplit</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={4}>
-                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan Order tidak komplit</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={4}>
-                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan Insentive dibayar</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={4}>
-                <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
-                    <div className='fs-3 fw-normal'>Laporan Insentive belum dibayar</div>
+                    <div className='fs-3 fw-normal'>Laporan tagihan belum dibayar</div>
                   </Card.Body>
                 </Card>
               </Col>
@@ -483,4 +373,4 @@ const ViewReportHO = () => {
   )
 }
 
-export {ViewReportHO}
+export {ViewReportVendor}

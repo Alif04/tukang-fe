@@ -52,6 +52,7 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
         .then((response) => {
           const data = response.data.data
           setComplaintDetail(data)
+          updatePageTitle(data)
 
           if (data?.orders.id) {
             setOrderId(data.orders.id)

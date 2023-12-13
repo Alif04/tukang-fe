@@ -1,51 +1,42 @@
-import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
+import React, {FC, useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
-import './NewRefund.css'
+import './NewReschedule.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, Button, Table} from 'react-bootstrap'
+import {Table, Form, Button, Row, Col, Card, FormGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface Option {
-  readonly label: string
-  readonly value: string
+interface SelectedOrder {
+  value: number | null
+  label: string
 }
 
-const components = {
-  DropdownIndicator: null,
+interface Reschedule {
+  order_id: number | null
+  status_id: number | null
+  reschedule_date: string
 }
 
-const inputVoucher = (label: string) => ({
-  label,
-  value: label,
-})
-
-interface Refund {
-  order_id: any
-  refund_status: any
-  notes: string
-  reason: string
-  date_of_filing: any
-  date_approve: any
-  penalty_nominal: any
-  approval_number: any
-  voucher: string
-  // refund_voucher: Option[]
-}
-
-const NewRefundHO: FC = () => {
+const NewReschedule: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  // Fetch Data Order
   const [order, setOrder] = useState<any>()
-  const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [selectedOrder, setSelectedOrder] = useState<any>({
+    value: null,
+    label: '',
+  })
+
+  const [reschedule, setReschedule] = useState<Reschedule>({
+    order_id: null,
+    status_id: null,
+    reschedule_date: '',
+  })
 
   const getOrder = async () => {
     try {
@@ -62,12 +53,9 @@ const NewRefundHO: FC = () => {
         const tempOrder = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.id,
-          payment_type: item.payment_type,
         }))
 
-        const filteredOrder = tempOrder.filter((detail: any) => detail.payment_type !== 'gratis')
-
-        setOrder(filteredOrder)
+        setOrder(tempOrder)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -79,7 +67,7 @@ const NewRefundHO: FC = () => {
   const getOrderDetail = async () => {
     try {
       await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
+        .get(`${apiUrl}/orders/${selectedOrder?.value}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -101,159 +89,55 @@ const NewRefundHO: FC = () => {
   }, [])
 
   useEffect(() => {
-    if (orderId) {
+    if (selectedOrder?.value) {
       getOrderDetail()
     }
-  }, [orderId])
+  }, [selectedOrder?.value])
 
+  // Format Date
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+    return `${day}-${month}-${year}`
   }
 
-  // Add Refund
-  const [refundValues, setRefundValues] = useState<Refund>({
-    order_id: null,
-    refund_status: null,
-    notes: '',
-    reason: '',
-    date_approve: '',
-    date_of_filing: '',
-    voucher: '',
-    penalty_nominal: '',
-    approval_number: '',
-    // refund_voucher: [],
-  })
+  // Selected Order
+  useEffect(() => {
+    setReschedule({
+      ...reschedule,
+      order_id: selectedOrder?.value ?? null,
+    })
+  }, [selectedOrder])
 
-  // Refund Status
+  // Reschedule Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatus = statusData.find((status: any) => status.category === 'REFUND')
+    const desiredStatus = statusData.find((status: any) => status.category === 'RESCHEDULE')
     const statusId = desiredStatus.value
 
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      refund_status: statusId,
+    setReschedule((prevRescheduleValues) => ({
+      ...prevRescheduleValues,
+      status_id: statusId,
     }))
-  }, [refundValues])
+  }, [reschedule])
 
-  // Select Order
-  const handleChangeSelectOrder = (element: any) => {
-    const selectedOrder = element.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      order_id: selectedOrder,
-    }))
-
-    setOrderId(selectedOrder)
-  }
-
-  // Createable Multi Value
-  const [inputValue, setInputValue] = React.useState('')
-  const [value, setValue] = React.useState<readonly Option[]>([])
-
-  // const handleKeyDown: KeyboardEventHandler = (event) => {
-  //   if (!inputValue) return
-
-  //   switch (event.key) {
-  //     case 'Enter':
-  //     case 'Tab':
-  //       const newVoucher = inputVoucher(inputValue)
-
-  //       setValue((prev) => [...prev, newVoucher])
-  //       setInputValue('')
-
-  //       setRefundValues((prevValues) => ({
-  //         ...prevValues,
-  //         refund_voucher: [...prevValues.refund_voucher, newVoucher],
-  //       }))
-
-  //       event.preventDefault()
-  //   }
-  // }
-
-  // Handle Change Refund Voucher
-  const handleChangeRefundVoucher = (element: any) => {
-    const newRefundVoucher = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      voucher: newRefundVoucher,
-    }))
-  }
-
-  // Handle Change Refund Date
+  // Reschedule Handler Form
   const today = new Date().toISOString().split('T')[0]
 
-  // Change Input Date
-  const handleChangeRefundDate = (element: any) => {
-    const newRefundDate = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      date_of_filing: newRefundDate,
-    }))
-  }
-
-  // Change Input Refund Description
-  const handleChangeRefundDescription = (element: any) => {
-    const newRefundDescription = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      reason: newRefundDescription,
-    }))
-  }
-
-  // Change Approval Refund
-  const handleChangeApproveRefundDate = (element: any) => {
-    const newRefundApproveDate = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      date_approve: newRefundApproveDate,
-    }))
-  }
-
-  // Change Nomor Approval
-  const handleChangeApprovalNumber = (element: any) => {
-    const newRefundApproveDate = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      approval_number: newRefundApproveDate,
-    }))
-  }
-
-  // Change Refund Notes
-  const handleChangeRefundNotes = (element: any) => {
-    const newRefundNotes = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      notes: newRefundNotes,
-    }))
-  }
-
-  // Change Nomor Approval
-  const handleChangePenaltyAmount = (element: any) => {
-    const newPenalyAmount = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      penalty_nominal: newPenalyAmount,
-    }))
+  const RescheduleFormHandler = (e: any) => {
+    setReschedule({
+      ...reschedule,
+      [e.target.name]: e.target.value,
+    })
   }
 
   // Handle Submit New Refund
-  const handleSubmitNewRefund = async () => {
+  const handleSubmitReschedule = async () => {
     await axios
-      .post(`${apiUrl}/refund`, refundValues, {
+      .post(`${apiUrl}/reschedule`, reschedule, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -265,7 +149,7 @@ const NewRefundHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Create Refund',
+            text: 'Success Create Reschedule',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -278,7 +162,7 @@ const NewRefundHO: FC = () => {
           })
         }
 
-        navigate('/refund/view-refund')
+        navigate('/complaint/reschedule')
       })
       .catch((error) => {
         console.error(error)
@@ -291,14 +175,10 @@ const NewRefundHO: FC = () => {
       })
   }
 
-  const handleCancelRefund = () => {
-    navigate('/refund/view-refund')
-  }
-
   return (
-    <section id='new-refund'>
-      <div className='card'>
-        <div className='card-body'>
+    <section id='new-reschedule'>
+      <Card className='mb=5'>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -317,12 +197,12 @@ const NewRefundHO: FC = () => {
                   </Form.Label>
                   <Col sm='9'>
                     <Select
-                      name='order-id'
+                      name='order_id'
                       className='form-control p-0'
                       placeholder='Ketik/Pilih Order Id'
                       isSearchable={true}
                       options={order}
-                      onChange={(e) => handleChangeSelectOrder(e)}
+                      onChange={(newValue) => setSelectedOrder(newValue)}
                     />
                   </Col>
                 </Form.Group>
@@ -426,17 +306,6 @@ const NewRefundHO: FC = () => {
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
               <Row>
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>
-                      {orderDetail?.request_survey
-                        ? formatDate(new Date(orderDetail?.request_survey))
-                        : ''}
-                    </p>
-                  </Col>
-                </Form.Group>
-
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
                   <Col>
@@ -559,132 +428,48 @@ const NewRefundHO: FC = () => {
 
           <hr />
 
-          <div className='order-history'>
-            <div className='title'>
-              <h1 className='text-uppercase'>formulir refund</h1>
-            </div>
-
-            <div className='row mb-5'>
-              <div className='col-md-4'>
-                <div className='complaint-information'>
-                  <h4>Tanggal Pengajuan Refund : </h4>
-
-                  <Form.Control
-                    type='date'
-                    className='w-75'
-                    min={today}
-                    onChange={(element) => handleChangeRefundDate(element)}
-                  />
-                </div>
-              </div>
-
-              <div className='col-md-4'>
-                <div className='complaint-detail'>
-                  <h4>Alasan Refund :</h4>
-
-                  <Form.Control
-                    as='textarea'
-                    className='desc-notes'
-                    onChange={(element) => handleChangeRefundDescription(element)}
-                  />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'></div>
-            </div>
-
-            <div className='row'>
-              <div className='col-xxl-4'>
-                <div className='complaint-information mb-5'>
-                  <h4>Tanggal Approve Refund : </h4>
-                  <Form.Control
-                    type='date'
-                    min={today}
-                    className='w-75'
-                    onChange={(element) => handleChangeApproveRefundDate(element)}
-                  />
-                </div>
-
-                <div className='complaint-information'>
-                  <h4>Nomor Approval : </h4>
-                  <Form.Control
-                    type='number'
-                    className='w-75'
-                    onChange={(element) => handleChangeApprovalNumber(element)}
-                  />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'>
-                <div className='complaint-information'>
-                  <h4>Notes</h4>
-                  <Form.Control
-                    as='textarea'
-                    className='desc-notes'
-                    onChange={(element) => handleChangeRefundNotes(element)}
-                  />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'>
-                <div className='row'>
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Customer</h4>
-                    <h4 className='mb-5'>Input Voucher</h4>
-
-                    <Form.Control
-                      type='text'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangeRefundVoucher(element)}
-                    />
-
-                    {/* <CreatableSelect
-                      className='mt-5 mb-5'
-                      components={components}
-                      inputValue={inputValue}
-                      isClearable
-                      isMulti
-                      menuIsOpen={false}
-                      onChange={(newValue) => setValue(newValue)}
-                      onInputChange={(newValue) => setInputValue(newValue)}
-                      onKeyDown={handleKeyDown}
-                      placeholder='Input Kode Voucher dan Pencet Enter'
-                      value={value}
-                    /> */}
-
-                    <Button variant='primary'>Voucher</Button>
-                  </div>
-
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Vendor</h4>
-                    <h4 className='mb-2'>Input Nominal Denda</h4>
-
-                    <Form.Control
-                      type='number'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangePenaltyAmount(element)}
-                    />
-
-                    <Button variant='danger'>Penalty</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className='title'>
+            <h1 className='text-uppercase'>formulir reschedule</h1>
           </div>
 
-          <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelRefund}>
-              Cancel
-            </Button>
+          <Form.Group className='detail-info mb-3'>
+            <Form.Label column md='6'>
+              Tanggal Request Survey/Pekerjaan :
+            </Form.Label>
 
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitNewRefund}>
-              Submit Refund
+            <Col md={6}>
+              <p className='fs-3'>
+                {orderDetail?.request_survey
+                  ? formatDate(new Date(orderDetail?.request_survey))
+                  : ''}
+              </p>
+            </Col>
+          </Form.Group>
+
+          <Form.Group className='detail-info mb-3'>
+            <Form.Label column md='6'>
+              Tanggal Reschedule :
+            </Form.Label>
+
+            <Col md={6}>
+              <Form.Control
+                name='reschedule_date'
+                type='date'
+                min={today}
+                onChange={(e) => RescheduleFormHandler(e)}
+              />
+            </Col>
+          </Form.Group>
+
+          <div className='d-flex justify-content-center mt-5'>
+            <Button variant='dark-primary' type='submit' onClick={handleSubmitReschedule}>
+              Save Update
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }
 
-export {NewRefundHO}
+export {NewReschedule}

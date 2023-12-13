@@ -180,7 +180,21 @@
 
 /* Button Action */
 
-#update-work-order-tukang button.btn.btn-button-dark-primary {
+#update-work-order-tukang button.btn.btn-btn-jasa.button-dark-primary {
+  width: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 43px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 5px;
+  background-color: #183383;
+  color: white;
+}
+
+#update-work-order-tukang button.btn.btn-btn-material.button-dark-primary {
   width: 200px;
   display: flex;
   justify-content: center;

@@ -312,7 +312,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>
-                    {complaintDetail?.orders.store.store_name}
+                    {complaintDetail?.orders?.store?.store_name ?? '-'}
                   </span>
                 </Form.Label>
                 <br></br>
@@ -486,6 +486,24 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty mb-2'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+
+              <Form.Group as={Row} className='mb-3' controlId='formPlaintextEmail'>
+                <Form.Label column sm='3'>
+                  Tanggal request pemasangan :
+                </Form.Label>
+                <Col sm='9'>
+                  <Form.Control
+                    type='text'
+                    plaintext
+                    readOnly
+                    value={
+                      complaintDetail
+                        ? formatDate(new Date(complaintDetail?.orders?.request_survey))
+                        : ''
+                    }
+                  />
+                </Col>
+              </Form.Group>
             </div>
 
             <div className='table-warranty-content'>
@@ -511,8 +529,8 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                   {complaintDetail?.orders.m_order_details.map((item: any, index: any) => (
                     <>
                       <tr key={`${index} - detail-order`}>
-                        <td>{item?.item_id}</td>
-                        <td>{item?.item_name}</td>
+                        <td>{item?.item_code ?? '-'}</td>
+                        <td>{item?.item_name ?? '-'}</td>
                         <td>{item?.item?.service_name ?? '-'}</td>
                         <td>{item?.quantity}</td>
                         {!(
