@@ -172,6 +172,10 @@ export * from './admin-ho/sales/update_sales/UpdateSales'
 // View Sales
 export * from './admin-ho/sales/view_sales/ViewSales'
 
+// STORE
+// List Store
+export * from './admin-ho/stores/list_store/ListStore'
+
 // VENDOR
 // View Vendor
 export * from './admin-ho/vendor/view_vendor/ViewVendor'

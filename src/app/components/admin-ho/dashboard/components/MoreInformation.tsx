@@ -70,7 +70,7 @@ const MoreInformation: React.FC<Props> = ({className, orderData}) => {
               <h1 className='fw-normal text-center' style={{fontSize: '25px'}}>
                 {getStatusCount(orderData, 'REWORKEND')}
               </h1>
-              <p className='fs-6 text-success text-center mt-1 mb-1'>RESOLVE</p>
+              <p className='fs-6 text-success text-center mt-1 mb-1'>RESOLVED</p>
             </div>
           </div>
         </div>

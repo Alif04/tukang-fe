@@ -30,7 +30,8 @@ const initialStatusState = {
   survey: 0,
   onProgress: 0,
   complete: 0,
-  reschedule: 0,
+  waitingSurvey: 0,
+  waitingQuotation: 0,
   waitingPayment: 0,
 }
 
@@ -40,10 +41,11 @@ type StatusToStateMap = {
 
 const statusToStateMap: StatusToStateMap = {
   PICKLIST: 'totalOrder',
-  SURVEYREQ: 'survey',
+  SURVEYSTART: 'survey',
   WIP: 'onProgress',
   SURVEYDONE: 'complete',
-  RESCHEDULE: 'reschedule',
+  SURVEYREQ: 'waitingSurvey',
+  QUOTEIN: 'waitingQuotation',
   WORKRELATED: 'waitingPayment',
 }
 
@@ -190,7 +192,15 @@ const DashboardHO: FC = () => {
     }
   }, [orderList])
 
-  const {totalOrder, survey, onProgress, complete, reschedule, waitingPayment} = statusState
+  const {
+    totalOrder,
+    survey,
+    onProgress,
+    complete,
+    waitingSurvey,
+    waitingQuotation,
+    waitingPayment,
+  } = statusState
 
   // Province Data
   const provinces = [
@@ -234,7 +244,7 @@ const DashboardHO: FC = () => {
   return (
     <section id='dashboard-ho'>
       <Row>
-        <Col xxl={6} xl={6} lg={12} className='mb-5'>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
           <Row>
             <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
@@ -251,7 +261,19 @@ const DashboardHO: FC = () => {
                   options={store}
                   onChange={(element) => handleChangeSelectStore(element)}
                 />
+              </div>
+            </Col>
+          </Row>
+        </Col>
 
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+          <Row>
+            <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
+              <h3 className='title-header fs-5 fw-normal'>Pilih Zona</h3>
+            </Col>
+
+            <Col xxl={8} xl={8} lg={12}>
+              <div className='d-flex'>
                 <Select
                   name='province_id'
                   className='form-control p-0'
@@ -266,7 +288,7 @@ const DashboardHO: FC = () => {
           </Row>
         </Col>
 
-        <Col xxl={6} xl={6} lg={12} className='mb-5'>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
           <Row>
             <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
@@ -330,15 +352,28 @@ const DashboardHO: FC = () => {
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{reschedule}</h1>
-                    <p className='fs-6 text-danger text-center'>Reschedule</p>
+                    <h1 className='fw-normal'>{waitingSurvey}</h1>
+                    <p className='fs-6 text-brown  fw-bold  text-center'>
+                      Menunggu <br></br> Survey
+                    </p>
+                  </div>
+                </Col>
+
+                <Col className='mb-5'>
+                  <div className='d-flex flex-column align-items-center gap-2'>
+                    <h1 className='fw-normal'>{waitingQuotation}</h1>
+                    <p className='fs-6 text-brown  fw-bold  text-center'>
+                      Menunggu <br></br> Quotation
+                    </p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{waitingPayment}</h1>
-                    <p className='fs-6 text-brown fw-bold text-center'>Menunggu Bayar</p>
+                    <p className='fs-6 text-brown fw-bold text-center'>
+                      Menunggu <br></br> Bayar
+                    </p>
                   </div>
                 </Col>
               </Row>

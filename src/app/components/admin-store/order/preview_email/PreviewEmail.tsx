@@ -59,10 +59,17 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 />
 
                 <div className='address'>
-                  <h3 className='fs-1 fw-bolder text-uppercase'>
-                    {orderDetail?.store?.store_name}
+                  <h2 className='fs-1 text-uppercase fw-semibold mb-2'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </h2>
+                  <h3 className='fw-normal'>{orderDetail?.store?.address ?? ''}</h3>
+                  <h3 className='fw-normal'>
+                    {`Telp : ${
+                      orderDetail?.store?.phone_number_1 ??
+                      orderDetail?.store?.phone_number_2 ??
+                      'Nomor telepon belum tersedia'
+                    }`}
                   </h3>
-                  <h3 className='fw-normal'>{orderDetail?.store?.address}</h3>
                 </div>
               </div>
             </div>
@@ -216,9 +223,9 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
             <div className='payment-method'>
               <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
 
-              <h3 className='fw-normal'>BANK BCA</h3>
-              <h3 className='fw-normal'>PT.MITRA10</h3>
-              <h3 className='fw-normal'>123-876-90</h3>
+              <h3 className='fw-normal'>{orderDetail?.store?.bank_account}</h3>
+              <h3 className='fw-normal'>{orderDetail?.store?.bank_name}</h3>
+              <h3 className='fw-normal'>{orderDetail?.store?.bank_number}</h3>
             </div>
 
             <div className='payment-method'>
@@ -285,8 +292,18 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
 
             <div className='payment-evidence'>
               <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>WA : 0813748392</h1>
-              <h1 className='fw-bolder'>Email : Installation.support@mitra10.com</h1>
+              <h1 className='fw-bolder'>
+                {`Telp : ${
+                  orderDetail?.store?.phone_number_1 ??
+                  orderDetail?.store?.phone_number_2 ??
+                  'Nomor telepon belum tersedia'
+                }`}
+              </h1>
+              <h1 className='fw-bolder'>
+                {`Email : ${
+                  orderDetail?.store?.email ?? orderDetail?.store?.email ?? 'Email belum tersedia'
+                }`}
+              </h1>
             </div>
 
             <h1 className='fw-bolder'>
