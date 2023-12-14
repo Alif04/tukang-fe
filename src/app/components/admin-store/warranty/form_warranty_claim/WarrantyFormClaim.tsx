@@ -322,10 +322,10 @@ const WarrantyFormClaim = () => {
                   {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
                       <tr key={`${index} - order_detail`}>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
-                        <td>{item?.item?.service_name}</td>
-                        <td>{item?.quantity}</td>
+                        <td>{item?.item_code ?? '-'}</td>
+                        <td>{item?.item_name ?? '-'}</td>
+                        <td>{item?.item?.service_name ?? '-'}</td>
+                        <td>{item?.quantity ?? '-'}</td>
                         {!(
                           orderDetail?.payment_type === 'gratis' ||
                           orderDetail?.payment_type === 'survey'

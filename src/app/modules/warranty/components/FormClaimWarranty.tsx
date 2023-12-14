@@ -9,7 +9,11 @@ const ClaimWarrantyForm: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Admin HO' ? (
+      {userRole === 'Store CS' ? (
+        <>
+          <WarrantyFormClaim />
+        </>
+      ) : userRole === 'Admin HO' ? (
         <>
           <WarrantyFormClaim />
         </>
