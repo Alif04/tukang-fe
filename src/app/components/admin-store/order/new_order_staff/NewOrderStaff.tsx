@@ -959,8 +959,7 @@ const NewOrderStoreStaff: FC = () => {
             </Table>
 
             <Form.Text className='fs-8 fs-l text-dark-danger'>
-              *Usahakan agar penulisan Item code dan Item Name sama persis dengan yang tercantum di
-              NAV
+              *Penulisan Item code dan Item Name sama persis dengan yang tercantum di NAV
             </Form.Text>
           </div>
 

@@ -13,7 +13,9 @@ import {Form, Row, Col, Table, Button} from 'react-bootstrap'
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
-const WarrantyFormClaimVendor = () => {
+const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -46,6 +48,7 @@ const WarrantyFormClaimVendor = () => {
         .then((response) => {
           const data = response.data.data
           setOrderDetail(data)
+          updatePageTitle(data)
 
           if (data?.work_orders?.work_order_tukang) {
             const tukang = data.work_orders.work_order_tukang.map((item: any) => ({

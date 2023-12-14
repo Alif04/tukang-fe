@@ -101,21 +101,25 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
-                    Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
+                    Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id ?? ''}</span>
                   </Form.Label>
                 </Col>
 
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
                     Work Order ID :{' '}
-                    <span className='fs-4 ms-2 fw-normal'>{orderDetail?.work_orders.id}</span>
+                    <span className='fs-4 ms-2 fw-normal'>
+                      {orderDetail?.work_orders?.id ?? ''}
+                    </span>
                   </Form.Label>
                 </Col>
               </Col>
@@ -124,7 +128,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
                     Receipt Number :
-                    <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
+                    <span className='fs-4 ms-2 fw-normal'>
+                      {orderDetail?.receipt_number ?? '-'}
+                    </span>
                   </Form.Label>
                 </Col>
 
@@ -132,7 +138,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {orderDetail?.status?.category}
+                      {orderDetail?.status?.category ?? ''}
                     </span>
                   </Form.Label>
                 </Col>
@@ -149,7 +155,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.members?.member_number}</p>
+                        <p className='fs-7'>{orderDetail?.members?.member_number ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -158,7 +164,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.members?.full_name}</p>
+                        <p className='fs-7'>{orderDetail?.members?.full_name ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -167,7 +173,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Alamat Pemasangan :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.project_address}</p>
+                        <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -178,7 +184,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='7'>
-                        <p className='fs-7'>{orderDetail?.project_number}</p>
+                        <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -187,7 +193,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Alamat Email :
                       </Form.Label>
                       <Col sm='7'>
-                        <p className='fs-7'>{orderDetail?.members?.email} </p>
+                        <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -206,7 +212,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <Form.Control
                           type='date'
                           readOnly
-                          value={formatDate(new Date(orderDetail?.work_orders.survey_date))}
+                          value={formatDate(new Date(orderDetail?.work_orders?.survey_date ?? ''))}
                         />
                       </Form.Group>
                     </Col>
@@ -274,7 +280,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
+                  {/* {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
                       <tr>
                         <td>{item?.item_code}</td>
@@ -285,29 +291,29 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
                       </tr>
                     </>
-                  ))}
+                  ))} */}
 
-                  {/* {orderDetail?.work_orders.work_order_status[0].work_order_items.map(
+                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                     (item: any, index: any) => (
                       <>
                         <tr>
-                          <td>{item?.item_id || '-'}</td>
-                          <td>{item?.item || '-'}</td>
-                          <td>{item?.name}</td>
-                          <td>{item?.quantity}</td>
-                          <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                          <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                          <td>{item?.item_id ?? '-'}</td>
+                          <td>{item?.item ?? '-'}</td>
+                          <td>{item?.name ?? '-'}</td>
+                          <td>{item?.quantity ?? 0}</td>
+                          <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString('id')}`}</td>
+                          <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
                         </tr>
                       </>
                     )
-                  )} */}
+                  )}
 
                   <tr>
                     <td colSpan={5} className='text-end fw-bolder'>
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>
-                      {`Rp. ${parseInt(orderDetail?.grand_total || 0).toLocaleString('id')}`}
+                      {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
                     </td>
                   </tr>
                 </tbody>

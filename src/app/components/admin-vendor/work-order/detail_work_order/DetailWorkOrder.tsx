@@ -101,14 +101,16 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{orderDetail?.store.store_name}</span>
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
-                    Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
+                    Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id ?? ''}</span>
                   </Form.Label>
                 </Col>
 
@@ -126,7 +128,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
                     Receipt Number :
-                    <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number}</span>
+                    <span className='fs-4 ms-2 fw-normal'>
+                      {orderDetail?.receipt_number ?? '-'}
+                    </span>
                   </Form.Label>
                 </Col>
 
@@ -134,7 +138,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {orderDetail?.status?.category}
+                      {orderDetail?.status?.category ?? ''}
                     </span>
                   </Form.Label>
                 </Col>
@@ -151,7 +155,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.members?.member_number}</p>
+                        <p className='fs-7'>{orderDetail?.members?.member_number ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -160,7 +164,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.members?.full_name}</p>
+                        <p className='fs-7'>{orderDetail?.members?.full_name ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -169,7 +173,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Alamat Pemasangan :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.project_address}</p>
+                        <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -180,7 +184,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='7'>
-                        <p className='fs-7'>{orderDetail?.project_number}</p>
+                        <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -189,7 +193,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Alamat Email :
                       </Form.Label>
                       <Col sm='7'>
-                        <p className='fs-7'>{orderDetail?.members?.email} </p>
+                        <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -293,12 +297,12 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     (item: any, index: any) => (
                       <>
                         <tr>
-                          <td>{item?.item_id || '-'}</td>
-                          <td>{item?.item || '-'}</td>
-                          <td>{item?.name}</td>
-                          <td>{item?.quantity}</td>
-                          <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                          <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                          <td>{item?.item_id ?? '-'}</td>
+                          <td>{item?.item ?? '-'}</td>
+                          <td>{item?.name ?? '-'}</td>
+                          <td>{item?.quantity ?? '-'}</td>
+                          <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString('id')}`}</td>
+                          <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
                         </tr>
                       </>
                     )
@@ -309,7 +313,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       Grand Total
                     </td>
                     <td className=' fw-bolder'>
-                      {`Rp. ${parseInt(orderDetail?.grand_total || 0).toLocaleString('id')}`}
+                      {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
                     </td>
                   </tr>
                 </tbody>

@@ -70,6 +70,8 @@ const ViewSalesHO: React.FC = () => {
       align: 'center',
       width: 70,
       className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.sales_id - b.sales_id,
     },
     {
       title: 'Assign From Store',
@@ -77,6 +79,8 @@ const ViewSalesHO: React.FC = () => {
       key: 'store_name',
       align: 'left',
       width: 140,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
     {
       title: 'Nama Sales',
@@ -84,6 +88,8 @@ const ViewSalesHO: React.FC = () => {
       key: 'full_name',
       align: 'left',
       width: 140,
+      onFilter: (value, record) => record.full_name.includes(String(value)),
+      sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
     {
       title: 'NIK',
@@ -91,6 +97,7 @@ const ViewSalesHO: React.FC = () => {
       key: 'nik',
       align: 'left',
       width: 120,
+      sorter: (a, b) => a.nik - b.nik,
     },
     {
       title: 'Brand Sales',
@@ -98,6 +105,8 @@ const ViewSalesHO: React.FC = () => {
       key: 'sales_brand',
       align: 'left',
       width: 120,
+      onFilter: (value, record) => record.sales_brand.includes(String(value)),
+      sorter: (a, b) => a.sales_brand.length - b.sales_brand.length,
     },
     {
       title: 'Kategori Sales',
@@ -105,6 +114,9 @@ const ViewSalesHO: React.FC = () => {
       key: 'sales_category',
       align: 'left',
       width: 120,
+
+      onFilter: (value, record) => record.sales_category.includes(String(value)),
+      sorter: (a, b) => a.sales_category.length - b.sales_category.length,
     },
     {
       title: 'Status',
@@ -112,6 +124,12 @@ const ViewSalesHO: React.FC = () => {
       key: 'is_active',
       align: 'left',
       width: 110,
+      onFilter: (value, record) => record.is_active.includes(String(value)),
+      sorter: (a, b) => a.is_active.length - b.is_active.length,
+      filters: [
+        {text: 'ACTIVE', value: 'ACTIVE'},
+        {text: 'INACTIVE', value: 'INACTIVE'},
+      ],
     },
     {
       title: 'Action',
@@ -123,11 +141,6 @@ const ViewSalesHO: React.FC = () => {
           navigate('/sales/new-sales')
         }
 
-        // const handleDetailId = () => {
-        //   const id = record.sales_id
-        //   navigate(`/vendor/detail-vendor/${id}`)
-        // }
-
         const handleUpdateId = () => {
           const id = record.sales_id
           navigate(`/sales/update-sales/${id}`)
@@ -137,7 +150,7 @@ const ViewSalesHO: React.FC = () => {
           const id = record.sales_id
 
           Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Sales ini ?`,
+            title: `Apakah anda yakin akan mengubah status Sales ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -187,11 +200,6 @@ const ViewSalesHO: React.FC = () => {
             <a className='button-add' onClick={handleNewSales}>
               <FontAwesomeIcon icon={faUserPlus} size='sm' className='text-black' />
             </a>
-
-            {/* 
-            <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a> */}
 
             <a className='button-edit' onClick={handleUpdateId}>
               <FontAwesomeIcon icon={faPen} size='sm' />

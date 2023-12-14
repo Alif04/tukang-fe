@@ -18,11 +18,13 @@ const {RangePicker} = DatePicker
 interface StoreItem {
   value: number | null
   label: string
+  city_id: number | null
 }
 
 interface ProvinceItem {
   value: number | null
   label: string
+  city_id: number | null
 }
 
 const initialStatusState = {
@@ -61,20 +63,34 @@ const DashboardHO: FC = () => {
 
   const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
   const [store, setStore] = useState<StoreItem[]>([])
   const [province, setProvince] = useState<ProvinceItem[]>([])
-  const [searchByStore, setSearchByStore] = useState<any>('')
-  const [searchByProvince, setSearchByProvince] = useState<any>('')
 
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    setSearchByStore(updatedStoreId)
-  }
+  const [selectedStore, setSelectedStore] = useState<any>({
+    value: null,
+    label: 'All Store',
+    city_id: null,
+  })
 
-  const handleChangeSelectProvince = (element: any) => {
-    const updatedProvinceId = element.value
-    setSearchByStore(updatedProvinceId)
-  }
+  const [selectedZone, setSelectedZone] = useState<any>({
+    value: null,
+    label: 'All Zona',
+    city_id: null,
+  })
+
+  const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
+
+  useEffect(() => {
+    const selectedStoreCityId = selectedStore?.city_id
+    const filteredProvinces = provinces.filter((item) => item.city_id === selectedStoreCityId)
+
+    if (filteredProvinces.length === 1) {
+      setSelectedZone(filteredProvinces[0])
+    } else {
+      setSelectedZone({value: null, label: 'All Zona', city_id: null})
+    }
+  }, [selectedStore])
 
   const fetchOrderList = async () => {
     try {
@@ -140,6 +156,10 @@ const DashboardHO: FC = () => {
   useEffect(() => {
     const getStore = async () => {
       try {
+        const url = !selectedZone.value
+          ? `${apiUrl}/stores`
+          : `${apiUrl}/stores?city_id=${selectedZone.value}`
+
         const response = await axios.get(`${apiUrl}/stores`, {
           headers: {
             Accept: 'application/json',
@@ -153,6 +173,7 @@ const DashboardHO: FC = () => {
           const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
+            city_id: item.city_id,
           }))
 
           setStore(tempStore)
@@ -166,6 +187,47 @@ const DashboardHO: FC = () => {
 
     getStore()
   }, [])
+
+  // Province Data
+  const provinces = [
+    {value: 1, label: 'Aceh', city_id: 1},
+    {value: 2, label: 'Bali', city_id: 2},
+    {value: 3, label: 'Bangka Belitung', city_id: 3},
+    {value: 4, label: 'Banten', city_id: 4},
+    {value: 5, label: 'Bengkulu', city_id: 5},
+    {value: 6, label: 'DI Yogyakarta', city_id: 6},
+    {value: 7, label: 'DKI Jakarta', city_id: 7},
+    {value: 8, label: 'Gorontalo', city_id: 8},
+    {value: 9, label: 'Jambi', city_id: 9},
+    {value: 10, label: 'Jawa Barat', city_id: 10},
+    {value: 11, label: 'Jawa Tengah', city_id: 11},
+    {value: 12, label: 'Jawa Timur', city_id: 12},
+    {value: 13, label: 'Kalimantan Barat', city_id: 13},
+    {value: 14, label: 'Kalimantan Selatan', city_id: 14},
+    {value: 15, label: 'Kalimantan Tengah', city_id: 15},
+    {value: 16, label: 'Kalimantan Timur', city_id: 16},
+    {value: 17, label: 'Kalimantan Utara', city_id: 17},
+    {value: 18, label: 'Kepulauan Bangka Belitung', city_id: 18},
+    {value: 19, label: 'Kepulauan Riau', city_id: 19},
+    {value: 20, label: 'Lampung', city_id: 20},
+    {value: 21, label: 'Maluku', city_id: 21},
+    {value: 22, label: 'Maluku Utara', city_id: 22},
+    {value: 23, label: 'Nusa Tenggara Barat', city_id: 23},
+    {value: 24, label: 'Nusa Tenggara Timur', city_id: 24},
+    {value: 25, label: 'Papua', city_id: 25},
+    {value: 26, label: 'Papua Barat', city_id: 26},
+    {value: 27, label: 'Riau', city_id: 27},
+    {value: 28, label: 'Sulawesi Barat', city_id: 28},
+    {value: 29, label: 'Sulawesi Selatan', city_id: 29},
+    {value: 30, label: 'Sulawesi Tengah', city_id: 30},
+    {value: 31, label: 'Sulawesi Tenggara', city_id: 31},
+    {value: 32, label: 'Sulawesi Utara', city_id: 32},
+    {value: 33, label: 'Sumatera Barat', city_id: 33},
+    {value: 34, label: 'Sumatera Selatan', city_id: 34},
+    {value: 35, label: 'Sumatera Utara', city_id: 35},
+  ]
+
+  const provinceOptions = [{value: null, label: 'All Zona', city_id: null}, ...provinces]
 
   // Catch Value From Response API by Status
   const [statusState, setStatusState] = useState(initialStatusState)
@@ -202,45 +264,6 @@ const DashboardHO: FC = () => {
     waitingPayment,
   } = statusState
 
-  // Province Data
-  const provinces = [
-    {value: 'aceh', label: 'Aceh'},
-    {value: 'bali', label: 'Bali'},
-    {value: 'bangka_belitung', label: 'Bangka Belitung'},
-    {value: 'banten', label: 'Banten'},
-    {value: 'bengkulu', label: 'Bengkulu'},
-    {value: 'di_yogyakarta', label: 'DI Yogyakarta'},
-    {value: 'dki_jakarta', label: 'DKI Jakarta'},
-    {value: 'gorontalo', label: 'Gorontalo'},
-    {value: 'jambi', label: 'Jambi'},
-    {value: 'jawa_barat', label: 'Jawa Barat'},
-    {value: 'jawa_tengah', label: 'Jawa Tengah'},
-    {value: 'jawa_timur', label: 'Jawa Timur'},
-    {value: 'kalimantan_barat', label: 'Kalimantan Barat'},
-    {value: 'kalimantan_selatan', label: 'Kalimantan Selatan'},
-    {value: 'kalimantan_tengah', label: 'Kalimantan Tengah'},
-    {value: 'kalimantan_timur', label: 'Kalimantan Timur'},
-    {value: 'kalimantan_utara', label: 'Kalimantan Utara'},
-    {value: 'kepulauan_bangka_belitung', label: 'Kepulauan Bangka Belitung'},
-    {value: 'kepulauan_riau', label: 'Kepulauan Riau'},
-    {value: 'lampung', label: 'Lampung'},
-    {value: 'maluku', label: 'Maluku'},
-    {value: 'maluku_utara', label: 'Maluku Utara'},
-    {value: 'nusa_tenggara_barat', label: 'Nusa Tenggara Barat'},
-    {value: 'nusa_tenggara_timur', label: 'Nusa Tenggara Timur'},
-    {value: 'papua', label: 'Papua'},
-    {value: 'papua_barat', label: 'Papua Barat'},
-    {value: 'riau', label: 'Riau'},
-    {value: 'sulawesi_barat', label: 'Sulawesi Barat'},
-    {value: 'sulawesi_selatan', label: 'Sulawesi Selatan'},
-    {value: 'sulawesi_tengah', label: 'Sulawesi Tengah'},
-    {value: 'sulawesi_tenggara', label: 'Sulawesi Tenggara'},
-    {value: 'sulawesi_utara', label: 'Sulawesi Utara'},
-    {value: 'sumatera_barat', label: 'Sumatera Barat'},
-    {value: 'sumatera_selatan', label: 'Sumatera Selatan'},
-    {value: 'sumatera_utara', label: 'Sumatera Utara'},
-  ]
-
   return (
     <section id='dashboard-ho'>
       <Row>
@@ -258,8 +281,9 @@ const DashboardHO: FC = () => {
                   classNamePrefix='select'
                   placeholder='Pilih Toko'
                   isSearchable={true}
-                  options={store}
-                  onChange={(element) => handleChangeSelectStore(element)}
+                  options={storeOptions}
+                  value={selectedStore}
+                  onChange={(newValue) => setSelectedStore(newValue)}
                 />
               </div>
             </Col>
@@ -280,8 +304,9 @@ const DashboardHO: FC = () => {
                   classNamePrefix='select'
                   placeholder='Pilih Zona'
                   isSearchable={true}
-                  options={provinces}
-                  onChange={(element) => handleChangeSelectProvince(element)}
+                  options={provinceOptions}
+                  value={selectedZone}
+                  onChange={(newValue) => setSelectedZone(newValue)}
                 />
               </div>
             </Col>
@@ -383,58 +408,28 @@ const DashboardHO: FC = () => {
       </Row>
 
       <Row>
-        {/* <Col xxl={7}>
-          <Col>
-            <Row className='g-5 g-xl-8 mb-5'>
-              <Col xl={6}>
-                <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
-              </Col>
-
-              <Col xl={6}>
-                <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
-              </Col>
-            </Row>
-          </Col>
-
-          <Col>
-            <Row className='g-5 g-xl-8 mb-5'>
-              <Col xl={6}>
-                <ChartBarOrder className='card-xl-stretch mb-xl-8' />
-              </Col>
-
-              <Col xl={6}>
-                <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
-              </Col>
-            </Row>
-          </Col>
+        <Col lg={4} md={12} className='mb-5'>
+          <MoreInformation className='card-xl-stretch' orderData={orderData} />
         </Col>
 
-        <Col xxl={5}>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
-        </Col> */}
-
-        <Col lg={4} md={12} className='mb-3'>
-          <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
+        <Col lg={4} md={12} className='mb-5'>
+          <ChartBarSurvey className='card-xl-stretch' />
         </Col>
 
-        <Col lg={4} md={12} className='mb-3'>
-          <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
-        </Col>
-
-        <Col lg={4} md={12} className='mb-3'>
-          <ChartBarOrder className='card-xl-stretch mb-xl-8' />
+        <Col lg={4} md={12} className='mb-5'>
+          <ChartBarOrder className='card-xl-stretch' />
         </Col>
       </Row>
 
-      <Row className='g-5 g-xl-8 mb-5'>
+      <Row className='mb-5'>
         <Col md={12}>
-          <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
+          <ChartBarPerformance className='card-xl-stretch' />
         </Col>
       </Row>
 
-      <Row className='g-5 g-xl-8 mb-5'>
+      <Row className='mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
+          <TableList className='card-xl-stretch' orderData={orderData} />
         </Col>
       </Row>
     </section>

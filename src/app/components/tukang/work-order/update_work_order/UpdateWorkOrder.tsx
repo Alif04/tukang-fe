@@ -430,7 +430,16 @@ const UpdateWorkTukang: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: Status) =>
-      ['SURVEYED', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(status.category)
+      [
+        'SURVEYSTART',
+        'SURVEYED',
+        'SURVEYEND',
+        'WIP',
+        'WORKEND',
+        'RIP',
+        'REWORKEND',
+        'RESCHEDULE',
+      ].includes(status.category)
     )
 
     const selectedStatus = desiredStatus.map((status: Status) => ({
@@ -509,7 +518,7 @@ const UpdateWorkTukang: FC = () => {
                   </Form.Label>
 
                   <Col sm='8'>
-                    <Form.Control plaintext readOnly value={orderDetail?.store.store_name} />
+                    <Form.Control plaintext readOnly value={orderDetail?.store?.store_name ?? ''} />
                   </Col>
                 </Form.Group>
               </Row>
@@ -522,7 +531,7 @@ const UpdateWorkTukang: FC = () => {
                     </Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control readOnly value={orderDetail?.id} />
+                      <Form.Control readOnly value={orderDetail?.id ?? ''} />
                     </Col>
                   </Form.Group>
 
@@ -533,19 +542,19 @@ const UpdateWorkTukang: FC = () => {
 
                     <div className='detail-information'>
                       <div className='costumer-name  mb-3'>
-                        <p className='fs-4 fw-bold '>{orderDetail?.members.full_name}</p>
+                        <p className='fs-4 fw-bold '>{orderDetail?.members?.full_name ?? ''}</p>
                       </div>
 
                       <div className='telp mb-3'>
-                        <p className='fs-5'> {orderDetail?.project_number}</p>
+                        <p className='fs-5'> {orderDetail?.project_number ?? ''}</p>
                       </div>
 
                       <div className='email mb-3'>
-                        <p className='fs-5'>{orderDetail?.members.email}</p>
+                        <p className='fs-5'>{orderDetail?.members?.email ?? ''}</p>
                       </div>
 
                       <div className='alamat-pemasangan d-flex mb-3'>
-                        <p className='fs-5'>{orderDetail?.project_address}</p>
+                        <p className='fs-5'>{orderDetail?.project_address ?? ''}</p>
                       </div>
                     </div>
                   </div>
@@ -646,7 +655,7 @@ const UpdateWorkTukang: FC = () => {
 
                     <div className='detail-information'>
                       <div className='order-name  mb-3'>
-                        {orderDetail?.work_orders?.work_order_status[0].work_order_items.map(
+                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                           (item: any) => (
                             <p className='fs-5 me-5'>{item?.name ?? '-'}</p>
                           )

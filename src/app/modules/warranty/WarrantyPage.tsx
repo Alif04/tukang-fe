@@ -16,7 +16,7 @@ const warrantyBreadCrumbs: Array<PageLink> = [
   },
 ]
 
-const OrderPage: React.FC = () => {
+const WarrantyPage: React.FC = () => {
   const userRole = localStorage.getItem('userRole')
 
   return (
@@ -57,7 +57,6 @@ const OrderPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={warrantyBreadCrumbs}>FORMULIR CLAIM</PageTitle>
             <ClaimWarrantyForm />
           </>
         }
@@ -68,4 +67,4 @@ const OrderPage: React.FC = () => {
   )
 }
 
-export default OrderPage
+export default WarrantyPage

@@ -1,5 +1,11 @@
-#more-information-ho .card .card-body {
+/* #more-information-ho .card .card-body {
   min-height: 390px;
+} */
+
+@media screen and (max-width: 1420px) {
+  #more-information-ho .hidden-column {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 1200px) {

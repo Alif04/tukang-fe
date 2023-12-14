@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './WarrantyFormClaim.css'
 
@@ -7,7 +7,7 @@ import {useNavigate, useParams} from 'react-router-dom'
 import Swal from 'sweetalert2'
 import {Form, Row, Col, Table, Button} from 'react-bootstrap'
 
-const WarrantyFormClaim = () => {
+const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
@@ -30,6 +30,7 @@ const WarrantyFormClaim = () => {
         .then((response) => {
           const data = response.data.data
           setOrderDetail(data)
+          updatePageTitle(data)
 
           if (data?.id) {
             setOrderId(data.id)

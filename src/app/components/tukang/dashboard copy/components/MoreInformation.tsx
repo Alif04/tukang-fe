@@ -24,7 +24,7 @@ const MoreInformation: React.FC<Props> = ({className, orderData}) => {
               <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
                 {getStatusCount(orderData, 'WARRANTYCLAIM')}
               </h1>
-              <p className='fs-6 text-danger text-center mt-1 mb-1'>GARANSI AKTIF ( RESOLVE )</p>
+              <p className='fs-6 text-danger text-center mt-1 mb-1'>GARANSI AKTIF</p>
             </div>
 
             <div className='col pt-5 pb-5'>
