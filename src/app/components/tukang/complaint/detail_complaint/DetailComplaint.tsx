@@ -16,6 +16,11 @@ interface Member {
   label: string
 }
 
+interface Position {
+  value: string
+  label: string
+}
+
 const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = ({
   updatePageTitle,
 }) => {
@@ -57,7 +62,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
     }
   }
 
-  const getCostumer = async () => {
+  const getEmployees = async () => {
     try {
       const response = await axios.get(`${apiUrl}/member`, {
         headers: {
@@ -84,7 +89,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
 
   useEffect(() => {
     fetchComplaintData()
-    getCostumer()
+    getEmployees()
   }, [])
 
   // Complaint Status Approve
@@ -118,6 +123,14 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
   const [picFeedbackId, setPicFeedbackId] = useState<any>()
   const [picFeedback, setPicFeedback] = useState<Member[]>([])
   const [picFeedbackName, setPicFeedbackName] = useState<string>('')
+  const [picPosition, setPicPosition] = useState<string>('')
+
+  const picPositions = [
+    {value: 'Staff', label: 'Staff'},
+    {value: 'Supervisor', label: 'Supervisor'},
+    {value: 'Deputy Store Manager', label: 'Deputy Store Manager'},
+    {value: 'Store Manager', label: 'Store Manager'},
+  ]
 
   // Add Feedback
 
@@ -148,6 +161,15 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
 
     setPicFeedbackId(newMemberInfo.value)
     setPicFeedbackName(newMemberInfo.label)
+  }
+
+  const handlePicPositonChange = (element: Position | null) => {
+    const picPosition: Position = {
+      value: element?.value ?? '',
+      label: element?.label ?? '',
+    }
+
+    setPicPosition(picPosition.value)
   }
 
   // Handle Change Feedback Desc
@@ -751,6 +773,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
               <Form.Control
                 style={{minHeight: '170px'}}
                 as='textarea'
+                placeholder='Write a message'
                 value={feedbackDesc}
                 onChange={handleInputFeedbackDesc}
               ></Form.Control>
@@ -832,7 +855,16 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Jabatan</Form.Label>
-                <Form.Control type='text' />
+                <Select
+                  name='pic_position'
+                  id='pic_position'
+                  className='form-control p-0 form-item-name'
+                  classNamePrefix='select'
+                  placeholder='Jabatan'
+                  isSearchable={true}
+                  options={picPositions}
+                  onChange={(element) => handlePicPositonChange(element)}
+                />
               </Form.Group>
             </Col>
 

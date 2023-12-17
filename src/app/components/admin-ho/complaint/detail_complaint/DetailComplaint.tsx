@@ -6,13 +6,18 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, ListGroup, Table, Button} from 'react-bootstrap'
+import {Row, Col, Form, ListGroup, Table, Button, Modal} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface Member {
   value: any
+  label: string
+}
+
+interface Position {
+  value: string
   label: string
 }
 
@@ -55,7 +60,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
     }
   }
 
-  const getCostumer = async () => {
+  const getEmployees = async () => {
     try {
       const response = await axios.get(`${apiUrl}/member`, {
         headers: {
@@ -82,7 +87,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
 
   useEffect(() => {
     fetchComplaintData()
-    getCostumer()
+    getEmployees()
   }, [])
 
   // Complaint Status Approve
@@ -116,6 +121,14 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   const [picFeedbackId, setPicFeedbackId] = useState<any>()
   const [picFeedback, setPicFeedback] = useState<Member[]>([])
   const [picFeedbackName, setPicFeedbackName] = useState<string>('')
+  const [picPosition, setPicPosition] = useState<string>('')
+
+  const picPositions = [
+    {value: 'Staff', label: 'Staff'},
+    {value: 'Supervisor', label: 'Supervisor'},
+    {value: 'Deputy Store Manager', label: 'Deputy Store Manager'},
+    {value: 'Store Manager', label: 'Store Manager'},
+  ]
 
   // Add Feedback
 
@@ -146,6 +159,15 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
 
     setPicFeedbackId(newMemberInfo.value)
     setPicFeedbackName(newMemberInfo.label)
+  }
+
+  const handlePicPositonChange = (element: Position | null) => {
+    const picPosition: Position = {
+      value: element?.value ?? '',
+      label: element?.label ?? '',
+    }
+
+    setPicPosition(picPosition.value)
   }
 
   // Handle Change Feedback Desc
@@ -207,6 +229,19 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
     if (evidenceRef.current?.value) {
       evidenceRef.current.value = ''
     }
+  }
+
+  // Reason Rejected
+  const [showModal, setShowModal] = useState(false)
+  const [reasonRejected, setReasonRejected] = useState<string>('')
+
+  const handleShowModal = () => {
+    setShowModal(true)
+  }
+
+  const handleInputReasonReject = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setReasonRejected(updatedInputValue)
   }
 
   // Feedback Validation
@@ -628,7 +663,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                 variant='light-danger'
                 className='d-flex justify-content-center align-items-center'
                 type='submit'
-                onClick={() => handleApprovalComplaint(complaintStatusCancel)}
+                onClick={handleShowModal}
               >
                 Rejected
               </Button>
@@ -749,6 +784,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
               <Form.Control
                 style={{minHeight: '170px'}}
                 as='textarea'
+                placeholder='Write a message'
                 value={feedbackDesc}
                 onChange={handleInputFeedbackDesc}
               ></Form.Control>
@@ -830,7 +866,16 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Jabatan</Form.Label>
-                <Form.Control type='text' />
+                <Select
+                  name='pic_position'
+                  id='pic_position'
+                  className='form-control p-0 form-item-name'
+                  classNamePrefix='select'
+                  placeholder='Jabatan'
+                  isSearchable={true}
+                  options={picPositions}
+                  onChange={(element) => handlePicPositonChange(element)}
+                />
               </Form.Group>
             </Col>
 
@@ -861,6 +906,30 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
               Submit
             </Button>
           </div>
+
+          <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton></Modal.Header>
+
+            <Modal.Body>
+              <Form.Label className='fs-5 fw-bolder'>Reason Rejected :</Form.Label>
+              <Form.Group>
+                <Form.Control as='textarea' rows={3} onChange={handleInputReasonReject} />
+              </Form.Group>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant='dark-danger' onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+
+              <Button
+                variant='dark-primary'
+                onClick={() => handleApprovalComplaint(complaintStatusCancel)}
+              >
+                Submit
+              </Button>
+            </Modal.Footer>
+          </Modal>
 
           {/* <hr />
 

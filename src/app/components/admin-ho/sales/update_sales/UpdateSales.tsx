@@ -40,6 +40,7 @@ interface Sales {
   account_number: string
   sales_brands: string
   sales_categories: CategorySelect[]
+  new_password: string
 }
 
 const UpdateSales: FC = () => {
@@ -66,6 +67,7 @@ const UpdateSales: FC = () => {
     account_number: '',
     sales_brands: '',
     sales_categories: [],
+    new_password: '',
   })
 
   // Bank
@@ -137,11 +139,11 @@ const UpdateSales: FC = () => {
               //   label: item.brands.name,
               // }))
 
-              // const salesCategory = data.sales_categories.map((item: any) => ({
-              //   value: item.categories.id,
-              //   label: item.categories.category_name,
-              //   commission: item.commission,
-              // }))
+              const salesCategory = data?.sales_categories.map((item: any) => ({
+                value: item?.categories.id ?? null,
+                label: item?.categories?.category_name ?? '',
+                commission: item?.commission ?? '',
+              }))
 
               setSalesInfo((prev) => ({
                 ...prev,
@@ -150,11 +152,11 @@ const UpdateSales: FC = () => {
                 phone_number: data?.phone_number,
                 account_number: data?.account_number,
                 // sales_brands: salesBrands,
-                // sales_categories: salesCategory,
+                sales_categories: salesCategory,
               }))
 
               // setSelectedBrands(salesBrands)
-              // setCategoryForm(salesCategory)
+              setSelectedCategories(salesCategory)
             }
           })
       } catch (error) {
@@ -430,7 +432,7 @@ const UpdateSales: FC = () => {
   }
 
   const handleCancelCreateSales = () => {
-    navigate('/sales/view-sales')
+    navigate('/sales/new-sales')
   }
 
   return (
@@ -547,7 +549,7 @@ const UpdateSales: FC = () => {
             </Row>
 
             <Row>
-              <Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
                   <Form.Label>WA / Phone Number</Form.Label>
                   <Form.Control
@@ -559,7 +561,7 @@ const UpdateSales: FC = () => {
                 </Form.Group>
               </Col>
 
-              <Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
                   <Form.Label>Nama Pemilik Akun</Form.Label>
                   <Form.Control
@@ -571,7 +573,17 @@ const UpdateSales: FC = () => {
                 </Form.Group>
               </Col>
 
-              <Col></Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Reset Password</Form.Label>
+                  <Form.Control
+                    name='new_password'
+                    type='text'
+                    value={salesInfo.new_password}
+                    onChange={(e) => salesInfoFormHandler(e)}
+                  />
+                </Form.Group>
+              </Col>
             </Row>
           </div>
 

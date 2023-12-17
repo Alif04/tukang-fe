@@ -11,7 +11,7 @@ import {TableList} from './components/TableList'
 import axios from 'axios'
 import Select from 'react-select'
 import {DatePicker} from 'antd'
-import {Row, Col, Card, Form} from 'react-bootstrap'
+import {Row, Col, Card} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
@@ -21,10 +21,10 @@ interface StoreItem {
   city_id: number | null
 }
 
-interface ProvinceItem {
+interface CityItem {
   value: number | null
   label: string
-  city_id: number | null
+  province_id: number | null
 }
 
 const initialStatusState = {
@@ -65,7 +65,7 @@ const DashboardHO: FC = () => {
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [store, setStore] = useState<StoreItem[]>([])
-  const [province, setProvince] = useState<ProvinceItem[]>([])
+  const [city, setCity] = useState<CityItem[]>([])
 
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
@@ -76,17 +76,18 @@ const DashboardHO: FC = () => {
   const [selectedZone, setSelectedZone] = useState<any>({
     value: null,
     label: 'All Zona',
-    city_id: null,
+    provice_id: null,
   })
 
   const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
+  const zoneOptions = [{value: null, label: 'All Zona', province_id: null}, ...city]
 
   useEffect(() => {
     const selectedStoreCityId = selectedStore?.city_id
-    const filteredProvinces = provinces.filter((item) => item.city_id === selectedStoreCityId)
+    const filteredZone = city.filter((item) => item.value === selectedStoreCityId)
 
-    if (filteredProvinces.length === 1) {
-      setSelectedZone(filteredProvinces[0])
+    if (filteredZone.length === 1) {
+      setSelectedZone(filteredZone[0])
     } else {
       setSelectedZone({value: null, label: 'All Zona', city_id: null})
     }
@@ -185,49 +186,36 @@ const DashboardHO: FC = () => {
       }
     }
 
+    const getCity = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/city?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempCity = response.data.data.map((item: any) => ({
+            value: item?.id ?? null,
+            label: item?.city_name ?? '',
+            province_id: item?.province_id ?? null,
+          }))
+
+          setCity(tempCity)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     getStore()
+    getCity()
   }, [])
-
-  // Province Data
-  const provinces = [
-    {value: 1, label: 'Aceh', city_id: 1},
-    {value: 2, label: 'Bali', city_id: 2},
-    {value: 3, label: 'Bangka Belitung', city_id: 3},
-    {value: 4, label: 'Banten', city_id: 4},
-    {value: 5, label: 'Bengkulu', city_id: 5},
-    {value: 6, label: 'DI Yogyakarta', city_id: 6},
-    {value: 7, label: 'DKI Jakarta', city_id: 7},
-    {value: 8, label: 'Gorontalo', city_id: 8},
-    {value: 9, label: 'Jambi', city_id: 9},
-    {value: 10, label: 'Jawa Barat', city_id: 10},
-    {value: 11, label: 'Jawa Tengah', city_id: 11},
-    {value: 12, label: 'Jawa Timur', city_id: 12},
-    {value: 13, label: 'Kalimantan Barat', city_id: 13},
-    {value: 14, label: 'Kalimantan Selatan', city_id: 14},
-    {value: 15, label: 'Kalimantan Tengah', city_id: 15},
-    {value: 16, label: 'Kalimantan Timur', city_id: 16},
-    {value: 17, label: 'Kalimantan Utara', city_id: 17},
-    {value: 18, label: 'Kepulauan Bangka Belitung', city_id: 18},
-    {value: 19, label: 'Kepulauan Riau', city_id: 19},
-    {value: 20, label: 'Lampung', city_id: 20},
-    {value: 21, label: 'Maluku', city_id: 21},
-    {value: 22, label: 'Maluku Utara', city_id: 22},
-    {value: 23, label: 'Nusa Tenggara Barat', city_id: 23},
-    {value: 24, label: 'Nusa Tenggara Timur', city_id: 24},
-    {value: 25, label: 'Papua', city_id: 25},
-    {value: 26, label: 'Papua Barat', city_id: 26},
-    {value: 27, label: 'Riau', city_id: 27},
-    {value: 28, label: 'Sulawesi Barat', city_id: 28},
-    {value: 29, label: 'Sulawesi Selatan', city_id: 29},
-    {value: 30, label: 'Sulawesi Tengah', city_id: 30},
-    {value: 31, label: 'Sulawesi Tenggara', city_id: 31},
-    {value: 32, label: 'Sulawesi Utara', city_id: 32},
-    {value: 33, label: 'Sumatera Barat', city_id: 33},
-    {value: 34, label: 'Sumatera Selatan', city_id: 34},
-    {value: 35, label: 'Sumatera Utara', city_id: 35},
-  ]
-
-  const provinceOptions = [{value: null, label: 'All Zona', city_id: null}, ...provinces]
 
   // Catch Value From Response API by Status
   const [statusState, setStatusState] = useState(initialStatusState)
@@ -304,7 +292,7 @@ const DashboardHO: FC = () => {
                   classNamePrefix='select'
                   placeholder='Pilih Zona'
                   isSearchable={true}
-                  options={provinceOptions}
+                  options={zoneOptions}
                   value={selectedZone}
                   onChange={(newValue) => setSelectedZone(newValue)}
                 />

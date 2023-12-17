@@ -25,25 +25,29 @@ const ListStoreHO: React.FC = () => {
   }
 
   interface DataType {
-    material_id: number
+    store_id: number
     store_name: string
-    product_name: string
-    service_name: string
-    default_price: number
-    min_order: number
+    phone_number: number
+    email: string
+    address: string
+    city: string
+    province: string
+    bank_name: string
+    account_number: number
+    account_name: string
   }
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'Material ID',
-      dataIndex: 'material_id',
-      key: 'material_id',
+      title: 'ID',
+      dataIndex: 'store_id',
+      key: 'store_id',
       align: 'center',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.material_id - b.material_id,
+      sorter: (a, b) => a.store_id - b.store_id,
     },
     {
-      title: 'Assign To Store',
+      title: 'Nama Toko',
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
@@ -51,54 +55,87 @@ const ListStoreHO: React.FC = () => {
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
     {
-      title: 'Product Name',
-      dataIndex: 'product_name',
-      key: 'product_name',
+      title: 'Nomor Telp',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
       align: 'center',
-      onFilter: (value, record) => record.product_name.includes(String(value)),
-      sorter: (a, b) => a.product_name.length - b.product_name.length,
+      sorter: (a, b) => a.phone_number - b.phone_number,
+      width: 140,
     },
     {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
       align: 'center',
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
+      onFilter: (value, record) => record.email.includes(String(value)),
+      sorter: (a, b) => a.email.length - b.email.length,
     },
     {
-      title: 'Price',
-      dataIndex: 'default_price',
-      key: 'default_price',
+      title: 'Alamat',
+      dataIndex: 'address',
+      key: 'address',
       align: 'center',
-      sorter: (a, b) => a.default_price - b.default_price,
+      onFilter: (value, record) => record.address.includes(String(value)),
+      sorter: (a, b) => a.address.length - b.address.length,
     },
     {
-      title: 'Min Order',
-      dataIndex: 'min_order',
-      key: 'min_order',
+      title: 'Kota',
+      dataIndex: 'city',
+      key: 'city',
       align: 'center',
-      sorter: (a, b) => a.min_order - b.min_order,
+      onFilter: (value, record) => record.city.includes(String(value)),
+      sorter: (a, b) => a.city.length - b.city.length,
+    },
+    {
+      title: 'Provinsi',
+      dataIndex: 'province',
+      key: 'province',
+      align: 'center',
+      onFilter: (value, record) => record.province.includes(String(value)),
+      sorter: (a, b) => a.province.length - b.province.length,
+    },
+    {
+      title: 'Nama Bank',
+      dataIndex: 'bank_name',
+      key: 'bank_name',
+      align: 'center',
+      onFilter: (value, record) => record.bank_name.includes(String(value)),
+      sorter: (a, b) => a.bank_name.length - b.bank_name.length,
+    },
+    {
+      title: 'Nomor Akun',
+      dataIndex: 'account_number',
+      key: 'account_number',
+      align: 'center',
+      sorter: (a, b) => a.account_number - b.account_number,
+    },
+    {
+      title: 'Nama Akun',
+      dataIndex: 'account_name',
+      key: 'account_name',
+      align: 'center',
+      onFilter: (value, record) => record.account_name.includes(String(value)),
+      sorter: (a, b) => a.account_name.length - b.account_name.length,
     },
     {
       title: 'Action',
       key: 'action',
       render: (record) => {
         const handleUpdate = () => {
-          const id = record.material_id
-          navigate(`/item/update-item/${id}`)
+          const id = record.store_id
+          navigate(`/store/update-store/${id}`)
         }
 
-        const handleDetail = () => {
-          const id = record.material_id
-          navigate(`/item/detail-item/${id}`)
-        }
+        // const handleDetail = () => {
+        //   const id = record.store_id
+        //   navigate(`/store/detail-store/${id}`)
+        // }
 
         const handleDeleteId = () => {
-          const id = record.material_id
+          const id = record.store_id
 
           Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Item ini ?`,
+            title: `Apakah anda yakin akan menghapus data Store ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -108,7 +145,7 @@ const ListStoreHO: React.FC = () => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .delete(`${apiUrl}/items/${id}`, {
+                  .delete(`${apiUrl}/stores/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -145,9 +182,9 @@ const ListStoreHO: React.FC = () => {
 
         return (
           <div className='button-wrapper'>
-            <a className='button-detail' onClick={handleDetail}>
+            {/* <a className='button-detail' onClick={handleDetail}>
               <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+            </a> */}
 
             <a className='button-detail' onClick={handleUpdate}>
               <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
@@ -165,7 +202,7 @@ const ListStoreHO: React.FC = () => {
   ]
 
   // Fetch Data Material
-  const [itemData, setItemData] = useState<DataType[]>([])
+  const [storeData, setStoreData] = useState<DataType[]>([])
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -174,9 +211,9 @@ const ListStoreHO: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const getItemList = async () => {
+  const getStoresList = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/items?take=0&search=${searchFilter}`, {
+      const response = await axios.get(`${apiUrl}/stores?take=0&search=${searchFilter}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -190,31 +227,38 @@ const ListStoreHO: React.FC = () => {
     }
   }
 
-  const ViewItem = async () => {
+  const ViewStores = async () => {
     try {
-      const apiData = await getItemList()
+      const apiData = await getStoresList()
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
         return []
       }
 
-      const itemData = apiData.map((item: any) => {
+      const storeData = apiData.map((item: any) => {
         let data
 
+        const phoneNumber =
+          item?.phone_number_1 !== null ? item?.phone_number_1 : item?.phone_number_2
+
         data = {
-          material_id: item?.id,
-          store_name: item?.prices[0]?.store.store_name || '-',
-          product_name: item?.item_name || '-',
-          service_name: item?.service_name || '-',
-          default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
-          min_order: item?.prices[0]?.min_order || '-',
+          store_id: item?.id ?? '',
+          store_name: item?.store_name ?? '',
+          phone_number: phoneNumber,
+          email: item?.email ?? '',
+          address: item?.address ?? '',
+          city: item?.city?.city_name ?? '',
+          province: item?.city?.city_name ?? '',
+          bank_name: item?.bank_name ?? '-',
+          account_number: item?.bank_account ?? '-',
+          account_name: item?.bank_number ?? '-',
         }
 
         return data
       })
 
-      return itemData
+      return storeData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
@@ -223,8 +267,8 @@ const ListStoreHO: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await ViewItem()
-      setItemData(data)
+      const data = await ViewStores()
+      setStoreData(data)
     }
 
     fetchData()
@@ -260,8 +304,8 @@ const ListStoreHO: React.FC = () => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={itemData}
-            rowKey={(record) => record.material_id}
+            dataSource={storeData}
+            rowKey={(record) => record.store_id}
             pagination={{position: ['bottomRight']}}
           />
         </div>

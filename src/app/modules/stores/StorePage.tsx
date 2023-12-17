@@ -39,7 +39,7 @@ const StorePage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PENDAFTARAN SALES</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PENDAFTARAN STORE</PageTitle>
             <RegisterStore />
           </>
         }
@@ -56,7 +56,7 @@ const StorePage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE SALES</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE STORE</PageTitle>
             <UpdateStore />
           </>
         }
@@ -74,7 +74,7 @@ const StorePage: React.FC = () => {
               <></>
             )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>
-              DAFTAR SALES INSTALASI & SERVICE MITRA10
+              DAFTAR STORE INSTALASI & SERVICE MITRA10
             </PageTitle>
             <ListStores />
           </>

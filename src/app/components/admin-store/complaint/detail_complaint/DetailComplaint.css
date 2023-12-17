@@ -1,5 +1,9 @@
 /* Form Layout */
 
+#detail-complaint {
+  min-height: 190vh !important;
+}
+
 #detail-complaint .form-wrapper {
   margin-bottom: 30px;
 }

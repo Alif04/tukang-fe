@@ -37,7 +37,7 @@ const ItemPage: React.FC = () => {
         element={
           <>
             <HeaderWrapper className='bg-header-ho' />
-            <PageTitle breadcrumbs={itemBreadCrumbs}>NEW ITEM FORM</PageTitle>
+            <PageTitle breadcrumbs={itemBreadCrumbs}>SET ITEM FORM</PageTitle>
             <NewItem />
           </>
         }

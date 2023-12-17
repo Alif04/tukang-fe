@@ -1,0 +1,118 @@
+/* Form Layout */
+
+#update-store .form-wrapper {
+  margin-bottom: 30px;
+}
+
+#update-store .form-wrapper .form-new-store {
+  padding: 0 200px;
+}
+
+#update-store .alamat-order.row .col {
+  padding: 0 70px 0 10px;
+}
+
+#update-store .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+/* Form Header */
+
+#update-store .form-header.row {
+  margin-bottom: 30px;
+}
+
+#update-store .form-header .form-check-request label.form-check-label {
+  font-size: 11px;
+}
+
+/* Button */
+
+#update-store .btn.btn-dark-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #d80019 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-store .btn.btn-dark-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #update-store .form-wrapper .form-new-store {
+    padding: 0 100px;
+  }
+
+  #update-store .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-store .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #update-store .form-wrapper .form-new-store {
+    padding: 0 0;
+  }
+
+  #update-store .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-store .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-store .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+  #update-store .button-wrapper {
+    flex-direction: column;
+  }
+
+  #update-store .btn.btn-dark-danger {
+    width: 100%;
+    margin: 5px 0;
+    height: 40px;
+  }
+
+  #update-store .btn.btn-dark-primary {
+    width: 100%;
+    margin: 5px 0;
+    height: 40px;
+  }
+}

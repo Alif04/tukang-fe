@@ -4,40 +4,19 @@ import {useNavigate} from 'react-router-dom'
 import './NewSales.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import {Table, Tag} from 'antd'
+import Select, {SingleValue} from 'react-select'
+import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faUserPlus,
-  faFilter,
-} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faTrash, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
-// interface StoreItemSelect {
-//   value: number | null
-//   label: string
-//   address: string
-//   city_id: number | null
-//   zip_code: string
-// }
-
 interface BankSelect {
-  value: number | null
-  label: string
-}
-
-interface BrandSelect {
   value: number | null
   label: string
 }
@@ -56,6 +35,7 @@ interface Sales {
   account_number: string
   sales_brands: string
   sales_categories: CategorySelect[]
+  default_password: string
 }
 
 const NewSales: FC = () => {
@@ -69,17 +49,12 @@ const NewSales: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
-  const [searchByStore, setSearchByStore] = useState<any>('')
-
-  // Store
-  // const [store, setStore] = useState<StoreItemSelect[]>([])
-  // const [storeId, setStoreId] = useState<string>('')
-  // const [storeName, setStoreName] = useState<string>('')
 
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
 
   // Sales
+  const [salesId, setSalesId] = useState<any>()
   const [salesInfo, setSalesInfo] = useState<Sales>({
     store_id: Number.parseInt(staffStoreId),
     bank_id: null,
@@ -89,29 +64,19 @@ const NewSales: FC = () => {
     account_number: '',
     sales_brands: '',
     sales_categories: [],
+    default_password: '',
   })
 
-  const [salesId, setSalesId] = useState<any>()
-  const [salesName, setSalesName] = useState<string>('')
-  const [salesPhoneNumber, setSalesPhoneNumber] = useState<any>()
-
+  // Bank
   const [bank, setBank] = useState<BankSelect[]>([])
-  const [bankId, setBankId] = useState<string>('')
-  const [bankName, setBankName] = useState<string>('')
-  const [accountNumber, setAccountNumber] = useState<any>()
-  const [accountName, setAccountName] = useState<string>('')
+  const [selectedBank, setSelectedBank] = useState<SingleValue<BankSelect>>({
+    value: null,
+    label: '',
+  })
 
-  const [brandsId, setBrandsId] = useState<any>([])
-  const [brands, setBrands] = useState<BrandSelect[]>([])
-
-  const [categoryId, setCategoryId] = useState<any>([])
+  // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
-  const [categoryForm, setCategoryForm] = useState<CategorySelect[]>([
-    {
-      value: null,
-      label: '',
-    },
-  ])
+  const [selectedCategories, setSelectedCategories] = useState<CategorySelect[]>([])
 
   // Fetch API Data
   useEffect(() => {
@@ -137,35 +102,6 @@ const NewSales: FC = () => {
         console.error(err)
       }
     }
-
-    // const getStore = async () => {
-    //   try {
-    //     const response = await axios.get(`${apiUrl}/stores`, {
-    //       headers: {
-    //         Accept: 'application/json',
-    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    //         'Access-Control-Allow-Origin': '*',
-    //         'ngrok-skip-browser-warning': 'true',
-    //       },
-    //     })
-
-    //     if (Array.isArray(response.data.data)) {
-    //       const tempStore = response.data.data.map((item: any) => ({
-    //         value: item.id,
-    //         label: item.store_name,
-    //         address: item.address,
-    //         city_id: item.city_id,
-    //         zip_code: item.zip_code,
-    //       }))
-
-    //       setStore(tempStore)
-    //     } else {
-    //       console.error('API response data is not an array:', response.data)
-    //     }
-    //   } catch (err) {
-    //     console.error(err)
-    //   }
-    // }
 
     const getBank = async () => {
       try {
@@ -220,7 +156,6 @@ const NewSales: FC = () => {
     }
 
     getSalesId()
-    // getStore()
     getBank()
     getCategories()
   }, [])
@@ -258,8 +193,6 @@ const NewSales: FC = () => {
       const salesData = apiData.map((item: any) => {
         let data
 
-        const joinDate = new Date(item.join_date)
-
         const salesBrand = item.sales_brands
           .map((sales_brands: any) => sales_brands.brands.name)
           .join(', ')
@@ -269,9 +202,9 @@ const NewSales: FC = () => {
           .join(', ')
 
         data = {
-          sales_id: item.id,
-          store_name: item.store.store_name,
-          full_name: item.full_name,
+          sales_id: item?.id ?? '',
+          store_name: item?.store?.store_name ?? '',
+          full_name: item?.full_name ?? '',
           nik: item?.nik ?? '-',
           sales_brand: salesBrand,
           sales_category: salesCategory,
@@ -297,113 +230,45 @@ const NewSales: FC = () => {
     fetchData()
   }, [dateFrom, dateTo, searchFilter])
 
-  // Change Select Store
-  // const handleChangeSelectStore = (element: any) => {
-  //   const updatedStoreId = element.value
-  //   const updatedStoreName = element.label
-
-  //   setSalesInfo((prevSalesInfo) => ({
-  //     ...prevSalesInfo,
-  //     store_id: updatedStoreId,
-  //   }))
-
-  //   setStoreId(updatedStoreId)
-  //   setStoreName(updatedStoreName)
-  // }
+  // Sales Form
+  const salesInfoFormHandler = (e: any) => {
+    setSalesInfo((prevSalesInfo) => ({
+      ...prevSalesInfo,
+      [e.target.name]: e.target.value,
+    }))
+  }
 
   // Change Select Bank
-  const handleChangeSelectBank = (element: any) => {
-    const newBankId = element.value
-    const newBankName = element.label
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      bank_id: newBankId,
+  useEffect(() => {
+    setSalesInfo((prev) => ({
+      ...prev,
+      bank_id: selectedBank?.value ?? null,
     }))
-
-    setBankId(newBankId)
-    setBankName(newBankName)
-  }
-
-  // Change Input Sales Name
-  const handleChangeSalesName = (element: any) => {
-    const newSalesName = element.target.value
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      full_name: newSalesName,
-    }))
-
-    setSalesName(newSalesName)
-  }
-
-  // Change Input Account Number
-  const handleChangeAccountNumber = (element: any) => {
-    const newAccountNumber = element.target.value
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      account_number: newAccountNumber,
-    }))
-
-    setAccountNumber(newAccountNumber)
-  }
-
-  // Change Input Account Name
-  const handleChangeAccountName = (element: any) => {
-    const newAccountName = element.target.value
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      account_name: newAccountName,
-    }))
-  }
-
-  // Change Input WA / Phone Number
-  const handleChangeSalesPhoneNumber = (element: any) => {
-    const newSalesPhoneNumber = element.target.value
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      phone_number: newSalesPhoneNumber,
-    }))
-
-    setSalesPhoneNumber(newSalesPhoneNumber)
-  }
-
-  // Handle Change Brands
-  const handleChangeBrands = (element: any) => {
-    const newBrands = element.target.value
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      sales_brands: newBrands,
-    }))
-
-    setBrandsId(newBrands)
-  }
+  }, [selectedBank])
 
   // Change Select Category
-  const handleChangeCategoryId = (element: any) => {
-    const newCategoryId = element.map((option: any) => ({category_id: option.value}))
+  const handleChangeCategories = (element: any) => {
+    const updatedCategories = element.map((option: any) => ({
+      value: option.value,
+      label: option.label,
+    }))
+
+    setSelectedCategories(updatedCategories)
+
+    const updatedCategoriesId = element.map((option: any) => ({
+      category_id: option.value,
+    }))
 
     setSalesInfo((prevSalesInfo) => ({
       ...prevSalesInfo,
-      sales_categories: newCategoryId,
+      sales_categories: updatedCategoriesId,
     }))
-
-    setCategoryId(newCategoryId)
   }
 
   // Filter Search Handler
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  const handleChangeSelectStores = (element: any) => {
-    const updatedStoreId = element.value
-    setSearchByStore(updatedStoreId)
   }
 
   // Data Type List Sales
@@ -507,6 +372,7 @@ const NewSales: FC = () => {
             showConfirmButton: true,
             showDenyButton: true,
             confirmButtonText: 'Ya',
+            confirmButtonColor: 'gray',
             denyButtonText: 'Cancel',
           })
             .then((willDelete) => {
@@ -577,13 +443,6 @@ const NewSales: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please fill WA / Phone Number form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!brandsId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Brands form',
         icon: 'error',
       })
       valid = false
@@ -683,16 +542,6 @@ const NewSales: FC = () => {
                       {staffStoreName}
                     </span>
                   </Form.Label>
-
-                  {/* <Select
-                        name='store_id'
-                        className='form-control p-0'
-                        classNamePrefix='select'
-                        placeholder='Pilih Toko'
-                        isSearchable={true}
-                        options={store}
-                        onChange={(element) => handleChangeSelectStore(element)}
-                      /> */}
                 </Form.Group>
               </Row>
 
@@ -713,7 +562,7 @@ const NewSales: FC = () => {
                       placeholder='Pilih Nama Bank'
                       isSearchable={true}
                       options={bank}
-                      onChange={(element) => handleChangeSelectBank(element)}
+                      onChange={(newValue) => setSelectedBank(newValue)}
                     />
                   </Form.Group>
                 </Col>
@@ -722,19 +571,23 @@ const NewSales: FC = () => {
                   <Form.Group className='mb-5'>
                     <Form.Label>Brands</Form.Label>
 
-                    <Form.Control type='text' onChange={(element) => handleChangeBrands(element)} />
+                    <Form.Control
+                      name='sales_brands'
+                      type='text'
+                      onChange={(e) => salesInfoFormHandler(e)}
+                    />
                   </Form.Group>
                 </Col>
               </Row>
 
-              <Row className='input-order'>
+              <Row>
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Sales Consultant</Form.Label>
                     <Form.Control
+                      name='full_name'
                       type='text'
-                      value={salesInfo.full_name}
-                      onChange={(element) => handleChangeSalesName(element)}
+                      onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
@@ -743,9 +596,9 @@ const NewSales: FC = () => {
                   <Form.Group className='mb-5'>
                     <Form.Label>Nomor Akun Bank</Form.Label>
                     <Form.Control
+                      name='account_number'
                       type='number'
-                      value={salesInfo.account_number}
-                      onChange={(element) => handleChangeAccountNumber(element)}
+                      onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
@@ -759,36 +612,46 @@ const NewSales: FC = () => {
                       components={animatedComponents}
                       isMulti
                       options={categories}
-                      onChange={(element) => handleChangeCategoryId(element)}
+                      value={selectedCategories}
+                      onChange={(element) => handleChangeCategories(element)}
                     />
                   </Form.Group>
                 </Col>
               </Row>
 
               <Row>
-                <Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>WA / Phone Number</Form.Label>
                     <Form.Control
+                      name='phone_number'
                       type='number'
-                      value={salesInfo.phone_number}
-                      onChange={(element) => handleChangeSalesPhoneNumber(element)}
+                      onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
 
-                <Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Pemilik Akun</Form.Label>
                     <Form.Control
+                      name='account_name'
                       type='text'
-                      value={salesInfo.account_name}
-                      onChange={(element) => handleChangeAccountName(element)}
+                      onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
 
-                <Col></Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Default Password</Form.Label>
+                    <Form.Control
+                      name='default_password'
+                      type='text'
+                      onChange={(e) => salesInfoFormHandler(e)}
+                    />
+                  </Form.Group>
+                </Col>
               </Row>
             </div>
 
@@ -858,17 +721,7 @@ const NewSales: FC = () => {
                 </div>
               </Col>
 
-              <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-                {/* <Select
-                name='store_id'
-                className='form-control p-0'
-                classNamePrefix='select'
-                placeholder='Pilih Toko'
-                isSearchable={true}
-                options={store}
-                onChange={(element) => handleChangeSelectStores(element)}
-              /> */}
-              </Col>
+              <Col xxl={4} xl={4} lg={4} md={4} sm={12}></Col>
             </Row>
 
             <Table

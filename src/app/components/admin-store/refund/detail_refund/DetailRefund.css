@@ -1,0 +1,84 @@
+/* Card */
+
+#detail-refund .card .card-body .information-wrapper {
+  width: 330px;
+}
+
+#detail-refund .information-wrapper .detail-header {
+  min-height: 70px;
+}
+
+#detail-refund .order-history {
+  margin-top: 20px;
+  margin-bottom: 50px;
+}
+
+#detail-refund .order-history .title h1 {
+  font-size: 22.5px;
+  padding: 0 0 20px 0;
+}
+
+/* Informasi Pemasangan */
+
+#detail-refund .complaint-information h4 {
+  padding-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#detail-refund .complaint-detail h4 {
+  padding-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#detail-refund .complaint-detail p {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+#detail-refund .complaint-evidence h4 {
+  padding-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#detail-refund .table.detail-complaint-table tr,
+.table.detail-complaint-table th,
+.table.detail-complaint-table td {
+  border: none;
+}
+
+#detail-refund textarea.desc-notes.form-control {
+  min-height: 135px !important;
+}
+
+/* Button */
+
+#detail-refund .btn.btn-dark-danger {
+  width: 100px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+#detail-refund .btn.btn-dark-primary {
+  width: 180px;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-primary:hover:not(.btn-active) {
+  background-color: #0300b5 !important;
+}

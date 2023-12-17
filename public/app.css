@@ -388,6 +388,29 @@ span.anticon.anticon-filter svg {
   color: white !important;
 }
 
+/* Timeline */
+
+:where(.css-dev-only-do-not-override-1ck3jst).ant-steps
+  .ant-steps-item-wait
+  .ant-steps-item-icon
+  > .ant-steps-icon {
+  color: white !important;
+}
+
+:where(.css-dev-only-do-not-override-1ck3jst).ant-steps
+  .ant-steps-item-process
+  .ant-steps-item-icon
+  > .ant-steps-icon {
+  color: white !important;
+}
+
+:where(.css-dev-only-do-not-override-1ck3jst).ant-steps
+  .ant-steps-item-finish
+  .ant-steps-item-icon
+  > .ant-steps-icon {
+  color: white !important;
+}
+
 @media screen and (max-width: 1200px) {
   .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
     top: 25px !important;

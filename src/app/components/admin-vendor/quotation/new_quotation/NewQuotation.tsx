@@ -881,7 +881,8 @@ const NewQuotationVendor: FC = () => {
                   <th className='text-center'>Jenis Jasa</th>
                   <th className='text-center'>Category</th>
                   <th className='text-center'>QTY</th>
-                  <th className='text-center'>Harga Satuan (Rp.)</th>
+                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Total</th>
                   <th className='text-center'>Margin (Rp.)</th>
                   <th className='text-center'>Final Price</th>
                   <th className='text-center'>Action</th>
@@ -989,7 +990,8 @@ const NewQuotationVendor: FC = () => {
                     Material Yang Dibutuhkan
                   </th>
                   <th className='text-center'>QTY</th>
-                  <th className='text-center'>Harga Satuan (Rp.)</th>
+                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Total</th>
                   <th className='text-center'>Margin (Rp.)</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Final Price
@@ -1105,27 +1107,6 @@ const NewQuotationVendor: FC = () => {
                 </tr>
               </tbody>
             </Table>
-          </div>
-
-          <div className='payment-detail'>
-            <div className='payment-method'>
-              <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
-
-              <h3 className='fw-normal'>BANK BCA</h3>
-              <h3 className='fw-normal'>PT.MITRA10</h3>
-              <h3 className='fw-normal'>123-876-90</h3>
-            </div>
-
-            <div className='payment-evidence'>
-              <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>WA: 0813748392</h1>
-              <h1 className='fw-bolder'>Email: Installation.support@mitra10.com</h1>
-            </div>
-
-            <h1 className='fw-bolder'>
-              Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
-              kembali.
-            </h1>
           </div>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>

@@ -71,6 +71,19 @@ export * from './admin-store/warranty/list_claim_warranty/WarrantyClaimList'
 // Form Claim Warranty
 export * from './admin-store/warranty/form_warranty_claim/WarrantyFormClaim'
 
+// Refund
+// List Refund
+export * from './admin-store/refund/view_refund/ViewRefund'
+
+// New Refund
+export * from './admin-store/refund/new_refund/NewRefund'
+
+// Update Refund
+export * from './admin-store/refund/update_refund/UpdateRefund'
+
+// Detail Refund
+export * from './admin-store/refund/detail_refund/DetailRefund'
+
 // COSTUMER
 // View Costumers
 export * from './admin-store/costumers/view_costumers/ViewCostumer'
@@ -175,6 +188,12 @@ export * from './admin-ho/sales/view_sales/ViewSales'
 // STORE
 // List Store
 export * from './admin-ho/stores/list_store/ListStore'
+
+// New Store
+export * from './admin-ho/stores/new_store/NewStore'
+
+// Update Store
+export * from './admin-ho/stores/update_store/UpdateStore'
 
 // VENDOR
 // View Vendor

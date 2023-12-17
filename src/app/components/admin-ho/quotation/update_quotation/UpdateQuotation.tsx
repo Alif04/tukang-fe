@@ -25,12 +25,14 @@ interface QuotationDetail {
   category_name: string
   type: number
   item_name: string
+  unit_description: string
   unit_price: number
   total: number
   final_price: number
   margin: number
   quantity: number
   is_user: number
+  description: string
 }
 
 const UpdateQuotationHO: FC = () => {
@@ -69,12 +71,14 @@ const UpdateQuotationHO: FC = () => {
       category_name: '',
       type: 1,
       item_name: '',
+      unit_description: '',
       unit_price: 0,
       total: 0,
       final_price: 0,
       margin: 0,
       quantity: 0,
       is_user: 0,
+      description: '',
     },
     {
       id: null,
@@ -85,12 +89,14 @@ const UpdateQuotationHO: FC = () => {
       work_order_item_id: null,
       type: 2,
       item_name: '',
+      unit_description: '',
       unit_price: 0,
       total: 0,
       final_price: 0,
       margin: 0,
       quantity: 0,
       is_user: 0,
+      description: '',
     },
   ])
 
@@ -164,7 +170,8 @@ const UpdateQuotationHO: FC = () => {
               work_order_item_id: item.work_order_items_id,
               category_id: item.category_id,
               category_name: item?.category?.category_name,
-              item_name: item.name,
+              item_name: item?.name,
+              unit_description: item?.satuan,
               quantity: item.quantity,
               is_user: item.is_customer ? 1 : 0,
               unit_price: parseInt(item.price),
@@ -261,12 +268,14 @@ const UpdateQuotationHO: FC = () => {
       category_name: '',
       type: type,
       item_name: '',
+      unit_description: '',
       unit_price: 0,
       total: 0,
       final_price: 0,
       margin: 0,
       quantity: 0,
       is_user: 0,
+      description: '',
     }
 
     setQuotationDetail((prev) => [...prev, newForm])
@@ -731,11 +740,15 @@ const UpdateQuotationHO: FC = () => {
             <Table hover className='table-jasa'>
               <thead>
                 <tr>
-                  <th className='text-center'>Jenis Jasa</th>
+                  <th className='text-center' style={{minWidth: '296px'}}>
+                    Jenis Jasa
+                  </th>
                   <th className='text-center'>Category</th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Final Price</th>
+                  <th className='text-center'>Price</th>
+                  <th className='text-center'>Total</th>
+                  <th className='text-center'>Keterangan</th>
                 </tr>
               </thead>
 
@@ -800,6 +813,20 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
                           /> */}
 
+                          <p>{element?.unit_description ?? '-'}</p>
+                        </td>
+
+                        <td>
+                          {/* <Form.Control
+                            id={`unit-price-${index}`}
+                            type='number'
+                            plaintext
+                            disabled
+                            readOnly
+                            value={element.unit_price}
+                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
+                          /> */}
+
                           <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
                         </td>
 
@@ -811,6 +838,16 @@ const UpdateQuotationHO: FC = () => {
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
                           /> */}
                           <p>{`Rp. ${element?.final_price?.toLocaleString('id')}`}</p>
+                        </td>
+
+                        <td>
+                          {/* <Form.Control
+                            readOnly
+                            disabled
+                            plaintext
+                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
+                          /> */}
+                          <p>{element?.description ?? '-'}</p>
                         </td>
                       </tr>
                     </>
@@ -827,9 +864,12 @@ const UpdateQuotationHO: FC = () => {
                   </th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Price</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
-                    Final Price
+                    Total
+                  </th>
+                  <th className='text-center' style={{minWidth: '100px'}}>
+                    Keterangan
                   </th>
                 </tr>
               </thead>
@@ -909,27 +949,37 @@ const UpdateQuotationHO: FC = () => {
 
                           <p>{`Rp. ${element.final_price?.toLocaleString('id')}`}</p>
                         </td>
+
+                        <td>
+                          {/* <Form.Control
+                            readOnly
+                            disabled
+                            plaintext
+                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
+                          /> */}
+                          <p>{element?.description ?? '-'}</p>
+                        </td>
                       </tr>
                     </>
                   ))}
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Total Material
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalMaterial.toLocaleString('id')}`}</td>
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Total Jasa & Material
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalJasaMaterial.toLocaleString('id')}`}</td>
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
-                    Promosi ( Free Survey)
+                  <td colSpan={6} className='text-end fw-bolder'>
+                    Promosi ( Free Survey )
                   </td>
 
                   <td>
@@ -943,7 +993,7 @@ const UpdateQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Additional Promosi
                   </td>
 
@@ -958,7 +1008,7 @@ const UpdateQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${grandTotal.toLocaleString('id')}`}</td>

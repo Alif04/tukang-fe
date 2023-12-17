@@ -199,18 +199,18 @@ export function AsideMenuMain() {
         title='Tukang'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Admin Vendor']}
+        role={['Admin Vendor']}
       >
         <AsideMenuItem
           to='/tukang/view-tukang'
           title='List Tukang'
-          role={['Admin HO', 'Admin Vendor']}
+          role={['Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/tukang/new-tukang'
           title='New Tukang'
-          role={['Admin HO', 'Admin Vendor']}
+          role={['Admin Vendor']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -465,6 +465,28 @@ export function AsideMenuMain() {
           role={['Store CS']}
           hasBullet={true}
         />
+        <AsideMenuItemWithSub to='/store' title='Store' hasBullet={true} role={['Admin HO']}>
+          <AsideMenuItem
+            to='/store/view-store'
+            title='Daftar Store'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+          <AsideMenuItem
+            to='/store/new-store'
+            title='Register Store'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
+        <AsideMenuItemWithSub to='/tukang' title='Tukang' hasBullet={true} role={['Admin HO']}>
+          <AsideMenuItem
+            to='/tukang/view-tukang'
+            title='List Tukang'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
         {/* <AsideMenuItem
           to='/item/view-item'
           title='List Items'
@@ -491,7 +513,7 @@ export function AsideMenuMain() {
             hasBullet={true}
           />
         </AsideMenuItemWithSub>
-        <AsideMenuItem to='/item/new-item' title='New Items' role={['Admin HO']} hasBullet={true} />
+        <AsideMenuItem to='/item/new-item' title='Set Items' role={['Admin HO']} hasBullet={true} />
       </AsideMenuItemWithSub>
 
       {/* Logout */}
