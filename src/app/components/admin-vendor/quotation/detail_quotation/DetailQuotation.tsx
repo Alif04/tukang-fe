@@ -51,15 +51,16 @@ const DetailQuotationVendor: FC = () => {
           <div className='invoice-detail d-flex justify-content-between'>
             <div className='vendor-information'>
               <div className='vendor-detail'>
-                <img
-                  alt='Logo'
-                  className='h-50px logo mb-3'
-                  src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
-                />
-
                 <div className='address'>
-                  <h2 className='fw-semibold mb-2'>{quotationDetail?.store.store_name}</h2>
-                  <h3 className='fw-normal'>{quotationDetail?.store.address}</h3>
+                  <h2 className='fw-bolder mb-2'>{quotationDetail?.store?.store_name ?? ''}</h2>
+                  <h3 className='fw-normal'>{quotationDetail?.store?.address ?? ''}</h3>
+                  <h3 className='fw-normal'>
+                    {`Telp : ${
+                      quotationDetail?.store?.phone_number_1 ??
+                      quotationDetail?.store?.phone_number_2 ??
+                      'Nomor telepon belum tersedia'
+                    }`}
+                  </h3>
                 </div>
               </div>
             </div>
@@ -131,26 +132,61 @@ const DetailQuotationVendor: FC = () => {
           </div>
 
           <div className='detail-table'>
-            <Table hover>
+            <Table hover className='table-jasa'>
               <thead>
                 <tr>
-                  <th className='text-center'>Item</th>
-                  <th className='text-center'>Harga Satuan</th>
-                  <th className='text-center'>Jumlah</th>
-                  <th className='text-center'>Total Harga</th>
+                  <th className='text-center'>Jenis Jasa</th>
+                  <th className='text-center'>QTY</th>
+                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Price</th>
+                  <th className='text-center'>Total</th>
+                  <th className='text-center'>Keterangan</th>
                 </tr>
               </thead>
               <tbody>
-                {quotationDetail?.quotation_details.map((item: any) => (
-                  <>
-                    <tr>
-                      <td>{item?.name}</td>
-                      <td>{item?.quantity}</td>
-                      <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                      <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
-                    </tr>
-                  </>
-                ))}
+                {quotationDetail?.quotation_details
+                  .filter((x: any) => x.item_type === 2)
+                  .map((item: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.name ?? '-'}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
+                        <td>{item?.description ? '' : '-'}</td>
+                      </tr>
+                    </>
+                  ))}
+              </tbody>
+            </Table>
+
+            <Table hover className='table-material'>
+              <thead>
+                <tr>
+                  <th className='text-center'>Material yang dibutuhkan</th>
+                  <th className='text-center'>QTY</th>
+                  <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Price</th>
+                  <th className='text-center'>Total</th>
+                  <th className='text-center'>Keterangan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {quotationDetail?.quotation_details
+                  .filter((x: any) => x.item_type === 1)
+                  .map((item: any) => (
+                    <>
+                      <tr>
+                        <td>{item?.name ?? '-'}</td>
+                        <td>{item?.quantity}</td>
+                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
+                        <td>{item?.description ? '' : '-'}</td>
+                      </tr>
+                    </>
+                  ))}
 
                 {/* <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
@@ -162,7 +198,7 @@ const DetailQuotationVendor: FC = () => {
                 </tr> */}
 
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Tax ( 11 % )
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${parseInt(
@@ -171,7 +207,7 @@ const DetailQuotationVendor: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>

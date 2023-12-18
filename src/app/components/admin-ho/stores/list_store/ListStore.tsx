@@ -9,7 +9,7 @@ import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {Table} from 'antd'
 
@@ -31,7 +31,6 @@ const ListStoreHO: React.FC = () => {
     email: string
     address: string
     city: string
-    province: string
     bank_name: string
     account_number: number
     account_name: string
@@ -45,14 +44,17 @@ const ListStoreHO: React.FC = () => {
       align: 'center',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.store_id - b.store_id,
+      width: 50,
     },
     {
       title: 'Nama Toko',
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
+      className: 'text-start',
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
+      width: 120,
     },
     {
       title: 'Nomor Telp',
@@ -60,7 +62,7 @@ const ListStoreHO: React.FC = () => {
       key: 'phone_number',
       align: 'center',
       sorter: (a, b) => a.phone_number - b.phone_number,
-      width: 140,
+      width: 120,
     },
     {
       title: 'Email',
@@ -69,6 +71,7 @@ const ListStoreHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.email.includes(String(value)),
       sorter: (a, b) => a.email.length - b.email.length,
+      width: 130,
     },
     {
       title: 'Alamat',
@@ -77,6 +80,7 @@ const ListStoreHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.address.includes(String(value)),
       sorter: (a, b) => a.address.length - b.address.length,
+      width: 130,
     },
     {
       title: 'Kota',
@@ -85,14 +89,7 @@ const ListStoreHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.city.includes(String(value)),
       sorter: (a, b) => a.city.length - b.city.length,
-    },
-    {
-      title: 'Provinsi',
-      dataIndex: 'province',
-      key: 'province',
-      align: 'center',
-      onFilter: (value, record) => record.province.includes(String(value)),
-      sorter: (a, b) => a.province.length - b.province.length,
+      width: 130,
     },
     {
       title: 'Nama Bank',
@@ -101,6 +98,7 @@ const ListStoreHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.bank_name.includes(String(value)),
       sorter: (a, b) => a.bank_name.length - b.bank_name.length,
+      width: 130,
     },
     {
       title: 'Nomor Akun',
@@ -108,6 +106,7 @@ const ListStoreHO: React.FC = () => {
       key: 'account_number',
       align: 'center',
       sorter: (a, b) => a.account_number - b.account_number,
+      width: 130,
     },
     {
       title: 'Nama Akun',
@@ -116,6 +115,7 @@ const ListStoreHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.account_name.includes(String(value)),
       sorter: (a, b) => a.account_name.length - b.account_name.length,
+      width: 130,
     },
     {
       title: 'Action',
@@ -197,7 +197,7 @@ const ListStoreHO: React.FC = () => {
         )
       },
       fixed: 'right',
-      width: 90,
+      width: 60,
     },
   ]
 
@@ -249,7 +249,6 @@ const ListStoreHO: React.FC = () => {
           email: item?.email ?? '',
           address: item?.address ?? '',
           city: item?.city?.city_name ?? '',
-          province: item?.city?.city_name ?? '',
           bank_name: item?.bank_name ?? '-',
           account_number: item?.bank_account ?? '-',
           account_name: item?.bank_number ?? '-',

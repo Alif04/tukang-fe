@@ -1034,6 +1034,7 @@ const NewQuotationVendor: FC = () => {
                   </th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Price</th>
                   <th className='text-center'>Total</th>
                   <th className='text-center'>Margin (Rp.)</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
@@ -1080,6 +1081,7 @@ const NewQuotationVendor: FC = () => {
                           <Form.Control
                             id={`satuan-${index}`}
                             value={element.unit_description}
+                            disabled={element.is_user === 1 ? true : false}
                             onChange={(e) => handleUnitDescriptionChange(index, e.target.value, 1)}
                           />
                         </td>
@@ -1091,6 +1093,16 @@ const NewQuotationVendor: FC = () => {
                             value={element.unit_price}
                             disabled={element.is_user === 1 ? true : false}
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            readOnly
+                            plaintext
+                            value={`Rp. ${(
+                              Number(element.quantity) * Number(element.unit_price)
+                            ).toLocaleString()}`}
                           />
                         </td>
 
@@ -1122,21 +1134,21 @@ const NewQuotationVendor: FC = () => {
                   ))}
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Total Material
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalMaterial.toLocaleString('id')}`}</td>
                 </tr>
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Total Jasa & Material
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalJasaMaterial.toLocaleString('id')}`}</td>
                 </tr>
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Promosi / Discount
                   </td>
 
@@ -1151,7 +1163,7 @@ const NewQuotationVendor: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${grandTotal.toLocaleString('id')}`}</td>

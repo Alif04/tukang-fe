@@ -4,7 +4,7 @@
   margin-bottom: 30px;
 }
 
-#update-store .form-wrapper .form-new-store {
+#update-store .form-wrapper .form-update-store {
   padding: 0 200px;
 }
 
@@ -28,6 +28,11 @@
   font-size: 11px;
 }
 
+/* Form Layout */
+#update-store .row {
+  margin: 0 0 20px 0 !important;
+}
+
 /* Button */
 
 #update-store .btn.btn-dark-danger {
@@ -47,7 +52,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100px;
+  width: 150px;
   height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;

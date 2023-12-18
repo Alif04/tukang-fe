@@ -45,6 +45,7 @@ const CSIpage: React.FC = () => {
           </>
         }
       />
+
       <Route
         path='format-pertanyaan-csi'
         element={
@@ -61,22 +62,7 @@ const CSIpage: React.FC = () => {
           </>
         }
       />
-      <Route
-        path='format-email-csi'
-        element={
-          <>
-            {userRole == 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMAT EMAIL CSI</PageTitle>
-            <UpdateCSI />
-          </>
-        }
-      />
+
       <Route
         path='report-csi'
         element={
@@ -93,6 +79,7 @@ const CSIpage: React.FC = () => {
           </>
         }
       />
+
       <Route index element={<Navigate to='/csi/view-csi' />} />
     </Routes>
   )

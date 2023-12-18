@@ -65,7 +65,7 @@
   background-color: #555555;
 }
 
-#detail-invoice
+#detail-quotation
   .detail-table
   table.table.table-striped.table-bordered.table-hover
   tr:nth-child(even)
@@ -73,7 +73,7 @@
   background-color: #e4e9f7;
 }
 
-#detail-invoice
+#detail-quotation
   .detail-table
   table.table.table-striped.table-bordered.table-hover
   tr:nth-child(odd)

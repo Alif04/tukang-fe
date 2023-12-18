@@ -13,10 +13,10 @@ interface City {
   label: string
 }
 
-interface Province {
-  value: number | null
-  label: string
-}
+// interface Province {
+//   value: number | null
+//   label: string
+// }
 
 interface Bank {
   value: number | null
@@ -28,7 +28,7 @@ interface Store {
   address_1: string
   address_2: string
   city_id: number | null
-  province_id: number | null
+  // province_id: number | null
   phone_number: number | null
   email: string
   bank_id: number | null
@@ -46,7 +46,7 @@ const NewStore: FC = () => {
     address_1: '',
     address_2: '',
     city_id: null,
-    province_id: null,
+    // province_id: null,
     phone_number: null,
     email: '',
     bank_id: null,
@@ -61,12 +61,12 @@ const NewStore: FC = () => {
     label: '',
   })
 
-  // Province
-  const [province, setProvince] = useState<Province[]>([])
-  const [selectedProvince, setSelectedProvince] = useState<SingleValue<Province>>({
-    value: null,
-    label: '',
-  })
+  // // Province
+  // const [province, setProvince] = useState<Province[]>([])
+  // const [selectedProvince, setSelectedProvince] = useState<SingleValue<Province>>({
+  //   value: null,
+  //   label: '',
+  // })
 
   // Bank
   const [bank, setBank] = useState<Bank[]>([])
@@ -91,7 +91,7 @@ const NewStore: FC = () => {
         if (Array.isArray(response.data.data)) {
           const tempCity = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.store_name,
+            label: item.city_name,
           }))
 
           setCity(tempCity)
@@ -150,12 +150,12 @@ const NewStore: FC = () => {
   }, [selectedCity])
 
   // Change Select Province
-  useEffect(() => {
-    setStoreInfo((prev) => ({
-      ...prev,
-      province_id: selectedProvince?.value ?? null,
-    }))
-  }, [selectedProvince])
+  // useEffect(() => {
+  //   setStoreInfo((prev) => ({
+  //     ...prev,
+  //     province_id: selectedProvince?.value ?? null,
+  //   }))
+  // }, [selectedProvince])
 
   // Change Select Bank
   useEffect(() => {
@@ -187,13 +187,6 @@ const NewStore: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please select City form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!storeInfo.province_id) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Provinsi form',
         icon: 'error',
       })
       valid = false
@@ -288,7 +281,7 @@ const NewStore: FC = () => {
             <div className='form-new-store'>
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
+                  <Form.Group>
                     <Form.Label>Toko ID</Form.Label>
                     <Form.Control
                       name='store_id'
@@ -299,7 +292,7 @@ const NewStore: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
+                  <Form.Group>
                     <Form.Label>Nama Toko</Form.Label>
                     <Form.Control
                       name='store_name'
@@ -341,17 +334,19 @@ const NewStore: FC = () => {
                       placeholder='Pilih Nama Kota'
                       isSearchable={true}
                       options={city}
-                      value={{
-                        value: selectedCity?.value ?? null,
-                        label: selectedCity?.label ?? '',
-                      }}
                       onChange={(newValue) => setSelectedCity(newValue)}
                     />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type='email'
+                    name='email'
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
+                  {/* <Form.Group>
                     <Form.Label>Province</Form.Label>
                     <Select
                       classNamePrefix='select'
@@ -364,7 +359,7 @@ const NewStore: FC = () => {
                       }}
                       onChange={(newValue) => setSelectedProvince(newValue)}
                     />
-                  </Form.Group>
+                  </Form.Group> */}
                 </Col>
               </Row>
 
@@ -379,12 +374,12 @@ const NewStore: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Email</Form.Label>
+                  {/* <Form.Label>Email</Form.Label>
                   <Form.Control
                     type='email'
                     name='email'
                     onChange={(e) => storeInfoFormHandler(e)}
-                  />
+                  /> */}
                 </Col>
               </Row>
 
@@ -399,10 +394,6 @@ const NewStore: FC = () => {
                       placeholder='Pilih Nama Bank'
                       isSearchable={true}
                       options={bank}
-                      value={{
-                        value: selectedBank?.value ?? null,
-                        label: selectedBank?.label ?? '',
-                      }}
                       onChange={(newValue) => setSelectedBank(newValue)}
                     />
                   </Form.Group>

@@ -40,8 +40,8 @@ const ChartBarOrder: React.FC<Props> = ({className}) => {
 
   return (
     <div className={`card ${className}`}>
-      <div className='card-body'>
-        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '350px'}} />
+      <div className='card-body p-1'>
+        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '235px'}} />
       </div>
     </div>
   )

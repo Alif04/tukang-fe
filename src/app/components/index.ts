@@ -178,6 +178,10 @@ export * from './admin-ho/csi/update_csi/UpdateCSI'
 // Report CSI
 export * from './admin-ho/csi/report_csi/ReportCSI'
 
+// Format Email
+// New Format Email
+export * from './admin-ho/format_email/FormatEmailHO'
+
 // SALES
 // Update Sales
 export * from './admin-ho/sales/update_sales/UpdateSales'

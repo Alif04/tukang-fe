@@ -448,8 +448,8 @@ export function AsideMenuMain() {
         role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItem
-          to='/csi/format-email-csi'
-          title='Format Email CSI'
+          to='/email/format-email'
+          title='Format Email'
           role={['Admin HO']}
           hasBullet={true}
         />

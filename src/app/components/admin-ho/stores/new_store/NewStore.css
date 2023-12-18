@@ -28,6 +28,12 @@
   font-size: 11px;
 }
 
+/* Form Layout */
+
+#new-store .row {
+  margin: 0 0 20px 0 !important;
+}
+
 /* Button */
 
 #new-store .btn.btn-dark-danger {
@@ -47,7 +53,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100px;
+  width: 150px;
   height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;

@@ -13,11 +13,6 @@ interface City {
   label: string
 }
 
-interface Province {
-  value: number | null
-  label: string
-}
-
 interface Bank {
   value: number | null
   label: string
@@ -29,7 +24,6 @@ interface Store {
   address_1: string
   address_2: string
   city_id: number | null
-  province_id: number | null
   phone_number: number | null
   email: string
   bank_id: number | null
@@ -49,7 +43,6 @@ const UpdateStores: FC = () => {
     address_1: '',
     address_2: '',
     city_id: null,
-    province_id: null,
     phone_number: null,
     email: '',
     bank_id: null,
@@ -60,13 +53,6 @@ const UpdateStores: FC = () => {
   // City
   const [city, setCity] = useState<City[]>([])
   const [selectedCity, setSelectedCity] = useState<SingleValue<City>>({
-    value: null,
-    label: '',
-  })
-
-  // Province
-  const [province, setProvince] = useState<Province[]>([])
-  const [selectedProvince, setSelectedProvince] = useState<SingleValue<Province>>({
     value: null,
     label: '',
   })
@@ -107,42 +93,30 @@ const UpdateStores: FC = () => {
               }))
             }
 
-            if (data?.province_id) {
+            if (data) {
               setStoreInfo((prev) => ({
                 ...prev,
-                province_id: data.province_id,
-              }))
-
-              setSelectedProvince((prev) => ({
-                ...prev,
-                value: data?.province?.id,
-                label: data?.province?.province_name,
-              }))
-            }
-
-            if (data?.bank_id) {
-              setStoreInfo((prev) => ({
-                ...prev,
-                bank_id: data.bank_id,
+                bank_id: data?.bank_id,
               }))
 
               setSelectedBank((prev) => ({
                 ...prev,
-                value: data?.bank?.id,
-                label: data?.bank?.bank_name,
+                value: data?.id,
+                label: data?.bank_name,
               }))
             }
 
             if (data) {
               setStoreInfo((prev) => ({
                 ...prev,
+                store_id: data?.id,
                 store_name: data?.store_name,
-                address_1: data?.address_1,
+                address_1: data?.address,
                 address_2: data?.address_2,
                 phone_number: data?.phone_number_1,
                 email: data?.email,
-                account_name: data?.account_name,
-                account_number: data?.account_number,
+                account_name: data?.bank_account,
+                account_number: data?.bank_number,
               }))
             }
           })
@@ -224,14 +198,6 @@ const UpdateStores: FC = () => {
     }))
   }, [selectedCity])
 
-  // Change Select Province
-  useEffect(() => {
-    setStoreInfo((prev) => ({
-      ...prev,
-      province_id: selectedProvince?.value ?? null,
-    }))
-  }, [selectedProvince])
-
   // Change Select Bank
   useEffect(() => {
     setStoreInfo((prev) => ({
@@ -262,13 +228,6 @@ const UpdateStores: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please select City form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!storeInfo.province_id) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Provinsi form',
         icon: 'error',
       })
       valid = false
@@ -360,10 +319,10 @@ const UpdateStores: FC = () => {
       <Card className='mb-5'>
         <Card.Body>
           <div className='form-wrapper'>
-            <div className='form-new-store'>
+            <div className='form-update-store'>
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
+                  <Form.Group>
                     <Form.Label>Toko ID</Form.Label>
                     <Form.Control
                       name='store_id'
@@ -376,7 +335,7 @@ const UpdateStores: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
+                  <Form.Group>
                     <Form.Label>Nama Toko</Form.Label>
                     <Form.Control
                       name='store_name'
@@ -430,29 +389,13 @@ const UpdateStores: FC = () => {
                   </Form.Group>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group>
-                    <Form.Label>Province</Form.Label>
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Nama Provinsi'
-                      isSearchable={true}
-                      options={province}
-                      value={{
-                        value: selectedProvince?.value ?? null,
-                        label: selectedProvince?.label ?? '',
-                      }}
-                      onChange={(newValue) => setSelectedProvince(newValue)}
-                    />
-                  </Form.Group>
-                </Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}></Col>
               </Row>
 
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Telpon</Form.Label>
                   <Form.Control
-                    type='number'
                     name='phone_number'
                     value={storeInfo.phone_number ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
@@ -493,7 +436,6 @@ const UpdateStores: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Nomor Akun</Form.Label>
                   <Form.Control
-                    type='number'
                     name='account_number'
                     value={storeInfo.account_number ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
