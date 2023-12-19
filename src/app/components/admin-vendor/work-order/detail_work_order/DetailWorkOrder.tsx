@@ -201,12 +201,12 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               </Col>
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <div className='survey mb-3'>
-                  <div className='fs-3 fw-bold'>Survey</div>
+                <Row>
+                  <Col>
+                    <div className='survey mb-3'>
+                      <div className='fs-3 fw-bold'>Survey</div>
 
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className='detail-info'>
+                      <Form.Group className='detail-info mb-3'>
                         <Form.Label>Tanggal Survey :</Form.Label>
 
                         <Form.Control
@@ -215,10 +215,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           value={formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))}
                         />
                       </Form.Group>
-                    </Col>
 
-                    <Col md={6}>
-                      <Form.Group className='detail-info'>
+                      <Form.Group className='detail-info mb-3'>
                         <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
                         <Select
                           classNamePrefix='select'
@@ -231,16 +229,14 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           value={workOrder.tukang_id}
                         />
                       </Form.Group>
-                    </Col>
-                  </Row>
-                </div>
+                    </div>
+                  </Col>
 
-                <div className='work-date'>
-                  <div className='fs-3 fw-bold'>Tanggal Pengerjaan</div>
+                  <Col>
+                    <div className='work-date'>
+                      <div className='fs-3 fw-bold'>Pengerjaan</div>
 
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className='detail-info'>
+                      <Form.Group className='detail-info mb-3'>
                         <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
 
                         <RangePicker
@@ -253,11 +249,23 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           disabled={[true, true]}
                         />
                       </Form.Group>
-                    </Col>
 
-                    <Col md={6}></Col>
-                  </Row>
-                </div>
+                      <Form.Group className='detail-info mb-3'>
+                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+                        <Select
+                          classNamePrefix='select'
+                          closeMenuOnSelect={false}
+                          isClearable={false}
+                          isMulti
+                          menuIsOpen={false}
+                          getOptionLabel={(option) => `${option.tukang_name}`}
+                          getOptionValue={(option) => `${option.tukang_id}`}
+                          value={workOrder.tukang_id}
+                        />
+                      </Form.Group>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </div>

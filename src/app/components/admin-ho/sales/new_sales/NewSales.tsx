@@ -33,7 +33,7 @@ interface Sales {
   account_name: string
   phone_number: string
   account_number: string
-  sales_brands: string
+  sales_brand: string
   sales_categories: CategorySelect[]
   default_password: string
 }
@@ -62,7 +62,7 @@ const NewSales: FC = () => {
     account_name: '',
     phone_number: '',
     account_number: '',
-    sales_brands: '',
+    sales_brand: '',
     sales_categories: [],
     default_password: '',
   })
@@ -193,10 +193,6 @@ const NewSales: FC = () => {
       const salesData = apiData.map((item: any) => {
         let data
 
-        const salesBrand = item.sales_brands
-          .map((sales_brands: any) => sales_brands.brands.name)
-          .join(', ')
-
         const salesCategory = item.sales_categories
           .map((sales_categories: any) => sales_categories.categories.category_name)
           .join(', ')
@@ -206,7 +202,7 @@ const NewSales: FC = () => {
           store_name: item?.store?.store_name ?? '',
           full_name: item?.full_name ?? '',
           nik: item?.nik ?? '-',
-          sales_brand: salesBrand,
+          sales_brand: item?.sales_brand ?? '-',
           sales_category: salesCategory,
           is_active: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
         }
@@ -572,7 +568,7 @@ const NewSales: FC = () => {
                     <Form.Label>Brands</Form.Label>
 
                     <Form.Control
-                      name='sales_brands'
+                      name='sales_brand'
                       type='text'
                       onChange={(e) => salesInfoFormHandler(e)}
                     />

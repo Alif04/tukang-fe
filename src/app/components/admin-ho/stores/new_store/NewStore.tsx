@@ -286,6 +286,7 @@ const NewStore: FC = () => {
                     <Form.Control
                       name='store_id'
                       type='number'
+                      readOnly
                       onChange={(e) => storeInfoFormHandler(e)}
                     />
                   </Form.Group>

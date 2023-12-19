@@ -255,12 +255,6 @@ const ViewSalesHO: React.FC = () => {
       const salesData = apiData.map((item: any) => {
         let data
 
-        const joinDate = new Date(item.join_date)
-
-        const salesBrand = item.sales_brands
-          .map((sales_brands: any) => sales_brands.brands.name)
-          .join(', ')
-
         const salesCategory = item.sales_categories
           .map((sales_categories: any) => sales_categories.categories.category_name)
           .join(', ')
@@ -270,7 +264,7 @@ const ViewSalesHO: React.FC = () => {
           store_name: item.store.store_name,
           full_name: item.full_name,
           nik: item.nik,
-          sales_brand: salesBrand,
+          sales_brand: item.sales_brand,
           sales_category: salesCategory,
           is_active: item.is_active === 'true' ? 'ACTIVE' : 'NON ACTIVE',
         }

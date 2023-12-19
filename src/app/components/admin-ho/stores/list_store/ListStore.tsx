@@ -259,7 +259,7 @@ const ListStoreHO: React.FC = () => {
 
       return storeData
     } catch (error) {
-      console.error('Error getting order list data:', error)
+      console.error('Error getting store list data:', error)
       return []
     }
   }
