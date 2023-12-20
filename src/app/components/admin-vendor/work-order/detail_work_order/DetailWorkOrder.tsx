@@ -9,8 +9,13 @@ import Select from 'react-select'
 import dayjs from 'dayjs'
 import {useParams} from 'react-router-dom'
 import {Form, Row, Col, Table} from 'react-bootstrap'
-import {DatePicker} from 'antd'
+import {DatePicker, Steps} from 'antd'
 const {RangePicker} = DatePicker
+
+interface Status {
+  value: number | null
+  category: string
+}
 
 const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -92,6 +97,55 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     })
   }
 
+  // Statuses for Order Timeline
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+
+  const getStatuses = (categories: string[]) =>
+    statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)
+
+  const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
+  const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
+  const workDoneStatuses = getStatuses(['WARRANTYCLAIM', 'DONE'])
+
+  const orderHistory = [
+    {title: 'Booking Process', value: bookStatuses},
+    {title: 'Survey Process', value: surveyStatuses},
+    {title: 'Work in Progress', value: workStatuses},
+    {title: 'Work Done', value: workDoneStatuses},
+  ]
+
+  // Statuses for Complaint Timeline
+  const complaintReceivedStatuses = getStatuses(['INVESTIGATE'])
+  const investigationProcessStatuses = getStatuses(['INVESTIGATED', 'APPROVED', 'ACCEPTED'])
+  const remedialProgressStatuses = getStatuses([
+    'RESURVEYREQ',
+    'RESURVEYSTART',
+    'REWORKREQ',
+    'REWORKSTART',
+  ])
+  const complaintDoneStatuses = getStatuses(['RESURVEYDONE', 'REWORKEND'])
+
+  const complaintHistory = [
+    {
+      title: 'Complaint Received',
+      value: complaintReceivedStatuses,
+    },
+    {
+      title: 'Investigation Proccess',
+      value: investigationProcessStatuses,
+    },
+    {
+      title: 'Remedial Progress',
+      value: remedialProgressStatuses,
+    },
+    {
+      title: 'Complaint Done',
+      value: complaintDoneStatuses,
+    },
+  ]
+
   return (
     <section id='detail-work-order'>
       <div className='card mb-5'>
@@ -138,7 +192,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {orderDetail?.status?.category ?? ''}
+                      {orderDetail?.work_orders === null
+                        ? orderDetail?.status?.category
+                        : orderDetail?.work_orders?.work_order_status[0]?.status?.category ?? ''}
                     </span>
                   </Form.Label>
                 </Col>
@@ -328,6 +384,36 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               </Table>
             </div>
           </Row>
+
+          <div className='order-history mt-3 mb-3'>
+            <div className='fs-3 text-uppercase fw-bold text-black mb-4'>Order History</div>
+            <Steps
+              className='order-history-timeline'
+              current={orderHistory.findIndex((step) =>
+                step.value.includes(
+                  orderDetail?.work_orders === null
+                    ? orderDetail?.project_status_id
+                    : orderDetail?.work_orders?.status_id
+                )
+              )}
+              labelPlacement='vertical'
+              items={orderHistory}
+            />
+          </div>
+
+          {orderDetail?.complaints && orderDetail?.complaints?.length >= 1 && (
+            <div className='complaint-history  mt-3 mb-3'>
+              <div className='fs-3 text-uppercase fw-bold text-black mb-4'>Complaint History</div>
+              <Steps
+                className='complaint-history-timeline'
+                current={complaintHistory.findIndex((step) =>
+                  step.value.includes(orderDetail?.complaints?.[0]?.complaint_status ?? 0)
+                )}
+                labelPlacement='vertical'
+                items={complaintHistory}
+              />
+            </div>
+          )}
         </div>
       </div>
     </section>

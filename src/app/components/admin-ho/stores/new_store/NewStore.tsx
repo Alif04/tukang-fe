@@ -18,22 +18,23 @@ interface City {
 //   label: string
 // }
 
-interface Bank {
-  value: number | null
-  label: string
-}
+// interface Bank {
+//   value: number | null
+//   label: string
+// }
 
 interface Store {
   store_name: string
-  address_1: string
-  address_2: string
+  address: string
+  // address_2: string
   city_id: number | null
   // province_id: number | null
-  phone_number: number | null
+  phone_number_1: number | null
   email: string
-  bank_id: number | null
-  account_name: string
-  account_number: number | null
+  bank_name: string
+  bank_number: string
+  bank_account: number | null
+  zip_code: string
 }
 
 const NewStore: FC = () => {
@@ -43,15 +44,16 @@ const NewStore: FC = () => {
   // Store
   const [storeInfo, setStoreInfo] = useState<Store>({
     store_name: '',
-    address_1: '',
-    address_2: '',
+    address: '',
+    // address_2: '',
     city_id: null,
     // province_id: null,
-    phone_number: null,
+    phone_number_1: null,
     email: '',
-    bank_id: null,
-    account_name: '',
-    account_number: null,
+    bank_name: '',
+    bank_number: '',
+    bank_account: null,
+    zip_code: '',
   })
 
   // City
@@ -69,17 +71,17 @@ const NewStore: FC = () => {
   // })
 
   // Bank
-  const [bank, setBank] = useState<Bank[]>([])
-  const [selectedBank, setSelectedBank] = useState<SingleValue<Bank>>({
-    value: null,
-    label: '',
-  })
+  // const [bank, setBank] = useState<Bank[]>([])
+  // const [selectedBank, setSelectedBank] = useState<SingleValue<Bank>>({
+  //   value: null,
+  //   label: '',
+  // })
 
   // Fetch API Data
   useEffect(() => {
     const getCity = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/city`, {
+        const response = await axios.get(`${apiUrl}/city?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -103,34 +105,34 @@ const NewStore: FC = () => {
       }
     }
 
-    const getBank = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/bank`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+    // const getBank = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/bank`, {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //         'Access-Control-Allow-Origin': '*',
+    //         'ngrok-skip-browser-warning': 'true',
+    //       },
+    //     })
 
-        if (Array.isArray(response.data.data)) {
-          const tempBank = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.bank_name,
-          }))
+    //     if (Array.isArray(response.data.data)) {
+    //       const tempBank = response.data.data.map((item: any) => ({
+    //         value: item.id,
+    //         label: item.bank_name,
+    //       }))
 
-          setBank(tempBank)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
+    //       setBank(tempBank)
+    //     } else {
+    //       console.error('API response data is not an array:', response.data)
+    //     }
+    //   } catch (err) {
+    //     console.error(err)
+    //   }
+    // }
 
     getCity()
-    getBank()
+    // getBank()
   }, [])
 
   // Store Form Handler
@@ -158,12 +160,12 @@ const NewStore: FC = () => {
   // }, [selectedProvince])
 
   // Change Select Bank
-  useEffect(() => {
-    setStoreInfo((prev) => ({
-      ...prev,
-      bank_id: selectedBank?.value ?? null,
-    }))
-  }, [selectedBank])
+  // useEffect(() => {
+  //   setStoreInfo((prev) => ({
+  //     ...prev,
+  //     bank_id: selectedBank?.value ?? null,
+  //   }))
+  // }, [selectedBank])
 
   // Store Validation
   const StoreValidation = () => {
@@ -176,7 +178,7 @@ const NewStore: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.address_1) {
+    } else if (!storeInfo.address) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Alamat 1 form',
@@ -190,7 +192,7 @@ const NewStore: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.phone_number) {
+    } else if (!storeInfo.phone_number_1) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Telpon form',
@@ -204,21 +206,21 @@ const NewStore: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.bank_id) {
+    } else if (!storeInfo.bank_name) {
       Swal.fire({
         title: 'Error',
         text: 'Please select Bank form',
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.account_name) {
+    } else if (!storeInfo.bank_number) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nama Pemilik Akun form',
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.account_number) {
+    } else if (!storeInfo.bank_account) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nomor Akun form',
@@ -244,7 +246,7 @@ const NewStore: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Add New Customers',
+            text: 'Success Add New Stores',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -309,7 +311,7 @@ const NewStore: FC = () => {
                   <Form.Label>Alamat</Form.Label>
                   <Form.Control
                     as='textarea'
-                    name='address_1'
+                    name='address'
                     className='field-alamat'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
@@ -319,7 +321,7 @@ const NewStore: FC = () => {
                   <Form.Label>Alamat 2</Form.Label>
                   <Form.Control
                     as='textarea'
-                    name='address_2'
+                    // name='address_2'
                     className='field-alamat'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
@@ -369,12 +371,18 @@ const NewStore: FC = () => {
                   <Form.Label>Telpon</Form.Label>
                   <Form.Control
                     type='number'
-                    name='phone_number'
+                    name='phone_number_1'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>Zip Code</Form.Label>
+                  <Form.Control
+                    type='number'
+                    name='zip_code'
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
                   {/* <Form.Label>Email</Form.Label>
                   <Form.Control
                     type='email'
@@ -390,13 +398,18 @@ const NewStore: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group>
                     <Form.Label>Nama Bank</Form.Label>
-                    <Select
+                    <Form.Control
+                      type='text'
+                      name='bank_name'
+                      onChange={(e) => storeInfoFormHandler(e)}
+                    />
+                    {/* <Select
                       classNamePrefix='select'
                       placeholder='Pilih Nama Bank'
                       isSearchable={true}
                       options={bank}
                       onChange={(newValue) => setSelectedBank(newValue)}
-                    />
+                    /> */}
                   </Form.Group>
                 </Col>
 
@@ -404,7 +417,7 @@ const NewStore: FC = () => {
                   <Form.Label>Nomor Akun</Form.Label>
                   <Form.Control
                     type='number'
-                    name='account_number'
+                    name='bank_account'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
@@ -416,7 +429,7 @@ const NewStore: FC = () => {
                     <Form.Label>Nama Pemilik Akun</Form.Label>
                     <Form.Control
                       type='text'
-                      name='account_name'
+                      name='bank_number'
                       onChange={(e) => storeInfoFormHandler(e)}
                     />
                   </Form.Group>

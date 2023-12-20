@@ -492,110 +492,114 @@ const NewMaterialVendor: FC = () => {
           </Row>
 
           <Row>
-            <div className='d-flex justify-content-end'>
-              <Button variant='button-dark-primary' onClick={() => handleAddForm(1)}>
-                Tambah Material
-              </Button>
-            </div>
+            <Col>
+              <div className='d-flex justify-content-end'>
+                <Button variant='button-dark-primary' onClick={() => handleAddForm(1)}>
+                  Tambah Material
+                </Button>
+              </div>
 
-            <div className='fs-5 text-dark fw-bold mb-2'>List Material</div>
+              <div className='fs-5 text-dark fw-bold mb-2'>List Material</div>
 
-            <table className='table'>
-              <thead className='table-item-head'>
-                <tr>
-                  <th>Disediakan Customer</th>
-                  <th>Item</th>
-                  <th>Quantity</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
+              <table className='table'>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th>Disediakan Customer</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {workOrderItem
-                  .filter((x) => x.type === 1)
-                  .map((element, index) => (
-                    <tr
-                      key={`${stringToHash(element.index)}-material`}
-                      id={`${stringToHash(element.index)}-material`}
-                    >
-                      <td>
-                        <Form.Check
-                          id={`is-user-${index}`}
-                          type='checkbox'
-                          checked={element.is_user === 1}
-                          onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
-                        />
-                      </td>
+                <tbody>
+                  {workOrderItem
+                    .filter((x) => x.type === 1)
+                    .map((element, index) => (
+                      <tr
+                        key={`${stringToHash(element.index)}-material`}
+                        id={`${stringToHash(element.index)}-material`}
+                      >
+                        <td>
+                          <Form.Check
+                            id={`is-user-${index}`}
+                            type='checkbox'
+                            checked={element.is_user === 1}
+                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                          />
+                        </td>
 
-                      <td>
-                        <Form.Control
-                          id={`item-name-${index}`}
-                          value={element.item_name}
-                          onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                        />
-                      </td>
+                        <td>
+                          <Form.Control
+                            id={`item-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
+                          />
+                        </td>
 
-                      <td>
-                        <Form.Control
-                          id={`quantity-${index}`}
-                          value={element.quantity?.toString()}
-                          onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
-                        />
-                      </td>
+                        <td>
+                          <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity?.toString()}
+                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
+                          />
+                        </td>
 
-                      <td>
-                        <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                          <FontAwesomeIcon icon={faTrash} />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+                        <td>
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </Col>
           </Row>
 
           <Row>
-            <div className='d-flex justify-content-end'>
-              <Button variant='button-warning' onClick={() => handleAddForm(2)}>
-                Tambah Jasa Pemasangan
-              </Button>
-            </div>
+            <Col>
+              <div className='d-flex justify-content-end'>
+                <Button variant='button-warning' onClick={() => handleAddForm(2)}>
+                  Tambah Jasa Pemasangan
+                </Button>
+              </div>
 
-            <div className='fs-5 text-dark fw-bold mb-2'>List Jasa Pemasangan</div>
+              <div className='fs-5 text-dark fw-bold mb-2'>List Jasa Pemasangan</div>
 
-            <table className='table'>
-              <thead className='table-item-head'>
-                <tr>
-                  <th>Jasa Pemasangan</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
+              <table className='table'>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th>Jasa Pemasangan</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {workOrderItem
-                  .filter((x) => x.type === 2)
-                  .map((element, index) => (
-                    <tr
-                      key={`${stringToHash(element.index)}-service`}
-                      id={`${stringToHash(element.index)}-service`}
-                    >
-                      <td>
-                        <Form.Control
-                          id={`service-name-${index}`}
-                          value={element.item_name}
-                          onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                        />
-                      </td>
+                <tbody>
+                  {workOrderItem
+                    .filter((x) => x.type === 2)
+                    .map((element, index) => (
+                      <tr
+                        key={`${stringToHash(element.index)}-service`}
+                        id={`${stringToHash(element.index)}-service`}
+                      >
+                        <td>
+                          <Form.Control
+                            id={`service-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                          />
+                        </td>
 
-                      <td>
-                        <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                          <FontAwesomeIcon icon={faTrash} />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+                        <td>
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </Col>
           </Row>
 
           <div className='d-flex justify-content-center align-items-center'>

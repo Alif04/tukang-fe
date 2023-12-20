@@ -1,4 +1,4 @@
-#detail-tukang {
+/* #detail-tukang {
   margin-top: 20px;
 }
 
@@ -6,62 +6,56 @@
   margin-bottom: 50px;
 }
 
-#detail-tukang .row .content-top .col-3 {
+#detail-tukang .row .content-top .col-md-3 {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-#detail-tukang .row .content-top .col-3 i {
+#detail-tukang .row .content-top .col-md-3 i {
   font-size: 150px;
 }
 
-#detail-tukang .row .content-top .col-9 .box {
+#detail-tukang .row .content-top .col-md-9 .box {
   padding: 10px;
 }
 
-#detail-tukang .row .content-top .col-9 .box h1 {
+#detail-tukang .row .content-top .col-md-9 .box h1 {
   font-size: 34px;
 }
 
-#detail-tukang .row .content-top .col-9 .box p {
+#detail-tukang .row .content-top .col-md-9 .box p {
   font-size: 20px;
   margin-top: 5px;
 }
 
-#detail-tukang .row .content-top .col-9 .box small {
+#detail-tukang .row .content-top .col-md-9 .box small {
   font-size: 14px;
 }
 
-#detail-tukang .row .content-top .col-9 .box .star-rating {
+#detail-tukang .row .content-top .col-md-9 .box .star-rating {
   column-gap: 4px;
   display: flex;
 }
 
-#detail-tukang .row .content-top .col-9 .box .star-rating span i {
+#detail-tukang .row .content-top .col-md-9 .box .star-rating span i {
   font-size: 30px;
 }
 
-#detail-tukang .row .content-top .col-9 .box .star-rating .bi-star-fill {
+#detail-tukang .row .content-top .col-md-9 .box .star-rating .bi-star-fill {
   color: rgb(238, 147, 98);
 }
 
-/* #detail-tukang .row .content-bottom{
-    
-} */
-
-/* content-bottom */
-
-#detail-tukang .row .content-bottom .col-3 .box .title {
+#detail-tukang .row .content-bottom .col-md-3 .box .title {
   margin-bottom: 10px;
   margin-top: 20px;
 }
 
-#detail-tukang .row .content-bottom .col-3 .box .title h4 {
+#detail-tukang .row .content-bottom .col-md-3 .box .title h4 {
   color: #9a9a9a;
 }
 
-#detail-tukang .row .content-bottom .col-3 .box ul {
+#detail-tukang .row .content-bottom .col-md-3 .box ul {
   line-height: 25px;
 }
 
@@ -69,12 +63,12 @@
   display: flex;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .tab-title {
+#detail-tukang .content-bottom .col-md-9 .tab .tab-title {
   border-bottom: 1px solid rgb(200, 200, 200);
   margin-bottom: 10px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .tab-title .title {
+#detail-tukang .content-bottom .col-md-9 .tab .tab-title .title {
   display: flex;
   column-gap: 5px;
   padding: 0 10px 0 5px;
@@ -82,44 +76,44 @@
   border-bottom: 1px solid black;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .tab-title .title i {
+#detail-tukang .content-bottom .col-md-9 .tab .tab-title .title i {
   font-size: 30px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .tab-title .title p {
+#detail-tukang .content-bottom .col-md-9 .tab .tab-title .title p {
   font-weight: 500;
   font-size: 18px;
   margin-top: 8px;
   color: #9a9a9a;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .data-diri {
+#detail-tukang .content-bottom .col-md-9 .tab .data-diri {
   width: 50%;
   line-height: 25px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .data-diri .data {
+#detail-tukang .content-bottom .col-md-9 .tab .data-diri .data {
   margin-top: 20px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .data-diri .left {
+#detail-tukang .content-bottom .col-md-9 .tab .data-diri .left {
   text-align: right;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .data-diri .right {
+#detail-tukang .content-bottom .col-md-9 .tab .data-diri .right {
   text-align: left;
   padding-left: 10px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .basic-info {
+#detail-tukang .content-bottom .col-md-9 .tab .basic-info {
   margin-top: 80px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .basic-info .data {
+#detail-tukang .content-bottom .col-md-9 .tab .basic-info .data {
   margin-top: 20px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .basic-info p {
+#detail-tukang .content-bottom .col-md-9 .tab .basic-info p {
   font-size: 18px;
   background-color: #f8f8f8;
   margin-top: -28px;
@@ -128,10 +122,204 @@
   position: relative;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .basic-info tr {
+#detail-tukang .content-bottom .col-md-9 .tab .basic-info tr {
   line-height: 25px;
 }
 
-#detail-tukang .content-bottom .col-9 .tab .basic-info tr .right {
+#detail-tukang .content-bottom .col-md-9 .tab .basic-info tr .right {
   padding-left: 10px;
+} */
+
+/* Form Layout */
+
+#detail-tukang {
+  margin-top: 20px;
+}
+
+#detail-tukang input.form-control-plaintext {
+  padding: 5px 0;
+}
+
+#detail-tukang label.form-label.col-form-label {
+  padding: 5px 5px;
+}
+
+#detail-tukang .col-md-5 {
+  padding: 0px 3px;
+}
+
+/* Table */
+#detail-tukang .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#detail-tukang
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0px !important;
+}
+
+/* Content Top */
+
+#detail-tukang .row.row-1 {
+  margin-bottom: 50px;
+}
+
+#detail-tukang .row.row-1 .col-xxl-3 {
+  display: flex;
+  justify-content: center;
+}
+
+#detail-tukang .row.row-1 .col-xxl-3 i {
+  font-size: 150px;
+}
+
+#detail-tukang .row.row-1 .col-xxl-9 {
+  padding: 10px;
+}
+
+/* Content Middle */
+
+#detail-tukang .row.row-2 .col-xxl-3 {
+  padding: 0 12px 0 0;
+}
+
+#detail-tukang .row.row-2 .col-xxl-3 .box .title {
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+#detail-tukang .row.row-2 .col-xxl-3 .box .title h4 {
+  color: #9a9a9a;
+}
+
+#detail-tukang .row.row-2 .col-xxl-3 .box ul {
+  line-height: 25px;
+}
+
+#detail-tukang .row.row-2 {
+  display: flex;
+}
+
+#detail-tukang .row.row-2 .col-xxl-9 .tab .tab-title {
+  border-bottom: 1px solid rgb(200, 200, 200);
+  margin-bottom: 10px;
+}
+
+#detail-tukang .row.row-2 .col-xxl-9 .tab .tab-title .title {
+  display: flex;
+  column-gap: 5px;
+  padding: 0 10px 0 5px;
+  width: fit-content;
+  border-bottom: 1px solid black;
+}
+
+#detail-tukang .row.row-2 .col-xxl-9 .tab .tab-title .title i {
+  font-size: 30px;
+}
+
+#detail-tukang .row.row-2 .col-xxl-9 .tab .tab-title .title p {
+  font-weight: 500;
+  font-size: 18px;
+  margin-top: 8px;
+  color: #9a9a9a;
+}
+
+/* #detail-tukang .row.row-2 .col-xxl-9 .tab .data-diri {
+  width: 50%;
+  line-height: 25px;
+} */
+
+#detail-tukang .row.row-2 .basic-info {
+  margin-top: 35px;
+}
+
+#detail-tukang .row.row-2 .basic-info p {
+  font-size: 18px;
+  background-color: #ffff;
+  margin-top: -28px;
+  padding-right: 10px;
+  width: fit-content;
+  position: relative;
+}
+
+#detail-tukang .row.row-2 .basic-info i.bi.bi-person-fill {
+  font-size: 24px;
+  background-color: #ffff;
+  margin-top: -28px;
+  padding-right: 10px;
+  width: fit-content;
+  position: relative;
+}
+
+/* Content Bottom */
+#detail-tukang .nav-fill > .nav-link,
+.nav-fill .nav-item {
+  width: fit-content;
+  position: relative;
+  color: grey;
+  font-weight: 500;
+  border-right: 2.5px solid grey;
+  line-height: 5px;
+}
+
+#detail-tukang .nav-fill > .nav-link,
+.nav-fill .nav-item:nth-child(2) {
+  border-right: none;
+}
+
+#detail-tukang ul.navtab-detail-costumer.nav.nav-tabs {
+  margin: -23px 0px 10px 0;
+  width: 350px !important;
+}
+
+#detail-tukang .navtab-detail-costumer.nav.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  color: grey;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  border-color: transparent;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+#detail-tukang .navtab-detail-costumer.nav.nav-tabs .nav-link {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  background-color: white;
+  border-color: transparent;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+#detail-tukang .navtab-detail-costumer.nav.nav-tabs .nav-link:hover {
+  border-color: transparent;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+#detail-tukang .nav-item.tab-1 {
+  border-right: 2px solid black !important;
+}
+
+@media screen and (max-width: 1200px) {
+  #detail-tukang .row.row-2 .col-xxl-3 {
+    padding: 0 9.75px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #detail-tukang .costumer-profile {
+    text-align: center;
+  }
 }

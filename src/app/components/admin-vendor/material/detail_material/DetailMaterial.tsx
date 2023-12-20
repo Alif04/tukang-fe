@@ -75,10 +75,7 @@ const DetailMaterialVendor: FC = () => {
 
               <h3 className='fw-semibold'>
                 Nama Material :
-                <span className='ms-1 fw-normal'>
-                  {materialDetail?.item_name}
-                  {materialDetail ? formatDate(new Date(materialDetail.quotation_date)) : ''}
-                </span>
+                <span className='ms-1 fw-normal'>{materialDetail?.item_name ?? '-'}</span>
               </h3>
 
               <h3 className='fw-semibold'>
@@ -113,38 +110,17 @@ const DetailMaterialVendor: FC = () => {
                 {materialDetail?.prices.map((item: any) => (
                   <>
                     <tr>
-                      <td>{item?.item_name}</td>
-                      <td>{item?.min_order}</td>
-                      <td>{`${formatDate(item?.periodic_start)} - ${formatDate(
-                        item?.periodic_end
+                      <td>{item?.item_name ?? '-'}</td>
+                      <td>{item?.min_order ?? 0}</td>
+                      <td>{`${formatDate(new Date(item?.periodic_start))} - ${formatDate(
+                        new Date(item?.periodic_end)
                       )}`}</td>
-                      <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                      <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                     </tr>
                   </>
                 ))}
               </tbody>
             </Table>
-          </div>
-
-          <div className='payment-detail'>
-            <div className='payment-method'>
-              <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
-
-              <h3 className='fw-normal'>BANK BCA</h3>
-              <h3 className='fw-normal'>PT.MITRA10</h3>
-              <h3 className='fw-normal'>123-876-90</h3>
-            </div>
-
-            <div className='payment-evidence'>
-              <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>WA: 0813748392</h1>
-              <h1 className='fw-bolder'>Email: Installation.support@mitra10.com</h1>
-            </div>
-
-            <h1 className='fw-bolder'>
-              Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
-              kembali.
-            </h1>
           </div>
         </div>
       </div>

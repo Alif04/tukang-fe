@@ -62,3 +62,153 @@
   font-weight: 400;
   text-align: center;
 }
+
+/* Timeline */
+
+#detail-work-order .anticon svg {
+  color: white;
+}
+
+#detail-work-order .ant-steps.ant-steps-small .ant-steps-item-icon {
+  line-height: 20px;
+}
+
+#detail-work-order
+  .ant-steps.order-history-timeline
+  .ant-steps-item-wait
+  .ant-steps-item-icon
+  > .ant-steps-icon {
+  color: #ffff;
+}
+
+#detail-work-order .ant-steps-item-title {
+  margin: 0 20px 0 20px;
+  font-weight: 600;
+}
+
+#detail-work-order
+  .ant-steps
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  margin: 0 20px 20px;
+  font-weight: 400;
+}
+
+#detail-work-order .ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
+  margin: 0 0 0 56px;
+  padding: 3px 16px;
+}
+
+/* Timeline Order History */
+
+#detail-work-order .ant-steps.order-history-timeline .ant-steps-item-wait .ant-steps-item-icon {
+  background-color: #055900 !important;
+  opacity: 0.3;
+}
+
+#detail-work-order .ant-steps.order-history-timeline .ant-steps-item-process .ant-steps-item-icon {
+  background-color: #055900 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+#detail-work-order .ant-steps.order-history-timeline .ant-steps-item-finish .ant-steps-item-icon {
+  background-color: #055900 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+#detail-work-order
+  .ant-steps.order-history-timeline
+  .ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  opacity: 0.3;
+  height: 4px;
+  border-radius: 0;
+}
+
+#detail-work-order
+  .ant-steps.order-history-timeline
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  height: 4px;
+  opacity: 0.3;
+  border-radius: 0;
+}
+
+#detail-work-order
+  .ant-steps.order-history-timeline
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  height: 4px;
+  border-radius: 0;
+}
+
+/* Timeline Complaint History */
+
+#detail-work-order .ant-steps.complaint-history-timeline .ant-steps-item-wait .ant-steps-item-icon {
+  background-color: #a30014 !important;
+  opacity: 0.3;
+}
+
+#detail-work-order
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-process
+  .ant-steps-item-icon {
+  background-color: #a30014 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+#detail-work-order
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-finish
+  .ant-steps-item-icon {
+  background-color: #a30014 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+#detail-work-order
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #a30014 !important;
+  opacity: 0.3;
+  height: 4px;
+  border-radius: 0;
+}
+
+#detail-work-order
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #a30014 !important;
+  height: 4px;
+  opacity: 0.3;
+  border-radius: 0;
+}
+
+#detail-work-order
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #a30014 !important;
+  height: 4px;
+  border-radius: 0;
+}

@@ -183,7 +183,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         data = {
           number: index + 1,
           store_name: item?.store?.store_name ?? '-',
-          costumer_id: item.member_number,
+          costumer_id: item.id,
           full_name: item.full_name,
           phone_number: phoneNumber,
           email_address: item?.email ?? '-',

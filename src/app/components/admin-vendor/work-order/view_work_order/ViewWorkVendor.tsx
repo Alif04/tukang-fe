@@ -266,6 +266,11 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
 
+        let orderStatus =
+          item.work_orders === null
+            ? item?.status?.category
+            : item?.work_orders?.work_order_status[0]?.status?.category
+
         data = {
           order_id: item.id,
           store_name: item.store.store_name,
@@ -276,7 +281,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           item_name: item.m_order_details[0]?.item_name ?? '-',
           service_name: item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item?.work_orders?.work_order_status[0]?.status?.category ?? '',
+          order_status: orderStatus,
         }
 
         return data
