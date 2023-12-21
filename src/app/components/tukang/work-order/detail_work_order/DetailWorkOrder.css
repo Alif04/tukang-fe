@@ -1,7 +1,7 @@
 /* Form Layout */
 
 #detail-work-order p {
-  padding: 3px 9.75px;
+  padding: 3px 0px;
 }
 
 #detail-work-order .form-wrapper {
@@ -13,14 +13,10 @@
 }
 
 #detail-work-order .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-  width: 60%;
+  width: 55%;
 }
 
-#detail-work-order .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-5 {
-  padding: 3px 9.75px;
-}
-
-#detail-work-order .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#detail-work-order .costumer-info .detail-info.row label.form-label.col-form-label {
   padding: 3px 9.75px;
 }
 
@@ -29,14 +25,10 @@
 }
 
 #detail-work-order .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-  width: 40%;
+  width: 45%;
 }
 
-#detail-work-order .sales-info .detail-info.row label.form-label.col-form-label.col-sm-3 {
-  padding: 3px 9.75px;
-}
-
-#detail-work-order .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#detail-work-order .sales-info .detail-info.row label.form-label.col-form-label {
   padding: 3px 9.75px;
 }
 

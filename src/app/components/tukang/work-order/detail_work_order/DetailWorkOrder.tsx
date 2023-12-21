@@ -79,11 +79,13 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     fetchOrderData()
   }, [])
 
-  const formatDate = (date: any) => {
+  const formatDateTime = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
   }
 
   const workOrderHandler = (
@@ -203,7 +205,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
             <Row className='information-detail'>
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
-                <div className='fs-3 fw-bold'>Informasi Pembeli</div>
+                <div className='fs-4 fw-bold'>Informasi Pembeli</div>
                 <Row>
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
@@ -226,7 +228,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='6'>
-                        Alamat Pemasangan :
+                        Alamat Pemasangan
                       </Form.Label>
                       <Col sm='6'>
                         <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
@@ -236,19 +238,21 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='5'>
+                      <Form.Label column sm='4'>
                         Nomor Telp/WA :
                       </Form.Label>
-                      <Col sm='7'>
+
+                      <Col sm='8'>
                         <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
                       </Col>
                     </Form.Group>
 
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='5'>
-                        Alamat Email :
+                      <Form.Label column sm='4'>
+                        Alamat Email
                       </Form.Label>
-                      <Col sm='7'>
+
+                      <Col sm='8'>
                         <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
                       </Col>
                     </Form.Group>
@@ -258,67 +262,80 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <Row>
-                  <Col>
+                  <Col md={5}>
                     <div className='survey mb-3'>
-                      <div className='fs-3 fw-bold'>Survey</div>
+                      <div className='detail-info mb-3'>
+                        <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
+                        <p className='fs-7'>
+                          {orderDetail?.work_orders !== null ? (
+                            <>{formatDateTime(new Date(orderDetail?.work_orders?.survey_date))}</>
+                          ) : (
+                            'Jadwal belum diset oleh tukang'
+                          )}
+                        </p>
+                      </div>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Tanggal Survey :</Form.Label>
-
-                        <Form.Control
-                          type='date'
-                          readOnly
-                          value={formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))}
-                        />
-                      </Form.Group>
-
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
-                        <Select
-                          classNamePrefix='select'
-                          closeMenuOnSelect={false}
-                          isClearable={false}
-                          isMulti
-                          menuIsOpen={false}
-                          getOptionLabel={(option) => `${option.tukang_name}`}
-                          getOptionValue={(option) => `${option.tukang_id}`}
-                          value={workOrder.tukang_id}
-                        />
-                      </Form.Group>
+                      <div className='detail-info mb-3'>
+                        <p className='fs-5 fw-bold'>Oleh:</p>
+                        {orderDetail?.work_orders !== null ? (
+                          <>
+                            {orderDetail?.work_orders?.work_order_tukang.map((item: any) => (
+                              <p className='fs-7'>{item?.tukang?.full_name}</p>
+                            ))}
+                          </>
+                        ) : (
+                          'Tukang belum diset oleh vendor'
+                        )}
+                      </div>
                     </div>
                   </Col>
 
-                  <Col>
+                  <Col md={7}>
                     <div className='work-date'>
-                      <div className='fs-3 fw-bold'>Pengerjaan</div>
+                      <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='3'>
+                          MULAI
+                        </Form.Label>
 
-                        <RangePicker
-                          className='date-range w-100'
-                          format='YYYY-MM-DD'
-                          value={[
-                            dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                            dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                          ]}
-                          disabled={[true, true]}
-                        />
+                        <Col sm='9'>
+                          {orderDetail?.work_orders !== null ? (
+                            <>
+                              {formatDateTime(new Date(orderDetail?.work_orders?.work_start_date))}
+                            </>
+                          ) : (
+                            'Jadwal belum diset oleh tukang'
+                          )}
+                        </Col>
                       </Form.Group>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
-                        <Select
-                          classNamePrefix='select'
-                          closeMenuOnSelect={false}
-                          isClearable={false}
-                          isMulti
-                          menuIsOpen={false}
-                          getOptionLabel={(option) => `${option.tukang_name}`}
-                          getOptionValue={(option) => `${option.tukang_id}`}
-                          value={workOrder.tukang_id}
-                        />
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='3'>
+                          SELESAI
+                        </Form.Label>
+
+                        <Col sm='9'>
+                          {orderDetail?.work_orders !== null ? (
+                            <>{formatDateTime(new Date(orderDetail?.work_orders?.work_end_date))}</>
+                          ) : (
+                            'Jadwal belum diset oleh tukang'
+                          )}
+                        </Col>
                       </Form.Group>
+
+                      <div className='detail-info mb-3'>
+                        <p className='fs-5 fw-bold'>Oleh:</p>
+                        {orderDetail?.work_orders !== null ? (
+                          <>
+                            {orderDetail?.work_orders?.work_order_tukang.map((item: any) => (
+                              <p className='fs-7'>{item?.tukang?.full_name}</p>
+                            ))}
+                          </>
+                        ) : (
+                          'Tukang belum diset oleh vendor'
+                        )}
+                      </div>
                     </div>
                   </Col>
                 </Row>
