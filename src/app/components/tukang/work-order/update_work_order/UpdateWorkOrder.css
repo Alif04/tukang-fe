@@ -1,53 +1,22 @@
 /* Form Layout */
 
-#update-work-order-tukang .form-wrapper {
-  display: flex;
-  gap: 50px;
-  margin-bottom: 30px;
+#update-work-order-tukang .detail-info {
+  margin-bottom: 10px;
 }
 
-#update-work-order-tukang .form-costumer {
-  width: 60%;
+#update-work-order-tukang .detail-info p {
+  margin-bottom: 10px;
 }
 
-#update-work-order-tukang .form-work-order {
-  width: 40%;
+#update-work-order-tukang .detail-info .title {
+  margin-bottom: 10px;
 }
 
-#update-work-order-tukang .form-check-request .form-check-input {
-  margin-top: 0;
-  width: 15px;
-  height: 15px;
-}
+/* Form Upload File */
 
-/* Form Header */
-
-#update-work-order-tukang .form-costumer .form-header {
-  height: 45px;
-}
-
-#update-work-order-tukang .form-work-order .form-header {
-  margin-bottom: 30px;
-}
-
-#update-work-order-tukang
-  .form-work-order
-  .form-header
-  label.fs-1.fw-bold.form-label.col-form-label.col-sm-6 {
-  padding: 0 9.75px;
-}
-
-#update-work-order-tukang
-  .form-work-order
-  .form-header
-  label.fs-5.fw-bold.form-label.col-form-label.col-sm-6 {
-  padding: 10px 9.75px;
-}
-
-/* Form Sub Header */
-
-#update-work-order-tukang .form-sub-header {
-  margin-bottom: 25px;
+#update-work-order-tukang form.form-input-image {
+  border: 2px solid #858585;
+  min-height: 80px;
 }
 
 /* Table Item List */
@@ -59,22 +28,7 @@
   background-color: #464646;
 }
 
-/* Table Work Order List */
-#update-work-order-tukang .table-head-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
-}
-
-#update-work-order-tukang .table-head-wrapper .left {
-  display: flex;
-  align-items: center;
-}
-
-#update-work-order-tukang .table-head-wrapper .middle {
-  display: flex;
-  justify-content: space-between;
-}
+/* Table Work Order History */
 
 #update-work-order-tukang .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
@@ -96,14 +50,6 @@
   border-start-end-radius: 0;
 }
 
-#update-work-order-tukang .table-head-wrapper {
-  margin-bottom: 20px;
-}
-
-#update-work-order-tukang .ant-table-fixed {
-  table-layout: fixed;
-}
-
 #update-work-order-tukang .ant-table-tbody > tr.ant-table-row:hover > td {
   background-color: #dcdcdc;
 }
@@ -113,75 +59,10 @@
   word-break: break-word;
 }
 
-/* Searchbar */
-
-#update-work-order-tukang .filter-search {
-  display: flex;
-  justify-content: center;
-}
-
-#update-work-order-tukang .filter-search .input-group {
-  width: 80%;
-  height: 45px;
-}
-
-#update-work-order-tukang .filter-search .input-group .form-control.filter-rtl {
-  border-right: none;
-}
-
-#update-work-order-tukang .filter-search .input-group-text.filter-rtl {
-  background-color: transparent;
-}
-
-/* Date Filter */
-
-#update-work-order-tukang .date-filter {
-  margin: 0 10px;
-  display: flex;
-  align-items: center;
-}
-
-#update-work-order-tukang .date-filter h3 {
-  width: 100%;
-  font-weight: 400;
-  font-size: 14px;
-}
-
-#update-work-order-tukang .date-filter .start-date {
-  margin: 0 10px;
-  display: flex;
-  align-items: center;
-}
-
-#update-work-order-tukang .date-filter .end-date {
-  margin: 0 10px;
-  display: flex;
-  align-items: center;
-}
-
-/* Select Filter */
-
-#update-work-order-tukang .select-filter {
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-#update-work-order-tukang .select-filter h3 {
-  width: 100%;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-#update-work-order-tukang .select-filter select.form-select.filter.filter-order {
-  height: 42px;
-  border-radius: 5px;
-}
-
 /* Button Action */
 
 #update-work-order-tukang button.btn.btn-btn-jasa.button-dark-primary {
-  width: 250px;
+  width: fit-content;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -195,7 +76,7 @@
 }
 
 #update-work-order-tukang button.btn.btn-btn-material.button-dark-primary {
-  width: 200px;
+  width: fit-content;
   display: flex;
   justify-content: center;
   align-items: center;

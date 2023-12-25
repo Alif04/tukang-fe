@@ -11,9 +11,13 @@ const TotalReschedule: React.FC<Props> = ({className}) => {
       <div className='card-body '>
         <div className='gap-4'>
           <div className='d-flex flex-column gap-4'>
-            <div className='fs-5 fw-bold text-muted'>Menunggu Survey</div>
+            <div className='fs-5 text-center fw-bold text-muted'>
+              Menunggu <br></br> Survey
+            </div>
             <div className='fs-1 d-block m-auto'>04</div>
-            <div className='fs-5 d-block m-auto text-muted'>Menunggu Suvey dari Vendor</div>
+            <div className='fs-5 text-center d-block m-auto text-muted'>
+              Menunggu Suvey dari Vendor
+            </div>
           </div>
         </div>
       </div>

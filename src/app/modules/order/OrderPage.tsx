@@ -36,7 +36,7 @@ const OrderPage: React.FC = () => {
         path='dashboard-order'
         element={
           <>
-            {userRole == 'Store CS' || userRole === 'Store Staff' ? (
+            {userRole == 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   INSTALASI & SERVICE MITRA10 DASHBOARD
@@ -59,7 +59,7 @@ const OrderPage: React.FC = () => {
         path='view-order'
         element={
           <>
-            {userRole == 'Store CS' || userRole == 'Store Staff' ? (
+            {userRole == 'Store CS' || userRole == 'Store Staff' || userRole === 'Sales' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   LIST ORDER INSTALASI & SERVICE MITRA10

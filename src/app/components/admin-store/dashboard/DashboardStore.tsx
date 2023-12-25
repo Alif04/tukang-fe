@@ -23,6 +23,7 @@ interface StoreItem {
 
 const DashboardStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const userRole = localStorage.getItem('userRole')
   const [orderData, setOrderData] = useState<any[]>([])
 
   const today = new Date()
@@ -64,7 +65,7 @@ const DashboardStore: FC = () => {
   useEffect(() => {
     const getStore = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/stores`, {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -73,8 +74,8 @@ const DashboardStore: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             city_id: item.city_id,
@@ -103,79 +104,91 @@ const DashboardStore: FC = () => {
     <>
       <Row>
         <Col xxl={4} xl={4} lg={12} className='mb-5'>
-          <Row>
-            <Col xxl={4} xl={4} lg={6} className='d-flex align-items-center'>
-              <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
-            </Col>
+          {userRole === 'Store CS' ? (
+            <Row>
+              <Col xxl={4} xl={4} lg={6} className='d-flex align-items-center'>
+                <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
+              </Col>
 
-            <Col xxl={8} xl={8} lg={12}>
-              <div className='d-flex'>
-                <Select
-                  name='store_id'
-                  className='form-control p-0'
-                  classNamePrefix='select'
-                  placeholder='Pilih Toko'
-                  isSearchable={true}
-                  options={store}
-                  onChange={(newValue) => setSelectedStore(newValue)}
+              <Col xxl={8} xl={8} lg={12}>
+                <div className='d-flex'>
+                  <Select
+                    name='store_id'
+                    className='form-control p-0'
+                    classNamePrefix='select'
+                    placeholder='Pilih Toko'
+                    isSearchable={true}
+                    options={store}
+                    onChange={(newValue) => setSelectedStore(newValue)}
+                  />
+                </div>
+              </Col>
+            </Row>
+          ) : (
+            <Row>
+              <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+                <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
+              </Col>
+
+              <Col xxl={8} xl={8} lg={12}>
+                <RangePicker
+                  format={'DD-MM-YYYY'}
+                  className='date-range w-100'
+                  onChange={(values) => {
+                    if (values && values.length === 2) {
+                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
+                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+
+                      setDateFrom(dateFromFormatted)
+                      setDateTo(dateToFormatted)
+                    } else {
+                      setDateFrom('')
+                      setDateTo('')
+                    }
+                  }}
                 />
-              </div>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
+          )}
         </Col>
 
         <Col xxl={4} xl={4} lg={12} className='mb-5'>
-          <Row>
-            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
-            </Col>
+          {userRole === 'Store CS' && (
+            <Row>
+              <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+                <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
+              </Col>
 
-            <Col xxl={8} xl={8} lg={12}>
-              <RangePicker
-                format={'DD-MM-YYYY'}
-                className='date-range w-100'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                    const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+              <Col xxl={8} xl={8} lg={12}>
+                <RangePicker
+                  format={'DD-MM-YYYY'}
+                  className='date-range w-100'
+                  onChange={(values) => {
+                    if (values && values.length === 2) {
+                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
+                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
-              />
-            </Col>
-          </Row>
+                      setDateFrom(dateFromFormatted)
+                      setDateTo(dateToFormatted)
+                    } else {
+                      setDateFrom('')
+                      setDateTo('')
+                    }
+                  }}
+                />
+              </Col>
+            </Row>
+          )}
         </Col>
       </Row>
 
       <Row className='gy-5 g-xl-8'>
-        <Col xxl={4} xl={4} lg={12}>
+        <Col>
           <SalesReportWidget
             className='card-xl-stretch mb-xl-8'
             backGroundColor='white'
             chartHeight='250px'
           />
-        </Col>
-
-        <Col xxl={4} xl={4} lg={12}>
-          <TotalOrderStore
-            className='card-xxl-stretch-50 card-xl-stretch-50 mb-xl-8 mb-5'
-            chartHeight='220px'
-          />
-          <TotalComplaint className='card-xxl-stretch-50 card-xl-stretch-50 mb-xl-8 mb-5' />
-        </Col>
-
-        <Col xxl={4} xl={4} lg={12}>
-          <WaitingCostumerPay
-            className='card-xxl-stretch-50 mb-xl-8 mb-5'
-            chartColor='success'
-            chartHeight='150px'
-          />
-          <TotalReschedule className='card-xxl-stretch-50 card-xl-stretch-50 mb-xl-8 mb-5' />
         </Col>
       </Row>
 
@@ -188,7 +201,36 @@ const DashboardStore: FC = () => {
           <TopSalesWidget className='card-xl-stretch mb-xl-8' />
         </Col>
 
-        <Col xxl={4} xl={4} lg={12}></Col>
+        <Col xxl={4} xl={4} lg={12}>
+          <Row>
+            <Col xxl={6} xl={6} lg={12}>
+              <TotalComplaint className='card-xxl-stretch-50  mb-xl-8' />
+            </Col>
+
+            <Col xxl={6} xl={6} lg={12}>
+              <TotalReschedule className='card-xxl-stretch-50  mb-xl-8' />
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <WaitingCostumerPay
+                className='card-xxl-stretch-50 mb-xl-8 mb-5'
+                chartColor='success'
+                chartHeight='150px'
+              />
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <TotalOrderStore
+                className='card-xxl-stretch-50 card-xl-stretch-50 mb-xl-8 mb-5'
+                chartHeight='220px'
+              />
+            </Col>
+          </Row>
+        </Col>
       </Row>
     </>
   )

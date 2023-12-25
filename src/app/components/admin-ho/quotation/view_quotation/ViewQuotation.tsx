@@ -235,14 +235,14 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
         data = {
           quotation_id: item.id,
-          store_name: item.store.store_name,
+          store_name: item?.store?.store_name ?? '-',
           order_id: item.order.id,
           date_order: formatDate(orderDate),
-          costumer_name: item.order.members.full_name,
-          vendor_name: item.order.vendor.company_name,
+          costumer_name: item?.order?.members?.full_name ?? '',
+          vendor_name: item?.order?.vendor?.company_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item.status.category,
-          quotation_status: item.status.category,
+          order_status: item?.status?.category ?? '',
+          quotation_status: item?.status?.category ?? '',
         }
 
         return data
@@ -276,6 +276,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               </div>
 
               <RangePicker
+                format={'DD-MM-YYYY'}
                 className='date-range ms-3'
                 onChange={(values) => {
                   if (values && values.length === 2) {

@@ -384,7 +384,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
     const getStore = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/stores`, {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -393,8 +393,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           },
         })
 
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             address: item.address,
@@ -443,7 +443,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
     const getSales = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales`, {
+        const response = await axios.get(`${apiUrl}/sales?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

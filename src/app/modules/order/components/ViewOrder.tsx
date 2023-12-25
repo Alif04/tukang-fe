@@ -10,7 +10,7 @@ const ViewOrder: React.FC = () => {
 
   return (
     <>
-      {userRole == 'Store Staff' ? (
+      {userRole == 'Store Staff' || userRole === 'Sales' ? (
         <>
           <ViewOrderStoreStaff className='' />
         </>

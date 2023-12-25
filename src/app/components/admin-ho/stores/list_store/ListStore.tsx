@@ -221,7 +221,7 @@ const ListStoreHO: React.FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

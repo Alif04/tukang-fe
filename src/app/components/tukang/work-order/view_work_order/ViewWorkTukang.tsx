@@ -55,7 +55,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 100,
+      width: 80,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -65,7 +65,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 110,
+      width: 120,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -74,7 +74,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
+      width: 80,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -83,7 +83,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
-      width: 120,
+      width: 80,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.costumer_id - b.costumer_id,
@@ -92,8 +92,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       title: 'Customer Name',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
-      align: 'left',
-      width: 140,
+      align: 'center',
+      width: 110,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -102,7 +102,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 150,
+      width: 100,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -110,7 +110,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'item_name',
       key: 'item_name',
       align: 'left',
-      width: 140,
+      width: 120,
       onFilter: (value, record) => record.item_name.includes(String(value)),
       sorter: (a, b) => a.item_name.length - b.item_name.length,
     },
@@ -128,7 +128,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      width: 150,
+      width: 100,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
@@ -137,7 +137,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 140,
+      width: 90,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -315,6 +315,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               </div>
 
               <RangePicker
+                format={'DD-MM-YYYY'}
                 className='date-range ms-3'
                 onChange={(values) => {
                   if (values && values.length === 2) {
@@ -354,7 +355,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            // scroll={{x: 2000}}
+            scroll={{x: 1700}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

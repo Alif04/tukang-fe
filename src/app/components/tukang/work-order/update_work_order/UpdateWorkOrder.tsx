@@ -5,17 +5,40 @@ import './UpdateWorkOrder.css'
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, Image} from 'antd'
+import makeAnimated from 'react-select/animated'
+import dayjs from 'dayjs'
+import {Table, Image, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Card, Row, Col, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faFileArrowUp, faPlus} from '@fortawesome/free-solid-svg-icons'
+const {RangePicker} = DatePicker
 
-interface Status {
-  value: number | null
-  category: string
-  label: string
+interface WorkOrders {
+  id: number | null
+  work_order_status: number | null
+  description: string
+  survey_tukang_id: Array<any>
+  survey_date_time: string
+  work_tukang_id: Array<any>
+  work_date_time: string
+  work_start_date: string
+  work_end_date: string
+  work_order_before: Array<any>
+  work_order_after: Array<any>
+}
+
+interface WorkOrderItem {
+  id: number | null
+  index: string
+  item_name: string
+  tukang_id: number | null
+  tukang_name: string
+  is_user: number
+  type: number
+  quantity: number | null
+  satuan: string
 }
 
 interface WorkOrderHistory {
@@ -28,27 +51,27 @@ interface WorkOrderHistory {
   updated_by: string
 }
 
-interface WorkOrderItem {
-  id: number | null
-  index: string
-  item_name: string
-  tukang_id: number | null
-  tukang_name: string
-  is_user: number
-  type: number
-  quantity: number | null
+interface Status {
+  value: number | null
+  category: string
+  label: string
+}
+
+interface Tukang {
+  value: number | null
+  label: string
 }
 
 const UpdateWorkTukang: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const animatedComponents = makeAnimated()
 
   // Order Detail
   const [orderDetail, setOrderDetail] = useState<any>(null)
 
   // Work Order History
-  const [workOrderId, setWorkOrderId] = useState<any>()
   const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
 
   // Work Order Status
@@ -58,6 +81,41 @@ const UpdateWorkTukang: FC = () => {
     label: '',
     category: '',
   })
+
+  // Work Order Tukang
+  const [tukang, setTukang] = useState<Tukang[]>([])
+  const [selectedWorkOrderTukang, setSelectedWorkOrderTukang] = useState<SingleValue<Tukang>>({
+    value: null,
+    label: '',
+  })
+
+  // Update Work Order
+  const [workOrder, setWorkOrder] = useState<WorkOrders>({
+    id: null,
+    work_order_status: null,
+    description: '',
+    survey_tukang_id: [],
+    survey_date_time: '',
+    work_tukang_id: [],
+    work_date_time: '',
+    work_start_date: '',
+    work_end_date: '',
+    work_order_before: [],
+    work_order_after: [],
+  })
+
+  // Update Work Order File ( Before And After )
+  const [workOrderBefore, setWorkOrderBefore] = useState<Array<File | null>>([])
+  const [workOrderAfter, setWorkOrderAfter] = useState<Array<File | null>>([])
+
+  const [selectedWorkBeforeFile, setSelectedWorkBeforeFile] = useState<number | null>(null)
+  const [selectedWorkAfterFile, setSelectedWorkAfterFile] = useState<number | null>(null)
+
+  const [previewWorkBeforeImage, setPreviewWorkBeforeImage] = useState<any>()
+  const [previewWorkAfterImage, setPreviewWorkAfterImage] = useState<any>()
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+  const [visible, setVisible] = useState(false)
 
   // Add Work Order Item
   const [workOrderItem, setWorkOrderItem] = useState<WorkOrderItem[]>([
@@ -70,6 +128,7 @@ const UpdateWorkTukang: FC = () => {
       is_user: 0,
       type: 1,
       quantity: null,
+      satuan: '',
     },
     {
       id: null,
@@ -80,20 +139,11 @@ const UpdateWorkTukang: FC = () => {
       is_user: 0,
       type: 2,
       quantity: null,
+      satuan: '',
     },
   ])
 
-  // Update Work Order
-  const [additionalNotes, setAdditionalNotes] = useState<string>('')
-  const [dateTimeSurvey, setDateTimeSurvey] = useState<any>()
-  const [workTime, setWorkTime] = useState<any>()
-  const [workOrderEvidence, setWorkOrderEvidence] = useState<Array<File | null>>([])
-  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  const [previewImage, setPreviewImage] = useState<any>()
-  const [visible, setVisible] = useState(false)
-
+  // Fetch Data
   const fetchOrderData = async () => {
     try {
       await axios
@@ -109,8 +159,14 @@ const UpdateWorkTukang: FC = () => {
           const data = response.data.data
           setOrderDetail(data)
 
-          if (data?.work_orders?.id) {
-            setWorkOrderId(data.work_orders.id)
+          if (data?.work_orders) {
+            setWorkOrder((prev) => ({
+              ...prev,
+              id: data.work_orders.id,
+              description: data.work_orders.work_order_status[0].description,
+              survey_date_time: formatDateTime(new Date(data.work_orders.survey_date)),
+              work_date_time: '',
+            }))
           }
 
           if (data?.work_orders?.work_order_status[0]?.status_id) {
@@ -122,43 +178,22 @@ const UpdateWorkTukang: FC = () => {
             }))
           }
 
-          if (data?.work_orders?.work_order_status[0]?.description) {
-            setAdditionalNotes(data.work_orders.work_order_status[0].description)
-          }
-
-          if (data?.work_orders?.work_order_status[0]?.work_date_time) {
-            setDateTimeSurvey(
-              formatDateTime(new Date(data.work_orders.work_order_status[0].work_date_time))
-            )
-          }
-
-          if (data?.work_orders?.work_order_status[0]?.time_spent) {
-            setWorkTime(data.work_orders.work_order_status[0].time_spent)
-          }
-
-          if (data?.work_orders?.work_order_evidences) {
-            const initialWorkOrderFiles = data.work_orders.work_order_evidences.map(
-              (item: any) => ({
-                id: item.id,
-                name: item.evidence_location,
-              })
-            )
-
-            setWorkOrderEvidence(initialWorkOrderFiles)
-          }
-
-          if (data?.work_orders?.work_order_status) {
-            const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
-              work_order_id: item.work_order_id,
-              work_order_status: item.status.category,
-              created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
-              updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
-              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
-              time_spent: item.time_spent ? item.time_spent : '-',
-              updated_by: item.updated_by,
+          if (data?.work_orders?.work_order_before) {
+            const initialWorkOrderFiles = data.work_orders.work_order_before.map((item: any) => ({
+              id: item.id,
+              name: item.evidence_location,
             }))
 
-            setWorkOrderHistory(workOrderHistoryData)
+            setWorkOrderBefore(initialWorkOrderFiles)
+          }
+
+          if (data?.work_orders?.work_order_after) {
+            const initialWorkOrderFiles = data.work_orders.work_order_after.map((item: any) => ({
+              id: item.id,
+              name: item.evidence_location,
+            }))
+
+            setWorkOrderAfter(initialWorkOrderFiles)
           }
 
           if (data?.work_orders?.work_order_status) {
@@ -177,11 +212,57 @@ const UpdateWorkTukang: FC = () => {
 
             setWorkOrderItem(workOrderItem)
           }
+
+          if (data?.work_orders?.work_order_status) {
+            const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
+              work_order_id: item.work_order_id,
+              work_order_status: item.status.category,
+              created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
+              updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
+              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
+              time_spent: item.time_spent ? item.time_spent : '-',
+              updated_by: item.updated_by,
+            }))
+
+            setWorkOrderHistory(workOrderHistoryData)
+          }
         })
     } catch (error) {
       console.error(error)
     }
   }
+
+  const getTukang = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/tukang`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempTukang = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+        }))
+
+        setTukang(tempTukang)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    workOrderStatusOption()
+    fetchOrderData()
+    getTukang()
+  }, [])
 
   // Format Date
   const today = new Date().toISOString().split('T')[0]
@@ -204,7 +285,30 @@ const UpdateWorkTukang: FC = () => {
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
   }
 
-  // Form Handler
+  // Hashing key
+  const stringToHash = (string: string) => {
+    let hash = 0
+
+    if (string.length == 0) return hash
+
+    for (let i = 0; i < string.length; i++) {
+      const char = string.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash
+    }
+
+    return hash
+  }
+
+  // Work Order Form Handler
+  const workOrderFormHandler = (e: any) => {
+    setWorkOrder({
+      ...workOrder,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  // Work Order Item Form Handler
   const handleAddForm = (type: number) => {
     const newForm = {
       id: null,
@@ -215,6 +319,7 @@ const UpdateWorkTukang: FC = () => {
       is_user: 0,
       type: type,
       quantity: null,
+      satuan: '',
     }
 
     setWorkOrderItem((prev) => [...prev, newForm])
@@ -231,6 +336,17 @@ const UpdateWorkTukang: FC = () => {
 
       return updatedValues
     })
+  }
+
+  // Handle Checkbox Change
+  const handleCheckboxChange = (index: any, isChecked: boolean) => {
+    const updatedMaterialValues = [...workOrderItem]
+    const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
+    if (elementIndex !== -1) {
+      updatedMaterialValues[elementIndex].is_user = isChecked ? 1 : 0
+    }
+
+    setWorkOrderItem(updatedMaterialValues)
   }
 
   // Handle Item Name Change
@@ -253,10 +369,11 @@ const UpdateWorkTukang: FC = () => {
   // Handle Quantity Change
   const handleQuantityChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
+    const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
 
-    if (type === 1) {
-      updatedMaterialValues[index] = {
-        ...updatedMaterialValues[index],
+    if (elementIndex !== -1) {
+      updatedMaterialValues[elementIndex] = {
+        ...updatedMaterialValues[elementIndex],
         quantity: value,
       }
     }
@@ -264,39 +381,27 @@ const UpdateWorkTukang: FC = () => {
     setWorkOrderItem(updatedMaterialValues)
   }
 
-  // Handle Checkbox Change
-  const handleCheckboxChange = (index: any, isChecked: boolean) => {
+  // Handle Satuan Change
+  const handleSatuanChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
     const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
+
     if (elementIndex !== -1) {
-      updatedMaterialValues[elementIndex].is_user = isChecked ? 1 : 0
+      updatedMaterialValues[elementIndex] = {
+        ...updatedMaterialValues[elementIndex],
+        satuan: value,
+      }
     }
 
     setWorkOrderItem(updatedMaterialValues)
   }
 
-  // Handle Input Change
-  const handleInputNotes = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setAdditionalNotes(updatedInputValue)
-  }
-
-  const handleInputDateTimeSurvey = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setDateTimeSurvey(updatedInputValue)
-  }
-
-  const handleInputWorkTIme = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setWorkTime(updatedInputValue)
-  }
-
-  // Handle Change Upload File
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle File ( Before ) Change
+  const handleFileWorkBefore = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
-      const existingFiles = [...workOrderEvidence]
+      const existingFiles = [...workOrderBefore]
       const mergedFiles = existingFiles.concat(file)
 
       const {length: existingFilesLength} = existingFiles
@@ -306,39 +411,66 @@ const UpdateWorkTukang: FC = () => {
         mergedFiles[existingFilesLength + i] = fileList.item(i)
       }
 
-      setWorkOrderEvidence(mergedFiles)
+      setWorkOrderBefore(mergedFiles)
     }
   }
 
-  const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+  const handleImageWorkBeforeClick = () => {
+    const inputField = document.querySelector('.work-before-image') as HTMLInputElement
     inputField.click()
   }
 
-  const handleFileClick = (index: number) => {
-    setPreviewImage(workOrderEvidence[index]?.name)
+  const handleFileWorkBeforeClick = (index: number) => {
+    setPreviewWorkBeforeImage(workOrderBefore[index]?.name)
     setVisible(true)
-    setSelectedFileIndex(index)
+    setSelectedWorkBeforeFile(index)
   }
 
-  const stringToHash = (string: string) => {
-    let hash = 0
-
-    if (string.length == 0) return hash
-
-    for (let i = 0; i < string.length; i++) {
-      const char = string.charCodeAt(i)
-      hash = (hash << 5) - hash + char
-      hash = hash & hash
-    }
-
-    return hash
-  }
-
-  const handleRemoveFile = (index: number) => {
-    const newEvidances = [...workOrderEvidence]
+  const handleRemoveWorkBeforeFile = (index: number) => {
+    const newEvidances = [...workOrderBefore]
     newEvidances.splice(index, 1)
-    setWorkOrderEvidence(newEvidances)
+    setWorkOrderBefore(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Handle File ( After ) Change
+  const handleFileWorkAfter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...workOrderAfter]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setWorkOrderAfter(mergedFiles)
+    }
+  }
+
+  const handleImageWorkAfterClick = () => {
+    const inputField = document.querySelector('.work-after-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleFileWorkAfterClick = (index: number) => {
+    setPreviewWorkAfterImage(workOrderAfter[index]?.name)
+    setVisible(true)
+    setSelectedWorkAfterFile(index)
+  }
+
+  const handleRemoveWorkAfterFile = (index: number) => {
+    const newEvidances = [...workOrderAfter]
+    newEvidances.splice(index, 1)
+    setWorkOrderAfter(newEvidances)
 
     // Update element value
     if (evidenceRef.current?.value) {
@@ -350,11 +482,29 @@ const UpdateWorkTukang: FC = () => {
   const handleUpdateWorkOrder = async () => {
     const formData = new FormData()
 
+    // Work Order Detail
     formData.append('work_order_status', selectedWorkOrderStatus?.value?.toString() ?? '')
-    formData.append('status_details[description]', additionalNotes)
-    formData.append('status_details[work_date_time]', dateTimeSurvey)
-    formData.append('status_details[time_spent]', workTime)
+    formData.append('status_details[description]', workOrder.description)
+    formData.append('status_details[survey_date_time]', workOrder.survey_date_time)
+    formData.append('status_details[work_date_time]', workOrder.work_date_time)
 
+    if (workOrderBefore?.length) {
+      workOrderBefore.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`work_order_before`, item, item?.name)
+        }
+      })
+    }
+
+    if (workOrderAfter?.length) {
+      workOrderAfter.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`work_order_after`, item, item?.name)
+        }
+      })
+    }
+
+    // Work Order Item
     if (workOrderItem) {
       workOrderItem.forEach((order, index) => {
         if (order.id) {
@@ -379,16 +529,8 @@ const UpdateWorkTukang: FC = () => {
       })
     }
 
-    if (workOrderEvidence?.length) {
-      workOrderEvidence.forEach((item) => {
-        if (item instanceof Blob) {
-          formData.append(`work_order_evidences`, item, item?.name)
-        }
-      })
-    }
-
     await axios
-      .post(`${apiUrl}/work-orders/${workOrderId}/set-materials`, formData, {
+      .post(`${apiUrl}/work-orders/${workOrder.id}/set-materials`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -500,254 +642,422 @@ const UpdateWorkTukang: FC = () => {
     },
   ]
 
-  useEffect(() => {
-    workOrderStatusOption()
-    fetchOrderData()
-  }, [])
-
   return (
     <section id='update-work-order-tukang'>
       <Card className='mb-5'>
         <Card.Body>
           <Row>
-            <Col sm={12} md={12} xl={12} xxl={6} className='mb-5'>
+            <Col xxl={8} xl={8} md={8} sm={12}>
               <Row>
-                <Form.Group as={Row}>
-                  <Form.Label column sm='4'>
-                    Nama Toko :
-                  </Form.Label>
+                <Col>
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column md='4'>
+                      Nama Toko
+                    </Form.Label>
 
-                  <Col sm='8'>
-                    <Form.Control plaintext readOnly value={orderDetail?.store?.store_name ?? ''} />
-                  </Col>
-                </Form.Group>
+                    <Col md='8' className='d-flex align-items-center'>
+                      <p className='fs-7 fw-semibold'>{orderDetail?.store?.store_name ?? ''}</p>
+                    </Col>
+                  </Form.Group>
+                </Col>
+
+                <Col></Col>
               </Row>
 
               <Row>
                 <Col>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
-                      Order ID :
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column md='4'>
+                      Order ID
                     </Form.Label>
 
-                    <Col sm='8'>
+                    <Col md='8'>
                       <Form.Control readOnly value={orderDetail?.id ?? ''} />
                     </Col>
                   </Form.Group>
 
-                  <div className='costumer-information mt-5'>
-                    <div className='title mb-5'>
-                      <h1 className='fs-2 fw-bolder text-decoration-underline'>Costumer Info</h1>
-                    </div>
-
-                    <div className='detail-information'>
-                      <div className='costumer-name  mb-3'>
-                        <p className='fs-4 fw-bold '>{orderDetail?.members?.full_name ?? ''}</p>
+                  <Row className='detail-info'>
+                    <Col md={4}>
+                      <div className='title'>
+                        <h1 className='fs-6'>Costumer Info</h1>
                       </div>
+                    </Col>
 
-                      <div className='telp mb-3'>
-                        <p className='fs-5'> {orderDetail?.project_number ?? ''}</p>
+                    <Col md={8} className='mt-5'>
+                      <div className='detail-info'>
+                        <p className='fs-7 fw-bold '>{orderDetail?.members?.full_name ?? ''}</p>
+                        <p className='fs-7'> {orderDetail?.project_number ?? ''}</p>
+                        <p className='fs-7'>{orderDetail?.members?.email ?? ''}</p>
+                        <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
                       </div>
-
-                      <div className='email mb-3'>
-                        <p className='fs-5'>{orderDetail?.members?.email ?? ''}</p>
-                      </div>
-
-                      <div className='alamat-pemasangan d-flex mb-3'>
-                        <p className='fs-5'>{orderDetail?.project_address ?? ''}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Form.Group controlId='formFile'>
-                    <Form.Label>UPLOAD FOTO</Form.Label>
-                    <Form className='form-input-image' onClick={handleImageClick}>
-                      <Form.Control
-                        type='file'
-                        accept='image/*'
-                        className='input-field-image'
-                        multiple
-                        hidden
-                        id='file-input'
-                        ref={evidenceRef}
-                        onChange={handleFileChange}
-                      />
-
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    </Form>
-
-                    <ListGroup className='pt-3'>
-                      {workOrderEvidence.length ? (
-                        workOrderEvidence.map((item, index) => (
-                          <ListGroup key={`${stringToHash(item?.name ?? 'randomImageHash')}`}>
-                            <ListGroup.Item className='d-flex justify-content-between align-items-center'>
-                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                              <span
-                                className='upload-content'
-                                onClick={() => handleFileClick(index)}
-                              >
-                                {item?.name}
-                              </span>
-
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                size='sm'
-                                color='#ed2b2a'
-                                style={{cursor: 'pointer'}}
-                                onClick={(e) => handleRemoveFile(index)}
-                              />
-                            </ListGroup.Item>
-
-                            {selectedFileIndex === index && item && (
-                              <Image
-                                key={`${stringToHash(previewImage)} - ${index} - ${item?.name}`}
-                                width={200}
-                                style={{display: 'none'}}
-                                src={
-                                  item instanceof File
-                                    ? URL.createObjectURL(item)
-                                    : `${apiUrl}/public/work-orders/${previewImage}`
-                                }
-                                preview={{
-                                  visible,
-                                  src:
-                                    item instanceof File
-                                      ? URL.createObjectURL(item)
-                                      : `${apiUrl}/public/work-orders/${previewImage}`,
-                                  onVisibleChange: (value) => {
-                                    setVisible(value)
-                                  },
-                                }}
-                              />
-                            )}
-                          </ListGroup>
-                        ))
-                      ) : (
-                        <ListGroup.Item className='d-flex justify-content-center'>
-                          Tidak ada file yang dipilih
-                        </ListGroup.Item>
-                      )}
-                    </ListGroup>
-                  </Form.Group>
+                    </Col>
+                  </Row>
                 </Col>
 
                 <Col>
-                  <Form.Group as={Row} className='mb-3'>
-                    <Form.Label column sm='6'>
-                      Work Order ID :
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column sm='4'>
+                      Work Order ID
                     </Form.Label>
 
-                    <Col sm='6'>
+                    <Col sm='8'>
                       <Form.Control readOnly value={orderDetail?.work_orders?.id ?? '-'} />
                     </Col>
                   </Form.Group>
 
-                  <div className='work-information mt-5'>
-                    <div className='title mb-5'>
-                      <h1 className='fs-2 fw-bolder text-decoration-underline'>
-                        Work Order Infomation
-                      </h1>
-                    </div>
+                  <Row className='detail-info'>
+                    <Col md={4}>
+                      <div className='title'>
+                        <h1 className='fs-6'>Work Order Info</h1>
+                      </div>
+                    </Col>
 
-                    <div className='detail-information'>
-                      <div className='order-name  mb-3'>
-                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                          (item: any) => (
-                            <p className='fs-5 me-5'>{item?.name ?? '-'}</p>
-                          )
+                    <Col md={8} className='mt-5'>
+                      <div className='detail-info'>
+                        {orderDetail?.work_orders !== null ? (
+                          <>
+                            {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
+                              (item: any, index: number) => (
+                                <p key={`${index}-work_order_tukang`} className='fs-7'>
+                                  {item?.name ?? '-'}
+                                </p>
+                              )
+                            )}
+                          </>
+                        ) : (
+                          <p className='fs-7'>Order masih dalam survey</p>
                         )}
                       </div>
-                    </div>
-                  </div>
+                    </Col>
+                  </Row>
 
-                  <Form.Group className='mb-3'>
-                    <Form.Label className='fs-5 fw-semibold text-primary text-decoration-underline'>
-                      Catatan Tambahan
-                    </Form.Label>
-                    <Form.Control
-                      value={additionalNotes}
-                      style={{minHeight: '220px'}}
-                      as='textarea'
-                      onChange={handleInputNotes}
-                    />
-                  </Form.Group>
+                  <Row className='detail-info'>
+                    <Form.Group className='detail-info' as={Row}>
+                      <Form.Label
+                        className='fs-9 text-decoration-underline pt-0 pb-0'
+                        column
+                        md='4'
+                      >
+                        Upload Foto Sebelum
+                      </Form.Label>
+
+                      <Col md='8'>
+                        <Form.Group>
+                          <Form className='form-input-image' onClick={handleImageWorkBeforeClick}>
+                            <Form.Control
+                              type='file'
+                              accept='image/*'
+                              className='work-before-image'
+                              multiple
+                              hidden
+                              id='work-before-file-input'
+                              ref={evidenceRef}
+                              onChange={handleFileWorkBefore}
+                            />
+
+                            <div className='input-image-text'>
+                              <FontAwesomeIcon icon={faFileArrowUp} color='#858585' size='2xl' />
+                            </div>
+                          </Form>
+
+                          <ListGroup className='pt-3'>
+                            {workOrderBefore.length ? (
+                              workOrderBefore.map((item, index) => (
+                                <ListGroup key={`${stringToHash(item?.name ?? 'randomImageHash')}`}>
+                                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                                    <FontAwesomeIcon
+                                      className='me-3'
+                                      icon={faFileArrowUp}
+                                      color='#858585'
+                                      size='sm'
+                                    />
+
+                                    <span
+                                      className='upload-content'
+                                      onClick={() => handleFileWorkBeforeClick(index)}
+                                    >
+                                      {item?.name}
+                                    </span>
+
+                                    <FontAwesomeIcon
+                                      icon={faTrash}
+                                      size='sm'
+                                      color='#ed2b2a'
+                                      style={{cursor: 'pointer'}}
+                                      onClick={(e) => handleRemoveWorkBeforeFile(index)}
+                                    />
+                                  </ListGroup.Item>
+
+                                  {selectedWorkBeforeFile === index && item && (
+                                    <Image
+                                      key={`${stringToHash(previewWorkBeforeImage)} - ${index} - ${
+                                        item?.name
+                                      }`}
+                                      width={200}
+                                      style={{display: 'none'}}
+                                      src={
+                                        item instanceof File
+                                          ? URL.createObjectURL(item)
+                                          : `${apiUrl}/public/work-orders/${previewWorkBeforeImage}`
+                                      }
+                                      preview={{
+                                        visible,
+                                        src:
+                                          item instanceof File
+                                            ? URL.createObjectURL(item)
+                                            : `${apiUrl}/public/work-orders/${previewWorkBeforeImage}`,
+                                        onVisibleChange: (value) => {
+                                          setVisible(value)
+                                        },
+                                      }}
+                                    />
+                                  )}
+                                </ListGroup>
+                              ))
+                            ) : (
+                              <ListGroup.Item className='d-flex justify-content-center'>
+                                Tidak ada file yang dipilih
+                              </ListGroup.Item>
+                            )}
+                          </ListGroup>
+                        </Form.Group>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group className='detail-info' as={Row}>
+                      <Form.Label
+                        className='fs-9 text-decoration-underline pt-0 pb-0 '
+                        column
+                        md='4'
+                      >
+                        Upload Foto Sesudah
+                      </Form.Label>
+
+                      <Col md='8'>
+                        <Form.Group>
+                          <Form className='form-input-image' onClick={handleImageWorkAfterClick}>
+                            <Form.Control
+                              type='file'
+                              accept='image/*'
+                              className='work-after-image'
+                              multiple
+                              hidden
+                              id='work-after-file-input'
+                              ref={evidenceRef}
+                              onChange={handleFileWorkAfter}
+                            />
+
+                            <div className='input-image-text'>
+                              <FontAwesomeIcon icon={faFileArrowUp} color='#858585' size='2xl' />
+                            </div>
+                          </Form>
+
+                          <ListGroup className='pt-3'>
+                            {workOrderAfter.length ? (
+                              workOrderAfter.map((item, index) => (
+                                <ListGroup key={`${stringToHash(item?.name ?? 'randomImageHash')}`}>
+                                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                                    <FontAwesomeIcon
+                                      className='me-3'
+                                      icon={faFileArrowUp}
+                                      color='#858585'
+                                      size='sm'
+                                    />
+
+                                    <span
+                                      className='upload-content'
+                                      onClick={() => handleFileWorkAfterClick(index)}
+                                    >
+                                      {item?.name}
+                                    </span>
+
+                                    <FontAwesomeIcon
+                                      icon={faTrash}
+                                      size='sm'
+                                      color='#ed2b2a'
+                                      style={{cursor: 'pointer'}}
+                                      onClick={(e) => handleRemoveWorkAfterFile(index)}
+                                    />
+                                  </ListGroup.Item>
+
+                                  {selectedWorkAfterFile === index && item && (
+                                    <Image
+                                      key={`${stringToHash(previewWorkAfterImage)} - ${index} - ${
+                                        item?.name
+                                      }`}
+                                      width={200}
+                                      style={{display: 'none'}}
+                                      src={
+                                        item instanceof File
+                                          ? URL.createObjectURL(item)
+                                          : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`
+                                      }
+                                      preview={{
+                                        visible,
+                                        src:
+                                          item instanceof File
+                                            ? URL.createObjectURL(item)
+                                            : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`,
+                                        onVisibleChange: (value) => {
+                                          setVisible(value)
+                                        },
+                                      }}
+                                    />
+                                  )}
+                                </ListGroup>
+                              ))
+                            ) : (
+                              <ListGroup.Item className='d-flex justify-content-center'>
+                                Tidak ada file yang dipilih
+                              </ListGroup.Item>
+                            )}
+                          </ListGroup>
+                        </Form.Group>
+                      </Col>
+                    </Form.Group>
+                  </Row>
                 </Col>
+              </Row>
+
+              <Row>
+                <Form.Group className='detail-info'>
+                  <Form.Label className='fs-7'>Catatan Tambahan</Form.Label>
+
+                  <Form.Control
+                    name='description'
+                    style={{minHeight: '170px'}}
+                    as='textarea'
+                    value={workOrder.description}
+                    onChange={(e) => workOrderFormHandler(e)}
+                  />
+                </Form.Group>
               </Row>
             </Col>
 
-            <Col sm={12} md={12} xl={12} xxl={6} className='mb-5'>
-              <Row className='mb-4'>
-                <Form.Group as={Row} className='mb-5'>
-                  <Form.Label column sm='6' className='fs-1 fw-bold pt-0 pb-0'>
-                    NEW WORK STATUS :{' '}
-                  </Form.Label>
+            <Col xxl={4} xl={4} md={4} sm={12}>
+              <Form.Group as={Row} className='detail-info'>
+                <Form.Label column sm='6' className='fs-7 fw-semibold'>
+                  WORK ORDER STATUS :
+                </Form.Label>
 
-                  <Col sm='6'>
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Select Status'
-                      isSearchable={true}
-                      isClearable={true}
-                      options={workOrderStatus}
-                      value={{
-                        value: selectedWorkOrderStatus?.value ?? null,
-                        label: selectedWorkOrderStatus?.label ?? '',
-                        category: selectedWorkOrderStatus?.category ?? '',
-                      }}
-                      onChange={(newValue) => setSelectedWorkOrderStatus(newValue)}
-                    />
-                  </Col>
-                </Form.Group>
+                <Col sm='6'>
+                  <Select
+                    classNamePrefix='select'
+                    placeholder='Select Status'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={workOrderStatus}
+                    value={{
+                      value: selectedWorkOrderStatus?.value ?? null,
+                      label: selectedWorkOrderStatus?.label ?? '',
+                      category: selectedWorkOrderStatus?.category ?? '',
+                    }}
+                    onChange={(newValue) => setSelectedWorkOrderStatus(newValue)}
+                  />
+                </Col>
+              </Form.Group>
 
-                <Form.Group as={Row} className='mb-4'>
-                  <Form.Label column sm='6' className='fs-3 fw-semibold pt-0 pb-0'>
-                    WORK ORDER STATUS :{' '}
-                  </Form.Label>
+              <Form.Group className='detail-info' as={Row} style={{visibility: 'hidden'}}>
+                <Form.Label className='fs-7' column sm='4'></Form.Label>
 
-                  <Col sm='6'>
-                    <p className='fs-3 fw-semibold text-success'>
-                      {orderDetail?.work_orders?.work_order_status[0]?.status.category}
-                    </p>
-                  </Col>
-                </Form.Group>
-              </Row>
+                <Col sm='8'>
+                  <Form.Control />
+                </Col>
+              </Form.Group>
 
-              <Row className='mb-5'>
-                <Col>
-                  <Form.Group>
-                    <Form.Label className='fw-semibold'>Tanggal & Jam Survey</Form.Label>
+              <Row className='detail-info'>
+                <div className='title'>
+                  <h1 className='fs-6'>Survey</h1>
+                </div>
+
+                <Form.Group className='detail-info'>
+                  <Form.Label className='fs-6'>Tanggal Survey</Form.Label>
+
+                  <Col sm='8'>
                     <Form.Control
+                      name='survey_date_time'
                       type='datetime-local'
-                      value={dateTimeSurvey}
-                      onChange={handleInputDateTimeSurvey}
+                      value={workOrder.survey_date_time}
+                      onChange={(e) => workOrderFormHandler(e)}
                     />
-                  </Form.Group>
-                </Col>
+                  </Col>
+                </Form.Group>
 
-                <Col>
-                  <Form.Group>
-                    <Form.Label className='fw-semibold'>Lama Pekerjaan</Form.Label>
-                    <Form.Control type='text' value={workTime} onChange={handleInputWorkTIme} />
-                  </Form.Group>
-                </Col>
+                <Form.Group className='detail-info'>
+                  <Form.Label className='fs-6'>Tehnisi Survey</Form.Label>
+
+                  <Col sm='8'>
+                    <Select
+                      name='survey_tukang_id'
+                      classNamePrefix='select'
+                      placeholder='Pilih Tehnisi'
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      isMulti
+                      options={tukang}
+                      // getOptionLabel={(option) => `${option.label}`}
+                      // getOptionValue={(option) => `${option.value}`}
+                      // value={workOrder.survey_tukang_id}
+                      // onChange={(e) => workOrderFormHandler(e)}
+                    />
+                  </Col>
+                </Form.Group>
               </Row>
 
-              <div className='d-flex justify-content-end'>
-                <Button variant='btn-jasa button-dark-primary' onClick={() => handleAddForm(2)}>
-                  Tambah Jasa Pemasangan
-                </Button>
-              </div>
+              <Row className='detail-info'>
+                <div className='title'>
+                  <h1 className='fs-6'>Pengerjaan</h1>
+                </div>
 
-              <div className='fs-5 text-dark fw-bold mb-2'>List Jasa Pemasangan</div>
+                <Form.Group className='detail-info'>
+                  <Form.Label className='fs-6'>Tanggal Mulai dan Selesai Pekerjaan</Form.Label>
+
+                  <Col sm='8'>
+                    <RangePicker
+                      className='date-range w-100'
+                      format='YYYY-MM-DD'
+                      // value={[
+                      //   dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                      //   dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                      // ]}
+                      // disabled={[true, true]}
+                    />{' '}
+                  </Col>
+                </Form.Group>
+
+                <Form.Group className='detail-info'>
+                  <Form.Label className='fs-6'>Tehnisi Pengerjaan</Form.Label>
+
+                  <Col sm='8'>
+                    <Select
+                      name='work_tukang_id'
+                      classNamePrefix='select'
+                      placeholder='Pilih Tehnisi'
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      isMulti
+                      options={tukang}
+                      // getOptionLabel={(option) => `${option.label}`}
+                      // getOptionValue={(option) => `${option.value}`}
+                      // value={workOrder.work_tukang_id}
+                      // onChange={(e) => workOrderFormHandler(e)}
+                    />
+                  </Col>
+                </Form.Group>
+              </Row>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
 
               <table className='table'>
                 <thead className='table-item-head'>
                   <tr>
-                    <th>Jasa Pemasangan</th>
+                    <th></th>
+                    <th>Nama Produk / Jenis Jasa</th>
+                    <th>QTY</th>
+                    <th>Satuan</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -760,6 +1070,15 @@ const UpdateWorkTukang: FC = () => {
                         key={`${stringToHash(element.index)}-service`}
                         id={`${element.index}-service`}
                       >
+                        <td align='center' width={70}>
+                          <Button
+                            variant='btn-jasa button-dark-primary'
+                            onClick={() => handleAddForm(2)}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                        </td>
+
                         <td>
                           <Form.Control
                             id={`service-name-${index}`}
@@ -769,6 +1088,22 @@ const UpdateWorkTukang: FC = () => {
                         </td>
 
                         <td>
+                          <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity?.toString()}
+                            onChange={(e) => handleQuantityChange(element.index, e.target.value, 2)}
+                          />{' '}
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`satuan-${index}`}
+                            value={element.satuan?.toString()}
+                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td align='center' width={70}>
                           <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
                             <FontAwesomeIcon icon={faTrash} />
                           </Button>
@@ -777,21 +1112,18 @@ const UpdateWorkTukang: FC = () => {
                     ))}
                 </tbody>
               </table>
-
-              <div className='d-flex justify-content-end'>
-                <Button variant='btn-material button-dark-primary' onClick={() => handleAddForm(1)}>
-                  Tambah Material
-                </Button>
-              </div>
-
-              <div className='fs-5 text-dark fw-bold mb-2'>List Material</div>
-
+            </Col>
+          </Row>
+          <Row>
+            <Col>
               <table className='table'>
                 <thead className='table-item-head'>
                   <tr>
+                    <th></th>
                     <th>Disediakan Customer</th>
-                    <th>Item</th>
-                    <th>Quantity</th>
+                    <th>Material Yang Dibutuhkan</th>
+                    <th>QTY</th>
+                    <th>Satuan</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -804,7 +1136,16 @@ const UpdateWorkTukang: FC = () => {
                         key={`${stringToHash(element.index)}-material`}
                         id={`${element.index}-material`}
                       >
-                        <td>
+                        <td align='center' width={70}>
+                          <Button
+                            variant='btn-material button-dark-primary'
+                            onClick={() => handleAddForm(1)}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                        </td>
+
+                        <td align='center' style={{verticalAlign: 'middle'}}>
                           <Form.Check
                             id={`is-user-${index}`}
                             type='checkbox'
@@ -825,11 +1166,19 @@ const UpdateWorkTukang: FC = () => {
                           <Form.Control
                             id={`quantity-${index}`}
                             value={element.quantity?.toString()}
-                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
+                            onChange={(e) => handleQuantityChange(element.index, e.target.value, 1)}
                           />
                         </td>
 
                         <td>
+                          <Form.Control
+                            id={`satuan-${index}`}
+                            value={element.satuan?.toString()}
+                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td align='center' width={70}>
                           <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
                             <FontAwesomeIcon icon={faTrash} />
                           </Button>
@@ -838,26 +1187,12 @@ const UpdateWorkTukang: FC = () => {
                     ))}
                 </tbody>
               </table>
-
-              <div className='d-flex justify-content-end'>
-                <Button variant='info' type='submit'>
-                  Print Work Order Detail
-                </Button>
-              </div>
             </Col>
           </Row>
 
           <Row>
-            <div className='d-flex justify-content-center'>
-              <Button
-                variant='dark-danger'
-                type='submit'
-                onClick={() => navigate('/work-order/view-work-order')}
-              >
-                Cancel
-              </Button>
-
-              <Button variant='dark-primary' type='submit' onClick={handleUpdateWorkOrder}>
+            <div className='d-flex justify-content-center mt-5 mb-3'>
+              <Button variant='dark-primary ' type='submit' onClick={handleUpdateWorkOrder}>
                 Save
               </Button>
             </div>
@@ -865,7 +1200,7 @@ const UpdateWorkTukang: FC = () => {
         </Card.Body>
       </Card>
 
-      {orderDetail?.work_orders ? (
+      {orderDetail?.work_orders && (
         <Card className='mb-5'>
           <Card.Body>
             <div className='work-order-history'>
@@ -882,8 +1217,6 @@ const UpdateWorkTukang: FC = () => {
             </div>
           </Card.Body>
         </Card>
-      ) : (
-        ''
       )}
     </section>
   )

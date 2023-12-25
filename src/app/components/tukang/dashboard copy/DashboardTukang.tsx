@@ -145,7 +145,7 @@ const DashboardTukang: FC = () => {
   useEffect(() => {
     const getStore = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/stores`, {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -154,10 +154,11 @@ const DashboardTukang: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
+            city_id: item.city_id,
           }))
 
           setStore(tempStore)

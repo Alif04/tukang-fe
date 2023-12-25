@@ -113,24 +113,33 @@ const NewMaterialVendor: FC = () => {
     if (desiredStatus) {
       const statuses = desiredStatus.map((x) => x.value)
 
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0&status=${statuses}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      try {
+        const response = await axios.get(
+          `${apiUrl}/orders?order_by=desc&take=0&status=${statuses.join(',')}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
 
-      if (Array.isArray(response.data.data)) {
-        const tempWorkOrder = response.data.data.map((item: any) => ({
-          value: item.work_orders.id,
-          label: item.work_orders.id,
-        }))
+        if (Array.isArray(response.data.data)) {
+          const tempWorkOrder = response.data.data
+            .filter((item: any) => item.work_orders && item.work_orders.id)
+            .map((item: any) => ({
+              value: item.work_orders.id,
+              label: item.work_orders.id,
+            }))
 
-        setWorkOrder(tempWorkOrder)
-      } else {
-        console.error('API response data is not an array:', response.data)
+          setWorkOrder(tempWorkOrder)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
       }
     } else {
       console.error('Desired status not found in statusData')
@@ -156,13 +165,15 @@ const NewMaterialVendor: FC = () => {
 
           if (data?.work_order_status) {
             const workOrderHistoryData = data.work_order_status.map((item: any) => ({
-              work_order_id: item.work_order_id,
-              work_order_status: item.status.category,
-              created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
-              updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
-              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
-              time_spent: item.time_spent ? item.time_spent : '-',
-              updated_by: item.updated_by,
+              work_order_id: item?.work_order_id,
+              work_order_status: item?.status?.category,
+              created_at: item.created_at ? formatDate(new Date(item?.created_at)) : '',
+              updated_at: item.updated_at ? formatDate(new Date(item?.updated_at)) : '',
+              work_date_time: item?.work_date_time
+                ? formatDate(new Date(item?.work_date_time))
+                : '-',
+              time_spent: item?.time_spent ? item.time_spent : '-',
+              updated_by: item?.updated_by,
             }))
 
             setWorkOrderHistory(workOrderHistoryData)
@@ -173,12 +184,12 @@ const NewMaterialVendor: FC = () => {
               (item: any, index: number) => ({
                 id: item.id,
                 index: (Date.now() + index).toString(),
-                item_name: item.name,
+                item_name: item?.name,
                 tukang_id: item?.tukang_id,
                 tukang_name: item?.tukang_name,
-                is_user: item.is_customer,
-                type: item.type,
-                quantity: item.quantity,
+                is_user: item?.is_customer,
+                type: item?.type,
+                quantity: item?.quantity,
               })
             )
 

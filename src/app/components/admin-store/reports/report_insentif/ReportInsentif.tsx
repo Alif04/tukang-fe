@@ -20,6 +20,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const userRole = localStorage.getItem('userRole') as any
+  const userId = localStorage.getItem('user_id') as any
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
 
@@ -140,17 +142,19 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const fetchOrderList = async () => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const url =
+        userRole === 'Store CS' || userRole === 'Admin HO'
+          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`
+          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&take=0`
+
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       if (response?.data?.total) {
         setTotalOrder(response.data.total)
@@ -214,7 +218,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     }
 
     fetchData()
-  }, [dateFrom, dateTo])
+  }, [dateFrom, dateTo, totalOrder])
 
   const handlePrintReport = () => {
     navigate('/reports/print-report')
@@ -234,11 +238,12 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
               <div className='d-flex align-items-center ms-5 me-3 mb-2'>
                 <h3 className='fs-6 fw-normal'>Periode : </h3>
                 <RangePicker
+                  format={'DD-MM-YYYY'}
                   className='date-range ms-3'
                   onChange={(values) => {
                     if (values && values.length === 2) {
-                      const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                      const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
+                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
 
                       setDateFrom(dateFromFormatted)
                       setDateTo(dateToFormatted)
@@ -247,7 +252,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
                       setDateTo('')
                     }
                   }}
-                />{' '}
+                />
               </div>
             </Col>
 

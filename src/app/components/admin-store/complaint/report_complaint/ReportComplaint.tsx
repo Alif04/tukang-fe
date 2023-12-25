@@ -180,6 +180,7 @@ const ReportComplaintStore: FC = () => {
 
             <div className='col-xxl-8 col-xl-8 col-lg-8'>
               <RangePicker
+                format={'DD-MM-YYYY'}
                 className='date-range ms-3'
                 onChange={(values) => {
                   if (values && values.length === 2) {

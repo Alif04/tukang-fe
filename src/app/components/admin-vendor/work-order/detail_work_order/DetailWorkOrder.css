@@ -44,6 +44,26 @@
   padding: 3px 0px;
 }
 
+#detail-work-order :where(.css-dev-only-do-not-override-1ck3jst).ant-picker.ant-picker-disabled {
+  background-color: white !important;
+}
+
+#detail-work-order
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
+  .ant-picker-input
+  > input[disabled] {
+  color: black !important;
+  font-weight: 600;
+}
+
+#detail-work-order .ant-picker-range-separator .anticon svg {
+  color: black;
+}
+
+#detail-work-order .ant-picker-suffix .anticon svg {
+  color: black;
+}
+
 /* Work Order Table  */
 
 #detail-work-order .table-item {
@@ -65,7 +85,7 @@
 
 /* Timeline */
 
-#detail-work-order .anticon svg {
+#detail-work-order .ant-steps.ant-steps-small .ant-steps-item-icon .anticon svg {
   color: white;
 }
 

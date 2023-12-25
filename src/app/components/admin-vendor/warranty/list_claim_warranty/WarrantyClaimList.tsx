@@ -250,6 +250,7 @@ const WarrantyClaimListVendor: React.FC<Props> = ({className}) => {
                 <h3 className='date-text'>Date : </h3>
               </div>
               <RangePicker
+                format={'DD-MM-YYYY'}
                 className='date-range ms-3'
                 onChange={(values) => {
                   if (values && values.length === 2) {

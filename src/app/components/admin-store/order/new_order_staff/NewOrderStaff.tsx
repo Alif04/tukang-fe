@@ -11,14 +11,6 @@ import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface StoreItemSelect {
-  value: number | null
-  label: string
-  address: string
-  city_id: number | null
-  zip_code: string
-}
-
 interface MemberSelect {
   value: number | null
   label: string
@@ -86,14 +78,10 @@ const NewOrderStoreStaff: FC = () => {
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
 
-  // Store
-  const [storeSelectOptions, setStoreSelectOptions] = useState<StoreItemSelect[]>([])
-  const [storeId, setStoreId] = useState<string>('')
-
   // Order
   const [orderForm, setOrderForm] = useState<Order>({
     member_id: null,
-    sales_id: null,
+    sales_id: userRole === 'Sales' ? Number.parseInt(userId) ?? null : null,
     store_id: Number.parseInt(staffStoreId),
     project_address: '',
     project_number: '',
@@ -122,6 +110,7 @@ const NewOrderStoreStaff: FC = () => {
 
   // Member
   const [member, setMember] = useState<MemberSelect[]>([])
+  const [searchByPhoneNumber, setSearchByPhoneNumber] = useState('')
   const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
     value: null,
     label: '',
@@ -188,7 +177,9 @@ const NewOrderStoreStaff: FC = () => {
   useEffect(() => {
     const getMember = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/member`, {
+        const labelKey = determineLabelKey(searchByPhoneNumber)
+
+        const response = await axios.get(`${apiUrl}/member?search=${searchByPhoneNumber}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -196,10 +187,11 @@ const NewOrderStoreStaff: FC = () => {
             'ngrok-skip-browser-warning': 'true',
           },
         })
+
         if (Array.isArray(response.data.data.member)) {
           const tempMember = response.data.data.member.map((item: any) => ({
             value: item.id,
-            label: item.member_number,
+            label: item[labelKey],
             full_name: item.full_name,
             email: item.email,
             phone_number: item.phone_number,
@@ -216,9 +208,24 @@ const NewOrderStoreStaff: FC = () => {
       }
     }
 
+    const determineLabelKey = (search: any) => {
+      switch (true) {
+        case search.includes('-'):
+          return 'whatsapp_number'
+        case search.includes('+'):
+          return 'phone_number'
+        default:
+          return 'member_number'
+      }
+    }
+
+    getMember()
+  }, [searchByPhoneNumber])
+
+  useEffect(() => {
     const getSales = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales`, {
+        const response = await axios.get(`${apiUrl}/sales?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -243,7 +250,6 @@ const NewOrderStoreStaff: FC = () => {
       }
     }
 
-    getMember()
     getSales()
     getItem('')
   }, [])
@@ -649,6 +655,7 @@ const NewOrderStoreStaff: FC = () => {
                       isSearchable={true}
                       isClearable={true}
                       options={member}
+                      onInputChange={(newValue) => setSearchByPhoneNumber(newValue)}
                       onChange={(newValue) => setSelectedMember(newValue)}
                     />
                   </Form.Group>
@@ -726,7 +733,7 @@ const NewOrderStoreStaff: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  {userRole === 'SALES' ? (
+                  {userRole === 'Sales' ? (
                     <Form.Control type='number' disabled value={userId} />
                   ) : (
                     <Select
@@ -752,8 +759,8 @@ const NewOrderStoreStaff: FC = () => {
                 <Col sm='8'>
                   <Form.Control
                     type='text'
-                    disabled={userRole === 'SALES'}
-                    value={userRole === 'SALES' ? username : selectedSales?.full_name || ''}
+                    disabled={userRole === 'Sales'}
+                    value={userRole === 'Sales' ? username : selectedSales?.full_name || ''}
                   />
                 </Col>
               </Form.Group>

@@ -3,11 +3,9 @@ import React from 'react'
 import {KTSVG} from '../../../helpers'
 import {AsideMenuItemWithSub} from './AsideMenuItemWithSub'
 import {AsideMenuItem} from './AsideMenuItem'
-import {useNavigate} from 'react-router-dom'
 import Swal from 'sweetalert2'
 
 export function AsideMenuMain() {
-  const navigate = useNavigate()
   const userRole = localStorage.getItem('userRole')
 
   const logoutHandler = () => {
@@ -21,7 +19,6 @@ export function AsideMenuMain() {
       showConfirmButton: false,
       timer: 3000,
     }).then(() => {
-      // navigate('/login')
       document.location.href = '/login'
     })
 
@@ -36,7 +33,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/art/art002.svg'
         title='Home ( Dashboard )'
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+        role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Admin Vendor', 'Tukang']}
       />
 
       {/* Halaman Calendar */}
@@ -54,7 +51,7 @@ export function AsideMenuMain() {
         title='Order'
         icon='/media/icons/duotune/art/art002.svg'
         fontIcon='bi-person'
-        role={['Store CS', 'Store Staff', 'Admin HO']}
+        role={['Store CS', 'Store Staff', 'Sales', 'Admin HO']}
       >
         <AsideMenuItem
           to='/order/dashboard-order'
@@ -65,13 +62,13 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/new-order'
           title='Order Baru'
-          role={['Store Staff', 'Store CS', 'Admin HO']}
+          role={['Sales', 'Store Staff', 'Sales', 'Store CS', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/order/view-order'
           title='List Order'
-          role={['Store CS', 'Store Staff', 'Admin HO']}
+          role={['Store CS', 'Store Staff', 'Sales', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -364,8 +361,12 @@ export function AsideMenuMain() {
       {/* Halaman Reports */}
       <AsideMenuItemWithSub
         to='/reports'
-        title={userRole === 'Store CS' || userRole === 'Store Staff' ? 'Laporan' : 'Report'}
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor', 'Tukang']}
+        title={
+          userRole === 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales'
+            ? 'Laporan'
+            : 'Report'
+        }
+        role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Admin Vendor', 'Tukang']}
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
       >
@@ -378,7 +379,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/reports/report-insentif'
           title='Insentif'
-          role={['Store CS', 'Store Staff']}
+          role={['Store CS', 'Store Staff', 'Sales']}
           hasBullet={true}
         />
         {/* <AsideMenuItem
@@ -443,9 +444,13 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/setting'
         icon='/media/icons/duotune/art/art002.svg'
-        title={userRole === 'Store CS' || userRole === 'Store Staff' ? 'Pengaturan' : 'Setting'}
+        title={
+          userRole === 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales'
+            ? 'Pengaturan'
+            : 'Setting'
+        }
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Store Staff', 'Admin HO', 'Admin Vendor']}
+        role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItem
           to='/email/format-email'

@@ -158,10 +158,10 @@ const DashboardHO: FC = () => {
     const getStore = async () => {
       try {
         const url = !selectedZone.value
-          ? `${apiUrl}/stores`
+          ? `${apiUrl}/stores?take=0`
           : `${apiUrl}/stores?city_id=${selectedZone.value}`
 
-        const response = await axios.get(`${apiUrl}/stores`, {
+        const response = await axios.get(url, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -170,8 +170,8 @@ const DashboardHO: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             city_id: item.city_id,
@@ -215,7 +215,7 @@ const DashboardHO: FC = () => {
 
     getStore()
     getCity()
-  }, [])
+  }, [selectedZone])
 
   // Catch Value From Response API by Status
   const [statusState, setStatusState] = useState(initialStatusState)

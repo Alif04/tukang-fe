@@ -277,6 +277,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
               </div>
 
               <RangePicker
+                format={'DD-MM-YYYY'}
                 className='date-range ms-3'
                 onChange={(values) => {
                   if (values && values.length === 2) {

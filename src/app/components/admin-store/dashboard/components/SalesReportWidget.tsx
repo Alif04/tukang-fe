@@ -68,11 +68,11 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     series: [
       {
         name: 'Jumlah Order',
-        data: [10, 20, 30, 40, 50, 60],
+        data: [40, 50, 60, 70, 30, 50],
       },
       {
         name: 'Grand Total Value',
-        data: [20, 25, 50, 45, 30, 100],
+        data: [50, 55, 40, 45, 50, 100],
       },
     ],
     chart: {

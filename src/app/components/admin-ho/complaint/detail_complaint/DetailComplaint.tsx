@@ -726,6 +726,17 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                   />
                 </Col>
               </Form.Group>
+
+              {complaintDetail?.complaint_histories.map((item: any) => (
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='6'>
+                    Reason :
+                  </Form.Label>
+                  <Col sm='6'>
+                    <Form.Control plaintext readOnly value={item?.reason} />
+                  </Col>
+                </Form.Group>
+              ))}
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -742,18 +753,20 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
               <ListGroup>
-                {complaintDetail?.complaint_evidence.map((item: any) => (
-                  <ListGroup.Item
-                    key={item.id}
-                    action
-                    onClick={() => {
-                      setPreviewImage(item.evidence_location)
-                      setVisible(true)
-                    }}
-                  >
-                    {item.evidence_location}
-                  </ListGroup.Item>
-                ))}
+                {complaintDetail?.complaint_histories.map((item: any) =>
+                  item.complaint_evidence.map((evidence: any) => (
+                    <ListGroup.Item
+                      key={evidence.id}
+                      action
+                      onClick={() => {
+                        setPreviewImage(evidence?.evidence_location)
+                        setVisible(true)
+                      }}
+                    >
+                      {evidence?.evidence_location}
+                    </ListGroup.Item>
+                  ))
+                )}
               </ListGroup>
 
               {previewImage && (

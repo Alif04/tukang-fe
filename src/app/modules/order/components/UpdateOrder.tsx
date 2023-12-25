@@ -19,17 +19,17 @@ const UpdateOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'Store Staff' ? (
+      {userRole === 'Store Staff' || userRole === 'Sales' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateOrderStoreStaff updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole == 'Store CS' ? (
+      ) : userRole === 'Store CS' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateOrderStoreCS updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole == 'Admin HO' ? (
+      ) : userRole === 'Admin HO' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateOrderHO updatePageTitle={updatePageTitle} />

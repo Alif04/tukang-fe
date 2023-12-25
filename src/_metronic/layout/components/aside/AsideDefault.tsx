@@ -11,7 +11,8 @@ const AsideDefault: FC = () => {
   const asideRef = useRef<HTMLDivElement | null>(null)
   const {aside} = config
 
-  const [role, setRole] = useState<string | null>(localStorage.getItem('userRole'))
+  const username = localStorage.getItem('username')
+  const role = localStorage.getItem('userRole')
 
   const minimize = () => {
     asideRef.current?.classList.add('animating')
@@ -69,7 +70,7 @@ const AsideDefault: FC = () => {
             src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
           />
           <h6 className='text-center text-secondary-emphasis'>
-            Aditya Soeharso
+            {username}
             <br />({role}){' '}
           </h6>
         </div>

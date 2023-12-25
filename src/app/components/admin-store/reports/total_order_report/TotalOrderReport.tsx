@@ -242,11 +242,12 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
               <div className='d-flex align-items-center ms-5 me-3 mb-2'>
                 <h3 className='fs-6 fw-normal'>Periode : </h3>
                 <RangePicker
+                  format={'DD-MM-YYYY'}
                   className='date-range ms-3'
                   onChange={(values) => {
                     if (values && values.length === 2) {
-                      const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                      const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
+                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
 
                       setDateFrom(dateFromFormatted)
                       setDateTo(dateToFormatted)

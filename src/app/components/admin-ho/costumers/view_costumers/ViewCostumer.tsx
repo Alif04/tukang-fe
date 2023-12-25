@@ -243,6 +243,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
                 <Col sm='8'>
                   <RangePicker
+                    format={'DD-MM-YYYY'}
                     className='date-range ms-3'
                     onChange={(values) => {
                       if (values && values.length === 2) {

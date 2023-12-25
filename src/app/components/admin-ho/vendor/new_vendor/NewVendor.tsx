@@ -42,7 +42,7 @@ const NewVendorHO: FC = () => {
 
   const getCity = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/city`, {
+      const response = await axios.get(`${apiUrl}/city?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -247,7 +247,7 @@ const NewVendorHO: FC = () => {
   const [accountNumber, setAccountNumber] = useState<any>()
   const [accountName, setAccountName] = useState<string>('')
   const [markup, setMarkup] = useState<any>()
-  const [discount, setDiscount] = useState<any>()
+  // const [discount, setDiscount] = useState<any>()
 
   // Handle Join Date Change
   const today = new Date().toISOString().split('T')[0]
@@ -514,10 +514,10 @@ const NewVendorHO: FC = () => {
     setMarkup(updatedMarkup)
   }
 
-  const handleChangeDiscount = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedDiscount = event.target.value
-    setDiscount(updatedDiscount)
-  }
+  // const handleChangeDiscount = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const updatedDiscount = event.target.value
+  //   setDiscount(updatedDiscount)
+  // }
 
   // Change Select Service Area
   const handleChangeServiceAreaId = (element: any) => {
@@ -678,7 +678,7 @@ const NewVendorHO: FC = () => {
 
       formData.append('pic_name', picName)
       formData.append('markup', markup)
-      formData.append('discount', discount)
+      // formData.append('discount', discount)
       formData.append('account_name', accountName)
       formData.append('account_number', accountNumber)
       formData.append('bank_id', bankId)

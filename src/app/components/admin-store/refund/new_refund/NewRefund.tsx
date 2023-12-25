@@ -218,22 +218,24 @@ const NewRefundCS: FC = () => {
 
   // Handle Submit New Refund
   const handleSubmitNewRefund = async () => {
-    // const formData = new FormData()
+    const formData = new FormData()
 
-    // formData.append('order_id', refundValues.order_id)
-    // formData.append('reason', refundValues.reason)
-    // formData.append('date_of_filing', refundValues.date_of_filing)
+    formData.append('order_id', refundValues.order_id)
+    formData.append('refund_status', refundValues.refund_status)
+    formData.append('notes', refundValues.notes)
+    formData.append('reason', refundValues.reason)
+    formData.append('date_of_filing', refundValues.date_of_filing)
 
-    // if (refundValues.files?.length) {
-    //   refundValues.files.forEach((item) => {
-    //     if (item) {
-    //       formData.append(`files`, item, item?.name)
-    //     }
-    //   })
-    // }
+    if (refundValues.files?.length) {
+      refundValues.files.forEach((item) => {
+        if (item) {
+          formData.append(`refund_evidences`, item, item?.name)
+        }
+      })
+    }
 
     await axios
-      .post(`${apiUrl}/refund`, refundValues, {
+      .post(`${apiUrl}/refund`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

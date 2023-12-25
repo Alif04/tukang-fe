@@ -1,16 +1,12 @@
 import React, {FC, useState, useEffect, SetStateAction} from 'react'
 import {Orders} from '../../../../interfaces/order'
-import {WorkOrder} from '../../../../interfaces/work-order'
 
 import './DetailWorkOrder.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import dayjs from 'dayjs'
 import {useParams} from 'react-router-dom'
 import {Form, Row, Col, Table} from 'react-bootstrap'
-import {DatePicker, Steps} from 'antd'
-const {RangePicker} = DatePicker
+import {Steps} from 'antd'
 
 interface Status {
   value: number | null
@@ -22,19 +18,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   const params = useParams()
 
   const [orderDetail, setOrderDetail] = useState<any>()
-
-  const [workOrder, setWorkOrder] = useState<WorkOrder>({
-    id: null,
-    order_id: null,
-    vendor_id: null,
-    tukang_id: [],
-    request_work_time: '',
-    survey_date: '',
-    work_order_status: null,
-    complaint_status: null,
-    work_start_date: '',
-    work_end_date: '',
-  })
 
   const fetchOrderData = async () => {
     try {
@@ -51,24 +34,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
           const data = response.data.data
           setOrderDetail(data)
           updatePageTitle(data)
-
-          if (data?.work_orders?.work_order_tukang) {
-            const tukang = data.work_orders.work_order_tukang.map((item: any) => ({
-              id: item.id,
-              tukang_id: item.tukang_id,
-              tukang_name: item.tukang.full_name,
-            }))
-
-            workOrderHandler(tukang, 'tukang_id')
-          }
-
-          if (data?.work_orders) {
-            setWorkOrder((prev) => ({
-              ...prev,
-              work_start_date: data?.work_orders.work_start_date,
-              work_end_date: data?.work_orders.work_end_date,
-            }))
-          }
         })
     } catch (error) {
       console.error(error)
@@ -86,17 +51,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     const hours = date.getHours().toString().padStart(2, '0')
     const minutes = date.getMinutes().toString().padStart(2, '0')
     return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
-  }
-
-  const workOrderHandler = (
-    value: number | string | Array<number | string | null> | any | null,
-    target: string,
-    setStateAction: SetStateAction<typeof setWorkOrder> = setWorkOrder
-  ) => {
-    setWorkOrder((prev) => {
-      const cache = {...prev, [target]: value}
-      return cache
-    })
   }
 
   // Statuses for Order Timeline
@@ -174,7 +128,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Form.Label className='fs-4 fw-bold'>
                     Work Order ID :{' '}
                     <span className='fs-4 ms-2 fw-normal'>
-                      {orderDetail?.work_orders?.id ?? ''}
+                      {orderDetail?.work_orders?.id ?? '-'}
                     </span>
                   </Form.Label>
                 </Col>
@@ -278,11 +232,11 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       <div className='detail-info mb-3'>
                         <p className='fs-5 fw-bold'>Oleh:</p>
                         {orderDetail?.work_orders !== null ? (
-                          <>
-                            {orderDetail?.work_orders?.work_order_tukang.map((item: any) => (
-                              <p className='fs-7'>{item?.tukang?.full_name}</p>
-                            ))}
-                          </>
+                          <p className='fs-7'>
+                            {orderDetail?.work_orders?.work_order_tukang
+                              .map((item: any) => item?.tukang?.full_name)
+                              .join(', ')}
+                          </p>
                         ) : (
                           'Tukang belum diset oleh vendor'
                         )}
@@ -301,9 +255,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                         <Col sm='9'>
                           {orderDetail?.work_orders !== null ? (
-                            <>
+                            <p className='fs-7'>
                               {formatDateTime(new Date(orderDetail?.work_orders?.work_start_date))}
-                            </>
+                            </p>
                           ) : (
                             'Jadwal belum diset oleh tukang'
                           )}
@@ -317,7 +271,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                         <Col sm='9'>
                           {orderDetail?.work_orders !== null ? (
-                            <>{formatDateTime(new Date(orderDetail?.work_orders?.work_end_date))}</>
+                            <p className='fs-7'>
+                              {formatDateTime(new Date(orderDetail?.work_orders?.work_end_date))}
+                            </p>
                           ) : (
                             'Jadwal belum diset oleh tukang'
                           )}
@@ -327,11 +283,11 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       <div className='detail-info mb-3'>
                         <p className='fs-5 fw-bold'>Oleh:</p>
                         {orderDetail?.work_orders !== null ? (
-                          <>
-                            {orderDetail?.work_orders?.work_order_tukang.map((item: any) => (
-                              <p className='fs-7'>{item?.tukang?.full_name}</p>
-                            ))}
-                          </>
+                          <p className='fs-7'>
+                            {orderDetail?.work_orders?.work_order_tukang
+                              .map((item: any) => item?.tukang?.full_name)
+                              .join(', ')}
+                          </p>
                         ) : (
                           'Tukang belum diset oleh vendor'
                         )}
@@ -361,32 +317,36 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </tr>
                 </thead>
                 <tbody>
-                  {/* {orderDetail?.order_details.map((item: any, index: any) => (
+                  {orderDetail?.work_orders !== null ? (
                     <>
-                      <tr>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
-                        <td>{item?.item?.service_name}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
-                      </tr>
+                      {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
+                        (item: any, index: any) => (
+                          <tr key={`${index}-work_order_detail`}>
+                            <td>{item?.item_id ?? '-'}</td>
+                            <td>{item?.item ?? '-'}</td>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                          </tr>
+                        )
+                      )}
                     </>
-                  ))} */}
-
-                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                    (item: any, index: any) => (
-                      <>
-                        <tr>
-                          <td>{item?.item_id ?? '-'}</td>
-                          <td>{item?.item ?? '-'}</td>
-                          <td>{item?.name ?? '-'}</td>
+                  ) : (
+                    <>
+                      {orderDetail?.order_details.map((item: any, index: any) => (
+                        <tr key={`${index}-order_detail`}>
+                          <td>{item?.item_code ?? '-'}</td>
+                          <td>{item?.item?.item_name ?? '-'}</td>
+                          <td>{item?.item?.service_name ?? '-'}</td>
                           <td>{item?.quantity ?? 0}</td>
                           <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString('id')}`}</td>
                           <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
                         </tr>
-                      </>
-                    )
+                      ))}
+                    </>
                   )}
 
                   <tr>

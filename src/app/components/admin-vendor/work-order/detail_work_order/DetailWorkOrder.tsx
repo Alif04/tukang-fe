@@ -203,7 +203,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
             <Row className='information-detail'>
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
-                <div className='fs-3 fw-bold'>Informasi Pembeli</div>
+                <div className='fs-4 fw-bold'>Informasi Pembeli</div>
                 <Row>
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
@@ -226,7 +226,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='6'>
-                        Alamat Pemasangan :
+                        Alamat Pemasangan
                       </Form.Label>
                       <Col sm='6'>
                         <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
@@ -236,19 +236,21 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='5'>
+                      <Form.Label column sm='4'>
                         Nomor Telp/WA :
                       </Form.Label>
-                      <Col sm='7'>
+
+                      <Col sm='8'>
                         <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
                       </Col>
                     </Form.Group>
 
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='5'>
-                        Alamat Email :
+                      <Form.Label column sm='4'>
+                        Alamat Email
                       </Form.Label>
-                      <Col sm='7'>
+
+                      <Col sm='8'>
                         <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
                       </Col>
                     </Form.Group>
@@ -260,7 +262,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Row>
                   <Col>
                     <div className='survey mb-3'>
-                      <div className='fs-3 fw-bold'>Survey</div>
+                      <div className='fs-4 fw-bold'>Survey</div>
 
                       <Form.Group className='detail-info mb-3'>
                         <Form.Label>Tanggal Survey :</Form.Label>
@@ -268,56 +270,74 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <Form.Control
                           type='date'
                           readOnly
-                          value={formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))}
+                          value={
+                            orderDetail?.work_orders !== null
+                              ? formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))
+                              : formatDate(new Date(orderDetail?.request_survey ?? '-'))
+                          }
                         />
                       </Form.Group>
 
                       <Form.Group className='detail-info mb-3'>
                         <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
-                        <Select
-                          classNamePrefix='select'
-                          closeMenuOnSelect={false}
-                          isClearable={false}
-                          isMulti
-                          menuIsOpen={false}
-                          getOptionLabel={(option) => `${option.tukang_name}`}
-                          getOptionValue={(option) => `${option.tukang_id}`}
-                          value={workOrder.tukang_id}
-                        />
+
+                        {orderDetail?.work_orders !== null ? (
+                          <Select
+                            classNamePrefix='select'
+                            closeMenuOnSelect={false}
+                            isClearable={false}
+                            isMulti
+                            menuIsOpen={false}
+                            getOptionLabel={(option) => `${option.tukang_name}`}
+                            getOptionValue={(option) => `${option.tukang_id}`}
+                            value={workOrder.tukang_id}
+                          />
+                        ) : (
+                          <p>Tukang belum diset oleh vendor</p>
+                        )}
                       </Form.Group>
                     </div>
                   </Col>
 
                   <Col>
                     <div className='work-date'>
-                      <div className='fs-3 fw-bold'>Pengerjaan</div>
+                      <div className='fs-4 fw-bold'>Pengerjaan</div>
 
                       <Form.Group className='detail-info mb-3'>
                         <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
 
-                        <RangePicker
-                          className='date-range w-100'
-                          format='YYYY-MM-DD'
-                          value={[
-                            dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                            dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                          ]}
-                          disabled={[true, true]}
-                        />
+                        {orderDetail?.work_orders !== null ? (
+                          <RangePicker
+                            className='date-range w-100'
+                            format='YYYY-MM-DD'
+                            value={[
+                              dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                              dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                            ]}
+                            disabled={[true, true]}
+                          />
+                        ) : (
+                          <p>Tanggal Pengerjaan belum diset oleh tukang</p>
+                        )}
                       </Form.Group>
 
                       <Form.Group className='detail-info mb-3'>
                         <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
-                        <Select
-                          classNamePrefix='select'
-                          closeMenuOnSelect={false}
-                          isClearable={false}
-                          isMulti
-                          menuIsOpen={false}
-                          getOptionLabel={(option) => `${option.tukang_name}`}
-                          getOptionValue={(option) => `${option.tukang_id}`}
-                          value={workOrder.tukang_id}
-                        />
+
+                        {orderDetail?.work_orders !== null ? (
+                          <Select
+                            classNamePrefix='select'
+                            closeMenuOnSelect={false}
+                            isClearable={false}
+                            isMulti
+                            menuIsOpen={false}
+                            getOptionLabel={(option) => `${option.tukang_name}`}
+                            getOptionValue={(option) => `${option.tukang_id}`}
+                            value={workOrder.tukang_id}
+                          />
+                        ) : (
+                          <p>Tukang belum diset oleh vendor</p>
+                        )}
                       </Form.Group>
                     </div>
                   </Col>
@@ -344,32 +364,36 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </tr>
                 </thead>
                 <tbody>
-                  {/* {orderDetail?.order_details.map((item: any, index: any) => (
+                  {orderDetail?.work_orders !== null ? (
                     <>
-                      <tr>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
-                        <td>{item?.item?.service_name}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
-                      </tr>
+                      {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
+                        (item: any, index: any) => (
+                          <tr key={`${index}-work_order_detail`}>
+                            <td>{item?.item_id ?? '-'}</td>
+                            <td>{item?.item ?? '-'}</td>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                          </tr>
+                        )
+                      )}
                     </>
-                  ))} */}
-
-                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                    (item: any, index: any) => (
-                      <>
-                        <tr>
-                          <td>{item?.item_id ?? '-'}</td>
-                          <td>{item?.item ?? '-'}</td>
-                          <td>{item?.name ?? '-'}</td>
-                          <td>{item?.quantity ?? '-'}</td>
+                  ) : (
+                    <>
+                      {orderDetail?.order_details.map((item: any, index: any) => (
+                        <tr key={`${index}-order_detail`}>
+                          <td>{item?.item_code ?? '-'}</td>
+                          <td>{item?.item?.item_name ?? '-'}</td>
+                          <td>{item?.item?.service_name ?? '-'}</td>
+                          <td>{item?.quantity ?? 0}</td>
                           <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString('id')}`}</td>
                           <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
                         </tr>
-                      </>
-                    )
+                      ))}
+                    </>
                   )}
 
                   <tr>
