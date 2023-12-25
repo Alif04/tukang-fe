@@ -110,12 +110,12 @@ export function AsideMenuMain() {
           to='/work-order/report-work-order'
           title='Report Work Order'
           hasBullet={true}
-          role={['Admin Vendor', 'Tukang']}
+          role={['Admin Vendor']}
         />
         <AsideMenuItem
           to='/warranty/claim-warranty-list'
           title='Claim Garansi'
-          role={['Admin Vendor']}
+          role={['Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -126,12 +126,12 @@ export function AsideMenuMain() {
         title='Quotation'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Admin Vendor']}
+        role={['Admin HO', 'Admin Vendor', 'Tukang']}
       >
         <AsideMenuItem
           to='/quotation/view-quotation'
           title='Quotation List'
-          role={['Admin HO', 'Admin Vendor']}
+          role={['Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
 

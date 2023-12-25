@@ -19,6 +19,7 @@ type Props = {
 
 const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
+  const userRole = localStorage.getItem('userRole')
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -185,9 +186,11 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            {userRole === 'Admin Vendor' && (
+              <a className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon icon={faPen} size='sm' />
+              </a>
+            )}
           </div>
         )
       },

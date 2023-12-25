@@ -16,6 +16,10 @@ const DetailQuotation: FC = () => {
         <>
           <DetailQuotationVendor />
         </>
+      ) : userRole == 'Tukang' ? (
+        <>
+          <DetailQuotationVendor />
+        </>
       ) : (
         <></>
       )}

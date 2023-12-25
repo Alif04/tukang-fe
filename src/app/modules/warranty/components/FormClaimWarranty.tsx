@@ -33,6 +33,11 @@ const ClaimWarrantyForm: React.FC = () => {
           <PageTitle>{pageTitle}</PageTitle>
           <WarrantyFormClaimVendor updatePageTitle={updatePageTitle} />
         </>
+      ) : userRole === 'Tukang' ? (
+        <>
+          <PageTitle>{pageTitle}</PageTitle>
+          <WarrantyFormClaim updatePageTitle={updatePageTitle} />
+        </>
       ) : (
         <></>
       )}

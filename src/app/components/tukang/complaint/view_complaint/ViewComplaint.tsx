@@ -306,14 +306,14 @@ const ViewComplaintTukang: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
+          <div className='button-wrapper d-flex justify-content-center'>
             <a className='button-detail' onClick={handleDetail}>
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
-            <a className='button-edit' onClick={handleEdit}>
+            {/* <a className='button-edit' onClick={handleEdit}>
               <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            </a> */}
           </div>
         )
       },

@@ -646,7 +646,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
 
           <hr />
 
-          <Row>
+          {/* <Row>
             <div className='d-flex justify-content-end align-items-center'>
               <Button
                 variant='light-danger'
@@ -666,7 +666,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                 Accepted
               </Button>
             </div>
-          </Row>
+          </Row> */}
 
           <Row>
             <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
@@ -778,8 +778,8 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
             </Col>
           </Row>
 
-          <hr />
-
+          {/* <hr /> */}
+          {/* 
           <Row>
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
               <Form.Label className='fs-3 fw-bold'>Feedback Store</Form.Label>
@@ -907,7 +907,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
             >
               Submit
             </Button>
-          </div>
+          </div> */}
 
           {/* <hr />
 
