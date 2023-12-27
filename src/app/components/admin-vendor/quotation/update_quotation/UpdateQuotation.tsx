@@ -26,7 +26,7 @@ interface QuotationDetail {
   type: number
   item_name: string
   unit_price: number
-  unit_description: string
+  unit: string
   description: string
   total: number
   final_price: number
@@ -71,7 +71,7 @@ const UpdateQuotationVendor: FC = () => {
       category_name: '',
       type: 1,
       item_name: '',
-      unit_description: '',
+      unit: '',
       description: '',
       unit_price: 0,
       total: 0,
@@ -89,7 +89,7 @@ const UpdateQuotationVendor: FC = () => {
       work_order_item_id: null,
       type: 2,
       item_name: '',
-      unit_description: '',
+      unit: '',
       description: '',
       unit_price: 0,
       total: 0,
@@ -278,7 +278,7 @@ const UpdateQuotationVendor: FC = () => {
       category_name: '',
       type: type,
       item_name: '',
-      unit_description: '',
+      unit: '',
       description: '',
       unit_price: 0,
       total: 0,
@@ -381,7 +381,7 @@ const UpdateQuotationVendor: FC = () => {
     if (filteredDetailValues[index]) {
       filteredDetailValues[index] = {
         ...filteredDetailValues[index],
-        unit_description: value,
+        unit: value,
       }
 
       setQuotationDetail((prev) =>
@@ -574,6 +574,7 @@ const UpdateQuotationVendor: FC = () => {
         formData.append(`quotation_details[${index}][type]`, String(quotation.type))
         formData.append(`quotation_details[${index}][name]`, quotation.item_name)
         formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
+        formData.append(`quotation_details[${index}][unit]`, String(quotation.unit))
         formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
         formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
         formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
@@ -851,7 +852,7 @@ const UpdateQuotationVendor: FC = () => {
                         <td>
                           <Form.Control
                             id={`satuan-${index}`}
-                            value={element.unit_description}
+                            value={element.unit}
                             onChange={(e) => handleUnitDescriptionChange(index, e.target.value, 2)}
                           />
                         </td>
@@ -979,7 +980,7 @@ const UpdateQuotationVendor: FC = () => {
                         <td>
                           <Form.Control
                             id={`satuan-${index}`}
-                            value={element.unit_description}
+                            value={element.unit}
                             onChange={(e) => handleUnitDescriptionChange(index, e.target.value, 1)}
                           />
                         </td>

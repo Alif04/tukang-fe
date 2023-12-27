@@ -43,9 +43,11 @@ const NewComplaintHO: FC = () => {
         const tempOrder = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.id,
+          status: item?.status?.category,
         }))
 
-        setOrder(tempOrder)
+        const filteredOrder = tempOrder?.filter((detail: any) => detail?.status !== 'UNPAID')
+        setOrder(filteredOrder)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -546,8 +548,8 @@ const NewComplaintHO: FC = () => {
                   {orderDetail?.order_details.map((item: any, index: any) => (
                     <>
                       <tr key={`${index} - detail-order`}>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
+                        <td>{item?.item_code ?? '-'}</td>
+                        <td>{item?.item_name ?? '-'}</td>
                         <td>{item?.item?.service_name ?? '-'}</td>
                         <td>{item?.quantity}</td>
                         {!(

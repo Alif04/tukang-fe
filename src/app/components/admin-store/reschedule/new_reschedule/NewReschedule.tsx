@@ -4,21 +4,20 @@ import {useNavigate} from 'react-router-dom'
 import './NewReschedule.css'
 
 import axios from 'axios'
-import Select, {SingleValue} from 'react-select'
+import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, Form, Button, Row, Col, Card, FormGroup} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
-
-interface SelectedOrder {
-  value: number | null
-  label: string
-}
+import {Table, Form, Button, Row, Col, Card} from 'react-bootstrap'
 
 interface Reschedule {
   order_id: number | null
-  status_id: number | null
-  reschedule_date: string
+  project_status_id: number | null
+  request_survey: string
+  reason: string
+}
+
+interface Status {
+  value: number
+  category: string
 }
 
 const NewReschedule: FC = () => {
@@ -34,13 +33,22 @@ const NewReschedule: FC = () => {
 
   const [reschedule, setReschedule] = useState<Reschedule>({
     order_id: null,
-    status_id: null,
-    reschedule_date: '',
+    project_status_id: null,
+    request_survey: '',
+    reason: '',
   })
 
   const getOrder = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData.filter((status: any) =>
+      ['BOOK', 'PICKLIST', 'BOOKED'].includes(status.category)
+    )
+
+    if (desiredStatus) {
+      const statuses = desiredStatus.map((x) => x.value)
+
+      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0&status=${statuses}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -59,8 +67,8 @@ const NewReschedule: FC = () => {
       } else {
         console.error('API response data is not an array:', response.data)
       }
-    } catch (err) {
-      console.error(err)
+    } else {
+      console.error('Desired status not found in statusData')
     }
   }
 
@@ -120,7 +128,7 @@ const NewReschedule: FC = () => {
 
     setReschedule((prevRescheduleValues) => ({
       ...prevRescheduleValues,
-      status_id: statusId,
+      project_status_id: statusId,
     }))
   }, [reschedule])
 
@@ -428,38 +436,45 @@ const NewReschedule: FC = () => {
 
           <hr />
 
-          <div className='title'>
+          <div className='title mb-3'>
             <h1 className='text-uppercase'>formulir reschedule</h1>
           </div>
 
-          <Form.Group className='detail-info mb-3'>
-            <Form.Label column md='6'>
-              Tanggal Request Survey/Pekerjaan :
-            </Form.Label>
+          <Row className='mb-3'>
+            <Col xxl={4} xl={4} md={4} sm={12}>
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Tanggal Request Survey/Pekerjaan :</Form.Label>
 
-            <Col md={6}>
-              <p className='fs-3'>
-                {orderDetail?.request_survey
-                  ? formatDate(new Date(orderDetail?.request_survey))
-                  : ''}
-              </p>
+                <p className='fs-3'>
+                  {orderDetail?.request_survey
+                    ? formatDate(new Date(orderDetail?.request_survey))
+                    : 'DD-MM-YYYY'}
+                </p>
+              </Form.Group>
+
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Tanggal Reschedule :</Form.Label>
+                <Form.Control
+                  name='request_survey'
+                  type='date'
+                  min={today}
+                  onChange={(e) => RescheduleFormHandler(e)}
+                />
+              </Form.Group>
             </Col>
-          </Form.Group>
 
-          <Form.Group className='detail-info mb-3'>
-            <Form.Label column md='6'>
-              Tanggal Reschedule :
-            </Form.Label>
-
-            <Col md={6}>
-              <Form.Control
-                name='reschedule_date'
-                type='date'
-                min={today}
-                onChange={(e) => RescheduleFormHandler(e)}
-              />
+            <Col xxl={8} xl={8} md={8} sm={12}>
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Alasan :</Form.Label>
+                <Form.Control
+                  as='textarea'
+                  className='reason'
+                  name='reason'
+                  onChange={(e) => RescheduleFormHandler(e)}
+                />
+              </Form.Group>
             </Col>
-          </Form.Group>
+          </Row>
 
           <div className='d-flex justify-content-center mt-5'>
             <Button variant='dark-primary' type='submit' onClick={handleSubmitReschedule}>

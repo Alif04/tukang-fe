@@ -5,7 +5,7 @@ import './DetailQuotation.css'
 
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
-import {Form, Table, Button, Row, Col} from 'react-bootstrap'
+import {Form, Table, Row, Col} from 'react-bootstrap'
 
 const DetailQuotationHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -158,7 +158,7 @@ const DetailQuotationHO: FC = () => {
                       <tr>
                         <td>{item?.name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{item?.unit ?? '-'}</td>
                         <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
                         <td>{item?.description ? '' : '-'}</td>
@@ -187,7 +187,7 @@ const DetailQuotationHO: FC = () => {
                       <tr>
                         <td>{item?.name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{item?.unit ?? '-'}</td>
                         <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
                         <td>{item?.description ? '' : '-'}</td>

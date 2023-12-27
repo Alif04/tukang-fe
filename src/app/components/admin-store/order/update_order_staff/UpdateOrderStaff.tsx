@@ -67,7 +67,6 @@ interface Order {
     item_code: string
     item_name: string
     quantity: number
-
     unit_price: string | null
     total: string | null
   }>

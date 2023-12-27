@@ -926,7 +926,7 @@ const NewVendorHO: FC = () => {
               </Row>
 
               <Row className='form-body'>
-                <Form.Group className='d-flex justify-content-between mb-2'>
+                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
                   <Form.Control
                     id='input-compro-file'
                     type='file'
@@ -942,17 +942,17 @@ const NewVendorHO: FC = () => {
                       onChange={() => handleFormCheckbox('compro')}
                     />
 
-                    <Form.Label className='ms-2' onClick={handleUploadCompro}>
-                      COMPRO
-                    </Form.Label>
+                    <Form.Label className='ms-2'>COMPRO</Form.Label>
                   </div>
 
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
                     {imageCompro.blob ? imageCompro.fileName : ''}
                   </Form.Label>
+
+                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadCompro} />
                 </Form.Group>
 
-                <Form.Group className='d-flex justify-content-between mb-2'>
+                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
                   <Form.Control
                     id='input-surat_permohonan-file'
                     type='file'
@@ -967,17 +967,21 @@ const NewVendorHO: FC = () => {
                       checked={isActive.suratPermohonan}
                       onChange={() => handleFormCheckbox('suratPermohonan')}
                     />
-                    <Form.Label className='ms-2' onClick={handleUploadSuratPermohonan}>
-                      Surat Pemohonan
-                    </Form.Label>
+                    <Form.Label className='ms-2'>Surat Pemohonan</Form.Label>
                   </div>
 
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
                     {imageSuratPermohonan.blob ? imageSuratPermohonan.fileName : ''}
                   </Form.Label>
+
+                  <FontAwesomeIcon
+                    icon={faUpload}
+                    size='lg'
+                    onClick={handleUploadSuratPermohonan}
+                  />
                 </Form.Group>
 
-                <Form.Group className='d-flex justify-content-between mb-2'>
+                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
                   <Form.Control
                     id='input-pks-file'
                     type='file'
@@ -989,17 +993,17 @@ const NewVendorHO: FC = () => {
 
                   <div className='upload d-flex align-items-center'>
                     <Form.Check checked={isActive.pks} onChange={() => handleFormCheckbox('pks')} />
-                    <Form.Label className='ms-2' onClick={handleUploadPksEvidence}>
-                      PKS
-                    </Form.Label>
+                    <Form.Label className='ms-2'>PKS</Form.Label>
                   </div>
 
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
                     {imagePksEvidence.blob ? imagePksEvidence.fileName : ''}
                   </Form.Label>
+
+                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadPksEvidence} />
                 </Form.Group>
 
-                <Form.Group className='d-flex justify-content-between mb-2'>
+                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
                   <Form.Control
                     id='input-suip-file'
                     type='file'
@@ -1014,17 +1018,17 @@ const NewVendorHO: FC = () => {
                       checked={isActive.suip}
                       onChange={() => handleFormCheckbox('suip')}
                     />
-                    <Form.Label className='ms-2' onClick={handleUploadSuipEvidence}>
-                      SUIP
-                    </Form.Label>
+                    <Form.Label className='ms-2'>SUIP</Form.Label>
                   </div>
 
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
                     {imageSuipEvidence.blob ? imageSuipEvidence.fileName : ''}
                   </Form.Label>
+
+                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadSuipEvidence} />
                 </Form.Group>
 
-                <Form.Group className='d-flex justify-content-between mb-2'>
+                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
                   <Form.Control
                     id='input-ptkp-file'
                     type='file'
@@ -1039,14 +1043,14 @@ const NewVendorHO: FC = () => {
                       checked={isActive.ptkp}
                       onChange={() => handleFormCheckbox('ptkp')}
                     />
-                    <Form.Label className='ms-2' onClick={handleUploadPtkpEvidence}>
-                      PTKP
-                    </Form.Label>
+                    <Form.Label className='ms-2'>PTKP</Form.Label>
                   </div>
 
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline'>
+                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
                     {imagePtkpEvidence.blob ? imagePtkpEvidence.fileName : ''}
                   </Form.Label>
+
+                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadPtkpEvidence} />
                 </Form.Group>
               </Row>
 

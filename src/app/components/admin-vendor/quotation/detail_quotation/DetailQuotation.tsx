@@ -151,7 +151,7 @@ const DetailQuotationVendor: FC = () => {
                       <tr>
                         <td>{item?.name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{item?.unit}</td>
                         <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
                         <td>{item?.description ? '' : '-'}</td>
@@ -180,7 +180,7 @@ const DetailQuotationVendor: FC = () => {
                       <tr>
                         <td>{item?.name ?? '-'}</td>
                         <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{item?.unit ?? '-'}</td>
                         <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
                         <td>{item?.description ? '' : '-'}</td>

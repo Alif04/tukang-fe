@@ -32,6 +32,10 @@
   padding: 3px 0px;
 }
 
+#warranty-form .reason-claim {
+  min-height: 125px;
+}
+
 /* Table Order */
 
 #warranty-form .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {

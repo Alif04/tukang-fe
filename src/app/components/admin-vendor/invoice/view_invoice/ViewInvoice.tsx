@@ -5,25 +5,31 @@ import './ViewInvoice.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
 import {Table, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faTrash, faSearch, faPlus, faFilter} from '@fortawesome/free-solid-svg-icons'
+
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
 
 interface Status {
   value: any
   category: string
   label: string
+}
+
+interface DataType {
+  order_id: number
+  invoice_id: number
+  date_order: string
+  quotation_id: number
+  payment_status: string
+  member_id: number
+  vendor_name: string
+  order_status: string
 }
 
 const ViewInvoiceVendor: FC = () => {
@@ -32,66 +38,11 @@ const ViewInvoiceVendor: FC = () => {
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
-  const [status, setStatus] = useState<Status[]>([])
-  const [searchByOrderStatus, setSearchByOrderStatus] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
-  // Handle Change Start Date
-  const handleChangeJoinDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchJoinDate = event.target.value
-    setDateFrom(updatedSearchJoinDate)
-  }
-
-  // Handle Change End Date
-  const handleChangeEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchEndDate = event.target.value
-    setDateTo(updatedSearchEndDate)
-  }
-
-  // Handle Change Search Filter
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  // Handle Change Filter By Tukang Service
-  const handleChangeSelectTukangService = (element: any) => {
-    const {value: updatedStoreId} = element
-    setSearchByOrderStatus(updatedStoreId)
-  }
-
-  // Filter Work Order Status
-  useEffect(() => {
-    const orderStatusOption = () => {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: Status) =>
-        ['WORKEND', 'INVOICED'].includes(status.category)
-      )
-
-      const selectedStatus = desiredStatus.map((status: Status) => ({
-        value: status.value,
-        category: status.category,
-        label: status.category,
-      }))
-
-      setStatus(selectedStatus)
-    }
-
-    orderStatusOption()
-  }, [])
-
-  interface DataType {
-    order_id: number
-    invoice_id: number
-    date_order: string
-    // product_name: string
-    // installation_type: string
-    quotation_id: number
-    payment_status: string
-    member_id: number
-    vendor_name: string
-    order_status: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -114,24 +65,6 @@ const ViewInvoiceVendor: FC = () => {
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
-    // {
-    //   title: 'Product Name',
-    //   dataIndex: 'product_name',
-    //   key: 'product_name',
-    //   align: 'center',
-    //   width: 110,
-    //   onFilter: (value, record) => record.product_name.includes(String(value)),
-    //   sorter: (a, b) => a.product_name.length - b.product_name.length,
-    // },
-    // {
-    //   title: 'Installation Type',
-    //   dataIndex: 'installation_type',
-    //   key: 'installation_type',
-    //   align: 'center',
-    //   width: 110,
-    //   onFilter: (value, record) => record.installation_type.includes(String(value)),
-    //   sorter: (a, b) => a.installation_type.length - b.installation_type.length,
-    // },
     {
       title: 'Quotation ID',
       dataIndex: 'quotation_id',
@@ -195,96 +128,92 @@ const ViewInvoiceVendor: FC = () => {
         {text: 'INVOICED', value: 'INVOICED'},
       ],
     },
-    {
-      title: 'Action',
-      key: 'action',
-      fixed: 'right',
-      width: 100,
-      render: (record) => {
-        const handleAddInvoice = () => {
-          navigate('/invoice/new-invoice')
-        }
+    // {
+    //   title: 'Action',
+    //   key: 'action',
+    //   fixed: 'right',
+    //   width: 100,
+    //   render: (record) => {
+    //     const handleUpdateInvoice = () => {
+    //       const id = record.invoice_id
+    //       navigate(`/invoice/update-invoice/${id}`)
+    //     }
 
-        const handleUpdateInvoice = () => {
-          const id = record.invoice_id
-          navigate(`/invoice/update-invoice/${id}`)
-        }
+    //     const handleDetailInvoice = () => {
+    //       const id = record.invoice_id
+    //       navigate(`/invoice/detail-invoice/${id}`)
+    //     }
 
-        const handleDetailInvoice = () => {
-          const id = record.invoice_id
-          navigate(`/invoice/detail-invoice/${id}`)
-        }
+    //     const handleDelete = () => {
+    //       const id = record.invoice_id
 
-        const handleDelete = () => {
-          const id = record.invoice_id
+    //       Swal.fire({
+    //         title: `Apakah anda yakin akan menghapus data Invoice ini ?`,
+    //         icon: 'warning',
+    //         showConfirmButton: true,
+    //         showDenyButton: true,
+    //         confirmButtonText: 'Ya',
+    //         denyButtonText: 'Cancel',
+    //       })
+    //         .then((willDelete) => {
+    //           if (willDelete.value) {
+    //             axios
+    //               .delete(`${apiUrl}/invoices/${id}`, {
+    //                 headers: {
+    //                   Accept: 'application/json',
+    //                   Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //                   'Access-Control-Allow-Origin': '*',
+    //                   'ngrok-skip-browser-warning': 'true',
+    //                 },
+    //               })
+    //               .then((response) => {
+    //                 Swal.fire({
+    //                   title: 'Success',
+    //                   text: response.data.message,
+    //                   icon: 'success',
+    //                 }).then(() => {
+    //                   window.location.reload()
+    //                 })
+    //               })
+    //               .catch((error) => {
+    //                 Swal.fire({
+    //                   title: 'Error',
+    //                   text: error.response.data.message,
+    //                   icon: 'error',
+    //                 })
+    //               })
+    //           }
+    //         })
+    //         .catch((error) => {
+    //           Swal.fire({
+    //             title: 'Error',
+    //             text: error.response.data.message,
+    //             icon: 'error',
+    //           })
+    //         })
+    //     }
 
-          Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Invoice ini ?`,
-            icon: 'warning',
-            showConfirmButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Ya',
-            denyButtonText: 'Cancel',
-          })
-            .then((willDelete) => {
-              if (willDelete.value) {
-                axios
-                  .delete(`${apiUrl}/invoices/${id}`, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
-                    },
-                  })
-                  .then((response) => {
-                    Swal.fire({
-                      title: 'Success',
-                      text: response.data.message,
-                      icon: 'success',
-                    }).then(() => {
-                      window.location.reload()
-                    })
-                  })
-                  .catch((error) => {
-                    Swal.fire({
-                      title: 'Error',
-                      text: error.response.data.message,
-                      icon: 'error',
-                    })
-                  })
-              }
-            })
-            .catch((error) => {
-              Swal.fire({
-                title: 'Error',
-                text: error.response.data.message,
-                icon: 'error',
-              })
-            })
-        }
+    //     return (
+    //       <div className='button-wrapper'>
+    //         <a className='button-add' onClick={handleAddInvoice}>
+    //           <FontAwesomeIcon icon={faPlus} size='sm' />
+    //         </a>
 
-        return (
-          <div className='button-wrapper'>
-            <a className='button-add' onClick={handleAddInvoice}>
-              <FontAwesomeIcon icon={faPlus} size='sm' />
-            </a>
+    //         <a className='button-edit' onClick={handleUpdateInvoice}>
+    //           <FontAwesomeIcon icon={faPen} size='sm' />
+    //         </a>
 
-            <a className='button-edit' onClick={handleUpdateInvoice}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+    //         <a className='button-detail' onClick={handleDetailInvoice}>
+    //           <FontAwesomeIcon icon={faBook} size='sm' />
+    //         </a>
 
-            <a className='button-detail' onClick={handleDetailInvoice}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
-
-            <a className='button-delete' onClick={handleDelete}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
-          </div>
-        )
-      },
-    },
+    //         <a className='button-delete' onClick={handleDelete}>
+    //           <FontAwesomeIcon icon={faTrash} size='sm' />
+    //         </a>
+    //       </div>
+    //     )
+    //   },
+    // },
   ]
 
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
@@ -298,21 +227,31 @@ const ViewInvoiceVendor: FC = () => {
 
   const fetchInvoiceList = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
-      const response = await axios.get(
-        `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${searchByOrderStatus}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+      const desiredStatus = statusData.filter((status: any) =>
+        status.category.includes('WORKEND', 'INVOICED')
       )
 
-      return response.data.data.data
+      if (desiredStatus) {
+        const statuses = desiredStatus.map((x) => x.value)
+
+        const response = await axios.get(
+          `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statuses}&take=0`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+
+        return response.data.data.data
+      } else {
+        console.error('Desired status not found in statusData')
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -330,17 +269,20 @@ const ViewInvoiceVendor: FC = () => {
       const invoiceData = apiData.map((item: any) => {
         let data
 
+        let paymentStatus =
+          item?.invoice_details[0]?.quotation?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
+
         data = {
-          order_id: item.order_id,
-          invoice_id: item.id,
-          date_order: formatDate(new Date(item.survey_date)),
-          // product_name: string
-          // installation_type: string
-          // quotation_id: number
-          payment_status: item.order.status.category,
-          member_id: item.order.member_id,
-          // vendor_name: item.vendor.company_name,
-          order_status: item.order.status.category,
+          order_id: item?.invoice_details[0]?.quotation?.order_id,
+          invoice_id: item?.invoice_details[0]?.invoice_id,
+          date_order: formatDate(
+            new Date(item?.invoice_details[0]?.quotation?.order?.request_survey)
+          ),
+          quotation_id: item?.invoice_details[0]?.quotation_id,
+          payment_status: paymentStatus,
+          member_id: item?.invoice_details[0]?.quotation?.order?.member_id,
+          vendor_name: item?.vendor?.company_name,
+          order_status: item?.status?.category,
         }
 
         return data
@@ -360,69 +302,55 @@ const ViewInvoiceVendor: FC = () => {
     }
 
     fetchData()
-  }, [dateFrom, dateTo, searchFilter, searchByOrderStatus])
+  }, [dateFrom, dateTo, searchFilter])
 
   return (
     <section id='view-invoice'>
       <div className='card'>
         <div className='card-body table-view-order'>
-          <div className='filter-search'>
-            <InputGroup>
-              <Form.Control
-                placeholder='Filter'
-                className='filter-rtl'
-                onChange={handleChangeSearchFilter}
-              />
-
-              <InputGroup.Text className='filter-rtl'>
-                <FontAwesomeIcon icon={faSearch} size='sm' />
-              </InputGroup.Text>
-            </InputGroup>
-          </div>
-
-          <div className='table-head-wrapper'>
-            <div className='left'>
-              <h3>Filter By :</h3>
-            </div>
-
-            <div className='middle'>
-              <div className='date-filter'>
-                <div className='start-date'>
-                  <h3 className='fs-7'>Start Date : </h3>
-                  <Form.Control type='date' onChange={handleChangeJoinDate} />
-                </div>
-
-                <div className='end-date'>
-                  <h3 className='fs-7 '>End Date : </h3>
-                  <Form.Control type='date' onChange={handleChangeEndDate} />
-                </div>
+          <Row className='table-head-wrapper'>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+              <div className='d-flex align-items-center me-3'>
+                <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
+                <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
 
-              <Form.Group as={Row}>
-                <Form.Label className='fs-7 d-flex align-items-center' column sm='6'>
-                  Sort Order Status
-                </Form.Label>
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                <Col sm='6'>
-                  <Select
-                    name='tukang_service'
-                    className='form-control p-0'
-                    classNamePrefix='select'
-                    placeholder='Status'
-                    isSearchable={true}
-                    options={status}
-                    onChange={(element: any) => handleChangeSelectTukangService(element)}
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <div className='filter-search'>
+                <InputGroup>
+                  <InputGroup.Text className='filter-ltr'>
+                    <FontAwesomeIcon icon={faSearch} size='sm' />
+                  </InputGroup.Text>
+
+                  <Form.Control
+                    placeholder='Search'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
                   />
-                </Col>
-              </Form.Group>
-            </div>
+                </InputGroup>
+              </div>
+            </Col>
 
-            <div className='right'>
-              <button className='button-export'>
-                <FontAwesomeIcon icon={faFileExcel} size='2xl' className='excel-icon' />
-              </button>
-            </div>
-          </div>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+          </Row>
 
           <Table
             className='table-striped-rows'

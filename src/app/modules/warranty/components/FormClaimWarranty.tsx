@@ -3,6 +3,7 @@ import React, {useState} from 'react'
 
 import {PageTitle} from '../../../../_metronic/layout/core'
 import {WarrantyFormClaim} from '../../../components'
+import {WarrantyFormClaimHO} from '../../../components'
 import {WarrantyFormClaimVendor} from '../../../components'
 
 const ClaimWarrantyForm: React.FC = () => {
@@ -26,7 +27,7 @@ const ClaimWarrantyForm: React.FC = () => {
       ) : userRole === 'Admin HO' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
-          <WarrantyFormClaim updatePageTitle={updatePageTitle} />
+          <WarrantyFormClaimHO updatePageTitle={updatePageTitle} />
         </>
       ) : userRole === 'Admin Vendor' ? (
         <>

@@ -275,6 +275,16 @@ export * from './admin-ho/refund/detail_refund/DetailRefund'
 // View Report
 export * from './admin-ho/reports/view_report/ViewReportHO'
 
+// CLAIM WARRANTY
+// List Claim Warranty
+export * from './admin-ho/warranty/form_warranty_claim/WarrantyFormClaim'
+
+// Form Claim Warranty
+export * from './admin-ho/warranty/list_claim_warranty/WarrantyClaimList'
+
+// Update Claim Warranty
+export * from './admin-ho/warranty/update_warranty/UpdateWarranty'
+
 // VENDOR PAGE
 
 // CALENDAR WORK

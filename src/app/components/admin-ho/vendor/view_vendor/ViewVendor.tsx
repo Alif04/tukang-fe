@@ -145,12 +145,9 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 100,
+      align: 'center',
+      width: 80,
       render: (record) => {
-        const handleNewVendor = () => {
-          navigate('/vendor/new-vendor')
-        }
-
         const handleDetailId = () => {
           const id = record.vendor_id
           navigate(`/vendor/detail-vendor/${id}`)
@@ -212,10 +209,6 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
         return (
           <div className='button-wrapper'>
-            <a className='button-add' onClick={handleNewVendor}>
-              <FontAwesomeIcon icon={faUserPlus} size='sm' className='text-black' />
-            </a>
-
             <a className='button-detail' onClick={handleDetailId}>
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>

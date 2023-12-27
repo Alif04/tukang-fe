@@ -17,7 +17,13 @@ type Props = {
   className: string
 }
 
+interface Status {
+  value: number
+  category: string
+}
+
 const ViewComplaintTukang: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -334,20 +340,31 @@ const ViewComplaintTukang: React.FC<Props> = ({className}) => {
 
   const fetchComplaintList = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
-      const response = await axios.get(
-        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=-1`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
+      const storedStatus = sessionStorage.getItem('statusData')
+      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+      const desiredStatus = statusData.filter((status: any) =>
+        ['INVESTIGATED', 'ACCEPTED'].includes(status.category)
       )
-      return response.data.data
+
+      if (desiredStatus) {
+        const statuses = desiredStatus.map((x) => x.value)
+
+        const response = await axios.get(
+          `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statuses}&take=-1`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+
+        return response.data.data
+      } else {
+        console.error('Desired status not found in statusData')
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }

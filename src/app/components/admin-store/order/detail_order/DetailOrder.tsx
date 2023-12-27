@@ -42,6 +42,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     order_details: [],
     order_files: [],
     complaints: [],
+    work_orders: {
+      work_order_status: [],
+    },
   })
 
   const fetchOrderData = async () => {
@@ -285,89 +288,133 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               </Row>
             </div>
 
-            <div className='table-warranty-content'>
-              <Table hover responsive='md'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    {!(order?.payment_type === 'gratis' || order?.payment_type === 'survey') && (
+            {order?.work_orders === null ? (
+              <div className='table-warranty-content'>
+                <Table hover responsive='md'>
+                  <thead className='table-warranty-head'>
+                    <tr>
+                      <th>Item Code</th>
+                      <th>Item Name</th>
+                      <th>Nama Pemasangan</th>
+                      <th>QTY Pemasangan</th>
+                      {!(order?.payment_type === 'gratis' || order?.payment_type === 'survey') && (
+                        <>
+                          <th>Harga Jasa</th>
+                          <th>Jumlah</th>
+                        </>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {order?.order_details.map((item: any, index: any) => (
                       <>
-                        <th>Harga Jasa</th>
-                        <th>Jumlah</th>
+                        <tr key={`${index} - order_detail`}>
+                          <td>{item?.item_code}</td>
+                          <td>{item?.item_name}</td>
+                          <td>{item?.item?.service_name}</td>
+                          <td>{item?.quantity}</td>
+                          {!(
+                            order?.payment_type === 'gratis' || order?.payment_type === 'survey'
+                          ) && (
+                            <>
+                              <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                'id'
+                              )}`}</td>
+                              <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                            </>
+                          )}
+                        </tr>
                       </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {order?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr key={`${index} - order_detail`}>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
-                        <td>{item?.item?.service_name}</td>
-                        <td>{item?.quantity}</td>
-                        {!(
-                          order?.payment_type === 'gratis' || order?.payment_type === 'survey'
-                        ) && (
-                          <>
-                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                              'id'
-                            )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                          </>
-                        )}
-                      </tr>
-                    </>
-                  ))}
+                    ))}
 
-                  {order?.payment_type !== 'gratis' &&
-                    order?.payment_type !== 'pemasangan_tanpa_survey' && (
+                    {order?.payment_type !== 'gratis' &&
+                      order?.payment_type !== 'pemasangan_tanpa_survey' && (
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Biaya Survey
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {order?.payment_type === 'gratis' ||
+                            order?.payment_type === 'pemasangan_tanpa_survey'
+                              ? `Rp. ${(0).toLocaleString('id')}`
+                              : order?.payment_type === 'survey'
+                              ? `Rp. ${(99000).toLocaleString('id')}`
+                              : `Rp. ${0}`}
+                          </td>
+                        </tr>
+                      )}
+
+                    {order?.payment_type !== 'survey' && (
                       <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Biaya Survey
+                        <td
+                          colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
+                          className='text-end fw-bolder'
+                        >
+                          Grand Total
                         </td>
 
                         <td className=' fw-bolder'>
-                          {order?.payment_type === 'gratis' ||
-                          order?.payment_type === 'pemasangan_tanpa_survey'
-                            ? `Rp. ${(0).toLocaleString('id')}`
-                            : order?.payment_type === 'survey'
-                            ? `Rp. ${(99000).toLocaleString('id')}`
-                            : `Rp. ${0}`}
+                          {(() => {
+                            if (order?.payment_type === 'gratis') {
+                              return `Rp. ${(0).toLocaleString('id')}`
+                            } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
+                              return `Rp. ${parseInt(order?.grand_total).toLocaleString('id')}`
+                            } else if (order?.payment_type === 'survey') {
+                              return `Rp. ${(99000).toLocaleString('id')}`
+                            } else {
+                              return `Rp. ${(0).toLocaleString('id')}`
+                            }
+                          })()}
                         </td>
                       </tr>
                     )}
+                  </tbody>
+                </Table>
+              </div>
+            ) : (
+              <>
+                <div className='table-warranty-content'>
+                  <Table hover responsive='md'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th>Item Code</th>
+                        <th>Item Name</th>
+                        <th>Nama Pemasangan</th>
+                        <th>QTY Pemasangan</th>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {order?.work_orders?.work_order_status[0]?.work_order_items.map(
+                        (item: any, index: any) => (
+                          <tr key={`${index}-work_order_detail`}>
+                            <td>{item?.item_id ?? '-'}</td>
+                            <td>{item?.item ?? '-'}</td>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                          </tr>
+                        )
+                      )}
 
-                  {order?.payment_type !== 'survey' && (
-                    <tr>
-                      <td
-                        colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
-                        className='text-end fw-bolder'
-                      >
-                        Grand Total
-                      </td>
-
-                      <td className=' fw-bolder'>
-                        {(() => {
-                          if (order?.payment_type === 'gratis') {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Rp. ${parseInt(order?.grand_total).toLocaleString('id')}`
-                          } else if (order?.payment_type === 'survey') {
-                            return `Rp. ${(99000).toLocaleString('id')}`
-                          } else {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          }
-                        })()}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div>
+                      <tr>
+                        <td colSpan={5} className='text-end fw-bolder'>
+                          Grand Total
+                        </td>
+                        <td className=' fw-bolder'>
+                          {`Rp. ${parseInt(order?.grand_total ?? 0).toLocaleString('id')}`}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </div>
+              </>
+            )}
           </Row>
 
           {order.order_files.length >= 1 ? (

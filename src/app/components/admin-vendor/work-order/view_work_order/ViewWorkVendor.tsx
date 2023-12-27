@@ -332,7 +332,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -347,6 +347,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                 </InputGroup>
               </div>
             </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
           </Row>
 
           <Table

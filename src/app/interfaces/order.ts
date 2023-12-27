@@ -6,6 +6,15 @@ import {Store} from './store'
 import {Tukang} from './tukang'
 import {Vendor} from './vendor'
 
+interface WorkOrderItem {
+  item_id: string
+  item: string
+  name: string
+  quantity: number
+  unit_price: number
+  total: number
+}
+
 interface OrderDetail {
   id?: number
   order_id: number
@@ -79,7 +88,12 @@ export interface Orders {
   created_at: string
 
   complaints?: any[]
-  work_orders?: any[]
+
+  work_orders: {
+    work_order_status: Array<{
+      work_order_items: WorkOrderItem[]
+    }>
+  } | null
 
   order_details: OrderDetail[]
   order_files: OrderFiles[]

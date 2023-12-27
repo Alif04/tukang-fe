@@ -2,6 +2,7 @@
 import React from 'react'
 
 import {WarrantyClaimList} from '../../../components'
+import {WarrantyClaimListHO} from '../../../components'
 import {WarrantyClaimListVendor} from '../../../components'
 
 const WarrantyList: React.FC = () => {
@@ -9,9 +10,13 @@ const WarrantyList: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Store CS' || userRole === 'Admin HO' || userRole === 'Tukang' ? (
+      {userRole === 'Store CS' || userRole === 'Tukang' ? (
         <>
           <WarrantyClaimList className='' />
+        </>
+      ) : userRole === 'Admin HO' ? (
+        <>
+          <WarrantyClaimListHO className='' />
         </>
       ) : userRole === 'Admin Vendor' ? (
         <>

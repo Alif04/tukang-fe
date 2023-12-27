@@ -4,10 +4,11 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
-import {Table, Tag} from 'antd'
+import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -18,16 +19,19 @@ type Props = {
 
 const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const navigate = useNavigate()
 
   const userRole = localStorage.getItem('userRole') as any
   const userId = localStorage.getItem('user_id') as any
-  const staffStoreId = localStorage.getItem('storeId') as any
-  const staffStoreName = localStorage.getItem('storeName') as string
 
   const [totalOrder, setTotalOrder] = useState<number>(0)
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
+  }
 
   interface DataType {
     order_id: number
@@ -220,53 +224,67 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     fetchData()
   }, [dateFrom, dateTo, totalOrder])
 
-  const handlePrintReport = () => {
-    navigate('/reports/print-report')
-  }
-
   return (
     <section id='report-insentif'>
       <div className={`card ${className}`}>
-        <div className='card-body table-view-order'>
+        <div className='card-body table-view-report'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8} className='d-flex align-items-center mb-2'>
-              <div className='fw-bold mb-5'>
-                Nama Toko
-                <span className='fs-6 ms-2 pt-2 pb-2 fw-normal bg-secondary'>{staffStoreName}</span>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+              <div className='d-flex align-items-center me-3'>
+                <FontAwesomeIcon icon={faFilter} size='lg' className='me-2' />
+                <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
 
-              <div className='d-flex align-items-center ms-5 me-3 mb-2'>
-                <h3 className='fs-6 fw-normal'>Periode : </h3>
-                <RangePicker
-                  format={'DD-MM-YYYY'}
-                  className='date-range ms-3'
-                  onChange={(values) => {
-                    if (values && values.length === 2) {
-                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                      setDateFrom(dateFromFormatted)
-                      setDateTo(dateToFormatted)
-                    } else {
-                      setDateFrom('')
-                      setDateTo('')
-                    }
-                  }}
-                />
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <div className='filter-search'>
+                <InputGroup>
+                  <InputGroup.Text className='filter-ltr'>
+                    <FontAwesomeIcon icon={faSearch} size='sm' />
+                  </InputGroup.Text>
+
+                  <Form.Control
+                    placeholder='Search'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
+                </InputGroup>
               </div>
             </Col>
 
-            <Col
-              xs={12}
-              md={12}
-              lg={12}
-              xl={4}
-              xxl={4}
-              className='d-flex align-items-center justify-content-end'
-            >
-              <div className='fs-1 fw-bolder text-uppercase'>Total Order : {totalOrder}</div>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <div className='d-flex justify-content-end'>
+                <Button
+                  variant='outline-primary'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                >
+                  Download Report
+                </Button>
+              </div>
             </Col>
           </Row>
+
+          <div className='total-order'>
+            <p className='fs-5'>Total order : {totalOrder}</p>
+          </div>
 
           <Table
             className='table-striped-rows'
@@ -274,27 +292,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            pagination={{position: ['bottomCenter']}}
+            pagination={{position: ['bottomRight']}}
           />
-
-          <div className='d-flex justify-content-center align-items-center mt-5'>
-            <Button
-              variant='dark-gray'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handlePrintReport}
-            >
-              Print Report
-            </Button>
-
-            <Button
-              variant='dark-success'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-            >
-              Email Report
-            </Button>
-          </div>
         </div>
       </div>
     </section>

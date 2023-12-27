@@ -33,6 +33,10 @@
   width: 40%;
 }
 
+#new-reschedule .reason {
+  min-height: 110px;
+}
+
 /* Button */
 
 #new-reschedule .btn.btn-dark-primary {

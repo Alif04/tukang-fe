@@ -109,7 +109,7 @@ const VendorPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR DASHBOARD</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>VENDOR SUMMARY</PageTitle>
             <ReportVendor />
           </>
         }

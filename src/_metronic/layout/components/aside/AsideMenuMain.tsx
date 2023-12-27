@@ -256,7 +256,7 @@ export function AsideMenuMain() {
         />
         <AsideMenuItem
           to='/vendor/report-vendor'
-          title='Summary Vendor'
+          title='Vendor Summary'
           role={['Admin HO']}
           hasBullet={true}
         />

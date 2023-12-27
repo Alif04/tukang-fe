@@ -1,0 +1,89 @@
+/* Table */
+#warranty-claim-list .table-view-order {
+  margin: 20px 20px 20px 20px;
+}
+
+#warranty-claim-list .table-view-order .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#warranty-claim-list
+  .table-view-order
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#warranty-claim-list
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#warranty-claim-list .table-view-order .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#warranty-claim-list .table-view-order .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#warranty-claim-list .table-view-order .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#warranty-claim-list .table-view-order .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#warranty-claim-list .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#warranty-claim-list .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+/* Filter Search */
+
+#warranty-claim-list .filter-search {
+  width: 370px;
+}
+
+#warranty-claim-list h3.date-text {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+@media screen and (max-width: 1400px) {
+  #warranty-claim-list h3.date-text {
+    font-size: 14px;
+    font-weight: normal;
+  }
+
+  #warranty-claim-list svg.svg-inline--fa.fa-filter.fa-2xl.me-2 {
+    font-size: 15px;
+  }
+
+  #warranty-claim-list
+    .ant-picker.ant-picker-range.css-dev-only-do-not-override-1ck3jst.date-range {
+    width: 180px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  #warranty-claim-list .filter-search {
+    width: 100%;
+  }
+}

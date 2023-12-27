@@ -25,7 +25,7 @@ interface QuotationDetail {
   category_name: string
   type: number
   item_name: string
-  unit_description: string
+  unit: string
   unit_price: number
   total: number
   final_price: number
@@ -71,7 +71,7 @@ const UpdateQuotationHO: FC = () => {
       category_name: '',
       type: 1,
       item_name: '',
-      unit_description: '',
+      unit: '',
       unit_price: 0,
       total: 0,
       final_price: 0,
@@ -89,7 +89,7 @@ const UpdateQuotationHO: FC = () => {
       work_order_item_id: null,
       type: 2,
       item_name: '',
-      unit_description: '',
+      unit: '',
       unit_price: 0,
       total: 0,
       final_price: 0,
@@ -171,7 +171,7 @@ const UpdateQuotationHO: FC = () => {
               category_id: item.category_id,
               category_name: item?.category?.category_name,
               item_name: item?.name,
-              unit_description: item?.satuan,
+              unit: item?.unit,
               quantity: item.quantity,
               is_user: item.is_customer ? 1 : 0,
               unit_price: parseInt(item.price),
@@ -268,7 +268,7 @@ const UpdateQuotationHO: FC = () => {
       category_name: '',
       type: type,
       item_name: '',
-      unit_description: '',
+      unit: '',
       unit_price: 0,
       total: 0,
       final_price: 0,
@@ -526,6 +526,7 @@ const UpdateQuotationHO: FC = () => {
         formData.append(`quotation_details[${index}][type]`, String(quotation.type))
         formData.append(`quotation_details[${index}][name]`, quotation.item_name)
         formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
+        formData.append(`quotation_details[${index}][unit]`, String(quotation.unit))
         formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
         formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
         formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
@@ -813,7 +814,7 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
                           /> */}
 
-                          <p>{element?.unit_description ?? '-'}</p>
+                          <p>{element?.unit ?? '-'}</p>
                         </td>
 
                         <td>
