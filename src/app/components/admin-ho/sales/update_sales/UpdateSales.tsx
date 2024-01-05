@@ -38,7 +38,7 @@ interface Sales {
   account_name: string
   phone_number: string
   account_number: string
-  sales_brands: string
+  sales_brand: string
   sales_categories: CategorySelect[]
   new_password: string
 }
@@ -65,7 +65,7 @@ const UpdateSales: FC = () => {
     account_name: '',
     phone_number: '',
     account_number: '',
-    sales_brands: '',
+    sales_brand: '',
     sales_categories: [],
     new_password: '',
   })
@@ -133,7 +133,7 @@ const UpdateSales: FC = () => {
             }
 
             if (data) {
-              // const salesBrands = data.sales_brands.map((item: any, index: number) => ({
+              // const salesBrands = data.sales_brand.map((item: any, index: number) => ({
               //   index: (Date.now() + index).toString(),
               //   value: item.brands.id,
               //   label: item.brands.name,
@@ -151,7 +151,7 @@ const UpdateSales: FC = () => {
                 account_name: data.account_name,
                 phone_number: data?.phone_number,
                 account_number: data?.account_number,
-                // sales_brands: salesBrands,
+                sales_brand: data?.sales_brand,
                 sales_categories: salesCategory,
               }))
 
@@ -346,7 +346,7 @@ const UpdateSales: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.sales_brands) {
+    } else if (!salesInfo.sales_brand) {
       Swal.fire({
         title: 'Error',
         text: 'Please select Brands form',
@@ -498,9 +498,9 @@ const UpdateSales: FC = () => {
                 <Form.Group className='mb-5'>
                   <Form.Label>Brands</Form.Label>
                   <Form.Control
-                    name='sales_brands'
+                    name='sales_brand'
                     type='text'
-                    value={salesInfo.sales_brands}
+                    value={salesInfo.sales_brand}
                     onChange={(e) => salesInfoFormHandler(e)}
                   />
                 </Form.Group>

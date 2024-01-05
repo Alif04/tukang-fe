@@ -27,14 +27,19 @@ const DashboardStore: FC = () => {
   const [orderData, setOrderData] = useState<any[]>([])
 
   const today = new Date()
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
 
-  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+  const [firstDayOfMonth, setFirstDayOfMonth] = useState<any>(
+    new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
+  )
+  const [todays, setTodays] = useState<any>(new Date().toISOString().split('T')[0])
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
 
   const [store, setStore] = useState<StoreItem[]>([])
+  const [sales, setSales] = useState<any[]>([])
+  const [member, setMember] = useState<any[]>([])
+
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
     label: '',
@@ -43,17 +48,20 @@ const DashboardStore: FC = () => {
 
   const fetchOrderData = async () => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      let url =
+        !dateFrom && !dateTo
+          ? `${apiUrl}/orders?date_from=${firstDayOfMonth}&date_to=${todays}&take=0`
+          : `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=0`
+
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
       const data = response.data.data
       setOrderData(data)
       return data
@@ -90,15 +98,62 @@ const DashboardStore: FC = () => {
       }
     }
 
+    const getSales = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/sales?take=5`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        const data = response.data.data
+        setSales(data)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    const getMember = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/member`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        if (Array.isArray(response.data.data.member)) {
+          const tempMember = response.data.data.member.map((item: any) => ({
+            value: item.id,
+            label: item.member_number,
+            full_name: item.full_name,
+            email: item.email,
+            phone_number: item.phone_number,
+            whatsapp_number: item.whatsapp_number,
+            address_1: item.address_1,
+          }))
+
+          setMember(tempMember)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     getStore()
+    getSales()
+    getMember()
   }, [])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  useEffect(() => {
+    fetchOrderData()
+  }, [dateFrom, dateTo])
 
   return (
     <>
@@ -136,8 +191,8 @@ const DashboardStore: FC = () => {
                   className='date-range w-100'
                   onChange={(values) => {
                     if (values && values.length === 2) {
-                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+                      const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                      const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
                       setDateFrom(dateFromFormatted)
                       setDateTo(dateToFormatted)
@@ -194,27 +249,32 @@ const DashboardStore: FC = () => {
 
       <Row className='gy-5 g-xl-8'>
         <Col xxl={4} xl={4} lg={12}>
-          <TransactionWidget className='card-xl-stretch mb-xl-8' />
+          <TransactionWidget orderData={orderData} />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
-          <TopSalesWidget className='card-xl-stretch mb-xl-8' />
+          <TopSalesWidget
+            className='card-xl-stretch mb-xl-8'
+            salesData={sales}
+            memberData={member}
+          />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
           <Row>
             <Col xxl={6} xl={6} lg={12}>
-              <TotalComplaint className='card-xxl-stretch-50  mb-xl-8' />
+              <TotalComplaint orderData={orderData} className='card-xxl-stretch-50  mb-xl-8' />
             </Col>
 
             <Col xxl={6} xl={6} lg={12}>
-              <TotalReschedule className='card-xxl-stretch-50  mb-xl-8' />
+              <TotalReschedule orderData={orderData} className='card-xxl-stretch-50  mb-xl-8' />
             </Col>
           </Row>
 
           <Row>
             <Col>
               <WaitingCostumerPay
+                orderData={orderData}
                 className='card-xxl-stretch-50 mb-xl-8 mb-5'
                 chartColor='success'
                 chartHeight='150px'
@@ -225,6 +285,7 @@ const DashboardStore: FC = () => {
           <Row>
             <Col>
               <TotalOrderStore
+                orderData={orderData}
                 className='card-xxl-stretch-50 card-xl-stretch-50 mb-xl-8 mb-5'
                 chartHeight='220px'
               />

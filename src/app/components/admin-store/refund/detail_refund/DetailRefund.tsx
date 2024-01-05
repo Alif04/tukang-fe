@@ -3,11 +3,9 @@ import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
 import './DetailRefund.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
-import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, Button, Table} from 'react-bootstrap'
+import {Row, Col, Form, Table, ListGroup} from 'react-bootstrap'
+import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -18,6 +16,9 @@ const DetailRefundCS: FC = () => {
 
   // Refund Detail
   const [refundDetail, setRefundDetail] = useState<any>()
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const fetchRefundData = async () => {
     try {
@@ -65,7 +66,7 @@ const DetailRefundCS: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :
                   <span className='fs-4 ms-2 fw-normal'>
-                    {refundDetail?.orders?.store?.store_name ?? '-'}
+                    {refundDetail?.orders?.store?.store_name ?? ''}
                   </span>
                 </Form.Label>
               </Col>
@@ -83,7 +84,14 @@ const DetailRefundCS: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Receipt Number :
                   <span className='fs-4 ms-2 fw-normal'>
-                    {refundDetail?.orders.receipt_number ?? '-'}
+                    {refundDetail?.orders?.receipt_number ?? '-'}
+                  </span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-4 fw-bold'>
+                  LAST ORDER STATUS :{' '}
+                  <span className='fs-4 ms-2 fw-bold text-success'>
+                    {refundDetail?.orders?.status?.category}
                   </span>
                 </Form.Label>
               </Col>
@@ -99,7 +107,7 @@ const DetailRefundCS: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={refundDetail?.orders.members.id} />
+                        <p className='fs-7'>{refundDetail?.orders?.members?.member_number}</p>
                       </Col>
                     </Form.Group>
 
@@ -108,11 +116,7 @@ const DetailRefundCS: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={refundDetail?.orders.members.full_name}
-                        />
+                        <p className='fs-7'>{refundDetail?.orders?.members?.full_name}</p>
                       </Col>
                     </Form.Group>
 
@@ -121,37 +125,27 @@ const DetailRefundCS: FC = () => {
                         Alamat Pemasangan :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          as='textarea'
-                          plaintext
-                          readOnly
-                          rows={3}
-                          value={refundDetail?.orders.project_address}
-                        />
+                        <p className='fs-7'>{refundDetail?.orders?.project_address}</p>
                       </Col>
                     </Form.Group>
                   </Col>
 
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='4'>
+                      <Form.Label column sm='5'>
                         Nomor Telp/WA :
                       </Form.Label>
-                      <Col sm='8'>
-                        <Form.Control plaintext readOnly value={phoneNumber} />
+                      <Col sm='7'>
+                        <p className='fs-7'>{refundDetail?.orders?.project_number}</p>
                       </Col>
                     </Form.Group>
 
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='4'>
+                      <Form.Label column sm='5'>
                         Alamat Email :
                       </Form.Label>
-                      <Col sm='8'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={refundDetail?.orders.members.email}
-                        />
+                      <Col sm='7'>
+                        <p className='fs-7'>{refundDetail?.orders?.members?.email} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -159,55 +153,25 @@ const DetailRefundCS: FC = () => {
               </Col>
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <Row>
-                  <div className='fs-3 fw-bold'>Informasi Penjual</div>
+                <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
-                  <div className='d-flex'>
-                    <Form.Group as={Row}>
-                      <Form.Label column md='4'>
-                        Sales ID :
-                      </Form.Label>
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='3'>
+                    Sales ID :
+                  </Form.Label>
+                  <Col sm='9'>
+                    <p className='fs-7'>{refundDetail?.orders?.sales?.id} </p>
+                  </Col>
+                </Form.Group>
 
-                      <Col md='8'>
-                        <Form.Control plaintext readOnly value={refundDetail?.orders.sales.id} />
-                      </Col>
-                    </Form.Group>
-
-                    <Form.Group as={Row}>
-                      <Form.Label column md='5'>
-                        Sales Person :
-                      </Form.Label>
-
-                      <Col md='7'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={refundDetail?.orders.sales.full_name}
-                        />
-                      </Col>
-                    </Form.Group>
-                  </div>
-                </Row>
-
-                <Row>
-                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
-
-                  <div className='d-flex'>
-                    <Form.Group as={Row}>
-                      <Form.Label column md='5'>
-                        Vendor Name :
-                      </Form.Label>
-
-                      <Col md='7'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={refundDetail?.orders?.vendor?.company_name ?? '-'}
-                        />
-                      </Col>
-                    </Form.Group>
-                  </div>
-                </Row>
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='3'>
+                    Sales Person :
+                  </Form.Label>
+                  <Col sm='9'>
+                    <p className='fs-7'>{refundDetail?.orders?.sales?.full_name} </p>
+                  </Col>
+                </Form.Group>
               </Col>
             </Row>
           </div>
@@ -215,22 +179,46 @@ const DetailRefundCS: FC = () => {
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+              <Row>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {refundDetail?.orders?.request_survey
+                        ? formatDate(new Date(refundDetail?.orders?.request_survey))
+                        : ''}
+                    </p>
+                  </Col>
+                </Form.Group>
 
-              <Form.Group as={Row} className='mb-3' controlId='formPlaintextEmail'>
-                <Form.Label column sm='3'>
-                  Tanggal request pemasangan :
-                </Form.Label>
-                <Col sm='9'>
-                  <Form.Control
-                    type='text'
-                    plaintext
-                    readOnly
-                    value={
-                      refundDetail ? formatDate(new Date(refundDetail?.orders.request_survey)) : ''
-                    }
-                  />
-                </Col>
-              </Form.Group>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>{refundDetail?.orders?.vendor?.company_name ?? '-'}</p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Payment Type:</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {(() => {
+                        if (refundDetail?.orders?.payment_type === 'survey') {
+                          return `Berbayar & Survey`
+                        } else if (refundDetail?.orders?.payment_type === 'gratis') {
+                          return `Gratis`
+                        } else if (
+                          refundDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                        ) {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
+                    </p>
+                  </Col>
+                </Form.Group>
+              </Row>
             </div>
 
             <div className='table-warranty-content'>
@@ -239,7 +227,7 @@ const DetailRefundCS: FC = () => {
                   <tr>
                     <th>Item Code</th>
                     <th>Item Name</th>
-                    <th>Nama Jasa Pemasangan</th>
+                    <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
                     {!(
                       refundDetail?.orders?.payment_type === 'gratis' ||
@@ -253,19 +241,21 @@ const DetailRefundCS: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {refundDetail?.orders.m_order_details.map((item: any, index: any) => (
+                  {refundDetail?.orders?.m_order_details.map((item: any, index: any) => (
                     <>
                       <tr key={`${index} - detail-order`}>
                         <td>{item?.item_code ?? '-'}</td>
                         <td>{item?.item_name ?? '-'}</td>
                         <td>{item?.item?.service_name ?? '-'}</td>
-                        <td>{item?.quantity}</td>
+                        <td>{item?.quantity ?? '-'}</td>
                         {!(
                           refundDetail?.orders?.payment_type === 'gratis' ||
                           refundDetail?.orders?.payment_type === 'survey'
                         ) && (
                           <>
-                            <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
                             <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
                           </>
                         )}
@@ -276,7 +266,10 @@ const DetailRefundCS: FC = () => {
                   {refundDetail?.orders?.payment_type !== 'gratis' &&
                     refundDetail?.orders?.payment_type !== 'pemasangan_tanpa_survey' && (
                       <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
+                        <td
+                          colSpan={refundDetail?.payment_type === 'survey' ? 3 : 5}
+                          className='text-end fw-bolder'
+                        >
                           Biaya Survey
                         </td>
 
@@ -331,10 +324,10 @@ const DetailRefundCS: FC = () => {
               <h1 className='text-uppercase'>formulir refund</h1>
             </div>
 
-            <div className='row mb-5'>
-              <div className='col-md-4'>
-                <div className='complaint-information'>
-                  <h4>Tanggal Pengajuan Refund : </h4>
+            <Row className='mb-5'>
+              <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Tanggal Pengajuan Refund</Form.Label>
 
                   <Form.Control
                     type='text'
@@ -342,12 +335,12 @@ const DetailRefundCS: FC = () => {
                     readOnly
                     value={refundDetail ? formatDate(new Date(refundDetail?.date_of_filing)) : ''}
                   />
-                </div>
-              </div>
+                </Form.Group>
+              </Col>
 
-              <div className='col-md-4'>
-                <div className='complaint-detail'>
-                  <h4>Alasan Refund :</h4>
+              <Col xxl={8} xl={8} lg={8} md={8} sm={12}>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Alasan Refund : </Form.Label>
 
                   <Form.Control
                     as='textarea'
@@ -355,73 +348,63 @@ const DetailRefundCS: FC = () => {
                     readOnly
                     value={refundDetail?.reason}
                   />
-                </div>
-              </div>
+                </Form.Group>
+              </Col>
+            </Row>
 
-              <div className='col-xxl-4'></div>
-            </div>
+            <Row className='mb-5'>
+              <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                <Form.Group>
+                  <Form.Label className='mt-3'>File Pendukung :</Form.Label>
 
-            <div className='row'>
-              <div className='col-xxl-4'>
-                <div className='complaint-information mb-5'>
-                  <h4>Tanggal Approve Refund : </h4>
+                  <ListGroup>
+                    {/* {refundDetail?.orders?.order_files.map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        onClick={() => {
+                          setPreviewImage(item.path)
+                          setVisible(true)
+                        }}
+                      >
+                        {item.path}
+                      </ListGroup.Item>
+                    ))} */}
+                  </ListGroup>
 
-                  <Form.Control
-                    type='text'
-                    className='w-75'
-                    readOnly
-                    value={refundDetail ? formatDate(new Date(refundDetail?.date_approve)) : ''}
-                  />
-                </div>
+                  {previewImage && (
+                    <div>
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/refund/${previewImage}`}
+                        preview={{
+                          visible,
+                          src: `${apiUrl}/public/refund/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisible(value)
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </Form.Group>
+              </Col>
 
-                <div className='complaint-information'>
-                  <h4>Nomor Approval : </h4>
-                  <Form.Control
-                    type='number'
-                    className='w-75'
-                    readOnly
-                    value={refundDetail?.approval_number}
-                  />
-                </div>
-              </div>
+              <Col xxl={8} xl={8} lg={8} md={8} sm={12}>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Notes : </Form.Label>
 
-              <div className='col-xxl-4'>
-                <div className='complaint-information'>
-                  <h4>Notes</h4>
                   <Form.Control
                     as='textarea'
                     className='desc-notes'
                     readOnly
                     value={refundDetail?.notes}
                   />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'>
-                <div className='row'>
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Customer</h4>
-                    <h4 className='mb-5'>Input Voucher</h4>
-                    <Form.Control
-                      type='text'
-                      className='mt-5 mb-5'
-                      readOnly
-                      value={refundDetail?.voucher}
-                    />
-                  </div>
-
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Vendor</h4>
-                    <h4 className='mb-2'>Input Nominal Denda</h4>
-                    <Form.Control
-                      type='number'
-                      className='mt-5 mb-5'
-                      value={parseInt(refundDetail?.penalty_nominal || 0)?.toLocaleString('id')}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+                </Form.Group>
+              </Col>
+            </Row>
           </div>
         </div>
       </div>

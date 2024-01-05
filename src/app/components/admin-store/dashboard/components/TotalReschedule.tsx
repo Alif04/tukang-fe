@@ -3,9 +3,14 @@ import React from 'react'
 
 type Props = {
   className: string
+  orderData: any[]
 }
 
-const TotalReschedule: React.FC<Props> = ({className}) => {
+const getStatusCount = (orderData: any[], status: string): number => {
+  return orderData.filter((order) => order.status.category === status).length
+}
+
+const TotalReschedule: React.FC<Props> = ({className, orderData}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body '>
@@ -14,7 +19,7 @@ const TotalReschedule: React.FC<Props> = ({className}) => {
             <div className='fs-5 text-center fw-bold text-muted'>
               Menunggu <br></br> Survey
             </div>
-            <div className='fs-1 d-block m-auto'>04</div>
+            <div className='fs-1 d-block m-auto'>{getStatusCount(orderData, 'SURVEYREQ')}</div>
             <div className='fs-5 text-center d-block m-auto text-muted'>
               Menunggu Suvey dari Vendor
             </div>

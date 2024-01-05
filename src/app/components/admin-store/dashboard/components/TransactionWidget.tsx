@@ -4,72 +4,76 @@ import {KTSVG} from '../../../../../_metronic/helpers'
 import {Dropdown1} from '../../../../../_metronic/partials/content/dropdown/Dropdown1'
 
 type Props = {
-  className: string
+  orderData: any[]
 }
 
-const TransactionWidget: React.FC<Props> = () => {
+const TransactionWidget: React.FC<Props> = ({orderData}) => {
+  const filteredOrderData = orderData.slice(0, 4)
+
+  const formatDate = (date: any) => {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ]
+
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = months[date.getMonth()]
+    const year = date.getFullYear()
+    return `${day} ${month} ${year}`
+  }
+
   return (
     <div className='card card-xl-stretch mb-5 mb-xl-8'>
       <div className='card-header border-0'>
         <h3 className='card-title fw-bold text-dark'>Transactions</h3>
       </div>
 
-      <div className='card-body pt-2'>
+      <div
+        className={
+          filteredOrderData.length === 0
+            ? 'card-body d-flex justify-content-center align-items-center pt-2'
+            : 'card-body pt-2'
+        }
+      >
         <div className='transaction-wrapper'>
-          <div className='d-flex align-items-center mb-7'>
-            <div className='flex-grow-1 me-2'>
-              <div className='fw-bolder text-gray-800 fs-5'>Bpk. Slamet</div>
-              <div className='fw-bold text-gray-800 fs-6'>Pemasangan Water Heater</div>
-              <span className='text-muted fw-semibold d-block'>16 March 2023</span>
-            </div>
+          {filteredOrderData.length === 0 ? (
+            <div className='text-center'>Tidak ada order dibulan ini</div>
+          ) : (
+            filteredOrderData.map((item: any) => (
+              <div className='d-flex align-items-center mb-7' key={item.id}>
+                <div className='flex-grow-1 me-2'>
+                  <div className='fw-bolder text-gray-800 fs-5'>
+                    {item?.members?.full_name ?? ''}
+                  </div>
+                  <div className='fw-bold text-gray-800 fs-6'>
+                    {item?.m_order_details
+                      .map((item: any) => item?.item?.service_name ?? '-')
+                      .join(', ')}
+                  </div>
+                  <span className='text-muted fw-semibold d-block'>
+                    {formatDate(new Date(item.request_survey))}
+                  </span>
+                </div>
 
-            <div className='d-flex flex-column align-items-end'>
-              <span className='fw-bold text-success'>Rp. 1.000.000</span>
-
-              <span className='fw-bold text-dark'>Done</span>
-            </div>
-          </div>
-
-          <div className='d-flex align-items-center mb-7'>
-            <div className='flex-grow-1 me-2'>
-              <div className='fw-bolder text-gray-800 fs-5'>Ibu Riana</div>
-              <div className='fw-bold text-gray-800 fs-6'>Pemasangan Ubin</div>
-              <span className='text-muted fw-semibold d-block'>17 March 2023</span>
-            </div>
-
-            <div className='d-flex flex-column align-items-end'>
-              <span className='fw-bold text-success'>Rp. 5.400.000</span>
-              <span className='fw-bold text-dark'>Done</span>
-            </div>
-          </div>
-
-          <div className='d-flex align-items-center mb-7'>
-            <div className='flex-grow-1 me-2'>
-              <div className='fw-bolder text-gray-800 fs-5'>Ibu Karen</div>
-              <div className='fw-bold text-gray-800 fs-6'>Pemasangan Kitchen Set</div>
-              <span className='text-muted fw-semibold d-block'>17 March 2023</span>
-            </div>
-
-            <div className='d-flex flex-column align-items-end'>
-              <span className='fw-bold text-success'>Rp. 15.400.000</span>
-
-              <span className='fw-bold text-dark'>Done</span>
-            </div>
-          </div>
-
-          <div className='d-flex align-items-center mb-7'>
-            <div className='flex-grow-1 me-2'>
-              <div className='fw-bolder text-gray-800 fs-5'>Bpk. Vincent</div>
-              <div className='fw-bold text-gray-800 fs-6'>Pemasangan Kloset</div>
-              <span className='text-muted fw-semibold d-block'>17 March 2023</span>
-            </div>
-
-            <div className='d-flex flex-column align-items-end'>
-              <span className='fw-bold text-danger'>Rp. 1.000.000</span>
-
-              <span className='fw-bold text-dark'>Cancel</span>
-            </div>
-          </div>
+                <div className='d-flex flex-column align-items-end'>
+                  <span className='fw-bold text-success'>{`Rp. ${
+                    parseInt(item?.grand_total).toLocaleString('id') ?? 0
+                  }`}</span>
+                  <span className='fw-bold text-dark'>{item?.status?.category ?? ''}</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

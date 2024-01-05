@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../_metronic/partials/layout/theme-mode/
 type Props = {
   className: string
   chartHeight: string
+  orderData: any[]
 }
 
-const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
+const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -43,7 +44,7 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
         <div className='d-flex align-items-center gap-4'>
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>Jumlah Order</div>
-            <div className='fs-1 d-block m-auto'>20</div>
+            <div className='fs-1 d-block m-auto'>{orderData.length}</div>
           </div>
 
           <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -55,9 +56,6 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight}) => {
 
 const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  // const processColor = getCSSVariableValue('--kt-success')
-  // const pendingColor = getCSSVariableValue('--kt-warning')
-  // const cancelColor = getCSSVariableValue('--kt-danger')
 
   return {
     series: [65, 15, 5],

@@ -38,7 +38,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     member_name: string
     phone_number: number
     item_name: string
-    nama_jasa: string
+    service_name: string
     payment_status: string
     order_status: string
   }
@@ -49,7 +49,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 100,
+      width: 80,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -59,7 +59,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       dataIndex: 'refund_id',
       key: 'refund_id',
       align: 'center',
-      width: 100,
+      width: 80,
       sorter: (a, b) => a.refund_id - b.refund_id,
     },
     {
@@ -67,7 +67,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 110,
+      width: 150,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -84,12 +84,12 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       title: 'Nomor Member',
       dataIndex: 'member_id',
       key: 'member_id',
-      align: 'left',
+      align: 'center',
       width: 110,
       sorter: (a, b) => a.member_id - b.member_id,
     },
     {
-      title: 'Nama Costumer',
+      title: 'Nama Member',
       dataIndex: 'member_name',
       key: 'member_name',
       align: 'left',
@@ -116,12 +116,12 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     },
     {
       title: 'Nama Jasa Pemasangan',
-      dataIndex: 'nama_jasa',
-      key: 'nama_jasa',
+      dataIndex: 'service_name',
+      key: 'service_name',
       align: 'center',
       width: 180,
-      onFilter: (value, record) => record.nama_jasa.includes(String(value)),
-      sorter: (a, b) => a.nama_jasa.length - b.nama_jasa.length,
+      onFilter: (value, record) => record.service_name.includes(String(value)),
+      sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
     {
       title: 'Payment Status',
@@ -265,11 +265,11 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           order_id: item.order_id,
           store_name: item.orders.store.store_name,
           date_order: formatDate(orderDate),
-          member_id: item.orders.members.id,
+          member_id: item.orders.members.member_number,
           member_name: item.orders.members.full_name,
           phone_number: phoneNumber,
           item_name: item.orders.m_order_details[0].item.item_name,
-          nama_jasa: item.orders.m_order_details[0].item.category_name,
+          service_name: item.orders.m_order_details[0].item.service_name,
           payment_status: paymentStatus,
           order_status: item.orders.status.category,
         }
@@ -345,7 +345,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={refundData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 2000}}
+            scroll={{x: 1800}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

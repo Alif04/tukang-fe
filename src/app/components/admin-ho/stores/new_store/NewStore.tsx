@@ -24,6 +24,7 @@ interface City {
 // }
 
 interface Store {
+  id: number | null
   store_name: string
   address: string
   // address_2: string
@@ -43,6 +44,7 @@ const NewStore: FC = () => {
 
   // Store
   const [storeInfo, setStoreInfo] = useState<Store>({
+    id: null,
     store_name: '',
     address: '',
     // address_2: '',
@@ -105,6 +107,31 @@ const NewStore: FC = () => {
       }
     }
 
+    const getStoreId = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores/next-code`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        const data = response.data
+
+        if (response.status === 200) {
+          const {data} = response
+          setStoreInfo((prev) => ({
+            ...prev,
+            id: data.id,
+          }))
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     // const getBank = async () => {
     //   try {
     //     const response = await axios.get(`${apiUrl}/bank`, {
@@ -132,6 +159,7 @@ const NewStore: FC = () => {
     // }
 
     getCity()
+    getStoreId()
     // getBank()
   }, [])
 

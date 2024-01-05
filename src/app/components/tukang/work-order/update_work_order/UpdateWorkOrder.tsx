@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect, useRef} from 'react'
+import React, {FC, useState, useEffect, useRef, SetStateAction} from 'react'
 
 import './UpdateWorkOrder.css'
 
@@ -19,9 +19,8 @@ interface WorkOrders {
   id: number | null
   work_order_status: number | null
   description: string
-  survey_tukang_id: Array<any>
+  tukang_id: Array<any>
   survey_date_time: string
-  work_tukang_id: Array<any>
   work_date_time: string
   work_start_date: string
   work_end_date: string
@@ -38,7 +37,7 @@ interface WorkOrderItem {
   is_user: number
   type: number
   quantity: number | null
-  satuan: string
+  unit: string
 }
 
 interface WorkOrderHistory {
@@ -47,7 +46,6 @@ interface WorkOrderHistory {
   created_at: string
   updated_at: string
   work_date_time: string
-  time_spent: string
   updated_by: string
 }
 
@@ -60,6 +58,7 @@ interface Status {
 interface Tukang {
   value: number | null
   label: string
+  type: number
 }
 
 const UpdateWorkTukang: FC = () => {
@@ -84,19 +83,14 @@ const UpdateWorkTukang: FC = () => {
 
   // Work Order Tukang
   const [tukang, setTukang] = useState<Tukang[]>([])
-  const [selectedWorkOrderTukang, setSelectedWorkOrderTukang] = useState<SingleValue<Tukang>>({
-    value: null,
-    label: '',
-  })
 
   // Update Work Order
   const [workOrder, setWorkOrder] = useState<WorkOrders>({
     id: null,
     work_order_status: null,
     description: '',
-    survey_tukang_id: [],
+    tukang_id: [],
     survey_date_time: '',
-    work_tukang_id: [],
     work_date_time: '',
     work_start_date: '',
     work_end_date: '',
@@ -128,7 +122,7 @@ const UpdateWorkTukang: FC = () => {
       is_user: 0,
       type: 1,
       quantity: null,
-      satuan: '',
+      unit: '',
     },
     {
       id: null,
@@ -139,7 +133,7 @@ const UpdateWorkTukang: FC = () => {
       is_user: 0,
       type: 2,
       quantity: null,
-      satuan: '',
+      unit: '',
     },
   ])
 
@@ -160,12 +154,21 @@ const UpdateWorkTukang: FC = () => {
           setOrderDetail(data)
 
           if (data?.work_orders) {
+            const tukang = data.work_orders.work_order_tukang.map((item: any) => ({
+              value: item.tukang_id,
+              label: item.tukang.full_name,
+              type: item.type,
+            }))
+
             setWorkOrder((prev) => ({
               ...prev,
               id: data.work_orders.id,
               description: data.work_orders.work_order_status[0].description,
               survey_date_time: formatDateTime(new Date(data.work_orders.survey_date)),
               work_date_time: '',
+              work_start_date: data.work_orders.work_start_date,
+              work_end_date: data.work_orders.work_end_date,
+              tukang_id: tukang,
             }))
           }
 
@@ -178,25 +181,32 @@ const UpdateWorkTukang: FC = () => {
             }))
           }
 
-          if (data?.work_orders?.work_order_before) {
-            const initialWorkOrderFiles = data.work_orders.work_order_before.map((item: any) => ({
-              id: item.id,
-              name: item.evidence_location,
-            }))
+          if (data?.work_orders?.work_order_evidences) {
+            const initialWorkOrderFiles = data.work_orders.work_order_evidences
+              .filter((x: any) => x.type === 2)
+              .map((item: any) => ({
+                id: item.id,
+                name: item.evidence_location,
+              }))
 
             setWorkOrderBefore(initialWorkOrderFiles)
           }
 
-          if (data?.work_orders?.work_order_after) {
-            const initialWorkOrderFiles = data.work_orders.work_order_after.map((item: any) => ({
-              id: item.id,
-              name: item.evidence_location,
-            }))
+          if (data?.work_orders?.work_order_evidences) {
+            const initialWorkOrderFiles = data.work_orders.work_order_evidences
+              .filter((x: any) => x.type === 3)
+              .map((item: any) => ({
+                id: item.id,
+                name: item.evidence_location,
+              }))
 
             setWorkOrderAfter(initialWorkOrderFiles)
           }
 
-          if (data?.work_orders?.work_order_status) {
+          if (
+            data?.work_orders?.work_order_status &&
+            data.work_orders.work_order_status[0].work_order_items.length > 0
+          ) {
             const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
@@ -204,6 +214,7 @@ const UpdateWorkTukang: FC = () => {
                 item_name: item.name,
                 tukang_id: item?.tukang_id,
                 tukang_name: item?.tukang_name,
+                unit: item?.unit,
                 is_user: item.is_customer ? 1 : 0,
                 type: item.type,
                 quantity: item.quantity,
@@ -220,7 +231,6 @@ const UpdateWorkTukang: FC = () => {
               created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
               work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
-              time_spent: item.time_spent ? item.time_spent : '-',
               updated_by: item.updated_by,
             }))
 
@@ -301,10 +311,39 @@ const UpdateWorkTukang: FC = () => {
   }
 
   // Work Order Form Handler
-  const workOrderFormHandler = (e: any) => {
-    setWorkOrder({
-      ...workOrder,
-      [e.target.name]: e.target.value,
+  // const workOrderFormHandler = (e: any) => {
+  //   setWorkOrder({
+  //     ...workOrder,
+  //     [e.target.name]: e.target.value,
+  //   })
+  // }
+
+  const workOrderHandler = (
+    value: number | string | Array<number | string | null> | any | null,
+    target: string
+  ) => {
+    setWorkOrder((prev) => {
+      const cache = {...prev, [target]: value}
+      return cache
+    })
+  }
+
+  const tukangHandler = (selectedOptions: any, field: any) => {
+    const type = field === 'survey_tukang_id' ? 1 : 2
+
+    setWorkOrder((prevWorkOrder) => {
+      const updatedTukang = selectedOptions.map((option: any) => ({
+        ...option,
+        type: type,
+      }))
+
+      const filteredTukang = prevWorkOrder.tukang_id.filter((x: any) => x.type !== type)
+      const mergedTukang = [...filteredTukang, ...updatedTukang]
+
+      return {
+        ...prevWorkOrder,
+        tukang_id: mergedTukang,
+      }
     })
   }
 
@@ -319,7 +358,7 @@ const UpdateWorkTukang: FC = () => {
       is_user: 0,
       type: type,
       quantity: null,
-      satuan: '',
+      unit: '',
     }
 
     setWorkOrderItem((prev) => [...prev, newForm])
@@ -381,7 +420,7 @@ const UpdateWorkTukang: FC = () => {
     setWorkOrderItem(updatedMaterialValues)
   }
 
-  // Handle Satuan Change
+  // Handle Unit Change
   const handleSatuanChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
     const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
@@ -389,7 +428,7 @@ const UpdateWorkTukang: FC = () => {
     if (elementIndex !== -1) {
       updatedMaterialValues[elementIndex] = {
         ...updatedMaterialValues[elementIndex],
-        satuan: value,
+        unit: value,
       }
     }
 
@@ -483,13 +522,21 @@ const UpdateWorkTukang: FC = () => {
     const formData = new FormData()
 
     // Work Order Detail
-    formData.append('work_order_status', selectedWorkOrderStatus?.value?.toString() ?? '')
-    formData.append('status_details[description]', workOrder.description)
-    formData.append('status_details[survey_date_time]', workOrder.survey_date_time)
-    formData.append('status_details[work_date_time]', workOrder.work_date_time)
+    formData.append('status_id', selectedWorkOrderStatus?.value?.toString() ?? '')
+    formData.append('description', workOrder.description)
+    formData.append('work_date_time', workOrder.survey_date_time)
+    formData.append('work_start_date', workOrder.work_start_date)
+    formData.append('work_end_date', workOrder.work_end_date)
+
+    if (workOrder.tukang_id) {
+      workOrder.tukang_id.map((item) => {
+        formData.append(`tukang_id`, item?.value)
+        formData.append(`tukang_type`, item?.type)
+      })
+    }
 
     if (workOrderBefore?.length) {
-      workOrderBefore.forEach((item) => {
+      workOrderBefore.forEach((item, index) => {
         if (item instanceof Blob) {
           formData.append(`work_order_before`, item, item?.name)
         }
@@ -497,7 +544,7 @@ const UpdateWorkTukang: FC = () => {
     }
 
     if (workOrderAfter?.length) {
-      workOrderAfter.forEach((item) => {
+      workOrderAfter.forEach((item, index) => {
         if (item instanceof Blob) {
           formData.append(`work_order_after`, item, item?.name)
         }
@@ -514,6 +561,7 @@ const UpdateWorkTukang: FC = () => {
         formData.append(`work_order_items[${index}][type]`, order.type.toString())
         formData.append(`work_order_items[${index}][item_name]`, order.item_name)
         formData.append(`work_order_items[${index}][is_customer]`, order.is_user.toString())
+        formData.append(`work_order_items[${index}][unit]`, order.unit)
 
         if (order.quantity) {
           formData.append(`work_order_items[${index}][quantity]`, order.quantity.toString())
@@ -630,15 +678,6 @@ const UpdateWorkTukang: FC = () => {
       width: 120,
       onFilter: (value, record) => record.work_date_time.includes(String(value)),
       sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
-    },
-    {
-      title: 'Time Spent',
-      dataIndex: 'time_spent',
-      key: 'time_spent',
-      align: 'center',
-      width: 140,
-      onFilter: (value, record) => record.time_spent.includes(String(value)),
-      sorter: (a, b) => a.time_spent.length - b.time_spent.length,
     },
   ]
 
@@ -928,7 +967,7 @@ const UpdateWorkTukang: FC = () => {
                     style={{minHeight: '170px'}}
                     as='textarea'
                     value={workOrder.description}
-                    onChange={(e) => workOrderFormHandler(e)}
+                    onChange={(e) => workOrderHandler(e.target.value, 'description')}
                   />
                 </Form.Group>
               </Row>
@@ -975,10 +1014,10 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <Form.Control
-                      name='survey_date_time'
+                      // name='survey_date_time'
                       type='datetime-local'
                       value={workOrder.survey_date_time}
-                      onChange={(e) => workOrderFormHandler(e)}
+                      onChange={(e) => workOrderHandler(e.target.value, 'survey_date_time')}
                     />
                   </Col>
                 </Form.Group>
@@ -988,17 +1027,17 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <Select
-                      name='survey_tukang_id'
+                      // name='survey_tukang_id'
                       classNamePrefix='select'
                       placeholder='Pilih Tehnisi'
                       closeMenuOnSelect={false}
                       components={animatedComponents}
                       isMulti
                       options={tukang}
-                      // getOptionLabel={(option) => `${option.label}`}
-                      // getOptionValue={(option) => `${option.value}`}
-                      // value={workOrder.survey_tukang_id}
-                      // onChange={(e) => workOrderFormHandler(e)}
+                      getOptionLabel={(option) => `${option.label}`}
+                      getOptionValue={(option) => `${option.value}`}
+                      value={workOrder.tukang_id.filter((x) => x.type === 1)}
+                      onChange={(e) => tukangHandler(e, 'survey_tukang_id')}
                     />
                   </Col>
                 </Form.Group>
@@ -1014,13 +1053,38 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <RangePicker
+                      allowClear={false}
                       className='date-range w-100'
                       format='YYYY-MM-DD'
-                      // value={[
-                      //   dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                      //   dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                      // ]}
-                      // disabled={[true, true]}
+                      onChange={(values) => {
+                        if (values && values.length === 2) {
+                          const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                          const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
+
+                          setWorkOrder((prev) => ({
+                            ...prev,
+                            work_start_date: dateFromFormatted,
+                            work_end_date: dateToFormatted,
+                          }))
+                        } else {
+                          setWorkOrder({
+                            id: null,
+                            work_order_status: null,
+                            description: '',
+                            tukang_id: [],
+                            survey_date_time: '',
+                            work_date_time: '',
+                            work_start_date: '',
+                            work_end_date: '',
+                            work_order_before: [],
+                            work_order_after: [],
+                          })
+                        }
+                      }}
+                      value={[
+                        dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                        dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                      ]}
                     />{' '}
                   </Col>
                 </Form.Group>
@@ -1030,23 +1094,24 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <Select
-                      name='work_tukang_id'
+                      // name='work_tukang_id'
                       classNamePrefix='select'
                       placeholder='Pilih Tehnisi'
                       closeMenuOnSelect={false}
                       components={animatedComponents}
                       isMulti
                       options={tukang}
-                      // getOptionLabel={(option) => `${option.label}`}
-                      // getOptionValue={(option) => `${option.value}`}
-                      // value={workOrder.work_tukang_id}
-                      // onChange={(e) => workOrderFormHandler(e)}
+                      getOptionLabel={(option) => `${option.label}`}
+                      getOptionValue={(option) => `${option.value}`}
+                      value={workOrder.tukang_id.filter((x) => x.type === 2)}
+                      onChange={(e) => tukangHandler(e, 'work_tukang_id')}
                     />
                   </Col>
                 </Form.Group>
               </Row>
             </Col>
           </Row>
+
           <Row>
             <Col>
               <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
@@ -1097,8 +1162,8 @@ const UpdateWorkTukang: FC = () => {
 
                         <td>
                           <Form.Control
-                            id={`satuan-${index}`}
-                            value={element.satuan?.toString()}
+                            id={`unit-${index}`}
+                            value={element.unit?.toString()}
                             onChange={(e) => handleSatuanChange(element.index, e.target.value, 2)}
                           />
                         </td>
@@ -1114,6 +1179,7 @@ const UpdateWorkTukang: FC = () => {
               </table>
             </Col>
           </Row>
+
           <Row>
             <Col>
               <table className='table'>
@@ -1172,8 +1238,8 @@ const UpdateWorkTukang: FC = () => {
 
                         <td>
                           <Form.Control
-                            id={`satuan-${index}`}
-                            value={element.satuan?.toString()}
+                            id={`unit-${index}`}
+                            value={element.unit?.toString()}
                             onChange={(e) => handleSatuanChange(element.index, e.target.value, 1)}
                           />
                         </td>

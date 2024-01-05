@@ -313,8 +313,8 @@ const DashboardHO: FC = () => {
                 className='date-range w-100'
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                    const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
@@ -398,7 +398,7 @@ const DashboardHO: FC = () => {
 
       <Row>
         <Col lg={4} md={12} className='mb-5'>
-          <MoreInformation className='card-xl-stretch' orderData={orderData} />
+          <MoreInformation className='card-xl-stretch' orderData={orderList} />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>

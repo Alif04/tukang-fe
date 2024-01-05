@@ -1,4 +1,4 @@
-#new-invoice .survey-information .form-header {
+/* #new-invoice .survey-information .form-header {
   display: flex;
   justify-content: space-between;
   min-height: 45px;
@@ -20,11 +20,11 @@
   color: #ffff;
   font-weight: 400;
   text-align: center;
-}
+} */
 
 /* Form Input Image */
 
-#new-invoice .invoice-evidence {
+/* #new-invoice .invoice-evidence {
   margin-bottom: 160px;
 }
 
@@ -85,4 +85,73 @@
 
 #new-invoice svg.svg-inline--fa.fa-trash.fa-sm {
   margin: 0 0 0 10px;
+} */
+
+/* Table */
+#new-invoice .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #398318;
+}
+
+#new-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#new-invoice .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#new-invoice .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#new-invoice .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#new-invoice .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#new-invoice .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#new-invoice .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#new-invoice .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+#new-invoice .ant-table-thead > tr > th.col-work-status {
+  background-color: #a30014 !important;
+}
+
+#new-invoice .ant-table-thead > tr > th.col-complaint-date {
+  background-color: #a30014 !important;
+}
+
+#new-invoice .ant-table-thead > tr > th.col-complaint-status {
+  background-color: #a30014 !important;
+}
+
+/* Searchbar */
+
+#new-invoice .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+#new-invoice .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
 }

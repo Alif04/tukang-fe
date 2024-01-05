@@ -1,13 +1,5 @@
 /* Card */
 
-#detail-refund .card .card-body .information-wrapper {
-  width: 330px;
-}
-
-#detail-refund .information-wrapper .detail-header {
-  min-height: 70px;
-}
-
 #detail-refund .order-history {
   margin-top: 20px;
   margin-bottom: 50px;
@@ -20,37 +12,32 @@
 
 /* Informasi Pemasangan */
 
-#detail-refund .complaint-information h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#detail-refund .form-wrapper {
+  margin-bottom: 30px;
 }
 
-#detail-refund .complaint-detail h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
+#detail-refund .form-wrapper .form-header {
+  margin-bottom: 30px;
 }
 
-#detail-refund .complaint-detail p {
-  font-size: 14px;
-  font-weight: 400;
+#detail-refund p {
+  padding: 3px 9.75px;
 }
 
-#detail-refund .complaint-evidence h4 {
-  padding-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-#detail-refund .table.detail-complaint-table tr,
-.table.detail-complaint-table th,
-.table.detail-complaint-table td {
-  border: none;
+#detail-refund .detail-info.row label.form-label {
+  padding: 3px 9.75px;
 }
 
 #detail-refund textarea.desc-notes.form-control {
   min-height: 135px !important;
+}
+
+#detail-refund .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 60%;
+}
+
+#detail-refund .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 40%;
 }
 
 /* Button */
@@ -65,7 +52,7 @@
   transition: 0.3s ease-in-out;
 }
 
-.btn.btn-dark-danger:hover:not(.btn-active) {
+#detail-refund .btn.btn-dark-danger:hover:not(.btn-active) {
   background-color: #d80019 !important;
 }
 
@@ -79,6 +66,16 @@
   transition: 0.3s ease-in-out;
 }
 
-.btn.btn-dark-primary:hover:not(.btn-active) {
+#detail-refund .btn.btn-dark-primary:hover:not(.btn-active) {
   background-color: #0300b5 !important;
+}
+
+@media screen and (max-width: 1200px) {
+  #detail-refund .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
+
+  #detail-refund .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    width: 100%;
+  }
 }

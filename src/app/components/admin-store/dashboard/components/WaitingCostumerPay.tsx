@@ -8,17 +8,23 @@ type Props = {
   className: string
   chartColor: string
   chartHeight: string
+  orderData: any[]
 }
 
-const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight}) => {
+const getStatusCount = (orderData: any[], status: string): number => {
+  return orderData.filter((order) => order.status.category === status).length
+}
+
+const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight, orderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
+
   const refreshChart = () => {
     if (!chartRef.current) {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartColor, chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartColor, chartHeight, orderData))
     if (chart) {
       chart.render()
     }
@@ -35,7 +41,7 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, orderData])
 
   return (
     <div className={`card ${className}`}>
@@ -43,7 +49,7 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
         <div className='d-flex align-items-center gap-5'>
           <div className='d-flex flex-column gap-5'>
             <div className='fs-5 text-dark text-muted'>Menunggu Bayar</div>
-            <div className='fs-1 d-block m-auto'>17</div>
+            <div className='fs-1 d-block m-auto'>{getStatusCount(orderData, 'UNPAID')}</div>
             <div className='fs-5 text-muted'>Menunggu pembayaran Customer</div>
           </div>
 
@@ -54,13 +60,17 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
   )
 }
 
-const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
-  const baseColor = getCSSVariableValue('--kt-' + chartColor)
+const chartOptions = (chartColor: string, chartHeight: string, orderData: any): ApexOptions => {
+  const unpaidCount = getStatusCount(orderData, 'UNPAID')
+  const totalOrders = orderData.length
+
+  const percentageUnpaidOrder = totalOrders > 0 ? Math.round((unpaidCount / totalOrders) * 100) : 0
+
   const lightColor = getCSSVariableValue('--kt-' + chartColor + '-light')
   const labelColor = getCSSVariableValue('--kt-gray-700')
 
   return {
-    series: [75],
+    series: [percentageUnpaidOrder],
     chart: {
       fontFamily: 'inherit',
       width: '100px',
