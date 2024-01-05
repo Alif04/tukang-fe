@@ -45,7 +45,7 @@ const WarrantyPage: React.FC = () => {
       />
 
       <Route
-        path='claim-warranty-form'
+        path='claim-warranty-form/:id'
         element={
           <>
             {userRole == 'Admin Vendor' ? (

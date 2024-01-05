@@ -22,8 +22,8 @@ interface Status {
 }
 
 interface DataType {
-  order_id: number
   invoice_id: number
+  order_id: number
   date_order: string
   quotation_id: number
   payment_status: string
@@ -47,6 +47,16 @@ const ViewInvoiceVendor: FC = () => {
 
   const columns: ColumnsType<DataType> = [
     {
+      title: 'Invoice ID',
+      dataIndex: 'invoice_id',
+      key: 'invoice_id',
+      align: 'center',
+      width: 100,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.invoice_id - b.invoice_id,
+    },
+    {
       title: 'Order ID',
       dataIndex: 'order_id',
       key: 'order_id',
@@ -69,7 +79,7 @@ const ViewInvoiceVendor: FC = () => {
       title: 'Quotation ID',
       dataIndex: 'quotation_id',
       key: 'quotation_id',
-      align: 'left',
+      align: 'center',
       width: 110,
       sorter: (a, b) => a.quotation_id - b.quotation_id,
     },
@@ -77,16 +87,16 @@ const ViewInvoiceVendor: FC = () => {
       title: 'Payment Status',
       dataIndex: 'payment_status',
       key: 'payment_status',
-      align: 'left',
+      align: 'center',
       width: 140,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
     {
-      title: 'Costumer ID',
+      title: 'Member ID',
       dataIndex: 'member_id',
       key: 'member_id',
-      align: 'left',
+      align: 'center',
       width: 140,
       sorter: (a, b) => a.member_id - b.member_id,
     },
@@ -94,7 +104,7 @@ const ViewInvoiceVendor: FC = () => {
       title: 'Vendor Name',
       dataIndex: 'vendor_name',
       key: 'vendor_name',
-      align: 'left',
+      align: 'center',
       width: 140,
       onFilter: (value, record) => record.vendor_name.includes(String(value)),
       sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
@@ -103,7 +113,7 @@ const ViewInvoiceVendor: FC = () => {
       title: 'Order Status',
       dataIndex: 'order_status',
       key: 'order_status',
-      align: 'left',
+      align: 'center',
       width: 140,
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
@@ -128,92 +138,90 @@ const ViewInvoiceVendor: FC = () => {
         {text: 'INVOICED', value: 'INVOICED'},
       ],
     },
-    // {
-    //   title: 'Action',
-    //   key: 'action',
-    //   fixed: 'right',
-    //   width: 100,
-    //   render: (record) => {
-    //     const handleUpdateInvoice = () => {
-    //       const id = record.invoice_id
-    //       navigate(`/invoice/update-invoice/${id}`)
-    //     }
+    {
+      title: 'Action',
+      key: 'action',
+      fixed: 'right',
+      width: 70,
+      align: 'center',
+      render: (record) => {
+        const handleUpdateInvoice = () => {
+          const id = record.invoice_id
+          navigate(`/invoice/update-invoice/${id}`)
+        }
 
-    //     const handleDetailInvoice = () => {
-    //       const id = record.invoice_id
-    //       navigate(`/invoice/detail-invoice/${id}`)
-    //     }
+        const handleDetailInvoice = () => {
+          const id = record.invoice_id
+          navigate(`/invoice/detail-invoice/${id}`)
+        }
 
-    //     const handleDelete = () => {
-    //       const id = record.invoice_id
+        const handleDelete = () => {
+          const id = record.invoice_id
 
-    //       Swal.fire({
-    //         title: `Apakah anda yakin akan menghapus data Invoice ini ?`,
-    //         icon: 'warning',
-    //         showConfirmButton: true,
-    //         showDenyButton: true,
-    //         confirmButtonText: 'Ya',
-    //         denyButtonText: 'Cancel',
-    //       })
-    //         .then((willDelete) => {
-    //           if (willDelete.value) {
-    //             axios
-    //               .delete(`${apiUrl}/invoices/${id}`, {
-    //                 headers: {
-    //                   Accept: 'application/json',
-    //                   Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    //                   'Access-Control-Allow-Origin': '*',
-    //                   'ngrok-skip-browser-warning': 'true',
-    //                 },
-    //               })
-    //               .then((response) => {
-    //                 Swal.fire({
-    //                   title: 'Success',
-    //                   text: response.data.message,
-    //                   icon: 'success',
-    //                 }).then(() => {
-    //                   window.location.reload()
-    //                 })
-    //               })
-    //               .catch((error) => {
-    //                 Swal.fire({
-    //                   title: 'Error',
-    //                   text: error.response.data.message,
-    //                   icon: 'error',
-    //                 })
-    //               })
-    //           }
-    //         })
-    //         .catch((error) => {
-    //           Swal.fire({
-    //             title: 'Error',
-    //             text: error.response.data.message,
-    //             icon: 'error',
-    //           })
-    //         })
-    //     }
+          Swal.fire({
+            title: `Apakah anda yakin akan menghapus data Invoice ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Cancel',
+          })
+            .then((willDelete) => {
+              if (willDelete.value) {
+                axios
+                  .delete(`${apiUrl}/invoices/${id}`, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: response.data.message,
+                      icon: 'success',
+                    }).then(() => {
+                      window.location.reload()
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
 
-    //     return (
-    //       <div className='button-wrapper'>
-    //         <a className='button-add' onClick={handleAddInvoice}>
-    //           <FontAwesomeIcon icon={faPlus} size='sm' />
-    //         </a>
+        return (
+          <div className='button-wrapper d-flex justify-content-center'>
+            <a className='button-detail ' onClick={handleDetailInvoice}>
+              <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
 
-    //         <a className='button-edit' onClick={handleUpdateInvoice}>
-    //           <FontAwesomeIcon icon={faPen} size='sm' />
-    //         </a>
+            {/* 
+            <a className='button-edit' onClick={handleUpdateInvoice}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
+            </a> */}
 
-    //         <a className='button-detail' onClick={handleDetailInvoice}>
-    //           <FontAwesomeIcon icon={faBook} size='sm' />
-    //         </a>
-
-    //         <a className='button-delete' onClick={handleDelete}>
-    //           <FontAwesomeIcon icon={faTrash} size='sm' />
-    //         </a>
-    //       </div>
-    //     )
-    //   },
-    // },
+            {/* <a className='button-delete' onClick={handleDelete}>
+              <FontAwesomeIcon icon={faTrash} size='sm' />
+            </a> */}
+          </div>
+        )
+      },
+    },
   ]
 
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
@@ -273,8 +281,8 @@ const ViewInvoiceVendor: FC = () => {
           item?.invoice_details[0]?.quotation?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
 
         data = {
-          order_id: item?.invoice_details[0]?.quotation?.order_id,
           invoice_id: item?.invoice_details[0]?.invoice_id,
+          order_id: item?.invoice_details[0]?.quotation?.order_id,
           date_order: formatDate(
             new Date(item?.invoice_details[0]?.quotation?.order?.request_survey)
           ),

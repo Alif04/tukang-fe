@@ -97,10 +97,14 @@ const DetailComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatusApprove = statusData.find((status: any) => status.category === 'ACCEPTED')
+    const desiredStatusApprove = statusData.find(
+      (status: any) => status.category === 'COMPLAINTAPPROVEDBYVENDOR'
+    )
     const statusApproveId = desiredStatusApprove.value
 
-    const desiredStatusCancel = statusData.find((status: any) => status.category === 'REJECTED')
+    const desiredStatusCancel = statusData.find(
+      (status: any) => status.category === 'COMPLAINTREJECTEDBYVENDOR'
+    )
     const statusCancelId = desiredStatusCancel.value
 
     setComplaintStatusApprove(statusApproveId)

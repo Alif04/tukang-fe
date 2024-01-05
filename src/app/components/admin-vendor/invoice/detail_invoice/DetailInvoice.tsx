@@ -50,10 +50,10 @@ const DetailInvoiceVendor: FC = () => {
           <div className='invoice-detail d-flex justify-content-between'>
             <div className='vendor-information'>
               <div className='vendor-detail'>
-                <h1 className='fw-bolder'>{invoiceDetail?.store.store_name}</h1>
+                <h1 className='fw-bolder'>{invoiceDetail?.vendor?.company_name}</h1>
 
                 <div className='address'>
-                  <h3 className='fw-normal'>{invoiceDetail?.store.address}</h3>
+                  <h3 className='fw-normal'>{invoiceDetail?.vendor?.address}</h3>
                 </div>
               </div>
             </div>
@@ -62,18 +62,15 @@ const DetailInvoiceVendor: FC = () => {
               <h1 className='fw-bolder'>INVOICE</h1>
 
               <h3 className='fw-bolder'>
-                Tanggal :
+                Tanggal :{' '}
                 <span className='fw-normal'>
-                  {invoiceDetail ? formatDate(new Date(invoiceDetail.created_at)) : ''}
+                  {invoiceDetail ? formatDate(new Date(invoiceDetail?.created_at)) : ''}
                 </span>
               </h3>
 
               <h3 className='fw-bolder'>
-                Quotation ID : <span className='fw-normal'>{invoiceDetail?.quotation.id}</span>
-              </h3>
-
-              <h3 className='fw-bolder'>
-                Costumer ID : <span className='fw-normal'>{invoiceDetail?.members.id}</span>
+                Invoice ID :{' '}
+                <span className='fw-normal'>{invoiceDetail?.invoice_details[0]?.invoice_id}</span>
               </h3>
             </div>
           </div>
@@ -82,39 +79,24 @@ const DetailInvoiceVendor: FC = () => {
             <div className='receiver-information'>
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                <h1 className='fw-bolder mt-3'>{invoiceDetail?.members?.full_name}</h1>
+                <h1 className='fw-bolder mt-3'>
+                  {invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.store_name ?? ''}
+                </h1>
               </div>
 
               <div className='address'>
-                <h3 className='fw-normal'>{invoiceDetail?.order.project_address}</h3>
                 <h3 className='fw-normal'>
-                  {invoiceDetail ? `Telp ${invoiceDetail?.order.project_number}` : ``}
+                  {invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.address ?? ''}
+                </h3>
+
+                <h3 className='fw-normal'>
+                  {`Telp : ${
+                    invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.phone_number_1 ??
+                    invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.phone_number_2 ??
+                    'Nomor telepon belum tersedia'
+                  }`}
                 </h3>
               </div>
-            </div>
-
-            <div className='payment-request'>
-              <Form.Group as={Row}>
-                <Form.Label className='fs-5 fw-bolder' column sm='7'>
-                  Quotation valid until :
-                </Form.Label>
-
-                <Col sm='5'>
-                  <Form.Control
-                    type='text'
-                    plaintext
-                    readOnly
-                    value={
-                      invoiceDetail ? formatDate(new Date(invoiceDetail.quotation_validity)) : ''
-                    }
-                  />
-                </Col>
-              </Form.Group>
-
-              <Form.Group className='detail-info'>
-                <Form.Label className='fs-5 fw-bolder'>Instruksi Spesial :</Form.Label>
-                <Form.Control as='textarea' plaintext readOnly value={invoiceDetail?.description} />
-              </Form.Group>
             </div>
           </div>
 
@@ -122,44 +104,62 @@ const DetailInvoiceVendor: FC = () => {
             <Table hover>
               <thead>
                 <tr>
-                  <th className='text-center'>Item</th>
-                  <th className='text-center'>Harga Satuan</th>
+                  <th className='text-center'>Order ID</th>
+                  <th className='text-center'>Tanggal Order</th>
+                  <th className='text-center'>Nama Jasa Pemasangan</th>
                   <th className='text-center'>Jumlah</th>
+                  <th className='text-center'>Price</th>
                   <th className='text-center'>Total Harga</th>
                 </tr>
               </thead>
+
               <tbody>
-                {invoiceDetail?.order.m_order_details.map((item: any) => (
+                {invoiceDetail?.invoice_details.map((item: any) => (
                   <>
                     <tr>
-                      <td>{item?.unit}</td>
-                      <td>{item?.quantity}</td>
-                      <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
-                      <td>{`Rp. ${item?.total.toLocaleString('id')}`}</td>
+                      <td>{item?.quotation?.order_id ?? '-'}</td>
+                      <td>{formatDate(new Date(item?.quotation?.order?.request_survey)) ?? '-'}</td>
+                      <td>{item?.quotation?.quotation_details[0]?.name ?? '-'}</td>
+                      <td>{item?.quotation?.quotation_details[0]?.quantity ?? '-'}</td>
+
+                      <td>{`Rp. ${parseInt(
+                        item?.quotation?.quotation_details[0]?.price ?? 0
+                      ).toLocaleString('id')}`}</td>
+
+                      <td>{`Rp. ${parseInt(
+                        item?.quotation?.quotation_details[0]?.final_price ?? 0
+                      ).toLocaleString('id')}`}</td>
                     </tr>
                   </>
                 ))}
 
-                <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                {/* <tr>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Total
                   </td>
                   <td className=' fw-bolder'>Rp. 100.000</td>
-                </tr>
+                </tr> */}
 
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Tax ( 11 % )
                   </td>
-                  <td className=' fw-bolder'>Rp. 100.000</td>
+                  <td className=' fw-bolder'>
+                    {`Rp. ${parseInt(
+                      invoiceDetail?.invoice_details[0]?.quotation?.quotation_disc
+                    ).toLocaleString('id')}`}
+                  </td>
                 </tr>
 
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Grand Total
                   </td>
+
                   <td className=' fw-bolder'>
-                    {`Rp. ${parseInt(invoiceDetail?.order?.grand_total).toLocaleString('id')}`}
+                    {`Rp. ${parseInt(
+                      invoiceDetail?.invoice_details[0]?.quotation?.quotation_grand_total
+                    ).toLocaleString('id')}`}
                   </td>
                 </tr>
               </tbody>
@@ -170,21 +170,16 @@ const DetailInvoiceVendor: FC = () => {
             <div className='payment-method'>
               <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
 
-              <h3 className='fw-normal'>BANK BCA</h3>
-              <h3 className='fw-normal'>PT.MITRA10</h3>
-              <h3 className='fw-normal'>123-876-90</h3>
+              <h3 className='fw-bold'>{invoiceDetail?.vendor?.vendor_bank[0]?.bank?.bank_name}</h3>
+              <h3 className='fw-bold'>{invoiceDetail?.vendor?.company_name}</h3>
+              <h3 className='fw-bold'>{invoiceDetail?.vendor?.vendor_bank[0]?.account_number}</h3>
             </div>
 
             <div className='payment-evidence'>
-              <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>WA: 0813748392</h1>
-              <h1 className='fw-bolder'>Email: Installation.support@mitra10.com</h1>
+              <h1 className='fw-normal'>Silahkan kirim bukti bayar anda melalui:</h1>
+              <h1 className='fw-normal'>WA : {invoiceDetail?.vendor?.phone_number}</h1>
+              <h1 className='fw-normal'>Email : {invoiceDetail?.vendor?.email_address}</h1>
             </div>
-
-            <h1 className='fw-bolder'>
-              Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
-              kembali.
-            </h1>
           </div>
         </div>
       </div>

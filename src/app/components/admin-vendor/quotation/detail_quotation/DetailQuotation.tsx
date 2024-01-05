@@ -81,7 +81,7 @@ const DetailQuotationVendor: FC = () => {
 
               <h3 className='fw-bolder'>
                 Costumer ID :{' '}
-                <span className='fw-normal'>{quotationDetail?.order.member_number}</span>
+                <span className='fw-normal'>{quotationDetail?.order?.members?.member_number}</span>
               </h3>
             </div>
           </div>

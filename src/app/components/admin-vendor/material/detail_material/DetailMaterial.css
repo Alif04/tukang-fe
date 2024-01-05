@@ -1,71 +1,71 @@
 /* Header */
-#detail-quotation {
+#detail-material {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-#detail-quotation .card {
+#detail-material .card {
   width: 900px;
 }
 
-#detail-quotation .card .card-body {
+#detail-material .card .card-body {
   min-height: 100vh;
   padding: 3rem 3rem !important;
 }
 
-#detail-quotation .card .card-body .invoice-detail {
+#detail-material .card .card-body .invoice-detail {
   margin: 0 0 30px 0;
 }
 
-#detail-quotation .card .card-body .vendor-information .vendor-detail h1 {
+#detail-material .card .card-body .vendor-information .vendor-detail h1 {
   color: #007eb4;
   font-size: 41px;
   padding: 0 0 10px 0;
 }
 
-#detail-quotation .receiver-information .receiver-detail {
+#detail-material .receiver-information .receiver-detail {
   padding: 0 0 10px 0;
 }
 
-#detail-quotation .receiver-information .receiver-detail h1 {
+#detail-material .receiver-information .receiver-detail h1 {
   font-size: 18px;
 }
 
-#detail-quotation .address h3 {
+#detail-material .address h3 {
   font-size: 16px;
   padding: 0 0 10px 0;
 }
 
-#detail-quotation .payment-request {
+#detail-material .payment-request {
   width: 300px;
 }
 
-#detail-quotation .payment-request h1 {
+#detail-material .payment-request h1 {
   color: #484747;
   font-size: 41px;
   padding: 0 0 10px 0;
 }
 
-#detail-quotation .payment-request h3 {
+#detail-material .payment-request h3 {
   padding: 0 0 10px 0;
   font-size: 16px;
 }
 
 /* Table */
 
-#detail-quotation .detail-table {
+#detail-material .detail-table {
   margin: 0 0 30px 0;
 }
 
-#detail-quotation .detail-table table tr th {
+#detail-material .detail-table table tr th {
   font-size: 16px;
   font-weight: 600;
   color: white;
   background-color: #555555;
 }
 
-#detail-invoice
+#detail-material
   .detail-table
   table.table.table-striped.table-bordered.table-hover
   tr:nth-child(even)
@@ -73,7 +73,7 @@
   background-color: #e4e9f7;
 }
 
-#detail-invoice
+#detail-material
   .detail-table
   table.table.table-striped.table-bordered.table-hover
   tr:nth-child(odd)
@@ -83,30 +83,30 @@
 
 /* Footer */
 
-#detail-quotation .payment-detail .payment-method {
+#detail-material .payment-detail .payment-method {
   margin: 10px 0;
 }
 
-#detail-quotation .payment-detail .payment-method {
+#detail-material .payment-detail .payment-method {
   margin: 10px 0;
 }
 
-#detail-quotation .payment-detail h1 {
+#detail-material .payment-detail h1 {
   padding: 10px 0;
   font-size: 16px;
 }
 
-#detail-quotation .payment-detail .payment-method h1 {
+#detail-material .payment-detail .payment-method h1 {
   padding: 0 0 10px 0;
   font-size: 16px;
 }
 
-#detail-quotation .payment-detail .payment-evidence h1 {
+#detail-material .payment-detail .payment-evidence h1 {
   padding: 0 0 10px 0;
   font-size: 16px;
 }
 
-#detail-quotation .payment-detail .payment-method h3 {
+#detail-material .payment-detail .payment-method h3 {
   padding: 0 0 10px 0;
   font-size: 14px;
 }

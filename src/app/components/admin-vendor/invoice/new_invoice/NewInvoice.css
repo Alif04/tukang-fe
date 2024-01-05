@@ -155,3 +155,19 @@
   background-color: transparent;
   border-right: none;
 }
+
+/* Button */
+
+#new-invoice .btn.btn-dark-success {
+  width: 150px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#new-invoice .btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #7cb920 !important;
+}

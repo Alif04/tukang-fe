@@ -460,7 +460,7 @@ const UpdateRefundCS: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {refundDetail?.orders?.order_details.map((item: any, index: any) => (
+                  {refundDetail?.orders?.m_order_details.map((item: any, index: any) => (
                     <>
                       <tr key={`${index} - detail-order`}>
                         <td>{item?.item_code ?? '-'}</td>
