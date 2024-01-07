@@ -111,6 +111,13 @@ input[type='number'] {
   color: #d8001b !important;
 }
 
+/* Google Form iFrame */
+
+iframe.csi-frame {
+  width: 100% !important;
+  height: 2400px !important;
+}
+
 /* Apex Chart Legend */
 
 .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
@@ -284,6 +291,12 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
   border-right: none;
 }
 
+input.filter-ltr.form-control:focus {
+  border-top: 1px solid #e4e6ef !important;
+  border-bottom: 1px solid #e4e6ef !important;
+  border-right: 1px solid #e4e6ef !important;
+}
+
 /* Table Styling */
 :where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-title {
   font-size: 12px;
@@ -336,6 +349,12 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 /* Tag */
 :where(.css-dev-only-do-not-override-1ck3jst).ant-tag {
   font-size: 10px !important;
+}
+
+/* Border */
+
+.border-5 {
+  --bs-border-width: 10px !important;
 }
 
 /* Table Filter */

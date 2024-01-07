@@ -4,6 +4,7 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 
+import {ViewReschedules} from './components/ViewReschedule'
 import {NewRescheduleOrder} from './components/NewReschedule'
 import {UpdateRescheduleOrder} from './components/UpdateReschedule'
 
@@ -28,6 +29,32 @@ const RefundPage: React.FC = () => {
   return (
     <Routes>
       <Route
+        path='view-reschedule'
+        element={
+          <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole == 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole == 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={rescheduleBreadCrumbs}>LIST RESCHEDULE</PageTitle>
+            <ViewReschedules />
+          </>
+        }
+      />
+
+      <Route
         path='new-reschedule'
         element={
           <>
@@ -46,6 +73,7 @@ const RefundPage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={rescheduleBreadCrumbs}>FORMULIR RESCHEDULE</PageTitle>
             <NewRescheduleOrder />
           </>
@@ -71,7 +99,7 @@ const RefundPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={rescheduleBreadCrumbs}>UPDATE RESCHEDULE</PageTitle>
+
             <UpdateRescheduleOrder />
           </>
         }

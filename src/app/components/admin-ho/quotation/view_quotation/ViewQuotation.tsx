@@ -4,7 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ViewQuotation.css'
 
 import axios from 'axios'
-import {Table, Tag, DatePicker} from 'antd'
+import {Table, Tag, DatePicker, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
@@ -19,6 +19,10 @@ type Props = {
 
 const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
+
+  const [quotationData, setQuotationData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -190,8 +194,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const [quotationData, setQuotationData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -199,28 +201,33 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async () => {
+  const fetchOrderList = async (page: number, pageSize: number) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
-      const response = await axios.get(`${apiUrl}/quotation?order_by=desc&take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewOrder = async () => {
+  const ViewOrder = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchOrderList()
+      const apiData = await fetchOrderList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -255,14 +262,24 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewOrder()
-      setQuotationData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewOrder(page, pageSize)
+    setQuotationData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [dateFrom, dateTo, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='view-quotation'>
@@ -341,7 +358,22 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             dataSource={quotationData}
             rowKey={(record) => record.quotation_id}
             // scroll={{x: 1800}}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Quotation
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

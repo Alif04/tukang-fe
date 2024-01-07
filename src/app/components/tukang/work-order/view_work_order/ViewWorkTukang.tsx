@@ -4,7 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
-import {Table, Tag} from 'antd'
+import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
@@ -39,6 +39,10 @@ interface DataType {
 const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [orderData, setOrderData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -208,8 +212,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const [orderData, setOrderData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -217,7 +219,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async () => {
+  const fetchOrderList = async (page: number, pageSize: number) => {
     try {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -227,7 +229,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statuses}`,
+          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
           {
             headers: {
               Accept: 'application/json',
@@ -237,6 +239,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             },
           }
         )
+
+        setCurrentPage(response.data.page)
+        setTotalData(response.data.total)
         return response.data.data
       } else {
         console.error('Desired status not found in statusData')
@@ -246,9 +251,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewOrder = async () => {
+  const ViewOrder = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchOrderList()
+      const apiData = await fetchOrderList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -294,14 +299,24 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewOrder()
-      setOrderData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewOrder(page, pageSize)
+    setOrderData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [dateFrom, dateTo, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='view-work-order-vendor'>
@@ -356,7 +371,22 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             dataSource={orderData}
             rowKey={(record) => record.order_id}
             scroll={{x: 1700}}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Work Order
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

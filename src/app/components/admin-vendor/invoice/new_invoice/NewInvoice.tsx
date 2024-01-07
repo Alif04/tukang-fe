@@ -36,6 +36,7 @@ interface InvoiceData {
 
 const NewInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
 
   // Table
   const [workOrder, setWorkOrder] = useState<DataType[]>([])
@@ -52,7 +53,7 @@ const NewInvoiceVendor: FC = () => {
   // Create Invoice
   const [invoiceCode, setInvoiceCode] = useState<string | number>('NaN')
   const [invoices, setInvoices] = useState<InvoiceData>({
-    vendor_id: null,
+    vendor_id: 3,
     invoice_evidences: [],
     invoice_details: [
       {
@@ -324,6 +325,46 @@ const NewInvoiceVendor: FC = () => {
     },
   }
 
+  // Handle Submit
+  const handleCreateInvoice = async () => {
+    await axios
+      .post(`${apiUrl}/invoices`, invoices, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Add Invoice',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            navigate(`/store/view-store`)
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
   return (
     <section id='new-invoice'>
       <div className='card'>
@@ -400,7 +441,7 @@ const NewInvoiceVendor: FC = () => {
               className='d-flex justify-content-center align-items-center'
               variant='dark-success'
               type='submit'
-              // onClick={() => handleCreateInvoice()}
+              onClick={() => handleCreateInvoice()}
             >
               Create Invoice
             </Button>

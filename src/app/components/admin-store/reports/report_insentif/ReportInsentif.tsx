@@ -4,7 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
-import {Table} from 'antd'
+import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -23,7 +23,10 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const userRole = localStorage.getItem('userRole') as any
   const userId = localStorage.getItem('user_id') as any
 
+  const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -135,8 +138,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const [orderData, setOrderData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -144,12 +145,12 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async () => {
+  const fetchOrderList = async (page: number, pageSize: number) => {
     try {
       const url =
         userRole === 'Store CS' || userRole === 'Admin HO'
-          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&take=0`
+          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
+          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&page=${page}&take=${pageSize}`
 
       const response = await axios.get(url, {
         headers: {
@@ -162,6 +163,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
       if (response?.data?.total) {
         setTotalOrder(response.data.total)
+        setCurrentPage(response.data.page)
       }
 
       return response.data.data
@@ -170,9 +172,9 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewOrder = async () => {
+  const ViewOrder = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchOrderList()
+      const apiData = await fetchOrderList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -215,14 +217,24 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewOrder()
-      setOrderData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewOrder(page, pageSize)
+    setOrderData(data)
+  }
 
-    fetchData()
-  }, [dateFrom, dateTo, totalOrder])
+  useEffect(() => {
+    fetchData(1, 10)
+  }, [dateFrom, dateTo, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='report-insentif'>
@@ -292,7 +304,22 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalOrder,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Order
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

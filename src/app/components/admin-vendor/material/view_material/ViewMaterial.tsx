@@ -11,11 +11,15 @@ import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {Table} from 'antd'
+import {Table, PaginationProps} from 'antd'
 
 const ViewMaterialVendor: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [materialData, setMaterialData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [searchFilter, setSearchFilter] = useState<string>('')
 
@@ -155,9 +159,6 @@ const ViewMaterialVendor: React.FC = () => {
     },
   ]
 
-  // Fetch Data Material
-  const [materialData, setMaterialData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -165,25 +166,32 @@ const ViewMaterialVendor: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchMaterialList = async () => {
+  const fetchMaterialList = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(`${apiUrl}/items?take=0&search=${searchFilter}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/items?page=${page}&take=${pageSize}&search=${searchFilter}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
+
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewMaterial = async () => {
+  const ViewMaterial = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchMaterialList()
+      const apiData = await fetchMaterialList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -212,14 +220,24 @@ const ViewMaterialVendor: React.FC = () => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewMaterial()
-      setMaterialData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewMaterial(page, pageSize)
+    setMaterialData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='view-material'>
@@ -254,7 +272,22 @@ const ViewMaterialVendor: React.FC = () => {
             dataSource={materialData}
             rowKey={(record) => record.material_id}
             // scroll={{x: 1800}}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Material
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

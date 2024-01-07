@@ -21,7 +21,6 @@ interface Refund {
   penalty_nominal: any
   approval_number: any
   voucher: string
-  files: Array<any>
 }
 
 const NewRefundCS: FC = () => {
@@ -110,7 +109,6 @@ const NewRefundCS: FC = () => {
     voucher: '',
     penalty_nominal: '',
     approval_number: '',
-    files: [],
   })
 
   const [refundFiles, setRefundFiles] = useState<Array<File | null>>([])
@@ -226,8 +224,8 @@ const NewRefundCS: FC = () => {
     formData.append('reason', refundValues.reason)
     formData.append('date_of_filing', refundValues.date_of_filing)
 
-    if (refundValues.files?.length) {
-      refundValues.files.forEach((item) => {
+    if (refundFiles.length) {
+      refundFiles.forEach((item) => {
         if (item) {
           formData.append(`refund_evidences`, item, item?.name)
         }

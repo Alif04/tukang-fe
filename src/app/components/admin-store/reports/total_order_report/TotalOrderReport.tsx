@@ -4,7 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './TotalOrderReport.css'
 
 import axios from 'axios'
-import {Table, Tag} from 'antd'
+import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Button} from 'react-bootstrap'
 
@@ -16,28 +16,31 @@ type Props = {
   statusName: string
 }
 
+interface DataType {
+  order_id: number
+  date_order: Date
+  costumer_name: string
+  phone_number: number
+  email: string
+  address: string
+  service_name: string
+  quantity: number
+  harga: number
+  grand_total: number
+}
+
 const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
 
+  const [orderData, setOrderData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalOrder, setTotalOrder] = useState<number>(0)
+
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
-
-  interface DataType {
-    order_id: number
-    date_order: Date
-    costumer_name: string
-    phone_number: number
-    email: string
-    address: string
-    service_name: string
-    quantity: number
-    harga: number
-    grand_total: number
-  }
 
   const columns: ColumnsType<DataType> = [
     {
@@ -128,8 +131,6 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     },
   ]
 
-  const [orderData, setOrderData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -137,7 +138,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async () => {
+  const fetchOrderList = async (page: number, pageSize: number) => {
     try {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData = storedStatus ? JSON.parse(storedStatus) : []
@@ -152,8 +153,8 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
 
       const url =
         statusName === ''
-          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&status=${statusId}`
+          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
+          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}&status=${statusId}`
 
       const response = await axios.get(url, {
         headers: {
@@ -174,9 +175,9 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     }
   }
 
-  const ViewOrder = async () => {
+  const ViewOrder = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchOrderList()
+      const apiData = await fetchOrderList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -219,14 +220,24 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewOrder()
-      setOrderData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewOrder(page, pageSize)
+    setOrderData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [dateFrom, dateTo])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='total-order-report'>
@@ -278,7 +289,22 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalOrder,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Order
+                </span>
+              ),
+            }}
           />
 
           <div className='d-flex justify-content-center align-items-center mt-5'>

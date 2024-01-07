@@ -96,6 +96,9 @@ export * from './admin-store/costumers/report_costumers/ReportCostumers'
 
 // RESCHEDULE
 
+// View Reschedule
+export * from './admin-store/reschedule/view_reschedule/ViewReschedule'
+
 // New Reschedule
 export * from './admin-store/reschedule/new_reschedule/NewReschedule'
 
@@ -275,6 +278,9 @@ export * from './admin-ho/refund/detail_refund/DetailRefund'
 // View Report
 export * from './admin-ho/reports/view_report/ViewReportHO'
 
+// Report
+export * from './admin-ho/reports/report/ReportHO'
+
 // CLAIM WARRANTY
 // List Claim Warranty
 export * from './admin-ho/warranty/form_warranty_claim/WarrantyFormClaim'
@@ -284,6 +290,11 @@ export * from './admin-ho/warranty/list_claim_warranty/WarrantyClaimList'
 
 // Update Claim Warranty
 export * from './admin-ho/warranty/update_warranty/UpdateWarranty'
+
+// RESCHEDULE
+
+// Update Reschedule
+export * from './admin-ho/reschedule/update_reschedule/UpdateReschedule'
 
 // VENDOR PAGE
 
@@ -371,6 +382,9 @@ export * from './admin-vendor/complaint/update_complaint/UpdateComplaint'
 // Detail Complaint
 export * from './admin-vendor/complaint/detail_complaint/DetailComplaint'
 
+// Report
+export * from './admin-vendor/reports/report/ReportVendor'
+
 // Invoice
 // View Invoice
 export * from './admin-vendor/invoice/view_invoice/ViewInvoice'
@@ -418,6 +432,9 @@ export * from './tukang/complaint/detail_complaint/DetailComplaint'
 // REPORT TUKANG
 // View Report
 export * from './tukang/reports/view_report/ViewReportTukang'
+
+// Report
+export * from './tukang/reports/report/ReportTukang'
 
 // PENGATURAN PAGE
 

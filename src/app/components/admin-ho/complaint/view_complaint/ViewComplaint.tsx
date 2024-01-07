@@ -10,7 +10,7 @@ import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faFilter, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {Table, DatePicker, Tag} from 'antd'
+import {Table, DatePicker, Tag, PaginationProps} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -19,6 +19,10 @@ type Props = {
 
 const ViewComplaintHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
+
+  const [complaintData, setComplaintData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -322,9 +326,6 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  // Fetch Data Complaint
-  const [complaintData, setComplaintData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -332,12 +333,12 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchComplaintList = async () => {
+  const fetchComplaintList = async (page: number, pageSize: number) => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL
 
       const response = await axios.get(
-        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=-1`,
+        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',
@@ -347,15 +348,18 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
           },
         }
       )
+
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewComplaint = async () => {
+  const ViewComplaint = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchComplaintList()
+      const apiData = await fetchComplaintList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -417,14 +421,24 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewComplaint()
-      setComplaintData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewComplaint(page, pageSize)
+    setComplaintData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [dateFrom, dateTo, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='view-complaint'>
@@ -479,7 +493,22 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
             dataSource={complaintData}
             rowKey={(record) => record.complaint_id}
             scroll={{x: 2000}}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Pengaduan
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

@@ -6,7 +6,7 @@ import './ViewVendor.css'
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, Tag} from 'antd'
+import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
@@ -37,6 +37,10 @@ interface StoreItem {
 const ViewVendorHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [vendorData, setVendorData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -226,8 +230,6 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const [vendorData, setVendorData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -235,10 +237,10 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchVendorList = async () => {
+  const fetchVendorList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/vendor?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0`,
+        `${apiUrl}/vendor?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',
@@ -249,15 +251,17 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
         }
       )
 
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewVendor = async () => {
+  const ViewVendor = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchVendorList()
+      const apiData = await fetchVendorList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchVendorList')
@@ -300,14 +304,24 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewVendor()
-      setVendorData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewVendor(page, pageSize)
+    setVendorData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [dateFrom, dateTo, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   useEffect(() => {
     const getStore = async () => {
@@ -409,7 +423,22 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
             dataSource={vendorData}
             rowKey={(record) => record.vendor_id}
             // scroll={{x: 2000}}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Total Vendor
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

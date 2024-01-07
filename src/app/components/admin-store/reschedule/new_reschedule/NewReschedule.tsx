@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './NewReschedule.css'
@@ -6,13 +6,19 @@ import './NewReschedule.css'
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, Form, Button, Row, Col, Card} from 'react-bootstrap'
+import {Table, Form, Button, Row, Col, Card, ListGroup} from 'react-bootstrap'
+import {Image} from 'antd'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface Reschedule {
-  order_id: number | null
-  project_status_id: number | null
-  request_survey: string
-  reason: string
+  order_id: any
+  status_id: any
+  reschedule_date: string
+  reschedule_status_id: any
+  description: string
+  reschedule_status_by: string
+  reschedule_evidences: Array<any>
 }
 
 interface Status {
@@ -24,18 +30,24 @@ const NewReschedule: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const userRole = localStorage.getItem('userRole') as string
+
   const [order, setOrder] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
   const [selectedOrder, setSelectedOrder] = useState<any>({
     value: null,
     label: '',
+    status_id: null,
   })
 
   const [reschedule, setReschedule] = useState<Reschedule>({
     order_id: null,
-    project_status_id: null,
-    request_survey: '',
-    reason: '',
+    status_id: null,
+    reschedule_date: '',
+    reschedule_status_id: null,
+    description: '',
+    reschedule_status_by: userRole,
+    reschedule_evidences: [],
   })
 
   const getOrder = async () => {
@@ -61,6 +73,7 @@ const NewReschedule: FC = () => {
         const tempOrder = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.id,
+          status_id: item.status.id,
         }))
 
         setOrder(tempOrder)
@@ -115,6 +128,7 @@ const NewReschedule: FC = () => {
     setReschedule({
       ...reschedule,
       order_id: selectedOrder?.value ?? null,
+      status_id: selectedOrder?.status_id ?? null,
     })
   }, [selectedOrder])
 
@@ -128,7 +142,7 @@ const NewReschedule: FC = () => {
 
     setReschedule((prevRescheduleValues) => ({
       ...prevRescheduleValues,
-      project_status_id: statusId,
+      reschedule_status_id: statusId,
     }))
   }, [reschedule])
 
@@ -142,10 +156,74 @@ const NewReschedule: FC = () => {
     })
   }
 
-  // Handle Submit New Refund
+  // Upload File Reschedule
+  const [rescheduleEvidence, setRescheduleEvidence] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
+
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setRescheduleEvidence(file)
+    }
+  }
+
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(rescheduleEvidence[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
+  }
+
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...rescheduleEvidence]
+
+    newEvidances.splice(index, 1)
+
+    setRescheduleEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Handle Submit New Reschedule
   const handleSubmitReschedule = async () => {
+    const formData = new FormData()
+
+    formData.append('order_id', reschedule.order_id)
+    formData.append('status_id', reschedule.status_id)
+    formData.append('reschedule_date', reschedule.reschedule_date)
+
+    formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
+    formData.append('reschedule_status[description]', reschedule.description)
+    formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
+
+    if (rescheduleEvidence?.length) {
+      rescheduleEvidence.forEach((item) => {
+        if (item) {
+          formData.append(`reschedule_evidences`, item, item?.name)
+        }
+      })
+    }
+
     await axios
-      .post(`${apiUrl}/reschedule`, reschedule, {
+      .post(`${apiUrl}/reschedule`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -170,7 +248,7 @@ const NewReschedule: FC = () => {
           })
         }
 
-        navigate('/complaint/reschedule')
+        navigate('/complaint/report-complaint')
       })
       .catch((error) => {
         console.error(error)
@@ -455,7 +533,7 @@ const NewReschedule: FC = () => {
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Tanggal Reschedule :</Form.Label>
                 <Form.Control
-                  name='request_survey'
+                  name='reschedule_date'
                   type='date'
                   min={today}
                   onChange={(e) => RescheduleFormHandler(e)}
@@ -463,15 +541,85 @@ const NewReschedule: FC = () => {
               </Form.Group>
             </Col>
 
-            <Col xxl={8} xl={8} md={8} sm={12}>
+            <Col xxl={4} xl={4} md={4} sm={12}>
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Alasan :</Form.Label>
                 <Form.Control
                   as='textarea'
                   className='reason'
-                  name='reason'
+                  name='description'
                   onChange={(e) => RescheduleFormHandler(e)}
                 />
+              </Form.Group>
+            </Col>
+
+            <Col xxl={4} xl={4} md={4} sm={12}>
+              <Form.Group>
+                <Form.Label>UPLOAD FILE PENDUKUNG</Form.Label>
+                <Form className='form-input-image' onClick={handleImageClick}>
+                  <Form.Control
+                    type='file'
+                    accept='image/jpeg, image/png'
+                    className='input-field-image'
+                    multiple
+                    hidden
+                    id='file-input'
+                    ref={evidenceRef}
+                    onChange={handleFileChange}
+                  />
+
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
+                </Form>
+
+                <ListGroup className='pt-3'>
+                  {rescheduleEvidence.length ? (
+                    rescheduleEvidence.map((item, index) => (
+                      <ListGroup>
+                        <ListGroup.Item
+                          key={`${item?.name}-${index}-${item?.type}`}
+                          className='d-flex justify-content-between align-items-center'
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                          <span className='upload-content' onClick={() => handleFileClick(index)}>
+                            {item?.name}
+                          </span>
+
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+
+                        {selectedFileIndex === index && item && (
+                          <Image
+                            key={`${previewImage} - ${index}`}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={URL.createObjectURL(item)}
+                            preview={{
+                              visible,
+                              src: URL.createObjectURL(item),
+                              onVisibleChange: (value) => {
+                                setVisible(value)
+                              },
+                            }}
+                          />
+                        )}
+                      </ListGroup>
+                    ))
+                  ) : (
+                    <ListGroup.Item className='d-flex justify-content-center'>
+                      Tidak ada file yang dipilih
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
               </Form.Group>
             </Col>
           </Row>

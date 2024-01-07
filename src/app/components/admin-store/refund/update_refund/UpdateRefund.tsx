@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './UpdateRefund.css'
 
@@ -7,7 +7,8 @@ import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, Button, Table} from 'react-bootstrap'
+import {Row, Col, Form, Button, Table, ListGroup} from 'react-bootstrap'
+import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -15,15 +16,6 @@ interface Option {
   readonly label: string
   readonly value: string
 }
-
-const components = {
-  DropdownIndicator: null,
-}
-
-const inputVoucher = (label: string) => ({
-  label,
-  value: label,
-})
 
 interface Refund {
   order_id: any
@@ -35,7 +27,6 @@ interface Refund {
   penalty_nominal: any
   approval_number: any
   voucher: string
-  // refund_voucher: Option[]
 }
 
 const UpdateRefundCS: FC = () => {
@@ -77,6 +68,15 @@ const UpdateRefundCS: FC = () => {
             approval_number: data.approval_number,
           })
 
+          if (data?.refund_evidences) {
+            const refundEvidencesValue = data.refund_evidences.map((item: any) => ({
+              id: item.id,
+              name: item.evidence_location,
+            }))
+
+            setRefundFiles(refundEvidencesValue)
+          }
+
           setRefundDetail(data)
         })
     } catch (error) {
@@ -87,11 +87,6 @@ const UpdateRefundCS: FC = () => {
   useEffect(() => {
     fetchRefundData()
   }, [])
-
-  const phoneNumber =
-    refundDetail?.orders.members.phone_number !== null
-      ? refundDetail?.orders.members.phone_number
-      : refundDetail?.orders.members.whatsapp_number
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -111,8 +106,22 @@ const UpdateRefundCS: FC = () => {
     voucher: '',
     penalty_nominal: '',
     approval_number: '',
-    // refund_voucher: [],
   })
+
+  const [refundFiles, setRefundFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
+  // Refund Order Id
+  useEffect(() => {
+    setRefundValues((prevRefundValues) => ({
+      ...prevRefundValues,
+      order_id: orderId,
+    }))
+  }, [refundValues, orderId])
 
   // Refund Status
   useEffect(() => {
@@ -127,52 +136,6 @@ const UpdateRefundCS: FC = () => {
       refund_status: statusId,
     }))
   }, [refundValues])
-
-  // Select Order
-  const handleChangeSelectOrder = (element: any) => {
-    const selectedOrder = element.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      store_id: selectedOrder,
-    }))
-
-    setOrderId(selectedOrder)
-  }
-
-  // Createable Multi Value
-  const [inputValue, setInputValue] = React.useState('')
-  const [value, setValue] = React.useState<readonly Option[]>([])
-
-  // const handleKeyDown: KeyboardEventHandler = (event) => {
-  //   if (!inputValue) return
-
-  //   switch (event.key) {
-  //     case 'Enter':
-  //     case 'Tab':
-  //       const newVoucher = inputVoucher(inputValue)
-
-  //       setValue((prev) => [...prev, newVoucher])
-  //       setInputValue('')
-
-  //       setRefundValues((prevValues) => ({
-  //         ...prevValues,
-  //         refund_voucher: [...prevValues.refund_voucher, newVoucher],
-  //       }))
-
-  //       event.preventDefault()
-  //   }
-  // }
-
-  // Handle Change Refund Voucher
-  const handleChangeRefundVoucher = (element: any) => {
-    const newRefundVoucher = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      voucher: newRefundVoucher,
-    }))
-  }
 
   // Handle Change Refund Date
   const today = new Date().toISOString().split('T')[0]
@@ -197,26 +160,6 @@ const UpdateRefundCS: FC = () => {
     }))
   }
 
-  // Change Approval Refund
-  const handleChangeApproveRefundDate = (element: any) => {
-    const newRefundApproveDate = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      date_approve: newRefundApproveDate,
-    }))
-  }
-
-  // Change Nomor Approval
-  const handleChangeApprovalNumber = (element: any) => {
-    const newRefundApproveDate = element.target.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      approval_number: newRefundApproveDate,
-    }))
-  }
-
   // Change Refund Notes
   const handleChangeRefundNotes = (element: any) => {
     const newRefundNotes = element.target.value
@@ -227,20 +170,47 @@ const UpdateRefundCS: FC = () => {
     }))
   }
 
-  // Change Nomor Approval
-  const handleChangePenaltyAmount = (element: any) => {
-    const newPenalyAmount = element.target.value
+  // Upload Order File Handler
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
 
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      penalty_nominal: newPenalyAmount,
-    }))
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
+
+      setRefundFiles(file)
+    }
   }
 
-  // Handle Submit New Refund
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...refundFiles]
+    newEvidances.splice(index, 1)
+    setRefundFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(refundFiles[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
+  }
+
+  // Handle Submit Update Refund
   const handleUpdateRefund = async () => {
     await axios
-      .post(`${apiUrl}/refund`, refundValues, {
+      .post(`${apiUrl}/refund/${params.id}`, refundValues, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -543,119 +513,126 @@ const UpdateRefundCS: FC = () => {
               <h1 className='text-uppercase'>formulir refund</h1>
             </div>
 
-            <div className='row mb-5'>
-              <div className='col-md-4'>
-                <div className='complaint-information'>
-                  <h4>Tanggal Pengajuan Refund : </h4>
+            <Row className='mb-5'>
+              <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Tanggal Pengajuan Refund</Form.Label>
 
                   <Form.Control
                     type='date'
-                    className='w-75'
+                    className='w-100'
                     min={today}
-                    onChange={(element) => handleChangeRefundDate(element)}
                     value={refundValues.date_of_filing}
+                    onChange={(element) => handleChangeRefundDate(element)}
                   />
-                </div>
-              </div>
+                </Form.Group>
+              </Col>
 
-              <div className='col-md-4'>
-                <div className='complaint-detail'>
-                  <h4>Alasan Refund :</h4>
+              <Col xxl={8} xl={8} lg={8} md={8} sm={12}>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Alasan Refund : </Form.Label>
 
                   <Form.Control
                     as='textarea'
                     className='desc-notes'
-                    onChange={(element) => handleChangeRefundDescription(element)}
                     value={refundValues.reason}
+                    onChange={(element) => handleChangeRefundDescription(element)}
                   />
-                </div>
-              </div>
+                </Form.Group>
+              </Col>
+            </Row>
 
-              <div className='col-xxl-4'></div>
-            </div>
+            <Row className='mb-5'>
+              <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                <Form.Group>
+                  <Form.Label>Upload File Pendukung</Form.Label>
+                  <Form className='form-input-image' onClick={handleImageClick}>
+                    <Form.Control
+                      type='file'
+                      accept='image/jpeg, image/png'
+                      className='input-field-image'
+                      multiple
+                      hidden
+                      id='file-input'
+                      ref={evidenceRef}
+                      onChange={handleFileChange}
+                    />
 
-            <div className='row'>
-              <div className='col-xxl-4'>
-                <div className='complaint-information mb-5'>
-                  <h4>Tanggal Approve Refund : </h4>
-                  <Form.Control
-                    type='date'
-                    min={today}
-                    className='w-75'
-                    onChange={(element) => handleChangeApproveRefundDate(element)}
-                    value={refundValues.date_approve}
-                  />
-                </div>
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  </Form>
 
-                <div className='complaint-information'>
-                  <h4>Nomor Approval : </h4>
-                  <Form.Control
-                    type='number'
-                    className='w-75'
-                    onChange={(element) => handleChangeApprovalNumber(element)}
-                    value={refundValues.approval_number}
-                  />
-                </div>
-              </div>
+                  <ListGroup className='pt-3'>
+                    {refundFiles.length ? (
+                      refundFiles.map((item, index) => (
+                        <ListGroup>
+                          <ListGroup.Item
+                            className='d-flex justify-content-between align-items-center'
+                            key={`${item?.name}-${index}-${item?.type}`}
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-              <div className='col-xxl-4'>
-                <div className='complaint-information'>
-                  <h4>Notes</h4>
+                            <span className='upload-content' onClick={() => handleFileClick(index)}>
+                              {item?.name}
+                            </span>
+
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+
+                          {selectedFileIndex === index && item && (
+                            <Image
+                              key={`${previewImage} - ${index}`}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/refund/${previewImage}`
+                              }
+                              preview={{
+                                visible,
+                                src:
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/refund/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisible(value)
+                                },
+                              }}
+                            />
+                          )}
+                        </ListGroup>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
+                      </ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Form.Group>
+              </Col>
+
+              <Col xxl={8} xl={8} lg={8} md={8} sm={12}>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Notes : </Form.Label>
+
                   <Form.Control
                     as='textarea'
                     className='desc-notes'
-                    onChange={(element) => handleChangeRefundNotes(element)}
                     value={refundValues.notes}
+                    onChange={(element) => handleChangeRefundNotes(element)}
                   />
-                </div>
-              </div>
-
-              <div className='col-xxl-4'>
-                <div className='row'>
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Customer</h4>
-                    <h4 className='mb-5'>Input Voucher</h4>
-
-                    <Form.Control
-                      type='text'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangeRefundVoucher(element)}
-                      value={refundValues.voucher}
-                    />
-
-                    {/* <CreatableSelect
-                      className='mt-5 mb-5'
-                      components={components}
-                      inputValue={inputValue}
-                      isClearable
-                      isMulti
-                      menuIsOpen={false}
-                      onChange={(newValue) => setValue(newValue)}
-                      onInputChange={(newValue) => setInputValue(newValue)}
-                      onKeyDown={handleKeyDown}
-                      placeholder='Input Kode Voucher dan Pencet Enter'
-                      value={value}
-                    /> */}
-
-                    <Button variant='primary'>Voucher</Button>
-                  </div>
-
-                  <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Vendor</h4>
-                    <h4 className='mb-2'>Input Nominal Denda</h4>
-
-                    <Form.Control
-                      type='number'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangePenaltyAmount(element)}
-                      value={refundValues.penalty_nominal}
-                    />
-
-                    <Button variant='danger'>Penalty</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+                </Form.Group>
+              </Col>
+            </Row>
           </div>
 
           <div className='d-flex justify-content-center'>

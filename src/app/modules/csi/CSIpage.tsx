@@ -40,6 +40,7 @@ const CSIpage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>SURVEY KEPUASAN PELANGGAN</PageTitle>
             <ViewCSI />
           </>
@@ -57,6 +58,7 @@ const CSIpage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMAT PERTANYAAN CSI</PageTitle>
             <NewCSI />
           </>
@@ -74,6 +76,7 @@ const CSIpage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>CSI DASHBOARD</PageTitle>
             <ReportCSI />
           </>

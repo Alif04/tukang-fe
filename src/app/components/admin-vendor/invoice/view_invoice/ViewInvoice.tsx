@@ -5,7 +5,7 @@ import './ViewInvoice.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {Table, Tag} from 'antd'
+import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
@@ -35,6 +35,10 @@ interface DataType {
 const ViewInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [invoiceData, setInvoiceData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -224,8 +228,6 @@ const ViewInvoiceVendor: FC = () => {
     },
   ]
 
-  const [invoiceData, setInvoiceData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -233,7 +235,7 @@ const ViewInvoiceVendor: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchInvoiceList = async () => {
+  const fetchInvoiceList = async (page: number, pageSize: number) => {
     try {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -245,7 +247,7 @@ const ViewInvoiceVendor: FC = () => {
         const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statuses}&take=0`,
+          `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statuses}&page=${page}&take=${pageSize}`,
           {
             headers: {
               Accept: 'application/json',
@@ -256,6 +258,9 @@ const ViewInvoiceVendor: FC = () => {
           }
         )
 
+        setCurrentPage(response.data.page)
+        setTotalData(response.data.total)
+
         return response.data.data.data
       } else {
         console.error('Desired status not found in statusData')
@@ -265,9 +270,9 @@ const ViewInvoiceVendor: FC = () => {
     }
   }
 
-  const ViewInvoice = async () => {
+  const ViewInvoice = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchInvoiceList()
+      const apiData = await fetchInvoiceList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -303,14 +308,24 @@ const ViewInvoiceVendor: FC = () => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewInvoice()
-      setInvoiceData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewInvoice(page, pageSize)
+    setInvoiceData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [dateFrom, dateTo, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='view-invoice'>
@@ -366,7 +381,22 @@ const ViewInvoiceVendor: FC = () => {
             columns={columns}
             dataSource={invoiceData}
             rowKey={(record) => record.invoice_id}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Invoice
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

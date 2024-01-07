@@ -23,7 +23,9 @@ interface Status {
   category: string
 }
 
-const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({updatePageTitle}) => {
+const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -605,9 +607,21 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
             </Col>
           </Row>
 
-          <div className='d-flex justify-content-center mt-5'>
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitReschedule}>
-              Save Update
+          <div className='d-flex justify-content-center align-items-center'>
+            <Button
+              variant='light-danger'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+            >
+              Rejected
+            </Button>
+
+            <Button
+              variant='dark-success'
+              className='d-flex justify-content-center align-items-center'
+              type='submit'
+            >
+              Approved
             </Button>
           </div>
         </Card.Body>
@@ -616,4 +630,4 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
   )
 }
 
-export {UpdateReschedule}
+export {UpdateRescheduleHO}

@@ -1,0 +1,51 @@
+/* Table */
+#view-report-ho .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#view-report-ho
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#view-report-ho
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-report-ho .table-view-order .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-report-ho .table-view-order .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-report-ho .table-view-order .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-report-ho .table-view-order .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#view-report-ho .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#view-report-ho .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}

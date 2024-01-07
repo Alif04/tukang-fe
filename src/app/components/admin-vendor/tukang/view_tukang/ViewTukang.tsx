@@ -6,7 +6,7 @@ import './ViewTukang.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
-import {Table} from 'antd'
+import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
@@ -29,6 +29,10 @@ const ViewTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const userRole = localStorage.getItem('userRole')
+
+  const [tukangData, setTukangData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [joinDate, setJoinDate] = useState<any>('')
   const [endDate, setEndDate] = useState<any>('')
@@ -236,8 +240,6 @@ const ViewTukangVendor: FC = () => {
     },
   ]
 
-  const [tukangData, setTukangData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -245,10 +247,10 @@ const ViewTukangVendor: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchTukangList = async () => {
+  const fetchTukangList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/tukang?date_from=${joinDate}&date_to=${endDate}&search=${searchFilter}&take=0`,
+        `${apiUrl}/tukang?date_from=${joinDate}&date_to=${endDate}&search=${searchFilter}&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',
@@ -258,15 +260,18 @@ const ViewTukangVendor: FC = () => {
           },
         }
       )
+
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewTukang = async () => {
+  const ViewTukang = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchTukangList()
+      const apiData = await fetchTukangList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -303,14 +308,24 @@ const ViewTukangVendor: FC = () => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewTukang()
-      setTukangData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewTukang(page, pageSize)
+    setTukangData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [joinDate, endDate, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   useEffect(() => {
     const getTukangService = async () => {
@@ -410,7 +425,22 @@ const ViewTukangVendor: FC = () => {
             columns={columns}
             dataSource={tukangData}
             rowKey={(record) => record.tukang_id}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Total Tukang
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

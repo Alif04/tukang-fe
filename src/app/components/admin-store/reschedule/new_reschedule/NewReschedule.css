@@ -53,6 +53,34 @@
   background-color: #0300b5 !important;
 }
 
+#new-reschedule .btn.btn-dark-success {
+  width: 100px;
+  height: 35px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#new-reschedule .btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #7cb920 !important;
+}
+
+#new-reschedule .btn.btn-light-danger {
+  width: 100px;
+  height: 35px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#new-reschedule .btn.btn-light-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
 @media screen and (max-width: 1200px) {
   #new-reschedule .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
