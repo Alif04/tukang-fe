@@ -118,13 +118,13 @@ const NewStore: FC = () => {
           },
         })
 
-        const data = response.data
+        console.log(response.data.data.code)
 
         if (response.status === 200) {
           const {data} = response
           setStoreInfo((prev) => ({
             ...prev,
-            id: data.id,
+            id: data.data.code,
           }))
         }
       } catch (err) {
@@ -314,9 +314,10 @@ const NewStore: FC = () => {
                   <Form.Group>
                     <Form.Label>Toko ID</Form.Label>
                     <Form.Control
-                      name='store_id'
+                      name='id'
                       type='number'
                       readOnly
+                      value={storeInfo.id?.toString()}
                       onChange={(e) => storeInfoFormHandler(e)}
                     />
                   </Form.Group>

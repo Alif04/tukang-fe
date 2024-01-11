@@ -113,8 +113,6 @@ const NewComplaintHO: FC = () => {
         },
       })
 
-      console.log(response, response.status)
-
       if (response.status === 200) {
         const {data} = response
         setComplaintCode(data.data.code)
@@ -171,7 +169,7 @@ const NewComplaintHO: FC = () => {
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'INVESTIGATED')
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value
 
     setComplaintStatus(statusId)
   }, [complaintStatus])

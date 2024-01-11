@@ -1072,7 +1072,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       onChange={handleFileChangeKTP}
                     />
 
-                    <Form.Label>KTP</Form.Label>
+                    <Form.Label className='me-2'>KTP</Form.Label>
 
                     <div className='d-flex'>
                       <Form.Label className='me-2 text-decoration-underline text-primary'>
@@ -1099,7 +1099,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       onChange={handleFileChangeNPWP}
                     />
 
-                    <Form.Label>NPWP</Form.Label>
+                    <Form.Label className='me-2'>NPWP</Form.Label>
 
                     <div className='d-flex'>
                       <Form.Label className='me-2 text-decoration-underline text-primary'>
@@ -1212,7 +1212,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       checked={isActive.suip}
                       onChange={() => handleFormCheckbox('suip')}
                     />
-                    <Form.Label className='ms-2'>SUIP</Form.Label>
+                    <Form.Label className='ms-2'>SIUP</Form.Label>
                   </div>
 
                   <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>

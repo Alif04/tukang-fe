@@ -133,7 +133,7 @@ const NewRefundHO: FC = () => {
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'REFUND')
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value
 
     setRefundValues((prevRefundValues) => ({
       ...prevRefundValues,

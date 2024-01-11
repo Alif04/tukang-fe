@@ -879,7 +879,7 @@ const NewVendorHO: FC = () => {
                       onChange={handleFileChangeKTP}
                     />
 
-                    <Form.Label>KTP</Form.Label>
+                    <Form.Label className='me-2'>KTP</Form.Label>
 
                     <div className='d-flex'>
                       <Form.Label className='me-2 text-decoration-underline text-primary'>
@@ -890,7 +890,12 @@ const NewVendorHO: FC = () => {
                     </div>
                   </div>
 
-                  <Form.Control type='number' onChange={handleChangeKTPNumber} value={ktpNumber} />
+                  <Form.Control
+                    type='number'
+                    placeholder='Isi Nomor KTP'
+                    onChange={handleChangeKTPNumber}
+                    value={ktpNumber}
+                  />
                 </Form.Group>
               </Row>
 
@@ -906,7 +911,7 @@ const NewVendorHO: FC = () => {
                       onChange={handleFileChangeNPWP}
                     />
 
-                    <Form.Label>NPWP</Form.Label>
+                    <Form.Label className='me-2'>NPWP</Form.Label>
 
                     <div className='d-flex'>
                       <Form.Label className='me-2 text-decoration-underline text-primary'>
@@ -918,7 +923,8 @@ const NewVendorHO: FC = () => {
                   </div>
 
                   <Form.Control
-                    type='texnumber'
+                    type='number'
+                    placeholder='Isi Nomor NPWP'
                     onChange={handleChangeNPWPNumber}
                     value={npwpNumber}
                   />
@@ -1018,7 +1024,7 @@ const NewVendorHO: FC = () => {
                       checked={isActive.suip}
                       onChange={() => handleFormCheckbox('suip')}
                     />
-                    <Form.Label className='ms-2'>SUIP</Form.Label>
+                    <Form.Label className='ms-2'>SIUP</Form.Label>
                   </div>
 
                   <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>

@@ -37,7 +37,9 @@ const WorkOrderPage: React.FC = () => {
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LIST WORK ORDER</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              LIST ORDER INSTALLASI & SERVICE MITRA10
+            </PageTitle>
             <ViewWork />
           </>
         }

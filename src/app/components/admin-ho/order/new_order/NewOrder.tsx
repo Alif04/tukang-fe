@@ -391,7 +391,7 @@ const NewOrderHO: FC = () => {
 
     const desiredStatusName = 'SURVEYREQ'
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value ?? null
 
     setOrderForm({
       ...orderForm,
