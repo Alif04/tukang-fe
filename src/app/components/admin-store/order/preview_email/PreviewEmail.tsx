@@ -153,7 +153,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   orderDetail?.order_details.map((item: any, index: any) => (
                     <>
                       <tr key={`${index} - order_detail`}>
-                        <td>{item?.item_id}</td>
+                        <td>{item?.item_code}</td>
                         <td>{item?.item_name}</td>
                         <td>{item?.item?.service_name}</td>
                         <td>{item?.quantity}</td>

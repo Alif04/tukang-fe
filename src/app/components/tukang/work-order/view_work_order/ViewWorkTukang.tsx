@@ -223,7 +223,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     try {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: any) => status.category.includes('SURVEY'))
+      const desiredStatus = statusData.filter((status: any) => status.category.includes('WORK'))
 
       if (desiredStatus) {
         const statuses = desiredStatus.map((x) => x.value)

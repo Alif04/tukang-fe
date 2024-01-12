@@ -19,6 +19,7 @@ type Props = {
 }
 
 const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -185,35 +186,21 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
 
   const fetchOrderList = async (page: number, pageSize: number) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
+      const response = await axios.get(
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      const desiredStatusName = 'PICKLIST'
-      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-
-      if (desiredStatus) {
-        const statusId = desiredStatus.value
-
-        const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statusId}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-
-        setCurrentPage(response.data.page)
-        setTotalData(response.data.total)
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

@@ -288,17 +288,17 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
         <AsideMenuItem
+          to='/costumers/new-costumers'
+          title='Register Customers'
+          role={['Admin HO']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
           to='/costumers/view-costumers'
           title='View Customers'
           role={['Admin HO']}
           hasBullet={true}
         />
-        {/* <AsideMenuItem
-          to='/costumers/new-costumers'
-          title='Register Customers'
-          role={['Admin HO']}
-          hasBullet={true}
-        /> */}
       </AsideMenuItemWithSub>
 
       {/* Halaman CSI */}

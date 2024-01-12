@@ -438,7 +438,7 @@ const NewTukangVendor: FC = () => {
 
               <Form.Group className='tukang-info'>
                 <Form.Label>Tukang ID</Form.Label>
-                <Form.Control type='number' readOnly value={tukangId} />
+                <Form.Control type='number' disabled value={tukangId} />
               </Form.Group>
 
               <Form.Group className='tukang-info'>

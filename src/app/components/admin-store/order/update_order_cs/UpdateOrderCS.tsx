@@ -991,7 +991,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 <Form.Label>No Receipt</Form.Label>
                 <Form.Control
                   name='receipt_number'
-                  type='number'
+                  type='text'
                   value={orderForm.receipt_number}
                   onChange={(e) => orderFormHandler(e)}
                 />
@@ -1217,7 +1217,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <Form.Group>
-                <Form.Label>Upload File</Form.Label>
+                <Form.Label>Upload Receipt</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
                     type='file'
