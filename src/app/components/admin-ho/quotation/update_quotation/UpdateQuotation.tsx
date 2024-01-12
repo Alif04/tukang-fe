@@ -450,30 +450,44 @@ const UpdateQuotationHO: FC = () => {
 
     if (!quotationDescription) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill instruksi spesial form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeId) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please select store',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!quotationDate) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tanggal form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!quotationValidity) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill quotation valid until form',
-        icon: 'error',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!promosiDiscount) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill promotion (fill in 0 if not available)',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!additionalPromosi) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill additional promotion (fill in 0 if not available)',
+        icon: 'warning',
       })
       valid = false
     }

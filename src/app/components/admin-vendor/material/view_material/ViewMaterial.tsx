@@ -203,7 +203,7 @@ const ViewMaterialVendor: React.FC = () => {
 
         data = {
           material_id: item?.id,
-          store_name: item?.prices[0]?.store_id ?? '-',
+          store_name: item?.prices[0]?.store?.store_name ?? '-',
           product_name: item?.item_name ?? '-',
           service_name: item?.service_name ?? '-',
           default_price: `Rp. ${parseInt(item?.default_price ?? 0).toLocaleString('id')}`,

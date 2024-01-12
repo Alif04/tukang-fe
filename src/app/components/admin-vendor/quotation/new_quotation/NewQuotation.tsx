@@ -257,7 +257,7 @@ const NewQuotationVendor: FC = () => {
             const orderDetailItem = data.order_details.map((item: any, index: number) => ({
               id: item.id,
               index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
-              type: 1,
+              type: 2,
               item_id: item.item_id,
               work_order_item_id: null,
               category_id: null,
@@ -266,6 +266,7 @@ const NewQuotationVendor: FC = () => {
               is_user: item.is_customer ? 1 : 0,
               unit_price: parseInt(item.unit_price),
               final_price: parseInt(item.total),
+              margin: 0,
             }))
 
             const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(

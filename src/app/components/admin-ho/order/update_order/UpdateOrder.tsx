@@ -1131,7 +1131,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 <Col sm='8'>
                   <Form.Control
                     name='receipt_number'
-                    type='number'
+                    type='text'
                     value={orderForm.receipt_number}
                     onChange={(e) => orderFormHandler(e)}
                   />
