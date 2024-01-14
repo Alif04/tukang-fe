@@ -180,7 +180,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/work-orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statuses}&page=${page}&take=${pageSize}`,
+          `${apiUrl}/work-orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
           {
             headers: {
               Accept: 'application/json',
@@ -222,9 +222,9 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         data = {
           order_id: item?.order_id,
           date_order: formatDate(WorkOrderDate),
-          no_member: item?.members?.member_number ?? '-',
-          costumer_name: item?.members?.full_name ?? '-',
-          phone_number: item?.orders?.project_number ?? '-',
+          no_member: item?.order?.members?.member_number ?? '-',
+          costumer_name: item?.order?.members?.full_name ?? '-',
+          phone_number: item?.order?.project_number ?? '-',
           services_name: workOrderItems,
           status_order: item?.work_order_status[0]?.status?.category ?? '-',
         }

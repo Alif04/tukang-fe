@@ -105,54 +105,56 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
               />
 
-              <h3 className='store fw-bold text-uppercase'>{orderDetail?.store.store_name}</h3>
-              <h3 className='address fw-normal'>{orderDetail?.store.address}</h3>
+              <h3 className='store fw-bold text-uppercase text-center'>
+                {orderDetail?.store.store_name}
+              </h3>
+              <h3 className='address fw-normal text-center'>{orderDetail?.store.address}</h3>
             </div>
 
             <div className='body-printout d-flex justify-content-center align-items-center flex-column mt-5'>
-              <h2 className='fw-bold'>Instalasi & Service</h2>
-              <h4 className='fw-normal'>
+              <h2 className='fw-bold text-center'>Instalasi & Service</h2>
+              <h4 className='fw-normal text-center'>
                 Tanggal : {orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
               </h4>
             </div>
           </Row>
 
           <Row className='mt-5 mb-5'>
-            <Col>
+            <Col md='6' sm='6'>
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
+                <Form.Label column md='6' sm='12'>
                   Order ID :
                 </Form.Label>
-                <Col sm='6'>
+                <Col md='6' sm='12'>
                   <Form.Control plaintext readOnly value={orderDetail?.id} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
+                <Form.Label column md='6' sm='12'>
                   Member Name :
                 </Form.Label>
-                <Col sm='6'>
+                <Col md='6' sm='12'>
                   <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
+                <Form.Label column md='6' sm='12'>
                   No Telp / WA :
                 </Form.Label>
-                <Col sm='6'>
+                <Col md='6' sm='12'>
                   <Form.Control plaintext readOnly value={orderDetail?.project_number} />
                 </Col>
               </Form.Group>
             </Col>
 
-            <Col>
+            <Col md='6' sm='6'>
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
+                <Form.Label column md='6' sm='12'>
                   Tanggal Order :
                 </Form.Label>
-                <Col sm='6'>
+                <Col md='6'>
                   <Form.Control
                     plaintext
                     readOnly
@@ -162,20 +164,20 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               </Form.Group>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
+                <Form.Label column md='6' sm='12'>
                   Copy :
                 </Form.Label>
-                <Col sm='6'>
+                <Col md='6'>
                   <Form.Control plaintext readOnly value={orderDetail?.print_counter} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
+                <Form.Label column md='6' sm='12'>
                   Request Tanggal Survey :
                 </Form.Label>
 
-                <Col sm='6'>
+                <Col md='6'>
                   <Form.Control
                     plaintext
                     readOnly

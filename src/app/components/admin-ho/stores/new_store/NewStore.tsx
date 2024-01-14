@@ -261,6 +261,10 @@ const NewStore: FC = () => {
   }
 
   const handleSubmitNewStore = async () => {
+    if (!StoreValidation()) {
+      return false
+    }
+
     await axios
       .post(`${apiUrl}/stores`, storeInfo, {
         headers: {

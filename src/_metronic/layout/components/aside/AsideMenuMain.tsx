@@ -347,12 +347,12 @@ export function AsideMenuMain() {
         title='Invoice'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin Vendor']}
+        role={['Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItem
           to='/invoice/view-invoice'
           title='List Invoice'
-          role={['Admin Vendor']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -397,7 +397,7 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       {/* Halaman Payment */}
-      {/* <AsideMenuItemWithSub
+      <AsideMenuItemWithSub
         to='/payment'
         title='Payment'
         icon='/media/icons/duotune/communication/com006.svg'
@@ -410,19 +410,21 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
-        <AsideMenuItem
+
+        {/* <AsideMenuItem
           to='/payment/new-payment'
           title='New Payment'
           role={['Admin HO']}
           hasBullet={true}
-        />
-        <AsideMenuItem
+        /> */}
+
+        {/* <AsideMenuItem
           to='/payment/detail-payment'
           title='Detail Payment'
           role={['Admin HO']}
           hasBullet={true}
-        />
-      </AsideMenuItemWithSub> */}
+        /> */}
+      </AsideMenuItemWithSub>
 
       {/* Halaman Refund */}
       <AsideMenuItemWithSub
@@ -458,25 +460,44 @@ export function AsideMenuMain() {
         fontIcon='bi-app-indicator'
         role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Admin Vendor']}
       >
+        <AsideMenuItemWithSub to='/bank' title='Bank' hasBullet={true} role={['Admin HO']}>
+          <AsideMenuItem
+            to='/bank/view-bank'
+            title='Daftar Bank'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+          <AsideMenuItem
+            to='/bank/new-bank'
+            title='Register Bank'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
+
         <AsideMenuItem
           to='/email/format-email'
           title='Format Email'
           role={['Admin HO']}
           hasBullet={true}
         />
+
         <AsideMenuItem
           to='/csi/format-pertanyaan-csi'
           title='Format Pertanyaan CSI'
           role={['Admin HO']}
           hasBullet={true}
         />
+
         <AsideMenuItem
           to='/sales/new-sales'
           title='Register Sales'
           role={['Store CS']}
           hasBullet={true}
         />
+
         <AsideMenuItem to='/item/new-item' title='Set Items' role={['Admin HO']} hasBullet={true} />
+
         <AsideMenuItemWithSub to='/store' title='Store' hasBullet={true} role={['Admin HO']}>
           <AsideMenuItem
             to='/store/view-store'
@@ -491,6 +512,7 @@ export function AsideMenuMain() {
             hasBullet={true}
           />
         </AsideMenuItemWithSub>
+
         <AsideMenuItemWithSub to='/tukang' title='Tukang' hasBullet={true} role={['Admin HO']}>
           <AsideMenuItem
             to='/tukang/view-tukang'
@@ -499,13 +521,14 @@ export function AsideMenuMain() {
             hasBullet={true}
           />
         </AsideMenuItemWithSub>
+
         {/* <AsideMenuItem
           to='/item/view-item'
           title='List Items'
           role={['Admin HO']}
           hasBullet={true}
         /> */}
-        {/* Halaman Material */}
+
         <AsideMenuItemWithSub
           to='/material'
           title='Material'

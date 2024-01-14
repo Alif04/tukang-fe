@@ -5,7 +5,8 @@ import './DetailWorkOrder.css'
 
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
-import {Form, Row, Col, Table} from 'react-bootstrap'
+import {Image} from 'antd'
+import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
 import {Steps} from 'antd'
 
 interface Status {
@@ -18,6 +19,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   const params = useParams()
 
   const [orderDetail, setOrderDetail] = useState<any>()
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const fetchOrderData = async () => {
     try {
@@ -63,7 +67,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
   const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
-  const workDoneStatuses = getStatuses(['WARRANTYCLAIM', 'DONE'])
+  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},
@@ -234,6 +238,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         {orderDetail?.work_orders !== null ? (
                           <p className='fs-7'>
                             {orderDetail?.work_orders?.work_order_tukang
+                              .filter((x: any) => x.type === 1)
                               .map((item: any) => item?.tukang?.full_name)
                               .join(', ')}
                           </p>
@@ -259,7 +264,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                               {formatDateTime(new Date(orderDetail?.work_orders?.work_start_date))}
                             </p>
                           ) : (
-                            'Jadwal belum diset oleh tukang'
+                            'Jadwal belum diset oleh vendor'
                           )}
                         </Col>
                       </Form.Group>
@@ -285,6 +290,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         {orderDetail?.work_orders !== null ? (
                           <p className='fs-7'>
                             {orderDetail?.work_orders?.work_order_tukang
+                              .filter((x: any) => x.type === 2)
                               .map((item: any) => item?.tukang?.full_name)
                               .join(', ')}
                           </p>
@@ -317,7 +323,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.work_orders !== null ? (
+                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length > 0 ? (
                     <>
                       {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                         (item: any, index: any) => (
@@ -361,6 +367,86 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               </Table>
             </div>
           </Row>
+
+          {orderDetail?.work_orders?.work_order_evidences.length > 0 && (
+            <Row>
+              <Col>
+                <Form.Label className='mt-3'>Work Before :</Form.Label>
+                <ListGroup>
+                  {orderDetail?.work_orders?.work_order_evidences
+                    .filter((x: any) => x.type === 2)
+                    .map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisible(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
+                </ListGroup>
+
+                {previewImage && (
+                  <div>
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/work-orders/${previewImage}`}
+                      preview={{
+                        visible,
+                        src: `${apiUrl}/public/work-orders/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisible(value)
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+              </Col>
+
+              <Col>
+                <Form.Label className='mt-3'>Work After :</Form.Label>
+                <ListGroup>
+                  {orderDetail?.work_orders?.work_order_evidences
+                    .filter((x: any) => x.type === 3)
+                    .map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisible(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
+                </ListGroup>
+
+                {previewImage && (
+                  <div>
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/work-orders/${previewImage}`}
+                      preview={{
+                        visible,
+                        src: `${apiUrl}/public/work-orders/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisible(value)
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+              </Col>
+            </Row>
+          )}
 
           <div className='order-history mt-3 mb-3'>
             <div className='fs-3 text-uppercase fw-bold text-black mb-4'>Order History</div>

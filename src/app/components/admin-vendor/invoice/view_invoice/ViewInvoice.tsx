@@ -15,12 +15,6 @@ import {faBook, faPen, faTrash, faSearch, faPlus, faFilter} from '@fortawesome/f
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
-interface Status {
-  value: any
-  category: string
-  label: string
-}
-
 interface DataType {
   invoice_id: number
   order_id: number
@@ -237,34 +231,22 @@ const ViewInvoiceVendor: FC = () => {
 
   const fetchInvoiceList = async (page: number, pageSize: number) => {
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: any) =>
-        status.category.includes('WORKEND', 'INVOICED')
+      const response = await axios.get(
+        `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
       )
 
-      if (desiredStatus) {
-        const statuses = desiredStatus.map((x) => x.value)
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
 
-        const response = await axios.get(
-          `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statuses}&page=${page}&take=${pageSize}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-
-        setCurrentPage(response.data.page)
-        setTotalData(response.data.total)
-
-        return response.data.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

@@ -51,6 +51,7 @@
     "sass": "1.50.1",
     "socicon": "3.0.5",
     "sweetalert2": "^11.7.20",
+    "xlsx": "^0.18.5",
     "yup": "0.32.11"
   },
   "devDependencies": {

@@ -92,7 +92,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
   const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
-  const workDoneStatuses = getStatuses(['WARRANTYCLAIM', 'DONE'])
+  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},

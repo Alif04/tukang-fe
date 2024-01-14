@@ -1,273 +1,406 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react'
+import React, {useState, useEffect, FC} from 'react'
 
 import './ViewInvoice.css'
 
-import {Table} from 'antd'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons'
-
 import {useNavigate} from 'react-router-dom'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faBook, faPen, faTrash, faSearch, faPlus, faFilter} from '@fortawesome/free-solid-svg-icons'
 
-type Props = {
-  className: string
-}
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
 
 interface DataType {
-  key: React.Key
-  order_id: string
-  date_order: string
-  quotation_id: string
-  invoice_id: string
+  invoice_id: number
   invoice_date: string
   vendor_name: string
-  amount: string
-  payment_status: string
-  order_status: string
+  amount: number
+  invoice_status: string
 }
 
-const EditButton = () => {
+interface InvoiceData {
+  status_id: number | null
+  payment_request: Array<{
+    invoice_id?: number | null
+  }>
+}
+
+const ViewInvoiceHO: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  const handleEdit = () => {
-    navigate('/order/update-order')
+  const [invoiceData, setInvoiceData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
+
+  // Update Invoice
+  const [invoices, setInvoices] = useState<InvoiceData>({
+    status_id: null,
+    payment_request: [
+      {
+        invoice_id: null,
+      },
+    ],
+  })
+
+  // Update Status Invoice
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatus = statusData.find((status: any) => status.category === 'PAID')
+    const statusId = desiredStatus.value
+
+    setInvoices((prev) => ({
+      ...prev,
+      status_id: statusId,
+    }))
+  }, [invoices])
+
+  // Filter Table
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
+  }
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Invoice ID',
+      dataIndex: 'invoice_id',
+      key: 'invoice_id',
+      align: 'center',
+      width: 100,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.invoice_id - b.invoice_id,
+    },
+    {
+      title: 'Invoice Date',
+      dataIndex: 'invoice_date',
+      key: 'invoice_date',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.invoice_date.includes(String(value)),
+      sorter: (a, b) => a.invoice_date.length - b.invoice_date.length,
+    },
+    {
+      title: 'Vendor Name',
+      dataIndex: 'vendor_name',
+      key: 'vendor_name',
+      align: 'center',
+      width: 140,
+      onFilter: (value, record) => record.vendor_name.includes(String(value)),
+      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      align: 'center',
+      width: 100,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.amount - b.amount,
+    },
+    {
+      title: 'Invoice Status',
+      dataIndex: 'invoice_status',
+      key: 'invoice_status',
+      align: 'center',
+      width: 140,
+      onFilter: (value, record) => record.invoice_status.includes(String(value)),
+      sorter: (a, b) => a.invoice_status.length - b.invoice_status.length,
+      render: (invoice_status) => {
+        const orderStatus = invoice_status
+        let color = ''
+
+        switch (orderStatus) {
+          case 'UNPAID':
+            color = 'red'
+            break
+          case 'INVOICE':
+            color = 'green'
+            break
+          case 'INVOICESEND':
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
+      filters: [
+        {text: 'INVOICE', value: 'INVOICE'},
+        {text: 'INVOICESEND', value: 'INVOICESEND'},
+      ],
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      fixed: 'right',
+      width: 70,
+      align: 'center',
+      render: (record) => {
+        // const handleUpdateInvoice = () => {
+        //   const id = record.invoice_id
+        //   navigate(`/invoice/update-invoice/${id}`)
+        // }
+
+        const handleDetailInvoice = () => {
+          const id = record.invoice_id
+          navigate(`/invoice/detail-invoice/${id}`)
+        }
+
+        return (
+          <div className='button-wrapper d-flex justify-content-center'>
+            <a className='button-detail ' onClick={handleDetailInvoice}>
+              <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
+
+            {/* 
+            <a className='button-edit' onClick={handleUpdateInvoice}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
+            </a> */}
+          </div>
+        )
+      },
+    },
+  ]
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  const fetchInvoiceList = async (page: number, pageSize: number) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
+
+      return response.data.data.data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewInvoice = async (page: number, pageSize: number) => {
+    try {
+      const apiData = await fetchInvoiceList(page, pageSize)
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const invoiceData = apiData.map((item: any) => {
+        let data
+
+        data = {
+          invoice_id: item?.id,
+          invoice_date: formatDate(new Date(item?.created_at)),
+          vendor_name: item?.vendor?.company_name,
+          amount: `-`,
+          invoice_status: item?.status?.category,
+        }
+
+        return data
+      })
+
+      return invoiceData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
+    }
+  }
+
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewInvoice(page, pageSize)
+    setInvoiceData(data)
+  }
+
+  useEffect(() => {
+    fetchData(1, 10)
+  }, [dateFrom, dateTo, searchFilter])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
+
+  // Selected Row
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+      setInvoices((prevInvoices) => ({
+        ...prevInvoices,
+        payment_request: selectedRowKeys.map((key) => ({
+          invoice_id: Number(key),
+        })),
+      }))
+      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+    },
+  }
+
+  // Handle Approve Invoice
+  const handleApproveInvoice = async () => {
+    const formData = new FormData()
+
+    formData.append('status_id', String(invoices.status_id))
+
+    invoices.payment_request.forEach((invoice) => {
+      if (invoice.invoice_id !== null) {
+        formData.append(`invoice_id`, String(invoice.invoice_id))
+      }
+    })
+
+    await axios
+      .post(`${apiUrl}/invoices/payment`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Add Payment Request',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            window.location.reload()
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
   }
 
   return (
-    <a className='button-edit' onClick={handleEdit}>
-      <FontAwesomeIcon icon={faPen} size='sm' />
-    </a>
-  )
-}
-
-const DeleteButton = () => (
-  <a className='button-delete'>
-    <FontAwesomeIcon icon={faTrash} size='sm' />
-  </a>
-)
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 100,
-    className: 'col_order_id',
-  },
-  {
-    title: 'Date Order',
-    dataIndex: 'date_order',
-    key: 'date_order',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Quotation ID',
-    dataIndex: 'quotation_id',
-    key: 'quotation_id',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Invoice ID',
-    dataIndex: 'invoice_id',
-    key: 'invoice_id',
-    align: 'left',
-    width: 110,
-  },
-  {
-    title: 'Invoice Date',
-    dataIndex: 'invoice_date',
-    key: 'invoice_date',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Vendor Name',
-    dataIndex: 'vendor_name',
-    key: 'vendor_name',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Amount',
-    dataIndex: 'amount',
-    key: 'amount',
-    align: 'center',
-    width: 110,
-  },
-  {
-    title: 'Payment Status',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Order Status',
-    dataIndex: 'order_status',
-    key: 'order_status',
-    align: 'left',
-    width: 140,
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <div className='button-wrapper'>
-        <EditButton />
-        <DeleteButton />
-      </div>
-    ),
-    fixed: 'right',
-    width: 70,
-  },
-]
-
-const data: DataType[] = [
-  {
-    key: '1',
-    order_id: '78453992',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '2',
-    order_id: '78453993',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '3',
-    order_id: '78453994',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '4',
-    order_id: '78453995',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '5',
-    order_id: '78453996',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '6',
-    order_id: '78453997',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-  {
-    key: '7',
-    order_id: '78453998',
-    date_order: '10/2/2023',
-    quotation_id: '898393',
-    invoice_id: '990088',
-    invoice_date: '10/2/2023',
-    vendor_name: 'PT.ABC',
-    amount: '500.000',
-    payment_status: 'PAID',
-    order_status: 'DONE',
-  },
-]
-
-const rowSelection = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
-  },
-}
-
-const ViewInvoiceHO: React.FC<Props> = ({className}) => {
-  return (
     <section id='view-invoice'>
-      <div className={`card ${className}`}>
+      <div className='card'>
         <div className='card-body table-view-order'>
-          <Row className='mb-5'>
-            <Col xxl={4}></Col>
+          <Row className='table-head-wrapper'>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+              <div className='d-flex align-items-center me-3'>
+                <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
+                <h3 className='fs-3 fw-normal'>Date : </h3>
+              </div>
 
-            <Col xxl={4}>
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
                     <FontAwesomeIcon icon={faSearch} size='sm' />
                   </InputGroup.Text>
 
-                  <Form.Control placeholder='Filter' className='filter-ltr' />
+                  <Form.Control
+                    placeholder='Search'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
                 </InputGroup>
               </div>
             </Col>
 
-            <Col xxl={4} className='d-flex justify-content-end'>
-              <button className='button-export '>
-                Export To Excel
-                <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
-              </button>
-            </Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
           </Row>
 
           <Table
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={data}
-            rowSelection={{
-              type: 'checkbox',
-              ...rowSelection,
+            dataSource={invoiceData}
+            rowSelection={rowSelection}
+            rowKey={(record) => record.invoice_id}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Invoice
+                </span>
+              ),
             }}
-            rowKey={(record) => record.key}
-            scroll={{x: 1500}}
-            pagination={{position: ['bottomRight']}}
           />
+
+          <div className='d-flex justify-content-center align-items-center mt-3'>
+            <Button
+              className='d-flex justify-content-center align-items-center'
+              variant='dark-success'
+              type='submit'
+              onClick={() => handleApproveInvoice()}
+            >
+              Approve Invoice
+            </Button>
+          </div>
         </div>
       </div>
     </section>

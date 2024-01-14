@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef, SetStateAction} from 'react'
+import {WorkOrder} from '../../../../interfaces/work-order'
 
 import './UpdateWorkOrder.css'
 
@@ -61,7 +62,9 @@ interface Tukang {
   type: number
 }
 
-const UpdateWorkTukang: FC = () => {
+const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -109,6 +112,7 @@ const UpdateWorkTukang: FC = () => {
   const [previewWorkAfterImage, setPreviewWorkAfterImage] = useState<any>()
 
   const evidenceRef = useRef<HTMLInputElement>(null)
+
   const [visible, setVisible] = useState(false)
 
   // Add Work Order Item
@@ -236,6 +240,8 @@ const UpdateWorkTukang: FC = () => {
 
             setWorkOrderHistory(workOrderHistoryData)
           }
+
+          updatePageTitle(data)
         })
     } catch (error) {
       console.error(error)
@@ -1014,8 +1020,8 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <Form.Control
-                      // name='survey_date_time'
                       type='datetime-local'
+                      disabled
                       value={workOrder.survey_date_time}
                       onChange={(e) => workOrderHandler(e.target.value, 'survey_date_time')}
                     />
@@ -1027,17 +1033,16 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <Select
-                      // name='survey_tukang_id'
                       classNamePrefix='select'
-                      placeholder='Pilih Tehnisi'
                       closeMenuOnSelect={false}
-                      components={animatedComponents}
+                      isClearable={false}
+                      menuIsOpen={false}
                       isMulti
+                      components={animatedComponents}
                       options={tukang}
                       getOptionLabel={(option) => `${option.label}`}
                       getOptionValue={(option) => `${option.value}`}
                       value={workOrder.tukang_id.filter((x) => x.type === 1)}
-                      onChange={(e) => tukangHandler(e, 'survey_tukang_id')}
                     />
                   </Col>
                 </Form.Group>
@@ -1053,6 +1058,7 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <RangePicker
+                      disabled={[true, true]}
                       allowClear={false}
                       className='date-range w-100'
                       format='YYYY-MM-DD'
@@ -1081,10 +1087,14 @@ const UpdateWorkTukang: FC = () => {
                           })
                         }
                       }}
-                      value={[
-                        dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                        dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                      ]}
+                      value={
+                        (workOrder.work_start_date &&
+                          workOrder.work_end_date && [
+                            dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                            dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                          ]) ||
+                        undefined
+                      }
                     />{' '}
                   </Col>
                 </Form.Group>
@@ -1094,17 +1104,17 @@ const UpdateWorkTukang: FC = () => {
 
                   <Col sm='8'>
                     <Select
-                      // name='work_tukang_id'
+                      placeholder='Tukang belum diset oleh Vendor'
                       classNamePrefix='select'
-                      placeholder='Pilih Tehnisi'
                       closeMenuOnSelect={false}
-                      components={animatedComponents}
+                      isClearable={false}
+                      menuIsOpen={false}
                       isMulti
+                      components={animatedComponents}
                       options={tukang}
                       getOptionLabel={(option) => `${option.label}`}
                       getOptionValue={(option) => `${option.value}`}
                       value={workOrder.tukang_id.filter((x) => x.type === 2)}
-                      onChange={(e) => tukangHandler(e, 'work_tukang_id')}
                     />
                   </Col>
                 </Form.Group>

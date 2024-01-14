@@ -5,6 +5,7 @@ export interface WorkOrderTukang {
   id?: number | null
   tukang_id: number
   tukang_name: string
+  type: number
 }
 
 export interface WorkOrder {

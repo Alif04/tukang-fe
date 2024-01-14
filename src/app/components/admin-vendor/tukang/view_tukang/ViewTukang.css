@@ -60,6 +60,10 @@
   background-color: #e4e9f7;
 }
 
+#view-tukang .form-control.p-0.css-b62m3t-container {
+  z-index: 99999 !important;
+}
+
 /* Searchbar */
 
 #view-tukang .filter-search {

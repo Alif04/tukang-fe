@@ -202,6 +202,16 @@ export * from './admin-ho/stores/new_store/NewStore'
 // Update Store
 export * from './admin-ho/stores/update_store/UpdateStore'
 
+// BANK
+// List Bank
+export * from './admin-ho/bank/list_bank/ListBank'
+
+// New Bank
+export * from './admin-ho/bank/new_bank/NewBank'
+
+// Update Bank
+export * from './admin-ho/bank/update_bank/UpdateBank'
+
 // VENDOR
 // View Vendor
 export * from './admin-ho/vendor/view_vendor/ViewVendor'

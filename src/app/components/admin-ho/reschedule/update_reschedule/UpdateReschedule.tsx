@@ -105,7 +105,9 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatus = statusData.find((status: any) => status.category === 'RESCHEDULE')
+    const desiredStatus = statusData.find(
+      (status: any) => status.category === 'RESCHEDULEAPROVEDBYHO'
+    )
     const statusId = desiredStatus.value
 
     setReschedule((prevRescheduleValues) => ({
@@ -174,7 +176,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   }
 
   // Handle Update Reschedule
-  const handleSubmitReschedule = async () => {
+  const handleUpdateReschedule = async () => {
     const formData = new FormData()
 
     formData.append('order_id', reschedule.order_id)
@@ -620,6 +622,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               variant='dark-success'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              onClick={handleUpdateReschedule}
             >
               Approved
             </Button>

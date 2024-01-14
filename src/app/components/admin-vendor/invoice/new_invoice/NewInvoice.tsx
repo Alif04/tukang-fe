@@ -39,7 +39,7 @@ const NewInvoiceVendor: FC = () => {
   const navigate = useNavigate()
 
   // Table
-  const [workOrder, setWorkOrder] = useState<DataType[]>([])
+  const [order, setOrder] = useState<DataType[]>([])
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -215,7 +215,7 @@ const NewInvoiceVendor: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const getWorkOrder = async () => {
+  const getOrder = async () => {
     try {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData = storedStatus ? JSON.parse(storedStatus) : []
@@ -227,7 +227,7 @@ const NewInvoiceVendor: FC = () => {
         const statusId = desiredStatus.value
 
         const response = await axios.get(
-          `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
+          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
           {
             headers: {
               Accept: 'application/json',
@@ -246,9 +246,9 @@ const NewInvoiceVendor: FC = () => {
     }
   }
 
-  const ViewWorkOrder = async () => {
+  const ViewOrder = async () => {
     try {
-      const apiData = await getWorkOrder()
+      const apiData = await getOrder()
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -258,21 +258,22 @@ const NewInvoiceVendor: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const paymentStatus = item?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
-        const workOrderItems = item?.work_order_status[0]?.work_order_items
+        const paymentStatus = item?.receipt_number === null ? 'UNPAID' : 'PAID'
+
+        const workOrderItems = item?.work_orders?.work_order_status[0]?.work_order_items
           .map((service: any) => service.name ?? '-')
           .join(', ')
 
         data = {
-          order_id: item?.order_id,
-          store_name: item?.order?.store?.store_name,
-          date_order: formatDate(new Date(item?.order?.request_survey)),
-          member_id: item?.order?.members?.member_number,
-          member_name: item?.order?.members?.full_name,
-          phone_number: item?.order?.project_number,
+          order_id: item?.id,
+          store_name: item?.store?.store_name,
+          date_order: formatDate(new Date(item?.request_survey)),
+          member_id: item?.members?.member_number,
+          member_name: item?.members?.full_name,
+          phone_number: item?.project_number,
           service_name: workOrderItems,
           payment_status: paymentStatus,
-          order_status: item?.work_order_status[0]?.status?.category,
+          order_status: item?.work_orders?.work_order_status[0]?.status?.category,
         }
 
         return data
@@ -311,8 +312,8 @@ const NewInvoiceVendor: FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await ViewWorkOrder()
-      setWorkOrder(data)
+      const data = await ViewOrder()
+      setOrder(data)
     }
 
     fetchData()
@@ -321,14 +322,30 @@ const NewInvoiceVendor: FC = () => {
   // Selected Row
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+      setInvoices((prevInvoices) => ({
+        ...prevInvoices,
+        invoice_details: selectedRowKeys.map((key) => ({
+          quotation_id: Number(key),
+        })),
+      }))
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
   }
 
   // Handle Submit
   const handleCreateInvoice = async () => {
+    const formData = new FormData()
+
+    formData.append('vendor_id', String(invoices.vendor_id))
+
+    invoices.invoice_details.forEach((invoice, index) => {
+      if (invoice.quotation_id !== null) {
+        formData.append(`invoice_details[${index}][quotation_id]`, String(invoice.quotation_id))
+      }
+    })
+
     await axios
-      .post(`${apiUrl}/invoices`, invoices, {
+      .post(`${apiUrl}/invoices`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -345,7 +362,7 @@ const NewInvoiceVendor: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/store/view-store`)
+            navigate(`/invoice/view-invoice`)
           })
         } else {
           Swal.fire({
@@ -429,14 +446,14 @@ const NewInvoiceVendor: FC = () => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={workOrder}
+            dataSource={order}
             rowSelection={rowSelection}
             rowKey={(record) => record.order_id}
             pagination={{position: ['bottomRight']}}
             // scroll={{x: 1500}}
           />
 
-          <div className='d-flex justify-content-center align-items-center'>
+          <div className='d-flex justify-content-center align-items-center mt-3'>
             <Button
               className='d-flex justify-content-center align-items-center'
               variant='dark-success'

@@ -11,6 +11,9 @@ const DetailInvoiceVendor: FC = () => {
   const params = useParams()
 
   const [invoiceDetail, setInvoiceDetail] = useState<any>()
+  const [grandTotal, setGrandTotal] = useState<any>()
+
+  console.log(invoiceDetail)
 
   const fetchInvoiceData = async () => {
     try {
@@ -24,8 +27,11 @@ const DetailInvoiceVendor: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.invoice
+          const grandTotals = response?.data?.data?.totalQuotation ?? 0
+
           setInvoiceDetail(data)
+          setGrandTotal(grandTotals)
         })
     } catch (error) {
       console.error(error)
@@ -119,6 +125,7 @@ const DetailInvoiceVendor: FC = () => {
                     <tr>
                       <td>{item?.quotation?.order_id ?? '-'}</td>
                       <td>{formatDate(new Date(item?.quotation?.order?.request_survey)) ?? '-'}</td>
+
                       <td>{item?.quotation?.quotation_details[0]?.name ?? '-'}</td>
                       <td>{item?.quotation?.quotation_details[0]?.quantity ?? '-'}</td>
 
@@ -140,7 +147,7 @@ const DetailInvoiceVendor: FC = () => {
                   <td className=' fw-bolder'>Rp. 100.000</td>
                 </tr> */}
 
-                <tr>
+                {/* <tr>
                   <td colSpan={5} className='text-end fw-bolder'>
                     Tax ( 11 % )
                   </td>
@@ -149,7 +156,7 @@ const DetailInvoiceVendor: FC = () => {
                       invoiceDetail?.invoice_details[0]?.quotation?.quotation_disc
                     ).toLocaleString('id')}`}
                   </td>
-                </tr>
+                </tr> */}
 
                 <tr>
                   <td colSpan={5} className='text-end fw-bolder'>
@@ -157,9 +164,7 @@ const DetailInvoiceVendor: FC = () => {
                   </td>
 
                   <td className=' fw-bolder'>
-                    {`Rp. ${parseInt(
-                      invoiceDetail?.invoice_details[0]?.quotation?.quotation_grand_total
-                    ).toLocaleString('id')}`}
+                    {`Rp. ${parseInt(grandTotal).toLocaleString('id')}`}
                   </td>
                 </tr>
               </tbody>

@@ -282,6 +282,7 @@ const ViewTukangVendor: FC = () => {
         let data
 
         const BirthOfDay = new Date(item?.bod ?? '-')
+
         const tukangService = item?.tukang_service
           .map((tukang_service: any) => tukang_service?.service_type_id ?? '-')
           .join(', ')
@@ -330,7 +331,7 @@ const ViewTukangVendor: FC = () => {
   useEffect(() => {
     const getTukangService = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/tukang-service/data`, {
+        const response = await axios.get(`${apiUrl}/service-type`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -339,10 +340,10 @@ const ViewTukangVendor: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.tukang_service)) {
-          const tempTukangService = response.data.data.tukang_service.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempTukangService = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.service_type_id,
+            label: item.service_type,
           }))
 
           setTukangService(tempTukangService)
