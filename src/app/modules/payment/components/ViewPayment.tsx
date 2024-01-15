@@ -6,7 +6,7 @@ import {ViewPaymentHO} from '../../../components'
 const ViewPayment: React.FC = () => {
   return (
     <>
-      <ViewPaymentHO className='' />
+      <ViewPaymentHO />
     </>
   )
 }

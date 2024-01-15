@@ -1,5 +1,4 @@
-/* Card */
-
+/* 
 #update-work-order .card .card-body .information-wrapper {
   width: 330px;
 }
@@ -40,7 +39,6 @@
   padding: 0 0 20px 0;
 }
 
-/* Searchbar */
 
 #update-work-order .table-head-wrapper .filter-search .input-group {
   width: 600px;
@@ -55,7 +53,109 @@
   background-color: transparent;
 }
 
-/* Table */
+ */
+
+/* Form Layout */
+
+#update-work-order p {
+  padding: 3px 9.75px;
+}
+
+#update-work-order .form-wrapper {
+  margin-bottom: 30px;
+}
+
+#update-work-order .form-wrapper .form-header {
+  margin-bottom: 30px;
+}
+
+#update-work-order .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 60%;
+}
+
+#update-work-order .detail-info.row label.form-label.col-form-label.col-sm-4 {
+  padding: 3px 9.75px;
+}
+
+#update-work-order .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#update-work-order .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#update-work-order .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 40%;
+}
+
+#update-work-order .sales-info .detail-info.row label.form-label.col-form-label.col-sm-3 {
+  padding: 3px 9.75px;
+}
+
+#update-work-order .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
+  padding: 3px 9.75px;
+}
+
+#update-work-order .sales-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#update-work-order :where(.css-dev-only-do-not-override-1ck3jst).ant-picker.ant-picker-disabled {
+  background-color: white !important;
+}
+
+#update-work-order
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
+  .ant-picker-input
+  > input[disabled] {
+  color: black !important;
+  font-weight: 600;
+}
+
+#update-work-order .ant-picker-range-separator .anticon svg {
+  color: black;
+}
+
+#update-work-order .ant-picker-suffix .anticon svg {
+  color: black;
+}
+
+/* Range Picker */
+#update-work-order
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
+  .ant-picker-input
+  > input[disabled] {
+  color: black !important;
+  font-weight: 600;
+}
+
+#update-work-order .ant-picker-range-separator .anticon svg {
+  color: black;
+}
+
+#update-work-order .ant-picker-suffix .anticon svg {
+  color: black;
+}
+
+/* Work Order Table  */
+
+#update-work-order .table-item {
+  margin: 30px 0 30px 0;
+}
+
+#update-work-order .table-item .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+#update-work-order .table-item th {
+  background-color: #555555;
+  color: #ffff;
+  font-weight: 400;
+  text-align: center;
+}
 
 #update-work-order .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;

@@ -111,6 +111,10 @@ input[type='number'] {
   color: #d8001b !important;
 }
 
+.text-light-md-black {
+  color: white !important;
+}
+
 /* Google Form iFrame */
 
 iframe.csi-frame {
@@ -433,5 +437,11 @@ span.anticon.anticon-filter svg {
 @media screen and (max-width: 1200px) {
   .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
     top: 25px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .text-light-md-black {
+    color: #484747 !important;
   }
 }

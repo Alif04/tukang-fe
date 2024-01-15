@@ -10,6 +10,9 @@
 }
 
 #printout-order .card .card-body {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
   padding: 3rem 3rem !important;
 }
 
@@ -17,7 +20,7 @@
   max-width: 310px;
 }
 
-#printout-order .detail-info.row label.form-label.col-form-label.col-sm-6 {
+#printout-order .detail-info.row label.form-label {
   padding: 3px 9.75px;
 }
 
@@ -26,11 +29,6 @@
 }
 
 /* Table */
-
-#printout-order .detail-table {
-  margin: 0 0 30px 0;
-}
-
 #printout-order .detail-table table tr th {
   font-size: 16px;
   font-weight: 600;
@@ -64,6 +62,29 @@
   width: 100%;
   border-top: none !important;
   border-bottom: 5px solid black !important;
+}
+
+/* Printout Order */
+@media screen and (max-width: 576px) {
+  #printout-order .detail-table table tr th {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    background-color: #555555;
+  }
+
+  #printout-order .button-wrapper {
+    flex-direction: column;
+  }
+
+  #printout-order .hide-print-button {
+    width: 100%;
+    margin: 5px 5px;
+  }
+
+  #printout-order .receipt-id {
+    margin-top: 30px;
+  }
 }
 
 /* Hide Print */
@@ -103,6 +124,12 @@
 
     .header-fixed.toolbar-fixed .wrapper {
       background-color: #ffff;
+    }
+  }
+
+  @media screen and (max-width: 576px) {
+    #printout-order .receipt-id {
+      margin-top: 10px;
     }
   }
 }

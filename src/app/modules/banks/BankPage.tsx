@@ -4,14 +4,14 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 
-import {ViewPayment} from './components/ViewPayment'
-import {NewPayment} from './components/NewPayment'
-import {DetailPayment} from './components/DetailPayment'
+import {RegisterBank} from './components/NewBank'
+import {ListBanks} from './components/ViewBank'
+import {UpdateBank} from './components/UpdateBank'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
-    title: 'payment',
-    path: '/payment/view-payment',
+    title: 'Bank',
+    path: '/bank/new-bank',
     isSeparator: false,
     isActive: false,
   },
@@ -23,65 +23,65 @@ const orderBreadCrumbs: Array<PageLink> = [
   },
 ]
 
-const PaymentPage: React.FC = () => {
+const BankPage: React.FC = () => {
   const userRole = localStorage.getItem('userRole')
 
   return (
     <Routes>
       <Route
-        path='view-payment'
+        path='new-bank'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LIST PAYMENT REQUEST</PageTitle>
-            <ViewPayment />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PENDAFTARAN BANK</PageTitle>
+            <RegisterBank />
           </>
         }
       />
 
       <Route
-        path='new-payment'
+        path='update-bank/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>NEW PAYMENT</PageTitle>
-            <NewPayment />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE BANK</PageTitle>
+            <UpdateBank />
           </>
         }
       />
 
       <Route
-        path='detail-payment'
+        path='view-bank'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>PAYMENT REQUEST</PageTitle>
-            <DetailPayment />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DAFTAR BANK MITRA10</PageTitle>
+            <ListBanks />
           </>
         }
       />
 
-      <Route index element={<Navigate to='/payment/view-payment' />} />
+      <Route index element={<Navigate to='/bank/new-bank' />} />
     </Routes>
   )
 }
 
-export default PaymentPage
+export default BankPage

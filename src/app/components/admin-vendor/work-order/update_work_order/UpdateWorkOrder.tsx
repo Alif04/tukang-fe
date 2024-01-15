@@ -1,6 +1,5 @@
 import React, {useState, useEffect, FC, SetStateAction} from 'react'
 import {WorkOrder, WorkOrderTukang} from '../../../../interfaces/work-order'
-import {Tukang} from '../../../../interfaces/tukang'
 
 import './UpdateWorkOrder.css'
 
@@ -8,10 +7,12 @@ import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {Table} from 'antd'
+import dayjs from 'dayjs'
+import {Table, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
+const {RangePicker} = DatePicker
 
 interface Status {
   value: any
@@ -28,7 +29,9 @@ interface WorkOrderHistory {
   updated_by: string
 }
 
-const UpdateWorkVendor: FC = () => {
+const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> = ({
+  updatePageTitle,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -92,6 +95,7 @@ const UpdateWorkVendor: FC = () => {
               id: item.id,
               tukang_id: item.tukang_id,
               tukang_name: item.tukang.full_name,
+              type: item.type,
             }))
 
             workOrderHandler(tukang, 'tukang_id')
@@ -140,6 +144,8 @@ const UpdateWorkVendor: FC = () => {
 
             setWorkOrderHistory(workOrderHistoryData)
           }
+
+          updatePageTitle(data)
         })
     } catch (error) {
       console.error(error)
@@ -158,11 +164,12 @@ const UpdateWorkVendor: FC = () => {
       })
 
       if (Array.isArray(response.data.data)) {
-        const tukang: WorkOrderTukang[] = (response.data.data as Tukang[]).map((item) => ({
+        const tempTukang = response.data.data.map((item: any) => ({
           tukang_id: item.id ?? 0,
           tukang_name: item.full_name,
         }))
-        setTukang(tukang)
+
+        setTukang(tempTukang)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -235,6 +242,25 @@ const UpdateWorkVendor: FC = () => {
     })
   }
 
+  const tukangHandler = (selectedOptions: any, field: any) => {
+    const type = field === 'survey_tukang_id' ? 1 : 2
+
+    setWorkOrder((prevWorkOrder) => {
+      const updatedTukang = selectedOptions.map((option: any) => ({
+        ...option,
+        type: type,
+      }))
+
+      const filteredTukang = prevWorkOrder.tukang_id.filter((x: any) => x.type !== type)
+      const mergedTukang = [...filteredTukang, ...updatedTukang]
+
+      return {
+        ...prevWorkOrder,
+        tukang_id: mergedTukang,
+      }
+    })
+  }
+
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
     const url = !workOrder.id ? `${apiUrl}/work-orders` : `${apiUrl}/work-orders/${workOrder.id}`
@@ -262,13 +288,20 @@ const UpdateWorkVendor: FC = () => {
             if (key === 'tukang_id') {
               value.forEach((item: any, index: number) => {
                 if (item) {
-                  if (item?.id) {
-                    formData.append(`work_order_tukang[${index}][id]`, item.id)
+                  if (item?.tukang_id) {
+                    formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
                   }
-                  formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
+
+                  if (item?.type) {
+                    formData.append(`work_order_tukang[${index}][type]`, item.type)
+                  }
                 }
               })
             } else {
+              formData.append(key, workOrder[key])
+            }
+          } else if (key === 'work_start_date' || key === 'work_end_date') {
+            if (value) {
               formData.append(key, workOrder[key])
             }
           } else {
@@ -375,286 +408,304 @@ const UpdateWorkVendor: FC = () => {
     <section id='update-work-order'>
       <Card className=' mb-5'>
         <div className='card-body'>
-          <div className='d-flex justify-content-between'>
-            <div className='information-wrapper'>
-              <div className='detail-header'>
-                <div className='order-id'>
-                  <h3>Nama Toko : {orderDetail?.store.store_name}</h3>
-                </div>
-              </div>
+          <div className='form-wrapper'>
+            <Row className='form-header'>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Nama Toko :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </span>
+                </Form.Label>
+              </Col>
 
-              <div className='costumer-information'>
-                <div className='title mb-5'>
-                  <h1>COSTUMER INFORMATION</h1>
-                </div>
-
-                <div className='detail-information'>
-                  <div className='costumer-id mb-3'>
-                    <p className='me-5'>Customer ID : {orderDetail?.members.member_number}</p>
-                  </div>
-
-                  <div className='costumer-name  mb-3'>
-                    <p className='me-5'>Customer Name : {orderDetail?.members.full_name}</p>
-                  </div>
-
-                  <div className='telp mb-3'>
-                    <p className='me-5'>Phone/WA : {orderDetail?.project_number}</p>
-                  </div>
-
-                  <div className='email mb-3'>
-                    <p className='me-5'>Email Address : {orderDetail?.members.email}</p>
-                  </div>
-
-                  <div className='alamat-pemasangan d-flex mb-3'>
-                    <p className='me-5'>Address : {orderDetail?.project_address}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className='information-wrapper'>
-              <div className='detail-header'>
-                <Form.Group as={Row} className='mb-3'>
-                  <Form.Label column sm='4'>
-                    {orderDetail?.work_orders === null ? 'Order ID' : 'Work Order ID'}
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id ?? ''}</span>
                   </Form.Label>
-                  <Col sm='8'>
-                    <Form.Control
-                      readOnly
-                      type='text'
-                      value={
-                        orderDetail?.work_orders === null
-                          ? orderDetail?.id
-                          : orderDetail?.work_orders.id
-                      }
-                    />
+                </Col>
+
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Work Order ID :{' '}
+                    <span className='fs-4 ms-2 fw-normal'>
+                      {orderDetail?.work_orders?.id ?? '-'}
+                    </span>
+                  </Form.Label>
+                </Col>
+              </Col>
+
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Receipt Number :
+                    <span className='fs-4 ms-2 fw-normal'>
+                      {orderDetail?.receipt_number ?? '-'}
+                    </span>
+                  </Form.Label>
+                </Col>
+
+                <Col>
+                  <Form.Group as={Row}>
+                    <Form.Label column md='6' className='fs-4 fw-bold'>
+                      {orderDetail?.work_orders === null
+                        ? 'New Work Status :'
+                        : 'Update Work Status :'}
+                    </Form.Label>
+
+                    <Col md='6'>
+                      <Select
+                        classNamePrefix='select'
+                        placeholder='Select Status'
+                        isSearchable={true}
+                        options={workOrderStatus}
+                        value={
+                          workOrder.work_order_status
+                            ? {
+                                value: workOrder.work_order_status,
+                                label: workOrderStatus.find(
+                                  (option) => option.value === workOrder.work_order_status
+                                )?.category,
+                              }
+                            : null
+                        }
+                        onChange={(e) => {
+                          if (e !== null) {
+                            workOrderHandler(e.value, 'work_order_status')
+                          }
+                        }}
+                      />
+                    </Col>
+                  </Form.Group>
+                </Col>
+              </Col>
+            </Row>
+
+            <Row className='information-detail'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
+                <div className='fs-4 fw-bold'>Informasi Pembeli</div>
+                <Row>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        No Member :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <p className='fs-7'>{orderDetail?.members?.member_number ?? ''}</p>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Customer Name :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <p className='fs-7'>{orderDetail?.members?.full_name ?? ''}</p>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Alamat Pemasangan
+                      </Form.Label>
+                      <Col sm='6'>
+                        <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
+                      </Col>
+                    </Form.Group>
                   </Col>
-                </Form.Group>
-              </div>
 
-              <div className='product-information'>
-                <div className='title  mb-5'>
-                  <h1>PRODUCT INFORMATION</h1>
-                </div>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='4'>
+                        Nomor Telp/WA :
+                      </Form.Label>
 
-                <div className='detail-information'>
-                  <div className='costumer-id mb-3'>
-                    <p className='me-5'>Order ID : {orderDetail?.id}</p>
-                  </div>
+                      <Col sm='8'>
+                        <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
+                      </Col>
+                    </Form.Group>
 
-                  <div className='costumer-name mb-3'>
-                    <p className='me-5'>
-                      Nama Jasa Pemasangan :{' '}
-                      {orderDetail?.order_details[0]?.item?.service_name ?? '-'}
-                    </p>
-                  </div>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='4'>
+                        Alamat Email
+                      </Form.Label>
 
-                  <div className='email mb-3'>
-                    <p className='me-5'>
-                      Item Name : {orderDetail?.order_details[0]?.item_name ?? '-'}
-                    </p>
-                  </div>
+                      <Col sm='8'>
+                        <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
+                      </Col>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Col>
 
-                  <div className='telp mb-3'>
-                    <p className='me-5'>
-                      Tipe Pembayaran :
-                      <span className='ms-1 text-uppercase'>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'survey') {
-                            return `Berbayar & Survey`
-                          } else if (orderDetail?.payment_type === 'gratis') {
-                            return `Gratis`
-                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Berbayar & Pemasangan Tanpa Survey`
-                          } else {
-                            return ``
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+                <Row>
+                  <Col>
+                    <div className='survey mb-3'>
+                      <div className='fs-4 fw-bold'>Survey</div>
+
+                      <Form.Group className='detail-info mb-3'>
+                        <Form.Label>Tanggal Survey :</Form.Label>
+
+                        <Form.Control
+                          type='date'
+                          min={today}
+                          defaultValue={workOrder ? workOrder.survey_date : ''}
+                          onChange={(e) => workOrderHandler(e.target.value, 'survey_date')}
+                        />
+                      </Form.Group>
+
+                      <Form.Group className='detail-info mb-3'>
+                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+
+                        <Select
+                          classNamePrefix='select'
+                          placeholder='Pilih Tehnisi'
+                          closeMenuOnSelect={false}
+                          components={animatedComponents}
+                          isMulti
+                          options={tukang}
+                          getOptionLabel={(option) => `${option.tukang_name}`}
+                          getOptionValue={(option) => `${option.tukang_id}`}
+                          value={workOrder.tukang_id.filter((x) => x.type === 1)}
+                          onChange={(e) => tukangHandler(e, 'survey_tukang_id')}
+                        />
+                      </Form.Group>
+                    </div>
+                  </Col>
+
+                  <Col>
+                    <div className='work-date'>
+                      <div className='fs-4 fw-bold'>Pengerjaan</div>
+
+                      <Form.Group className='detail-info mb-3'>
+                        <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
+                        <RangePicker
+                          allowClear={false}
+                          className='date-range w-100'
+                          format='YYYY-MM-DD'
+                          onChange={(values) => {
+                            if (values && values.length === 2) {
+                              const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                              const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
+
+                              setWorkOrder((prev) => ({
+                                ...prev,
+                                work_start_date: dateFromFormatted,
+                                work_end_date: dateToFormatted,
+                              }))
+                            } else {
+                              setWorkOrder({
+                                id: null,
+                                order_id: null,
+                                vendor_id: null,
+                                tukang_id: [],
+                                request_work_time: '',
+                                survey_date: '',
+                                work_order_status: null,
+                                complaint_status: null,
+                                work_start_date: '',
+                                work_end_date: '',
+                              })
+                            }
+                          }}
+                          value={
+                            (workOrder.work_start_date &&
+                              workOrder.work_end_date && [
+                                dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                                dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                              ]) ||
+                            undefined
                           }
-                        })()}
-                      </span>
-                    </p>
-                  </div>
+                        />{' '}
+                      </Form.Group>
 
-                  <div className='telp mb-3'>
-                    <p className='me-5'>
-                      Harga Jasa :{' '}
-                      {`Rp. ${parseInt(
-                        orderDetail?.order_details[0]?.unit_price || 0
-                      )?.toLocaleString('id')}`}
-                    </p>
-                  </div>
+                      <Form.Group className='detail-info mb-3'>
+                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
-                  <div className='telp mb-3'>
-                    <p className='me-5'>
-                      Quantity : {orderDetail?.order_details[0]?.quantity ?? '-'}
-                    </p>
-                  </div>
-
-                  <div className='telp mb-3'>
-                    <p className='me-5'>
-                      Total Harga :{' '}
-                      {`Rp. ${parseInt(orderDetail?.grand_total || 0)?.toLocaleString('id')}`}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className='information-wrapper'>
-              <div className='detail-header'>
-                <div className='order-status'>
-                  <h3>
-                    Order Status : <span>{orderDetail?.status.category}</span>
-                  </h3>
-                </div>
-              </div>
-
-              <div className='sales-information'>
-                <div className='title mb-5'>
-                  <h1>WORK INFORMATION</h1>
-                </div>
-
-                <div className='detail-information'>
-                  <div className='costumer-id mb-3'>
-                    <p className='me-5'>
-                      Tanggal Request Survey :{' '}
-                      {orderDetail?.request_survey
-                        ? formatDate(new Date(orderDetail?.request_survey))
-                        : ''}
-                    </p>
-                  </div>
-
-                  <div className='costumer-name mb-3'>
-                    <p className='me-5'>
-                      Tanggal Survey :{' '}
-                      {orderDetail?.work_orders
-                        ? formatDate(new Date(orderDetail?.work_orders.survey_date))
-                        : ''}
-                    </p>
-                  </div>
-
-                  <div className='email mb-3'>
-                    <p className='me-5'>Tanggal Pekerjaan : </p>
-                  </div>
-
-                  <div className='telp mb-3'>
-                    <p className='me-5'>Tanggal Reschedule : </p>
-                  </div>
-
-                  <div className='telp mb-3'>
-                    <p className='me-5'>
-                      Tanggal Mulai Kerja :{' '}
-                      {orderDetail?.work_orders
-                        ? formatDate(new Date(orderDetail?.work_orders.work_start_date))
-                        : ''}
-                    </p>
-                  </div>
-
-                  <div className='telp mb-3'>
-                    <p className='me-5'>
-                      Tanggal Selesai :{' '}
-                      {orderDetail?.work_orders
-                        ? formatDate(new Date(orderDetail?.work_orders.work_end_date))
-                        : ''}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <hr />
-
-          <div className='work-status'>
-            <h1 className='title text-decoration-underline'>
-              {orderDetail?.work_orders === null ? 'New Work Status' : 'Update Work Status'}
-            </h1>
-
-            <Row>
-              <Col>
-                <Form.Group className='mt-5 mb-5'>
-                  <Form.Label>Update Work Order</Form.Label>
-                  <Select
-                    classNamePrefix='select'
-                    placeholder='Select Status'
-                    isSearchable={true}
-                    options={workOrderStatus}
-                    value={
-                      workOrder.work_order_status
-                        ? {
-                            value: workOrder.work_order_status,
-                            label: workOrderStatus.find(
-                              (option) => option.value === workOrder.work_order_status
-                            )?.category,
-                          }
-                        : null
-                    }
-                    onChange={(e) => {
-                      if (e !== null) {
-                        workOrderHandler(e.value, 'work_order_status')
-                      }
-                    }}
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col>
-                <Form.Group className='mt-5 mb-5'>
-                  <Form.Label>Tanggal survey : </Form.Label>
-                  <Form.Control
-                    type='date'
-                    min={today}
-                    defaultValue={workOrder ? workOrder.survey_date : ''}
-                    disabled={orderDetail?.work_orders !== null ? true : false}
-                    onChange={(e) => workOrderHandler(e.target.value, 'survey_date')}
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col>
-                <Form.Group className='mt-5 mb-5'>
-                  <Form.Label>Tanggal mulai pengerjaan : </Form.Label>
-                  <Form.Control
-                    type='date'
-                    min={today}
-                    defaultValue={workOrder ? workOrder.work_start_date : ''}
-                    disabled={orderDetail?.work_orders !== null ? true : false}
-                    onChange={(e) => workOrderHandler(e.target.value, 'work_start_date')}
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col>
-                <Form.Group className='mt-5 mb-5'>
-                  <Form.Label>Tanggal selesai pengerjaan : </Form.Label>
-                  <Form.Control
-                    type='date'
-                    min={today}
-                    defaultValue={workOrder ? workOrder.work_end_date : ''}
-                    disabled={orderDetail?.work_orders !== null ? true : false}
-                    onChange={(e) => workOrderHandler(e.target.value, 'work_end_date')}
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col>
-                <Form.Group className='mt-5 mb-5'>
-                  <Form.Label>Nama Lengkap Tehnisi : </Form.Label>
-                  <Select
-                    classNamePrefix='select'
-                    placeholder='Pilih Tehnisi'
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    isMulti
-                    options={tukang}
-                    getOptionLabel={(option) => `${option.tukang_name}`}
-                    getOptionValue={(option) => `${option.tukang_id}`}
-                    value={workOrder.tukang_id}
-                    onChange={(e) => workOrderHandler(e, 'tukang_id')}
-                  />
-                </Form.Group>
+                        <Select
+                          classNamePrefix='select'
+                          placeholder='Pilih Tehnisi'
+                          closeMenuOnSelect={false}
+                          components={animatedComponents}
+                          isMulti
+                          options={tukang}
+                          getOptionLabel={(option) => `${option.tukang_name}`}
+                          getOptionValue={(option) => `${option.tukang_id}`}
+                          value={workOrder.tukang_id.filter((x) => x.type === 2)}
+                          onChange={(e) => tukangHandler(e, 'work_tukang_id')}
+                        />
+                      </Form.Group>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </div>
+
+          <Row className='table-warranty d-flex align-items-center mb-5'>
+            <div className='table-title-warranty'>
+              <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+            </div>
+
+            <div className='table-warranty-content'>
+              <table className='table hover responsive'>
+                <thead className='table-warranty-head'>
+                  <tr>
+                    <th>Item Code</th>
+                    <th>Item Name</th>
+                    <th>Nama Pemasangan</th>
+                    <th>QTY Pemasangan</th>
+                    <th>Harga Jasa</th>
+                    <th>Jumlah</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length > 0 ? (
+                    <>
+                      {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
+                        (item: any, index: any) => (
+                          <tr key={`${index}-work_order_detail`}>
+                            <td>{item?.item_id ?? '-'}</td>
+                            <td>{item?.item ?? '-'}</td>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                          </tr>
+                        )
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {orderDetail?.order_details.map((item: any, index: any) => (
+                        <tr key={`${index}-order_detail`}>
+                          <td>{item?.item_code ?? '-'}</td>
+                          <td>{item?.item?.item_name ?? '-'}</td>
+                          <td>{item?.item?.service_name ?? '-'}</td>
+                          <td>{item?.quantity ?? 0}</td>
+                          <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString('id')}`}</td>
+                          <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                        </tr>
+                      ))}
+                    </>
+                  )}
+
+                  <tr>
+                    <td colSpan={5} className='text-end fw-bolder'>
+                      Grand Total
+                    </td>
+                    <td className=' fw-bolder'>
+                      {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Row>
 
           <div className='d-flex justify-content-center'>
             <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateWorkOrder}>

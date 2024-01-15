@@ -49,8 +49,8 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
     <section id='preview-email'>
       <div className='card'>
         <div className='card-body'>
-          <div className='invoice-detail d-flex justify-content-between'>
-            <div className='vendor-information'>
+          <Row className='preview-detail d-flex justify-content-between'>
+            <Col md='6' sm='12' className='vendor-information order-2 order-md-1'>
               <div className='vendor-detail'>
                 <img
                   alt='Logo'
@@ -72,9 +72,9 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   </h3>
                 </div>
               </div>
-            </div>
+            </Col>
 
-            <div className='payment-request'>
+            <Col md='6' sm='12' className='payment-request order-1 order-md-2'>
               <h1 className='fw-bolder'>EMAIL ORDER</h1>
 
               <h3 className='fw-bolder'>
@@ -83,11 +83,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   {orderDetail ? formatDate(new Date(orderDetail.request_survey)) : '-'}
                 </span>
               </h3>
-            </div>
-          </div>
+            </Col>
+          </Row>
 
-          <div className='invoice-detail d-flex justify-content-between'>
-            <div className='receiver-information'>
+          <Row className='preview-detail d-flex justify-content-between'>
+            <Col md='6' sm='12' className='receiver-information'>
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
                 <h1 className='fw-bolder'>{orderDetail?.members?.full_name}</h1>
@@ -97,9 +97,9 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 <h3 className='fw-normal'>{orderDetail?.project_address}</h3>
                 <h3 className='fw-normal'> Telp : {orderDetail?.project_number}</h3>
               </div>
-            </div>
+            </Col>
 
-            <div className='payment-request'>
+            <Col md='6' sm='12' className='payment-request'>
               <h3 className='fw-bolder'>
                 Customer ID :{' '}
                 <span className='fw-normal'>{orderDetail?.members?.member_number}</span>
@@ -121,11 +121,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   })()}
                 </span>
               </h3>
-            </div>
-          </div>
+            </Col>
+          </Row>
 
           <div className='detail-table'>
-            <Table hover>
+            <Table hover responsive>
               <thead>
                 <tr>
                   <th>Item Code</th>
@@ -220,96 +220,106 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
           </div>
 
           <div className='payment-detail'>
-            <div className='payment-method'>
-              <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
+            <Row className='payment-method'>
+              <Col>
+                <h1 className='fw-bolder'>
+                  Silahkan melakukan pembayaran di account di bawah ini :
+                </h1>
 
-              <h3 className='fw-normal'>{orderDetail?.store?.bank_account}</h3>
-              <h3 className='fw-normal'>{orderDetail?.store?.bank_name}</h3>
-              <h3 className='fw-normal'>{orderDetail?.store?.bank_number}</h3>
-            </div>
+                <h3 className='fw-normal'>{orderDetail?.store?.bank_account}</h3>
+                <h3 className='fw-normal'>{orderDetail?.store?.bank_name}</h3>
+                <h3 className='fw-normal'>{orderDetail?.store?.bank_number}</h3>
+              </Col>
+            </Row>
 
-            <div className='payment-method'>
-              <h1 className='fw-bolder'>Syarat & Ketentuan :</h1>
+            <Row className='payment-method'>
+              <Col>
+                <h1 className='fw-bolder'>Syarat & Ketentuan :</h1>
 
-              <ol>
-                <li className='fw-normal'>
-                  Jadwal survey/pengerjaan akan ditentukan oleh teknisi, setelah material tersedia
-                  dan barang diterima customer, serta barang yang akan dikerjakan jasa instalasi
-                  adalah barang dari Mitra10.
-                </li>
+                <ol>
+                  <li className='fw-normal'>
+                    Jadwal survey/pengerjaan akan ditentukan oleh teknisi, setelah material tersedia
+                    dan barang diterima customer, serta barang yang akan dikerjakan jasa instalasi
+                    adalah barang dari Mitra10.
+                  </li>
 
-                <li className='fw-normal'>
-                  Penjadwalan ulang pada H-1 tidak dikenakan biaya, penjadwalan ulang pada hari H
-                  akan dikenakan biaya tambahan minimal sebesar Rp 75.000.
-                </li>
+                  <li className='fw-normal'>
+                    Penjadwalan ulang pada H-1 tidak dikenakan biaya, penjadwalan ulang pada hari H
+                    akan dikenakan biaya tambahan minimal sebesar Rp 75.000.
+                  </li>
 
-                <li className='fw-normal'>
-                  Pekerjaan tambahan (Pekerjaan diluar yang sudah diajukan & di transaksikan) akan
-                  dikenakan biaya tambahan.
-                </li>
+                  <li className='fw-normal'>
+                    Pekerjaan tambahan (Pekerjaan diluar yang sudah diajukan & di transaksikan) akan
+                    dikenakan biaya tambahan.
+                  </li>
 
-                <li className='fw-normal'>
-                  Semua jasa pemasangan wajib dilakukan survey. Biaya survey akan dikembalikan
-                  apabila biaya jasa instalasi/service minimal Rp 500.000.
-                </li>
+                  <li className='fw-normal'>
+                    Semua jasa pemasangan wajib dilakukan survey. Biaya survey akan dikembalikan
+                    apabila biaya jasa instalasi/service minimal Rp 500.000.
+                  </li>
 
-                <li className='fw-normal'>
-                  Quotation diberikan kepada customer maksimal H+2 hari kerja setelah survey
-                  selesai.
-                </li>
+                  <li className='fw-normal'>
+                    Quotation diberikan kepada customer maksimal H+2 hari kerja setelah survey
+                    selesai.
+                  </li>
 
-                <li className='fw-normal'>
-                  Garansi 7 (Tujuh) hari untuk instalasi/service terhitung sejak tanggal serah
-                  terima pekerjaan dan hanya 1x kunjungan. Kerusakan produk yang terpasang, tidak
-                  menjadi bagian garansi dan proses instalasi/service.
-                </li>
+                  <li className='fw-normal'>
+                    Garansi 7 (Tujuh) hari untuk instalasi/service terhitung sejak tanggal serah
+                    terima pekerjaan dan hanya 1x kunjungan. Kerusakan produk yang terpasang, tidak
+                    menjadi bagian garansi dan proses instalasi/service.
+                  </li>
 
-                <li className='fw-normal'>
-                  Biaya transportasi, jarak dari toko Mitra10 lokasi pengerjaan kurang dari 10KM
-                  adalah FREE : Lebih dari 10KM dikenakan biaya transportasi Rp 25.000 Max 40KM
-                </li>
-              </ol>
-            </div>
+                  <li className='fw-normal'>
+                    Biaya transportasi, jarak dari toko Mitra10 lokasi pengerjaan kurang dari 10KM
+                    adalah FREE : Lebih dari 10KM dikenakan biaya transportasi Rp 25.000 Max 40KM
+                  </li>
+                </ol>
+              </Col>
+            </Row>
 
-            <div className='payment-method'>
-              <h1 className='fw-bolder'>Informasi :</h1>
+            <Row className='payment-method'>
+              <Col>
+                <h1 className='fw-bolder'>Informasi :</h1>
 
-              <ol>
-                <li className='fw-normal'>
-                  Kontak layanan pelanggan Instalasi/Service (WA Only) : 0878-8482-1089.
-                </li>
+                <ol>
+                  <li className='fw-normal'>
+                    Kontak layanan pelanggan Instalasi/Service (WA Only) : 0878-8482-1089.
+                  </li>
 
-                <li className='fw-normal'>
-                  Operasional hari senin s/d jumat - Office hour 09:00 s/d 16:00.
-                </li>
+                  <li className='fw-normal'>
+                    Operasional hari senin s/d jumat - Office hour 09:00 s/d 16:00.
+                  </li>
 
-                <li className='fw-normal'>
-                  Orderan instalasi/service yang masuk diluar jam operasional akan diproses pada jam
-                  operasional.
-                </li>
-              </ol>
-            </div>
+                  <li className='fw-normal'>
+                    Orderan instalasi/service yang masuk diluar jam operasional akan diproses pada
+                    jam operasional.
+                  </li>
+                </ol>
+              </Col>
+            </Row>
 
-            <div className='payment-evidence'>
-              <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>
-                {`Telp : ${
-                  orderDetail?.store?.phone_number_1 ??
-                  orderDetail?.store?.phone_number_2 ??
-                  'Nomor telepon belum tersedia'
-                }`}
-              </h1>
-              <h1 className='fw-bolder'>
-                {`Email : ${
-                  orderDetail?.store?.email ?? orderDetail?.store?.email ?? 'Email belum tersedia'
-                }`}
-              </h1>
-            </div>
+            <Row className='payment-evidence'>
+              <Col>
+                <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
+                <h1 className='fw-bolder'>
+                  {`Telp : ${
+                    orderDetail?.store?.phone_number_1 ??
+                    orderDetail?.store?.phone_number_2 ??
+                    'Nomor telepon belum tersedia'
+                  }`}
+                </h1>
+                <h1 className='fw-bolder'>
+                  {`Email : ${
+                    orderDetail?.store?.email ?? orderDetail?.store?.email ?? 'Email belum tersedia'
+                  }`}
+                </h1>
 
-            <h1 className='fw-bolder'>
-              Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
-              kembali.
-            </h1>
+                <h1 className='fw-bolder'>
+                  Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
+                  kembali.
+                </h1>
+              </Col>
+            </Row>
           </div>
         </div>
       </div>

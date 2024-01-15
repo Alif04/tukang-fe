@@ -12,6 +12,23 @@
   margin-bottom: 10px;
 }
 
+/* Date Picker */
+#update-work-order-tukang
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
+  .ant-picker-input
+  > input[disabled] {
+  color: black !important;
+  font-weight: 600;
+}
+
+#update-work-order-tukang .ant-picker-range-separator .anticon svg {
+  color: black;
+}
+
+#update-work-order-tukang .ant-picker-suffix .anticon svg {
+  color: black;
+}
+
 /* Form Upload File */
 
 #update-work-order-tukang form.form-input-image {

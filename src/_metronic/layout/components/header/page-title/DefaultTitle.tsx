@@ -10,21 +10,22 @@ const DefaultTitle: FC = () => {
   return (
     <div
       id='kt_page_title'
-      data-kt-swapper='true'
-      data-kt-swapper-mode='prepend'
-      data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}"
+      // data-kt-swapper='true'
+      // data-kt-swapper-mode='prepend'
+      // data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}"
       className={clsx('page-title d-flex', classes.pageTitle.join(' '))}
     >
       {/* begin::Title */}
       {pageTitle && (
-        <h1 className='d-flex align-items-center text-light fw-bolder my-1 fs-1'>
+        <h1 className='d-flex align-items-center  text-light-md-black fw-bolder my-1 fs-1'>
           {pageTitle}
-          {pageDescription && config.pageTitle && config.pageTitle.description && (
+
+          {/* {pageDescription && config.pageTitle && config.pageTitle.description && (
             <>
               <span className='h-20px border-gray-200 border-start ms-3 mx-2'></span>
-              <small className='text-muted fs-7 fw-bold my-1 ms-1'>{pageDescription}</small>
+              <small className='text-black fs-7 fw-bold my-1 ms-1'>{pageDescription}</small>
             </>
-          )}
+          )} */}
         </h1>
       )}
       {/* end::Title */}

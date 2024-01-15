@@ -18,6 +18,11 @@ type Props = {
   className: string
 }
 
+interface Status {
+  value: number
+  category: string
+}
+
 const WarrantyClaimListVendor: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
@@ -167,16 +172,26 @@ const WarrantyClaimListVendor: React.FC<Props> = ({className}) => {
       const apiUrl = process.env.REACT_APP_API_URL
 
       const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      const desiredStatusName = 'WARRANTYCLAIM'
-      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+      const desiredStatus = statusData.filter((status: Status) =>
+        [
+          'SURVEYSTART',
+          'WORKSTART',
+          'WIP',
+          'WORKEND',
+          'REWORK',
+          'REWORKSTART',
+          'RIP',
+          'REWORKEND',
+          'RESCHEDULE',
+        ].includes(status.category)
+      )
 
       if (desiredStatus) {
-        const statusId = desiredStatus.value
+        const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/work-orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statusId}&page=${page}&take=${pageSize}`,
+          `${apiUrl}/work-orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&status=${statuses}&page=${page}&take=${pageSize}`,
           {
             headers: {
               Accept: 'application/json',
@@ -218,9 +233,9 @@ const WarrantyClaimListVendor: React.FC<Props> = ({className}) => {
         data = {
           order_id: item?.order_id,
           date_order: formatDate(WorkOrderDate),
-          no_member: item?.members?.member_number ?? '-',
-          costumer_name: item?.members?.full_name ?? '-',
-          phone_number: item?.orders?.project_number ?? '-',
+          no_member: item?.order?.members?.member_number ?? '-',
+          costumer_name: item?.order?.members?.full_name ?? '-',
+          phone_number: item?.order?.project_number ?? '-',
           services_name: workOrderItems,
           status_order: item?.work_order_status[0]?.status?.category ?? '-',
         }

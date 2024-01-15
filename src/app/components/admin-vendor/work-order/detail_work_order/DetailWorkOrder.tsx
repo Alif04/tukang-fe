@@ -8,7 +8,8 @@ import axios from 'axios'
 import Select from 'react-select'
 import dayjs from 'dayjs'
 import {useParams} from 'react-router-dom'
-import {Form, Row, Col, Table} from 'react-bootstrap'
+import {Image} from 'antd'
+import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
 import {DatePicker, Steps} from 'antd'
 const {RangePicker} = DatePicker
 
@@ -22,6 +23,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   const params = useParams()
 
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const [workOrder, setWorkOrder] = useState<WorkOrder>({
     id: null,
@@ -57,6 +60,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               id: item.id,
               tukang_id: item.tukang_id,
               tukang_name: item.tukang.full_name,
+              type: item.type,
             }))
 
             workOrderHandler(tukang, 'tukang_id')
@@ -107,7 +111,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
   const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
-  const workDoneStatuses = getStatuses(['WARRANTYCLAIM', 'DONE'])
+  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},
@@ -290,7 +294,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             menuIsOpen={false}
                             getOptionLabel={(option) => `${option.tukang_name}`}
                             getOptionValue={(option) => `${option.tukang_id}`}
-                            value={workOrder.tukang_id}
+                            value={workOrder.tukang_id.filter((x) => x.type === 1)}
                           />
                         ) : (
                           <p>Tukang belum diset oleh vendor</p>
@@ -310,14 +314,18 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <RangePicker
                             className='date-range w-100'
                             format='YYYY-MM-DD'
-                            value={[
-                              dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                              dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                            ]}
+                            value={
+                              (workOrder.work_start_date &&
+                                workOrder.work_end_date && [
+                                  dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                                  dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                                ]) ||
+                              undefined
+                            }
                             disabled={[true, true]}
                           />
                         ) : (
-                          <p>Tanggal Pengerjaan belum diset oleh tukang</p>
+                          <p>Tanggal Pengerjaan belum diset oleh vendor</p>
                         )}
                       </Form.Group>
 
@@ -326,6 +334,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                         {orderDetail?.work_orders !== null ? (
                           <Select
+                            placeholder='Tukang belum diset oleh Vendor'
                             classNamePrefix='select'
                             closeMenuOnSelect={false}
                             isClearable={false}
@@ -333,7 +342,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             menuIsOpen={false}
                             getOptionLabel={(option) => `${option.tukang_name}`}
                             getOptionValue={(option) => `${option.tukang_id}`}
-                            value={workOrder.tukang_id}
+                            value={workOrder.tukang_id.filter((x) => x.type === 2)}
                           />
                         ) : (
                           <p>Tukang belum diset oleh vendor</p>
@@ -364,7 +373,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetail?.work_orders !== null ? (
+                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length > 0 ? (
                     <>
                       {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                         (item: any, index: any) => (
@@ -408,6 +417,86 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               </Table>
             </div>
           </Row>
+
+          {orderDetail?.work_orders && (
+            <Row>
+              <Col>
+                <Form.Label className='mt-3'>Work Before :</Form.Label>
+                <ListGroup>
+                  {orderDetail?.work_orders?.work_order_evidences
+                    .filter((x: any) => x.type === 2)
+                    .map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisible(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
+                </ListGroup>
+
+                {previewImage && (
+                  <div>
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/work-orders/${previewImage}`}
+                      preview={{
+                        visible,
+                        src: `${apiUrl}/public/work-orders/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisible(value)
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+              </Col>
+
+              <Col>
+                <Form.Label className='mt-3'>Work After :</Form.Label>
+                <ListGroup>
+                  {orderDetail?.work_orders?.work_order_evidences
+                    .filter((x: any) => x.type === 3)
+                    .map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisible(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
+                </ListGroup>
+
+                {previewImage && (
+                  <div>
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/work-orders/${previewImage}`}
+                      preview={{
+                        visible,
+                        src: `${apiUrl}/public/work-orders/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisible(value)
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+              </Col>
+            </Row>
+          )}
 
           <div className='order-history mt-3 mb-3'>
             <div className='fs-3 text-uppercase fw-bold text-black mb-4'>Order History</div>
