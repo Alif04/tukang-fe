@@ -178,7 +178,7 @@ const NewCostumerHO: FC = () => {
   }
 
   const handleSubmitNewMember = async () => {
-    const response = await axios
+    await axios
       .post(`${apiUrl}/member`, memberInfo, {
         headers: {
           Accept: 'application/json',

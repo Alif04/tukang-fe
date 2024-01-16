@@ -749,8 +749,15 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   if (item.id) {
                     formData.append(`order_details[${index}][id]`, item.id)
                   }
-                  formData.append(`order_details[${index}][item_code]`, item.item_code)
-                  formData.append(`order_details[${index}][item_name]`, item.item_name)
+
+                  if (item?.item_code !== null) {
+                    formData.append(`order_details[${index}][item_code]`, item.item_code)
+                  }
+
+                  if (item?.item_name !== null) {
+                    formData.append(`order_details[${index}][item_name]`, item.item_name)
+                  }
+
                   formData.append(`order_details[${index}][item_id]`, item.item_id)
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
@@ -1463,10 +1470,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='dark-success' onClick={handleReprintOrder}>
-              Reprint Order
-            </Button>
-
             <Button onClick={handleUpdateOrder} variant='dark-primary'>
               Submit Order & Email
             </Button>

@@ -1,3 +1,8 @@
+/* Typography */
+#update-order label.title.form-label {
+  font-size: 13px;
+}
+
 /* Form Layout */
 
 #update-order .form-wrapper {
@@ -153,6 +158,14 @@
   background-color: #048543 !important;
 }
 
+#update-order button.btn-remove.btn.btn-danger span.text {
+  display: block;
+}
+
+#update-order button.btn-remove.btn.btn-danger span.icon {
+  display: none;
+}
+
 /* Table Picklist*/
 
 #update-order .table-picklist .table tr,
@@ -179,6 +192,19 @@
   #update-order .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
+
+  #update-order label.title.form-label {
+    font-size: 12px;
+  }
+
+  #update-order label.title.form-label.col-form-label.col-sm-4 {
+    padding: 0 9.75px;
+  }
+
+  #update-order label.title.form-label.col-form-label.col-sm-4 {
+    display: flex;
+    align-items: center;
+  }
 }
 
 @media screen and (max-width: 1200px) {
@@ -197,14 +223,6 @@
     width: 100%;
   }
 
-  #update-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #update-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
   #update-order .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
@@ -217,6 +235,10 @@
 
   #update-order .form-sales .form-header h1 {
     text-align: start !important;
+  }
+
+  #update-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
   }
 }
 
@@ -244,18 +266,50 @@
   #update-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
   }
+
+  /* Button */
+  #update-order .button-add button {
+    width: 100%;
+    height: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  #update-order button.btn-remove.btn.btn-danger span.text {
+    display: none;
+  }
+
+  #update-order button.btn-remove.btn.btn-danger span.icon {
+    display: block;
+  }
 }
 
 @media screen and (max-width: 576px) {
   /* Button */
 
   #update-order .button-add button {
-    width: 100%;
+    width: 100% !important;
   }
 
   #update-order .btn.btn-dark-primary {
     width: 100%;
     margin: 0;
+    height: 40px;
+  }
+
+  #update-order .button-submit {
+    margin-top: 20px;
+    flex-direction: column;
+  }
+
+  #update-order .btn.btn-dark-primary {
+    width: 100%;
+    height: 40px;
+  }
+
+  #update-order .btn.btn-dark-success {
+    margin: 0 10px 0 10px;
+    width: 100%;
     height: 40px;
   }
 }

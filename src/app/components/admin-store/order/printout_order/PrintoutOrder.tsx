@@ -122,28 +122,28 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           <Row className='mt-5 mb-5'>
             <Col md='6' sm='6'>
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='6' sm='12'>
+                <Form.Label column md='4' sm='12'>
                   Order ID :
                 </Form.Label>
-                <Col md='6' sm='12'>
+                <Col md='8' sm='12'>
                   <Form.Control plaintext readOnly value={orderDetail?.id} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='6' sm='12'>
+                <Form.Label column md='4' sm='12'>
                   Member Name :
                 </Form.Label>
-                <Col md='6' sm='12'>
+                <Col md='8' sm='12'>
                   <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='6' sm='12'>
+                <Form.Label column md='4' sm='12'>
                   No Telp / WA :
                 </Form.Label>
-                <Col md='6' sm='12'>
+                <Col md='8' sm='12'>
                   <Form.Control plaintext readOnly value={orderDetail?.project_number} />
                 </Col>
               </Form.Group>
@@ -168,7 +168,11 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   Copy :
                 </Form.Label>
                 <Col md='6'>
-                  <Form.Control plaintext readOnly value={orderDetail?.print_counter} />
+                  <Form.Control
+                    plaintext
+                    readOnly
+                    value={orderDetail?.print_counter < 1 ? '-' : orderDetail?.print_counter}
+                  />
                 </Col>
               </Form.Group>
 
@@ -206,21 +210,11 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 )}
               </thead>
               <tbody>
-                {orderDetail?.payment_type === 'survey' ? (
-                  <>
-                    <tr>
-                      <td colSpan={2}>Survey</td>
-                    </tr>
-                  </>
-                ) : (
-                  orderDetail?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr>
-                        <td colSpan={2}>{item?.item?.service_name}</td>
-                      </tr>
-                    </>
-                  ))
-                )}
+                {orderDetail?.order_details.map((item: any, index: any) => (
+                  <tr key={`service-${index}`}>
+                    <td colSpan={2}>{item?.item?.service_name}</td>
+                  </tr>
+                ))}
 
                 <tr>
                   <td className='fs-3 fw-bolder'>Total</td>
@@ -262,7 +256,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             </Button>
 
             <Button className='hide-print-button' variant='dark-primary' onClick={handlePrintOrder}>
-              Print
+              {orderDetail?.print_counter < 1 ? 'Print' : 'Reprint'}
             </Button>
           </div>
         </div>

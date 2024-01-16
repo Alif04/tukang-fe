@@ -70,8 +70,6 @@ interface Order {
     unit_price: string | null
     total: string | null
   }>
-  order_files: Array<any>
-
   [key: string]: any
 }
 
@@ -117,16 +115,9 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
         total: null,
       },
     ],
-    order_files: [],
   })
 
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
-  const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
-  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  const [previewImage, setPreviewImage] = useState<any>()
-  const [visible, setVisible] = useState(false)
 
   // Member
   const [member, setMember] = useState<MemberSelect[]>([])
@@ -313,15 +304,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               })
             }
 
-            if (data?.order_files) {
-              const initialOrderFilesValues = data.order_files.map((item: any) => ({
-                id: item.id,
-                name: item.path,
-              }))
-
-              setReceiptFiles(initialOrderFilesValues)
-            }
-
             updatePageTitle(data)
           })
       } catch (error) {
@@ -467,47 +449,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     })
   }
 
-  // Upload Order File Handler
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files
-    if (fileList) {
-      const file: Array<File | null> = new Array<File>()
-      const existingFiles = [...receiptFiles]
-      const mergedFiles = existingFiles.concat(file)
-
-      const {length: existingFilesLength} = existingFiles
-      const {length: fileListLength} = fileList
-
-      for (let i = 0; i < fileListLength; i++) {
-        mergedFiles[existingFilesLength + i] = fileList.item(i)
-      }
-
-      setReceiptFiles(mergedFiles)
-    }
-  }
-
-  const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
-    inputField.click()
-  }
-
-  const handleRemoveFile = (index: number) => {
-    const newEvidances = [...receiptFiles]
-    newEvidances.splice(index, 1)
-    setReceiptFiles(newEvidances)
-
-    // Update element value
-    if (evidenceRef.current?.value) {
-      evidenceRef.current.value = ''
-    }
-  }
-
-  const handleFileClick = (index: number) => {
-    setPreviewImage(receiptFiles[index]?.name)
-    setVisible(true)
-    setSelectedFileIndex(index)
-  }
-
   // Order Details
   const addOrderDetails = () => {
     const newDetail = {
@@ -606,8 +547,15 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                   if (item.id) {
                     formData.append(`order_details[${index}][id]`, item.id)
                   }
-                  formData.append(`order_details[${index}][item_code]`, item.item_code)
-                  formData.append(`order_details[${index}][item_name]`, item.item_name)
+
+                  if (item?.item_code !== null) {
+                    formData.append(`order_details[${index}][item_code]`, item.item_code)
+                  }
+
+                  if (item?.item_name !== null) {
+                    formData.append(`order_details[${index}][item_name]`, item.item_name)
+                  }
+
                   formData.append(`order_details[${index}][item_id]`, item.item_id)
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
@@ -632,14 +580,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
       })
 
       return false
-    }
-
-    if (receiptFiles?.length) {
-      receiptFiles.forEach((item) => {
-        if (item instanceof Blob) {
-          formData.append(`order_files`, item, item.name)
-        }
-      })
     }
 
     await axios
@@ -734,7 +674,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Form.Group>
-                    <Form.Label>
+                    <Form.Label className='title'>
                       Nama Toko
                       <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
                         {staffStoreName}
@@ -746,7 +686,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Row>
                     <Col xxl={3}>
-                      <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                      <Form.Label className='payment-type title'>Payment Type :</Form.Label>
                     </Col>
 
                     <Col className='form-check-request' xxl={9}>
@@ -835,7 +775,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               <Row className='input-order'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>No Member</Form.Label>
+                    <Form.Label className='title'>No Member</Form.Label>
                     <Select
                       name='member'
                       id='member'
@@ -863,7 +803,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <div className='d-flex justify-content-between'>
-                      <Form.Label>WA / Phone Number</Form.Label>
+                      <Form.Label className='title'>WA / Phone Number</Form.Label>
 
                       <div className='form-check-request'>
                         <Form.Check
@@ -894,14 +834,14 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               <Row className='input-order'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Nama Customer</Form.Label>
+                    <Form.Label className='title'>Nama Customer</Form.Label>
                     <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label className='title'>Email</Form.Label>
                     <Form.Control type='text' disabled value={selectedMember?.email || ''} />
                   </Form.Group>
                 </Col>
@@ -910,7 +850,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               <Row className='alamat-order'>
                 <Col>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Alamat</Form.Label>
+                    <Form.Label className='title'>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
                       name='project_address'
@@ -928,11 +868,11 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                 <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
               </div>
               <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
+                <Form.Label className='title' column xxl='4' xl='5' md='2'>
                   Sales ID :
                 </Form.Label>
 
-                <Col sm='8'>
+                <Col xxl='8' xl='7' md='10'>
                   <Form.Control
                     type='number'
                     disabled
@@ -942,11 +882,11 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               </Form.Group>
 
               <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
+                <Form.Label className='title' column xxl='4' xl='5' md='2'>
                   Nama Sales :
                 </Form.Label>
 
-                <Col sm='8'>
+                <Col xxl='8' xl='7' md='10'>
                   <Form.Control
                     type='text'
                     disabled
@@ -1017,8 +957,15 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                   <tr key={`${index}-order_details`}>
                     {orderForm.order_details.length >= 2 && (
                       <td align='center'>
-                        <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                          Remove
+                        <Button
+                          className='btn-remove'
+                          variant='danger'
+                          onClick={() => handleRemoveForm(index)}
+                        >
+                          <span className='text'>Remove</span>
+                          <span className='icon'>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </span>
                         </Button>
                       </td>
                     )}
@@ -1171,89 +1118,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
             </Form.Text>
           </div>
 
-          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <Form.Group>
-                <Form.Label>Upload Receipt</Form.Label>
-                <Form className='form-input-image' onClick={handleImageClick}>
-                  <Form.Control
-                    type='file'
-                    accept='image/jpeg, image/png'
-                    className='input-field-image'
-                    multiple
-                    hidden
-                    id='file-input'
-                    ref={evidenceRef}
-                    onChange={handleFileChange}
-                  />
-
-                  <div className='input-image-text'>
-                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                    <p>Add File</p>
-                  </div>
-                </Form>
-
-                <ListGroup className='pt-3'>
-                  {receiptFiles.length ? (
-                    receiptFiles.map((item, index) => (
-                      <ListGroup>
-                        <ListGroup.Item
-                          className='d-flex justify-content-between align-items-center'
-                          key={`${item?.name}-${index}-${item?.type}`}
-                        >
-                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                          <span className='upload-content' onClick={() => handleFileClick(index)}>
-                            {item?.name}
-                          </span>
-
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            size='sm'
-                            color='#ed2b2a'
-                            style={{cursor: 'pointer'}}
-                            onClick={(e) => handleRemoveFile(index)}
-                          />
-                        </ListGroup.Item>
-
-                        {selectedFileIndex === index && item && (
-                          <Image
-                            key={`${previewImage} - ${index}`}
-                            width={200}
-                            style={{display: 'none'}}
-                            src={
-                              item instanceof File
-                                ? URL.createObjectURL(item)
-                                : `${apiUrl}/public/receipt/${previewImage}`
-                            }
-                            preview={{
-                              visible,
-                              src:
-                                item instanceof File
-                                  ? URL.createObjectURL(item)
-                                  : `${apiUrl}/public/receipt/${previewImage}`,
-                              onVisibleChange: (value) => {
-                                setVisible(value)
-                              },
-                            }}
-                          />
-                        )}
-                      </ListGroup>
-                    ))
-                  ) : (
-                    <ListGroup.Item className='d-flex justify-content-center'>
-                      Tidak ada file yang dipilih
-                    </ListGroup.Item>
-                  )}
-                </ListGroup>
-              </Form.Group>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-          </Row>
-
-          <div className='button-submit d-flex justify-content-center align-items-center'>
+          <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
             <Button variant='warning' onClick={handleReprintOrder}>
               Reprint Order
             </Button>

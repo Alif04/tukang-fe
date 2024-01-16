@@ -6,6 +6,7 @@ import './NewItem.css'
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import {DatePicker} from 'antd'
+import makeAnimated from 'react-select/animated'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
@@ -20,7 +21,7 @@ interface CategorySelect {
 }
 
 interface StoreSelect {
-  value: number | null
+  value: number
   label: string
 }
 
@@ -32,7 +33,9 @@ interface ItemDetail {
   default_price: number
   prices: Array<{
     id: number | null
-    store_id: number | null
+    store: Array<{
+      id: number | null
+    }>
     periodic_start: string
     periodic_end: string
     min_order: number
@@ -43,6 +46,7 @@ interface ItemDetail {
 const NewItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const animatedComponents = makeAnimated()
 
   // Item
   const [itemDetail, setItemDetail] = useState<ItemDetail>({
@@ -54,7 +58,11 @@ const NewItemHO: FC = () => {
     prices: [
       {
         id: null,
-        store_id: null,
+        store: [
+          {
+            id: null,
+          },
+        ],
         periodic_start: '',
         periodic_end: '',
         min_order: 0,
@@ -146,7 +154,11 @@ const NewItemHO: FC = () => {
   const handleAddForm = () => {
     const newItemDetail = {
       id: null,
-      store_id: null,
+      store: [
+        {
+          id: null,
+        },
+      ],
       periodic_start: '',
       periodic_end: '',
       min_order: 0,
@@ -196,8 +208,73 @@ const NewItemHO: FC = () => {
     })
   }
 
+  // Item Validation
+  const ItemValidation = () => {
+    let valid = true
+
+    if (!itemDetail.name) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Item Nama Jasa Pemasangan form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!itemDetail.category_id) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please select Kategori form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!itemDetail.default_price) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Harga form',
+        icon: 'warning',
+      })
+      valid = false
+    }
+
+    itemDetail.prices.map((item) => {
+      if (item.periodic_start === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Periode form',
+          icon: 'warning',
+        })
+        valid = false
+      } else if (item.periodic_end === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Periode  form',
+          icon: 'warning',
+        })
+        valid = false
+      } else if (item.min_order === 0) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Minimum Order  form',
+          icon: 'warning',
+        })
+        valid = false
+      } else if (item.price === 0) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Price  form',
+          icon: 'warning',
+        })
+        valid = false
+      }
+    })
+    return valid
+  }
+
   // Handle Submit New Item
   const handleSubmitNewItem = async () => {
+    if (!ItemValidation()) {
+      return false
+    }
+
     const updatedPrices = itemDetail.prices.map((price) => {
       if (price.id === null) {
         const {id, ...priceWithoutId} = price
@@ -361,10 +438,10 @@ const NewItemHO: FC = () => {
               <tbody>
                 {itemDetail.prices.map((element, index) => (
                   <tr key={`${index}-item_details`}>
-                    <td>
+                    <td style={{minWidth: '230px'}}>
                       <RangePicker
                         id={`date-range-${index}`}
-                        className='date-range ms-3'
+                        className='date-range ms-3 w-100'
                         onChange={(values) => {
                           if (values && values.length === 2) {
                             const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -395,7 +472,7 @@ const NewItemHO: FC = () => {
                       />
                     </td>
 
-                    <td>
+                    <td style={{minWidth: '150px'}}>
                       <Select
                         id={`store-id-${index}`}
                         name='store-id'
@@ -403,16 +480,8 @@ const NewItemHO: FC = () => {
                         placeholder='Ketik/Pilih Store'
                         isSearchable={true}
                         options={store}
-                        onChange={(newValue) => {
-                          setItemDetail((prev) => {
-                            const cache = {...prev}
-                            cache.prices[index] = {
-                              ...cache.prices[index],
-                              store_id: newValue?.value ?? null,
-                            }
-                            return cache
-                          })
-                        }}
+                        isMulti
+                        components={animatedComponents}
                       />
                     </td>
 

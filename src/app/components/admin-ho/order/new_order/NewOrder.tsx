@@ -568,8 +568,13 @@ const NewOrderHO: FC = () => {
             if (key === 'order_details') {
               orderForm.order_details.forEach((item: any, index: number) => {
                 if (item) {
-                  formData.append(`order_details[${index}][item_code]`, item.item_code)
-                  formData.append(`order_details[${index}][item_name]`, item.item_name)
+                  if (item?.item_code !== null) {
+                    formData.append(`order_details[${index}][item_code]`, item.item_code)
+                  }
+
+                  if (item?.item_name !== null) {
+                    formData.append(`order_details[${index}][item_name]`, item.item_name)
+                  }
                   formData.append(`order_details[${index}][item_id]`, item.item_id)
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
@@ -698,7 +703,7 @@ const NewOrderHO: FC = () => {
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
+                    <Form.Label column sm='4' className='title'>
                       Nama Toko
                     </Form.Label>
 
@@ -720,7 +725,7 @@ const NewOrderHO: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Row>
                     <Col xxl={3}>
-                      <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                      <Form.Label className='payment-type title'>Payment Type :</Form.Label>
                     </Col>
 
                     <Col className='form-check-request' xxl={9}>
@@ -809,7 +814,7 @@ const NewOrderHO: FC = () => {
               <Row className='input-order'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>No Member</Form.Label>
+                    <Form.Label className='title'>No Member</Form.Label>
                     <Select
                       name='member'
                       id='member'
@@ -827,7 +832,7 @@ const NewOrderHO: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <div className='d-flex justify-content-between'>
-                      <Form.Label>WA / Phone Number</Form.Label>
+                      <Form.Label className='title'>WA / Phone Number</Form.Label>
 
                       <div className='form-check-request'>
                         <Form.Check
@@ -857,14 +862,14 @@ const NewOrderHO: FC = () => {
               <Row className='input-order'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Nama Customer</Form.Label>
+                    <Form.Label className='title'>Nama Customer</Form.Label>
                     <Form.Control type='text' value={selectedMember?.full_name || ''} />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label className='title'>Email</Form.Label>
                     <Form.Control type='text' value={selectedMember?.email || ''} />
                   </Form.Group>
                 </Col>
@@ -873,7 +878,7 @@ const NewOrderHO: FC = () => {
               <Row className='alamat-order'>
                 <Col>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Alamat</Form.Label>
+                    <Form.Label className='title'>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
                       className='field-alamat'
@@ -891,11 +896,11 @@ const NewOrderHO: FC = () => {
                 <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
               </div>
               <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
+                <Form.Label className='title' column xxl='4' xl='5' md='2'>
                   Sales ID :
                 </Form.Label>
 
-                <Col sm='8'>
+                <Col xxl='8' xl='7' md='10'>
                   <Select
                     name='sales'
                     id='sales'
@@ -911,11 +916,11 @@ const NewOrderHO: FC = () => {
               </Form.Group>
 
               <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
+                <Form.Label className='title' column xxl='4' xl='5' md='2'>
                   Nama Sales :
                 </Form.Label>
 
-                <Col sm='8'>
+                <Col xxl='8' xl='7' md='10'>
                   <Form.Control type='text' value={selectedSales?.full_name || ''} />
                 </Col>
               </Form.Group>
@@ -937,7 +942,14 @@ const NewOrderHO: FC = () => {
           </div>
 
           <Row className='table-order-header d-flex align-items-center mb-5'>
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
+            <Col
+              xs={12}
+              md={3}
+              lg={3}
+              xl={3}
+              xxl={3}
+              className='request-date order-md-2 order-sm-1'
+            >
               <Form.Group>
                 <Form.Label>Nama Vendor :</Form.Label>
 
@@ -959,7 +971,14 @@ const NewOrderHO: FC = () => {
               </Form.Text>
             </Col>
 
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date'>
+            <Col
+              xs={12}
+              md={3}
+              lg={3}
+              xl={3}
+              xxl={3}
+              className='request-date order-md-1 order-sm-2'
+            >
               <Form.Group>
                 <Form.Label>Tanggal Request</Form.Label>
                 <Form.Control
@@ -977,20 +996,20 @@ const NewOrderHO: FC = () => {
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
-              <h1 className='fs-3 fw-bold'>
-                ORDER STATUS : <span className='fw-bold text-success'>BOOKED</span>
-              </h1>
-            </Col>
-
             <Col
               xs={12}
               md={3}
               lg={3}
               xl={3}
               xxl={3}
-              className='button-add text-end order-3 order-md-3'
+              className='order-status order-md-3 order-sm-4'
             >
+              <h1 className='fs-3 fw-bold'>
+                ORDER STATUS : <span className='fw-bold text-success'>BOOKED</span>
+              </h1>
+            </Col>
+
+            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='button-add text-end order-md-4'>
               <button onClick={() => addOrderDetails()}>Tambah Order</button>
             </Col>
           </Row>
@@ -1017,8 +1036,16 @@ const NewOrderHO: FC = () => {
                   <tr key={`${index}-order_details`}>
                     {orderForm.order_details.length >= 2 && (
                       <td align='center'>
-                        <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                          Remove
+                        <Button
+                          className='btn-remove'
+                          variant='danger'
+                          onClick={() => handleRemoveForm(index)}
+                        >
+                          <span className='text'>Remove</span>
+
+                          <span className='icon'>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </span>
                         </Button>
                       </td>
                     )}
@@ -1246,10 +1273,6 @@ const NewOrderHO: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='dark-success' onClick={handleReprintOrder}>
-              Reprint Order
-            </Button>
-
             <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
               Submit Order & Email
             </Button>

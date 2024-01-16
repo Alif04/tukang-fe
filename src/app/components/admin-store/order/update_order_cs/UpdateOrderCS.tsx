@@ -632,8 +632,15 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   if (item.id) {
                     formData.append(`order_details[${index}][id]`, item.id)
                   }
-                  formData.append(`order_details[${index}][item_code]`, item.item_code)
-                  formData.append(`order_details[${index}][item_name]`, item.item_name)
+
+                  if (item?.item_code !== null) {
+                    formData.append(`order_details[${index}][item_code]`, item.item_code)
+                  }
+
+                  if (item?.item_name !== null) {
+                    formData.append(`order_details[${index}][item_name]`, item.item_name)
+                  }
+
                   formData.append(`order_details[${index}][item_id]`, item.item_id)
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
@@ -762,7 +769,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               <Row className='form-header'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Form.Group>
-                    <Form.Label>
+                    <Form.Label className='title'>
                       Nama Toko
                       <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
                         {staffStoreName}
@@ -774,7 +781,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                   <Row>
                     <Col xxl={3}>
-                      <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                      <Form.Label className='payment-type title'>Payment Type :</Form.Label>
                     </Col>
 
                     <Col className='form-check-request' xxl={9}>
@@ -863,7 +870,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               <Row className='input-order'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>No Member</Form.Label>
+                    <Form.Label className='title'>No Member</Form.Label>
                     <Select
                       name='member'
                       id='member'
@@ -891,7 +898,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <div className='d-flex justify-content-between'>
-                      <Form.Label>WA / Phone Number</Form.Label>
+                      <Form.Label className='title'>WA / Phone Number</Form.Label>
 
                       <div className='form-check-request'>
                         <Form.Check
@@ -922,14 +929,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               <Row className='input-order'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Nama Customer</Form.Label>
+                    <Form.Label className='title'>Nama Customer</Form.Label>
                     <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label className='title'>Email</Form.Label>
                     <Form.Control type='text' disabled value={selectedMember?.email || ''} />
                   </Form.Group>
                 </Col>
@@ -938,7 +945,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               <Row className='alamat-order'>
                 <Col>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Alamat</Form.Label>
+                    <Form.Label className='title'>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
                       name='project_address'
@@ -986,7 +993,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           </div>
 
           <Row className='table-order-header d-flex align-items-center mb-5'>
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
+            <Col
+              xs={12}
+              md={3}
+              lg={3}
+              xl={3}
+              xxl={3}
+              className='request-date order-md-2 order-sm-3'
+            >
               <Form.Group>
                 <Form.Label>No Receipt</Form.Label>
                 <Form.Control
@@ -1001,7 +1015,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date'>
+            <Col
+              xs={12}
+              md={3}
+              lg={3}
+              xl={3}
+              xxl={3}
+              className='request-date order-md-1 order-sm-2 mt-3'
+            >
               <Form.Group>
                 <Form.Label>Tanggal Request</Form.Label>
                 <Form.Control
@@ -1011,6 +1032,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   onChange={(e) => orderFormHandler(e)}
                   min={today}
                 />
+
                 <Form.Text className='fs-8 text-dark-danger'>
                   *Tanggal Request{' '}
                   <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
@@ -1019,7 +1041,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
+            <Col
+              xs={12}
+              md={3}
+              lg={3}
+              xl={3}
+              xxl={3}
+              className='order-status order-md-3 order-sm-1 mt-3 '
+            >
               <h1 className='fs-3 fw-bold'>
                 ORDER STATUS :{' '}
                 <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
@@ -1032,7 +1061,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               lg={3}
               xl={3}
               xxl={3}
-              className='button-add text-end order-3 order-md-3'
+              className='button-add text-end order-md-4 order-sm-4 mt-3'
             >
               <button onClick={() => addOrderDetails()}>Tambah Order</button>
             </Col>
@@ -1060,8 +1089,15 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   <tr key={`${index}-order_details`}>
                     {orderForm.order_details.length >= 2 && (
                       <td align='center'>
-                        <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                          Remove
+                        <Button
+                          className='btn-remove'
+                          variant='danger'
+                          onClick={() => handleRemoveForm(index)}
+                        >
+                          <span className='text'>Remove</span>
+                          <span className='icon'>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </span>
                         </Button>
                       </td>
                     )}
@@ -1297,10 +1333,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='dark-success' onClick={handleReprintOrder}>
-              Reprint Order
-            </Button>
-
             <Button onClick={handleUpdateOrder} variant='dark-primary'>
               Submit Order & Email
             </Button>

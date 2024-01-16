@@ -49,6 +49,9 @@
 }
 
 /* Table */
+#new-item .date-range {
+  margin: 0px !important;
+}
 
 #new-item .detail-table {
   margin: 0 0 30px 0;

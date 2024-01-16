@@ -127,7 +127,7 @@ export function AsideMenuMain() {
         title='Quotation'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Admin Vendor', 'Tukang']}
+        role={['Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItem
           to='/quotation/new-quotation'
@@ -138,7 +138,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/quotation/view-quotation'
           title='Quotation List'
-          role={['Admin HO', 'Admin Vendor', 'Tukang']}
+          role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
         {/* <AsideMenuItem
@@ -496,7 +496,21 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
 
-        <AsideMenuItem to='/item/new-item' title='Set Items' role={['Admin HO']} hasBullet={true} />
+        <AsideMenuItemWithSub to='/item' title='Item' hasBullet={true} role={['Admin HO']}>
+          <AsideMenuItem
+            to='/item/view-item'
+            title='Daftar Item'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+
+          <AsideMenuItem
+            to='/item/new-item'
+            title='Set Items'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
 
         <AsideMenuItemWithSub to='/store' title='Store' hasBullet={true} role={['Admin HO']}>
           <AsideMenuItem

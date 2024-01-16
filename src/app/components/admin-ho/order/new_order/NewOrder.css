@@ -1,3 +1,8 @@
+/* Typography */
+#new-order label.title.form-label {
+  font-size: 13px;
+}
+
 /* Form Layout */
 
 #new-order .form-wrapper {
@@ -131,6 +136,14 @@
   transition: 0.3s ease-in-out;
 }
 
+#new-order button.btn-remove.btn.btn-danger span.text {
+  display: block;
+}
+
+#new-order button.btn-remove.btn.btn-danger span.icon {
+  display: none;
+}
+
 /* Table Picklist*/
 
 #new-order .table-order-head .table tr,
@@ -141,6 +154,35 @@
 
 .table-order-head th {
   text-align: center;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #new-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+
+  #new-order label.title.form-label {
+    font-size: 12px;
+  }
+
+  #new-order label.title.form-label.col-form-label.col-sm-4 {
+    padding: 0 9.75px;
+  }
+
+  #new-order label.title.form-label.col-form-label.col-sm-4 {
+    display: flex;
+    align-items: center;
+  }
 }
 
 @media screen and (max-width: 1200px) {
@@ -155,14 +197,6 @@
 
   #new-order .form-sales {
     width: 100%;
-  }
-
-  #new-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #new-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
   }
 
   #new-order .alamat-order.row .col {
@@ -199,6 +233,15 @@
 
   #new-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
+  }
+
+  /* Button Remove */
+  #new-order button.btn-remove.btn.btn-danger span.text {
+    display: none;
+  }
+
+  #new-order button.btn-remove.btn.btn-danger span.icon {
+    display: block;
   }
 }
 

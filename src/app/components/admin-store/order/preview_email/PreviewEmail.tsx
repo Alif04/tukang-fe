@@ -78,7 +78,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               <h1 className='fw-bolder'>EMAIL ORDER</h1>
 
               <h3 className='fw-bolder'>
-                Tanggal Order :{' '}
+                Request Survey :{' '}
                 <span className='fw-normal'>
                   {orderDetail ? formatDate(new Date(orderDetail.request_survey)) : '-'}
                 </span>
@@ -143,35 +143,25 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 </tr>
               </thead>
               <tbody>
-                {orderDetail?.payment_type === 'survey' ? (
+                {orderDetail?.order_details.map((item: any, index: any) => (
                   <>
-                    <tr>
-                      <td colSpan={6}>Survey</td>
+                    <tr key={`${index} - order_detail`}>
+                      <td>{item?.item_code ?? '-'}</td>
+                      <td>{item?.item_name ?? '-'}</td>
+                      <td>{item?.item?.service_name ?? '-'}</td>
+                      <td>{item?.quantity ?? 0}</td>
+                      {!(
+                        orderDetail?.payment_type === 'gratis' ||
+                        orderDetail?.payment_type === 'survey'
+                      ) && (
+                        <>
+                          <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                          <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                        </>
+                      )}
                     </tr>
                   </>
-                ) : (
-                  orderDetail?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr key={`${index} - order_detail`}>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
-                        <td>{item?.item?.service_name}</td>
-                        <td>{item?.quantity}</td>
-                        {!(
-                          orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'survey'
-                        ) && (
-                          <>
-                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                              'id'
-                            )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                          </>
-                        )}
-                      </tr>
-                    </>
-                  ))
-                )}
+                ))}
 
                 {orderDetail?.payment_type !== 'gratis' &&
                   orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (

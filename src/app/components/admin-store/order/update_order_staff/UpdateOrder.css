@@ -1,3 +1,8 @@
+/* Typography */
+#update-order label.title.form-label {
+  font-size: 13px;
+}
+
 /* Form Layout */
 
 #update-order .form-wrapper {
@@ -151,6 +156,14 @@
   transition: 0.3s ease-in-out;
 }
 
+#update-order button.btn-remove.btn.btn-danger span.text {
+  display: block;
+}
+
+#update-order button.btn-remove.btn.btn-danger span.icon {
+  display: none;
+}
+
 /* Table Picklist*/
 
 #update-order .table-picklist .table tr,
@@ -179,6 +192,35 @@
   }
 }
 
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #update-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-order .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-order label.title.form-label {
+    font-size: 12px;
+  }
+
+  #update-order label.title.form-label.col-form-label.col-sm-4 {
+    padding: 0 9.75px;
+  }
+
+  #update-order label.title.form-label.col-form-label.col-sm-4 {
+    display: flex;
+    align-items: center;
+  }
+}
+
 @media screen and (max-width: 1200px) {
   /* Form Layout */
 
@@ -195,18 +237,6 @@
     width: 100%;
   }
 
-  #update-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #update-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #update-order .alamat-order.row .col {
-    padding: 0 10px 0 10px;
-  }
-
   /* Form Sales */
 
   #update-order .form-sales .form-header {
@@ -216,6 +246,10 @@
   #update-order .form-sales .form-header h1 {
     text-align: start !important;
   }
+
+  #update-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
 }
 
 @media screen and (max-width: 991px) {
@@ -223,7 +257,6 @@
 
 @media screen and (max-width: 768px) {
   /* Table Order */
-
   #update-order .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
     margin-bottom: 10px;
@@ -241,6 +274,22 @@
 
   #update-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
     padding: 0 10px 0 10px;
+  }
+
+  /* Button */
+  #update-order .button-add button {
+    width: 100%;
+    height: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  #update-order button.btn-remove.btn.btn-danger span.text {
+    display: none;
+  }
+
+  #update-order button.btn-remove.btn.btn-danger span.icon {
+    display: block;
   }
 }
 
