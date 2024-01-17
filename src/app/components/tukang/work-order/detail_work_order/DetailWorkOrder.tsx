@@ -48,6 +48,13 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     fetchOrderData()
   }, [])
 
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${year}-${month}-${day}`
+  }
+
   const formatDateTime = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -308,6 +315,40 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+              <Row>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>{formatDate(new Date(orderDetail?.request_survey))}</p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Payment Type:</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {(() => {
+                        if (orderDetail?.payment_type === 'survey') {
+                          return `Berbayar & Survey`
+                        } else if (orderDetail?.payment_type === 'gratis') {
+                          return `Gratis`
+                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
+                    </p>
+                  </Col>
+                </Form.Group>
+              </Row>
             </div>
 
             <div className='table-warranty-content'>

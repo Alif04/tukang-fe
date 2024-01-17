@@ -706,7 +706,17 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </Form.Group>
                 </Col>
 
-                <Col></Col>
+                <Col>
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column md='4'>
+                      Nama Vendor
+                    </Form.Label>
+
+                    <Col md='8' className='d-flex align-items-center'>
+                      <p className='fs-7 fw-semibold'>{orderDetail?.vendor?.company_name ?? ''}</p>
+                    </Col>
+                  </Form.Group>
+                </Col>
               </Row>
 
               <Row>
