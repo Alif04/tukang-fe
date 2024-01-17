@@ -24,6 +24,8 @@ interface StoreItem {
 const DashboardStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userRole = localStorage.getItem('userRole')
+  const userStore = localStorage.getItem('storeId')
+
   const [orderData, setOrderData] = useState<any[]>([])
 
   const today = new Date()
@@ -31,6 +33,7 @@ const DashboardStore: FC = () => {
   const [firstDayOfMonth, setFirstDayOfMonth] = useState<any>(
     new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
   )
+
   const [todays, setTodays] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -50,8 +53,8 @@ const DashboardStore: FC = () => {
     try {
       let url =
         !dateFrom && !dateTo
-          ? `${apiUrl}/orders?date_from=${firstDayOfMonth}&date_to=${todays}&take=0`
-          : `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&take=0`
+          ? `${apiUrl}/orders?date_from=${firstDayOfMonth}&date_to=${todays}&store_id=${userStore}&take=0`
+          : `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`
 
       const response = await axios.get(url, {
         headers: {

@@ -46,6 +46,8 @@ const statusToStateMap: StatusToStateMap = {
 }
 
 const ReportComplaintStore: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const userStore = localStorage.getItem('storeId')
   const [complaintData, setComplaintData] = useState<any[]>([])
   const [complaintList, setComplaintList] = useState<any>()
 
@@ -66,10 +68,8 @@ const ReportComplaintStore: FC = () => {
 
   const fetchComplaintList = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
       const response = await axios.get(
-        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
+        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`,
         {
           headers: {
             Accept: 'application/json',

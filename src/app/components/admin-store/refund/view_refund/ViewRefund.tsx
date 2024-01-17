@@ -18,6 +18,7 @@ type Props = {
 }
 
 const ViewRefundCS: React.FC<Props> = ({className}) => {
+  const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
 
   const [refundData, setRefundData] = useState<DataType[]>([])
@@ -224,7 +225,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       const apiUrl = process.env.REACT_APP_API_URL
 
       const response = await axios.get(
-        `${apiUrl}/refund?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/refund?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&store_id=${userStore}&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',

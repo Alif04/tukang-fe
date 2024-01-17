@@ -25,6 +25,7 @@ interface Refund {
 
 const NewRefundCS: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
 
   // Fetch Data Order
@@ -34,14 +35,17 @@ const NewRefundCS: FC = () => {
 
   const getOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const tempOrder = response.data.data.map((item: any) => ({

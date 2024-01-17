@@ -28,6 +28,7 @@ interface Status {
 
 const NewReschedule: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
 
   const userRole = localStorage.getItem('userRole') as string
@@ -60,14 +61,17 @@ const NewReschedule: FC = () => {
     if (desiredStatus) {
       const statuses = desiredStatus.map((x) => x.value)
 
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0&status=${statuses}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0&status=${statuses}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const tempOrder = response.data.data.map((item: any) => ({

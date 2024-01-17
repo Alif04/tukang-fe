@@ -18,6 +18,7 @@ type Props = {
 
 const ReportPerformanceStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
 
   const staffStoreId = localStorage.getItem('storeId') as any
@@ -141,7 +142,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
   const fetchOrderList = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`,
         {
           headers: {
             Accept: 'application/json',

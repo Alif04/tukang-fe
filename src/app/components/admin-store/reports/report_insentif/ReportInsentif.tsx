@@ -20,6 +20,7 @@ type Props = {
 const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const userStore = localStorage.getItem('storeId')
   const userRole = localStorage.getItem('userRole') as any
   const userId = localStorage.getItem('user_id') as any
 
@@ -149,8 +150,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     try {
       const url =
         userRole === 'Store CS' || userRole === 'Admin HO'
-          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&page=${page}&take=${pageSize}`
+          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&page=${page}&take=${pageSize}`
+          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&store_id=${userStore}&page=${page}&take=${pageSize}`
 
       const response = await axios.get(url, {
         headers: {

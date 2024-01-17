@@ -153,8 +153,8 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
 
       const url =
         statusName === ''
-          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}&status=${statusId}`
+          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${staffStoreId}&page=${page}&take=${pageSize}`
+          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${staffStoreId}&page=${page}&take=${pageSize}&status=${statusId}`
 
       const response = await axios.get(url, {
         headers: {
