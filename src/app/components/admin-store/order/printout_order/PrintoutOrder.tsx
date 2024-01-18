@@ -59,18 +59,19 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   // Handle Print Order
   const handlePrintOrder = async () => {
     try {
-      await axios.request({
-        url: `${apiUrl}/orders/${params.id}/counter`,
-        method: 'post',
-        maxBodyLength: Infinity,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      await axios
+        .request({
+          url: `${apiUrl}/orders/${params.id}/counter`,
+          method: 'post',
+          maxBodyLength: Infinity,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
-      fetchOrderData()
+        // fetchOrderData()
         .then(() => {
           setIsPrinting(true)
         })
