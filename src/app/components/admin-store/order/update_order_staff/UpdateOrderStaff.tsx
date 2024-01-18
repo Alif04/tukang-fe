@@ -79,6 +79,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -515,8 +516,10 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
 
   // Submit Update Order
   const handleUpdateOrder = async () => {
+    setIsLoading(true)
     const url = `${apiUrl}/orders/${params.id}`
     const formData = new FormData()
+
     let errorBags = []
     const requiredOrderFields = [
       {key: 'member_id', fieldName: 'Nomor Member'},
@@ -600,24 +603,27 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(true)
         }
 
         navigate('/order/view-order')
       })
       .catch((error) => {
-        console.error(error)
-
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
           icon: 'error',
         })
+        setIsLoading(false)
       })
   }
 
@@ -1123,8 +1129,13 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               Reprint Order
             </Button>
 
-            <Button onClick={handleUpdateOrder} variant='dark-primary'>
-              Update Order & Print
+            <Button
+              type='submit'
+              disabled={isLoading}
+              onClick={handleUpdateOrder}
+              variant='dark-primary'
+            >
+              {isLoading ? 'Update Order & Print' : 'Updating Order..'}
             </Button>
           </div>
         </div>

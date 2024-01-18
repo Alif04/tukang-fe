@@ -82,6 +82,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -598,8 +599,10 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
   // Submit Update Order
   const handleUpdateOrder = async () => {
+    setIsLoading(true)
     const url = `${apiUrl}/orders/${params.id}`
     const formData = new FormData()
+
     let errorBags = []
     const requiredOrderFields = [
       {key: 'member_id', fieldName: 'Nomor Member'},
@@ -697,16 +700,20 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           }).then(() => {
             navigate(`/order/preview-email/${orderId}`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(true)
         }
       })
       .catch((error) => {
-        console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -1333,8 +1340,13 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button onClick={handleUpdateOrder} variant='dark-primary'>
-              Submit Order & Email
+            <Button
+              type='submit'
+              disabled={isLoading}
+              onClick={handleUpdateOrder}
+              variant='dark-primary'
+            >
+              {isLoading ? 'Submit Order & Email' : 'Submitting Order...'}
             </Button>
           </div>
         </div>
