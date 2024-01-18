@@ -96,9 +96,6 @@ const NewItemHO: FC = () => {
         const tempStore = response.data.data.data.map((item: any) => ({
           value: item.id,
           label: item.store_name,
-          address: item.address,
-          city_id: item.city_id,
-          zip_code: item.zip_code,
         }))
 
         setStore(tempStore)
@@ -185,6 +182,24 @@ const NewItemHO: FC = () => {
     setItemDetail({
       ...itemDetail,
       [e.target.name]: e.target.value,
+    })
+  }
+
+  // Tukang Handler
+  const tukangHandler = (
+    value: number | string | Array<number | string | null> | any | null,
+    target: string,
+    index: number
+  ) => {
+    setItemDetail((prev) => {
+      const cache = {...prev}
+
+      cache.prices[index] = {
+        ...cache.prices[index],
+        [target]: value,
+      }
+
+      return cache
     })
   }
 
@@ -475,13 +490,16 @@ const NewItemHO: FC = () => {
                     <td style={{minWidth: '150px'}}>
                       <Select
                         id={`store-id-${index}`}
-                        name='store-id'
+                        name='store'
+                        isMulti
                         className='form-control p-0'
                         placeholder='Ketik/Pilih Store'
                         isSearchable={true}
-                        options={store}
-                        isMulti
                         components={animatedComponents}
+                        options={store}
+                        getOptionLabel={(option: StoreSelect) => `${option.label}`}
+                        getOptionValue={(option: StoreSelect) => `${option.value}`}
+                        onChange={(e) => tukangHandler(e, 'store', index)}
                       />
                     </td>
 
@@ -490,6 +508,7 @@ const NewItemHO: FC = () => {
                         id={`min-order-${index}`}
                         name={`min_order`}
                         type='number'
+                        value={element.min_order}
                         onChange={(e) => itemDetailsFormHandler(e, index)}
                       />
                     </td>
@@ -499,6 +518,7 @@ const NewItemHO: FC = () => {
                         id={`price-${index}`}
                         name={`price`}
                         type='number'
+                        value={element.price}
                         onChange={(e) => itemDetailsFormHandler(e, index)}
                       />
                     </td>

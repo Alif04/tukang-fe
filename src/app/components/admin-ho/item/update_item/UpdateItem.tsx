@@ -265,8 +265,73 @@ const UpdateItemHO: FC = () => {
     })
   }
 
+  // Item Validation
+  const ItemValidation = () => {
+    let valid = true
+
+    if (!itemDetail.name) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Item Nama Jasa Pemasangan form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!itemDetail.category_id) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please select Kategori form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!itemDetail.default_price) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Harga form',
+        icon: 'warning',
+      })
+      valid = false
+    }
+
+    itemDetail.prices.map((item) => {
+      if (item.periodic_start === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Periode form',
+          icon: 'warning',
+        })
+        valid = false
+      } else if (item.periodic_end === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Periode  form',
+          icon: 'warning',
+        })
+        valid = false
+      } else if (item.min_order === 0) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Minimum Order  form',
+          icon: 'warning',
+        })
+        valid = false
+      } else if (item.price === 0) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please fill Price  form',
+          icon: 'warning',
+        })
+        valid = false
+      }
+    })
+    return valid
+  }
+
   // Handle Submit New Item
   const handleUpdateItem = async () => {
+    if (!ItemValidation()) {
+      return false
+    }
+
     const updatedPrices = itemDetail.prices.map((price) => {
       if (price.id === null) {
         const {id, ...priceWithoutId} = price

@@ -512,6 +512,15 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
+        <AsideMenuItemWithSub to='/sales' title='Sales' role={['Admin HO']} hasBullet={true}>
+          <AsideMenuItem
+            to='/sales/new-sales'
+            title='Register Sales'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
+
         <AsideMenuItemWithSub to='/store' title='Store' hasBullet={true} role={['Admin HO']}>
           <AsideMenuItem
             to='/store/view-store'

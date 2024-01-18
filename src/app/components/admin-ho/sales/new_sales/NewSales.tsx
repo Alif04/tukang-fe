@@ -26,6 +26,11 @@ interface CategorySelect {
   label: string
 }
 
+interface StoreItem {
+  value: number | null
+  label: string
+}
+
 interface Sales {
   store_id: number | null
   bank_id: number | null
@@ -40,9 +45,17 @@ interface Sales {
 
 const NewSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const userRole = localStorage.getItem('userRole')
   const navigate = useNavigate()
 
   const animatedComponents = makeAnimated()
+
+  // List Store
+  const [store, setStore] = useState<StoreItem[]>([])
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: '',
+  })
 
   // List Sales
   const [salesData, setSalesData] = useState<DataType[]>([])
@@ -59,7 +72,7 @@ const NewSales: FC = () => {
   // Sales
   const [salesId, setSalesId] = useState<any>()
   const [salesInfo, setSalesInfo] = useState<Sales>({
-    store_id: Number.parseInt(staffStoreId),
+    store_id: null,
     bank_id: null,
     full_name: '',
     account_name: '',
@@ -83,6 +96,32 @@ const NewSales: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     const getSalesId = async () => {
       try {
         const response = await axios.get(`${apiUrl}/sales/next-code`, {
@@ -95,7 +134,6 @@ const NewSales: FC = () => {
         })
 
         const data = response.data.code
-        console.log(data)
 
         if (response.status === 200) {
           const {data} = response
@@ -158,6 +196,7 @@ const NewSales: FC = () => {
       }
     }
 
+    getStore()
     getSalesId()
     getBank()
     getCategories()
@@ -248,6 +287,15 @@ const NewSales: FC = () => {
       [e.target.name]: e.target.value,
     }))
   }
+
+  // Change Select Store
+  useEffect(() => {
+    setSalesInfo((prev) => ({
+      ...prev,
+      store_id:
+        userRole === 'Admin HO' ? selectedStore?.value ?? null : Number.parseInt(staffStoreId),
+    }))
+  }, [selectedStore])
 
   // Change Select Bank
   useEffect(() => {
@@ -549,9 +597,21 @@ const NewSales: FC = () => {
                 <Form.Group as={Row}>
                   <Form.Label column sm='4'>
                     Nama Toko
-                    <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
-                      {staffStoreName}
-                    </span>
+                    {userRole === 'Admin HO' ? (
+                      <Select
+                        name='store_id'
+                        className='form-control p-0'
+                        classNamePrefix='select'
+                        placeholder='Pilih Toko'
+                        isSearchable={true}
+                        options={store}
+                        onChange={(newValue) => setSelectedStore(newValue)}
+                      />
+                    ) : (
+                      <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                        {staffStoreName}
+                      </span>
+                    )}
                   </Form.Label>
                 </Form.Group>
               </Row>

@@ -135,7 +135,7 @@ const ViewSalesHO: React.FC = () => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 70,
+      width: 60,
       render: (record) => {
         const handleNewSales = () => {
           navigate('/sales/new-sales')
@@ -197,10 +197,6 @@ const ViewSalesHO: React.FC = () => {
 
         return (
           <div className='button-wrapper'>
-            <a className='button-add' onClick={handleNewSales}>
-              <FontAwesomeIcon icon={faUserPlus} size='sm' className='text-black' />
-            </a>
-
             <a className='button-edit' onClick={handleUpdateId}>
               <FontAwesomeIcon icon={faPen} size='sm' />
             </a>

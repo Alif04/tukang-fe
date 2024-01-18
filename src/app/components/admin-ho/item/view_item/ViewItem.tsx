@@ -195,7 +195,7 @@ const ViewItemHO: React.FC = () => {
       const apiData = await getItemList()
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from getItemList')
         return []
       }
 

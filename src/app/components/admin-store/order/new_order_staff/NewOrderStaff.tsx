@@ -69,6 +69,7 @@ interface Order {
 const NewOrderStoreStaff: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -382,8 +383,10 @@ const NewOrderStoreStaff: FC = () => {
 
   // Submit New Order
   const handleSubmitNewOrder = async () => {
+    setIsLoading(true)
     const url = `${apiUrl}/orders`
     const formData = new FormData()
+
     let errorBags = []
     const requiredOrderFields = [
       {key: 'member_id', fieldName: 'Nomor Member'},
@@ -467,16 +470,20 @@ const NewOrderStoreStaff: FC = () => {
           }).then(() => {
             navigate(`/order/printout-order/${orderId}`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(true)
         }
       })
       .catch((error) => {
-        console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -932,8 +939,13 @@ const NewOrderStoreStaff: FC = () => {
           </div>
 
           <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
-            <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
-              Submit Order & Print
+            <Button
+              type='submit'
+              onClick={handleSubmitNewOrder}
+              disabled={isLoading}
+              variant='dark-primary'
+            >
+              {isLoading ? 'Submit Order & Print' : 'Submitting Order...'}
             </Button>
           </div>
         </div>
