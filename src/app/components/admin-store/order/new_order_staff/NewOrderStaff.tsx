@@ -70,6 +70,7 @@ const NewOrderStoreStaff: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  console.log(isLoading)
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
@@ -945,7 +946,7 @@ const NewOrderStoreStaff: FC = () => {
               disabled={isLoading}
               variant='dark-primary'
             >
-              {isLoading ? 'Submit Order & Print' : 'Submitting Order...'}
+              {isLoading ? 'Submitting Order...' : 'Submit Order & Print'}
             </Button>
           </div>
         </div>

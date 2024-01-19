@@ -1073,7 +1073,7 @@ const NewOrderStoreCS: FC = () => {
               disabled={isLoading}
               variant='dark-primary'
             >
-              {isLoading ? 'Submit Order & Print' : 'Submitting Order...'}
+              {isLoading ? 'Submitting Order...' : 'Submit Order & Print'}
             </Button>
           </div>
         </div>

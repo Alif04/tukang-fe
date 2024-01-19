@@ -1135,7 +1135,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               onClick={handleUpdateOrder}
               variant='dark-primary'
             >
-              {isLoading ? 'Update Order & Print' : 'Updating Order..'}
+              {isLoading ? 'Updating Order..' : ' Update Order & Print'}
             </Button>
           </div>
         </div>

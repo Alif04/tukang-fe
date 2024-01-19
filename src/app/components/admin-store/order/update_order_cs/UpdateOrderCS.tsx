@@ -1346,7 +1346,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               onClick={handleUpdateOrder}
               variant='dark-primary'
             >
-              {isLoading ? 'Submit Order & Email' : 'Submitting Order...'}
+              {isLoading ? ' Submitting Order...' : 'Update Order & Print'}
             </Button>
           </div>
         </div>
