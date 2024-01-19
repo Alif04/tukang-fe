@@ -202,13 +202,17 @@ const ViewItemHO: React.FC = () => {
       const itemData = apiData.map((item: any) => {
         let data
 
+        const storeItem = item?.prices[0].price_stores
+          .map((storeDetail: any) => storeDetail?.store?.store_name ?? '-')
+          .join(', ')
+
         data = {
           material_id: item?.id,
-          store_name: item?.prices[0]?.store.store_name || '-',
-          product_name: item?.item_name || '-',
-          service_name: item?.service_name || '-',
+          store_name: storeItem,
+          product_name: item?.item_name ?? '-',
+          service_name: item?.service_name ?? '-',
           default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
-          min_order: item?.prices[0]?.min_order || '-',
+          min_order: item?.prices[0]?.min_order ?? '-',
         }
 
         return data

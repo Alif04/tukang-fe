@@ -1,3 +1,41 @@
+/* Form Layout */
+
+#new-material p {
+  padding: 3px 0px;
+}
+
+#new-material .form-wrapper {
+  margin-bottom: 30px;
+}
+
+#new-material .form-wrapper .form-header {
+  margin-bottom: 30px;
+}
+
+#new-material .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 55%;
+}
+
+#new-material .costumer-info .detail-info.row label.form-label.col-form-label {
+  padding: 3px 9.75px;
+}
+
+#new-material .costumer-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#new-material .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 45%;
+}
+
+#new-material .sales-info .detail-info.row label.form-label.col-form-label {
+  padding: 3px 9.75px;
+}
+
+#new-material .sales-info .detail-info.row input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
 /* Table Item List */
 
 #new-material .table .table-item-head tr th {
@@ -63,8 +101,8 @@
 
 /* Button Action */
 
-#new-material button.btn.btn-button-dark-primary {
-  width: 200px;
+#new-material button.btn.btn-btn-jasa.button-dark-primary {
+  width: fit-content;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -77,8 +115,8 @@
   color: white;
 }
 
-#new-material button.btn.btn-button-warning {
-  width: 250px;
+#new-material button.btn.btn-btn-material.button-dark-primary {
+  width: fit-content;
   display: flex;
   justify-content: center;
   align-items: center;

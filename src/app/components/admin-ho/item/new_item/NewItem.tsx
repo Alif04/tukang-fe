@@ -8,10 +8,10 @@ import Select, {SingleValue} from 'react-select'
 import {DatePicker} from 'antd'
 import makeAnimated from 'react-select/animated'
 import Swal from 'sweetalert2'
-import {useNavigate, useParams} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -26,7 +26,7 @@ interface StoreSelect {
 }
 
 interface ItemDetail {
-  item_code: number | null
+  item_code: string
   item_name: string
   name: string
   category_id: number | null
@@ -50,7 +50,7 @@ const NewItemHO: FC = () => {
 
   // Item
   const [itemDetail, setItemDetail] = useState<ItemDetail>({
-    item_code: null,
+    item_code: '',
     item_name: '',
     name: '',
     category_id: null,

@@ -558,12 +558,12 @@ export function AsideMenuMain() {
           hasBullet={true}
           role={['Admin Vendor']}
         >
-          <AsideMenuItem
+          {/* <AsideMenuItem
             to='/material/view-material'
             title='List Material'
             role={['Admin Vendor']}
             hasBullet={true}
-          />
+          /> */}
           <AsideMenuItem
             to='/material/new-material'
             title='New Material'

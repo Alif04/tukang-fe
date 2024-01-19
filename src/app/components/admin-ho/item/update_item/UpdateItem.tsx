@@ -7,11 +7,12 @@ import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
+import makeAnimated from 'react-select/animated'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -33,8 +34,9 @@ interface ItemDetail {
   default_price: number
   prices: Array<{
     id: number | null
-    store_id: number | null
-    store?: StoreSelect | null
+    price_store: Array<{
+      store_id: number | null
+    }>
     periodic_start: string | null | Date
     periodic_end: string | null | Date
     min_order: number
@@ -46,6 +48,7 @@ const UpdateItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const animatedComponents = makeAnimated()
 
   // Item
   const [itemDetail, setItemDetail] = useState<ItemDetail>({
@@ -57,7 +60,11 @@ const UpdateItemHO: FC = () => {
     prices: [
       {
         id: null,
-        store_id: null,
+        price_store: [
+          {
+            store_id: null,
+          },
+        ],
         periodic_start: null,
         periodic_end: null,
         min_order: 0,
@@ -97,7 +104,6 @@ const UpdateItemHO: FC = () => {
           if (data) {
             const pricesItem = data?.prices.map((item: any) => ({
               id: item?.id,
-              store_id: item?.store_id,
               // periodic_start: item?.periodic_start,
               // periodic_end: item?.periodic_end,
               periodic_start: dayjs(item?.periodic_start).format('YYYY-MM-DD'),
@@ -106,10 +112,6 @@ const UpdateItemHO: FC = () => {
               // periodic_end: formatPeriodicDate(new Date(item?.periodic_end)),
               min_order: item?.min_order,
               price: item?.price,
-              store: {
-                value: item?.store_id,
-                label: item?.store.store_name,
-              },
             }))
 
             setItemDetail((prev) => ({
@@ -215,7 +217,11 @@ const UpdateItemHO: FC = () => {
   const handleAddForm = () => {
     const newItemDetail = {
       id: null,
-      store_id: null,
+      price_store: [
+        {
+          store_id: null,
+        },
+      ],
       periodic_start: dayjs(new Date()).format('YYYY-MM-DD'),
       periodic_end: dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD'),
       min_order: 0,
@@ -242,6 +248,24 @@ const UpdateItemHO: FC = () => {
     setItemDetail({
       ...itemDetail,
       [e.target.name]: e.target.value,
+    })
+  }
+
+  // Store Handler
+  const storeHandler = (
+    value: number | string | Array<number | string | null> | any | null,
+    target: string,
+    index: number
+  ) => {
+    setItemDetail((prev) => {
+      const cache = {...prev}
+
+      cache.prices[index] = {
+        ...cache.prices[index],
+        [target]: value.map((item: any) => ({store_id: item.value})),
+      }
+
+      return cache
     })
   }
 
@@ -333,13 +357,14 @@ const UpdateItemHO: FC = () => {
     }
 
     const updatedPrices = itemDetail.prices.map((price) => {
-      if (price.id === null) {
-        const {id, ...priceWithoutId} = price
-        return priceWithoutId
-      }
+      const {id, ...priceWithoutId} = price
+      return priceWithoutId
 
-      const {store, ...priceWithoutStore} = price
-      return priceWithoutStore
+      // if (price.id === null) {
+      // }
+
+      // const {price_store, ...priceWithoutStore} = price
+      // return priceWithoutStore
     })
 
     const newItemDetail = {
@@ -519,11 +544,6 @@ const UpdateItemHO: FC = () => {
                         className='date-range ms-1 me-1 w-100'
                         format={'YYYY-MM-DD'}
                         allowClear={false}
-                        // value={[
-                        //   dayjs(element.periodic_start).format('YYYY-MM-DD'),
-                        //   dayjs(element.periodic_end).format('YYYY-MM-DD'),
-                        // ]}
-                        // value={[dayjs(element.periodic_start), dayjs(element.periodic_end)]}
                         value={[
                           dayjs(itemDetail.prices[index].periodic_start, 'YYYY-MM-DD') ?? null,
                           dayjs(itemDetail.prices[index].periodic_end, 'YYYY-MM-DD') ?? null,
@@ -548,26 +568,16 @@ const UpdateItemHO: FC = () => {
                     <td>
                       <Select
                         id={`store-id-${index}`}
-                        name='store-id'
+                        name='store'
+                        isMulti
                         className='form-control p-0'
                         placeholder='Ketik/Pilih Store'
                         isSearchable={true}
+                        components={animatedComponents}
                         options={store}
-                        value={{
-                          value: itemDetail.prices[index]?.store?.value ?? null,
-                          label: itemDetail.prices[index]?.store?.label ?? '',
-                        }}
-                        onChange={(newValue) => {
-                          setItemDetail((prev) => {
-                            const cache = {...prev}
-                            cache.prices[index] = {
-                              ...cache.prices[index],
-                              store_id: newValue?.value ?? null,
-                              store: newValue,
-                            }
-                            return cache
-                          })
-                        }}
+                        getOptionLabel={(option: StoreSelect) => `${option.label}`}
+                        getOptionValue={(option: StoreSelect) => `${option.value}`}
+                        onChange={(e) => storeHandler(e, 'price_store', index)}
                       />
                     </td>
 

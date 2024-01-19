@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect, useRef, SetStateAction} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 import {WorkOrder} from '../../../../interfaces/work-order'
 
 import './UpdateWorkOrder.css'
@@ -15,6 +15,18 @@ import {Form, Button, Card, Row, Col, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faFileArrowUp, faPlus} from '@fortawesome/free-solid-svg-icons'
 const {RangePicker} = DatePicker
+
+interface Status {
+  value: number | null
+  label: string
+  category: string
+}
+
+interface Tukang {
+  value: number | null
+  label: string
+  type: number
+}
 
 interface WorkOrders {
   id: number | null
@@ -48,18 +60,6 @@ interface WorkOrderHistory {
   updated_at: string
   work_date_time: string
   updated_by: string
-}
-
-interface Status {
-  value: number | null
-  category: string
-  label: string
-}
-
-interface Tukang {
-  value: number | null
-  label: string
-  type: number
 }
 
 const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> = ({
@@ -317,13 +317,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   }
 
   // Work Order Form Handler
-  // const workOrderFormHandler = (e: any) => {
-  //   setWorkOrder({
-  //     ...workOrder,
-  //     [e.target.name]: e.target.value,
-  //   })
-  // }
-
   const workOrderHandler = (
     value: number | string | Array<number | string | null> | any | null,
     target: string
@@ -879,7 +872,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </Col>
                     </Form.Group>
 
-                    {['WORKSTART', 'WIP', 'WORKEND', 'REWORKEND'].includes(
+                    {['WORKEND', 'REWORKSTART', 'RIP', 'REWORKEND', 'WORKDONE', 'DONE'].includes(
                       orderDetail?.work_orders?.work_order_status[0]?.status?.category
                     ) && (
                       <Form.Group className='detail-info' as={Row}>

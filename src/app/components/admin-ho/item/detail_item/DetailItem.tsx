@@ -115,17 +115,19 @@ const DetailItemHO: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {itemDetail?.prices.map((item: any) => (
-                  <>
-                    <tr>
-                      <td>{`${formatDateTime(new Date(item?.periodic_start))} — ${formatDateTime(
-                        new Date(item?.periodic_end)
-                      )}`}</td>
-                      <td>{item?.store.store_name}</td>
-                      <td className='text-center'>{item?.min_order}</td>
-                      <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                    </tr>
-                  </>
+                {itemDetail?.prices.map((item: any, index: number) => (
+                  <tr key={`price-${index}`}>
+                    <td>{`${formatDateTime(new Date(item?.periodic_start))} — ${formatDateTime(
+                      new Date(item?.periodic_end)
+                    )}`}</td>
+                    <td>
+                      {item?.price_stores
+                        .map((storeDetail: any) => storeDetail?.store?.store_name ?? '-')
+                        .join(', ')}
+                    </td>
+                    <td className='text-center'>{item?.min_order}</td>
+                    <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                  </tr>
                 ))}
               </tbody>
             </Table>
