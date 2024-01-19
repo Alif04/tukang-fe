@@ -33,8 +33,8 @@ interface ItemDetail {
   default_price: number
   prices: Array<{
     id: number | null
-    store: Array<{
-      id: number | null
+    price_store: Array<{
+      store_id: number | null
     }>
     periodic_start: string
     periodic_end: string
@@ -58,9 +58,9 @@ const NewItemHO: FC = () => {
     prices: [
       {
         id: null,
-        store: [
+        price_store: [
           {
-            id: null,
+            store_id: null,
           },
         ],
         periodic_start: '',
@@ -138,22 +138,13 @@ const NewItemHO: FC = () => {
     getCategories()
   }, [])
 
-  // Format Date
-  const today = new Date().toISOString().split('T')[0]
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   // Add Item Detail
   const handleAddForm = () => {
     const newItemDetail = {
       id: null,
-      store: [
+      price_store: [
         {
-          id: null,
+          store_id: null,
         },
       ],
       periodic_start: '',
@@ -185,8 +176,8 @@ const NewItemHO: FC = () => {
     })
   }
 
-  // Tukang Handler
-  const tukangHandler = (
+  // Store Handler
+  const storeHandler = (
     value: number | string | Array<number | string | null> | any | null,
     target: string,
     index: number
@@ -196,7 +187,7 @@ const NewItemHO: FC = () => {
 
       cache.prices[index] = {
         ...cache.prices[index],
-        [target]: value,
+        [target]: value.map((item: any) => ({store_id: item.value})),
       }
 
       return cache
@@ -499,7 +490,7 @@ const NewItemHO: FC = () => {
                         options={store}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
                         getOptionValue={(option: StoreSelect) => `${option.value}`}
-                        onChange={(e) => tukangHandler(e, 'store', index)}
+                        onChange={(e) => storeHandler(e, 'price_store', index)}
                       />
                     </td>
 

@@ -879,97 +879,103 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </Col>
                     </Form.Group>
 
-                    <Form.Group className='detail-info' as={Row}>
-                      <Form.Label
-                        className='fs-9 text-decoration-underline pt-0 pb-0 '
-                        column
-                        md='4'
-                      >
-                        Upload Foto Sesudah
-                      </Form.Label>
+                    {['WORKSTART', 'WIP', 'WORKEND', 'REWORKEND'].includes(
+                      orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                    ) && (
+                      <Form.Group className='detail-info' as={Row}>
+                        <Form.Label
+                          className='fs-9 text-decoration-underline pt-0 pb-0 '
+                          column
+                          md='4'
+                        >
+                          Upload Foto Sesudah
+                        </Form.Label>
 
-                      <Col md='8'>
-                        <Form.Group>
-                          <Form className='form-input-image' onClick={handleImageWorkAfterClick}>
-                            <Form.Control
-                              type='file'
-                              accept='image/*'
-                              className='work-after-image'
-                              multiple
-                              hidden
-                              id='work-after-file-input'
-                              ref={evidenceRef}
-                              onChange={handleFileWorkAfter}
-                            />
+                        <Col md='8'>
+                          <Form.Group>
+                            <Form className='form-input-image' onClick={handleImageWorkAfterClick}>
+                              <Form.Control
+                                type='file'
+                                accept='image/*'
+                                className='work-after-image'
+                                multiple
+                                hidden
+                                id='work-after-file-input'
+                                ref={evidenceRef}
+                                onChange={handleFileWorkAfter}
+                              />
 
-                            <div className='input-image-text'>
-                              <FontAwesomeIcon icon={faFileArrowUp} color='#858585' size='2xl' />
-                            </div>
-                          </Form>
+                              <div className='input-image-text'>
+                                <FontAwesomeIcon icon={faFileArrowUp} color='#858585' size='2xl' />
+                              </div>
+                            </Form>
 
-                          <ListGroup className='pt-3'>
-                            {workOrderAfter.length ? (
-                              workOrderAfter.map((item, index) => (
-                                <ListGroup key={`${stringToHash(item?.name ?? 'randomImageHash')}`}>
-                                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
-                                    <FontAwesomeIcon
-                                      className='me-3'
-                                      icon={faFileArrowUp}
-                                      color='#858585'
-                                      size='sm'
-                                    />
+                            <ListGroup className='pt-3'>
+                              {workOrderAfter.length ? (
+                                workOrderAfter.map((item, index) => (
+                                  <ListGroup
+                                    key={`${stringToHash(item?.name ?? 'randomImageHash')}`}
+                                  >
+                                    <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                                      <FontAwesomeIcon
+                                        className='me-3'
+                                        icon={faFileArrowUp}
+                                        color='#858585'
+                                        size='sm'
+                                      />
 
-                                    <span
-                                      className='upload-content'
-                                      onClick={() => handleFileWorkAfterClick(index)}
-                                    >
-                                      {item?.name}
-                                    </span>
+                                      <span
+                                        className='upload-content'
+                                        onClick={() => handleFileWorkAfterClick(index)}
+                                      >
+                                        {item?.name}
+                                      </span>
 
-                                    <FontAwesomeIcon
-                                      icon={faTrash}
-                                      size='sm'
-                                      color='#ed2b2a'
-                                      style={{cursor: 'pointer'}}
-                                      onClick={(e) => handleRemoveWorkAfterFile(index)}
-                                    />
-                                  </ListGroup.Item>
+                                      <FontAwesomeIcon
+                                        icon={faTrash}
+                                        size='sm'
+                                        color='#ed2b2a'
+                                        style={{cursor: 'pointer'}}
+                                        onClick={(e) => handleRemoveWorkAfterFile(index)}
+                                      />
+                                    </ListGroup.Item>
 
-                                  {selectedWorkAfterFile === index && item && (
-                                    <Image
-                                      key={`${stringToHash(previewWorkAfterImage)} - ${index} - ${
-                                        item?.name
-                                      }`}
-                                      width={200}
-                                      style={{display: 'none'}}
-                                      src={
-                                        item instanceof File
-                                          ? URL.createObjectURL(item)
-                                          : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`
-                                      }
-                                      preview={{
-                                        visible,
-                                        src:
+                                    {selectedWorkAfterFile === index && item && (
+                                      <Image
+                                        key={`${stringToHash(previewWorkAfterImage)} - ${index} - ${
+                                          item?.name
+                                        }`}
+                                        width={200}
+                                        style={{display: 'none'}}
+                                        src={
                                           item instanceof File
                                             ? URL.createObjectURL(item)
-                                            : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`,
-                                        onVisibleChange: (value) => {
-                                          setVisible(value)
-                                        },
-                                      }}
-                                    />
-                                  )}
-                                </ListGroup>
-                              ))
-                            ) : (
-                              <ListGroup.Item className='d-flex justify-content-center'>
-                                Tidak ada file yang dipilih
-                              </ListGroup.Item>
-                            )}
-                          </ListGroup>
-                        </Form.Group>
-                      </Col>
-                    </Form.Group>
+                                            : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`
+                                        }
+                                        preview={{
+                                          visible,
+                                          src:
+                                            item instanceof File
+                                              ? URL.createObjectURL(item)
+                                              : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`,
+                                          onVisibleChange: (value) => {
+                                            setVisible(value)
+                                          },
+                                        }}
+                                      />
+                                    )}
+                                  </ListGroup>
+                                ))
+                              ) : (
+                                <ListGroup.Item className='d-flex justify-content-center'>
+                                  Tidak ada file yang dipilih
+                                </ListGroup.Item>
+                              )}
+                            </ListGroup>
+                          </Form.Group>
+                        </Col>
+                      </Form.Group>
+                    )}
                   </Row>
                 </Col>
               </Row>

@@ -337,6 +337,7 @@ const UpdateItemHO: FC = () => {
         const {id, ...priceWithoutId} = price
         return priceWithoutId
       }
+
       const {store, ...priceWithoutStore} = price
       return priceWithoutStore
     })
