@@ -108,7 +108,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     const desiredStatus = statusData.find(
       (status: any) => status.category === 'RESCHEDULEAPROVEDBYHO'
     )
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value
 
     setReschedule((prevRescheduleValues) => ({
       ...prevRescheduleValues,

@@ -68,7 +68,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
 
   useEffect(() => {
     if (desiredStatus) {
-      const statusId = desiredStatus.value
+      const statusId = desiredStatus?.value
       setComplaintStatus(statusId)
     }
   }, [complaintStatus])

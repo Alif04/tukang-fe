@@ -224,7 +224,7 @@ const NewInvoiceVendor: FC = () => {
       const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
 
       if (desiredStatus) {
-        const statusId = desiredStatus.value
+        const statusId = desiredStatus?.value
 
         const response = await axios.get(
           `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,

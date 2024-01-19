@@ -453,7 +453,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
     const desiredStatusName = 'BOOKED'
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value
 
     setOrderForm({
       ...orderForm,

@@ -58,7 +58,7 @@ const ViewInvoiceHO: FC = () => {
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'PAID')
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value
 
     setInvoices((prev) => ({
       ...prev,

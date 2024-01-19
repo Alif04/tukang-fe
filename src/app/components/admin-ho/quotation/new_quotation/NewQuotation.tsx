@@ -281,7 +281,7 @@ const NewQuotationHO: FC = () => {
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'QUOTEIN')
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value
 
     setQuotationStatus(statusId)
   }, [quotationStatus])

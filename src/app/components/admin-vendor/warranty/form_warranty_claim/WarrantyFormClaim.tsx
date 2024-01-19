@@ -111,7 +111,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
 
   useEffect(() => {
     if (desiredStatus) {
-      const statusId = desiredStatus.value
+      const statusId = desiredStatus?.value
       setComplaintStatus(statusId)
     }
   }, [complaintStatus])

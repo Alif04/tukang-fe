@@ -147,7 +147,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
     const desiredStatusName = 'FEEDBACK'
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-    const statusId = desiredStatus.value
+    const statusId = desiredStatus?.value
 
     setFeedbackStatusId(statusId)
   }, [feedbackStatus])
