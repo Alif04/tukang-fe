@@ -41,19 +41,24 @@ export function Login() {
       .then((res) => {
         if (res.data.statusCode == 200) {
           const user = res.data.user
-          const isSales = user.employee === null
+          const isSales = user.roles.name === 'Sales'
+          const isEmployee = user.employee !== null
 
           localStorage.setItem('user_id', res.data.user.id)
           localStorage.setItem('username', res.data.user.username)
           localStorage.setItem('userRole', res.data.user.roles.name)
           localStorage.setItem('accessToken', res.data.accessToken)
 
-          localStorage.setItem('sales_id', isSales ? user.sales.store.id : user.employee.store.id)
-          localStorage.setItem('storeId', isSales ? user.sales.store.id : user.employee.store.id)
-          localStorage.setItem(
-            'storeName',
-            isSales ? user.sales.store.store_name : user.employee.store.store_name
-          )
+          if (isSales) {
+            localStorage.setItem('sales_id', user.sales.id)
+            localStorage.setItem('storeId', user.sales.store.id)
+            localStorage.setItem('storeName', user.sales.store.store_name)
+          } else if (isEmployee) {
+            localStorage.setItem('storeId', user.employee.store.id)
+            localStorage.setItem('storeName', user.employee.store.store_name)
+          } else if (!isSales && !isEmployee) {
+            window.location.reload()
+          }
 
           Swal.fire({
             title: 'Login Success',

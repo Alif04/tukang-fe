@@ -37,105 +37,17 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData, memberData}) => 
                 </span>
               </div>
             </div>
-
+            {/* 
             <div className='d-flex flex-column justify-content-center align-items-end w-50'>
               <span className='fw-bold text-success'>Rp. 12.000.000</span>
               <span className='text-muted'>6 Invoices</span>
-            </div>
+            </div> */}
           </div>
         ))}
-
-        {/* <div className='list-item d-flex justify-content-between mb-7'>
-          <div className='d-flex align-items-center'>
-            <div className='symbol symbol-50px me-5'>
-              <img
-                src={toAbsoluteUrl('/media/avatars/300-2.jpg')}
-                className='rounded-circle'
-                alt=''
-              />
-            </div>
-
-            <div className='flex-grow-1'>
-              <div className='text-dark fw-bold fs-6'>Nur Amalia</div>
-              <span className='text-muted d-block fw-semibold'>Cat</span>
-            </div>
-          </div>
-
-          <div className='d-flex flex-column justify-content-center align-items-end'>
-            <span className='fw-bold text-success'>Rp. 10.000.000</span>
-            <span className='text-muted'>10 Invoices</span>
-          </div>
-        </div>
-
-        <div className='list-item d-flex justify-content-between mb-7'>
-          <div className='d-flex align-items-center'>
-            <div className='symbol symbol-50px me-5'>
-              <img
-                src={toAbsoluteUrl('/media/avatars/300-9.jpg')}
-                className='rounded-circle'
-                alt=''
-              />
-            </div>
-
-            <div className='flex-grow-1'>
-              <div className='text-dark fw-bold fs-6'>Paulus</div>
-              <span className='text-muted d-block fw-semibold'>Water Heater</span>
-            </div>
-          </div>
-
-          <div className='d-flex flex-column justify-content-center align-items-end'>
-            <span className='fw-bold text-success'>Rp. 9.000.000</span>
-            <span className='text-muted'>9 Invoices</span>
-          </div>
-        </div>
-
-        <div className='list-item d-flex justify-content-between mb-7'>
-          <div className='d-flex align-items-center'>
-            <div className='symbol symbol-50px me-5'>
-              <img
-                src={toAbsoluteUrl('/media/avatars/300-7.jpg')}
-                className='rounded-circle'
-                alt=''
-              />
-            </div>
-
-            <div className='flex-grow-1'>
-              <div className='text-dark fw-bold fs-6'>Anton</div>
-              <span className='text-muted d-block fw-semibold'>Gypsum</span>
-            </div>
-          </div>
-
-          <div className='d-flex flex-column justify-content-center align-items-end'>
-            <span className='fw-bold text-success'>Rp. 5.000.000</span>
-            <span className='text-muted'>7 Invoices</span>
-          </div>
-        </div>
-
-        <div className='list-item d-flex justify-content-between mb-7'>
-          <div className='d-flex align-items-center'>
-            <div className='symbol symbol-50px me-5'>
-              <img
-                src={toAbsoluteUrl('/media/avatars/300-3.jpg')}
-                className='rounded-circle'
-                alt=''
-              />
-            </div>
-
-            <div className='flex-grow-1'>
-              <div className='text-dark fw-bold fs-6'>Sudirman</div>
-              <span className='text-muted d-block fw-semibold'>Ubin</span>
-            </div>
-          </div>
-
-          <div className='d-flex flex-column justify-content-center align-items-end'>
-            <span className='fw-bold text-success'>Rp. 5.000.000</span>
-            <span className='text-muted'>10 Invoices</span>
-          </div>
-        </div> */}
       </div>
 
       <div className='card-footer pt-1 pb-1'>
-        <p className='text-muted'>Total Customer : {memberData.length} person</p>
+        <p className='text-muted'>Total Sales : {salesData.length} person</p>
       </div>
     </div>
   )
