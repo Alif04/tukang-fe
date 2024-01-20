@@ -61,6 +61,7 @@ interface Order {
     quantity: number
     unit_price: string | null
     total: string | null
+    item_notes: string | null
   }>
   order_files: Array<any>
 
@@ -96,6 +97,7 @@ const NewOrderStoreCS: FC = () => {
         quantity: 1,
         unit_price: null,
         total: null,
+        item_notes: null,
       },
     ],
     order_files: [],
@@ -372,6 +374,7 @@ const NewOrderStoreCS: FC = () => {
       quantity: 1,
       unit_price: null,
       total: null,
+      item_notes: null,
     }
 
     setOrderForm((prev) => {
@@ -875,27 +878,38 @@ const NewOrderStoreCS: FC = () => {
                     </td>
 
                     <td>
-                      <Select
-                        id={`item_id-${index}`}
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Pemasangan'
-                        isSearchable={true}
-                        options={item}
-                        name={`item_id`}
-                        onChange={(newValue) => {
-                          setOrderForm((prev) => {
-                            const cache = {...prev}
-                            cache.order_details[index] = {
-                              ...cache.order_details[index],
-                              item_id: newValue?.value ?? null,
-                              item: newValue,
-                            }
-                            return cache
-                          })
-                          calcEachDetails()
-                        }}
-                      />
+                      {paymentTypeValue[1] === 'survey' ? (
+                        <Form.Control
+                          id={`item-notes-${index}`}
+                          plaintext
+                          name={`item_notes`}
+                          onChange={(e) => {
+                            orderDetailsFormHandler(e, index)
+                          }}
+                        />
+                      ) : (
+                        <Select
+                          id={`item_id-${index}`}
+                          className='form-control p-0 form-item-name'
+                          classNamePrefix='select'
+                          placeholder='Pilih/Ketik Nama Pemasangan'
+                          isSearchable={true}
+                          options={item}
+                          name={`item_id`}
+                          onChange={(newValue) => {
+                            setOrderForm((prev) => {
+                              const cache = {...prev}
+                              cache.order_details[index] = {
+                                ...cache.order_details[index],
+                                item_id: newValue?.value ?? null,
+                                item: newValue,
+                              }
+                              return cache
+                            })
+                            calcEachDetails()
+                          }}
+                        />
+                      )}
                     </td>
 
                     <td>

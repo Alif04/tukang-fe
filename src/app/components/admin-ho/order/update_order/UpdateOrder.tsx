@@ -75,9 +75,9 @@ interface Order {
     item_code: string
     item_name: string
     quantity: number
-
     unit_price: string | null
     total: string | null
+    item_notes: string | null
   }>
   order_files: Array<any>
 
@@ -124,6 +124,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         quantity: 1,
         unit_price: null,
         total: null,
+        item_notes: null,
       },
     ],
     order_files: [],
@@ -331,18 +332,18 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 const previousDetailValues = data.order_details.map((item: any) => {
                   const previousItem = {
                     value: item.id,
-                    label: item.item.service_name,
-                    category_id: item.item.category.id,
-                    default_price: item.item.default_price,
+                    label: item?.item?.service_name,
+                    category_id: item?.item?.category.id,
+                    default_price: item?.item?.default_price,
                     prices: [
                       {
-                        id: item.item.prices[0].id,
-                        item_id: item.item.prices[0].item_id,
-                        store_id: item.item.prices[0].store_id,
-                        periodic_start: item.item.prices[0].periodic_start,
-                        periodic_end: item.item.prices[0].periodic_end,
-                        price: item.item.prices[0].price,
-                        min_order: item.item.prices[0].min_order,
+                        id: item?.item?.prices[0].id,
+                        item_id: item?.item?.prices[0]?.item_id,
+                        store_id: item?.item?.prices[0]?.store_id,
+                        periodic_start: item?.item?.prices[0]?.periodic_start,
+                        periodic_end: item?.item?.prices[0]?.periodic_end,
+                        price: item?.item?.prices[0]?.price,
+                        min_order: item?.item?.prices[0]?.min_order,
                       },
                     ],
                   }
@@ -353,6 +354,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     item_id: item.item_id,
                     item_code: item?.item_code === 'null' ? '' : item.item_code,
                     item_name: item?.item_name === 'null' ? '' : item.item_name,
+                    item_notes: item?.item_notes === 'null' ? '' : item.item_notes,
                     quantity: item.quantity,
                     unit_price: item.unit_price,
                     total: item.total,
@@ -658,6 +660,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       quantity: 1,
       unit_price: null,
       total: null,
+      item_notes: null,
     }
 
     setOrderForm((prev) => {
@@ -1263,35 +1266,47 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     </td>
 
                     <td>
-                      <Select
-                        id={`item_id-${index}`}
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Pemasangan'
-                        isSearchable={true}
-                        options={item}
-                        name={`item_id`}
-                        value={{
-                          value: orderForm.order_details[index]?.item_id ?? null,
-                          label: orderForm.order_details[index]?.item?.label ?? '',
-                          category_id: orderForm.order_details[index]?.item?.category_id ?? null,
-                          default_price:
-                            orderForm.order_details[index]?.item?.default_price ?? null,
-                          prices: orderForm.order_details[index]?.item?.prices ?? [],
-                        }}
-                        onChange={(newValue) => {
-                          setOrderForm((prev) => {
-                            const cache = {...prev}
-                            cache.order_details[index] = {
-                              ...cache.order_details[index],
-                              item_id: newValue?.value ?? null,
-                              item: newValue,
-                            }
-                            return cache
-                          })
-                          calcEachDetails()
-                        }}
-                      />
+                      {paymentTypeValue[1] === 'survey' ? (
+                        <Form.Control
+                          id={`item-notes-${index}`}
+                          plaintext
+                          name={`item_notes`}
+                          value={element.item_notes ?? ''}
+                          onChange={(e) => {
+                            orderDetailsFormHandler(e, index)
+                          }}
+                        />
+                      ) : (
+                        <Select
+                          id={`item_id-${index}`}
+                          className='form-control p-0 form-item-name'
+                          classNamePrefix='select'
+                          placeholder='Pilih/Ketik Nama Pemasangan'
+                          isSearchable={true}
+                          options={item}
+                          name={`item_id`}
+                          value={{
+                            value: orderForm.order_details[index]?.item_id ?? null,
+                            label: orderForm.order_details[index]?.item?.label ?? '',
+                            category_id: orderForm.order_details[index]?.item?.category_id ?? null,
+                            default_price:
+                              orderForm.order_details[index]?.item?.default_price ?? null,
+                            prices: orderForm.order_details[index]?.item?.prices ?? [],
+                          }}
+                          onChange={(newValue) => {
+                            setOrderForm((prev) => {
+                              const cache = {...prev}
+                              cache.order_details[index] = {
+                                ...cache.order_details[index],
+                                item_id: newValue?.value ?? null,
+                                item: newValue,
+                              }
+                              return cache
+                            })
+                            calcEachDetails()
+                          }}
+                        />
+                      )}
                     </td>
 
                     <td>

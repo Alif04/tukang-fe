@@ -73,9 +73,9 @@ interface Order {
     item_code: string | null
     item_name: string | null
     quantity: number
-
     unit_price: string | null
     total: string | null
+    item_notes: string | null
   }>
   order_files: Array<any>
 
@@ -121,6 +121,7 @@ const NewOrderHO: FC = () => {
         quantity: 1,
         unit_price: null,
         total: null,
+        item_notes: null,
       },
     ],
     order_files: [],
@@ -481,6 +482,7 @@ const NewOrderHO: FC = () => {
       quantity: 1,
       unit_price: null,
       total: null,
+      item_notes: null,
     }
 
     setOrderForm((prev) => {
@@ -575,7 +577,15 @@ const NewOrderHO: FC = () => {
                   if (item?.item_name !== null) {
                     formData.append(`order_details[${index}][item_name]`, item.item_name)
                   }
-                  formData.append(`order_details[${index}][item_id]`, item.item_id)
+
+                  if (item?.item_notes !== null) {
+                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
+                  }
+
+                  if (item?.item_id !== null) {
+                    formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  }
+
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
@@ -1074,27 +1084,38 @@ const NewOrderHO: FC = () => {
                     </td>
 
                     <td>
-                      <Select
-                        id={`item_id-${index}`}
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Pemasangan'
-                        isSearchable={true}
-                        options={item}
-                        name={`item_id`}
-                        onChange={(newValue) => {
-                          setOrderForm((prev) => {
-                            const cache = {...prev}
-                            cache.order_details[index] = {
-                              ...cache.order_details[index],
-                              item_id: newValue?.value ?? null,
-                              item: newValue,
-                            }
-                            return cache
-                          })
-                          calcEachDetails()
-                        }}
-                      />
+                      {paymentTypeValue[1] === 'survey' ? (
+                        <Form.Control
+                          id={`item-notes-${index}`}
+                          plaintext
+                          name={`item_notes`}
+                          onChange={(e) => {
+                            orderDetailsFormHandler(e, index)
+                          }}
+                        />
+                      ) : (
+                        <Select
+                          id={`item_id-${index}`}
+                          className='form-control p-0 form-item-name'
+                          classNamePrefix='select'
+                          placeholder='Pilih/Ketik Nama Pemasangan'
+                          isSearchable={true}
+                          options={item}
+                          name={`item_id`}
+                          onChange={(newValue) => {
+                            setOrderForm((prev) => {
+                              const cache = {...prev}
+                              cache.order_details[index] = {
+                                ...cache.order_details[index],
+                                item_id: newValue?.value ?? null,
+                                item: newValue,
+                              }
+                              return cache
+                            })
+                            calcEachDetails()
+                          }}
+                        />
+                      )}
                     </td>
 
                     <td>

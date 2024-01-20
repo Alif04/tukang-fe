@@ -69,9 +69,9 @@ interface Order {
     item_code: string
     item_name: string
     quantity: number
-
     unit_price: string | null
     total: string | null
+    item_notes: string | null
   }>
   order_files: Array<any>
 
@@ -86,6 +86,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
+  const salesId = localStorage.getItem('sales_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
@@ -119,6 +120,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         quantity: 1,
         unit_price: null,
         total: null,
+        item_notes: null,
       },
     ],
     order_files: [],
@@ -311,6 +313,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                     item_id: item.item_id,
                     item_code: item?.item_code === 'null' ? '' : item.item_code,
                     item_name: item?.item_name === 'null' ? '' : item.item_name,
+                    item_notes: item?.item_notes === 'null' ? '' : item.item_notes,
                     quantity: item.quantity,
                     unit_price: item.unit_price,
                     total: item.total,
@@ -543,6 +546,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
       quantity: 1,
       unit_price: null,
       total: null,
+      item_notes: null,
     }
 
     setOrderForm((prev) => {
@@ -644,7 +648,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                     formData.append(`order_details[${index}][item_name]`, item.item_name)
                   }
 
-                  formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  if (item?.item_notes !== null) {
+                    formData.append(`order_detail[${index}][item_notes]`, item.item_notes)
+                  }
+
+                  if (item?.item_id !== null) {
+                    formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  }
+
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
@@ -978,7 +989,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   <Form.Control
                     type='number'
                     disabled
-                    value={userRole === 'SALES' ? userId : selectedSales?.value?.toString() || ''}
+                    value={userRole === 'SALES' ? salesId : selectedSales?.value?.toString() || ''}
                   />
                 </Col>
               </Form.Group>
@@ -1133,35 +1144,39 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                     </td>
 
                     <td>
-                      <Select
-                        id={`item_id-${index}`}
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Pemasangan'
-                        isSearchable={true}
-                        options={item}
-                        name={`item_id`}
-                        value={{
-                          value: orderForm.order_details[index]?.item_id ?? null,
-                          label: orderForm.order_details[index]?.item?.label ?? '',
-                          category_id: orderForm.order_details[index]?.item?.category_id ?? null,
-                          default_price:
-                            orderForm.order_details[index]?.item?.default_price ?? null,
-                          prices: orderForm.order_details[index]?.item?.prices ?? [],
-                        }}
-                        onChange={(newValue) => {
-                          setOrderForm((prev) => {
-                            const cache = {...prev}
-                            cache.order_details[index] = {
-                              ...cache.order_details[index],
-                              item_id: newValue?.value ?? null,
-                              item: newValue,
-                            }
-                            return cache
-                          })
-                          calcEachDetails()
-                        }}
-                      />
+                      {paymentTypeValue[1] === 'survey' ? (
+                        <Form.Control
+                          id={`item-notes-${index}`}
+                          plaintext
+                          name={`item_notes`}
+                          value={element.item_notes ?? ''}
+                          onChange={(e) => {
+                            orderDetailsFormHandler(e, index)
+                          }}
+                        />
+                      ) : (
+                        <Select
+                          id={`item_id-${index}`}
+                          className='form-control p-0 form-item-name'
+                          classNamePrefix='select'
+                          placeholder='Pilih/Ketik Nama Pemasangan'
+                          isSearchable={true}
+                          options={item}
+                          name={`item_id`}
+                          onChange={(newValue) => {
+                            setOrderForm((prev) => {
+                              const cache = {...prev}
+                              cache.order_details[index] = {
+                                ...cache.order_details[index],
+                                item_id: newValue?.value ?? null,
+                                item: newValue,
+                              }
+                              return cache
+                            })
+                            calcEachDetails()
+                          }}
+                        />
+                      )}
                     </td>
 
                     <td>

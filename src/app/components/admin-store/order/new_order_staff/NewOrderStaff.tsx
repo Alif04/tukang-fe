@@ -21,6 +21,11 @@ interface MemberSelect {
   address_1: string
 }
 
+interface CategorySelect {
+  value: number | null
+  label: string
+}
+
 interface SalesSelect {
   value: number | null
   label: string
@@ -61,6 +66,7 @@ interface Order {
     quantity: number
     unit_price: string | null
     total: string | null
+    item_notes: string | null
   }>
 
   [key: string]: any
@@ -73,6 +79,7 @@ const NewOrderStoreStaff: FC = () => {
 
   // If User Login is Admin Sales
   const userId = localStorage.getItem('user_id') as any
+  const salesId = localStorage.getItem('sales_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
@@ -81,7 +88,7 @@ const NewOrderStoreStaff: FC = () => {
   // Order
   const [orderForm, setOrderForm] = useState<Order>({
     member_id: null,
-    sales_id: userRole === 'Sales' ? Number.parseInt(userId) ?? null : null,
+    sales_id: userRole === 'Sales' ? Number.parseInt(salesId) ?? null : null,
     store_id: Number.parseInt(staffStoreId),
     project_address: '',
     project_number: '',
@@ -95,6 +102,7 @@ const NewOrderStoreStaff: FC = () => {
         quantity: 1,
         unit_price: null,
         total: null,
+        item_notes: null,
       },
     ],
   })
@@ -122,6 +130,13 @@ const NewOrderStoreStaff: FC = () => {
     value: null,
     label: '',
     full_name: '',
+  })
+
+  // Category
+  const [categories, setCategories] = useState<CategorySelect[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<SingleValue<CategorySelect>>({
+    value: null,
+    label: '',
   })
 
   // Order Detail Table
@@ -327,6 +342,7 @@ const NewOrderStoreStaff: FC = () => {
       quantity: 1,
       unit_price: null,
       total: null,
+      item_notes: null,
     }
 
     setOrderForm((prev) => {
@@ -422,7 +438,14 @@ const NewOrderStoreStaff: FC = () => {
                     formData.append(`order_details[${index}][item_name]`, item.item_name)
                   }
 
-                  formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  if (item?.item_notes !== null) {
+                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
+                  }
+
+                  if (item?.item_id !== null) {
+                    formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  }
+
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
@@ -694,7 +717,7 @@ const NewOrderStoreStaff: FC = () => {
 
                 <Col xxl='8' xl='7' md='10'>
                   {userRole === 'Sales' ? (
-                    <Form.Control type='number' disabled value={userId} />
+                    <Form.Control type='number' disabled value={salesId} />
                   ) : (
                     <Select
                       name='sales_id'
@@ -772,6 +795,11 @@ const NewOrderStoreStaff: FC = () => {
                   <th>Item Code</th>
                   <th>Item Name</th>
                   <th>Nama Pemasangan</th>
+                  {/* {paymentTypeValue[1] === 'survey' && (
+                    <>
+                      <th>Kategori</th>
+                    </>
+                  )} */}
                   <th>QTY Pemasangan</th>
                   {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                     <>
@@ -822,28 +850,53 @@ const NewOrderStoreStaff: FC = () => {
                     </td>
 
                     <td>
+                      {paymentTypeValue[1] === 'survey' ? (
+                        <Form.Control
+                          id={`item-notes-${index}`}
+                          plaintext
+                          name={`item_notes`}
+                          onChange={(e) => {
+                            orderDetailsFormHandler(e, index)
+                          }}
+                        />
+                      ) : (
+                        <Select
+                          id={`item_id-${index}`}
+                          className='form-control p-0 form-item-name'
+                          classNamePrefix='select'
+                          placeholder='Pilih/Ketik Nama Pemasangan'
+                          isSearchable={true}
+                          options={item}
+                          name={`item_id`}
+                          onChange={(newValue) => {
+                            setOrderForm((prev) => {
+                              const cache = {...prev}
+                              cache.order_details[index] = {
+                                ...cache.order_details[index],
+                                item_id: newValue?.value ?? null,
+                                item: newValue,
+                              }
+                              return cache
+                            })
+                            calcEachDetails()
+                          }}
+                        />
+                      )}
+                    </td>
+
+                    {/* {paymentTypeValue[1] === 'survey' && (
+                      
+                    <td>
                       <Select
-                        id={`item_id-${index}`}
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Pilih/Ketik Nama Pemasangan'
+                        name='category-id'
+                        className='form-control p-0'
+                        placeholder='Ketik/Pilih Kategori Barang'
                         isSearchable={true}
-                        options={item}
-                        name={`item_id`}
-                        onChange={(newValue) => {
-                          setOrderForm((prev) => {
-                            const cache = {...prev}
-                            cache.order_details[index] = {
-                              ...cache.order_details[index],
-                              item_id: newValue?.value ?? null,
-                              item: newValue,
-                            }
-                            return cache
-                          })
-                          calcEachDetails()
-                        }}
+                        options={categories}
+                        onChange={(newValue) => setSelectedCategory(newValue)}
                       />
                     </td>
+                    )} */}
 
                     <td>
                       <Form.Control
