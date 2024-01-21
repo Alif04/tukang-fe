@@ -49,7 +49,7 @@ const UpdateQuotationHO: FC = () => {
   const [quotationNumber, setQuotationNumber] = useState<string | number>('NaN')
   const [quotationDescription, setQuotationDescription] = useState<string>('')
   const [quotationDate, setQuotationDate] = useState<string>('')
-  const [quotationValidity, setQuotationValidity] = useState<string>('')
+  const [quotationValidity, setQuotationValidity] = useState<any>()
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
@@ -220,10 +220,26 @@ const UpdateQuotationHO: FC = () => {
 
   // Format Date
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return '--/--/----'
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
+  }
+
+  const formatForFormData = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return ''
+    }
+
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+
+    return `${year}-${month}-${day}`
   }
 
   // Quotation Status
@@ -248,13 +264,14 @@ const UpdateQuotationHO: FC = () => {
 
   const handleChangeQuotationDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedQuotationDate = event.target.value
-    setQuotationDate(updatedQuotationDate)
-  }
+    const quotationDateObject = new Date(updatedQuotationDate)
 
-  // Handle Change Quotation Validity
-  const handleChangeQuotationValidity = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedQuotationValidity = event.target.value
-    setQuotationValidity(updatedQuotationValidity)
+    const days = 7
+    const nextDays = new Date(quotationDateObject.getTime() + days * 24 * 60 * 60 * 1000)
+    const parsedNextDays = new Date(nextDays)
+
+    setQuotationDate(updatedQuotationDate)
+    setQuotationValidity(parsedNextDays)
   }
 
   // Quotation Detail Form Handler
@@ -505,7 +522,7 @@ const UpdateQuotationHO: FC = () => {
       formData.append('description', quotationDescription)
       formData.append('quotation_number', quotationNumber.toString())
       formData.append('quotation_date', quotationDate)
-      formData.append('quotation_validity', quotationValidity)
+      formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
       formData.append('quotation_disc', promosiDiscount.toString())
       formData.append('quotation_promotion', additionalPromosi.toString())
 
@@ -707,10 +724,11 @@ const UpdateQuotationHO: FC = () => {
 
                 <Col sm='8'>
                   <Form.Control
-                    type='date'
+                    type='text'
                     min={today}
-                    value={quotationValidity}
-                    onChange={handleChangeQuotationValidity}
+                    value={formatDate(new Date(quotationValidity))}
+                    plaintext
+                    readOnly
                   />
                 </Col>
               </Form.Group>
@@ -771,10 +789,9 @@ const UpdateQuotationHO: FC = () => {
                 {quotationDetail
                   .filter((x) => x.type === 2)
                   .map((element, index) => (
-                    <>
-                      <tr key={`${element.index}-service`}>
-                        <td>
-                          {/* <Form.Control
+                    <tr key={`${element.index}-service`}>
+                      <td>
+                        {/* <Form.Control
                             id={`item-name-${index}`}
                             value={element.item_name}
                             plaintext
@@ -782,11 +799,11 @@ const UpdateQuotationHO: FC = () => {
                             readOnly
                             onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
                           /> */}
-                          <p>{element?.item_name ?? '-'}</p>
-                        </td>
+                        <p>{element?.item_name ?? '-'}</p>
+                      </td>
 
-                        <td align='center'>
-                          {/* <Select
+                      <td align='center'>
+                        {/* <Select
                             name='category_id'
                             className='form-control p-0'
                             classNamePrefix='select'
@@ -801,11 +818,11 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(newValue) => handleCategoryChange(element.index, newValue)}
                           /> */}
 
-                          <p>{element?.category_name ?? '-'}</p>
-                        </td>
+                        <p>{element?.category_name ?? '-'}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             id={`quantity-${index}`}
                             value={element.quantity}
                             plaintext
@@ -814,11 +831,11 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleQuantityChange(index, e.target.value, 2)}
                           /> */}
 
-                          <p>{element?.quantity ?? 0}</p>
-                        </td>
+                        <p>{element?.quantity ?? 0}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             id={`unit-price-${index}`}
                             type='number'
                             plaintext
@@ -828,11 +845,11 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
                           /> */}
 
-                          <p>{element?.unit ?? '-'}</p>
-                        </td>
+                        <p>{element?.unit ?? '-'}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             id={`unit-price-${index}`}
                             type='number'
                             plaintext
@@ -842,30 +859,29 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
                           /> */}
 
-                          <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
-                        </td>
+                        <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             readOnly
                             disabled
                             plaintext
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
                           /> */}
-                          <p>{`Rp. ${element?.final_price?.toLocaleString('id')}`}</p>
-                        </td>
+                        <p>{`Rp. ${element?.final_price?.toLocaleString('id')}`}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             readOnly
                             disabled
                             plaintext
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
                           /> */}
-                          <p>{element?.description ?? '-'}</p>
-                        </td>
-                      </tr>
-                    </>
+                        <p>{element?.description ?? '-'}</p>
+                      </td>
+                    </tr>
                   ))}
               </tbody>
             </Table>
@@ -892,20 +908,19 @@ const UpdateQuotationHO: FC = () => {
                 {quotationDetail
                   .filter((x) => x.type === 1)
                   .map((element, index) => (
-                    <>
-                      <tr key={`${element.index}-material`}>
-                        <td>
-                          <Form.Check
-                            id={`is-user-${index}`}
-                            type='checkbox'
-                            checked={element.is_user === 1}
-                            disabled
-                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
-                          />
-                        </td>
+                    <tr key={`${element.index}-material`}>
+                      <td>
+                        <Form.Check
+                          id={`is-user-${index}`}
+                          type='checkbox'
+                          checked={element.is_user === 1}
+                          disabled
+                          onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                        />
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             id={`item-name-${index}`}
                             value={element.item_name}
                             disabled
@@ -913,11 +928,11 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{element?.item_name ?? '-'}</p>
-                        </td>
+                        <p>{element?.item_name ?? '-'}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             id={`quantity-${index}`}
                             value={element.quantity}
                             disabled
@@ -925,11 +940,11 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{element?.quantity ?? 0}</p>
-                        </td>
+                        <p>{element?.quantity ?? 0}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             id={`unit-price-${index}`}
                             type='number'
                             value={element.unit_price}
@@ -938,11 +953,11 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
-                        </td>
+                        <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             id={`margin-${index}`}
                             type='number'
                             value={element.margin}
@@ -951,31 +966,30 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleMarginChange(index, e.target.value, 1)}
                           /> */}
-                          <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
-                        </td>
+                        <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             disabled
                             readOnly
                             plaintext
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
                           /> */}
 
-                          <p>{`Rp. ${element.final_price?.toLocaleString('id')}`}</p>
-                        </td>
+                        <p>{`Rp. ${element.final_price?.toLocaleString('id')}`}</p>
+                      </td>
 
-                        <td>
-                          {/* <Form.Control
+                      <td>
+                        {/* <Form.Control
                             readOnly
                             disabled
                             plaintext
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
                           /> */}
-                          <p>{element?.description ?? '-'}</p>
-                        </td>
-                      </tr>
-                    </>
+                        <p>{element?.description ?? '-'}</p>
+                      </td>
+                    </tr>
                   ))}
 
                 <tr>

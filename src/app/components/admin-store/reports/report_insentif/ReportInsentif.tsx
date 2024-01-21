@@ -26,6 +26,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
+  console.log(totalOrder)
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -162,8 +163,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
         },
       })
 
-      if (response?.data?.total) {
-        setTotalOrder(response.data.total)
+      if (response?.data) {
+        setTotalOrder(response.data.takeTotal)
         setCurrentPage(response.data.page)
       }
 

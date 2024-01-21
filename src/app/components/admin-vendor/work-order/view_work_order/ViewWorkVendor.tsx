@@ -244,7 +244,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
+          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
           {
             headers: {
               Accept: 'application/json',

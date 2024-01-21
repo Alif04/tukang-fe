@@ -88,6 +88,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Information Detail
   const [orderDetail, setOrderDetail] = useState<any>()
@@ -132,6 +133,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
+  console.log(receiptFiles)
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -376,6 +378,15 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
               setReceiptFiles(initialOrderFilesValues)
             }
+
+            // if (data?.order_files) {
+            //   const initialOrderFilesValues = data.order_files.map((item: any) => {
+            //     const blobData = new Blob([JSON.stringify(item)], {type: 'image'})
+            //     return new File([blobData], item.path, {type: 'image'})
+            //   })
+
+            //   setReceiptFiles(initialOrderFilesValues)
+            // }
 
             updatePageTitle(data)
           })
@@ -717,6 +728,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Submit Update Order
   const handleUpdateOrder = async () => {
+    setIsLoading(true)
     const url = `${apiUrl}/orders/${params.id}`
     const formData = new FormData()
     let errorBags = []
@@ -817,7 +829,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           }).then(() => {
             navigate(`/order/preview-email/${orderId}`)
           })
+          setIsLoading(false)
         } else {
+          setIsLoading(false)
           Swal.fire({
             title: 'Error',
             text: response.data.message,
@@ -826,8 +840,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         }
       })
       .catch((error) => {
-        console.error(error)
-
+        setIsLoading(false)
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -1486,7 +1499,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
             <Button onClick={handleUpdateOrder} variant='dark-primary'>
-              Submit Order & Email
+              {isLoading ? 'Submitting..' : 'Submit Order & Email'}
             </Button>
           </div>
         </div>

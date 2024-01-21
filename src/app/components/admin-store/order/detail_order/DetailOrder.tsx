@@ -311,8 +311,12 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         <tr key={`${index} - order_detail`}>
                           <td>{item?.item_code}</td>
                           <td>{item?.item_name}</td>
-                          <td>{item?.item?.service_name}</td>
-                          <td>{item?.quantity}</td>
+                          <td>
+                            {order?.payment_type === 'survey'
+                              ? item?.item_notes
+                              : item?.item?.service_name}
+                          </td>
+                          <td>{item?.quantity ?? 0}</td>
                           {!(
                             order?.payment_type === 'gratis' || order?.payment_type === 'survey'
                           ) && (

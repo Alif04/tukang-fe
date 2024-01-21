@@ -291,18 +291,18 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 const previousDetailValues = data.order_details.map((item: any) => {
                   const previousItem = {
                     value: item.id,
-                    label: item.item.service_name,
-                    category_id: item.item.category.id,
-                    default_price: item.item.default_price,
+                    label: item?.item?.service_name,
+                    category_id: item?.item?.category.id,
+                    default_price: item?.item?.default_price,
                     prices: [
                       {
-                        id: item.item.prices[0].id,
-                        item_id: item.item.prices[0].item_id,
-                        store_id: item.item.prices[0].store_id,
-                        periodic_start: item.item.prices[0].periodic_start,
-                        periodic_end: item.item.prices[0].periodic_end,
-                        price: item.item.prices[0].price,
-                        min_order: item.item.prices[0].min_order,
+                        id: item?.item?.prices[0].id,
+                        item_id: item?.item?.prices[0]?.item_id,
+                        store_id: item?.item?.prices[0]?.store_id,
+                        periodic_start: item?.item?.prices[0]?.periodic_start,
+                        periodic_end: item?.item?.prices[0]?.periodic_end,
+                        price: item?.item?.prices[0]?.price,
+                        min_order: item?.item?.prices[0]?.min_order,
                       },
                     ],
                   }
@@ -649,7 +649,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   }
 
                   if (item?.item_notes !== null) {
-                    formData.append(`order_detail[${index}][item_notes]`, item.item_notes)
+                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
                   }
 
                   if (item?.item_id !== null) {
@@ -719,8 +719,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             text: response.data.message,
             icon: 'error',
           })
-
-          setIsLoading(true)
+          setIsLoading(false)
         }
       })
       .catch((error) => {
@@ -1163,6 +1162,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                           isSearchable={true}
                           options={item}
                           name={`item_id`}
+                          value={{
+                            value: orderForm.order_details[index]?.item_id ?? null,
+                            label: orderForm.order_details[index]?.item?.label ?? '',
+                            category_id: orderForm.order_details[index]?.item?.category_id ?? null,
+                            default_price:
+                              orderForm.order_details[index]?.item?.default_price ?? null,
+                            prices: orderForm.order_details[index]?.item?.prices ?? [],
+                          }}
                           onChange={(newValue) => {
                             setOrderForm((prev) => {
                               const cache = {...prev}

@@ -213,7 +213,11 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               <tbody>
                 {orderDetail?.order_details.map((item: any, index: any) => (
                   <tr key={`service-${index}`}>
-                    <td colSpan={2}>{item?.item?.service_name}</td>
+                    <td colSpan={2}>
+                      {orderDetail?.payment_type === 'survey'
+                        ? item?.item_notes
+                        : item?.item?.service_name}
+                    </td>
                   </tr>
                 ))}
 

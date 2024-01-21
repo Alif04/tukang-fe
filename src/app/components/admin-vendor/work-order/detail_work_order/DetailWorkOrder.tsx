@@ -84,6 +84,10 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   }, [])
 
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return ''
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
@@ -430,23 +434,70 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <tr key={`${index}-order_detail`}>
                           <td>{item?.item_code ?? '-'}</td>
                           <td>{item?.item?.item_name ?? '-'}</td>
-                          <td>{item?.item?.service_name ?? '-'}</td>
+                          <td>
+                            {orderDetail?.payment_type === 'survey'
+                              ? item?.item_notes
+                              : item?.item?.service_name}
+                          </td>
                           <td>{item?.quantity ?? 0}</td>
-                          <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString('id')}`}</td>
-                          <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                          {!(
+                            orderDetail?.payment_type === 'gratis' ||
+                            orderDetail?.payment_type === 'survey'
+                          ) && (
+                            <>
+                              <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                'id'
+                              )}`}</td>
+                              <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                            </>
+                          )}
                         </tr>
                       ))}
                     </>
                   )}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
-                    </td>
-                  </tr>
+                  {orderDetail?.payment_type !== 'gratis' &&
+                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Biaya Survey
+                        </td>
+
+                        <td className=' fw-bolder'>
+                          {orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                            ? `Rp. ${(0).toLocaleString('id')}`
+                            : orderDetail?.payment_type === 'survey'
+                            ? `Rp. ${(99000).toLocaleString('id')}`
+                            : `Rp. ${0}`}
+                        </td>
+                      </tr>
+                    )}
+
+                  {orderDetail?.payment_type !== 'survey' && (
+                    <tr>
+                      <td
+                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
+                          } else if (orderDetail?.payment_type === 'survey') {
+                            return `Rp. ${(99000).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>

@@ -148,7 +148,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                     <tr key={`${index} - order_detail`}>
                       <td>{item?.item_code ?? '-'}</td>
                       <td>{item?.item_name ?? '-'}</td>
-                      <td>{item?.item?.service_name ?? '-'}</td>
+                      <td>
+                        {orderDetail?.payment_type === 'survey'
+                          ? item?.item_notes
+                          : item?.item?.service_name}
+                      </td>
                       <td>{item?.quantity ?? 0}</td>
                       {!(
                         orderDetail?.payment_type === 'gratis' ||

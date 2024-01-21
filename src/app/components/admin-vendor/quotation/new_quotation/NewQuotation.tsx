@@ -59,7 +59,7 @@ const NewQuotationVendor: FC = () => {
   const [quotationNumber, setQuotationNumber] = useState<string | number>('NaN')
   const [quotationDescription, setQuotationDescription] = useState<string>('')
   const [quotationDate, setQuotationDate] = useState<string>('')
-  const [quotationValidity, setQuotationValidity] = useState<string>('')
+  const [quotationValidity, setQuotationValidity] = useState<any>()
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
   const [totalJasa, setTotalJasa] = useState<number>(0)
@@ -109,8 +109,6 @@ const NewQuotationVendor: FC = () => {
       is_user: 0,
     },
   ])
-
-  console.log(quotationDetail)
 
   // Store
   const [store, setStore] = useState<SelectedStoreItem[]>([])
@@ -339,10 +337,26 @@ const NewQuotationVendor: FC = () => {
 
   // Format Date
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return '--/--/----'
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
+  }
+
+  const formatForFormData = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return ''
+    }
+
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+
+    return `${year}-${month}-${day}`
   }
 
   // Hash Key
@@ -388,13 +402,14 @@ const NewQuotationVendor: FC = () => {
 
   const handleChangeQuotationDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedQuotationDate = event.target.value
-    setQuotationDate(updatedQuotationDate)
-  }
+    const quotationDateObject = new Date(updatedQuotationDate)
 
-  // Handle Change Quotation Validity
-  const handleChangeQuotationValidity = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedQuotationValidity = event.target.value
-    setQuotationValidity(updatedQuotationValidity)
+    const days = 7
+    const nextDays = new Date(quotationDateObject.getTime() + days * 24 * 60 * 60 * 1000)
+    const parsedNextDays = new Date(nextDays)
+
+    setQuotationDate(updatedQuotationDate)
+    setQuotationValidity(parsedNextDays)
   }
 
   // Quotation Detail Form Handler
@@ -666,7 +681,7 @@ const NewQuotationVendor: FC = () => {
       formData.append('description', quotationDescription)
       formData.append('quotation_number', quotationNumber.toString())
       formData.append('quotation_date', quotationDate)
-      formData.append('quotation_validity', quotationValidity)
+      formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
       formData.append('quotation_disc', promosiDiscount.toString())
 
       // if (quotationFiles?.length) {
@@ -853,7 +868,13 @@ const NewQuotationVendor: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='date' min={today} onChange={handleChangeQuotationValidity} />
+                  <Form.Control
+                    type='text'
+                    min={today}
+                    value={formatDate(new Date(quotationValidity))}
+                    plaintext
+                    readOnly
+                  />
                 </Col>
               </Form.Group>
             </Col>
@@ -920,90 +941,88 @@ const NewQuotationVendor: FC = () => {
                 {quotationDetail
                   .filter((x) => x.type === 2)
                   .map((element, index) => (
-                    <>
-                      <tr key={`${element.index}-service`}>
-                        <td>
-                          <Form.Control
-                            id={`item-name-${index}`}
-                            value={element.item_name}
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                          />
-                        </td>
+                    <tr key={`${element.index}-service`}>
+                      <td>
+                        <Form.Control
+                          id={`item-name-${index}`}
+                          value={element.item_name}
+                          onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                        />
+                      </td>
 
-                        <td>
-                          <Select
-                            name='category_id'
-                            className='form-control p-0'
-                            classNamePrefix='select'
-                            placeholder='Pilih Kategori'
-                            isSearchable={true}
-                            options={categories}
-                            onChange={(newValue) => handleCategoryChange(element.index, newValue)}
-                          />
-                        </td>
+                      <td>
+                        <Select
+                          name='category_id'
+                          className='form-control p-0'
+                          classNamePrefix='select'
+                          placeholder='Pilih Kategori'
+                          isSearchable={true}
+                          options={categories}
+                          onChange={(newValue) => handleCategoryChange(element.index, newValue)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity}
-                            onChange={(e) => handleQuantityChange(index, e.target.value, 2)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`quantity-${index}`}
+                          value={element.quantity}
+                          onChange={(e) => handleQuantityChange(index, e.target.value, 2)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`satuan-${index}`}
-                            value={element.unit}
-                            onChange={(e) => handleUnitDescriptionChange(index, e.target.value, 2)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`satuan-${index}`}
+                          value={element.unit}
+                          onChange={(e) => handleUnitDescriptionChange(index, e.target.value, 2)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`unit-price-${index}`}
-                            type='number'
-                            value={element.unit_price}
-                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`unit-price-${index}`}
+                          type='number'
+                          value={element.unit_price}
+                          onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            readOnly
-                            plaintext
-                            value={`Rp. ${(
-                              Number(element.quantity) * Number(element.unit_price)
-                            ).toLocaleString()}`}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={`Rp. ${(
+                            Number(element.quantity) * Number(element.unit_price)
+                          ).toLocaleString()}`}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`margin-${index}`}
-                            type='number'
-                            value={element.margin}
-                            onChange={(e) => handleMarginChange(index, e.target.value, 2)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`margin-${index}`}
+                          type='number'
+                          value={element.margin}
+                          onChange={(e) => handleMarginChange(index, e.target.value, 2)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            readOnly
-                            plaintext
-                            value={`Rp. ${(
-                              Number(element.quantity) * Number(element.unit_price) +
-                              Number(element.margin)
-                            ).toLocaleString()}`}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={`Rp. ${(
+                            Number(element.quantity) * Number(element.unit_price) +
+                            Number(element.margin)
+                          ).toLocaleString()}`}
+                        />
+                      </td>
 
-                        <td>
-                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
-                        </td>
-                      </tr>
-                    </>
+                      <td>
+                        <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </Button>
+                      </td>
+                    </tr>
                   ))}
 
                 <tr>
@@ -1051,88 +1070,86 @@ const NewQuotationVendor: FC = () => {
                 {quotationDetail
                   .filter((x) => x.type === 1)
                   .map((element, index) => (
-                    <>
-                      <tr key={`${element.index}-material`}>
-                        <td>
-                          <Form.Check
-                            id={`is-user-${index}`}
-                            type='checkbox'
-                            checked={element.is_user === 1}
-                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
-                          />
-                        </td>
+                    <tr key={`${element.index}-material`}>
+                      <td>
+                        <Form.Check
+                          id={`is-user-${index}`}
+                          type='checkbox'
+                          checked={element.is_user === 1}
+                          onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`item-name-${index}`}
-                            value={element.item_name}
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`item-name-${index}`}
+                          value={element.item_name}
+                          onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity}
-                            disabled={element.is_user === 1 ? true : false}
-                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`quantity-${index}`}
+                          value={element.quantity}
+                          disabled={element.is_user === 1 ? true : false}
+                          onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`satuan-${index}`}
-                            value={element.unit}
-                            disabled={element.is_user === 1 ? true : false}
-                            onChange={(e) => handleUnitDescriptionChange(index, e.target.value, 1)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`satuan-${index}`}
+                          value={element.unit}
+                          disabled={element.is_user === 1 ? true : false}
+                          onChange={(e) => handleUnitDescriptionChange(index, e.target.value, 1)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`unit-price-${index}`}
-                            type='number'
-                            value={element.unit_price}
-                            disabled={element.is_user === 1 ? true : false}
-                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 1)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`unit-price-${index}`}
+                          type='number'
+                          value={element.unit_price}
+                          disabled={element.is_user === 1 ? true : false}
+                          onChange={(e) => handleUnitPriceChange(index, e.target.value, 1)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            readOnly
-                            plaintext
-                            value={`Rp. ${(
-                              Number(element.quantity) * Number(element.unit_price)
-                            ).toLocaleString()}`}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={`Rp. ${(
+                            Number(element.quantity) * Number(element.unit_price)
+                          ).toLocaleString()}`}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            id={`margin-${index}`}
-                            type='number'
-                            value={element.margin}
-                            disabled={element.is_user === 1 ? true : false}
-                            onChange={(e) => handleMarginChange(index, e.target.value, 1)}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          id={`margin-${index}`}
+                          type='number'
+                          value={element.margin}
+                          disabled={element.is_user === 1 ? true : false}
+                          onChange={(e) => handleMarginChange(index, e.target.value, 1)}
+                        />
+                      </td>
 
-                        <td>
-                          <Form.Control
-                            readOnly
-                            plaintext
-                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                          />
-                        </td>
+                      <td>
+                        <Form.Control
+                          readOnly
+                          plaintext
+                          value={`Rp. ${element.final_price?.toLocaleString('id')}`}
+                        />
+                      </td>
 
-                        <td align='center'>
-                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
-                        </td>
-                      </tr>
-                    </>
+                      <td align='center'>
+                        <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </Button>
+                      </td>
+                    </tr>
                   ))}
 
                 <tr>

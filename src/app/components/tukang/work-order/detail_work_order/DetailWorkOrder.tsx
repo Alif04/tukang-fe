@@ -49,6 +49,10 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   }, [])
 
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return ''
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
@@ -56,6 +60,10 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   }
 
   const formatDateTime = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return ''
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()

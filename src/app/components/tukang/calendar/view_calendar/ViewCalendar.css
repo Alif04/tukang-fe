@@ -1,0 +1,105 @@
+/* Modal Layout */
+.modal-dialog.modal-calendar-detail.modal-dialog-centered {
+  max-width: 1300px !important;
+}
+
+/* Typography Layout */
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .detail-info.row
+  label.form-label.col-form-label {
+  padding: 3px 9.75px;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .costumer-info
+  input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .sales-info
+  .row
+  label.form-label.col-form-label {
+  padding: 3px 9.75px;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .sales-info
+  .row
+  input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+/* Form Layout */
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .form-wrapper {
+  margin-bottom: 30px;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .form-wrapper
+  .form-header {
+  margin-bottom: 30px;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 55%;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  width: 45%;
+}
+
+/* Table */
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .table-item {
+  margin: 30px 0 30px 0;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .table-item
+  .table
+  tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-header
+  .modal-body
+  .table-item
+  th {
+  background-color: #555555;
+  color: #ffff;
+  font-weight: 400;
+  text-align: center;
+}

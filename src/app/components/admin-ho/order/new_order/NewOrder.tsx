@@ -86,6 +86,7 @@ const NewOrderHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Information Detail
   const [orderDetail, setOrderDetail] = useState<any>()
@@ -539,6 +540,7 @@ const NewOrderHO: FC = () => {
 
   // Submit Update Order
   const handleSubmitNewOrder = async () => {
+    setIsLoading(true)
     const url = `${apiUrl}/orders`
     const formData = new FormData()
     let errorBags = []
@@ -641,16 +643,20 @@ const NewOrderHO: FC = () => {
           }).then(() => {
             navigate(`/order/preview-email/${orderId}`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(true)
         }
       })
       .catch((error) => {
-        console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -1295,7 +1301,7 @@ const NewOrderHO: FC = () => {
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
             <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
-              Submit Order & Email
+              {isLoading ? 'Submitting..' : 'Submit Order & Email'}
             </Button>
           </div>
         </div>

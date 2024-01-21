@@ -565,7 +565,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                   }
 
                   if (item?.item_notes !== null) {
-                    formData.append(`order_detail[${index}][item_notes]`, item.item_notes)
+                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
                   }
 
                   if (item?.item_id !== null) {
@@ -624,7 +624,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
             icon: 'error',
           })
 
-          setIsLoading(true)
+          setIsLoading(false)
         }
 
         navigate('/order/view-order')
@@ -1031,6 +1031,14 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                           isSearchable={true}
                           options={item}
                           name={`item_id`}
+                          value={{
+                            value: orderForm.order_details[index]?.item_id ?? null,
+                            label: orderForm.order_details[index]?.item?.label ?? '',
+                            category_id: orderForm.order_details[index]?.item?.category_id ?? null,
+                            default_price:
+                              orderForm.order_details[index]?.item?.default_price ?? null,
+                            prices: orderForm.order_details[index]?.item?.prices ?? [],
+                          }}
                           onChange={(newValue) => {
                             setOrderForm((prev) => {
                               const cache = {...prev}
