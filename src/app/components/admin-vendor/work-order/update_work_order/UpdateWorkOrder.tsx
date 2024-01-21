@@ -518,7 +518,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='4'>
-                        Nomor Telp/WA :
+                        Nomor Telp/WA
                       </Form.Label>
 
                       <Col sm='8'>
@@ -575,70 +575,85 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     </div>
                   </Col>
 
-                  <Col>
-                    <div className='work-date'>
-                      <div className='fs-4 fw-bold'>Pengerjaan</div>
+                  {[
+                    'WORKSTART',
+                    'WIP',
+                    'WORKEND',
+                    'REWORK',
+                    'REWORKSTART',
+                    'RIP',
+                    'REWORKEND',
+                    'RESCHEDULE',
+                    'DONE',
+                  ].includes(
+                    workOrderStatus.find((option) => option.value === workOrder.work_order_status)
+                      ?.category || ''
+                  ) && (
+                    <Col>
+                      <div className='work-date'>
+                        <div className='fs-4 fw-bold'>Pengerjaan</div>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
-                        <RangePicker
-                          allowClear={false}
-                          className='date-range w-100'
-                          format='YYYY-MM-DD'
-                          onChange={(values) => {
-                            if (values && values.length === 2) {
-                              const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
-                              const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
+                          <RangePicker
+                            allowClear={false}
+                            className='date-range w-100'
+                            format='YYYY-MM-DD'
+                            onChange={(values) => {
+                              if (values && values.length === 2) {
+                                const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                                const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                              setWorkOrder((prev) => ({
-                                ...prev,
-                                work_start_date: dateFromFormatted,
-                                work_end_date: dateToFormatted,
-                              }))
-                            } else {
-                              setWorkOrder({
-                                id: null,
-                                order_id: null,
-                                vendor_id: null,
-                                tukang_id: [],
-                                request_work_time: '',
-                                survey_date: '',
-                                work_order_status: null,
-                                complaint_status: null,
-                                work_start_date: '',
-                                work_end_date: '',
-                              })
+                                setWorkOrder((prev) => ({
+                                  ...prev,
+                                  work_start_date: dateFromFormatted,
+                                  work_end_date: dateToFormatted,
+                                }))
+                              } else {
+                                setWorkOrder({
+                                  id: null,
+                                  order_id: null,
+                                  vendor_id: null,
+                                  tukang_id: [],
+                                  request_work_time: '',
+                                  survey_date: '',
+                                  work_order_status: null,
+                                  complaint_status: null,
+                                  work_start_date: '',
+                                  work_end_date: '',
+                                })
+                              }
+                            }}
+                            value={
+                              (workOrder.work_start_date &&
+                                workOrder.work_end_date && [
+                                  dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                                  dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                                ]) ||
+                              undefined
                             }
-                          }}
-                          value={
-                            (workOrder.work_start_date &&
-                              workOrder.work_end_date && [
-                                dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                                dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                              ]) ||
-                            undefined
-                          }
-                        />{' '}
-                      </Form.Group>
+                          />{' '}
+                        </Form.Group>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
-                        <Select
-                          classNamePrefix='select'
-                          placeholder='Pilih Tehnisi'
-                          closeMenuOnSelect={false}
-                          components={animatedComponents}
-                          isMulti
-                          options={tukang}
-                          getOptionLabel={(option) => `${option.tukang_name}`}
-                          getOptionValue={(option) => `${option.tukang_id}`}
-                          value={workOrder.tukang_id.filter((x) => x.type === 2)}
-                          onChange={(e) => tukangHandler(e, 'work_tukang_id')}
-                        />
-                      </Form.Group>
-                    </div>
-                  </Col>
+                          <Select
+                            classNamePrefix='select'
+                            placeholder='Pilih Tehnisi'
+                            closeMenuOnSelect={false}
+                            components={animatedComponents}
+                            isMulti
+                            options={tukang}
+                            getOptionLabel={(option) => `${option.tukang_name}`}
+                            getOptionValue={(option) => `${option.tukang_id}`}
+                            value={workOrder.tukang_id.filter((x) => x.type === 2)}
+                            onChange={(e) => tukangHandler(e, 'work_tukang_id')}
+                          />
+                        </Form.Group>
+                      </div>
+                    </Col>
+                  )}
                 </Row>
               </Col>
             </Row>
@@ -691,8 +706,24 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length > 0 ? (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    ) : (
+                      <>
+                        {!(
+                          orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <th>Harga Jasa</th>
+                            <th>Jumlah</th>
+                          </>
+                        )}
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -712,13 +743,22 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </tr>
                         )
                       )}
+
+                      <tr>
+                        <td colSpan={5} className='text-end fw-bolder'>
+                          Grand Total
+                        </td>
+                        <td className=' fw-bolder'>
+                          {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
+                        </td>
+                      </tr>
                     </>
                   ) : (
                     <>
                       {orderDetail?.order_details.map((item: any, index: any) => (
                         <tr key={`${index}-order_detail`}>
                           <td>{item?.item_code ?? '-'}</td>
-                          <td>{item?.item?.item_name ?? '-'}</td>
+                          <td>{item?.item_name ?? '-'}</td>
                           <td>
                             {orderDetail?.payment_type === 'survey'
                               ? item?.item_notes
@@ -738,50 +778,52 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           )}
                         </tr>
                       ))}
+
+                      {orderDetail?.payment_type !== 'gratis' &&
+                        orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Biaya Survey
+                            </td>
+
+                            <td className=' fw-bolder'>
+                              {orderDetail?.payment_type === 'gratis' ||
+                              orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                                ? `Rp. ${(0).toLocaleString('id')}`
+                                : orderDetail?.payment_type === 'survey'
+                                ? `Rp. ${(99000).toLocaleString('id')}`
+                                : `Rp. ${0}`}
+                            </td>
+                          </tr>
+                        )}
+
+                      {orderDetail?.payment_type !== 'survey' && (
+                        <tr>
+                          <td
+                            colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                            className='text-end fw-bolder'
+                          >
+                            Grand Total
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {(() => {
+                              if (orderDetail?.payment_type === 'gratis') {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                                return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString(
+                                  'id'
+                                )}`
+                              } else if (orderDetail?.payment_type === 'survey') {
+                                return `Rp. ${(99000).toLocaleString('id')}`
+                              } else {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              }
+                            })()}
+                          </td>
+                        </tr>
+                      )}
                     </>
-                  )}
-
-                  {orderDetail?.payment_type !== 'gratis' &&
-                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Biaya Survey
-                        </td>
-
-                        <td className=' fw-bolder'>
-                          {orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                            ? `Rp. ${(0).toLocaleString('id')}`
-                            : orderDetail?.payment_type === 'survey'
-                            ? `Rp. ${(99000).toLocaleString('id')}`
-                            : `Rp. ${0}`}
-                        </td>
-                      </tr>
-                    )}
-
-                  {orderDetail?.payment_type !== 'survey' && (
-                    <tr>
-                      <td
-                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
-                        className='text-end fw-bolder'
-                      >
-                        Grand Total
-                      </td>
-
-                      <td className=' fw-bolder'>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'gratis') {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'survey') {
-                            return `Rp. ${(99000).toLocaleString('id')}`
-                          } else {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          }
-                        })()}
-                      </td>
-                    </tr>
                   )}
                 </tbody>
               </table>

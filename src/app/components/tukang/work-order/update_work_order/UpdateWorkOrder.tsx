@@ -141,6 +141,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     },
   ])
 
+  console.log(workOrderItem)
+
   // Fetch Data
   const fetchOrderData = async () => {
     try {
@@ -207,10 +209,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             setWorkOrderAfter(initialWorkOrderFiles)
           }
 
-          if (
-            data?.work_orders?.work_order_status &&
-            data.work_orders.work_order_status[0].work_order_items.length > 0
-          ) {
+          if (data.work_orders.work_order_status[0].work_order_items.length > 0) {
             const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
@@ -226,6 +225,33 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             )
 
             setWorkOrderItem(workOrderItem)
+          } else {
+            const workOrderItem = data.order_details.map((item: any, index: number) => ({
+              id: item.id,
+              index: (Date.now() + index).toString(),
+              item_name: item.item_name ?? '',
+              unit: item?.unit ?? '',
+              is_user: item.is_customer ? 1 : 0,
+              type: 2,
+              quantity: item?.quantity ?? 0,
+            }))
+
+            const workOrderItemMaterial = [
+              {
+                id: null,
+                index: (Date.now() + workOrderItem.length).toString(),
+                item_name: '',
+                tukang_id: null,
+                tukang_name: '',
+                is_user: 0,
+                type: 1,
+                quantity: null,
+                unit: '',
+              },
+            ]
+
+            const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+            setWorkOrderItem(mergedWorkOrderItem)
           }
 
           if (data?.work_orders?.work_order_status) {
@@ -524,8 +550,14 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     formData.append('status_id', selectedWorkOrderStatus?.value?.toString() ?? '')
     formData.append('description', workOrder.description)
     formData.append('work_date_time', workOrder.survey_date_time)
-    formData.append('work_start_date', workOrder.work_start_date)
-    formData.append('work_end_date', workOrder.work_end_date)
+
+    if (workOrder.work_start_date) {
+      formData.append('work_start_date', workOrder.work_start_date)
+    }
+
+    if (workOrder.work_end_date) {
+      formData.append('work_end_date', workOrder.work_end_date)
+    }
 
     if (workOrder.tukang_id) {
       workOrder.tukang_id.map((item) => {
@@ -762,7 +794,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                     <Col md={8} className='mt-5'>
                       <div className='detail-info'>
-                        {orderDetail?.work_orders !== null ? (
+                        {orderDetail?.work_orders.work_order_status[0]?.work_order_items.length >
+                        0 ? (
                           <>
                             {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                               (item: any, index: number) => (
@@ -872,7 +905,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </Col>
                     </Form.Group>
 
-                    {['WORKEND', 'REWORKSTART', 'RIP', 'REWORKEND', 'WORKDONE', 'DONE'].includes(
+                    {[
+                      'WIP',
+                      'WORKEND',
+                      'REWORKSTART',
+                      'RIP',
+                      'REWORKEND',
+                      'WORKDONE',
+                      'DONE',
+                    ].includes(
                       orderDetail?.work_orders?.work_order_status[0]?.status?.category
                     ) && (
                       <Form.Group className='detail-info' as={Row}>

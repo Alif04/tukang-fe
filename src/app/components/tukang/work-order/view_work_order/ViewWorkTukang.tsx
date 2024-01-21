@@ -243,7 +243,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
+          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
           {
             headers: {
               Accept: 'application/json',
@@ -255,7 +255,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         )
 
         setCurrentPage(response.data.page)
-        setTotalData(response.data.total)
+        setTotalData(response.data.takeTotal)
         return response.data.data
       } else {
         console.error('Desired status not found in statusData')
@@ -298,7 +298,10 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           costumer_name: item.members.full_name,
           phone_number: phoneNumber,
           item_name: item.m_order_details[0]?.item_name ?? '-',
-          services_name: item.m_order_details[0]?.item?.service_name ?? '-',
+          services_name:
+            item.payment_type === 'survey'
+              ? item.m_order_details[0]?.item_notes ?? '-'
+              : item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status: orderStatus,
         }

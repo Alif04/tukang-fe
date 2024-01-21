@@ -245,7 +245,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='4'>
-                        Nomor Telp/WA :
+                        Nomor Telp/WA
                       </Form.Label>
 
                       <Col sm='8'>
@@ -307,53 +307,69 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     </div>
                   </Col>
 
-                  <Col>
-                    <div className='work-date'>
-                      <div className='fs-4 fw-bold'>Pengerjaan</div>
+                  {[
+                    'WORKSTART',
+                    'WIP',
+                    'WORKEND',
+                    'REWORK',
+                    'REWORKSTART',
+                    'RIP',
+                    'REWORKEND',
+                    'RESCHEDULE',
+                    'DONE',
+                  ].includes(
+                    orderDetail?.work_orders !== null
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                      : orderDetail?.status?.category
+                  ) && (
+                    <Col>
+                      <div className='work-date'>
+                        <div className='fs-4 fw-bold'>Pengerjaan</div>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
 
-                        {orderDetail?.work_orders !== null ? (
-                          <RangePicker
-                            className='date-range w-100'
-                            format='YYYY-MM-DD'
-                            value={
-                              (workOrder.work_start_date &&
-                                workOrder.work_end_date && [
-                                  dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                                  dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                                ]) ||
-                              undefined
-                            }
-                            disabled={[true, true]}
-                          />
-                        ) : (
-                          <p>Tanggal Pengerjaan belum diset oleh vendor</p>
-                        )}
-                      </Form.Group>
+                          {orderDetail?.work_orders !== null ? (
+                            <RangePicker
+                              className='date-range w-100'
+                              format='YYYY-MM-DD'
+                              value={
+                                (workOrder.work_start_date &&
+                                  workOrder.work_end_date && [
+                                    dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                                    dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                                  ]) ||
+                                undefined
+                              }
+                              disabled={[true, true]}
+                            />
+                          ) : (
+                            <p>Tanggal Pengerjaan belum diset oleh vendor</p>
+                          )}
+                        </Form.Group>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
-                        {orderDetail?.work_orders !== null ? (
-                          <Select
-                            placeholder='Tukang belum diset oleh Vendor'
-                            classNamePrefix='select'
-                            closeMenuOnSelect={false}
-                            isClearable={false}
-                            isMulti
-                            menuIsOpen={false}
-                            getOptionLabel={(option) => `${option.tukang_name}`}
-                            getOptionValue={(option) => `${option.tukang_id}`}
-                            value={workOrder.tukang_id.filter((x) => x.type === 2)}
-                          />
-                        ) : (
-                          <p>Tukang belum diset oleh vendor</p>
-                        )}
-                      </Form.Group>
-                    </div>
-                  </Col>
+                          {orderDetail?.work_orders !== null ? (
+                            <Select
+                              placeholder='Tukang belum diset oleh Vendor'
+                              classNamePrefix='select'
+                              closeMenuOnSelect={false}
+                              isClearable={false}
+                              isMulti
+                              menuIsOpen={false}
+                              getOptionLabel={(option) => `${option.tukang_name}`}
+                              getOptionValue={(option) => `${option.tukang_id}`}
+                              value={workOrder.tukang_id.filter((x) => x.type === 2)}
+                            />
+                          ) : (
+                            <p>Tukang belum diset oleh vendor</p>
+                          )}
+                        </Form.Group>
+                      </div>
+                    </Col>
+                  )}
                 </Row>
               </Col>
             </Row>
@@ -406,8 +422,24 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
                     <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length > 0 ? (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    ) : (
+                      <>
+                        {!(
+                          orderDetail?.payment_type === 'gratis' ||
+                          orderDetail?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <th>Harga Jasa</th>
+                            <th>Jumlah</th>
+                          </>
+                        )}
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -427,13 +459,22 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           </tr>
                         )
                       )}
+
+                      <tr>
+                        <td colSpan={5} className='text-end fw-bolder'>
+                          Grand Total
+                        </td>
+                        <td className=' fw-bolder'>
+                          {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
+                        </td>
+                      </tr>
                     </>
                   ) : (
                     <>
                       {orderDetail?.order_details.map((item: any, index: any) => (
                         <tr key={`${index}-order_detail`}>
                           <td>{item?.item_code ?? '-'}</td>
-                          <td>{item?.item?.item_name ?? '-'}</td>
+                          <td>{item?.item_name ?? '-'}</td>
                           <td>
                             {orderDetail?.payment_type === 'survey'
                               ? item?.item_notes
@@ -453,57 +494,59 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           )}
                         </tr>
                       ))}
+
+                      {orderDetail?.payment_type !== 'gratis' &&
+                        orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Biaya Survey
+                            </td>
+
+                            <td className=' fw-bolder'>
+                              {orderDetail?.payment_type === 'gratis' ||
+                              orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                                ? `Rp. ${(0).toLocaleString('id')}`
+                                : orderDetail?.payment_type === 'survey'
+                                ? `Rp. ${(99000).toLocaleString('id')}`
+                                : `Rp. ${0}`}
+                            </td>
+                          </tr>
+                        )}
+
+                      {orderDetail?.payment_type !== 'survey' && (
+                        <tr>
+                          <td
+                            colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                            className='text-end fw-bolder'
+                          >
+                            Grand Total
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {(() => {
+                              if (orderDetail?.payment_type === 'gratis') {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                                return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString(
+                                  'id'
+                                )}`
+                              } else if (orderDetail?.payment_type === 'survey') {
+                                return `Rp. ${(99000).toLocaleString('id')}`
+                              } else {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              }
+                            })()}
+                          </td>
+                        </tr>
+                      )}
                     </>
-                  )}
-
-                  {orderDetail?.payment_type !== 'gratis' &&
-                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Biaya Survey
-                        </td>
-
-                        <td className=' fw-bolder'>
-                          {orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                            ? `Rp. ${(0).toLocaleString('id')}`
-                            : orderDetail?.payment_type === 'survey'
-                            ? `Rp. ${(99000).toLocaleString('id')}`
-                            : `Rp. ${0}`}
-                        </td>
-                      </tr>
-                    )}
-
-                  {orderDetail?.payment_type !== 'survey' && (
-                    <tr>
-                      <td
-                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
-                        className='text-end fw-bolder'
-                      >
-                        Grand Total
-                      </td>
-
-                      <td className=' fw-bolder'>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'gratis') {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'survey') {
-                            return `Rp. ${(99000).toLocaleString('id')}`
-                          } else {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          }
-                        })()}
-                      </td>
-                    </tr>
                   )}
                 </tbody>
               </Table>
             </div>
           </Row>
 
-          {orderDetail?.work_orders && (
+          {orderDetail?.work_orders?.work_order_evidences.length ? (
             <Row>
               <Col>
                 <Form.Label className='mt-3'>Work Before :</Form.Label>
@@ -581,6 +624,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 )}
               </Col>
             </Row>
+          ) : (
+            <></>
           )}
 
           <div className='order-history mt-3 mb-3'>
