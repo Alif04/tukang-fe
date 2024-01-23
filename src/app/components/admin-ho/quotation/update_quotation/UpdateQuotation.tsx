@@ -465,14 +465,7 @@ const UpdateQuotationHO: FC = () => {
   const QuotationValidation = () => {
     let valid = true
 
-    if (!quotationDescription) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill instruksi spesial form',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (!storeId) {
+    if (!storeId) {
       Swal.fire({
         title: 'Warning',
         text: 'Please select store',

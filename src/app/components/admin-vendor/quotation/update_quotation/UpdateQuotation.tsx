@@ -514,14 +514,7 @@ const UpdateQuotationVendor: FC = () => {
   const QuotationValidation = () => {
     let valid = true
 
-    if (!quotationDescription) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill instruksi spesial form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!storeId) {
+    if (!storeId) {
       Swal.fire({
         title: 'Error',
         text: 'Please select store',

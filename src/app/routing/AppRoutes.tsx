@@ -12,6 +12,8 @@ import {ErrorsPage} from '../modules/errors/ErrorsPage'
 import {Login} from '../modules/login/Login'
 import {App} from '../App'
 
+import {DetailOrderWithoutAuth} from '../pages/detail_order_without_auth/DetailOrderWithoutAuth'
+
 import {MasterLayout} from '../../_metronic/layout/MasterLayout'
 import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
 
@@ -32,6 +34,7 @@ const AppRoutes: FC = () => {
       <Routes>
         <Route element={<App />}>
           <Route path='error/*' element={<ErrorsPage />} />
+          <Route path='detail-order' element={<DetailOrderWithoutAuth />} />
 
           {!username || !userRole || !accessToken ? (
             <>

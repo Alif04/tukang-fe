@@ -200,7 +200,6 @@ const NewQuotationVendor: FC = () => {
         'WORKSTART',
         'WIP',
         'WORKEND',
-        'INVESTIGATE',
         'REWORK',
         'REWORKSTART',
         'RIP',
@@ -656,13 +655,6 @@ const NewQuotationVendor: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please fill tanggal form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!quotationValidity) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill quotation valid until form',
         icon: 'error',
       })
       valid = false
