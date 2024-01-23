@@ -159,7 +159,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   <Form.Control
                     plaintext
                     readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail.request_survey)) : ''}
+                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
                   />
                 </Col>
               </Form.Group>

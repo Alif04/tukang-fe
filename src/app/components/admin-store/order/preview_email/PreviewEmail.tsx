@@ -78,7 +78,18 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               <h1 className='fw-bolder'>EMAIL ORDER</h1>
 
               <h3 className='fw-bolder'>
-                Request Survey :{' '}
+                {(() => {
+                  if (orderDetail?.payment_type === 'survey') {
+                    return `Request Survey`
+                  } else if (orderDetail?.payment_type === 'gratis') {
+                    return `Request Pemasangan`
+                  } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                    return `Request Pemasangan`
+                  } else {
+                    return ``
+                  }
+                })()}{' '}
+                :{' '}
                 <span className='fw-normal'>
                   {orderDetail ? formatDate(new Date(orderDetail.request_survey)) : '-'}
                 </span>

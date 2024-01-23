@@ -59,7 +59,7 @@ const DetailOrderWithoutAuth = () => {
   const fetchOrderData = async () => {
     try {
       await axios
-        .get(`${apiUrl}/orders/00000001/2015`, {
+        .get(`${apiUrl}/orders/${order.members?.member_number}/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

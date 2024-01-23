@@ -53,8 +53,8 @@ const DashboardStore: FC = () => {
     try {
       let url =
         !dateFrom && !dateTo
-          ? `${apiUrl}/orders?date_from=${firstDayOfMonth}&date_to=${todays}&store_id=${userStore}&take=0`
-          : `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`
+          ? `${apiUrl}/orders?order_by=desc&date_from=${firstDayOfMonth}&date_to=${todays}&store_id=${userStore}&take=0`
+          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`
 
       const response = await axios.get(url, {
         headers: {

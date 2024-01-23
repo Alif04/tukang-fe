@@ -225,7 +225,17 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
             ? item.members.phone_number
             : item.members.whatsapp_number
 
-        let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
+        const paymentStatus = (() => {
+          if (item?.payment_type === 'survey') {
+            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.payment_type === 'gratis') {
+            return 'FREE'
+          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else {
+            return ''
+          }
+        })()
 
         data = {
           order_id: item.id,
