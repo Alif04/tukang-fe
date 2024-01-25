@@ -134,13 +134,16 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           if (data.work_orders) {
+            const workStartDate = formatDate(new Date(data.work_orders.work_start_date))
+            const workEndDate = formatDate(new Date(data.work_orders.work_end_date))
+
             const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
               work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
                 ?.category,
               created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
-              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
+              work_date_time: `${workStartDate} - ${workEndDate}`,
               updated_by: item.updated_by,
             }))
 
@@ -613,7 +616,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           <RangePicker
                             allowClear={false}
                             className='date-range w-100'
-                            format='YYYY-MM-DD'
+                            format='DD-MM-YYYY'
                             onChange={(values) => {
                               if (values && values.length === 2) {
                                 const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
@@ -852,9 +855,15 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             {/* New */}
             {(() => {
               if (
-                ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART'].includes(
-                  orderDetail?.status?.category ?? ''
-                )
+                [
+                  'PICKLIST',
+                  'BOOK',
+                  'BOOKED',
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'WORKREQ',
+                  'WORKSTART',
+                ].includes(orderDetail?.status?.category ?? '')
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -1001,7 +1010,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.status?.category ?? ''
                 )
               ) {

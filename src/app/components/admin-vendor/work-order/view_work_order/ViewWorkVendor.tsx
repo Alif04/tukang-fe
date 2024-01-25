@@ -40,6 +40,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const vendorId = localStorage.getItem('vendor_id')
+
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -227,6 +229,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         [
           'SURVEYREQ',
           'SURVEYSTART',
+          'SURVEYDONE',
+          'WORKREQ',
           'WORKSTART',
           'WIP',
           'WORKEND',
@@ -244,7 +248,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         const statuses = desiredStatus.map((x) => x.value)
 
         const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
+          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}&vendor_id=${vendorId}`,
           {
             headers: {
               Accept: 'application/json',

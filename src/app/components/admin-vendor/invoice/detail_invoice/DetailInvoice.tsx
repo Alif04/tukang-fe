@@ -11,9 +11,6 @@ const DetailInvoiceVendor: FC = () => {
   const params = useParams()
 
   const [invoiceDetail, setInvoiceDetail] = useState<any>()
-  const [grandTotal, setGrandTotal] = useState<any>()
-
-  console.log(invoiceDetail)
 
   const fetchInvoiceData = async () => {
     try {
@@ -31,7 +28,6 @@ const DetailInvoiceVendor: FC = () => {
           const grandTotals = response?.data?.data?.totalQuotation ?? 0
 
           setInvoiceDetail(data)
-          setGrandTotal(grandTotals)
         })
     } catch (error) {
       console.error(error)
@@ -76,7 +72,11 @@ const DetailInvoiceVendor: FC = () => {
 
               <h3 className='fw-bolder'>
                 Invoice ID :{' '}
-                <span className='fw-normal'>{invoiceDetail?.invoice_details[0]?.invoice_id}</span>
+                <span className='fw-normal'>
+                  {invoiceDetail?.invoice_details.length
+                    ? invoiceDetail?.invoice_details[0].invoice_id
+                    : invoiceDetail?.invoice_orders[0].invoice_id}
+                </span>
               </h3>
             </div>
           </div>
@@ -86,21 +86,33 @@ const DetailInvoiceVendor: FC = () => {
               <div className='receiver-detail'>
                 <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
                 <h1 className='fw-bolder mt-3'>
-                  {invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.store_name ?? ''}
+                  {invoiceDetail?.invoice_details.length
+                    ? invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.store_name
+                    : invoiceDetail?.invoice_orders[0]?.orders?.store?.store_name}
                 </h1>
               </div>
 
               <div className='address'>
                 <h3 className='fw-normal'>
-                  {invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.address ?? ''}
+                  {invoiceDetail?.invoice_details.length
+                    ? invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.address
+                    : invoiceDetail?.invoice_orders[0]?.orders?.store?.address}
                 </h3>
 
                 <h3 className='fw-normal'>
-                  {`Telp : ${
-                    invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.phone_number_1 ??
-                    invoiceDetail?.invoice_details[0]?.quotation?.order?.store?.phone_number_2 ??
-                    'Nomor telepon belum tersedia'
-                  }`}
+                  {invoiceDetail?.invoice_details.length
+                    ? `Telp : ${
+                        invoiceDetail?.invoice_details[0]?.quotation?.order?.store
+                          ?.phone_number_1 ??
+                        invoiceDetail?.invoice_details[0]?.quotation?.order?.store
+                          ?.phone_number_2 ??
+                        'Nomor telepon belum tersedia'
+                      }`
+                    : `Telp : ${
+                        invoiceDetail?.invoice_orders[0]?.orders?.store?.phone_number_1 ??
+                        invoiceDetail?.invoice_orders[0]?.orders?.store?.phone_number_2 ??
+                        'Nomor telepon belum tersedia'
+                      }`}
                 </h3>
               </div>
             </div>
@@ -115,56 +127,67 @@ const DetailInvoiceVendor: FC = () => {
                   <th className='text-center'>Nama Jasa Pemasangan</th>
                   <th className='text-center'>Jumlah</th>
                   <th className='text-center'>Price</th>
+                  {invoiceDetail?.invoice_details.length ? (
+                    <th className='text-center'>Margin</th>
+                  ) : (
+                    <></>
+                  )}
                   <th className='text-center'>Total Harga</th>
                 </tr>
               </thead>
 
               <tbody>
-                {invoiceDetail?.invoice_details.map((item: any) => (
-                  <>
-                    <tr>
-                      <td>{item?.quotation?.order_id ?? '-'}</td>
-                      <td>{formatDate(new Date(item?.quotation?.order?.request_survey)) ?? '-'}</td>
-
-                      <td>{item?.quotation?.quotation_details[0]?.name ?? '-'}</td>
-                      <td>{item?.quotation?.quotation_details[0]?.quantity ?? '-'}</td>
-
-                      <td>{`Rp. ${parseInt(
-                        item?.quotation?.quotation_details[0]?.price ?? 0
-                      ).toLocaleString('id')}`}</td>
-
-                      <td>{`Rp. ${parseInt(
-                        item?.quotation?.quotation_details[0]?.final_price ?? 0
-                      ).toLocaleString('id')}`}</td>
-                    </tr>
-                  </>
-                ))}
-
-                {/* <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
-                    Total
-                  </td>
-                  <td className=' fw-bolder'>Rp. 100.000</td>
-                </tr> */}
-
-                {/* <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
-                    Tax ( 11 % )
-                  </td>
-                  <td className=' fw-bolder'>
-                    {`Rp. ${parseInt(
-                      invoiceDetail?.invoice_details[0]?.quotation?.quotation_disc
-                    ).toLocaleString('id')}`}
-                  </td>
-                </tr> */}
+                {invoiceDetail?.invoice_details.length
+                  ? invoiceDetail?.invoice_details.map((item: any) => (
+                      <tr key={item?.quotation?.order_id}>
+                        <td>{item?.quotation?.order_id ?? '-'}</td>
+                        <td>
+                          {formatDate(new Date(item?.quotation?.order?.request_survey)) ?? '-'}
+                        </td>
+                        <td>{item?.quotation?.quotation_details[0]?.name ?? '-'}</td>
+                        <td>{item?.quotation?.quotation_details[0]?.quantity ?? '-'}</td>
+                        <td>{`Rp. ${parseInt(
+                          item?.quotation?.quotation_details[0]?.price ?? 0
+                        ).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(
+                          item?.quotation?.quotation_details[0]?.margin ?? 0
+                        ).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(
+                          item?.quotation?.quotation_details[0]?.final_price ?? 0
+                        ).toLocaleString('id')}`}</td>
+                      </tr>
+                    ))
+                  : invoiceDetail?.invoice_orders.map((item: any) => (
+                      <tr key={item?.order_id}>
+                        <td>{item?.order_id ?? '-'}</td>
+                        <td>{formatDate(new Date(item?.orders?.request_survey)) ?? '-'}</td>
+                        <td>{item?.orders?.m_order_details[0]?.item?.item_name ?? '-'}</td>
+                        <td>{item?.orders?.m_order_details[0]?.quantity ?? '-'}</td>
+                        <td>{`Rp. ${parseInt(
+                          item?.orders?.m_order_details[0]?.unit_price ?? 0
+                        ).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(
+                          item?.orders?.m_order_details[0]?.total ?? 0
+                        ).toLocaleString('id')}`}</td>
+                      </tr>
+                    ))}
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td
+                    colSpan={invoiceDetail?.invoice_details.length ? 6 : 5}
+                    className='text-end fw-bolder'
+                  >
                     Grand Total
                   </td>
 
-                  <td className=' fw-bolder'>
-                    {`Rp. ${parseInt(grandTotal).toLocaleString('id')}`}
+                  <td className='fw-bolder'>
+                    {invoiceDetail?.invoice_details.length
+                      ? `Rp. ${parseInt(invoiceDetail?.total_quotation_grand_total).toLocaleString(
+                          'id'
+                        )}`
+                      : `Rp. ${parseInt(
+                          invoiceDetail?.invoice_orders[0]?.orders?.grand_total
+                        ).toLocaleString('id')}`}
                   </td>
                 </tr>
               </tbody>

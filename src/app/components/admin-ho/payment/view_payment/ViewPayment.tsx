@@ -192,7 +192,7 @@ const ViewPaymentHO: FC = () => {
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)
 
-      return response.data.data.data
+      return response.data.data
     } else {
       console.error('Desired status not found in statusData')
     }

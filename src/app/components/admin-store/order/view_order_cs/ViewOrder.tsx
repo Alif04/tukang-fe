@@ -319,7 +319,10 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
               ? item?.m_order_details[0]?.item_notes
               : item?.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item?.status?.category,
+          order_status:
+            item?.work_orders?.work_order_status.length > 0
+              ? item?.work_orders?.work_order_status[0]?.status?.category
+              : item?.status?.category,
         }
 
         return data

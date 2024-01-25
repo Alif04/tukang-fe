@@ -169,7 +169,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {order?.status?.category ?? ''}
+                      {order?.work_orders?.work_order_status?.length > 0
+                        ? order?.work_orders?.work_order_status[0]?.status?.category
+                        : order?.status?.category}
                     </span>
                   </Form.Label>
                 </Col>
@@ -430,9 +432,16 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             {/* New */}
             {(() => {
               if (
-                ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART'].includes(
-                  order?.status?.category ?? ''
-                )
+                [
+                  'PICKLIST',
+                  'BOOK',
+                  'BOOKED',
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'WORKREQ',
+                  'WORKSTART',
+                ].includes(order?.status?.category ?? '') &&
+                order?.work_orders?.work_order_status.length === 0
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -571,9 +580,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
-                  order?.status?.category ?? ''
-                )
+                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                  order?.work_orders?.work_order_status[0]?.status?.category
+                ) &&
+                order?.work_orders?.work_order_status.length > 0
               ) {
                 return (
                   <div className='table-warranty-content'>

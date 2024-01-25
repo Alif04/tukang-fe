@@ -128,7 +128,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
-  const [removedFiles, setRemovedFiles] = useState<any>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -522,11 +521,9 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   }
 
   const handleRemoveFile = (index: number) => {
-    const newEvidences = [...receiptFiles]
-    const removedFile = newEvidences.splice(index, 1)[0]
-
-    setRemovedFiles((prevRemovedFiles: any) => [...prevRemovedFiles, removedFile])
-    setReceiptFiles(newEvidences)
+    const newEvidances = [...receiptFiles]
+    newEvidances.splice(index, 1)
+    setReceiptFiles(newEvidances)
 
     // Update element value
     if (evidenceRef.current?.value) {
@@ -652,7 +649,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                     formData.append(`order_details[${index}][item_name]`, item.item_name)
                   }
 
-                  if (item?.item_notes !== null) {
+                  if (item?.item_notes !== null && item?.item_notes !== '') {
                     formData.append(`order_details[${index}][item_notes]`, item.item_notes)
                   }
 
@@ -695,9 +692,11 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
       })
     }
 
-    if (removedFiles?.length) {
-      removedFiles.forEach((item: any, index: number) => {
-        formData.append(`deleted_order_files[${index}][order_file_id]`, item.id)
+    if (receiptFiles?.length) {
+      receiptFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(`existing_order_files[${index}][order_file_id]`, item.id)
+        }
       })
     }
 

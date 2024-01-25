@@ -214,7 +214,9 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     Nama PIC :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>Hendra Setiawan</Form.Label>
+                    <Form.Label className='fw-normal mt-3'>
+                      {vendorDetail?.users?.username ?? ''}
+                    </Form.Label>
                   </Col>
                 </Form.Group>
 
@@ -243,16 +245,15 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     Service Type :
                   </Form.Label>
                   <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail?.vendor_service.map((item: any, key: number) => (
-                        <Form.Label
-                          className='fw-normal mt-3'
-                          key={`${item.service_type_name} - ${key}`}
-                        >
-                          {item?.service_type_name}
-                        </Form.Label>
-                      ))}
-                    </Form.Label>
+                    {vendorDetail?.vendor_service.length ? (
+                      <p className='fs-7'>
+                        {vendorDetail?.vendor_service
+                          .map((item: any) => item?.service_type_name)
+                          .join(', ')}
+                      </p>
+                    ) : (
+                      <p className='fs-7'>Service type belum diset</p>
+                    )}
                   </Col>
                 </Form.Group>
 
@@ -261,11 +262,11 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     Service Area :
                   </Form.Label>
                   <Col sm='6'>
-                    {vendorDetail?.vendor_area.map((item: any, key: number) => (
-                      <Form.Label className='fw-normal mt-3' key={`${item.city_name} - ${key}`}>
-                        {item?.city_name}
-                      </Form.Label>
-                    ))}
+                    <p className='fs-7'>
+                      {vendorDetail?.vendor_area
+                        .map((item: any) => item?.city?.city_name)
+                        .join(', ')}
+                    </p>
                   </Col>
                 </Form.Group>
 

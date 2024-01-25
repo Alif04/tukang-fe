@@ -268,42 +268,51 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <Row>
-                  <Col>
-                    <div className='survey mb-3'>
-                      <div className='fs-4 fw-bold'>Survey</div>
+                  {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                    orderDetail?.work_orders !== null
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                      : orderDetail?.status?.category
+                  ) && (
+                    <Col>
+                      <div className='survey mb-3'>
+                        <div className='fs-4 fw-bold'>Survey</div>
 
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Tanggal Survey :</Form.Label>
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Tanggal Survey :</Form.Label>
 
-                        <Form.Control
-                          type='date'
-                          readOnly
-                          value={formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))}
-                        />
-                      </Form.Group>
-
-                      <Form.Group className='detail-info mb-3'>
-                        <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
-
-                        {orderDetail?.work_orders !== null ? (
-                          <Select
-                            classNamePrefix='select'
-                            closeMenuOnSelect={false}
-                            isClearable={false}
-                            isMulti
-                            menuIsOpen={false}
-                            getOptionLabel={(option) => `${option.tukang_name}`}
-                            getOptionValue={(option) => `${option.tukang_id}`}
-                            value={workOrder.tukang_id.filter((x) => x.type === 1)}
+                          <Form.Control
+                            type='date'
+                            readOnly
+                            value={formatDate(
+                              new Date(orderDetail?.work_orders?.survey_date ?? '-')
+                            )}
                           />
-                        ) : (
-                          <p>Tukang belum diset oleh vendor</p>
-                        )}
-                      </Form.Group>
-                    </div>
-                  </Col>
+                        </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+
+                          {orderDetail?.work_orders !== null ? (
+                            <Select
+                              classNamePrefix='select'
+                              closeMenuOnSelect={false}
+                              isClearable={false}
+                              isMulti
+                              menuIsOpen={false}
+                              getOptionLabel={(option) => `${option.tukang_name}`}
+                              getOptionValue={(option) => `${option.tukang_id}`}
+                              value={workOrder.tukang_id.filter((x) => x.type === 1)}
+                            />
+                          ) : (
+                            <p>Tukang belum diset oleh vendor</p>
+                          )}
+                        </Form.Group>
+                      </div>
+                    </Col>
+                  )}
 
                   {[
+                    'WORKREQ',
                     'WORKSTART',
                     'WIP',
                     'WORKEND',
@@ -550,9 +559,15 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             {/* New */}
             {(() => {
               if (
-                ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART'].includes(
-                  orderDetail?.status?.category ?? ''
-                )
+                [
+                  'PICKLIST',
+                  'BOOK',
+                  'BOOKED',
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'WORKREQ',
+                  'WORKSTART',
+                ].includes(orderDetail?.status?.category ?? '')
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -699,7 +714,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.status?.category ?? ''
                 )
               ) {

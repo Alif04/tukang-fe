@@ -42,7 +42,8 @@ export function Login() {
         if (res.data.statusCode == 200) {
           const user = res.data.user
           const isSales = user.roles.name === 'Sales'
-          const isEmployee = user.employee !== null
+          const isVendor = user.roles.name === 'Admin Vendor'
+          const isEmployee = user.employee !== null && !isSales && !isVendor
 
           localStorage.setItem('user_id', res.data.user.id)
           localStorage.setItem('username', res.data.user.username)
@@ -56,7 +57,10 @@ export function Login() {
           } else if (isEmployee) {
             localStorage.setItem('storeId', user.employee.store.id)
             localStorage.setItem('storeName', user.employee.store.store_name)
-          } else if (!isSales && !isEmployee) {
+          } else if (isVendor) {
+            localStorage.setItem('vendor_id', user.vendor.id)
+            localStorage.setItem('vendorName', user.vendor.company_name)
+          } else if (!isSales && !isEmployee && !isVendor) {
             window.location.reload()
           }
 

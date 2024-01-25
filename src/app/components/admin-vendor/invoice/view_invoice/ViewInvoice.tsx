@@ -20,7 +20,6 @@ interface DataType {
   order_id: number
   date_order: string
   quotation_id: number
-  payment_status: string
   member_id: number
   vendor_name: string
   order_status: string
@@ -80,15 +79,6 @@ const ViewInvoiceVendor: FC = () => {
       align: 'center',
       width: 110,
       sorter: (a, b) => a.quotation_id - b.quotation_id,
-    },
-    {
-      title: 'Payment Status',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
-      align: 'center',
-      width: 140,
-      onFilter: (value, record) => record.payment_status.includes(String(value)),
-      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
     {
       title: 'Member ID',
@@ -232,7 +222,7 @@ const ViewInvoiceVendor: FC = () => {
   const fetchInvoiceList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/invoices?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',
@@ -246,7 +236,7 @@ const ViewInvoiceVendor: FC = () => {
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)
 
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -257,25 +247,34 @@ const ViewInvoiceVendor: FC = () => {
       const apiData = await fetchInvoiceList(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetchInvoiceList')
         return []
       }
 
       const invoiceData = apiData.map((item: any) => {
         let data
 
-        let paymentStatus =
-          item?.invoice_details[0]?.quotation?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
-
         data = {
-          invoice_id: item?.invoice_details[0]?.invoice_id,
-          order_id: item?.invoice_details[0]?.quotation?.order_id,
+          invoice_id: item?.invoice_details.length ? item.invoice_details[0].invoice_id : item.id,
+
+          order_id: item?.invoice_details.length
+            ? item.invoice_details[0]?.quotation?.order_id
+            : item.invoice_orders[0]?.orders?.id,
+
           date_order: formatDate(
-            new Date(item?.invoice_details[0]?.quotation?.order?.request_survey)
+            new Date(
+              item?.invoice_details.length
+                ? item?.invoice_details[0]?.quotation?.order?.request_survey
+                : item?.invoice_orders[0]?.orders?.request_survey
+            )
           ),
-          quotation_id: item?.invoice_details[0]?.quotation_id,
-          payment_status: paymentStatus,
-          member_id: item?.invoice_details[0]?.quotation?.order?.member_id,
+
+          quotation_id: item?.invoice_details[0]?.quotation_id ?? '-',
+
+          member_id: item?.invoice_details.length
+            ? item?.invoice_details[0]?.quotation?.order?.members?.member_number
+            : item?.invoice_orders[0]?.orders?.members?.member_number,
+
           vendor_name: item?.vendor?.company_name,
           order_status: item?.status?.category,
         }

@@ -132,9 +132,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   })
 
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
-  console.log(paymentTypeValue)
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
-  const [removedFiles, setRemovedFiles] = useState<any>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -672,11 +670,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }
 
   const handleRemoveFile = (index: number) => {
-    const newEvidences = [...receiptFiles]
-    const removedFile = newEvidences.splice(index, 1)[0]
-
-    setRemovedFiles((prevRemovedFiles: any) => [...prevRemovedFiles, removedFile])
-    setReceiptFiles(newEvidences)
+    const newEvidances = [...receiptFiles]
+    newEvidances.splice(index, 1)
+    setReceiptFiles(newEvidances)
 
     // Update element value
     if (evidenceRef.current?.value) {
@@ -802,7 +798,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     formData.append(`order_details[${index}][item_name]`, item.item_name)
                   }
 
-                  formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  if (item?.item_notes !== null && item?.item_notes !== '') {
+                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
+                  }
+
+                  if (item?.item_id !== null) {
+                    formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  }
+
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
@@ -838,9 +841,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       })
     }
 
-    if (removedFiles?.length) {
-      removedFiles.forEach((item: any, index: number) => {
-        formData.append(`deleted_order_files[${index}][order_file_id]`, item.id)
+    if (receiptFiles?.length) {
+      receiptFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(`existing_order_files[${index}][order_file_id]`, item.id)
+        }
       })
     }
 

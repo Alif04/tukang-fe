@@ -487,7 +487,14 @@ const NewOrderStoreCS: FC = () => {
                     formData.append(`order_details[${index}][item_name]`, item.item_name)
                   }
 
-                  formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  if (item?.item_notes !== null && item?.item_notes !== '') {
+                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
+                  }
+
+                  if (item?.item_id !== null) {
+                    formData.append(`order_details[${index}][item_id]`, item.item_id)
+                  }
+
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })

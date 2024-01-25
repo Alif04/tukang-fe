@@ -235,17 +235,47 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <Row>
-                  <Col md={5}>
-                    <div className='survey mb-3'>
-                      <div className='detail-info mb-3'>
-                        <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
-                        <p className='fs-7'>
+                  {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                    orderDetail?.work_orders !== null
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                      : orderDetail?.status?.category
+                  ) && (
+                    <Col>
+                      <div className='survey mb-3'>
+                        <div className='detail-info mb-3'>
+                          <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
+                          <p className='fs-7'>
+                            {orderDetail?.payment_type === 'survey' ? (
+                              <>
+                                {orderDetail?.work_orders !== null ? (
+                                  <>
+                                    {formatDateTime(
+                                      new Date(orderDetail?.work_orders?.survey_date)
+                                    )}
+                                  </>
+                                ) : (
+                                  'Jadwal belum diset oleh vendor'
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <p>Order ini tanpa survey</p>
+                              </>
+                            )}
+                          </p>
+                        </div>
+
+                        <div className='detail-info mb-3'>
+                          <p className='fs-5 fw-bold'>Oleh:</p>
                           {orderDetail?.payment_type === 'survey' ? (
                             <>
                               {orderDetail?.work_orders !== null ? (
-                                <>
-                                  {formatDateTime(new Date(orderDetail?.work_orders?.survey_date))}
-                                </>
+                                <p className='fs-7'>
+                                  {orderDetail?.work_orders?.work_order_tukang
+                                    .filter((x: any) => x.type === 1)
+                                    .map((item: any) => item?.tukang?.full_name)
+                                    .join(', ')}
+                                </p>
                               ) : (
                                 'Jadwal belum diset oleh vendor'
                               )}
@@ -255,87 +285,68 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                               <p>Order ini tanpa survey</p>
                             </>
                           )}
-                        </p>
+                        </div>
                       </div>
+                    </Col>
+                  )}
 
-                      <div className='detail-info mb-3'>
-                        <p className='fs-5 fw-bold'>Oleh:</p>
-                        {orderDetail?.payment_type === 'survey' ? (
-                          <>
-                            {orderDetail?.work_orders !== null ? (
-                              <p className='fs-7'>
-                                {orderDetail?.work_orders?.work_order_tukang
-                                  .filter((x: any) => x.type === 1)
-                                  .map((item: any) => item?.tukang?.full_name)
-                                  .join(', ')}
-                              </p>
-                            ) : (
-                              'Jadwal belum diset oleh vendor'
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <p>Order ini tanpa survey</p>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </Col>
+                  {[
+                    'WORKREQ',
+                    'WORKSTART',
+                    'WIP',
+                    'WORKEND',
+                    'REWORK',
+                    'REWORKSTART',
+                    'RIP',
+                    'REWORKEND',
+                    'RESCHEDULE',
+                    'DONE',
+                  ].includes(
+                    orderDetail?.work_orders !== null
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                      : orderDetail?.status?.category
+                  ) && (
+                    <Col>
+                      <div className='work-date'>
+                        <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
 
-                  <Col md={7}>
-                    <div className='work-date'>
-                      <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
+                        <Form.Group as={Row} className='detail-info'>
+                          <Form.Label column sm='3'>
+                            MULAI
+                          </Form.Label>
 
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='3'>
-                          MULAI
-                        </Form.Label>
-
-                        <Col sm='9'>
-                          {orderDetail?.work_orders.work_order_status[0]?.work_order_items.length >
-                          0 ? (
+                          <Col sm='9'>
                             <p className='fs-7'>
                               {formatDateTime(new Date(orderDetail?.work_orders?.work_start_date))}
                             </p>
-                          ) : (
-                            'Jadwal belum diset oleh vendor'
-                          )}
-                        </Col>
-                      </Form.Group>
+                          </Col>
+                        </Form.Group>
 
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='3'>
-                          SELESAI
-                        </Form.Label>
+                        <Form.Group as={Row} className='detail-info'>
+                          <Form.Label column sm='3'>
+                            SELESAI
+                          </Form.Label>
 
-                        <Col sm='9'>
-                          {orderDetail?.work_orders.work_order_status[0]?.work_order_items.length >
-                          0 ? (
+                          <Col sm='9'>
                             <p className='fs-7'>
                               {formatDateTime(new Date(orderDetail?.work_orders?.work_end_date))}
                             </p>
-                          ) : (
-                            'Jadwal belum diset oleh vendor'
-                          )}
-                        </Col>
-                      </Form.Group>
+                          </Col>
+                        </Form.Group>
 
-                      <div className='detail-info mb-3'>
-                        <p className='fs-5 fw-bold'>Oleh:</p>
-                        {orderDetail?.work_orders.work_order_status[0]?.work_order_items.length >
-                        0 ? (
+                        <div className='detail-info mb-3'>
+                          <p className='fs-5 fw-bold'>Oleh:</p>
+
                           <p className='fs-7'>
                             {orderDetail?.work_orders?.work_order_tukang
                               .filter((x: any) => x.type === 2)
                               .map((item: any) => item?.tukang?.full_name)
                               .join(', ')}
                           </p>
-                        ) : (
-                          'Tukang belum diset oleh vendor'
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  </Col>
+                    </Col>
+                  )}
                 </Row>
               </Col>
             </Row>
@@ -515,9 +526,15 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             {/* New */}
             {(() => {
               if (
-                ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART'].includes(
-                  orderDetail?.status?.category ?? ''
-                )
+                [
+                  'PICKLIST',
+                  'BOOK',
+                  'BOOKED',
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'WORKREQ',
+                  'WORKSTART',
+                ].includes(orderDetail?.status?.category ?? '')
               ) {
                 return (
                   <div className='table-warranty-content'>

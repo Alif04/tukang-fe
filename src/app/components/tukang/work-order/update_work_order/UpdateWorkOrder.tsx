@@ -141,8 +141,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     },
   ])
 
-  console.log(workOrderItem)
-
   // Fetch Data
   const fetchOrderData = async () => {
     try {
@@ -257,9 +255,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
           // New
           if (
-            ['SURVEYREQ', 'SURVEYSTART', 'WORKREQ', 'WORKSTART'].includes(
-              data?.order?.status?.category
-            )
+            ['SURVEYREQ', 'SURVEYSTART', 'WORKREQ', 'WORKSTART'].includes(data?.status?.category) &&
+            data?.work_orders?.work_order_status.length > 0
           ) {
             const workOrderItem = data.order_details.map((item: any, index: number) => ({
               id: item.id,
@@ -287,16 +284,24 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
             const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
             setWorkOrderItem(mergedWorkOrderItem)
-          } else if (data.work_orders.work_order_status[0].work_order_items.length > 0) {
-            const workOrderItem = data.order_details.map((item: any, index: number) => ({
-              id: item.id,
-              index: (Date.now() + index).toString(),
-              item_name: item.item_name ?? '',
-              unit: item?.unit ?? '',
-              is_user: item.is_customer ? 1 : 0,
-              type: 2,
-              quantity: item?.quantity ?? 0,
-            }))
+          } else if (
+            ['WIP', 'WORKEND', 'REWORKSTART', 'RIP', 'REWORKEND', 'WORKDONE', 'DONE'].includes(
+              data.work_orders.work_order_status[0].status.category
+            )
+          ) {
+            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+              (item: any, index: number) => ({
+                id: item.id,
+                index: (Date.now() + index).toString(),
+                item_name: item.name,
+                tukang_id: item?.tukang_id,
+                tukang_name: item?.tukang_name,
+                unit: item?.unit,
+                is_user: item.is_customer ? 1 : 0,
+                type: item.type,
+                quantity: item.quantity,
+              })
+            )
 
             const workOrderItemMaterial = [
               {
@@ -317,12 +322,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           if (data?.work_orders?.work_order_status) {
+            const workStartDate = formatDate(new Date(data.work_orders.work_start_date))
+            const workEndDate = formatDate(new Date(data.work_orders.work_end_date))
+
             const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
               work_order_status: item.status.category,
               created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
-              work_date_time: item.work_date_time ? formatDate(new Date(item.work_date_time)) : '-',
+              work_date_time: `${workStartDate} - ${workEndDate}`,
               updated_by: item.updated_by,
             }))
 
@@ -651,10 +659,12 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           formData.append(`work_order_items[${index}][id]`, order.id.toString())
         }
 
-        formData.append(`work_order_items[${index}][type]`, order.type.toString())
-        formData.append(`work_order_items[${index}][item_name]`, order.item_name)
-        formData.append(`work_order_items[${index}][is_customer]`, order.is_user.toString())
-        formData.append(`work_order_items[${index}][unit]`, order.unit)
+        if (order.item_name !== '') {
+          formData.append(`work_order_items[${index}][type]`, order.type.toString())
+          formData.append(`work_order_items[${index}][item_name]`, order.item_name)
+          formData.append(`work_order_items[${index}][is_customer]`, order.is_user.toString())
+          formData.append(`work_order_items[${index}][unit]`, order.unit)
+        }
 
         if (order.quantity) {
           formData.append(`work_order_items[${index}][quantity]`, order.quantity.toString())
@@ -849,8 +859,35 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                     <Col md={8} className='mt-5'>
                       <div className='detail-info'>
-                        {orderDetail?.work_orders.work_order_status[0]?.work_order_items.length >
-                        0 ? (
+                        {[
+                          'SURVEYREQ',
+                          'SURVEYSTART',
+                          'SURVEYDONE',
+                          'WORKREQ',
+                          'WORKSTART',
+                        ].includes(
+                          orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                        ) && (
+                          <>
+                            {orderDetail?.order_details.map((item: any, index: number) => (
+                              <p key={`${index}-work_order_tukang`} className='fs-7'>
+                                {item?.item?.item_name ?? '-'}
+                              </p>
+                            ))}
+                          </>
+                        )}
+
+                        {[
+                          'WIP',
+                          'WORKEND',
+                          'REWORKSTART',
+                          'RIP',
+                          'REWORKEND',
+                          'WORKDONE',
+                          'DONE',
+                        ].includes(
+                          orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                        ) && (
                           <>
                             {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                               (item: any, index: number) => (
@@ -860,8 +897,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               )
                             )}
                           </>
-                        ) : (
-                          <p className='fs-7'>Order masih dalam survey</p>
                         )}
                       </div>
                     </Col>
@@ -1115,7 +1150,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </Col>
               </Form.Group>
 
-              {['SURVEYSTART', 'SURVEYDONE'].includes(
+              {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
                 orderDetail?.work_orders?.work_order_status[0]?.status?.category
               ) && (
                 <Row className='detail-info'>

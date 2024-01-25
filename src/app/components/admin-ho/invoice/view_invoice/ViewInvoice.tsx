@@ -30,6 +30,12 @@ interface InvoiceData {
   }>
 }
 
+interface Status {
+  value: any
+  category: string
+  label: string
+}
+
 const ViewInvoiceHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -184,9 +190,15 @@ const ViewInvoiceHO: FC = () => {
   }
 
   const fetchInvoiceList = async (page: number, pageSize: number) => {
-    try {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData.filter((status: any) => ['UNPAID'].includes(status.category))
+
+    if (desiredStatus) {
+      const statuses = desiredStatus.map((x) => x.value)
+
       const response = await axios.get(
-        `${apiUrl}/invoices?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/invoices?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
         {
           headers: {
             Accept: 'application/json',
@@ -200,9 +212,9 @@ const ViewInvoiceHO: FC = () => {
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)
 
-      return response.data.data.data
-    } catch (error) {
-      console.error('Error fetching data:', error)
+      return response.data.data
+    } else {
+      console.error('Desired status not found in statusData')
     }
   }
 
@@ -211,7 +223,7 @@ const ViewInvoiceHO: FC = () => {
       const apiData = await fetchInvoiceList(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetchInvoiceList')
         return []
       }
 
@@ -276,7 +288,7 @@ const ViewInvoiceHO: FC = () => {
 
     invoices.payment_request.forEach((invoice) => {
       if (invoice.invoice_id !== null) {
-        formData.append(`invoice_id`, String(invoice.invoice_id))
+        formData.append(`invoice_id[]`, String(invoice.invoice_id))
       }
     })
 

@@ -581,7 +581,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                     formData.append(`order_details[${index}][item_name]`, item.item_name)
                   }
 
-                  if (item?.item_notes !== null) {
+                  if (item?.item_notes !== null && item?.item_notes !== '') {
                     formData.append(`order_details[${index}][item_notes]`, item.item_notes)
                   }
 

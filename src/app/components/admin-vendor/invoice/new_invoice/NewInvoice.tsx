@@ -3,6 +3,7 @@ import React, {FC, useState, useEffect, useRef} from 'react'
 import './NewInvoice.css'
 
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 import Swal from 'sweetalert2'
 import {Table, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -16,6 +17,7 @@ const {RangePicker} = DatePicker
 
 interface DataType {
   order_id: number
+  quotation_id: number
   store_name: string
   date_order: string
   member_id: number
@@ -30,6 +32,7 @@ interface InvoiceData {
   vendor_id: number | null
   invoice_evidences: Array<any>
   invoice_details: Array<{
+    order_id?: number | null
     quotation_id?: number | null
   }>
 }
@@ -37,6 +40,9 @@ interface InvoiceData {
 const NewInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  // User Vendor
+  const vendorId = localStorage.getItem('vendor_id')
 
   // Table
   const [order, setOrder] = useState<DataType[]>([])
@@ -51,11 +57,15 @@ const NewInvoiceVendor: FC = () => {
   }
 
   // Create Invoice
+  const [selectedRows, setSelectedRows] = useState<DataType[]>([])
   const [invoiceCode, setInvoiceCode] = useState<string | number>('NaN')
   const [invoices, setInvoices] = useState<InvoiceData>({
-    vendor_id: 3,
+    vendor_id: Number(vendorId),
     invoice_evidences: [],
     invoice_details: [
+      {
+        order_id: null,
+      },
       {
         quotation_id: null,
       },
@@ -118,6 +128,16 @@ const NewInvoiceVendor: FC = () => {
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Quotation ID',
+      dataIndex: 'quotation_id',
+      key: 'quotation_id',
+      align: 'center',
+      width: 110,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.quotation_id - b.quotation_id,
     },
     {
       title: 'Nama Store',
@@ -217,30 +237,18 @@ const NewInvoiceVendor: FC = () => {
 
   const getOrder = async () => {
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      const desiredStatusName = 'WORKEND'
-      const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-
-      if (desiredStatus) {
-        const statusId = desiredStatus?.value
-
-        const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&status=${statusId}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      const response = await axios.get(
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&vendor_id=${vendorId}&take=0`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -251,11 +259,18 @@ const NewInvoiceVendor: FC = () => {
       const apiData = await getOrder()
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from getOrder')
         return []
       }
 
-      const orderData = apiData.map((item: any) => {
+      const filteredOrders = apiData.filter((item: any) => {
+        return (
+          item?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND' &&
+          !item?.invoice_orders.length
+        )
+      })
+
+      const orderData = filteredOrders.map((item: any) => {
         let data
 
         const paymentStatus = item?.receipt_number === null ? 'UNPAID' : 'PAID'
@@ -266,6 +281,7 @@ const NewInvoiceVendor: FC = () => {
 
         data = {
           order_id: item?.id,
+          quotation_id: item?.quotation[0]?.id ?? null,
           store_name: item?.store?.store_name,
           date_order: formatDate(new Date(item?.request_survey)),
           member_id: item?.members?.member_number,
@@ -322,25 +338,56 @@ const NewInvoiceVendor: FC = () => {
   // Selected Row
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+      const updatedSelectedRowKeys = selectedRows.map((row) =>
+        row.quotation_id !== null ? row.quotation_id : row.order_id
+      )
+      setSelectedRows(selectedRows)
+
       setInvoices((prevInvoices) => ({
         ...prevInvoices,
-        invoice_details: selectedRowKeys.map((key) => ({
-          quotation_id: Number(key),
+        invoice_details: selectedRows.map((row) => ({
+          quotation_id: row.quotation_id !== null ? row.quotation_id : null,
+          order_id: row.quotation_id === null ? row.order_id : null,
         })),
       }))
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+
+      console.log(`selectedRowKeys: ${updatedSelectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
+  }
+
+  // Invoice Validation
+  const InvoiceValidation = () => {
+    let valid = true
+
+    if (!invoices.invoice_details.some((item: any) => item.order_id !== null)) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Pilih Order yang ingin diberi Invoice ',
+        icon: 'warning',
+      })
+      valid = false
+    }
+
+    return valid
   }
 
   // Handle Submit
   const handleCreateInvoice = async () => {
+    if (!InvoiceValidation()) {
+      return false
+    }
+
     const formData = new FormData()
 
     formData.append('vendor_id', String(invoices.vendor_id))
 
     invoices.invoice_details.forEach((invoice, index) => {
-      if (invoice.quotation_id !== null) {
-        formData.append(`invoice_details[${index}][quotation_id]`, String(invoice.quotation_id))
+      if (invoice.order_id !== null) {
+        if (invoice.quotation_id !== null) {
+          formData.append(`invoice_details[${index}][quotation_id]`, String(invoice.quotation_id))
+        } else {
+          formData.append(`invoice_orders[${index}][order_id]`, String(invoice.order_id))
+        }
       }
     })
 
@@ -380,6 +427,23 @@ const NewInvoiceVendor: FC = () => {
           icon: 'error',
         })
       })
+  }
+
+  // Export To Excel
+  const exportToExcel = () => {
+    if (selectedRows.length === 0) {
+      Swal.fire('Warning', 'Please select at least one row to export', 'warning')
+      return
+    }
+
+    const headers = Object.keys(selectedRows[0]) as (keyof DataType)[]
+    const data = selectedRows.map((row) => headers.map((header) => row[header]))
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data])
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet 1')
+
+    XLSX.writeFile(workbook, 'exported_data.xlsx')
   }
 
   return (
@@ -434,7 +498,7 @@ const NewInvoiceVendor: FC = () => {
                   className='d-flex justify-content-center align-items-center'
                   variant='outline-success'
                   type='submit'
-                  // onClick={() => handleCreateInvoice()}
+                  onClick={exportToExcel}
                 >
                   Download
                 </Button>

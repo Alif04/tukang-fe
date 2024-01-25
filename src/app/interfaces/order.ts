@@ -89,11 +89,14 @@ export interface Orders {
 
   complaints?: any[]
 
-  work_orders: {
-    work_order_status: Array<{
-      work_order_items: WorkOrderItem[]
-    }>
-  } | null
+  work_orders: any
+
+  // work_orders: {
+  //   work_order_status: Array<{
+  //     status: any
+  //     work_order_items: WorkOrderItem[]
+  //   }>
+  // }
 
   order_details: OrderDetail[]
   m_order_details: OrderDetail[]

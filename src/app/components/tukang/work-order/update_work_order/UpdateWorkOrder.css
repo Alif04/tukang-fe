@@ -76,6 +76,20 @@
   word-break: break-word;
 }
 
+/* Work Order Tukang */
+#update-work-order-tukang
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker.ant-picker-disabled {
+  background-color: white !important;
+}
+
+#update-work-order-tukang
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
+  .ant-picker-input
+  > input[disabled] {
+  color: black !important;
+  font-weight: 600;
+}
+
 /* Button Action */
 
 #update-work-order-tukang button.btn.btn-btn-jasa.button-dark-primary {

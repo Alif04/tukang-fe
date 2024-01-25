@@ -225,7 +225,10 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
       const desiredStatus = statusData.filter((status: any) =>
         [
+          'SURVEYREQ',
           'SURVEYSTART',
+          'SURVEYDONE',
+          'WORKREQ',
           'WORKSTART',
           'WIP',
           'WORKEND',
