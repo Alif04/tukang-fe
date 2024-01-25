@@ -40,6 +40,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     updated_by: null,
     created_at: '',
     order_details: [],
+    m_order_details: [],
     order_files: [],
     complaints: [],
     work_orders: {

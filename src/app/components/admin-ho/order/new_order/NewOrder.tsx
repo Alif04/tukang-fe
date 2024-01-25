@@ -391,7 +391,7 @@ const NewOrderHO: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatusName = 'SURVEYREQ'
+    const desiredStatusName = 'PICKLIST'
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
     const statusId = desiredStatus?.value ?? null
 

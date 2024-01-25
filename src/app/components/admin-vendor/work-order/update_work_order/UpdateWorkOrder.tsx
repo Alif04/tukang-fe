@@ -211,6 +211,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         [
           'SURVEYREQ',
           'SURVEYSTART',
+          'SURVEYDONE',
+          'WORKREQ',
           'WORKSTART',
           'WIP',
           'WORKEND',
@@ -588,6 +590,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   )}
 
                   {[
+                    'WORKREQ',
                     'WORKSTART',
                     'WIP',
                     'WORKEND',
@@ -676,7 +679,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
               <Row>
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                  <Form.Label column>
+                    {orderDetail?.payment_type !== 'survey'
+                      ? 'Tanggal request pemasangan'
+                      : 'Tanggal request survey'}
+                  </Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>{formatDate(new Date(orderDetail?.request_survey))}</p>
                   </Col>

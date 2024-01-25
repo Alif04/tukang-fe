@@ -34,7 +34,7 @@ const AppRoutes: FC = () => {
       <Routes>
         <Route element={<App />}>
           <Route path='error/*' element={<ErrorsPage />} />
-          <Route path='detail-order/:id' element={<DetailOrderWithoutAuth />} />
+          <Route path='detail-order/:member_id/:id' element={<DetailOrderWithoutAuth />} />
 
           {!username || !userRole || !accessToken ? (
             <>

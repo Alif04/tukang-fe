@@ -132,8 +132,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   })
 
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
+  console.log(paymentTypeValue)
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
-  console.log(receiptFiles)
+  const [removedFiles, setRemovedFiles] = useState<any>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -569,33 +570,50 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }, [selectedVendor])
 
   useEffect(() => {
-    setOrderForm({
-      ...orderForm,
-      payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
-    })
-  }, [paymentTypeValue])
-
-  useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-    const desiredStatusName = 'SURVEYREQ'
 
     const statusNameByPaymentType =
       paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'pemasangan_tanpa_survey'
         ? 'WORKREQ'
         : 'SURVEYREQ'
 
-    console.log('Status by payment type', statusNameByPaymentType)
+    const desiredStatus = statusData.find(
+      (status: any) => status.category === statusNameByPaymentType
+    )
 
-    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
     setOrderForm({
       ...orderForm,
+      payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
       project_status_id: statusId,
     })
-  }, [orderForm.project_status_id])
+  }, [paymentTypeValue, orderForm.project_status_id])
+
+  // useEffect(() => {
+  //   const storedStatus = sessionStorage.getItem('statusData')
+  //   const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+  //   const desiredStatusName = 'SURVEYREQ'
+
+  //   const statusNameByPaymentType =
+  //     paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+  //       ? 'WORKREQ'
+  //       : 'SURVEYREQ'
+
+  //   console.log('Status by payment type', desiredStatusName)
+
+  //   const desiredStatus = statusData.find(
+  //     (status: any) => status.category === statusNameByPaymentType
+  //   )
+  //   const statusId = desiredStatus?.value
+
+  //   setOrderForm({
+  //     ...orderForm,
+  //     project_status_id: statusId,
+  //   })
+  // }, [orderForm.project_status_id])
 
   // Select Date Request
   const today = new Date().toISOString().split('T')[0]
@@ -631,6 +649,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   // Upload Order File Handler
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
+
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
       const existingFiles = [...receiptFiles]
@@ -653,9 +672,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }
 
   const handleRemoveFile = (index: number) => {
-    const newEvidances = [...receiptFiles]
-    newEvidances.splice(index, 1)
-    setReceiptFiles(newEvidances)
+    const newEvidences = [...receiptFiles]
+    const removedFile = newEvidences.splice(index, 1)[0]
+
+    setRemovedFiles((prevRemovedFiles: any) => [...prevRemovedFiles, removedFile])
+    setReceiptFiles(newEvidences)
 
     // Update element value
     if (evidenceRef.current?.value) {
@@ -798,6 +819,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     }
 
     if (errorBags.length > 0) {
+      setIsLoading(false)
+
       Swal.fire({
         title: 'Warning',
         text: errorBags[0].message,
@@ -812,6 +835,12 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         if (item instanceof Blob) {
           formData.append(`order_files`, item, item.name)
         }
+      })
+    }
+
+    if (removedFiles?.length) {
+      removedFiles.forEach((item: any, index: number) => {
+        formData.append(`deleted_order_files[${index}][order_file_id]`, item.id)
       })
     }
 

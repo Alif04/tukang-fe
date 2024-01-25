@@ -128,6 +128,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
+  const [removedFiles, setRemovedFiles] = useState<any>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -498,6 +499,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   // Upload Order File Handler
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
+
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
       const existingFiles = [...receiptFiles]
@@ -520,16 +522,11 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   }
 
   const handleRemoveFile = (index: number) => {
-    // const newEvidances = [...receiptFiles]
-    // newEvidances.splice(index, 1)
-    // setReceiptFiles(newEvidances)
+    const newEvidences = [...receiptFiles]
+    const removedFile = newEvidences.splice(index, 1)[0]
 
-    const newEvidances = [...receiptFiles]
-    const removedFile = newEvidances.splice(index, 1)
-
-    console.log('removedFile', removedFile)
-
-    setReceiptFiles(newEvidances)
+    setRemovedFiles((prevRemovedFiles: any) => [...prevRemovedFiles, removedFile])
+    setReceiptFiles(newEvidences)
 
     // Update element value
     if (evidenceRef.current?.value) {
@@ -679,6 +676,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     }
 
     if (errorBags.length > 0) {
+      setIsLoading(false)
+
       Swal.fire({
         title: 'Warning',
         text: errorBags[0].message,
@@ -693,6 +692,12 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         if (item instanceof Blob) {
           formData.append(`order_files`, item, item.name)
         }
+      })
+    }
+
+    if (removedFiles?.length) {
+      removedFiles.forEach((item: any, index: number) => {
+        formData.append(`deleted_order_files[${index}][order_file_id]`, item.id)
       })
     }
 

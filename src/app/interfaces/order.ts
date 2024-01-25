@@ -96,6 +96,7 @@ export interface Orders {
   } | null
 
   order_details: OrderDetail[]
+  m_order_details: OrderDetail[]
   order_files: OrderFiles[]
   quotation: any[]
 }

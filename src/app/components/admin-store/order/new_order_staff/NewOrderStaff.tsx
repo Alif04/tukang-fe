@@ -53,6 +53,7 @@ interface Order {
   member_id: number | null
   sales_id: number | null
   store_id: number | null
+  project_status_id: number | null
   project_address: string
   project_number: string
   request_survey: string
@@ -88,6 +89,7 @@ const NewOrderStoreStaff: FC = () => {
     member_id: null,
     sales_id: userRole === 'Sales' ? Number.parseInt(salesId) ?? null : null,
     store_id: Number.parseInt(staffStoreId),
+    project_status_id: null,
     project_address: '',
     project_number: '',
     request_survey: '',
@@ -303,6 +305,20 @@ const NewOrderStoreStaff: FC = () => {
     })
   }, [paymentTypeValue])
 
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatusName = 'PICKLIST'
+    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const statusId = desiredStatus?.value
+
+    setOrderForm({
+      ...orderForm,
+      project_status_id: statusId,
+    })
+  }, [orderForm.project_status_id])
+
   // Select Date Request
   const today = new Date().toISOString().split('T')[0]
 
@@ -405,6 +421,7 @@ const NewOrderStoreStaff: FC = () => {
       {key: 'member_id', fieldName: 'Nomor Member'},
       {key: 'sales_id', fieldName: 'Sales Information'},
       {key: 'store_id', fieldName: 'Store'},
+      {key: 'project_status_id', fieldName: 'Status Proyek'},
       {key: 'project_address', fieldName: 'Alamat Proyek'},
       {key: 'project_number', fieldName: 'Nomor Proyek'},
       {key: 'request_survey', fieldName: 'Request Survey'},
@@ -459,6 +476,8 @@ const NewOrderStoreStaff: FC = () => {
     }
 
     if (errorBags.length > 0) {
+      setIsLoading(false)
+
       Swal.fire({
         title: 'Warning',
         text: errorBags[0].message,

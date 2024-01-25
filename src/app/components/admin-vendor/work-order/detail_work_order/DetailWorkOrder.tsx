@@ -91,7 +91,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
-    return `${year}-${month}-${day}`
+    return `${day}/${month}/${year}`
   }
 
   const workOrderHandler = (
@@ -278,11 +278,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <Form.Control
                           type='date'
                           readOnly
-                          value={
-                            orderDetail?.work_orders !== null
-                              ? formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))
-                              : formatDate(new Date(orderDetail?.request_survey ?? '-'))
-                          }
+                          value={formatDate(new Date(orderDetail?.work_orders?.survey_date ?? '-'))}
                         />
                       </Form.Group>
 
@@ -380,7 +376,12 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
               <Row>
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                  <Form.Label column>
+                    {orderDetail?.payment_type !== 'survey'
+                      ? 'Tanggal request pemasangan'
+                      : 'Tanggal request survey'}
+                  </Form.Label>
+
                   <Col>
                     <p className='fs-7 p-0'>{formatDate(new Date(orderDetail?.request_survey))}</p>
                   </Col>
