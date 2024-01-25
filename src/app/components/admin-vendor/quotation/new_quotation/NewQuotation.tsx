@@ -197,7 +197,7 @@ const NewQuotationVendor: FC = () => {
     const desiredStatus = statusData.filter((status: any) =>
       [
         'SURVEYEND',
-        // 'SURVEYSTART',
+        'SURVEYSTART',
         // 'WORKSTART',
         // 'WIP',
         // 'WORKEND',
