@@ -179,7 +179,9 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
               <Form.Group as={Row} className='detail-info'>
                 <Form.Label column md='6' sm='12'>
-                  Request Tanggal Survey :
+                  {orderDetail?.payment_type === 'survey'
+                    ? 'Request Tanggal Survey :'
+                    : 'Request Tanggal Pengerjaan'}
                 </Form.Label>
 
                 <Col md='6'>

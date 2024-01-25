@@ -54,6 +54,7 @@ const DetailOrderWithoutAuth = () => {
     work_orders: {
       work_order_status: [],
     },
+    quotation: [],
   })
 
   const fetchOrderData = async () => {

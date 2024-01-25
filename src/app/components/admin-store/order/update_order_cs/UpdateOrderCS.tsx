@@ -520,8 +520,15 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   }
 
   const handleRemoveFile = (index: number) => {
+    // const newEvidances = [...receiptFiles]
+    // newEvidances.splice(index, 1)
+    // setReceiptFiles(newEvidances)
+
     const newEvidances = [...receiptFiles]
-    newEvidances.splice(index, 1)
+    const removedFile = newEvidances.splice(index, 1)
+
+    console.log('removedFile', removedFile)
+
     setReceiptFiles(newEvidances)
 
     // Update element value

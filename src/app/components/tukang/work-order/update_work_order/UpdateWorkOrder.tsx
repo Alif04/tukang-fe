@@ -209,23 +209,85 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             setWorkOrderAfter(initialWorkOrderFiles)
           }
 
-          if (data.work_orders.work_order_status[0].work_order_items.length > 0) {
-            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
-              (item: any, index: number) => ({
-                id: item.id,
-                index: (Date.now() + index).toString(),
-                item_name: item.name,
-                tukang_id: item?.tukang_id,
-                tukang_name: item?.tukang_name,
-                unit: item?.unit,
-                is_user: item.is_customer ? 1 : 0,
-                type: item.type,
-                quantity: item.quantity,
-              })
-            )
+          // Old
+          // if (data.work_orders.work_order_status[0].work_order_items.length > 0) {
+          //   const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+          //     (item: any, index: number) => ({
+          //       id: item.id,
+          //       index: (Date.now() + index).toString(),
+          //       item_name: item.name,
+          //       tukang_id: item?.tukang_id,
+          //       tukang_name: item?.tukang_name,
+          //       unit: item?.unit,
+          //       is_user: item.is_customer ? 1 : 0,
+          //       type: item.type,
+          //       quantity: item.quantity,
+          //     })
+          //   )
 
-            setWorkOrderItem(workOrderItem)
-          } else {
+          //   setWorkOrderItem(workOrderItem)
+          // } else {
+          //   const workOrderItem = data.order_details.map((item: any, index: number) => ({
+          //     id: item.id,
+          //     index: (Date.now() + index).toString(),
+          //     item_name: item.item_name ?? '',
+          //     unit: item?.unit ?? '',
+          //     is_user: item.is_customer ? 1 : 0,
+          //     type: 2,
+          //     quantity: item?.quantity ?? 0,
+          //   }))
+
+          //   const workOrderItemMaterial = [
+          //     {
+          //       id: null,
+          //       index: (Date.now() + workOrderItem.length).toString(),
+          //       item_name: '',
+          //       tukang_id: null,
+          //       tukang_name: '',
+          //       is_user: 0,
+          //       type: 1,
+          //       quantity: null,
+          //       unit: '',
+          //     },
+          //   ]
+
+          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+          //   setWorkOrderItem(mergedWorkOrderItem)
+          // }
+
+          // New
+          if (
+            ['SURVEYREQ', 'SURVEYSTART', 'WORKREQ', 'WORKSTART'].includes(
+              data?.order?.status?.category
+            )
+          ) {
+            const workOrderItem = data.order_details.map((item: any, index: number) => ({
+              id: item.id,
+              index: (Date.now() + index).toString(),
+              item_name: item.item_name ?? '',
+              unit: item?.unit ?? '',
+              is_user: item.is_customer ? 1 : 0,
+              type: 2,
+              quantity: item?.quantity ?? 0,
+            }))
+
+            const workOrderItemMaterial = [
+              {
+                id: null,
+                index: (Date.now() + workOrderItem.length).toString(),
+                item_name: '',
+                tukang_id: null,
+                tukang_name: '',
+                is_user: 0,
+                type: 1,
+                quantity: null,
+                unit: '',
+              },
+            ]
+
+            const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+            setWorkOrderItem(mergedWorkOrderItem)
+          } else if (data.work_orders.work_order_status[0].work_order_items.length > 0) {
             const workOrderItem = data.order_details.map((item: any, index: number) => ({
               id: item.id,
               index: (Date.now() + index).toString(),
@@ -1060,115 +1122,131 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </Col>
               </Form.Group>
 
-              <Row className='detail-info'>
-                <div className='title'>
-                  <h1 className='fs-6'>Survey</h1>
-                </div>
+              {['SURVEYSTART', 'SURVEYED', 'SURVEYEND'].includes(
+                orderDetail?.work_orders?.work_order_status[0]?.status?.category
+              ) && (
+                <Row className='detail-info'>
+                  <div className='title'>
+                    <h1 className='fs-6'>Survey</h1>
+                  </div>
 
-                <Form.Group className='detail-info'>
-                  <Form.Label className='fs-6'>Tanggal Survey</Form.Label>
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tanggal Survey</Form.Label>
 
-                  <Col sm='8'>
-                    <Form.Control
-                      type='datetime-local'
-                      disabled
-                      value={workOrder.survey_date_time}
-                      onChange={(e) => workOrderHandler(e.target.value, 'survey_date_time')}
-                    />
-                  </Col>
-                </Form.Group>
+                    <Col sm='8'>
+                      <Form.Control
+                        type='datetime-local'
+                        disabled
+                        value={workOrder.survey_date_time}
+                        onChange={(e) => workOrderHandler(e.target.value, 'survey_date_time')}
+                      />
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group className='detail-info'>
-                  <Form.Label className='fs-6'>Tehnisi Survey</Form.Label>
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tehnisi Survey</Form.Label>
 
-                  <Col sm='8'>
-                    <Select
-                      classNamePrefix='select'
-                      closeMenuOnSelect={false}
-                      isClearable={false}
-                      menuIsOpen={false}
-                      isMulti
-                      components={animatedComponents}
-                      options={tukang}
-                      getOptionLabel={(option) => `${option.label}`}
-                      getOptionValue={(option) => `${option.value}`}
-                      value={workOrder.tukang_id.filter((x) => x.type === 1)}
-                    />
-                  </Col>
-                </Form.Group>
-              </Row>
+                    <Col sm='8'>
+                      <Select
+                        classNamePrefix='select'
+                        closeMenuOnSelect={false}
+                        isClearable={false}
+                        menuIsOpen={false}
+                        isMulti
+                        components={animatedComponents}
+                        options={tukang}
+                        getOptionLabel={(option) => `${option.label}`}
+                        getOptionValue={(option) => `${option.value}`}
+                        value={workOrder.tukang_id.filter((x) => x.type === 1)}
+                      />
+                    </Col>
+                  </Form.Group>
+                </Row>
+              )}
 
-              <Row className='detail-info'>
-                <div className='title'>
-                  <h1 className='fs-6'>Pengerjaan</h1>
-                </div>
+              {[
+                'WORKSTART',
+                'WIP',
+                'WORKEND',
+                'REWORK',
+                'REWORKSTART',
+                'RIP',
+                'REWORKEND',
+                'RESCHEDULE',
+                'DONE',
+              ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) && (
+                <Row className='detail-info'>
+                  <div className='title'>
+                    <h1 className='fs-6'>Pengerjaan</h1>
+                  </div>
 
-                <Form.Group className='detail-info'>
-                  <Form.Label className='fs-6'>Tanggal Mulai dan Selesai Pekerjaan</Form.Label>
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tanggal Mulai dan Selesai Pekerjaan</Form.Label>
 
-                  <Col sm='8'>
-                    <RangePicker
-                      disabled={[true, true]}
-                      allowClear={false}
-                      className='date-range w-100'
-                      format='YYYY-MM-DD'
-                      onChange={(values) => {
-                        if (values && values.length === 2) {
-                          const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
-                          const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
+                    <Col sm='8'>
+                      <RangePicker
+                        disabled={[true, true]}
+                        allowClear={false}
+                        className='date-range w-100'
+                        format='YYYY-MM-DD'
+                        onChange={(values) => {
+                          if (values && values.length === 2) {
+                            const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                            const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                          setWorkOrder((prev) => ({
-                            ...prev,
-                            work_start_date: dateFromFormatted,
-                            work_end_date: dateToFormatted,
-                          }))
-                        } else {
-                          setWorkOrder({
-                            id: null,
-                            work_order_status: null,
-                            description: '',
-                            tukang_id: [],
-                            survey_date_time: '',
-                            work_date_time: '',
-                            work_start_date: '',
-                            work_end_date: '',
-                            work_order_before: [],
-                            work_order_after: [],
-                          })
+                            setWorkOrder((prev) => ({
+                              ...prev,
+                              work_start_date: dateFromFormatted,
+                              work_end_date: dateToFormatted,
+                            }))
+                          } else {
+                            setWorkOrder({
+                              id: null,
+                              work_order_status: null,
+                              description: '',
+                              tukang_id: [],
+                              survey_date_time: '',
+                              work_date_time: '',
+                              work_start_date: '',
+                              work_end_date: '',
+                              work_order_before: [],
+                              work_order_after: [],
+                            })
+                          }
+                        }}
+                        value={
+                          (workOrder.work_start_date &&
+                            workOrder.work_end_date && [
+                              dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                              dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                            ]) ||
+                          undefined
                         }
-                      }}
-                      value={
-                        (workOrder.work_start_date &&
-                          workOrder.work_end_date && [
-                            dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                            dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                          ]) ||
-                        undefined
-                      }
-                    />{' '}
-                  </Col>
-                </Form.Group>
+                      />{' '}
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group className='detail-info'>
-                  <Form.Label className='fs-6'>Tehnisi Pengerjaan</Form.Label>
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tehnisi Pengerjaan</Form.Label>
 
-                  <Col sm='8'>
-                    <Select
-                      placeholder='Tukang belum diset oleh Vendor'
-                      classNamePrefix='select'
-                      closeMenuOnSelect={false}
-                      isClearable={false}
-                      menuIsOpen={false}
-                      isMulti
-                      components={animatedComponents}
-                      options={tukang}
-                      getOptionLabel={(option) => `${option.label}`}
-                      getOptionValue={(option) => `${option.value}`}
-                      value={workOrder.tukang_id.filter((x) => x.type === 2)}
-                    />
-                  </Col>
-                </Form.Group>
-              </Row>
+                    <Col sm='8'>
+                      <Select
+                        placeholder='Tukang belum diset oleh Vendor'
+                        classNamePrefix='select'
+                        closeMenuOnSelect={false}
+                        isClearable={false}
+                        menuIsOpen={false}
+                        isMulti
+                        components={animatedComponents}
+                        options={tukang}
+                        getOptionLabel={(option) => `${option.label}`}
+                        getOptionValue={(option) => `${option.value}`}
+                        value={workOrder.tukang_id.filter((x) => x.type === 2)}
+                      />
+                    </Col>
+                  </Form.Group>
+                </Row>
+              )}
             </Col>
           </Row>
 

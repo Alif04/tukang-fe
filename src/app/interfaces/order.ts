@@ -97,4 +97,5 @@ export interface Orders {
 
   order_details: OrderDetail[]
   order_files: OrderFiles[]
+  quotation: any[]
 }

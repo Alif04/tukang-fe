@@ -124,6 +124,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
       filters: [
+        {text: 'FREE', value: 'FREE'},
         {text: 'UNPAID', value: 'UNPAID'},
         {text: 'PAID', value: 'PAID'},
       ],
@@ -158,15 +159,6 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
           case 'SURVEYDONE':
             color = 'blue'
             break
-          case 'RESURVEYREQ':
-            color = 'blue'
-            break
-          case 'RESURVEYSTART':
-            color = 'blue'
-            break
-          case 'RESURVEYDONE':
-            color = 'blue'
-            break
           case 'QUOTE IN':
             color = 'blue'
             break
@@ -185,11 +177,17 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
           case 'WORKEND':
             color = 'blue'
             break
-          case 'INVOICED':
+          case 'RESURVEYREQ':
             color = 'blue'
             break
-          case 'CISOUT':
-            color = 'green'
+          case 'RESURVEYSTART':
+            color = 'blue'
+            break
+          case 'RESURVEYDONE':
+            color = 'blue'
+            break
+          case 'INVOICED':
+            color = 'blue'
             break
           default:
             color = 'blue'
@@ -204,22 +202,20 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
         {text: 'SURVEYREQ', value: 'SURVEYREQ'},
         {text: 'SURVEYSTART', value: 'SURVEYSTART'},
         {text: 'SURVEYDONE', value: 'SURVEYDONE'},
-        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
-        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
-        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
+        {text: 'QUOTEIN', value: 'QUOTEIN'},
+        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
         {text: 'WORKREQ', value: 'WORKREQ'},
         {text: 'WORKSTART', value: 'WORKSTART'},
         {text: 'WIP', value: 'WIP'},
         {text: 'WORKEND', value: 'WORKEND'},
-        {text: 'QUOTEIN', value: 'QUOTEIN'},
-        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
-        {text: 'CISOUT', value: 'CISOUT'},
         {text: 'INVOICED', value: 'INVOICED'},
+        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
+        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
+        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
       ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
       align: 'left',
-      // width: 140,
     },
     {
       title: 'Action',
@@ -292,38 +288,38 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.created_at)
+        const orderDate = new Date(item?.created_at)
 
         let phoneNumber =
           item.members.whatsapp_number === 'null'
-            ? item.members.phone_number
-            : item.members.whatsapp_number
+            ? item?.members?.phone_number
+            : item?.members?.whatsapp_number
 
         const paymentStatus = (() => {
           if (item?.payment_type === 'survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
           } else if (item?.payment_type === 'gratis') {
             return 'FREE'
           } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
           } else {
             return ''
           }
         })()
 
         data = {
-          order_id: item.id,
-          assign_from: item.store.store_name,
+          order_id: item?.id,
+          assign_from: item?.store?.store_name,
           date_order: formatDate(orderDate),
-          no_member: item.members.member_number,
-          costumer_name: item.members.full_name,
+          no_member: item?.members?.member_number,
+          costumer_name: item?.members?.full_name,
           phone_number: phoneNumber,
           service_name:
             item?.payment_type === 'survey'
-              ? item.m_order_details[0].item_notes
-              : item.m_order_details[0]?.item?.service_name ?? '-',
+              ? item?.m_order_details[0]?.item_notes
+              : item?.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item.status.category,
+          order_status: item?.status?.category,
         }
 
         return data

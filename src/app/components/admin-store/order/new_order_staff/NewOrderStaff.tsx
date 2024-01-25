@@ -6,10 +6,9 @@ import './NewOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
-import {Image} from 'antd'
+import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface MemberSelect {
   value: number | null
@@ -78,7 +77,6 @@ const NewOrderStoreStaff: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // If User Login is Admin Sales
-  const userId = localStorage.getItem('user_id') as any
   const salesId = localStorage.getItem('sales_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
@@ -141,7 +139,6 @@ const NewOrderStoreStaff: FC = () => {
 
   // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
-  const [total, setTotal] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Fetch API Data
@@ -483,10 +480,10 @@ const NewOrderStoreStaff: FC = () => {
       .then((response) => {
         const orderId = response.data.data.id
 
-        if (response.data.status === 201) {
+        if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: response.data.message,
+            text: response.data.messages,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,

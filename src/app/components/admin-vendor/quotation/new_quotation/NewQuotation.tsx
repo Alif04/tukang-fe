@@ -196,15 +196,16 @@ const NewQuotationVendor: FC = () => {
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
       [
-        'SURVEYSTART',
-        'WORKSTART',
-        'WIP',
-        'WORKEND',
-        'REWORK',
-        'REWORKSTART',
-        'RIP',
-        'REWORKEND',
-        'RESCHEDULE',
+        'SURVEYEND',
+        // 'SURVEYSTART',
+        // 'WORKSTART',
+        // 'WIP',
+        // 'WORKEND',
+        // 'REWORK',
+        // 'REWORKSTART',
+        // 'RIP',
+        // 'REWORKEND',
+        // 'RESCHEDULE',
       ].includes(status.category)
     )
 
@@ -684,29 +685,107 @@ const NewQuotationVendor: FC = () => {
       //   })
       // }
 
+      // Old ( Default Value Still Send if User didnt filled the data )
+      // quotationDetail.forEach((quotation, index) => {
+      //   if (quotation.item_id !== null) {
+      //     formData.append(`quotation_details[${index}][item_id]`, String(quotation.item_id))
+      //   }
+
+      //   if (quotation.item_id !== null) {
+      //     formData.append(
+      //       `quotation_details[${index}][work_order_item_id]`,
+      //       String(quotation.work_order_item_id)
+      //     )
+      //   }
+
+      //   if (quotation.category_id !== null) {
+      //     formData.append(`quotation_details[${index}][category_id]`, String(quotation.category_id))
+      //   }
+
+      //   formData.append(`quotation_details[${index}][type]`, String(quotation.type))
+      //   formData.append(`quotation_details[${index}][name]`, quotation.item_name)
+      //   formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
+      //   formData.append(`quotation_details[${index}][unit]`, String(quotation.unit))
+      //   formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
+      //   formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
+      //   formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+      // })
+
+      // New ( Default Value will not send if the user didnt filled the data)
+      // quotationDetail.forEach((quotation, index) => {
+      //   if (quotation.item_id !== null && quotation.item_id !== 0) {
+      //     formData.append(`quotation_details[${index}][item_id]`, String(quotation.item_id))
+      //   }
+
+      //   if (quotation.work_order_item_id !== null && quotation.work_order_item_id !== 0) {
+      //     formData.append(
+      //       `quotation_details[${index}][work_order_item_id]`,
+      //       String(quotation.work_order_item_id)
+      //     )
+      //   }
+
+      //   if (quotation.category_id !== null && quotation.category_id !== 0) {
+      //     formData.append(`quotation_details[${index}][category_id]`, String(quotation.category_id))
+      //   }
+
+      //   if (quotation.type !== 0) {
+      //     formData.append(`quotation_details[${index}][type]`, String(quotation.type))
+      //   }
+
+      //   if (quotation.item_name !== '') {
+      //     formData.append(`quotation_details[${index}][name]`, quotation.item_name)
+      //   }
+
+      //   if (quotation.unit_price !== 0) {
+      //     formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
+      //   }
+
+      //   if (quotation.unit !== '') {
+      //     formData.append(`quotation_details[${index}][unit]`, String(quotation.unit))
+      //   }
+
+      //   if (quotation.margin !== 0) {
+      //     formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
+      //   }
+
+      //   if (quotation.quantity !== 0) {
+      //     formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
+      //   }
+
+      //   if (quotation.is_user !== 0) {
+      //     formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+      //   }
+      // })
+
+      // Newest ( Code like the new code but more clean )
+      const appendIfNotDefault = (formData: any, key: any, value: any) => {
+        if (value !== null && value !== undefined && value !== '' && value !== 0) {
+          formData.append(key, String(value))
+        }
+      }
+
       quotationDetail.forEach((quotation, index) => {
-        if (quotation.item_id !== null) {
-          formData.append(`quotation_details[${index}][item_id]`, String(quotation.item_id))
-        }
+        appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
 
-        if (quotation.item_id !== null) {
-          formData.append(
-            `quotation_details[${index}][work_order_item_id]`,
-            String(quotation.work_order_item_id)
-          )
-        }
+        appendIfNotDefault(
+          formData,
+          `quotation_details[${index}][work_order_item_id]`,
+          quotation.work_order_item_id
+        )
 
-        if (quotation.category_id !== null) {
-          formData.append(`quotation_details[${index}][category_id]`, String(quotation.category_id))
-        }
+        appendIfNotDefault(
+          formData,
+          `quotation_details[${index}][category_id]`,
+          quotation.category_id
+        )
 
-        formData.append(`quotation_details[${index}][type]`, String(quotation.type))
-        formData.append(`quotation_details[${index}][name]`, quotation.item_name)
-        formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
-        formData.append(`quotation_details[${index}][unit]`, String(quotation.unit))
-        formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
-        formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
-        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+        appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
+        appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
+        appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
+        appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
+        appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
+        appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+        appendIfNotDefault(formData, `quotation_details[${index}][is_customer]`, quotation.is_user)
       })
 
       await axios

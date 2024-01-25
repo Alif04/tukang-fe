@@ -580,6 +580,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatusName = 'SURVEYREQ'
+
+    const statusNameByPaymentType =
+      paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? 'WORKREQ'
+        : 'SURVEYREQ'
+
+    console.log('Status by payment type', statusNameByPaymentType)
+
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
