@@ -196,8 +196,9 @@ const NewQuotationVendor: FC = () => {
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
       [
-        'SURVEYEND',
         'SURVEYSTART',
+        'SURVEYREQ',
+        'SURVEYEND',
         // 'WORKSTART',
         // 'WIP',
         // 'WORKEND',
