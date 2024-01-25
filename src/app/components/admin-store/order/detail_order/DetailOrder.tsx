@@ -570,7 +570,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   </div>
                 )
               } else if (
-                ['SURVEYED', 'SURVEYEND', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
                   order?.status?.category ?? ''
                 )
               ) {

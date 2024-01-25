@@ -713,16 +713,9 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: Status) =>
-      [
-        'SURVEYSTART',
-        'SURVEYED',
-        'SURVEYEND',
-        'WIP',
-        'WORKEND',
-        'RIP',
-        'REWORKEND',
-        'RESCHEDULE',
-      ].includes(status.category)
+      ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(
+        status.category
+      )
     )
 
     const selectedStatus = desiredStatus.map((status: Status) => ({
@@ -1122,7 +1115,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </Col>
               </Form.Group>
 
-              {['SURVEYSTART', 'SURVEYED', 'SURVEYEND'].includes(
+              {['SURVEYSTART', 'SURVEYDONE'].includes(
                 orderDetail?.work_orders?.work_order_status[0]?.status?.category
               ) && (
                 <Row className='detail-info'>

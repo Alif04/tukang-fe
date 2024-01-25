@@ -100,16 +100,9 @@ const NewMaterialVendor: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
-      [
-        'SURVEYSTART',
-        'SURVEYED',
-        'SURVEYEND',
-        'WIP',
-        'WORKEND',
-        'RIP',
-        'REWORKEND',
-        'RESCHEDULE',
-      ].includes(status.category)
+      ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(
+        status.category
+      )
     )
 
     if (desiredStatus) {

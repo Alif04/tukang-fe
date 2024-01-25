@@ -548,7 +548,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <Row>
-                  {['SURVEYREQ', 'SURVEYSTART', 'SURVEYED', 'SURVEYEND'].includes(
+                  {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
                     workOrderStatus.find((option) => option.value === workOrder.work_order_status)
                       ?.category || ''
                   ) && (
@@ -994,7 +994,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
                 )
               } else if (
-                ['SURVEYED', 'SURVEYEND', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.status?.category ?? ''
                 )
               ) {

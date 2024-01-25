@@ -198,7 +198,7 @@ const NewQuotationVendor: FC = () => {
       [
         'SURVEYSTART',
         'SURVEYREQ',
-        'SURVEYEND',
+        'SURVEYDONE',
         // 'WORKSTART',
         // 'WIP',
         // 'WORKEND',
@@ -207,7 +207,7 @@ const NewQuotationVendor: FC = () => {
         // 'RIP',
         // 'REWORKEND',
         // 'RESCHEDULE',
-      ].includes(status.category)
+      ].includes(status?.category)
     )
 
     if (desiredStatus) {
