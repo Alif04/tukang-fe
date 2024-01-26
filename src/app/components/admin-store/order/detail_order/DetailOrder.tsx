@@ -440,8 +440,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   'SURVEYSTART',
                   'WORKREQ',
                   'WORKSTART',
-                ].includes(order?.status?.category ?? '') &&
-                order?.work_orders?.work_order_status.length === 0
+                ].includes(order?.status?.category ?? '')
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -582,8 +581,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               } else if (
                 ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   order?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
-                order?.work_orders?.work_order_status.length > 0
+                )
               ) {
                 return (
                   <div className='table-warranty-content'>
