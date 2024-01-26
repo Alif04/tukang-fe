@@ -430,7 +430,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             )} */}
 
             {/* New */}
-            {(() => {
+            {/* {(() => {
               if (
                 [
                   'PICKLIST',
@@ -440,7 +440,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   'SURVEYSTART',
                   'WORKREQ',
                   'WORKSTART',
-                ].includes(order?.status?.category ?? '')
+                ].includes(order?.status?.category ?? '') ||
+                !order?.work_orders
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -536,7 +537,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     </Table>
                   </div>
                 )
-              } else if (['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '')) {
+              } else if (
+                ['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '') &&
+                order?.work_orders?.work_order_status.length
+              ) {
                 return (
                   <div className='table-warranty-content'>
                     <Table hover responsive='md'>
@@ -582,7 +586,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               } else if (
                 ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   order?.work_orders?.work_order_status[0]?.status?.category
-                )
+                ) &&
+                order?.work_orders?.work_order_status.length > 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -620,6 +625,209 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(order?.grand_total ?? 0).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              }
+            })()} */}
+
+            {/* Newest */}
+            {(() => {
+              if (order?.payment_type === 'survey' && !order?.work_orders) {
+                return (
+                  <div className='table-warranty-content'>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {order?.order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item_notes}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
+                          </>
+                        ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Biaya Survey
+                          </td>
+
+                          <td className=' fw-bolder'>Rp. 99.000</td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                ['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '') &&
+                order?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center'>Jenis Jasa</th>
+                          <th className='text-center'>QTY</th>
+                          <th className='text-center'>Satuan</th>
+                          <th className='text-center'>Price</th>
+                          <th className='text-center'>Total</th>
+                          <th className='text-center'>Keterangan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {order?.quotation[0]?.quotation_details?.map((item: any, index: any) => (
+                          <tr key={`${index}-quotation`}>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{item?.unit}</td>
+                            <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{item?.description ? '' : '-'}</td>
+                          </tr>
+                        ))}
+
+                        <tr>
+                          <td colSpan={5} className='text-end fw-bolder'>
+                            Grand Total
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              order?.quotation[0]?.quotation_grand_total ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                  order?.work_orders?.work_order_status[0]?.status?.category
+                ) &&
+                order?.work_orders?.work_order_status.length > 1 &&
+                order?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          <th>Harga Jasa</th>
+                          <th>Jumlah</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {order?.work_orders?.work_order_status[0]?.work_order_items.map(
+                          (item: any, index: any) => (
+                            <tr key={`${index}-work_order_detail`}>
+                              <td>{item?.item_id ?? '-'}</td>
+                              <td>{item?.item ?? '-'}</td>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
+                                'id'
+                              )}`}</td>
+                              <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                            </tr>
+                          )
+                        )}
+
+                        <tr>
+                          <td colSpan={5} className='text-end fw-bolder'>
+                            Grand Total
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(order?.grand_total ?? 0).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                order?.payment_type === 'gratis' ||
+                order?.payment_type === 'pemasangan_tanpa_survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          {!(order?.payment_type === 'gratis') && (
+                            <>
+                              <th>Harga Jasa</th>
+                              <th>Jumlah</th>
+                            </>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {order?.order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              {!(order?.payment_type === 'gratis') && (
+                                <>
+                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </>
+                              )}
+                            </tr>
+                          </>
+                        ))}
+
+                        <tr>
+                          <td
+                            colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
+                            className='text-end fw-bolder'
+                          >
+                            Grand Total
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {(() => {
+                              if (order?.payment_type === 'gratis') {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
+                                return `Rp. ${parseInt(order?.grand_total).toLocaleString('id')}`
+                              } else {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              }
+                            })()}
                           </td>
                         </tr>
                       </tbody>

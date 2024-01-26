@@ -256,7 +256,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           // New
           if (
             ['SURVEYREQ', 'SURVEYSTART', 'WORKREQ', 'WORKSTART'].includes(data?.status?.category) &&
-            data?.work_orders?.work_order_status.length > 0
+            !data.work_orders
           ) {
             const workOrderItem = data.order_details.map((item: any, index: number) => ({
               id: item.id,
@@ -285,9 +285,16 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
             setWorkOrderItem(mergedWorkOrderItem)
           } else if (
-            ['WIP', 'WORKEND', 'REWORKSTART', 'RIP', 'REWORKEND', 'WORKDONE', 'DONE'].includes(
-              data.work_orders.work_order_status[0].status.category
-            )
+            [
+              'SURVEYDONE',
+              'WIP',
+              'WORKEND',
+              'REWORKSTART',
+              'RIP',
+              'REWORKEND',
+              'WORKDONE',
+              'DONE',
+            ].includes(data.work_orders.work_order_status[0].status.category)
           ) {
             const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
               (item: any, index: number) => ({
