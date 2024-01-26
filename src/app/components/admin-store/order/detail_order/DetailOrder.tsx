@@ -461,6 +461,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           )}
                         </tr>
                       </thead>
+
                       <tbody>
                         {order?.order_details.map((item: any, index: any) => (
                           <>
