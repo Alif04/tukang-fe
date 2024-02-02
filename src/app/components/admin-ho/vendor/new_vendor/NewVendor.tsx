@@ -873,7 +873,8 @@ const NewVendorHO: FC = () => {
                     <Form.Control
                       id='input-ktp-file'
                       type='file'
-                      accept='image/*'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
                       hidden
                       className='input-field-image'
                       onChange={handleFileChangeKTP}
@@ -905,7 +906,8 @@ const NewVendorHO: FC = () => {
                     <Form.Control
                       id='input-npwp-file'
                       type='file'
-                      accept='image/*'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
                       hidden
                       className='input-field-image'
                       onChange={handleFileChangeNPWP}
@@ -936,7 +938,8 @@ const NewVendorHO: FC = () => {
                   <Form.Control
                     id='input-compro-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangeCompro}
@@ -962,7 +965,8 @@ const NewVendorHO: FC = () => {
                   <Form.Control
                     id='input-surat_permohonan-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangeSuratPermohonan}
@@ -991,7 +995,8 @@ const NewVendorHO: FC = () => {
                   <Form.Control
                     id='input-pks-file'
                     type='file'
-                    accept='image/*'
+                    accept='.jpg, .jpeg, .png'
+                    // accept='image/*'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangePksEvidence}
@@ -1013,7 +1018,8 @@ const NewVendorHO: FC = () => {
                   <Form.Control
                     id='input-suip-file'
                     type='file'
-                    accept='image/*'
+                    accept='.jpg, .jpeg, .png'
+                    // accept='image/*'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangeSuipEvidence}
@@ -1038,7 +1044,8 @@ const NewVendorHO: FC = () => {
                   <Form.Control
                     id='input-ptkp-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangePtkpEvidence}
@@ -1067,7 +1074,8 @@ const NewVendorHO: FC = () => {
                     <Form.Control
                       id='file-input'
                       type='file'
-                      accept='image/*'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
                       multiple
                       hidden
                       ref={evidenceRef}

@@ -10,6 +10,8 @@ type Props = {
 }
 
 const TopSalesWidget: React.FC<Props> = ({className, salesData, memberData}) => {
+  console.log(salesData, 'Sales Data')
+
   return (
     <div className={`card ${className}`}>
       <div className='card-header border-0'>

@@ -202,7 +202,7 @@ const ViewItemHO: React.FC = () => {
       const itemData = apiData.map((item: any) => {
         let data
 
-        const storeItem = item?.prices[0].price_stores
+        const storeItem = item?.prices[0]?.price_stores
           .map((storeDetail: any) => storeDetail?.store?.store_name ?? '-')
           .join(', ')
 

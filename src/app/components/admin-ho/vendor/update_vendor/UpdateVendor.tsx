@@ -1066,7 +1066,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     <Form.Control
                       id='input-ktp-file'
                       type='file'
-                      accept='image/*'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
                       hidden
                       className='input-field-image'
                       onChange={handleFileChangeKTP}
@@ -1093,7 +1094,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     <Form.Control
                       id='input-npwp-file'
                       type='file'
-                      accept='image/*'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
                       hidden
                       className='input-field-image'
                       onChange={handleFileChangeNPWP}
@@ -1123,7 +1125,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   <Form.Control
                     id='input-compro-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangeCompro}
@@ -1149,7 +1152,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   <Form.Control
                     id='input-surat_permohonan-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangeSuratPermohonan}
@@ -1179,7 +1183,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   <Form.Control
                     id='input-pks-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangePksEvidence}
@@ -1201,7 +1206,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   <Form.Control
                     id='input-suip-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangeSuipEvidence}
@@ -1226,7 +1232,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   <Form.Control
                     id='input-ptkp-file'
                     type='file'
-                    accept='image/*'
+                    // accept='image/*'
+                    accept='.jpg, .jpeg, .png'
                     hidden
                     className='input-field-image'
                     onChange={handleFileChangePtkpEvidence}
@@ -1255,7 +1262,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     <Form.Control
                       id='file-input'
                       type='file'
-                      accept='image/*'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
                       multiple
                       hidden
                       ref={evidenceRef}

@@ -103,7 +103,7 @@ const DashboardStore: FC = () => {
 
     const getSales = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales?take=5`, {
+        const response = await axios.get(`${apiUrl}/sales?take=5&top_best=true&order_by=desc`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

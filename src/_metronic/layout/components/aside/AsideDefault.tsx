@@ -12,6 +12,7 @@ const AsideDefault: FC = () => {
   const {aside} = config
 
   const username = localStorage.getItem('username')
+  const fullName = localStorage.getItem('employeeName')
   const role = localStorage.getItem('userRole')
 
   const minimize = () => {
@@ -70,7 +71,7 @@ const AsideDefault: FC = () => {
             src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
           />
           <h6 className='text-center text-secondary-emphasis'>
-            {username}
+            {fullName}
             <br />({role}){' '}
           </h6>
         </div>
