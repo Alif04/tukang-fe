@@ -51,16 +51,16 @@ export function Login() {
           localStorage.setItem('accessToken', res.data.accessToken)
 
           if (isSales) {
-            localStorage.setItem('sales_id', user.sales.id)
-            localStorage.setItem('storeId', user.sales.store.id)
-            localStorage.setItem('storeName', user.sales.store.store_name)
+            localStorage.setItem('sales_id', user?.sales?.id)
+            localStorage.setItem('storeId', user?.sales?.store?.id)
+            localStorage.setItem('storeName', user?.sales?.store?.store_name)
           } else if (isEmployee) {
-            localStorage.setItem('storeId', user.employee.store.id)
-            localStorage.setItem('employeeName', user.employee.full_name)
-            localStorage.setItem('storeName', user.employee.store.store_name)
+            localStorage.setItem('storeId', user?.employee?.store?.id)
+            localStorage.setItem('employeeName', user?.employee?.full_name)
+            localStorage.setItem('storeName', user?.employee?.store?.store_name)
           } else if (isVendor) {
-            localStorage.setItem('vendor_id', user.vendor.id)
-            localStorage.setItem('vendorName', user.vendor.company_name)
+            localStorage.setItem('vendor_id', user?.vendor?.id)
+            localStorage.setItem('vendorName', user?.vendor?.company_name)
           } else if (!isSales && !isEmployee && !isVendor) {
             window.location.reload()
           }
