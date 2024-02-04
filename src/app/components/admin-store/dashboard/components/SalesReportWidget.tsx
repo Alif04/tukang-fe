@@ -6,14 +6,33 @@ import {getCSSVariableValue} from '../../../../../_metronic/assets/ts/_utils'
 import {useThemeMode} from '../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 
 type Props = {
+  chartOrderData: any[]
   className: string
   chartHeight: string
   backGroundColor: string
 }
 
-const SalesReportWidget: React.FC<Props> = ({className, backGroundColor, chartHeight}) => {
+const SalesReportWidget: React.FC<Props> = ({
+  className,
+  backGroundColor,
+  chartHeight,
+  chartOrderData,
+}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
+
+  const refreshChart = () => {
+    if (!chartRef.current) {
+      return
+    }
+
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartOrderData))
+    if (chart) {
+      chart.render()
+    }
+
+    return chart
+  }
 
   useEffect(() => {
     const chart = refreshChart()
@@ -24,20 +43,7 @@ const SalesReportWidget: React.FC<Props> = ({className, backGroundColor, chartHe
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
-
-  const refreshChart = () => {
-    if (!chartRef.current) {
-      return
-    }
-
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
-    if (chart) {
-      chart.render()
-    }
-
-    return chart
-  }
+  }, [chartRef, mode, chartOrderData])
 
   return (
     <div
@@ -61,18 +67,18 @@ const SalesReportWidget: React.FC<Props> = ({className, backGroundColor, chartHe
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
   return {
     series: [
       {
         name: 'Jumlah Order',
-        data: [40, 50, 60, 70, 30, 50],
+        data: chartOrderData.map((item) => item.totalOrder),
       },
       {
         name: 'Grand Total Value',
-        data: [50, 55, 40, 45, 50, 100],
+        data: chartOrderData.map((item) => item.totalOrderGrandTotalPerMonth),
       },
     ],
     chart: {
@@ -94,7 +100,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
       },
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: chartOrderData.map((item) => item.month),
       axisBorder: {
         show: false,
       },
@@ -102,7 +108,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
         show: false,
       },
       labels: {
-        show: false,
+        show: true,
       },
     },
     yaxis: {

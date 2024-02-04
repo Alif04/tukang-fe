@@ -73,6 +73,7 @@ const NewItemHO: FC = () => {
 
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
+  const [allStoreSelected, setAllStoreSelected] = useState(false)
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -98,7 +99,11 @@ const NewItemHO: FC = () => {
           label: item.store_name,
         }))
 
-        setStore(tempStore)
+        const allStoreOption = {
+          label: 'All Store',
+        }
+
+        setStore([allStoreOption, ...tempStore])
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -177,17 +182,51 @@ const NewItemHO: FC = () => {
   }
 
   // Store Handler
+  // const storeHandler = (
+  //   value: number | string | Array<number | string | null> | any | null,
+  //   target: string,
+  //   index: number
+  // ) => {
+  //   setItemDetail((prev) => {
+  //     const cache = {...prev}
+
+  //     cache.prices[index] = {
+  //       ...cache.prices[index],
+  //       [target]: value.map((item: any) => ({store_id: item.value})),
+  //     }
+
+  //     return cache
+  //   })
+  // }
+
+  // Store Handler
   const storeHandler = (
     value: number | string | Array<number | string | null> | any | null,
     target: string,
     index: number
   ) => {
+    setAllStoreSelected(false)
+
     setItemDetail((prev) => {
       const cache = {...prev}
+      const allStoreSelected = Array.isArray(value)
+        ? value.some((item) => item.label === 'All Store')
+        : value && value.label === 'All Store'
 
-      cache.prices[index] = {
-        ...cache.prices[index],
-        [target]: value.map((item: any) => ({store_id: item.value})),
+      if (allStoreSelected) {
+        setAllStoreSelected(true)
+
+        cache.prices[index] = {
+          ...cache.prices[index],
+          [target]: store
+            .filter((storeOption) => storeOption.label !== 'All Store')
+            .map((storeOption) => ({store_id: storeOption.value})),
+        }
+      } else {
+        cache.prices[index] = {
+          ...cache.prices[index],
+          [target]: value.map((item: any) => ({store_id: item.value})),
+        }
       }
 
       return cache
@@ -487,7 +526,9 @@ const NewItemHO: FC = () => {
                         placeholder='Ketik/Pilih Store'
                         isSearchable={true}
                         components={animatedComponents}
-                        options={store}
+                        options={store.filter(
+                          (option) => !allStoreSelected || option.label === 'All Store'
+                        )}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
                         getOptionValue={(option: StoreSelect) => `${option.value}`}
                         onChange={(e) => storeHandler(e, 'price_store', index)}

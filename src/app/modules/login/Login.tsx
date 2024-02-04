@@ -109,11 +109,13 @@ export function Login() {
           <a href='/' className='mb-12'>
             <img alt='Logo' src={toAbsoluteUrl('/media/auth/logo-mitra.png')} className='h-100px' />
           </a>
+
           <div className='w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto'>
             <form className='form w-100' onSubmit={handleLogin}>
               <div className='text-center mb-10'>
                 <h1 className='text-dark mb-3'>Sign In to Instalasi Website</h1>
               </div>
+
               <div className='fv-row mb-10'>
                 <Form.Group className='mb-3'>
                   <Form.Label className='fs-6 fw-bolder text-dark'>Username</Form.Label>
@@ -126,26 +128,29 @@ export function Login() {
                   />
                 </Form.Group>
               </div>
+
               <div className='fv-row mb-10'>
                 <Form.Group className='mb-3'>
                   <div className='d-flex justify-content-between mt-n5'>
                     <div className='d-flex flex-stack mb-2'>
                       <Form.Label className='fw-bolder text-dark fs-6 mb-0'>Password</Form.Label>
-                      {/* <Link
-                        to='/auth/forgot-password'
+                      <Link
+                        to='/forgot-password'
                         className='link-primary fs-6 fw-bolder'
-                        style={{ marginLeft: '5px' }}
+                        style={{marginLeft: '5px'}}
                       >
                         Forgot Password ?
-                      </Link> */}
+                      </Link>
                     </div>
                   </div>
+
                   <Form.Control
                     placeholder='Password'
                     type={handleTogglePassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+
                   <span className='show-hide-password' onClick={togglePasswordVisiblity}>
                     <FontAwesomeIcon
                       icon={handleTogglePassword ? faEye : faEyeSlash}
@@ -155,6 +160,7 @@ export function Login() {
                   </span>
                 </Form.Group>
               </div>
+
               <div className='text-center'>
                 <Button
                   type='submit'

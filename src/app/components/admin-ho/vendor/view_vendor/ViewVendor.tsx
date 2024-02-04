@@ -61,6 +61,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   }
 
   interface DataType {
+    no: number
     vendor_id: number
     pic_name: string
     company_name: string
@@ -74,6 +75,14 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   }
 
   const columns: ColumnsType<DataType> = [
+    {
+      title: 'No. ',
+      dataIndex: 'no',
+      key: 'no',
+      align: 'center',
+      width: 90,
+      className: 'col_order_id',
+    },
     {
       title: 'Vendor ID',
       dataIndex: 'vendor_id',
@@ -268,7 +277,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
         return []
       }
 
-      const vendorData = apiData.map((item: any) => {
+      const vendorData = apiData.map((item: any, index: number) => {
         let data
 
         const joinDate = new Date(item.join_date)
@@ -282,6 +291,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
           .join(', ')
 
         data = {
+          no: index + 1,
           vendor_id: item.id,
           pic_name: item.users.username,
           company_name: item.company_name,

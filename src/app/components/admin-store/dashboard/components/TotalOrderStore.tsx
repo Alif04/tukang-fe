@@ -19,7 +19,7 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, orderData))
     if (chart) {
       chart.render()
     }
@@ -36,7 +36,7 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, orderData])
 
   return (
     <div className={`card ${className}`}>
@@ -54,16 +54,38 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, orderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
+  const completedOrder = orderData.filter((order: any) =>
+    order?.work_orders?.work_order_status.length > 0
+      ? order?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND'
+      : order?.status?.category === 'WORKEND'
+  ).length
+
+  const canceledOrder = orderData.filter((order: any) =>
+    order?.work_orders?.work_order_status.length > 0
+      ? order?.work_orders?.work_order_status[0]?.status?.category === 'CANCEL'
+      : order?.status?.category === 'CANCEL'
+  ).length
+
+  const refundOrder = orderData.filter((order: any) =>
+    order?.work_orders?.work_order_status.length > 0
+      ? order?.work_orders?.work_order_status[0]?.status?.category === 'REFUND'
+      : order?.status?.category === 'REFUND'
+  ).length
+
+  const series = [completedOrder, canceledOrder, refundOrder]
+  const noDataAvailable = series.every((value) => value === 0)
+
   return {
-    series: [65, 15, 5],
+    series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
+    labels: noDataAvailable ? ['No Data Available'] : ['Complete', 'Cancel', 'Refund'], // Set labels to empty array if no data available
+    colors: noDataAvailable ? ['#f0f0f0'] : ['#1D7710', '#D8001B', '#F59B22'], // Set colors to default if no data available
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['Complete', 'Cancel', 'Refund'],
     legend: {
       show: true,
       height: 35,
@@ -73,7 +95,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: ['#F59B22', '#1D7710', '#D8001B'],
     grid: {
       padding: {
         top: 10,

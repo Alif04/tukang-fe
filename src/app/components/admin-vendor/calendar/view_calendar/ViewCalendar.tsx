@@ -9,7 +9,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import {Container, Row, Col, Modal, Form, Table} from 'react-bootstrap'
+import {Row, Col, Modal, Form, Table} from 'react-bootstrap'
 
 interface WorkOrder {
   id: any
@@ -51,9 +51,21 @@ const ViewCalendarVendor: React.FC = () => {
 
             if (data) {
               const workOrderDetail = data.map((item: any) => {
+                const workOrderItems = item?.work_order_status[0]?.work_order_items
+                  .map((service: any) => service.name ?? '')
+                  .join(', ')
+
+                const workOrderTukang = item?.work_order_tukang
+                  .map((item: any) => item.tukang.full_name ?? '')
+                  .join(', ')
+
                 return {
                   id: item?.id.toString(),
+                  order_id: item?.order_id.toString(),
                   title: `WORK ORDER - ${item.id}`,
+                  work_order_status: item?.work_order_status[0]?.status.category,
+                  service: workOrderItems ?? '',
+                  tukang: workOrderTukang ?? '',
                   start: dayjs(item?.work_start_date).format('YYYY-MM-DD'),
                   end: dayjs(item?.work_end_date).format('YYYY-MM-DD'),
                   work_order_detail: item,

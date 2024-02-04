@@ -11,7 +11,7 @@ import {Orders} from '../../interfaces/order'
 // External Components
 import axios from 'axios'
 import clsx from 'clsx'
-import {useParams, Link, useNavigate} from 'react-router-dom'
+import {useLocation, Link, useNavigate} from 'react-router-dom'
 import {Image, Steps} from 'antd'
 import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
 
@@ -23,7 +23,11 @@ interface Status {
 const DetailOrderWithoutAuth = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const params = useParams()
+  const location = useLocation()
+  const queryParams = new URLSearchParams(location.search)
+  const memberId = queryParams.get('member_id')
+  const orderId = queryParams.get('order_id')
+
   const {config, classes, attributes} = useLayout()
   const {header, aside} = config
   const [order, setOrder] = useState<Orders>({
@@ -56,10 +60,10 @@ const DetailOrderWithoutAuth = () => {
     quotation: [],
   })
 
-  const trackingOrderData = async () => {
+  const trackingOrderData = async (memberId: string | null, orderId: string | null) => {
     try {
       await axios
-        .get(`${apiUrl}/orders/data/${params.member_id}/${params.id}`, {
+        .get(`${apiUrl}/orders/data/${memberId}/${orderId}`, {
           headers: {
             Accept: 'application/json',
           },
@@ -76,8 +80,10 @@ const DetailOrderWithoutAuth = () => {
   }
 
   useEffect(() => {
-    trackingOrderData()
-  }, [])
+    if (memberId && orderId) {
+      trackingOrderData(memberId, orderId)
+    }
+  }, [memberId, orderId])
 
   const [status, setStatus] = useState<Status[]>([])
 
@@ -568,7 +574,7 @@ const DetailOrderWithoutAuth = () => {
                           </thead>
 
                           <tbody>
-                            {order?.order_details.map((item: any, index: any) => (
+                            {order?.m_order_details.map((item: any, index: any) => (
                               <>
                                 <tr key={`${index} - order_detail`}>
                                   <td>{item?.item_code}</td>
@@ -713,7 +719,7 @@ const DetailOrderWithoutAuth = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {order?.order_details.map((item: any, index: any) => (
+                            {order?.m_order_details.map((item: any, index: any) => (
                               <>
                                 <tr key={`${index} - order_detail`}>
                                   <td>{item?.item_code}</td>

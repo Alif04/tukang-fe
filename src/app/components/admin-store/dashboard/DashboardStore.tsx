@@ -27,6 +27,7 @@ const DashboardStore: FC = () => {
   const userStore = localStorage.getItem('storeId')
 
   const [orderData, setOrderData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<any[]>([])
 
   const today = new Date()
 
@@ -66,7 +67,10 @@ const DashboardStore: FC = () => {
       })
 
       const data = response.data.data
+      const chartDatas = response.data.monthlyOrders
+
       setOrderData(data)
+      setChartData(chartDatas)
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -103,7 +107,7 @@ const DashboardStore: FC = () => {
 
     const getSales = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales?take=5&top_best=true&order_by=desc`, {
+        const response = await axios.get(`${apiUrl}/sales?take=0&top_best=true&order_by=desc`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -246,6 +250,7 @@ const DashboardStore: FC = () => {
             className='card-xl-stretch mb-xl-8'
             backGroundColor='white'
             chartHeight='250px'
+            chartOrderData={chartData}
           />
         </Col>
       </Row>
@@ -256,11 +261,7 @@ const DashboardStore: FC = () => {
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
-          <TopSalesWidget
-            className='card-xl-stretch mb-xl-8'
-            salesData={sales}
-            memberData={member}
-          />
+          <TopSalesWidget className='card-xl-stretch mb-xl-8' salesData={sales} />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>

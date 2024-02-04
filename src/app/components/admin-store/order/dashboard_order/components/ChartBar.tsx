@@ -9,11 +9,27 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  chartOrderData: any[]
 }
 
-const ChartBar: React.FC<Props> = ({className}) => {
+const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
+
+  const refreshChart = () => {
+    if (!chartRef.current) {
+      return
+    }
+
+    const height = parseInt(getCSS(chartRef.current, 'height'))
+
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartOrderData))
+    if (chart) {
+      chart.render()
+    }
+
+    return chart
+  }
 
   useEffect(() => {
     const chart = refreshChart()
@@ -23,22 +39,7 @@ const ChartBar: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
-
-  const refreshChart = () => {
-    if (!chartRef.current) {
-      return
-    }
-
-    const height = parseInt(getCSS(chartRef.current, 'height'))
-
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
-    if (chart) {
-      chart.render()
-    }
-
-    return chart
-  }
+  }, [chartRef, mode, chartOrderData])
 
   return (
     <div className={`card ${className}`}>
@@ -51,8 +52,9 @@ const ChartBar: React.FC<Props> = ({className}) => {
 
 export {ChartBar}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
+  const sixMonthFilterOrder = chartOrderData.splice(0, 6)
 
   return {
     series: [
@@ -62,7 +64,7 @@ function getChartOptions(height: number): ApexOptions {
       },
       {
         name: 'Total Order',
-        data: [76, 85, 101, 98, 87, 105],
+        data: sixMonthFilterOrder.map((item: any) => item.totalOrder),
       },
     ],
     chart: {
@@ -93,7 +95,7 @@ function getChartOptions(height: number): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: sixMonthFilterOrder.map((item: any) => item.month.substring(0, 3)),
       axisBorder: {
         show: false,
       },

@@ -10,6 +10,8 @@ import {Routes, Route, BrowserRouter, Navigate} from 'react-router-dom'
 import {PrivateRoutes} from './PrivateRoutes'
 import {ErrorsPage} from '../modules/errors/ErrorsPage'
 import {Login} from '../modules/login/Login'
+import {ForgotPassword} from '../modules/forgot-password/forgot-password'
+import {ResetPassword} from '../modules/reset-password/reset-password'
 import {App} from '../App'
 
 import {DetailOrderWithoutAuth} from '../pages/detail_order_without_auth/DetailOrderWithoutAuth'
@@ -34,11 +36,13 @@ const AppRoutes: FC = () => {
       <Routes>
         <Route element={<App />}>
           <Route path='error/*' element={<ErrorsPage />} />
-          <Route path='detail-order/:member_id/:id' element={<DetailOrderWithoutAuth />} />
+          <Route path='detail-order' element={<DetailOrderWithoutAuth />} />
 
           {!username || !userRole || !accessToken ? (
             <>
               <Route path='login' element={<Login />} />
+              <Route path='forgot-password' element={<ForgotPassword />} />
+              <Route path='reset-password' element={<ResetPassword />} />
               <Route path='*' element={<Navigate to='/login' />} />
             </>
           ) : (

@@ -36,11 +36,10 @@ const ListBankHO: React.FC = () => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'ID',
+      title: 'No.',
       dataIndex: 'bank_id',
       key: 'bank_id',
       align: 'center',
-      defaultSortOrder: 'descend',
       sorter: (a, b) => a.bank_id - b.bank_id,
       width: 50,
     },
@@ -178,11 +177,11 @@ const ListBankHO: React.FC = () => {
         return []
       }
 
-      const bankData = apiData.map((item: any) => {
+      const bankData = apiData.map((item: any, index: number) => {
         let data
 
         data = {
-          bank_id: item?.id ?? '',
+          bank_id: index + 1,
           bank_name: item?.bank_name ?? '',
           join_date: formatDate(new Date(item?.created_at)) ?? '',
         }

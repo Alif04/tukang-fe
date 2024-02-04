@@ -6,11 +6,10 @@ import {Dropdown1} from '../../../../../_metronic/partials/content/dropdown/Drop
 type Props = {
   className: string
   salesData: any[]
-  memberData: any[]
 }
 
-const TopSalesWidget: React.FC<Props> = ({className, salesData, memberData}) => {
-  console.log(salesData, 'Sales Data')
+const TopSalesWidget: React.FC<Props> = ({className, salesData}) => {
+  const topFive = salesData.slice(0, 5)
 
   return (
     <div className={`card ${className}`}>
@@ -19,7 +18,7 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData, memberData}) => 
       </div>
 
       <div className='card-body pt-2'>
-        {salesData.map((item: any) => (
+        {topFive.map((item: any) => (
           <div className='list-item d-flex justify-content-between mb-7' key={item.id}>
             <div className='d-flex align-items-center'>
               <div className='symbol symbol-50px me-5'>

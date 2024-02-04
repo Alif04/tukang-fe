@@ -234,7 +234,7 @@ const NewSales: FC = () => {
         return []
       }
 
-      const salesData = apiData.map((item: any) => {
+      const salesData = apiData.map((item: any, index: number) => {
         let data
 
         const salesCategory = item.sales_categories
@@ -242,10 +242,11 @@ const NewSales: FC = () => {
           .join(', ')
 
         data = {
+          no: index + 1,
           sales_id: item?.id ?? '',
           store_name: item?.store?.store_name ?? '',
           full_name: item?.full_name ?? '',
-          nik: item?.nik ?? '-',
+          // nik: item?.nik ?? '-',
           sales_brand: item?.sales_brand ?? '-',
           sales_category: salesCategory,
           is_active: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
@@ -333,10 +334,11 @@ const NewSales: FC = () => {
   // Data Type List Sales
 
   interface DataType {
+    no: number
     sales_id: number
     store_name: string
     full_name: string
-    nik: number
+    // nik: number
     sales_brand: string
     sales_category: string
     is_active: string
@@ -344,13 +346,21 @@ const NewSales: FC = () => {
 
   const columns: ColumnsType<DataType> = [
     {
+      title: 'No.',
+      dataIndex: 'no',
+      key: 'no',
+      align: 'center',
+      width: 70,
+      className: 'col_order_id',
+      sorter: (a, b) => a.no - b.no,
+    },
+    {
       title: 'Sales ID',
       dataIndex: 'sales_id',
       key: 'sales_id',
       align: 'center',
       width: 70,
       className: 'col_order_id',
-      defaultSortOrder: 'descend',
       sorter: (a, b) => a.sales_id - b.sales_id,
     },
     {
@@ -371,14 +381,14 @@ const NewSales: FC = () => {
       onFilter: (value, record) => record.full_name.includes(String(value)),
       sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
-    {
-      title: 'NIK',
-      dataIndex: 'nik',
-      key: 'nik',
-      align: 'left',
-      width: 120,
-      sorter: (a, b) => a.nik - b.nik,
-    },
+    // {
+    //   title: 'NIK',
+    //   dataIndex: 'nik',
+    //   key: 'nik',
+    //   align: 'left',
+    //   width: 120,
+    //   sorter: (a, b) => a.nik - b.nik,
+    // },
     {
       title: 'Brand Sales',
       dataIndex: 'sales_brand',

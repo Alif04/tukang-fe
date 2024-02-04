@@ -10,18 +10,14 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import {Container, Row, Col, Modal, Form} from 'react-bootstrap'
+import {Row, Col, Modal, Form, Table} from 'react-bootstrap'
 
 interface WorkOrder {
   id: any
-  order_id: any
   title: string
-  work_order_status: string
   start: string
   end: string
-  service: string
-  tukang: string
-  className: string
+  work_order_detail?: any
 }
 
 const ViewCalendarCS: React.FC = () => {
@@ -30,14 +26,9 @@ const ViewCalendarCS: React.FC = () => {
   const [workOrder, setWorkOrder] = useState<WorkOrder[]>([
     {
       id: '',
-      order_id: '',
-      work_order_status: '',
       title: '',
       start: '',
       end: '',
-      service: '',
-      tukang: '',
-      className: '',
     },
   ])
 
@@ -61,23 +52,12 @@ const ViewCalendarCS: React.FC = () => {
 
             if (data) {
               const workOrderDetail = data.map((item: any) => {
-                const workOrderItems = item?.work_order_status[0]?.work_order_items
-                  .map((service: any) => service.name ?? '')
-                  .join(', ')
-
-                const workOrderTukang = item?.work_order_tukang
-                  .map((item: any) => item.tukang.full_name ?? '')
-                  .join(', ')
-
                 return {
                   id: item?.id.toString(),
-                  order_id: item?.order_id.toString(),
                   title: `WORK ORDER - ${item.id}`,
-                  work_order_status: item?.work_order_status[0]?.status.category,
-                  service: workOrderItems ?? '',
-                  tukang: workOrderTukang ?? '',
                   start: dayjs(item?.work_start_date).format('YYYY-MM-DD'),
                   end: dayjs(item?.work_end_date).format('YYYY-MM-DD'),
+                  work_order_detail: item,
                 }
               })
 
@@ -107,36 +87,30 @@ const ViewCalendarCS: React.FC = () => {
     setShowModal(false)
   }
 
-  // useEffect(() => {
-  //   const updatedWorkOrder = workOrder.map((order) => {
-  //     const status = order?.work_order_status
+  // Format Date
+  const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return ''
+    }
 
-  //     switch (status) {
-  //       case 'SURVEYSTART':
-  //         return {...order, className: 'bg-primary'}
-  //       case 'WORKSTART':
-  //         return {...order, className: 'bg-success'}
-  //       case 'WIP':
-  //         return {...order, className: 'bg-primary'}
-  //       case 'WORKEND':
-  //         return {...order, className: 'bg-success'}
-  //       case 'REWORK':
-  //         return {...order, className: 'bg-primary'}
-  //       case 'REWORKSTART':
-  //         return {...order, className: 'bg-secondary'}
-  //       case 'RIP':
-  //         return {...order, className: 'bg-secondary'}
-  //       case 'REWORKEND':
-  //         return {...order, className: 'bg-warning'}
-  //       case 'RESCHEDULE':
-  //         return {...order, className: 'bg-primary'}
-  //       default:
-  //         return {...order, className: 'bg-primary'}
-  //     }
-  //   })
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${year}-${month}-${day}`
+  }
 
-  //   setWorkOrder(updatedWorkOrder)
-  // }, [selectedWorkOrder?.work_order_status])
+  const formatDateTime = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return ''
+    }
+
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
+  }
 
   return (
     <section id='view-calendar'>
@@ -153,65 +127,416 @@ const ViewCalendarCS: React.FC = () => {
         eventClick={(info) => handleShowModal(info.event.id)}
       />
 
-      <Modal centered show={showModal} onHide={handleCloseModal}>
+      <Modal
+        dialogClassName='modal-calendar-detail'
+        centered
+        show={showModal}
+        onHide={handleCloseModal}
+      >
         <Modal.Header closeButton>
           <Modal.Title>{selectedWorkOrder?.title}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <Container>
-            <Row>
-              <Form.Group as={Row} className='mb-4'>
-                <Form.Label column md={6} className='pt-0 fs-3 fw-semibold'>
-                  Nama Tukang :
+          <Row className='form-header mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Form.Label className='fs-4 fw-bold'>
+                Nama Toko :{' '}
+                <span className='fs-4 ms-2 fw-normal'>
+                  {selectedWorkOrder?.work_order_detail?.order?.store?.store_name ?? ''}
+                </span>
+              </Form.Label>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Col>
+                <Form.Label className='fs-4 fw-bold'>
+                  Order ID :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {selectedWorkOrder?.work_order_detail?.order?.id ?? ''}
+                  </span>
                 </Form.Label>
+              </Col>
 
-                <Col md={6}>
-                  <p className='fs-5'>{selectedWorkOrder?.tukang}</p>
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className=' mb-4'>
-                <Form.Label column md={6} className='pt-0 fs-3 fw-semibold'>
-                  Jenis Perkerjaan :
+              <Col>
+                <Form.Label className='fs-4 fw-bold'>
+                  Work Order ID :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {selectedWorkOrder?.work_order_detail?.id ?? '-'}
+                  </span>
                 </Form.Label>
+              </Col>
+            </Col>
 
-                <Col md={6}>
-                  <p className='fs-5'>{selectedWorkOrder?.service}</p>
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='mb-4'>
-                <Form.Label column md={6} className='pt-0  fs-3 fw-semibold'>
-                  Status Pengerjaan :
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Col>
+                <Form.Label className='fs-4 fw-bold'>
+                  Receipt Number :
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {selectedWorkOrder?.work_order_detail?.order?.receipt_number ?? '-'}
+                  </span>
                 </Form.Label>
+              </Col>
 
-                <Col md={6}>
-                  <p className='fs-5'>{selectedWorkOrder?.work_order_status}</p>
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className=' mb-4'>
-                <Form.Label column md={6} className='pt-0 fs-3 fw-semibold'>
-                  Tanggal Mulai :
+              <Col>
+                <Form.Label className='fs-4 fw-bold'>
+                  Work Order Status :
+                  <span className='fs-4 ms-2 fw-bold text-success'>
+                    {selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status?.category ??
+                      ''}
+                  </span>
                 </Form.Label>
+              </Col>
+            </Col>
+          </Row>
 
-                <Col md={6}>
-                  <p className='fs-5'>{selectedWorkOrder?.start}</p>
+          <Row className='information-detail mb-5'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
+              <div className='fs-4 fw-bold'>Informasi Pembeli</div>
+              <Row>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      No Member :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <p className='fs-7'>
+                        {selectedWorkOrder?.work_order_detail?.order?.members?.member_number ?? ''}
+                      </p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Customer Name :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <p className='fs-7'>
+                        {selectedWorkOrder?.work_order_detail?.order?.members?.full_name ?? ''}
+                      </p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Alamat Pemasangan
+                    </Form.Label>
+                    <Col sm='6'>
+                      <p className='fs-7'>
+                        {selectedWorkOrder?.work_order_detail?.order?.project_address ?? ''}
+                      </p>
+                    </Col>
+                  </Form.Group>
                 </Col>
-              </Form.Group>
 
-              <Form.Group as={Row} className=' mb-4'>
-                <Form.Label column md={6} className='pt-0 fs-3 fw-semibold'>
-                  Tanggal Selesai :
-                </Form.Label>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='4'>
+                      Nomor Telp/WA :
+                    </Form.Label>
 
-                <Col md={6}>
-                  <p className='fs-5'>{selectedWorkOrder?.end}</p>
+                    <Col sm='8'>
+                      <p className='fs-7'>
+                        {selectedWorkOrder?.work_order_detail?.order?.project_number ?? ''}
+                      </p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='4'>
+                      Alamat Email
+                    </Form.Label>
+
+                    <Col sm='8'>
+                      <p className='fs-7'>
+                        {selectedWorkOrder?.work_order_detail?.order?.members?.email ?? ''}{' '}
+                      </p>
+                    </Col>
+                  </Form.Group>
                 </Col>
-              </Form.Group>
-            </Row>
-          </Container>
+              </Row>
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+              <Row>
+                <Col md={5}>
+                  <div className='survey mb-3'>
+                    <div className='detail-info mb-3'>
+                      <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
+                      <p className='fs-7'>
+                        {formatDateTime(
+                          new Date(selectedWorkOrder?.work_order_detail?.survey_date)
+                        )}
+                      </p>
+                    </div>
+
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Oleh:</p>
+                      <p className='fs-7'>
+                        {selectedWorkOrder?.work_order_detail?.work_order_tukang
+                          .filter((x: any) => x.type === 1)
+                          .map((item: any) => item?.tukang?.full_name)
+                          .join(', ')}
+                      </p>
+                    </div>
+                  </div>
+                </Col>
+
+                <Col md={7}>
+                  <div className='work-date'>
+                    <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='3'>
+                        MULAI
+                      </Form.Label>
+
+                      <Col sm='9'>
+                        <p className='fs-7'>
+                          {formatDateTime(
+                            new Date(selectedWorkOrder?.work_order_detail?.work_start_date)
+                          )}
+                        </p>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='3'>
+                        SELESAI
+                      </Form.Label>
+
+                      <Col sm='9'>
+                        <p className='fs-7'>
+                          {formatDateTime(
+                            new Date(selectedWorkOrder?.work_order_detail?.work_end_date)
+                          )}
+                        </p>
+                      </Col>
+                    </Form.Group>
+
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Oleh:</p>
+                      <p className='fs-7'>
+                        {selectedWorkOrder?.work_order_detail?.work_order_tukang
+                          .filter((x: any) => x.type === 2)
+                          .map((item: any) => item?.tukang?.full_name)
+                          .join(', ')}
+                      </p>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+
+          <Row className='table-warranty d-flex align-items-center mb-5'>
+            <div className='table-title-warranty'>
+              <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+              <Row>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {formatDate(
+                        new Date(selectedWorkOrder?.work_order_detail?.order?.request_survey)
+                      )}
+                    </p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {selectedWorkOrder?.work_order_detail?.vendor?.company_name ?? '-'}
+                    </p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Payment Type:</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {(() => {
+                        if (
+                          selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
+                        ) {
+                          return `Berbayar & Survey`
+                        } else if (
+                          selectedWorkOrder?.work_order_detail?.order?.payment_type === 'gratis'
+                        ) {
+                          return `Gratis`
+                        } else if (
+                          selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                          'pemasangan_tanpa_survey'
+                        ) {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
+                    </p>
+                  </Col>
+                </Form.Group>
+              </Row>
+            </div>
+
+            <div className='table-warranty-content'>
+              <Table hover responsive='md'>
+                <thead className='table-warranty-head'>
+                  <tr>
+                    <th>Item Code</th>
+                    <th>Item Name</th>
+                    <th>Nama Pemasangan</th>
+                    <th>QTY Pemasangan</th>
+                    {selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]
+                      ?.work_order_items.length > 0 ? (
+                      <>
+                        <th>Harga Jasa</th>
+                        <th>Jumlah</th>
+                      </>
+                    ) : (
+                      <>
+                        {!(
+                          selectedWorkOrder?.work_order_detail?.order?.payment_type === 'gratis' ||
+                          selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
+                        ) && (
+                          <>
+                            <th>Harga Jasa</th>
+                            <th>Jumlah</th>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]
+                    ?.work_order_items.length > 0 ? (
+                    <>
+                      {selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.work_order_items.map(
+                        (item: any, index: any) => (
+                          <tr key={`${index}-work_order_detail`}>
+                            <td>{item?.item_id ?? '-'}</td>
+                            <td>{item?.item ?? '-'}</td>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
+                              'id'
+                            )}`}</td>
+                            <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                          </tr>
+                        )
+                      )}
+
+                      <tr>
+                        <td colSpan={5} className='text-end fw-bolder'>
+                          Grand Total
+                        </td>
+                        <td className=' fw-bolder'>
+                          {`Rp. ${parseInt(
+                            selectedWorkOrder?.work_order_detail?.grand_total ?? 0
+                          ).toLocaleString('id')}`}
+                        </td>
+                      </tr>
+                    </>
+                  ) : (
+                    <>
+                      {selectedWorkOrder?.work_order_detail?.order?.m_order_details.map(
+                        (item: any, index: any) => (
+                          <tr key={`${index}-order_detail`}>
+                            <td>{item?.item_code ?? '-'}</td>
+                            <td>{item?.item_name ?? '-'}</td>
+                            <td>
+                              {selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                              'survey'
+                                ? item?.item_notes
+                                : item?.item?.service_name}
+                            </td>
+                            <td>{item?.quantity ?? 0}</td>
+                            {!(
+                              selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                                'gratis' ||
+                              selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
+                            ) && (
+                              <>
+                                <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                              </>
+                            )}
+                          </tr>
+                        )
+                      )}
+
+                      {selectedWorkOrder?.work_order_detail?.order?.payment_type !== 'gratis' &&
+                        selectedWorkOrder?.work_order_detail?.order?.payment_type !==
+                          'pemasangan_tanpa_survey' && (
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Biaya Survey
+                            </td>
+
+                            <td className=' fw-bolder'>
+                              {selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                                'gratis' ||
+                              selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                                'pemasangan_tanpa_survey'
+                                ? `Rp. ${(0).toLocaleString('id')}`
+                                : selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                                  'survey'
+                                ? `Rp. ${(99000).toLocaleString('id')}`
+                                : `Rp. ${0}`}
+                            </td>
+                          </tr>
+                        )}
+
+                      {selectedWorkOrder?.work_order_detail?.order?.payment_type !== 'survey' && (
+                        <tr>
+                          <td
+                            colSpan={
+                              selectedWorkOrder?.work_order_detail?.order?.payment_type !== 'gratis'
+                                ? 5
+                                : 3
+                            }
+                            className='text-end fw-bolder'
+                          >
+                            Grand Total
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {(() => {
+                              if (
+                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                                'gratis'
+                              ) {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              } else if (
+                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                                'pemasangan_tanpa_survey'
+                              ) {
+                                return `Rp. ${parseInt(
+                                  selectedWorkOrder?.work_order_detail?.order?.grand_total
+                                ).toLocaleString('id')}`
+                              } else if (
+                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
+                                'survey'
+                              ) {
+                                return `Rp. ${(99000).toLocaleString('id')}`
+                              } else {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              }
+                            })()}
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  )}
+                </tbody>
+              </Table>
+            </div>
+          </Row>
         </Modal.Body>
       </Modal>
     </section>

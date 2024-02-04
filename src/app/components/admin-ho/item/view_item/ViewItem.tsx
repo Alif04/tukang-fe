@@ -25,6 +25,7 @@ const ViewItemHO: React.FC = () => {
   }
 
   interface DataType {
+    no: number
     material_id: number
     store_name: string
     product_name: string
@@ -35,11 +36,17 @@ const ViewItemHO: React.FC = () => {
 
   const columns: ColumnsType<DataType> = [
     {
+      title: 'No. ',
+      dataIndex: 'no',
+      key: 'no',
+      align: 'center',
+      sorter: (a, b) => a.no - b.no,
+    },
+    {
       title: 'Material ID',
       dataIndex: 'material_id',
       key: 'material_id',
       align: 'center',
-      defaultSortOrder: 'descend',
       sorter: (a, b) => a.material_id - b.material_id,
     },
     {
@@ -49,6 +56,7 @@ const ViewItemHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
+      width: 280,
     },
     {
       title: 'Product Name',
@@ -176,14 +184,17 @@ const ViewItemHO: React.FC = () => {
 
   const getItemList = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/items?take=0&search=${searchFilter}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/items?take=0&search=${searchFilter}&order_by=desc`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -199,7 +210,7 @@ const ViewItemHO: React.FC = () => {
         return []
       }
 
-      const itemData = apiData.map((item: any) => {
+      const itemData = apiData.map((item: any, index: number) => {
         let data
 
         const storeItem = item?.prices[0]?.price_stores
@@ -207,6 +218,7 @@ const ViewItemHO: React.FC = () => {
           .join(', ')
 
         data = {
+          no: index + 1,
           material_id: item?.id,
           store_name: storeItem,
           product_name: item?.item_name ?? '-',

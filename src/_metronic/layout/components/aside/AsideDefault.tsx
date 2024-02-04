@@ -71,7 +71,7 @@ const AsideDefault: FC = () => {
             src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
           />
           <h6 className='text-center text-secondary-emphasis'>
-            {fullName}
+            {fullName !== null ? fullName : username}
             <br />({role}){' '}
           </h6>
         </div>

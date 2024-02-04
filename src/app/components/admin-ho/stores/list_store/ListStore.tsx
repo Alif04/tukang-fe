@@ -42,11 +42,10 @@ const ListStoreHO: React.FC = () => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'ID',
+      title: 'No.',
       dataIndex: 'store_id',
       key: 'store_id',
       align: 'center',
-      defaultSortOrder: 'descend',
       sorter: (a, b) => a.store_id - b.store_id,
       width: 50,
     },
@@ -215,7 +214,7 @@ const ListStoreHO: React.FC = () => {
   const getStoresList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/stores?page=${page}&take=${pageSize}&search=${searchFilter}`,
+        `${apiUrl}/stores?page=${page}&take=${pageSize}&search=${searchFilter}&order_by=desc`,
         {
           headers: {
             Accept: 'application/json',
@@ -243,14 +242,14 @@ const ListStoreHO: React.FC = () => {
         return []
       }
 
-      const storeData = apiData.map((item: any) => {
+      const storeData = apiData.map((item: any, index: number) => {
         let data
 
         const phoneNumber =
           item?.phone_number_1 !== null ? item?.phone_number_1 : item?.phone_number_2
 
         data = {
-          store_id: item?.id ?? '',
+          store_id: index + 1,
           store_name: item?.store_name ?? '',
           phone_number: phoneNumber,
           email: item?.email ?? '',

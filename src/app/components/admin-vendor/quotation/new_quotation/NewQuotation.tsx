@@ -260,7 +260,7 @@ const NewQuotationVendor: FC = () => {
               item_id: item.item_id,
               work_order_item_id: null,
               category_id: null,
-              item_name: item.item.service_name,
+              item_name: item?.item?.service_name,
               quantity: item.quantity,
               is_user: item.is_customer ? 1 : 0,
               unit_price: parseInt(item.unit_price),

@@ -65,6 +65,7 @@ const ViewTukangVendor: FC = () => {
   }
 
   interface DataType {
+    no: number
     tukang_id: number
     full_name: string
     email: string
@@ -77,6 +78,13 @@ const ViewTukangVendor: FC = () => {
   }
 
   const columns: ColumnsType<DataType> = [
+    {
+      title: 'No. ',
+      dataIndex: 'no',
+      key: 'no',
+      align: 'center',
+      sorter: (a, b) => a.no - b.no,
+    },
     {
       title: 'Tukang ID',
       dataIndex: 'tukang_id',
@@ -278,7 +286,7 @@ const ViewTukangVendor: FC = () => {
         return []
       }
 
-      const tukangData = apiData.map((item: any) => {
+      const tukangData = apiData.map((item: any, index: number) => {
         let data
 
         const BirthOfDay = new Date(item?.bod ?? '-')
@@ -288,6 +296,7 @@ const ViewTukangVendor: FC = () => {
           .join(', ')
 
         data = {
+          no: index + 1,
           tukang_id: item?.id ?? '-',
           full_name: item?.full_name ?? '-',
           email: item?.email ?? '-',

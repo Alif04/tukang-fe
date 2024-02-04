@@ -47,6 +47,7 @@ const DashboardOrderStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userStore = localStorage.getItem('storeId')
   const [orderData, setOrderData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
 
   const today = new Date()
@@ -59,19 +60,31 @@ const DashboardOrderStore: FC = () => {
 
   const fetchOrderList = async () => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&take=0`
+
+      if (dateFrom && dateTo) {
+        apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+      }
+
+      if (userStore) {
+        apiUrlWithParams += `&store_id=${userStore}`
+      }
+
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
       const data = response.data.data
+      const chartDatas = response.data.monthlyOrders
+
       setOrderList(data)
+      setChartData(chartDatas)
+
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -276,7 +289,7 @@ const DashboardOrderStore: FC = () => {
           <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderList} />
         </div>
         <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' />
+          <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartData} />
         </div>
         <div className='col-xl-4'>
           <ChartLine className='card-xl-stretch mb-xl-8' />

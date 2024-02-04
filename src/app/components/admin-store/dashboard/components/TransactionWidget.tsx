@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
+import {Link} from 'react-router-dom'
 import {KTSVG} from '../../../../../_metronic/helpers'
 import {Dropdown1} from '../../../../../_metronic/partials/content/dropdown/Dropdown1'
 
@@ -78,7 +79,9 @@ const TransactionWidget: React.FC<Props> = ({orderData}) => {
       </div>
 
       <div className='button-wrapper d-flex justify-content-center' style={{margin: '30px'}}>
-        <div className='btn btn-outline-info border-1 w-75'>See More Transaction</div>
+        <Link to='/order/view-order' className='btn btn-outline-info border-1 w-75'>
+          See More Transaction
+        </Link>
       </div>
     </div>
   )

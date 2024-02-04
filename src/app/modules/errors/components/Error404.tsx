@@ -19,9 +19,9 @@ const Error404: FC = () => {
         </h1>
         {/* end::Message */}
         {/* begin::Link */}
-        {/* <Link to='/login' className='btn btn-primary'>
+        <Link to='/login' className='btn btn-primary'>
           Return Home
-        </Link> */}
+        </Link>
         {/* end::Link */}
       </div>
     </div>
