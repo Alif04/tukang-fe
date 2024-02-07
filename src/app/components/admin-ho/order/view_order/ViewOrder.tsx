@@ -199,6 +199,9 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
           },
         }
       )
+
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)

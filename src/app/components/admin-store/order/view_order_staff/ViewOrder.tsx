@@ -265,7 +265,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response.data.total)
+      setTotalData(response.data.takeTotal)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)

@@ -27,7 +27,6 @@ interface CityItem {
 }
 
 const initialStatusState = {
-  totalOrder: 0,
   survey: 0,
   onProgress: 0,
   complete: 0,
@@ -40,16 +39,17 @@ type StatusToStateMap = {
 }
 
 const statusToStateMap: StatusToStateMap = {
-  PICKLIST: 'totalOrder',
   SURVEYREQ: 'survey',
   WIP: 'onProgress',
-  SURVEYDONE: 'complete',
+  WORKEND: 'complete',
   RESCHEDULE: 'reschedule',
-  WORKRELATED: 'waitingPayment',
+  UNPAID: 'waitingPayment',
 }
 
 const DashboardVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const vendorId = localStorage.getItem('vendor_id')
+
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
 
@@ -93,7 +93,7 @@ const DashboardVendor: FC = () => {
   const fetchOrderList = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&vendor_id=${vendorId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -239,7 +239,7 @@ const DashboardVendor: FC = () => {
     }
   }, [orderList])
 
-  const {totalOrder, survey, onProgress, complete, reschedule, waitingPayment} = statusState
+  const {survey, onProgress, complete, reschedule, waitingPayment} = statusState
 
   return (
     <section id='dashboard-vendor'>
@@ -327,7 +327,7 @@ const DashboardVendor: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{totalOrder}</h1>
+                    <h1 className='fw-normal'>{orderData.length}</h1>
                     <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>

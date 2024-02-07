@@ -11,7 +11,7 @@ import {TotalReschedule} from './components/TotalReschedule'
 import axios from 'axios'
 import Select from 'react-select'
 import {DatePicker} from 'antd'
-import {Row, Col, Card, Form} from 'react-bootstrap'
+import {Row, Col} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 

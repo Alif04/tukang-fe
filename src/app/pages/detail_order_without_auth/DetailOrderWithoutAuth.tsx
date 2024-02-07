@@ -125,12 +125,11 @@ const DetailOrderWithoutAuth = () => {
     return `${day}/${month}/${year}`
   }
 
-  // Statuses for Order Timeline
   const statusData: Status[] = status
-
   const getStatuses = (categories: string[]) =>
     statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)
 
+  // Statuses for Order Timeline
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses([
     'SURVEYREQ',
@@ -820,7 +819,11 @@ const DetailOrderWithoutAuth = () => {
                 <Steps
                   className='order-history-timeline'
                   current={orderHistory.findIndex((step) =>
-                    step.value.includes(order?.project_status_id)
+                    step.value.includes(
+                      order?.work_orders?.work_order_status.length > 0
+                        ? order?.work_orders?.work_order_status[0]?.status?.id
+                        : order?.project_status_id
+                    )
                   )}
                   labelPlacement='vertical'
                   items={orderHistory}

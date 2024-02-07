@@ -18,11 +18,6 @@ type Props = {
   className: string
 }
 
-interface Status {
-  value: number
-  category: string
-}
-
 const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userStore = localStorage.getItem('storeId')
@@ -270,7 +265,7 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response.data.total)
+      setTotalData(response.data.takeTotal)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)

@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
@@ -238,6 +239,14 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
+  // Export To Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(orderData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+    XLSX.writeFile(workbook, 'report_intensif_data.xlsx')
+  }
+
   return (
     <section id='report-insentif'>
       <div className={`card ${className}`}>
@@ -288,7 +297,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
                 <Button
                   variant='outline-primary'
                   className='d-flex justify-content-center align-items-center'
-                  type='submit'
+                  onClick={exportToExcel}
                 >
                   Download Report
                 </Button>

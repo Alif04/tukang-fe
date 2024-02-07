@@ -253,7 +253,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 }
 
 .btn.btn-dark-primary {
-  width: 100px;
+  width: fit-content !important;
   height: 50px;
   margin: 0 10px 0 10px;
   color: white !important;
@@ -278,6 +278,16 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 .btn.btn-dark-success:hover:not(.btn-active) {
   background-color: #7cb920 !important;
+}
+
+button.btn-done.btn.btn-primary {
+  width: fit-content;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
 }
 
 /* Searchbar */

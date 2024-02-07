@@ -37,6 +37,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const params = useParams()
   const animatedComponents = makeAnimated()
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   // Order Detail
   const [orderDetail, setOrderDetail] = useState<any>(null)
 
@@ -136,13 +138,14 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           if (data.work_orders) {
             const workStartDate = formatDate(new Date(data.work_orders.work_start_date))
             const workEndDate = formatDate(new Date(data.work_orders.work_end_date))
+            const requestWorkTime = formatDate(new Date(data.work_orders.request_work_time))
 
             const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
               work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
                 ?.category,
-              created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
-              updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
+              created_at: requestWorkTime,
+              updated_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               work_date_time: `${workStartDate} - ${workEndDate}`,
               updated_by: item.updated_by,
             }))
@@ -273,6 +276,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const handleUpdateWorkOrder = async () => {
     const url = !workOrder.id ? `${apiUrl}/work-orders` : `${apiUrl}/work-orders/${workOrder.id}`
     const formData = new FormData()
+    setIsLoading(true)
 
     let errorBags = []
     const requiredFields = [
@@ -326,6 +330,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     }
 
     if (errorBags.length > 0) {
+      setIsLoading(false)
+
       Swal.fire({
         title: 'warning',
         text: errorBags[0].message,
@@ -353,17 +359,22 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(true)
         }
         navigate('/work-order/view-work-order')
       })
       .catch((error) => {
-        console.error(error)
+        setIsLoading(false)
+
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -397,13 +408,22 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       sorter: (a, b) => a.work_order_status.length - b.work_order_status.length,
     },
     {
-      title: 'Date Order',
+      title: 'Request Work Time',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
       width: 110,
       onFilter: (value, record) => record.created_at.includes(String(value)),
       sorter: (a, b) => a.created_at.length - b.created_at.length,
+    },
+    {
+      title: 'Updated At',
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.updated_at.includes(String(value)),
+      sorter: (a, b) => a.updated_at.length - b.updated_at.length,
     },
     {
       title: 'Work Date Time',
@@ -1267,15 +1287,29 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             })()}
           </Row>
 
-          <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateWorkOrder}>
-              Cancel
-            </Button>
+          {orderDetail?.work_orders?.work_order_status.length > 1 &&
+          orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND' ? (
+            <div className='d-flex justify-content-center'>
+              <Button className='btn-done' type='submit' disabled>
+                Order Ini Telah Selesai
+              </Button>
+            </div>
+          ) : (
+            <div className='d-flex justify-content-center'>
+              {/* <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateWorkOrder}>
+                Cancel
+              </Button> */}
 
-            <Button variant='dark-primary' type='submit' onClick={handleUpdateWorkOrder}>
-              Save
-            </Button>
-          </div>
+              <Button
+                variant='dark-primary'
+                type='submit'
+                disabled={isLoading}
+                onClick={handleUpdateWorkOrder}
+              >
+                {isLoading ? 'Submitting Order...' : 'Save'}
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
 

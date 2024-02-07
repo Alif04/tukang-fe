@@ -70,6 +70,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const params = useParams()
   const animatedComponents = makeAnimated()
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   // Order Detail
   const [orderDetail, setOrderDetail] = useState<any>(null)
 
@@ -254,10 +256,101 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           // }
 
           // New
+          // if (
+          //   ['SURVEYREQ', 'SURVEYSTART', 'WORKREQ', 'WORKSTART'].includes(data?.status?.category) &&
+          //   !data.work_orders
+          // ) {
+          //   const workOrderItem = data.order_details.map((item: any, index: number) => ({
+          //     id: item.id,
+          //     index: (Date.now() + index).toString(),
+          //     item_name: item.item_name ?? '',
+          //     unit: item?.unit ?? '',
+          //     is_user: item.is_customer ? 1 : 0,
+          //     type: 2,
+          //     quantity: item?.quantity ?? 0,
+          //   }))
+
+          //   const workOrderItemMaterial = [
+          //     {
+          //       id: null,
+          //       index: (Date.now() + workOrderItem.length).toString(),
+          //       item_name: '',
+          //       tukang_id: null,
+          //       tukang_name: '',
+          //       is_user: 0,
+          //       type: 1,
+          //       quantity: null,
+          //       unit: '',
+          //     },
+          //   ]
+
+          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+          //   setWorkOrderItem(mergedWorkOrderItem)
+          // } else if (
+          //   [
+          //     'SURVEYDONE',
+          //     'WIP',
+          //     'WORKEND',
+          //     'REWORKSTART',
+          //     'RIP',
+          //     'REWORKEND',
+          //     'WORKDONE',
+          //     'DONE',
+          //   ].includes(data.work_orders.work_order_status[0].status.category)
+          // ) {
+          //   const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+          //     (item: any, index: number) => ({
+          //       id: item.id,
+          //       index: (Date.now() + index).toString(),
+          //       item_name: item.name,
+          //       tukang_id: item?.tukang_id,
+          //       tukang_name: item?.tukang_name,
+          //       unit: item?.unit,
+          //       is_user: item.is_customer ? 1 : 0,
+          //       type: item.type,
+          //       quantity: item.quantity,
+          //     })
+          //   )
+
+          //   const workOrderItemMaterial = [
+          //     {
+          //       id: null,
+          //       index: (Date.now() + workOrderItem.length).toString(),
+          //       item_name: '',
+          //       tukang_id: null,
+          //       tukang_name: '',
+          //       is_user: 0,
+          //       type: 1,
+          //       quantity: null,
+          //       unit: '',
+          //     },
+          //   ]
+
+          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+          //   setWorkOrderItem(mergedWorkOrderItem)
+          // }
+
+          // Newest
           if (
-            ['SURVEYREQ', 'SURVEYSTART', 'WORKREQ', 'WORKSTART'].includes(data?.status?.category) &&
-            !data.work_orders
+            data.payment_type === 'survey' &&
+            data.work_orders.work_order_status[0].work_order_items.length > 0
           ) {
+            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+              (item: any, index: number) => ({
+                id: item.id,
+                index: (Date.now() + index).toString(),
+                item_name: item.name,
+                tukang_id: item?.tukang_id,
+                tukang_name: item?.tukang_name,
+                unit: item?.unit,
+                is_user: item.is_customer ? 1 : 0,
+                type: item.type,
+                quantity: item.quantity,
+              })
+            )
+
+            setWorkOrderItem(workOrderItem)
+          } else {
             const workOrderItem = data.order_details.map((item: any, index: number) => ({
               id: item.id,
               index: (Date.now() + index).toString(),
@@ -284,59 +377,19 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
             const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
             setWorkOrderItem(mergedWorkOrderItem)
-          } else if (
-            [
-              'SURVEYDONE',
-              'WIP',
-              'WORKEND',
-              'REWORKSTART',
-              'RIP',
-              'REWORKEND',
-              'WORKDONE',
-              'DONE',
-            ].includes(data.work_orders.work_order_status[0].status.category)
-          ) {
-            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
-              (item: any, index: number) => ({
-                id: item.id,
-                index: (Date.now() + index).toString(),
-                item_name: item.name,
-                tukang_id: item?.tukang_id,
-                tukang_name: item?.tukang_name,
-                unit: item?.unit,
-                is_user: item.is_customer ? 1 : 0,
-                type: item.type,
-                quantity: item.quantity,
-              })
-            )
-
-            const workOrderItemMaterial = [
-              {
-                id: null,
-                index: (Date.now() + workOrderItem.length).toString(),
-                item_name: '',
-                tukang_id: null,
-                tukang_name: '',
-                is_user: 0,
-                type: 1,
-                quantity: null,
-                unit: '',
-              },
-            ]
-
-            const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
-            setWorkOrderItem(mergedWorkOrderItem)
           }
 
           if (data?.work_orders?.work_order_status) {
             const workStartDate = formatDate(new Date(data.work_orders.work_start_date))
             const workEndDate = formatDate(new Date(data.work_orders.work_end_date))
+            const requestWorkTime = formatDate(new Date(data.work_orders.request_work_time))
 
             const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
-              work_order_status: item.status.category,
-              created_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
-              updated_at: item.updated_at ? formatDate(new Date(item.updated_at)) : '',
+              work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
+                ?.category,
+              created_at: requestWorkTime,
+              updated_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               work_date_time: `${workStartDate} - ${workEndDate}`,
               updated_by: item.updated_by,
             }))
@@ -622,6 +675,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   // Update Work Order
   const handleUpdateWorkOrder = async () => {
     const formData = new FormData()
+    setIsLoading(true)
 
     // Work Order Detail
     formData.append('status_id', selectedWorkOrderStatus?.value?.toString() ?? '')
@@ -705,18 +759,22 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(true)
         }
 
         navigate('/work-order/view-work-order')
       })
       .catch((error) => {
-        console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -756,22 +814,22 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       sorter: (a, b) => a.work_order_id - b.work_order_id,
     },
     {
-      title: 'Status',
-      dataIndex: 'work_order_status',
-      key: 'work_order_status',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.work_order_status.includes(String(value)),
-      sorter: (a, b) => a.work_order_status.length - b.work_order_status.length,
-    },
-    {
-      title: 'Date Order',
+      title: 'Request Work Time',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
       width: 110,
       onFilter: (value, record) => record.created_at.includes(String(value)),
       sorter: (a, b) => a.created_at.length - b.created_at.length,
+    },
+    {
+      title: 'Updated At',
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.updated_at.includes(String(value)),
+      sorter: (a, b) => a.updated_at.length - b.updated_at.length,
     },
     {
       title: 'Work Date Time',
@@ -1430,11 +1488,25 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           </Row>
 
           <Row>
-            <div className='d-flex justify-content-center mt-5 mb-3'>
-              <Button variant='dark-primary ' type='submit' onClick={handleUpdateWorkOrder}>
-                Save
-              </Button>
-            </div>
+            {orderDetail?.work_orders?.work_order_status.length > 1 &&
+            orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND' ? (
+              <div className='d-flex justify-content-center'>
+                <Button className='btn-done' type='submit' disabled>
+                  Order Ini Telah Selesai
+                </Button>
+              </div>
+            ) : (
+              <div className='d-flex justify-content-center'>
+                <Button
+                  variant='dark-primary'
+                  type='submit'
+                  disabled={isLoading}
+                  onClick={handleUpdateWorkOrder}
+                >
+                  {isLoading ? 'Submitting Order...' : 'Save'}
+                </Button>
+              </div>
+            )}
           </Row>
         </Card.Body>
       </Card>

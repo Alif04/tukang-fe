@@ -7,8 +7,6 @@ import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Image} from 'antd'
 import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 import {Steps} from 'antd'
 
 interface Status {
@@ -84,13 +82,12 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     return `${day}/${month}/${year}`
   }
 
-  // Statuses for Order Timeline
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-
   const getStatuses = (categories: string[]) =>
     statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)
 
+  // Statuses for Order Timeline
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses([
     'SURVEYREQ',
@@ -99,7 +96,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -683,7 +680,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             <Steps
               className='order-history-timeline'
               current={orderHistory.findIndex((step) =>
-                step.value.includes(order?.project_status_id)
+                step.value.includes(
+                  order?.work_orders?.work_order_status.length > 0
+                    ? order?.work_orders?.work_order_status[0]?.status?.id
+                    : order?.project_status_id
+                )
               )}
               labelPlacement='vertical'
               items={orderHistory}

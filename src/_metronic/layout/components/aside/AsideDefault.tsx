@@ -13,6 +13,7 @@ const AsideDefault: FC = () => {
 
   const username = localStorage.getItem('username')
   const fullName = localStorage.getItem('employeeName')
+  const vendorName = localStorage.getItem('vendorName')
   const role = localStorage.getItem('userRole')
 
   const minimize = () => {
@@ -71,7 +72,7 @@ const AsideDefault: FC = () => {
             src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
           />
           <h6 className='text-center text-secondary-emphasis'>
-            {fullName !== null ? fullName : username}
+            {role === 'Admin Vendor' ? vendorName : fullName !== null ? fullName : username}
             <br />({role}){' '}
           </h6>
         </div>

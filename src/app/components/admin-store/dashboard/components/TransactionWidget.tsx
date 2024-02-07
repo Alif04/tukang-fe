@@ -56,13 +56,17 @@ const TransactionWidget: React.FC<Props> = ({orderData}) => {
                   <div className='fw-bolder text-gray-800 fs-5'>
                     {item?.members?.full_name ?? ''}
                   </div>
+
                   <div className='fw-bold text-gray-800 fs-6'>
                     {item?.m_order_details
-                      .map((item: any) => item?.item?.service_name ?? '-')
+                      .map((item: any) =>
+                        item?.item === null ? item?.item_notes : item?.item?.service_name ?? '-'
+                      )
                       .join(', ')}
                   </div>
+
                   <span className='text-muted fw-semibold d-block'>
-                    {formatDate(new Date(item.request_survey))}
+                    {formatDate(new Date(item?.request_survey))}
                   </span>
                 </div>
 

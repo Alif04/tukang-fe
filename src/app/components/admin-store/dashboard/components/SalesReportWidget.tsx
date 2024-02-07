@@ -93,7 +93,7 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
       show: true,
     },
     dataLabels: {
-      enabled: true,
+      enabled: false,
       style: {
         fontSize: '8px',
         colors: ['#fff'],
@@ -123,11 +123,18 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
       style: {
         fontSize: '12px',
       },
-      y: {
-        formatter: function (val) {
-          return val + ''
+      y: [
+        {
+          formatter: function (val) {
+            return val + ' Order'
+          },
         },
-      },
+        {
+          formatter: function (val) {
+            return 'Rp. ' + val.toLocaleString('id')
+          },
+        },
+      ],
     },
     colors: ['#009DFF', '#22E4FF'],
     grid: {

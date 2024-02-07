@@ -125,7 +125,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -293,13 +293,17 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         <Form.Group className='detail-info mb-3'>
                           <Form.Label>Tanggal Survey :</Form.Label>
 
-                          <Form.Control
-                            type='date'
-                            readOnly
-                            value={formatDateValues(
-                              new Date(orderDetail?.work_orders?.survey_date)
-                            )}
-                          />
+                          {orderDetail?.work_orders !== null ? (
+                            <Form.Control
+                              type='date'
+                              readOnly
+                              value={formatDateValues(
+                                new Date(orderDetail?.work_orders?.survey_date)
+                              )}
+                            />
+                          ) : (
+                            <p>Tanggal survey belum diset oleh vendor</p>
+                          )}
                         </Form.Group>
 
                         <Form.Group className='detail-info mb-3'>
@@ -865,9 +869,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               className='order-history-timeline'
               current={orderHistory.findIndex((step) =>
                 step.value.includes(
-                  orderDetail?.work_orders === null
-                    ? orderDetail?.project_status_id
-                    : orderDetail?.work_orders?.status_id
+                  orderDetail?.work_orders?.work_order_status.length > 0
+                    ? orderDetail?.work_orders?.work_order_status[0]?.status?.id
+                    : orderDetail?.project_status_id
                 )
               )}
               labelPlacement='vertical'

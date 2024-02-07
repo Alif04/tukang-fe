@@ -165,8 +165,8 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
         },
       })
 
-      if (response?.data?.total) {
-        setTotalOrder(response.data.total)
+      if (response?.data?.takeTotal) {
+        setTotalOrder(response.data.takeTotal)
       }
 
       return response.data.data
