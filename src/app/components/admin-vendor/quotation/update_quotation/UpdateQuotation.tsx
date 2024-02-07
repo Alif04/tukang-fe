@@ -168,6 +168,7 @@ const UpdateQuotationVendor: FC = () => {
               category_name: item?.category?.category_name,
               item_name: item.name,
               quantity: item.quantity,
+              unit: item.unit,
               is_user: item.is_customer ? 1 : 0,
               unit_price: parseInt(item.price),
               final_price: parseInt(item.final_price),
@@ -449,7 +450,7 @@ const UpdateQuotationVendor: FC = () => {
           ...filteredDetailValues[index],
           margin: value,
           final_price:
-            Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) +
+            Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) -
             Number(value),
         }
       }
@@ -621,7 +622,7 @@ const UpdateQuotationVendor: FC = () => {
         appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
         appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
         appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
-        appendIfNotDefault(formData, `quotation_details[${index}][is_customer]`, quotation.is_user)
+        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
       })
 
       await axios

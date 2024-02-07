@@ -160,6 +160,7 @@ const NewVendorHO: FC = () => {
   const [emailVendor, setEmailVendor] = useState<string>('')
   const [phoneNumberVendor, setPhoneNumberVendor] = useState<any>()
   const [vendorAddress, setVendorAddress] = useState<any>('')
+  const [password, setPassword] = useState<any>('')
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
@@ -514,6 +515,11 @@ const NewVendorHO: FC = () => {
     setMarkup(updatedMarkup)
   }
 
+  const handleChangePasswordVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedPasswordVendor = event.target.value
+    setPassword(updatedPasswordVendor)
+  }
+
   // const handleChangeDiscount = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const updatedDiscount = event.target.value
   //   setDiscount(updatedDiscount)
@@ -639,6 +645,7 @@ const NewVendorHO: FC = () => {
       formData.append('phone_number', phoneNumberVendor)
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
+      formData.append('password', password)
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])
@@ -1171,6 +1178,18 @@ const NewVendorHO: FC = () => {
                   </div>
 
                   <Form.Control type='number' onChange={handleChangeMarkup} value={markup} />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Password</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    onChange={handleChangePasswordVendor}
+                    value={password}
+                  />
                 </Form.Group>
               </Row>
 

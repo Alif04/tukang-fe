@@ -253,20 +253,20 @@ const NewQuotationVendor: FC = () => {
           setOrderDetail(data)
 
           if (data?.order_details && data?.work_orders?.work_order_status) {
-            const orderDetailItem = data.order_details.map((item: any, index: number) => ({
-              id: item.id,
-              index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
-              type: 2,
-              item_id: item.item_id,
-              work_order_item_id: null,
-              category_id: null,
-              item_name: item?.item?.service_name,
-              quantity: item.quantity,
-              is_user: item.is_customer ? 1 : 0,
-              unit_price: parseInt(item.unit_price),
-              final_price: parseInt(item.total),
-              margin: 0,
-            }))
+            // const orderDetailItem = data.order_details.map((item: any, index: number) => ({
+            //   id: item.id,
+            //   index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
+            //   type: 2,
+            //   item_id: item.item_id,
+            //   work_order_item_id: null,
+            //   category_id: null,
+            //   item_name: item?.item?.service_name,
+            //   quantity: item.quantity,
+            //   is_user: item.is_customer ? 1 : 0,
+            //   unit_price: parseInt(item.unit_price),
+            //   final_price: parseInt(item.total),
+            //   margin: 0,
+            // }))
 
             const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
               (item: any, index: number) => ({
@@ -278,6 +278,7 @@ const NewQuotationVendor: FC = () => {
                 category_id: null,
                 item_name: item.name,
                 quantity: item.quantity,
+                unit: item?.unit ?? '',
                 is_user: item.is_customer ? 1 : 0,
                 unit_price: 0,
                 final_price: 0,
@@ -285,8 +286,8 @@ const NewQuotationVendor: FC = () => {
               })
             )
 
-            const mergedItem = orderDetailItem.concat(workOrderItem)
-            setQuotationDetail(mergedItem)
+            // const mergedItem = orderDetailItem.concat(workOrderItem)
+            setQuotationDetail(workOrderItem)
             // setQuotationDetail(workOrderItem)
           }
 
@@ -574,7 +575,7 @@ const NewQuotationVendor: FC = () => {
           ...filteredDetailValues[index],
           margin: value,
           final_price:
-            Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) +
+            Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) -
             Number(value),
         }
       }
@@ -786,7 +787,7 @@ const NewQuotationVendor: FC = () => {
         appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
         appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
         appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
-        appendIfNotDefault(formData, `quotation_details[${index}][is_customer]`, quotation.is_user)
+        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
       })
 
       await axios

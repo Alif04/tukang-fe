@@ -671,12 +671,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
+                          <th>Item / Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          <th>Harga Jasa</th>
-                          <th>Jumlah</th>
+                          <th>Satuan</th>
                         </tr>
                       </thead>
 
@@ -684,26 +681,12 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.item_id ?? '-'}</td>
-                              <td>{item?.item ?? '-'}</td>
                               <td>{item?.name ?? '-'}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                              <td>{item?.unit ?? ''}</td>
                             </tr>
                           )
                         )}
-
-                        <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
                   </div>
