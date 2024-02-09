@@ -28,7 +28,6 @@ interface CityItem {
 }
 
 const initialStatusState = {
-  totalOrder: 0,
   survey: 0,
   onProgress: 0,
   complete: 0,
@@ -42,7 +41,6 @@ type StatusToStateMap = {
 }
 
 const statusToStateMap: StatusToStateMap = {
-  PICKLIST: 'totalOrder',
   SURVEYSTART: 'survey',
   WIP: 'onProgress',
   SURVEYDONE: 'complete',
@@ -242,15 +240,8 @@ const DashboardHO: FC = () => {
     }
   }, [orderList])
 
-  const {
-    totalOrder,
-    survey,
-    onProgress,
-    complete,
-    waitingSurvey,
-    waitingQuotation,
-    waitingPayment,
-  } = statusState
+  const {survey, onProgress, complete, waitingSurvey, waitingQuotation, waitingPayment} =
+    statusState
 
   return (
     <section id='dashboard-ho'>
@@ -338,7 +329,7 @@ const DashboardHO: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{totalOrder}</h1>
+                    <h1 className='fw-normal'>{orderData.length}</h1>
                     <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>

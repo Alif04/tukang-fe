@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState, useRef} from 'react'
+import React, {FC, useEffect, useState, ChangeEvent} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './NewOrder.css'
@@ -110,9 +110,10 @@ const NewOrderStoreStaff: FC = () => {
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
 
   // Member
+  const [isSubmittingNewMember, setIsSubmittingNewMember] = useState(false)
   const [member, setMember] = useState<MemberSelect[]>([])
   const [searchByPhoneNumber, setSearchByPhoneNumber] = useState('')
-  const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
+  const [selectedMember, setSelectedMember] = useState<MemberSelect>({
     value: null,
     label: '',
     full_name: '',
@@ -269,6 +270,31 @@ const NewOrderStoreStaff: FC = () => {
     })
   }
 
+  // Member Form Handler
+  const handleChangeSelectMember = (newValue: MemberSelect | null) => {
+    if (newValue) {
+      setSelectedMember({
+        value: newValue.value || null,
+        label: newValue.label || '',
+        full_name: newValue.full_name || '',
+        email: newValue.email || '',
+        phone_number: newValue.phone_number || '',
+        whatsapp_number: newValue.whatsapp_number || '',
+        address_1: newValue.address_1 || '',
+      })
+    } else {
+      setSelectedMember({
+        value: null,
+        label: '',
+        full_name: '',
+        email: '',
+        phone_number: '',
+        whatsapp_number: '',
+        address_1: '',
+      })
+    }
+  }
+
   const orderDetailsFormHandler = (e: any, index: number) => {
     setOrderForm((prev) => {
       const cache = {...prev}
@@ -412,6 +438,8 @@ const NewOrderStoreStaff: FC = () => {
 
   // Submit New Order
   const handleSubmitNewOrder = async () => {
+    console.log(selectedMember.value)
+
     setIsLoading(true)
     const url = `${apiUrl}/orders`
     const formData = new FormData()
@@ -531,6 +559,57 @@ const NewOrderStoreStaff: FC = () => {
         })
       })
   }
+
+  // Submit New Member
+  const handleSubmitNewMember = async () => {
+    setIsSubmittingNewMember(true)
+
+    if (selectedMember.value === null) {
+      const newMember = {
+        full_name: selectedMember.full_name,
+        email: selectedMember.email,
+        phone_number: selectedMember.phone_number,
+        whatsapp_number: selectedMember.whatsapp_number,
+        address_1: selectedMember.address_1,
+      }
+
+      const response = await axios.post(`${apiUrl}/member`, newMember, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (response && response.data.data.member.id) {
+        setSelectedMember((selectedMember) => ({
+          ...selectedMember,
+          value: response.data.data.member.id,
+        }))
+
+        setOrderForm((prevOrderForm) => ({
+          ...prevOrderForm,
+          member_id: response.data.data.member.id,
+        }))
+
+        setIsSubmittingNewMember(false)
+      }
+    } else {
+      await handleSubmitNewOrder()
+    }
+  }
+
+  useEffect(() => {
+    if (isSubmittingNewMember) {
+      setOrderForm({
+        ...orderForm,
+        member_id: selectedMember.value,
+      })
+
+      handleSubmitNewOrder()
+    }
+  }, [selectedMember.value])
 
   return (
     <section id='pre-order'>
@@ -655,7 +734,7 @@ const NewOrderStoreStaff: FC = () => {
                       isClearable={true}
                       options={member}
                       onInputChange={(newValue) => setSearchByPhoneNumber(newValue)}
-                      onChange={(newValue) => setSelectedMember(newValue)}
+                      onChange={(newValue) => handleChangeSelectMember(newValue)}
                     />
                   </Form.Group>
                 </Col>
@@ -680,10 +759,18 @@ const NewOrderStoreStaff: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        disabled
+                        // disabled
                         name='project_number'
                         value={orderForm.project_number}
-                        onChange={(event) => orderFormHandler(event)}
+                        // onChange={(event) => orderFormHandler(event)}
+                        onChange={(event) => {
+                          const name = isWhatsapp ? 'whatsapp_number' : 'phone_number'
+                          orderFormHandler(event)
+                          handleChangeSelectMember({
+                            ...selectedMember,
+                            [name]: event.target.value,
+                          })
+                        }}
                       />
                     </InputGroup>
                   </Form.Group>
@@ -694,14 +781,32 @@ const NewOrderStoreStaff: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label className='title'>Nama Customer</Form.Label>
-                    <Form.Control type='text' value={selectedMember?.full_name || ''} />
+                    <Form.Control
+                      type='text'
+                      value={selectedMember?.full_name || ''}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChangeSelectMember({
+                          ...selectedMember,
+                          full_name: e.target.value,
+                        })
+                      }
+                    />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label className='title'>Email</Form.Label>
-                    <Form.Control type='text' value={selectedMember?.email || ''} />
+                    <Form.Control
+                      type='text'
+                      value={selectedMember?.email || ''}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChangeSelectMember({
+                          ...selectedMember,
+                          email: e.target.value,
+                        })
+                      }
+                    />
                   </Form.Group>
                 </Col>
               </Row>
@@ -715,7 +820,13 @@ const NewOrderStoreStaff: FC = () => {
                       name='project_address'
                       className='field-alamat'
                       value={orderForm.project_address}
-                      onChange={(event) => orderFormHandler(event)}
+                      onChange={(event) => {
+                        orderFormHandler(event)
+                        handleChangeSelectMember({
+                          ...selectedMember,
+                          address_1: event.target.value,
+                        })
+                      }}
                     />
                   </Form.Group>
                 </Col>
@@ -1010,7 +1121,7 @@ const NewOrderStoreStaff: FC = () => {
           <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
             <Button
               type='submit'
-              onClick={handleSubmitNewOrder}
+              onClick={handleSubmitNewMember}
               disabled={isLoading}
               variant='dark-primary'
             >

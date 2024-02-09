@@ -405,7 +405,7 @@ const UpdateQuotationHO: FC = () => {
         ...filteredDetailValues[index],
         margin: value,
         final_price:
-          Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) +
+          Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) -
           Number(value),
       }
 
@@ -766,13 +766,14 @@ const UpdateQuotationHO: FC = () => {
             <Table hover className='table-jasa'>
               <thead>
                 <tr>
-                  <th className='text-center' style={{minWidth: '296px'}}>
+                  <th className='text-center' style={{minWidth: '270px'}}>
                     Jenis Jasa
                   </th>
                   <th className='text-center'>Category</th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
+                  <th className='text-center'>Margin</th>
                   <th className='text-center'>Total</th>
                   <th className='text-center'>Keterangan</th>
                 </tr>
@@ -857,6 +858,20 @@ const UpdateQuotationHO: FC = () => {
 
                       <td>
                         {/* <Form.Control
+                            id={`unit-price-${index}`}
+                            type='number'
+                            plaintext
+                            disabled
+                            readOnly
+                            value={element.unit_price}
+                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
+                          /> */}
+
+                        <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
+                      </td>
+
+                      <td>
+                        {/* <Form.Control
                             readOnly
                             disabled
                             plaintext
@@ -883,7 +898,7 @@ const UpdateQuotationHO: FC = () => {
               <thead>
                 <tr>
                   <th></th>
-                  <th className='text-center' style={{minWidth: '250px'}}>
+                  <th className='text-center' style={{minWidth: '200px'}}>
                     Material Yang Dibutuhkan
                   </th>
                   <th className='text-center'>QTY</th>

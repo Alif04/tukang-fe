@@ -575,7 +575,10 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
             {/* Newest */}
             {(() => {
-              if (orderDetail?.payment_type === 'survey' && !orderDetail?.work_orders) {
+              if (
+                orderDetail?.payment_type === 'survey' &&
+                orderDetail?.work_orders?.work_order_status.length === 1
+              ) {
                 return (
                   <div className='table-warranty-content'>
                     <Table hover responsive='md'>
@@ -660,7 +663,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 orderDetail?.work_orders?.work_order_status.length > 1 &&

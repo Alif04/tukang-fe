@@ -136,6 +136,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     },
   ]
 
+  console.log(order?.work_orders?.work_order_status.length)
+
   return (
     <section id='detail-order'>
       <div className='card'>
@@ -166,9 +168,34 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {order?.work_orders?.work_order_status?.length > 0
+                      {/* {order?.work_orders?.work_order_status?.length > 0
                         ? order?.work_orders?.work_order_status[0]?.status?.category
-                        : order?.status?.category}
+                        : order?.status?.category} */}
+
+                      {/* {(() => {
+                        if (order?.work_orders?.work_order_status?.length > 0) {
+                          return order?.work_orders?.work_order_status[0]?.status?.category
+                        } else if (order?.status?.category === 'QUOTEIN') {
+                          return order?.status?.category
+                        } else if (order?.status?.category === 'QUOTEOUT') {
+                          return order?.status?.category
+                        } else {
+                          return order?.status?.category
+                        }
+                      })()} */}
+
+                      {(() => {
+                        if (
+                          order?.status?.category === 'QUOTEIN' ||
+                          order?.status?.category === 'QUOTEOUT'
+                        ) {
+                          return order?.status?.category
+                        } else if (order?.work_orders?.work_order_status?.length > 0) {
+                          return order?.work_orders?.work_order_status[0]?.status?.category
+                        } else {
+                          return order?.status?.category
+                        }
+                      })()}
                     </span>
                   </Form.Label>
                 </Col>
@@ -428,7 +455,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
             {/* Newest */}
             {(() => {
-              if (order?.payment_type === 'survey' && !order?.work_orders) {
+              if (
+                order?.payment_type === 'survey' &&
+                order?.work_orders.work_order_status.length === 1
+              ) {
                 return (
                   <div className='table-warranty-content'>
                     <Table hover responsive='md'>
@@ -477,6 +507,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           <th className='text-center'>QTY</th>
                           <th className='text-center'>Satuan</th>
                           <th className='text-center'>Price</th>
+                          <th className='text-center'>Margin</th>
                           <th className='text-center'>Total</th>
                           <th className='text-center'>Keterangan</th>
                         </tr>
@@ -489,6 +520,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             <td>{item?.quantity ?? 0}</td>
                             <td>{item?.unit}</td>
                             <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                            <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
                             <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
                               'id'
                             )}`}</td>
@@ -497,7 +529,18 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         ))}
 
                         <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              order?.quotation[0]?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={6} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -511,7 +554,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   order?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 order?.work_orders?.work_order_status.length > 1 &&
