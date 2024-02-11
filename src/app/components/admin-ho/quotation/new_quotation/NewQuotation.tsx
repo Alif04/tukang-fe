@@ -398,7 +398,7 @@ const NewQuotationHO: FC = () => {
         quantity: value,
         total: value * filteredDetailValues[index].unit_price,
         final_price:
-          Number(value * filteredDetailValues[index].unit_price) +
+          Number(value * filteredDetailValues[index].unit_price) -
           Number(filteredDetailValues[index].margin),
       }
 
@@ -419,7 +419,7 @@ const NewQuotationHO: FC = () => {
         unit_price: value,
         total: value * filteredDetailValues[index].quantity,
         final_price:
-          Number(value * filteredDetailValues[index].quantity) +
+          Number(value * filteredDetailValues[index].quantity) -
           Number(filteredDetailValues[index].margin),
       }
 
@@ -439,7 +439,7 @@ const NewQuotationHO: FC = () => {
         ...filteredDetailValues[index],
         margin: value,
         final_price:
-          Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) +
+          Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) -
           Number(value),
       }
 

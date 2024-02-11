@@ -380,7 +380,7 @@ const UpdateQuotationVendor: FC = () => {
           quantity: value,
           total: value * filteredDetailValues[index].unit_price,
           final_price:
-            Number(value * filteredDetailValues[index].unit_price) +
+            Number(value * filteredDetailValues[index].unit_price) -
             Number(filteredDetailValues[index].margin),
         }
       }
@@ -424,7 +424,7 @@ const UpdateQuotationVendor: FC = () => {
           unit_price: value,
           total: value * filteredDetailValues[index].quantity,
           final_price:
-            Number(value * filteredDetailValues[index].quantity) +
+            Number(value * filteredDetailValues[index].quantity) -
             Number(filteredDetailValues[index].margin),
         }
       }
@@ -935,7 +935,7 @@ const UpdateQuotationVendor: FC = () => {
                           readOnly
                           plaintext
                           value={`Rp. ${(
-                            Number(element.quantity) * Number(element.unit_price) +
+                            Number(element.quantity) * Number(element.unit_price) -
                             Number(element.margin)
                           ).toLocaleString()}`}
                         />
