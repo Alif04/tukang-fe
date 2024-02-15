@@ -456,8 +456,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             {/* Newest */}
             {(() => {
               if (
-                order?.payment_type === 'survey' &&
-                order?.work_orders.work_order_status.length === 1
+                order?.payment_type === 'survey' ||
+                order?.work_orders?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -514,7 +514,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       </thead>
 
                       <tbody>
-                        {order?.quotation[0]?.quotation_details?.map((item: any, index: any) => (
+                        {order?.quotation[0]?.quotation_details.map((item: any, index: any) => (
                           <tr key={`${index}-quotation`}>
                             <td>{item?.name ?? '-'}</td>
                             <td>{item?.quantity ?? 0}</td>

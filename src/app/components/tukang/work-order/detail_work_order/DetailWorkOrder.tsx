@@ -733,7 +733,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             {/* Newest */}
             {(() => {
               if (
-                orderDetail?.payment_type === 'survey' &&
+                orderDetail?.payment_type === 'survey' ||
                 orderDetail?.work_orders?.work_order_status.length === 1
               ) {
                 return (
@@ -790,7 +790,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       </thead>
 
                       <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details?.map(
+                        {orderDetail?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>

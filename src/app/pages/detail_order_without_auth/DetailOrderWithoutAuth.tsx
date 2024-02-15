@@ -559,7 +559,10 @@ const DetailOrderWithoutAuth = () => {
 
                 {/* Newest */}
                 {(() => {
-                  if (order?.payment_type === 'survey' && !order?.work_orders) {
+                  if (
+                    order?.payment_type === 'survey' ||
+                    order?.work_orders?.work_order_status.length === 1
+                  ) {
                     return (
                       <div className='table-warranty-content'>
                         <Table hover responsive='md'>
@@ -614,22 +617,18 @@ const DetailOrderWithoutAuth = () => {
                           </thead>
 
                           <tbody>
-                            {order?.quotation[0]?.quotation_details?.map(
-                              (item: any, index: any) => (
-                                <tr key={`${index}-quotation`}>
-                                  <td>{item?.name ?? '-'}</td>
-                                  <td>{item?.quantity ?? 0}</td>
-                                  <td>{item?.unit}</td>
-                                  <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{item?.description ? '' : '-'}</td>
-                                </tr>
-                              )
-                            )}
+                            {order?.quotation[0]?.quotation_details.map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>{item?.name ?? '-'}</td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{item?.description ? '' : '-'}</td>
+                              </tr>
+                            ))}
 
                             <tr>
                               <td colSpan={5} className='text-end fw-bolder'>

@@ -1,5 +1,4 @@
 import React, {FC, useState, useEffect} from 'react'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './NewItem.css'
 
@@ -21,7 +20,8 @@ interface CategorySelect {
 }
 
 interface StoreSelect {
-  value: number
+  store_id: number
+  store_group_id: number
   label: string
 }
 
@@ -35,6 +35,7 @@ interface ItemDetail {
     id: number | null
     price_store: Array<{
       store_id: number | null
+      store_group_id: number | null
     }>
     periodic_start: string
     periodic_end: string
@@ -61,6 +62,7 @@ const NewItemHO: FC = () => {
         price_store: [
           {
             store_id: null,
+            store_group_id: null,
           },
         ],
         periodic_start: '',
@@ -71,9 +73,12 @@ const NewItemHO: FC = () => {
     ],
   })
 
+  console.log('item_detail', itemDetail)
+
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
-  const [allStoreSelected, setAllStoreSelected] = useState(false)
+  const [storeGroup, setStoreGroup] = useState<StoreSelect[]>([])
+  const storeOptions = storeGroup.concat(store)
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -95,15 +100,37 @@ const NewItemHO: FC = () => {
 
       if (Array.isArray(response.data.data.data)) {
         const tempStore = response.data.data.data.map((item: any) => ({
-          value: item.id,
+          store_id: item.id,
           label: item.store_name,
         }))
 
-        const allStoreOption = {
-          label: 'All Store',
-        }
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
-        setStore([allStoreOption, ...tempStore])
+  const getStoreGroup = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/store-group`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStoreGroup = response.data.data.map((item: any) => ({
+          store_group_id: item.id,
+          label: item.group_name,
+        }))
+
+        setStoreGroup(tempStoreGroup)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -140,6 +167,7 @@ const NewItemHO: FC = () => {
 
   useEffect(() => {
     getStore()
+    getStoreGroup()
     getCategories()
   }, [])
 
@@ -150,6 +178,7 @@ const NewItemHO: FC = () => {
       price_store: [
         {
           store_id: null,
+          store_group_id: null,
         },
       ],
       periodic_start: '',
@@ -182,51 +211,21 @@ const NewItemHO: FC = () => {
   }
 
   // Store Handler
-  // const storeHandler = (
-  //   value: number | string | Array<number | string | null> | any | null,
-  //   target: string,
-  //   index: number
-  // ) => {
-  //   setItemDetail((prev) => {
-  //     const cache = {...prev}
-
-  //     cache.prices[index] = {
-  //       ...cache.prices[index],
-  //       [target]: value.map((item: any) => ({store_id: item.value})),
-  //     }
-
-  //     return cache
-  //   })
-  // }
-
-  // Store Handler
-  const storeHandler = (
-    value: number | string | Array<number | string | null> | any | null,
-    target: string,
-    index: number
-  ) => {
-    setAllStoreSelected(false)
-
+  const storeHandler = (value: any, target: string, index: number) => {
     setItemDetail((prev) => {
       const cache = {...prev}
-      const allStoreSelected = Array.isArray(value)
-        ? value.some((item) => item.label === 'All Store')
-        : value && value.label === 'All Store'
 
-      if (allStoreSelected) {
-        setAllStoreSelected(true)
+      const newValue = value.map((item: any) => {
+        if (item.store_id !== undefined) {
+          return {store_id: item.store_id}
+        } else if (item.store_group_id !== undefined) {
+          return {store_group_id: item.store_group_id}
+        }
+      })
 
-        cache.prices[index] = {
-          ...cache.prices[index],
-          [target]: store
-            .filter((storeOption) => storeOption.label !== 'All Store')
-            .map((storeOption) => ({store_id: storeOption.value})),
-        }
-      } else {
-        cache.prices[index] = {
-          ...cache.prices[index],
-          [target]: value.map((item: any) => ({store_id: item.value})),
-        }
+      cache.prices[index] = {
+        ...cache.prices[index],
+        [target]: newValue,
       }
 
       return cache
@@ -359,7 +358,7 @@ const NewItemHO: FC = () => {
           })
         }
 
-        navigate('/home')
+        navigate('/item/view-item')
       })
       .catch((error) => {
         console.error(error)
@@ -371,6 +370,10 @@ const NewItemHO: FC = () => {
         })
       })
   }
+
+  console.log('store', store)
+  console.log('store group', storeGroup)
+  console.log('merge store option', storeGroup.concat(store))
 
   return (
     <section id='new-item'>
@@ -487,6 +490,7 @@ const NewItemHO: FC = () => {
                       <RangePicker
                         id={`date-range-${index}`}
                         className='date-range ms-3 w-100'
+                        format={'DD-MM-YYYY'}
                         onChange={(values) => {
                           if (values && values.length === 2) {
                             const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -526,11 +530,9 @@ const NewItemHO: FC = () => {
                         placeholder='Ketik/Pilih Store'
                         isSearchable={true}
                         components={animatedComponents}
-                        options={store.filter(
-                          (option) => !allStoreSelected || option.label === 'All Store'
-                        )}
+                        options={storeOptions}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
-                        getOptionValue={(option: StoreSelect) => `${option.value}`}
+                        getOptionValue={(option: StoreSelect) => `${option.store_id}`}
                         onChange={(e) => storeHandler(e, 'price_store', index)}
                       />
                     </td>

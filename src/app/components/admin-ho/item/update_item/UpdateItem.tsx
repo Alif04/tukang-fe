@@ -1,5 +1,4 @@
 import React, {FC, useState, useEffect} from 'react'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './UpdateItem.css'
 
@@ -22,7 +21,8 @@ interface CategorySelect {
 }
 
 interface StoreSelect {
-  value: number | null
+  store_id: number
+  store_group_id: number
   label: string
 }
 
@@ -36,6 +36,7 @@ interface ItemDetail {
     id: number | null
     price_store: Array<{
       store_id: number | null
+      store_group_id: number | null
     }>
     periodic_start: string | null | Date
     periodic_end: string | null | Date
@@ -63,6 +64,7 @@ const UpdateItemHO: FC = () => {
         price_store: [
           {
             store_id: null,
+            store_group_id: null,
           },
         ],
         periodic_start: null,
@@ -75,10 +77,8 @@ const UpdateItemHO: FC = () => {
 
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
-  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreSelect>>({
-    value: null,
-    label: '',
-  })
+  const [storeGroup, setStoreGroup] = useState<StoreSelect[]>([])
+  const storeOptions = storeGroup.concat(store)
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -104,15 +104,19 @@ const UpdateItemHO: FC = () => {
           if (data) {
             const pricesItem = data?.prices.map((item: any) => ({
               id: item?.id,
-              // periodic_start: item?.periodic_start,
-              // periodic_end: item?.periodic_end,
               periodic_start: dayjs(item?.periodic_start).format('YYYY-MM-DD'),
               periodic_end: dayjs(item?.periodic_end).format('YYYY-MM-DD'),
-              // periodic_start: formatPeriodicDate(new Date(item?.periodic_start)),
-              // periodic_end: formatPeriodicDate(new Date(item?.periodic_end)),
               min_order: item?.min_order,
               price: item?.price,
+              // price_store: item?.price_stores
+              //   ? item.price_stores.map((storeItem: any) => ({
+              //       store_id: storeItem?.store?.store_name,
+              //       store_group_id: storeItem?.store?.store_name,
+              //     }))
+              //   : [],
             }))
+
+            console.log('prices_item', pricesItem)
 
             setItemDetail((prev) => ({
               ...prev,
@@ -149,14 +153,37 @@ const UpdateItemHO: FC = () => {
 
       if (Array.isArray(response.data.data.data)) {
         const tempStore = response.data.data.data.map((item: any) => ({
-          value: item.id,
+          store_id: item.id,
           label: item.store_name,
-          address: item.address,
-          city_id: item.city_id,
-          zip_code: item.zip_code,
         }))
 
         setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getStoreGroup = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/store-group`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStoreGroup = response.data.data.map((item: any) => ({
+          store_group_id: item.id,
+          label: item.group_name,
+        }))
+
+        setStoreGroup(tempStoreGroup)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -194,6 +221,7 @@ const UpdateItemHO: FC = () => {
   useEffect(() => {
     getItemData()
     getStore()
+    getStoreGroup()
     getCategories()
   }, [])
 
@@ -220,6 +248,7 @@ const UpdateItemHO: FC = () => {
       price_store: [
         {
           store_id: null,
+          store_group_id: null,
         },
       ],
       periodic_start: dayjs(new Date()).format('YYYY-MM-DD'),
@@ -252,17 +281,21 @@ const UpdateItemHO: FC = () => {
   }
 
   // Store Handler
-  const storeHandler = (
-    value: number | string | Array<number | string | null> | any | null,
-    target: string,
-    index: number
-  ) => {
+  const storeHandler = (value: any, target: string, index: number) => {
     setItemDetail((prev) => {
       const cache = {...prev}
 
+      const newValue = value.map((item: any) => {
+        if (item.store_id !== undefined) {
+          return {store_id: item.store_id}
+        } else if (item.store_group_id !== undefined) {
+          return {store_group_id: item.store_group_id}
+        }
+      })
+
       cache.prices[index] = {
         ...cache.prices[index],
-        [target]: value.map((item: any) => ({store_id: item.value})),
+        [target]: newValue,
       }
 
       return cache
@@ -357,14 +390,11 @@ const UpdateItemHO: FC = () => {
     }
 
     const updatedPrices = itemDetail.prices.map((price) => {
-      const {id, ...priceWithoutId} = price
-      return priceWithoutId
-
-      // if (price.id === null) {
-      // }
-
-      // const {price_store, ...priceWithoutStore} = price
-      // return priceWithoutStore
+      if (price.id === null) {
+        const {id, ...priceWithoutId} = price
+        return priceWithoutId
+      }
+      return price
     })
 
     const newItemDetail = {
@@ -398,7 +428,7 @@ const UpdateItemHO: FC = () => {
           })
         }
 
-        navigate('/home')
+        navigate('/item/view-item')
       })
       .catch((error) => {
         console.error(error)
@@ -542,7 +572,7 @@ const UpdateItemHO: FC = () => {
                       <RangePicker
                         id={`date-range-${index}`}
                         className='date-range ms-1 me-1 w-100'
-                        format={'YYYY-MM-DD'}
+                        format={'DD-MM-YYYY'}
                         allowClear={false}
                         value={[
                           dayjs(itemDetail.prices[index].periodic_start, 'YYYY-MM-DD') ?? null,
@@ -574,9 +604,9 @@ const UpdateItemHO: FC = () => {
                         placeholder='Ketik/Pilih Store'
                         isSearchable={true}
                         components={animatedComponents}
-                        options={store}
+                        options={storeOptions}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
-                        getOptionValue={(option: StoreSelect) => `${option.value}`}
+                        getOptionValue={(option: StoreSelect) => `${option.store_id}`}
                         onChange={(e) => storeHandler(e, 'price_store', index)}
                       />
                     </td>
