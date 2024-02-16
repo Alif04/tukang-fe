@@ -865,8 +865,8 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
             {/* New */}
             {(() => {
               if (
-                complaintDetail?.orders?.payment_type === 'survey' &&
-                !complaintDetail?.orders?.work_orders
+                complaintDetail?.orders?.payment_type === 'survey' ||
+                complaintDetail?.orders?.work_orders?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -922,7 +922,7 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                       </thead>
 
                       <tbody>
-                        {complaintDetail?.orders?.quotation[0]?.quotation_details?.map(
+                        {complaintDetail?.orders?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>
@@ -1294,15 +1294,15 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                       <Form.Select onChange={handleChangeSelectRemedialStatus}>
                         <option selected>Select Status</option>
                         <option value='3'>INVESTIGATE</option>
-                        <option value='19'>ACCEPT</option>
-                        <option value='21'>REJECT</option>
-                        <option value='1005'>REWORKREQ</option>
-                        <option value='1004'>REWORKSTART</option>
-                        <option value='24'>REWORKEND</option>
-                        <option value='1006'>RESURVEYREQ</option>
-                        <option value='22'>RESCHEDULE</option>
-                        <option value='18'>REFUND</option>
-                        <option value='1007'>DONE</option>
+                        <option value='25'>ACCEPTED</option>
+                        <option value='27'>REJECTED</option>
+                        <option value='17'>REWORKREQ</option>
+                        <option value='18'>REWORKSTART</option>
+                        <option value='19'>REWORKEND</option>
+                        <option value='8'>RESURVEYREQ</option>
+                        <option value='28'>RESCHEDULE</option>
+                        <option value='24'>REFUND</option>
+                        <option value='1006'>DONE</option>
                       </Form.Select>
                     </Form.Group>
 

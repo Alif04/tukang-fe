@@ -549,7 +549,7 @@ const NewQuotationVendor: FC = () => {
           unit_price: value,
           total: value * filteredDetailValues[index].quantity,
           final_price:
-            Number(value * filteredDetailValues[index].quantity) -
+            Number(value * filteredDetailValues[index].quantity) +
             Number(filteredDetailValues[index].margin),
         }
       }
@@ -575,7 +575,7 @@ const NewQuotationVendor: FC = () => {
           ...filteredDetailValues[index],
           margin: value,
           final_price:
-            Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) -
+            Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) +
             Number(value),
         }
       }
@@ -1084,7 +1084,7 @@ const NewQuotationVendor: FC = () => {
                           readOnly
                           plaintext
                           value={`Rp. ${(
-                            Number(element.quantity) * Number(element.unit_price) -
+                            Number(element.quantity) * Number(element.unit_price) +
                             Number(element.margin)
                           ).toLocaleString()}`}
                         />

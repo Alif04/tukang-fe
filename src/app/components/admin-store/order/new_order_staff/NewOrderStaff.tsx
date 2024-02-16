@@ -438,8 +438,6 @@ const NewOrderStoreStaff: FC = () => {
 
   // Submit New Order
   const handleSubmitNewOrder = async () => {
-    console.log(selectedMember.value)
-
     setIsLoading(true)
     const url = `${apiUrl}/orders`
     const formData = new FormData()

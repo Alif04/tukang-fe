@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState, useRef} from 'react'
+import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import './NewOrder.css'
@@ -21,7 +21,7 @@ interface StoreItemSelect {
 
 interface MemberSelect {
   value: number | null
-  label: number | null
+  label: string
   full_name: string
   email: string
   phone_number: string
@@ -137,10 +137,12 @@ const NewOrderHO: FC = () => {
   const [visible, setVisible] = useState(false)
 
   // Member
+  const [isSubmittingNewMember, setIsSubmittingNewMember] = useState(false)
   const [member, setMember] = useState<MemberSelect[]>([])
-  const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
+  const [searchByPhoneNumber, setSearchByPhoneNumber] = useState('')
+  const [selectedMember, setSelectedMember] = useState<MemberSelect>({
     value: null,
-    label: null,
+    label: '',
     full_name: '',
     email: '',
     phone_number: '',
@@ -209,6 +211,54 @@ const NewOrderHO: FC = () => {
   }
 
   useEffect(() => {
+    const getMember = async () => {
+      try {
+        const labelKey = determineLabelKey(searchByPhoneNumber)
+
+        const response = await axios.get(`${apiUrl}/member?search=${searchByPhoneNumber}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data.member)) {
+          const tempMember = response.data.data.member.map((item: any) => ({
+            value: item.id,
+            label: item[labelKey],
+            full_name: item.full_name,
+            email: item.email,
+            phone_number: item.phone_number,
+            whatsapp_number: item.whatsapp_number,
+            address_1: item.address_1,
+          }))
+
+          setMember(tempMember)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    const determineLabelKey = (search: any) => {
+      switch (true) {
+        case search.includes('-'):
+          return 'whatsapp_number'
+        case search.includes('+'):
+          return 'phone_number'
+        default:
+          return 'member_number'
+      }
+    }
+
+    getMember()
+  }, [searchByPhoneNumber])
+
+  useEffect(() => {
     const getStore = async () => {
       try {
         const response = await axios.get(`${apiUrl}/stores?take=0`, {
@@ -230,36 +280,6 @@ const NewOrderHO: FC = () => {
           }))
 
           setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    const getMember = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/member`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        if (Array.isArray(response.data.data.member)) {
-          const tempMember = response.data.data.member.map((item: any) => ({
-            value: item.id,
-            label: item.member_number,
-            full_name: item.full_name,
-            email: item.email,
-            phone_number: item.phone_number,
-            whatsapp_number: item.whatsapp_number,
-            address_1: item.address_1,
-          }))
-
-          setMember(tempMember)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -322,7 +342,6 @@ const NewOrderHO: FC = () => {
     }
 
     getStore()
-    getMember()
     getSales()
     getVendor()
     getItem('')
@@ -334,6 +353,31 @@ const NewOrderHO: FC = () => {
       ...orderForm,
       [e.target.name]: e.target.value,
     })
+  }
+
+  // Member Form Handler
+  const handleChangeSelectMember = (newValue: MemberSelect | null) => {
+    if (newValue) {
+      setSelectedMember({
+        value: newValue.value || null,
+        label: newValue.label || '',
+        full_name: newValue.full_name || '',
+        email: newValue.email || '',
+        phone_number: newValue.phone_number || '',
+        whatsapp_number: newValue.whatsapp_number || '',
+        address_1: newValue.address_1 || '',
+      })
+    } else {
+      setSelectedMember({
+        value: null,
+        label: '',
+        full_name: '',
+        email: '',
+        phone_number: '',
+        whatsapp_number: '',
+        address_1: '',
+      })
+    }
   }
 
   const orderDetailsFormHandler = (e: any, index: number) => {
@@ -667,7 +711,6 @@ const NewOrderHO: FC = () => {
   }
 
   // Reprint Order
-
   const handleReprintOrder = async () => {
     await axios
       .request({
@@ -709,6 +752,57 @@ const NewOrderHO: FC = () => {
         })
       })
   }
+
+  // Submit New Member
+  const handleSubmitNewMember = async () => {
+    setIsSubmittingNewMember(true)
+
+    if (selectedMember.value === null) {
+      const newMember = {
+        full_name: selectedMember.full_name,
+        email: selectedMember.email,
+        phone_number: selectedMember.phone_number,
+        whatsapp_number: selectedMember.whatsapp_number,
+        address_1: selectedMember.address_1,
+      }
+
+      const response = await axios.post(`${apiUrl}/member`, newMember, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (response && response.data.data.member.id) {
+        setSelectedMember((selectedMember) => ({
+          ...selectedMember,
+          value: response.data.data.member.id,
+        }))
+
+        setOrderForm((prevOrderForm) => ({
+          ...prevOrderForm,
+          member_id: response.data.data.member.id,
+        }))
+
+        setIsSubmittingNewMember(false)
+      }
+    } else {
+      await handleSubmitNewOrder()
+    }
+  }
+
+  useEffect(() => {
+    if (isSubmittingNewMember) {
+      setOrderForm({
+        ...orderForm,
+        member_id: selectedMember.value,
+      })
+
+      handleSubmitNewOrder()
+    }
+  }, [selectedMember.value])
 
   return (
     <section id='update-order'>
@@ -840,7 +934,8 @@ const NewOrderHO: FC = () => {
                       isSearchable={true}
                       isClearable={true}
                       options={member}
-                      onChange={(newValue) => setSelectedMember(newValue)}
+                      onInputChange={(newValue) => setSearchByPhoneNumber(newValue)}
+                      onChange={(newValue) => handleChangeSelectMember(newValue)}
                     />
                   </Form.Group>
                 </Col>
@@ -865,10 +960,16 @@ const NewOrderHO: FC = () => {
                     <InputGroup className='mb-5'>
                       <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
-                        disabled
                         name='project_number'
                         value={orderForm.project_number}
-                        onChange={(event) => orderFormHandler(event)}
+                        onChange={(event) => {
+                          const name = isWhatsapp ? 'whatsapp_number' : 'phone_number'
+                          orderFormHandler(event)
+                          handleChangeSelectMember({
+                            ...selectedMember,
+                            [name]: event.target.value,
+                          })
+                        }}
                       />
                     </InputGroup>
                   </Form.Group>
@@ -879,14 +980,32 @@ const NewOrderHO: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label className='title'>Nama Customer</Form.Label>
-                    <Form.Control type='text' value={selectedMember?.full_name || ''} />
+                    <Form.Control
+                      type='text'
+                      value={selectedMember?.full_name || ''}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChangeSelectMember({
+                          ...selectedMember,
+                          full_name: e.target.value,
+                        })
+                      }
+                    />
                   </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
                     <Form.Label className='title'>Email</Form.Label>
-                    <Form.Control type='text' value={selectedMember?.email || ''} />
+                    <Form.Control
+                      type='text'
+                      value={selectedMember?.email || ''}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChangeSelectMember({
+                          ...selectedMember,
+                          email: e.target.value,
+                        })
+                      }
+                    />
                   </Form.Group>
                 </Col>
               </Row>
@@ -897,10 +1016,16 @@ const NewOrderHO: FC = () => {
                     <Form.Label className='title'>Alamat</Form.Label>
                     <Form.Control
                       as='textarea'
-                      className='field-alamat'
                       name='project_address'
+                      className='field-alamat'
                       value={orderForm.project_address}
-                      onChange={(event) => orderFormHandler(event)}
+                      onChange={(event) => {
+                        orderFormHandler(event)
+                        handleChangeSelectMember({
+                          ...selectedMember,
+                          address_1: event.target.value,
+                        })
+                      }}
                     />
                   </Form.Group>
                 </Col>

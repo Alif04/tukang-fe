@@ -145,9 +145,9 @@ const DetailQuotationHO: FC = () => {
                   <th className='text-center'>Jenis Jasa</th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Margin</th>
-                  <th className='text-center'>Total</th>
+                  {/* <th className='text-center'>Price</th>
+                  <th className='text-center'>Margin</th> */}
+                  <th className='text-center'>Final Price</th>
                   <th className='text-center'>Keterangan</th>
                 </tr>
               </thead>
@@ -160,8 +160,8 @@ const DetailQuotationHO: FC = () => {
                         <td>{item?.name ?? '-'}</td>
                         <td>{item?.quantity}</td>
                         <td>{item?.unit ?? '-'}</td>
-                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
+                        {/* <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td> */}
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
                         <td>{item?.description ? '' : '-'}</td>
                       </tr>
@@ -176,8 +176,8 @@ const DetailQuotationHO: FC = () => {
                   <th className='text-center'>Material yang dibutuhkan</th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Total</th>
+                  {/* <th className='text-center'>Price</th> */}
+                  <th className='text-center'>Final Price</th>
                   <th className='text-center'>Keterangan</th>
                 </tr>
               </thead>
@@ -190,7 +190,7 @@ const DetailQuotationHO: FC = () => {
                         <td>{item?.name ?? '-'}</td>
                         <td>{item?.quantity}</td>
                         <td>{item?.unit ?? '-'}</td>
-                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                        {/* <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td> */}
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
                         <td>{item?.description ? '' : '-'}</td>
                       </tr>
@@ -198,7 +198,7 @@ const DetailQuotationHO: FC = () => {
                   ))}
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={4} className='text-end fw-bolder'>
                     Total Jasa
                   </td>
                   <td className='fw-bolder'>{`Rp. ${parseInt(
@@ -209,7 +209,7 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={4} className='text-end fw-bolder'>
                     Total Jasa & Material
                   </td>
                   <td className='fw-bolder'>{`Rp. ${parseInt(
@@ -220,7 +220,7 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={4} className='text-end fw-bolder'>
                     Promosi ( Free Survey )
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${parseInt(
@@ -229,7 +229,7 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={4} className='text-end fw-bolder'>
                     Additional Promosi
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${parseInt(
@@ -238,7 +238,7 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={4} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>

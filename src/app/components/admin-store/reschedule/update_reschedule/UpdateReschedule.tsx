@@ -501,8 +501,8 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
             {/* New */}
             {(() => {
               if (
-                rescheduleDetail?.order?.payment_type === 'survey' &&
-                !rescheduleDetail?.order?.work_orders
+                rescheduleDetail?.orders?.payment_type === 'survey' ||
+                rescheduleDetail?.orders?.work_orders?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>

@@ -692,8 +692,8 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
             {/* New */}
             {(() => {
               if (
-                complaintDetail?.orders?.payment_type === 'survey' &&
-                !complaintDetail?.orders?.work_orders
+                complaintDetail?.orders?.payment_type === 'survey' ||
+                complaintDetail?.orders?.work_orders?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -749,7 +749,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                       </thead>
 
                       <tbody>
-                        {complaintDetail?.orders?.quotation[0]?.quotation_details?.map(
+                        {complaintDetail?.orders?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>

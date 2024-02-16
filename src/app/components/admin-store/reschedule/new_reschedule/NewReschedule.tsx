@@ -61,8 +61,10 @@ const NewReschedule: FC = () => {
     if (desiredStatus) {
       const statuses = desiredStatus.map((x) => x.value)
 
+      const storeParam = userStore ? `&store_id=${userStore}` : ''
+
       const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0&status=${statuses}`,
+        `${apiUrl}/orders?order_by=desc${storeParam}&take=0&status=${statuses}`,
         {
           headers: {
             Accept: 'application/json',
@@ -532,7 +534,10 @@ const NewReschedule: FC = () => {
 
             {/* New */}
             {(() => {
-              if (orderDetail?.payment_type === 'survey' && !orderDetail?.work_orders) {
+              if (
+                orderDetail?.payment_type === 'survey' ||
+                orderDetail?.work_orders?.work_order_status.length === 1
+              ) {
                 return (
                   <div className='table-warranty-content'>
                     <Table hover responsive='md'>
@@ -587,7 +592,7 @@ const NewReschedule: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details?.map(
+                        {orderDetail?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>

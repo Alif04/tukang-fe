@@ -644,7 +644,10 @@ const NewComplaintHO: FC = () => {
 
             {/* New */}
             {(() => {
-              if (orderDetail?.payment_type === 'survey' && !orderDetail?.work_orders) {
+              if (
+                orderDetail?.payment_type === 'survey' ||
+                orderDetail?.work_orders?.work_order_status.length === 1
+              ) {
                 return (
                   <div className='table-warranty-content'>
                     <Table hover responsive='md'>
@@ -699,7 +702,7 @@ const NewComplaintHO: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details?.map(
+                        {orderDetail?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>
