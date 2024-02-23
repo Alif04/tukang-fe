@@ -30,6 +30,7 @@ interface QuotationDetail {
   total: number
   final_price: number
   margin: number
+  margin_type: number
   quantity: number
   is_user: number
   description: string
@@ -56,7 +57,9 @@ const UpdateQuotationHO: FC = () => {
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
   const [promosiDiscount, setPromosiDiscount] = useState<any>()
   const [additionalPromosi, setAdditionalPromosi] = useState<number>(0)
-  const [grandTotal, setGrandTotal] = useState<number>(0)
+  const [grandTotal, setGrandTotal] = useState<any>(0)
+  const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)
+  const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
 
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -76,6 +79,7 @@ const UpdateQuotationHO: FC = () => {
       total: 0,
       final_price: 0,
       margin: 0,
+      margin_type: 1,
       quantity: 0,
       is_user: 0,
       description: '',
@@ -94,6 +98,7 @@ const UpdateQuotationHO: FC = () => {
       total: 0,
       final_price: 0,
       margin: 0,
+      margin_type: 1,
       quantity: 0,
       is_user: 0,
       description: '',
@@ -172,11 +177,12 @@ const UpdateQuotationHO: FC = () => {
               category_name: item?.category?.category_name,
               item_name: item?.name,
               unit: item?.unit,
-              quantity: item.quantity,
+              quantity: item?.quantity ?? 0,
               is_user: item.is_customer ? 1 : 0,
               unit_price: parseInt(item.price),
               final_price: parseInt(item.final_price),
               margin: parseInt(item.margin),
+              margin_type: item?.margin_type ?? 1,
             }))
 
             setQuotationDetail(workOrderItem)
@@ -290,6 +296,7 @@ const UpdateQuotationHO: FC = () => {
       total: 0,
       final_price: 0,
       margin: 0,
+      margin_type: 1,
       quantity: 0,
       is_user: 0,
       description: '',
@@ -318,6 +325,18 @@ const UpdateQuotationHO: FC = () => {
 
     if (elementIndex !== -1) {
       updatedDetailValues[elementIndex].is_user = isChecked ? 1 : 0
+    }
+
+    setQuotationDetail(updatedDetailValues)
+  }
+
+  // Handle Margin Type Change
+  let handleMarginTypeChange = (index: any, isChecked: boolean) => {
+    const updatedDetailValues = [...quotationDetail]
+    const elementIndex = updatedDetailValues.findIndex((item) => item.index === index)
+
+    if (elementIndex !== -1) {
+      updatedDetailValues[elementIndex].margin_type = isChecked ? 2 : 1
     }
 
     setQuotationDetail(updatedDetailValues)
@@ -450,9 +469,17 @@ const UpdateQuotationHO: FC = () => {
 
   // Grand Total
   const calculatedGrandTotal = () => {
-    const grandTotal =
-      Number(totalJasaMaterial) - Number(promosiDiscount) - Number(additionalPromosi)
+    const grandTotal = Number(totalJasaMaterial) - Number(promosiDiscount)
+    const roundedValue = Math.ceil(grandTotal / 100) * 100
+    const formatter = new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    })
+
     setGrandTotal(grandTotal)
+    setGrandTotalRounded(formatter.format(roundedValue))
+    setGrandTotalDiff(roundedValue - grandTotal)
   }
 
   useEffect(() => {
@@ -519,6 +546,38 @@ const UpdateQuotationHO: FC = () => {
       formData.append('quotation_disc', promosiDiscount.toString())
       formData.append('quotation_promotion', additionalPromosi.toString())
 
+      const appendIfNotDefault = (formData: any, key: any, value: any) => {
+        if (value !== null && value !== undefined && value !== '' && value !== 0) {
+          formData.append(key, String(value))
+        }
+      }
+
+      quotationDetail.forEach((quotation, index) => {
+        appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
+        appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
+
+        appendIfNotDefault(
+          formData,
+          `quotation_details[${index}][work_order_item_id]`,
+          quotation.work_order_item_id
+        )
+
+        appendIfNotDefault(
+          formData,
+          `quotation_details[${index}][category_id]`,
+          quotation.category_id
+        )
+
+        appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
+        appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
+        appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
+        appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
+        appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
+        formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
+        appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+      })
+
       // if (quotationFiles?.length) {
       //   quotationFiles.forEach((item) => {
       //     if (item) {
@@ -526,35 +585,6 @@ const UpdateQuotationHO: FC = () => {
       //     }
       //   })
       // }
-
-      quotationDetail.forEach((quotation, index) => {
-        if (quotation.id !== null) {
-          formData.append(`quotation_details[${index}][id]`, String(quotation.id))
-        }
-
-        if (quotation.item_id !== null) {
-          formData.append(`quotation_details[${index}][item_id]`, String(quotation.item_id))
-        }
-
-        if (quotation.item_id !== null) {
-          formData.append(
-            `quotation_details[${index}][work_order_item_id]`,
-            String(quotation.work_order_item_id)
-          )
-        }
-
-        if (quotation.category_id !== null) {
-          formData.append(`quotation_details[${index}][category_id]`, String(quotation.category_id))
-        }
-
-        formData.append(`quotation_details[${index}][type]`, String(quotation.type))
-        formData.append(`quotation_details[${index}][name]`, quotation.item_name)
-        formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
-        formData.append(`quotation_details[${index}][unit]`, String(quotation.unit))
-        formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
-        formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
-        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
-      })
 
       await axios
         .post(`${apiUrl}/quotation/${params.id}`, formData, {
@@ -766,6 +796,7 @@ const UpdateQuotationHO: FC = () => {
             <Table hover className='table-jasa'>
               <thead>
                 <tr>
+                  <th></th>
                   <th className='text-center' style={{minWidth: '270px'}}>
                     Jenis Jasa
                   </th>
@@ -785,6 +816,15 @@ const UpdateQuotationHO: FC = () => {
                   .map((element, index) => (
                     <tr key={`${element.index}-service`}>
                       <td>
+                        <Form.Check
+                          id={`margin-type-${index}`}
+                          type='checkbox'
+                          checked={element.margin_type === 2}
+                          onChange={(e) => handleMarginTypeChange(element.index, e.target.checked)}
+                        />
+                      </td>
+
+                      <td>
                         {/* <Form.Control
                             id={`item-name-${index}`}
                             value={element.item_name}
@@ -797,22 +837,19 @@ const UpdateQuotationHO: FC = () => {
                       </td>
 
                       <td align='center'>
-                        {/* <Select
+                        <td>
+                          <Select
                             name='category_id'
                             className='form-control p-0'
                             classNamePrefix='select'
                             placeholder='Pilih Kategori'
                             isSearchable={true}
-                            isDisabled={true}
                             options={categories}
-                            defaultValue={{
-                              value: element.category_id,
-                              label: element.category_name,
-                            }}
                             onChange={(newValue) => handleCategoryChange(element.index, newValue)}
-                          /> */}
+                          />
+                        </td>
 
-                        <p>{element?.category_name ?? '-'}</p>
+                        {/* <p>{element?.category_name ?? '-'}</p> */}
                       </td>
 
                       <td>
@@ -868,6 +905,8 @@ const UpdateQuotationHO: FC = () => {
                           /> */}
 
                         <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
+                        <br></br>
+                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
                       </td>
 
                       <td>
@@ -975,6 +1014,8 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleMarginChange(index, e.target.value, 1)}
                           /> */}
                         <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
+                        <br></br>
+                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
                       </td>
 
                       <td>
@@ -1049,6 +1090,15 @@ const UpdateQuotationHO: FC = () => {
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${grandTotal.toLocaleString('id')}`}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={8} className='text-end fw-bolder'>
+                    Grand Total{' '}
+                    <span className='text-success'>{`+ Rp. ${grandTotalDiff} ( Pembulatan )`}</span>
+                  </td>
+
+                  <td className=' fw-bolder'>{grandTotalRounded}</td>
                 </tr>
               </tbody>
             </Table>

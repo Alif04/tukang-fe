@@ -12,6 +12,11 @@ import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
+interface StoreSelect {
+  value: number
+  label: string
+}
+
 interface ServiceArea {
   value: BigInteger
   label: string
@@ -49,9 +54,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-
-  const [vendorDetail, setVendorDetail] = useState<any>()
   const animatedComponents = makeAnimated()
+  const [vendorDetail, setVendorDetail] = useState<any>()
 
   // Fetch API
   const fetchVendorData = async () => {
@@ -105,6 +109,15 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           if (data?.vendor_area) {
             setMarkup(data.vendor_area[0].default_markup)
             setDiscount(data.vendor_area[0].default_discount)
+          }
+
+          if (data?.vendor_area) {
+            const store = data.store.map((item: any) => ({
+              value: item.id,
+              label: item.store_name,
+            }))
+
+            setStoreValues(store)
           }
 
           if (data?.vendor_area) {
@@ -177,6 +190,32 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         })
     } catch (error) {
       console.error(error)
+    }
+  }
+
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data.data)) {
+        const tempStore = response.data.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.store_name,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
     }
   }
 
@@ -260,6 +299,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   useEffect(() => {
     fetchVendorData()
+    getStore()
     getCity()
     getServiceType()
     getBank()
@@ -273,11 +313,16 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [emailVendor, setEmailVendor] = useState<string>('')
   const [phoneNumberVendor, setPhoneNumberVendor] = useState<any>()
   const [vendorAddress, setVendorAddress] = useState<any>('')
+  const [password, setPassword] = useState<any>('')
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
 
   const [serviceAreaId, setserviceAreaId] = useState<any>([])
+
+  const [storeId, setStoreId] = useState<any>([])
+  const [store, setStore] = useState<StoreSelect[]>([])
+  const [storeValues, setStoreValues] = useState<StoreSelect[]>([])
 
   const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
   const [serviceAreaValues, setServiceAreaValues] = useState<ServiceAreaValues[]>([])
@@ -392,6 +437,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const handleChangeVendorAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedVendorAddress = event.target.value
     setVendorAddress(updatedVendorAddress)
+  }
+
+  const handleChangePasswordVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedPasswordVendor = event.target.value
+    setPassword(updatedPasswordVendor)
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
@@ -704,6 +754,19 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     setDiscount(updatedDiscount)
   }
 
+  // Change Select Store Area
+  const handleChangeStoreId = (element: any) => {
+    const updatedStore = element.map((option: any) => ({
+      value: option.value,
+      label: option.label,
+    }))
+
+    const updatedStoreIds = updatedStore.map((option: any) => option.value)
+
+    setStoreId(updatedStoreIds)
+    setStoreValues(updatedStore)
+  }
+
   // Change Select Service Area
   const handleChangeServiceArea = (element: any) => {
     const updatedServiceArea = element.map((option: any) => ({
@@ -823,6 +886,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       formData.append('phone_number', phoneNumberVendor)
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
+      formData.append('password', password)
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])
@@ -888,7 +952,15 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         })
       }
 
-      const response = await axios
+      if (storeId?.length) {
+        storeId.forEach((item: any, index: number) => {
+          if (item) {
+            formData.append(`vendor_area[${index}][store_id]`, item)
+          }
+        })
+      }
+
+      await axios
         .post(`${apiUrl}/vendor/${params.id}`, formData, {
           headers: {
             Accept: 'application/json',
@@ -1039,6 +1111,26 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       options={serviceType}
                       onChange={(element) => handleChangeServiceType(element)}
                       value={serviceTypeValues}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='form-body'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Assign To Store</Form.Label>
+
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Toko'
+                      isSearchable={true}
+                      isMulti
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      options={store}
+                      value={storeValues}
+                      onChange={(element) => handleChangeStoreId(element)}
                     />
                   </Form.Group>
                 </Col>
@@ -1363,6 +1455,18 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   </div>
 
                   <Form.Control type='number' onChange={handleChangeMarkup} value={markup} />
+                </Form.Group>
+              </Row>
+
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Reset Password</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    onChange={handleChangePasswordVendor}
+                    value={password}
+                  />
                 </Form.Group>
               </Row>
 

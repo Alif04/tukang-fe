@@ -480,9 +480,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       }
     }
 
+    fetchOrderData()
+    getStore()
+    getMember()
+    getSales()
+    getItem('')
+  }, [])
+
+  useEffect(() => {
     const getVendor = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/vendor`, {
+        const response = await axios.get(`${apiUrl}/vendor?store_id=${orderDetail?.store_id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -506,13 +514,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       }
     }
 
-    fetchOrderData()
-    getStore()
-    getMember()
-    getSales()
     getVendor()
-    getItem('')
-  }, [])
+  }, [orderDetail])
 
   // Order Form Handler
   const orderFormHandler = (e: any) => {

@@ -11,6 +11,11 @@ import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
+interface StoreSelect {
+  value: number
+  label: string
+}
+
 interface ServiceArea {
   value: BigInteger
   label: string
@@ -37,8 +42,33 @@ interface CheckStates {
 const NewVendorHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-
   const animatedComponents = makeAnimated()
+
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data.data)) {
+        const tempStore = response.data.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.store_name,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const getCity = async () => {
     try {
@@ -139,6 +169,7 @@ const NewVendorHO: FC = () => {
   }
 
   useEffect(() => {
+    getStore()
     getCity()
     getServiceType()
     getBank()
@@ -164,6 +195,9 @@ const NewVendorHO: FC = () => {
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
+
+  const [storeId, setStoreId] = useState<any>([])
+  const [store, setStore] = useState<StoreSelect[]>([])
 
   const [serviceAreaId, setserviceAreaId] = useState<any>([])
   const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
@@ -533,6 +567,14 @@ const NewVendorHO: FC = () => {
     // console.log('Service Area', updatedServiceArea)
   }
 
+  // Change Select Store
+  const handleChangeStoreId = (element: any) => {
+    const updatedStore = element.map((option: any) => option.value)
+    setStoreId(updatedStore)
+
+    // console.log('Service Area', updatedServiceArea)
+  }
+
   // Change Select Service Type
   const handleChangeServiceTypeId = (element: any) => {
     const updatedServiceTypeId = element.map((option: any) => option.value)
@@ -701,6 +743,14 @@ const NewVendorHO: FC = () => {
         })
       }
 
+      if (storeId?.length) {
+        storeId.forEach((item: any) => {
+          if (item) {
+            formData.append(`store_id`, item)
+          }
+        })
+      }
+
       if (serviceTypeId?.length) {
         serviceTypeId.forEach((item: any) => {
           if (item) {
@@ -709,7 +759,7 @@ const NewVendorHO: FC = () => {
         })
       }
 
-      const response = await axios
+      await axios
         .post(`${apiUrl}/vendor`, formData, {
           headers: {
             Accept: 'application/json',
@@ -853,6 +903,25 @@ const NewVendorHO: FC = () => {
                       isMulti
                       options={serviceType}
                       onChange={(element) => handleChangeServiceTypeId(element)}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='form-body'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Assign To Store</Form.Label>
+
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Toko'
+                      isSearchable={true}
+                      isMulti
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      options={store}
+                      onChange={(element) => handleChangeStoreId(element)}
                     />
                   </Form.Group>
                 </Col>

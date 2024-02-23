@@ -31,6 +31,7 @@ interface QuotationDetail {
   total: number
   final_price: number
   margin: number
+  margin_type: number
   quantity: number
   is_user: number
 }
@@ -56,7 +57,9 @@ const UpdateQuotationVendor: FC = () => {
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
   const [promosiDiscount, setPromosiDiscount] = useState<number>(0)
-  const [grandTotal, setGrandTotal] = useState<number>(0)
+  const [grandTotal, setGrandTotal] = useState<any>(0)
+  const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)
+  const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
 
   const evidenceRef = useRef<HTMLInputElement>(null)
 
@@ -77,6 +80,7 @@ const UpdateQuotationVendor: FC = () => {
       total: 0,
       final_price: 0,
       margin: 0,
+      margin_type: 1,
       quantity: 0,
       is_user: 0,
     },
@@ -95,6 +99,7 @@ const UpdateQuotationVendor: FC = () => {
       total: 0,
       final_price: 0,
       margin: 0,
+      margin_type: 1,
       quantity: 0,
       is_user: 0,
     },
@@ -167,12 +172,13 @@ const UpdateQuotationVendor: FC = () => {
               category_id: item.category_id,
               category_name: item?.category?.category_name,
               item_name: item.name,
-              quantity: item.quantity,
+              quantity: item?.quantity ?? 0,
               unit: item.unit,
               is_user: item.is_customer ? 1 : 0,
               unit_price: parseInt(item.price),
               final_price: parseInt(item.final_price),
               margin: parseInt(item.margin),
+              margin_type: item?.margin_type ?? 1,
             }))
 
             setQuotationDetail(quotationDetails)
@@ -302,6 +308,7 @@ const UpdateQuotationVendor: FC = () => {
       total: 0,
       final_price: 0,
       margin: 0,
+      margin_type: 1,
       quantity: 0,
       is_user: 0,
     }
@@ -329,6 +336,18 @@ const UpdateQuotationVendor: FC = () => {
 
     if (elementIndex !== -1) {
       updatedDetailValues[elementIndex].is_user = isChecked ? 1 : 0
+    }
+
+    setQuotationDetail(updatedDetailValues)
+  }
+
+  // Handle Margin Type Change
+  let handleMarginTypeChange = (index: any, isChecked: boolean) => {
+    const updatedDetailValues = [...quotationDetail]
+    const elementIndex = updatedDetailValues.findIndex((item) => item.index === index)
+
+    if (elementIndex !== -1) {
+      updatedDetailValues[elementIndex].margin_type = isChecked ? 2 : 1
     }
 
     setQuotationDetail(updatedDetailValues)
@@ -501,7 +520,16 @@ const UpdateQuotationVendor: FC = () => {
   // Grand Total
   const calculatedGrandTotal = () => {
     const grandTotal = Number(totalJasaMaterial) - Number(promosiDiscount)
+    const roundedValue = Math.ceil(grandTotal / 100) * 100
+    const formatter = new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    })
+
     setGrandTotal(grandTotal)
+    setGrandTotalRounded(formatter.format(roundedValue))
+    setGrandTotalDiff(roundedValue - grandTotal)
   }
 
   useEffect(() => {
@@ -554,44 +582,6 @@ const UpdateQuotationVendor: FC = () => {
       formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
       formData.append('quotation_disc', promosiDiscount.toString())
 
-      // if (quotationFiles?.length) {
-      //   quotationFiles.forEach((item) => {
-      //     if (item) {
-      //       formData.append(`quotation_files`, item, item?.name)
-      //     }
-      //   })
-      // }
-
-      // Old
-      // quotationDetail.forEach((quotation, index) => {
-      //   if (quotation.id !== null) {
-      //     formData.append(`quotation_details[${index}][id]`, String(quotation.id))
-      //   }
-
-      //   if (quotation.item_id !== null) {
-      //     formData.append(`quotation_details[${index}][item_id]`, String(quotation.item_id))
-      //   }
-
-      //   if (quotation.item_id !== null) {
-      //     formData.append(
-      //       `quotation_details[${index}][work_order_item_id]`,
-      //       String(quotation.work_order_item_id)
-      //     )
-      //   }
-
-      //   if (quotation.category_id !== null) {
-      //     formData.append(`quotation_details[${index}][category_id]`, String(quotation.category_id))
-      //   }
-
-      //   formData.append(`quotation_details[${index}][type]`, String(quotation.type))
-      //   formData.append(`quotation_details[${index}][name]`, quotation.item_name)
-      //   formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
-      //   formData.append(`quotation_details[${index}][unit]`, String(quotation.unit))
-      //   formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
-      //   formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
-      //   formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
-      // })
-
       // New
       const appendIfNotDefault = (formData: any, key: any, value: any) => {
         if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -601,7 +591,6 @@ const UpdateQuotationVendor: FC = () => {
 
       quotationDetail.forEach((quotation, index) => {
         appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
-
         appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
 
         appendIfNotDefault(
@@ -621,9 +610,18 @@ const UpdateQuotationVendor: FC = () => {
         appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
         appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
         appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
+        formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
         appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
         formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
       })
+
+      // if (quotationFiles?.length) {
+      //   quotationFiles.forEach((item) => {
+      //     if (item) {
+      //       formData.append(`quotation_files`, item, item?.name)
+      //     }
+      //   })
+      // }
 
       await axios
         .post(`${apiUrl}/quotation/${params.id}`, formData, {
@@ -843,13 +841,14 @@ const UpdateQuotationVendor: FC = () => {
             <Table hover>
               <thead>
                 <tr>
+                  <th></th>
                   <th className='text-center'>Jenis Jasa</th>
-                  <th className='text-center'>Category</th>
+                  {/* <th className='text-center'>Category</th> */}
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
                   <th className='text-center'>Total</th>
-                  <th className='text-center'>Margin (Rp.)</th>
+                  <th className='text-center'>Margin</th>
                   <th className='text-center'>Final Price</th>
                   <th className='text-center'>Action</th>
                 </tr>
@@ -861,6 +860,15 @@ const UpdateQuotationVendor: FC = () => {
                   .map((element, index) => (
                     <tr key={`${element.index}-service`}>
                       <td>
+                        <Form.Check
+                          id={`margin-type-${index}`}
+                          type='checkbox'
+                          checked={element.margin_type === 2}
+                          onChange={(e) => handleMarginTypeChange(element.index, e.target.checked)}
+                        />
+                      </td>
+
+                      <td>
                         <Form.Control
                           id={`item-name-${index}`}
                           value={element.item_name}
@@ -868,7 +876,7 @@ const UpdateQuotationVendor: FC = () => {
                         />
                       </td>
 
-                      <td>
+                      {/* <td>
                         <>
                           <Select
                             name='category_id'
@@ -884,7 +892,7 @@ const UpdateQuotationVendor: FC = () => {
                             onChange={(newValue) => handleCategoryChange(element.index, newValue)}
                           />
                         </>
-                      </td>
+                      </td> */}
 
                       <td>
                         <Form.Control
@@ -928,6 +936,8 @@ const UpdateQuotationVendor: FC = () => {
                           value={element.margin}
                           onChange={(e) => handleMarginChange(index, e.target.value, 2)}
                         />
+                        <br></br>
+                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
                       </td>
 
                       <td>
@@ -979,8 +989,9 @@ const UpdateQuotationVendor: FC = () => {
                   </th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
+                  <th className='text-center'>Price</th>
                   <th className='text-center'>Total</th>
-                  <th className='text-center'>Margin (Rp.)</th>
+                  <th className='text-center'>Margin</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Final Price
                   </th>
@@ -1040,12 +1051,24 @@ const UpdateQuotationVendor: FC = () => {
 
                       <td>
                         <Form.Control
+                          readOnly
+                          plaintext
+                          value={`Rp. ${(
+                            Number(element.quantity) * Number(element.unit_price)
+                          ).toLocaleString()}`}
+                        />
+                      </td>
+
+                      <td>
+                        <Form.Control
                           id={`margin-${index}`}
                           type='number'
                           value={element.margin}
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => handleMarginChange(index, e.target.value, 1)}
                         />
+                        <br></br>
+                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
                       </td>
 
                       <td>
@@ -1065,21 +1088,21 @@ const UpdateQuotationVendor: FC = () => {
                   ))}
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Total Material
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalMaterial.toLocaleString('id')}`}</td>
                 </tr>
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Total Jasa & Material
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalJasaMaterial.toLocaleString('id')}`}</td>
                 </tr>
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Promosi / Discount
                   </td>
 
@@ -1094,10 +1117,19 @@ const UpdateQuotationVendor: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={8} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${grandTotal.toLocaleString('id')}`}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={8} className='text-end fw-bolder'>
+                    Grand Total{' '}
+                    <span className='text-success'>{`+ Rp. ${grandTotalDiff} ( Pembulatan )`}</span>
+                  </td>
+
+                  <td className=' fw-bolder'>{grandTotalRounded}</td>
                 </tr>
               </tbody>
             </Table>
