@@ -240,14 +240,14 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
 
         data = {
           order_id: item.id,
-          assign_from: item.store.store_name,
+          assign_from: item?.store?.store_name,
           date_order: formatDate(orderDate),
-          no_member: item.members.member_number,
-          costumer_name: item.members.full_name,
+          no_member: item?.members?.member_number,
+          costumer_name: item?.members?.full_name,
           phone_number: phoneNumber,
           service_name:
             item.payment_type === 'survey'
-              ? item.m_order_details[0].item_notes
+              ? item.m_order_details[0]?.item_notes
               : item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status:

@@ -193,6 +193,27 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
+
+        <AsideMenuItemWithSub
+          to='/reschedule'
+          title='Reschedule'
+          hasBullet={true}
+          role={['Store CS']}
+        >
+          <AsideMenuItem
+            to='/reschedule/new-reschedule'
+            title='New Reschedule'
+            role={['Store CS']}
+            hasBullet={true}
+          />
+
+          <AsideMenuItem
+            to='/reschedule/view-reschedule'
+            title='View Reschedule'
+            role={['Store CS']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
       </AsideMenuItemWithSub>
 
       {/* Halaman Tukang */}

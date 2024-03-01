@@ -268,15 +268,15 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
         data = {
           refund_id: item.id,
           order_id: item.order_id,
-          store_name: item.orders.store.store_name,
+          store_name: item?.orders?.store?.store_name,
           date_order: formatDate(orderDate),
-          member_id: item.orders.members.member_number,
-          member_name: item.orders.members.full_name,
+          member_id: item?.orders?.members?.member_number,
+          member_name: item?.orders?.members?.full_name,
           phone_number: phoneNumber,
-          item_name: item.orders.m_order_details[0].item.item_name,
-          service_name: item.orders.m_order_details[0].item.service_name,
+          item_name: item?.orders?.m_order_details[0]?.item?.item_name,
+          service_name: item?.orders?.m_order_details[0]?.item?.service_name,
           payment_status: paymentStatus,
-          order_status: item.orders.status.category,
+          order_status: item?.orders?.status?.category,
         }
 
         return data

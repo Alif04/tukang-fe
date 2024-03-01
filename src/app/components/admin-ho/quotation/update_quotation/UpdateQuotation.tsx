@@ -797,7 +797,7 @@ const UpdateQuotationHO: FC = () => {
               <thead>
                 <tr>
                   <th></th>
-                  <th className='text-center' style={{minWidth: '270px'}}>
+                  <th className='text-center' style={{minWidth: '200px'}}>
                     Jenis Jasa
                   </th>
                   <th className='text-center'>Category</th>
@@ -1093,7 +1093,7 @@ const UpdateQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Grand Total{' '}
                     <span className='text-success'>{`+ Rp. ${grandTotalDiff} ( Pembulatan )`}</span>
                   </td>

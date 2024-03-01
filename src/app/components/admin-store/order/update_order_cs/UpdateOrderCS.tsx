@@ -62,6 +62,7 @@ interface Order {
   request_survey: string
   payment_type: string
   receipt_number: string
+  is_overdistance: boolean
   order_details: Array<{
     id: number | null
     item?: ItemSelect | null
@@ -110,6 +111,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     request_survey: '',
     payment_type: '',
     receipt_number: '',
+    is_overdistance: false,
     order_details: [
       {
         id: null,
@@ -147,6 +149,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   })
 
   const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
+  const [isOverdistance, setIsOverdistance] = useState<boolean>(false)
 
   // Sales
   const [sales, setSales] = useState<SalesSelect[]>([])
@@ -574,6 +577,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     const grandTotal = orderForm.order_details.reduce((accumulator, element) => {
       let totalOrderAmount = 0
       let biayaSurvey = 0
+      let biayaTambahan = 25000
 
       const total = element.total ? parseInt(element.total) : 0
 
@@ -588,7 +592,11 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         totalOrderAmount = total
       }
 
-      const calculatedGrandTotal = totalOrderAmount + biayaSurvey
+      const calculatedGrandTotal =
+        isOverdistance === true
+          ? totalOrderAmount + biayaSurvey + biayaTambahan
+          : totalOrderAmount + biayaSurvey
+
       return paymentTypeValue[1] === 'pemasangan_tanpa_survey'
         ? accumulator + calculatedGrandTotal
         : calculatedGrandTotal
@@ -600,7 +608,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   useEffect(() => {
     const calculatedGrandTotal = calculatedGrandTotalOrder()
     setGrandTotal(calculatedGrandTotal)
-  }, [orderForm.order_details, paymentTypeValue])
+  }, [orderForm.order_details, paymentTypeValue, isOverdistance])
 
   // Submit Update Order
   const handleUpdateOrder = async () => {
@@ -1095,6 +1103,17 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             </Col>
           </Row>
 
+          <Row className='mb-2'>
+            <Col>
+              <Form.Check
+                inline
+                label='Lebih dari 10 KM dari Store'
+                type='checkbox'
+                onChange={() => setIsOverdistance(!isOverdistance)}
+              />
+            </Col>
+          </Row>
+
           <div className='table-order-content'>
             <Table hover responsive='md'>
               <thead className='table-order-head'>
@@ -1263,7 +1282,27 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   </tr>
                 )}
 
-                {paymentTypeValue[1] !== 'survey' && (
+                {isOverdistance === true && (
+                  <tr>
+                    <td
+                      className='text-end fw-bolder'
+                      colSpan={
+                        !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
+                          ? orderForm.order_details.length >= 2
+                            ? 6
+                            : 5
+                          : orderForm.order_details.length === 1
+                          ? 3
+                          : 4
+                      }
+                    >
+                      Biaya Tambahan
+                    </td>
+                    <td className=' fw-bolder'>Rp. 25.000</td>
+                  </tr>
+                )}
+
+                {(paymentTypeValue[1] !== 'survey' || isOverdistance === true) && (
                   <tr>
                     <td
                       className='text-end fw-bolder'

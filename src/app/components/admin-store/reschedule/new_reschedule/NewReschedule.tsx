@@ -586,6 +586,7 @@ const NewReschedule: FC = () => {
                           <th className='text-center'>QTY</th>
                           <th className='text-center'>Satuan</th>
                           <th className='text-center'>Price</th>
+                          <th className='text-center'>Margin</th>
                           <th className='text-center'>Total</th>
                           <th className='text-center'>Keterangan</th>
                         </tr>
@@ -599,6 +600,7 @@ const NewReschedule: FC = () => {
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
                               <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                              <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
                               <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
                                 'id'
                               )}`}</td>
@@ -608,7 +610,18 @@ const NewReschedule: FC = () => {
                         )}
 
                         <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={6} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -622,7 +635,7 @@ const NewReschedule: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 orderDetail?.work_orders?.work_order_status.length > 1 &&
@@ -633,12 +646,9 @@ const NewReschedule: FC = () => {
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
+                          <th>Item / Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          <th>Harga Jasa</th>
-                          <th>Jumlah</th>
+                          <th>Satuan</th>
                         </tr>
                       </thead>
 
@@ -646,26 +656,12 @@ const NewReschedule: FC = () => {
                         {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.item_id ?? '-'}</td>
-                              <td>{item?.item ?? '-'}</td>
                               <td>{item?.name ?? '-'}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                              <td>{item?.unit ?? ''}</td>
                             </tr>
                           )
                         )}
-
-                        <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
                   </div>

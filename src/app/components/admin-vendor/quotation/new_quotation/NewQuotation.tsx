@@ -830,7 +830,6 @@ const NewQuotationVendor: FC = () => {
             <Table hover>
               <thead>
                 <tr>
-                  <th></th>
                   <th className='text-center'>Jenis Jasa</th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
@@ -847,15 +846,6 @@ const NewQuotationVendor: FC = () => {
                   .filter((x) => x.type === 2)
                   .map((element, index) => (
                     <tr key={`${element.index}-service`}>
-                      <td>
-                        <Form.Check
-                          id={`margin-type-${index}`}
-                          type='checkbox'
-                          checked={element.margin_type === 2}
-                          onChange={(e) => handleMarginTypeChange(element.index, e.target.checked)}
-                        />
-                      </td>
-
                       <td>
                         <Form.Control
                           id={`item-name-${index}`}
@@ -952,8 +942,25 @@ const NewQuotationVendor: FC = () => {
                             )
                           }}
                         />
+
                         <br></br>
-                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+
+                        <div className='d-flex flex-inline'>
+                          <div className='me-1'>
+                            <Form.Check
+                              id={`margin-type-${index}`}
+                              type='checkbox'
+                              checked={element.margin_type === 2}
+                              onChange={(e) =>
+                                handleMarginTypeChange(element.index, e.target.checked)
+                              }
+                            />
+                          </div>
+
+                          <div className='ms-1'>
+                            {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+                          </div>
+                        </div>
                       </td>
 
                       <td>
@@ -973,7 +980,7 @@ const NewQuotationVendor: FC = () => {
                   ))}
 
                 <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
+                  <td colSpan={7} className='text-end fw-bolder'>
                     Total Jasa
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalJasa.toLocaleString('id')}`}</td>
@@ -997,7 +1004,7 @@ const NewQuotationVendor: FC = () => {
               <thead>
                 <tr>
                   <th></th>
-                  <th className='text-center' style={{minWidth: '250px'}}>
+                  <th className='text-center' style={{minWidth: '230px'}}>
                     Material Yang Dibutuhkan
                   </th>
                   <th className='text-center'>QTY</th>
@@ -1008,9 +1015,7 @@ const NewQuotationVendor: FC = () => {
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Final Price
                   </th>
-                  <th className='text-center' style={{maxWidth: '130px', minWidth: '130px'}}>
-                    Action
-                  </th>
+                  <th className='text-center'>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -1125,7 +1130,23 @@ const NewQuotationVendor: FC = () => {
                           }}
                         />
                         <br></br>
-                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+
+                        <div className='d-flex flex-inline'>
+                          <div className='me-1'>
+                            <Form.Check
+                              id={`margin-type-${index}`}
+                              type='checkbox'
+                              checked={element.margin_type === 2}
+                              onChange={(e) =>
+                                handleMarginTypeChange(element.index, e.target.checked)
+                              }
+                            />
+                          </div>
+
+                          <div className='ms-1'>
+                            {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+                          </div>
+                        </div>
                       </td>
 
                       <td>

@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ViewCSI.css'
 
 import axios from 'axios'
+import Select, {SingleValue} from 'react-select'
 import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
@@ -18,6 +19,36 @@ type Props = {
   className: string
 }
 
+interface DataType {
+  order_id: number
+  store_name: string
+  vendor_name: string
+  member_id: number
+  member_name: string
+  member_email: string
+  performance_rate: string
+  delivery_rate: string
+  invoicing_rate: string
+  cs_rate: string
+  knowledge_rate: string
+  notes: string
+}
+
+interface StoreSelect {
+  value: number | null
+  label: string
+}
+
+interface VendorSelect {
+  value: number | null
+  label: string
+}
+
+interface MemberSelect {
+  value: number | null
+  label: string
+}
+
 const ViewCSIHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -29,25 +60,26 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const [store, setStore] = useState<StoreSelect[]>([])
+  const [vendor, setVendor] = useState<VendorSelect[]>([])
+  const [member, setMember] = useState<MemberSelect[]>([])
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreSelect>>({
+    value: null,
+    label: '',
+  })
+  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorSelect>>({
+    value: null,
+    label: '',
+  })
+  const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
+    value: null,
+    label: '',
+  })
 
+  // Handle Change Search Filter
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    order_id: number
-    store_name: string
-    vendor_name: string
-    member_id: number
-    member_name: string
-    member_email: string
-    performance_rate: string
-    delivery_rate: string
-    invoicing_rate: string
-    cs_rate: string
-    knowledge_rate: string
-    notes: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -163,17 +195,21 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
 
   const getCSI = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/csi/get/spreadsheet?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+
+      const vendorId =
+        selectedVendor && selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
+
+      const apiReq = `${apiUrl}/csi/get/spreadsheet?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}`
+
+      const response = await axios.get(apiReq, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -236,6 +272,89 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
+  useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    const getVendor = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/vendor`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempVendor = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.company_name,
+          }))
+
+          setVendor(tempVendor)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    const getMember = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/member`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        if (Array.isArray(response.data.data.member)) {
+          const tempMember = response.data.data.member.map((item: any) => ({
+            value: item.id,
+            label: item.full_name,
+          }))
+
+          setMember(tempMember)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getStore()
+    getVendor()
+    getMember()
+  }, [])
+
   return (
     <section id='view-csi'>
       <div className={`card ${className}`}>
@@ -279,6 +398,68 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
                   />
                 </InputGroup>
               </div>
+            </Col>
+          </Row>
+
+          <Row className='mb-3'>
+            <Col>
+              <Row>
+                <Col md={4}>
+                  <Form.Label>Filter By Store :</Form.Label>
+                </Col>
+
+                <Col md={8}>
+                  <Select
+                    name='store'
+                    className='form-control p-0'
+                    placeholder='Pilih/Ketik Nama Store'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={store}
+                    onChange={(newValue) => setSelectedStore(newValue)}
+                  />
+                </Col>
+              </Row>
+            </Col>
+
+            <Col>
+              <Row>
+                <Col md={4}>
+                  <Form.Label>Filter By Vendor :</Form.Label>
+                </Col>
+
+                <Col md={8}>
+                  <Select
+                    name='vendor'
+                    className='form-control p-0'
+                    placeholder='Pilih/Ketik Nama Vendor'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={vendor}
+                    onChange={(newValue) => setSelectedVendor(newValue)}
+                  />
+                </Col>
+              </Row>
+            </Col>
+
+            <Col>
+              <Row>
+                <Col md={4}>
+                  <Form.Label>Filter By Members :</Form.Label>
+                </Col>
+
+                <Col md={8}>
+                  <Select
+                    name='member'
+                    className='form-control p-0'
+                    placeholder='Pilih/Ketik Nama Member'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={member}
+                    onChange={(newValue) => setSelectedMember(newValue)}
+                  />
+                </Col>
+              </Row>
             </Col>
           </Row>
 

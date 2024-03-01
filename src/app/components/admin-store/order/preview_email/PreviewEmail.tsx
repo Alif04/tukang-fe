@@ -174,7 +174,31 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   </tr>
                 )}
 
-              {orderDetail?.payment_type !== 'survey' && (
+              {orderDetail?.is_overdistance === true && (
+                <tr>
+                  <td
+                    className='text-end fw-bolder'
+                    colSpan={
+                      !(
+                        orderDetail?.payment_type === 'gratis' ||
+                        orderDetail?.payment_type === 'survey'
+                      )
+                        ? orderDetail?.order?.order_details.length >= 2
+                          ? 6
+                          : 5
+                        : orderDetail?.order?.order_details.length === 1
+                        ? 3
+                        : 4
+                    }
+                  >
+                    Biaya Tambahan
+                  </td>
+                  <td className=' fw-bolder'>Rp. 25.000</td>
+                </tr>
+              )}
+
+              {(orderDetail?.payment_type !== 'survey' ||
+                orderDetail?.is_overdistance === true) && (
                 <tr>
                   <td
                     colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
@@ -189,8 +213,16 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                         return `Rp. ${(0).toLocaleString('id')}`
                       } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
                         return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                      } else if (orderDetail?.payment_type === 'survey') {
+                      } else if (
+                        orderDetail?.payment_type === 'survey' &&
+                        orderDetail?.is_overdistance === false
+                      ) {
                         return `Rp. ${(99000).toLocaleString('id')}`
+                      } else if (
+                        orderDetail?.payment_type === 'survey' &&
+                        orderDetail?.is_overdistance === true
+                      ) {
+                        return `Rp. ${(124000).toLocaleString('id')}`
                       } else {
                         return `Rp. ${(0).toLocaleString('id')}`
                       }

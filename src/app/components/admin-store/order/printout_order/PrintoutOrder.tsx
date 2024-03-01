@@ -229,12 +229,18 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     {(() => {
                       if (orderDetail?.payment_type === 'gratis') {
                         return `Rp. ${0?.toLocaleString('id')} ( GRATIS )`
-                      }
-                      if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                      } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
                         return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                      }
-                      if (orderDetail?.payment_type === 'survey') {
+                      } else if (
+                        orderDetail?.payment_type === 'survey' &&
+                        orderDetail?.is_overdistance === false
+                      ) {
                         return `Rp. ${99000?.toLocaleString('id')}`
+                      } else if (
+                        orderDetail?.payment_type === 'survey' &&
+                        orderDetail?.is_overdistance === true
+                      ) {
+                        return `Rp. ${124000?.toLocaleString('id')}`
                       } else {
                         return `Rp. ${0?.toLocaleString('id')}`
                       }

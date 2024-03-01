@@ -510,8 +510,8 @@ const UpdateRefundCS: FC = () => {
             {/* New */}
             {(() => {
               if (
-                refundDetail?.orders?.payment_type === 'survey' &&
-                !refundDetail?.orders?.work_orders
+                refundDetail?.orders?.payment_type === 'survey' ||
+                refundDetail?.orders?.work_orders?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -526,7 +526,7 @@ const UpdateRefundCS: FC = () => {
                       </thead>
 
                       <tbody>
-                        {refundDetail?.orders?.order_details.map((item: any, index: any) => (
+                        {refundDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -561,19 +561,21 @@ const UpdateRefundCS: FC = () => {
                           <th className='text-center'>QTY</th>
                           <th className='text-center'>Satuan</th>
                           <th className='text-center'>Price</th>
+                          <th className='text-center'>Margin</th>
                           <th className='text-center'>Total</th>
                           <th className='text-center'>Keterangan</th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {refundDetail?.orders?.quotation[0]?.quotation_details?.map(
+                        {refundDetail?.orders?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
                               <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                              <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
                               <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
                                 'id'
                               )}`}</td>
@@ -583,7 +585,18 @@ const UpdateRefundCS: FC = () => {
                         )}
 
                         <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              refundDetail?.orders?.quotation[0]?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={6} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -597,7 +610,7 @@ const UpdateRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   refundDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 refundDetail?.orders?.work_orders?.work_order_status.length > 1 &&
@@ -608,12 +621,9 @@ const UpdateRefundCS: FC = () => {
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
+                          <th>Item / Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          <th>Harga Jasa</th>
-                          <th>Jumlah</th>
+                          <th>Satuan</th>
                         </tr>
                       </thead>
 
@@ -621,28 +631,12 @@ const UpdateRefundCS: FC = () => {
                         {refundDetail?.orders?.work_orders?.work_order_status[0]?.work_order_items.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.item_id ?? '-'}</td>
-                              <td>{item?.item ?? '-'}</td>
                               <td>{item?.name ?? '-'}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                              <td>{item?.unit ?? ''}</td>
                             </tr>
                           )
                         )}
-
-                        <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(refundDetail?.orders?.grand_total ?? 0).toLocaleString(
-                              'id'
-                            )}`}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
                   </div>
@@ -669,7 +663,7 @@ const UpdateRefundCS: FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {refundDetail?.orders?.order_details.map((item: any, index: any) => (
+                        {refundDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
