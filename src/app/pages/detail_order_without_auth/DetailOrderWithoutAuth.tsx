@@ -25,7 +25,6 @@ const DetailOrderWithoutAuth = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
-  const memberId = queryParams.get('member_id')
   const orderId = queryParams.get('order_id')
 
   const {config, classes, attributes} = useLayout()
@@ -62,10 +61,10 @@ const DetailOrderWithoutAuth = () => {
     quotation: [],
   })
 
-  const trackingOrderData = async (memberId: string | null, orderId: string | null) => {
+  const trackingOrderData = async (orderId: string | null) => {
     try {
       await axios
-        .get(`${apiUrl}/orders/data/${memberId}/${orderId}`, {
+        .get(`${apiUrl}/orders/data/${orderId}`, {
           headers: {
             Accept: 'application/json',
           },
@@ -82,10 +81,10 @@ const DetailOrderWithoutAuth = () => {
   }
 
   useEffect(() => {
-    if (memberId && orderId) {
-      trackingOrderData(memberId, orderId)
+    if (orderId) {
+      trackingOrderData(orderId)
     }
-  }, [memberId, orderId])
+  }, [orderId])
 
   const [status, setStatus] = useState<Status[]>([])
 
