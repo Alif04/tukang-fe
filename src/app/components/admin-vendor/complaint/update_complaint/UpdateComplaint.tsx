@@ -650,7 +650,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                       </thead>
 
                       <tbody>
-                        {complaintDetail?.orders?.order_details.map((item: any, index: any) => (
+                        {complaintDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -793,7 +793,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                         </tr>
                       </thead>
                       <tbody>
-                        {complaintDetail?.orders?.order_details.map((item: any, index: any) => (
+                        {complaintDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>

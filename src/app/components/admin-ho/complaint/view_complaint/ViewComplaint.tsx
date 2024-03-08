@@ -392,23 +392,23 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
 
         let phoneNumber =
           item.orders.members.phone_number !== 'null'
-            ? item.orders.members.phone_number
-            : item.orders.members.whatsapp_number
+            ? item.orders?.members?.phone_number
+            : item.orders?.members?.whatsapp_number
 
         data = {
-          complaint_id: item.id,
-          assign_from: item.orders.store.store_name,
-          order_id: item.orders.id,
+          complaint_id: item?.id,
+          assign_from: item?.orders.store?.store_name,
+          order_id: item?.orders?.id,
           date_order: formatDate(orderDate),
-          no_member: item.orders.members.member_number,
-          costumer_name: item.orders.members.full_name,
+          no_member: item?.orders?.members?.member_number,
+          costumer_name: item?.orders?.members?.full_name,
           phone_number: phoneNumber,
-          service_name: item.orders.m_order_details[0].item_name ?? '-',
-          order_status: item.orders.status.category,
-          work_status: item.orders.status.category,
+          service_name: item.orders?.m_order_details[0]?.item_name ?? '-',
+          order_status: item.orders?.status?.category,
+          work_status: item.orders?.status?.category,
           complaint_date: formatDate(complaintDate),
           complaint_age: complaintAge,
-          complaint_status: item.status.category,
+          complaint_status: item.status?.category,
         }
 
         return data

@@ -881,7 +881,7 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                       </thead>
 
                       <tbody>
-                        {complaintDetail?.orders?.order_details.map((item: any, index: any) => (
+                        {complaintDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -1024,7 +1024,7 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                         </tr>
                       </thead>
                       <tbody>
-                        {complaintDetail?.orders?.order_details.map((item: any, index: any) => (
+                        {complaintDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
