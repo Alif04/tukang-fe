@@ -162,7 +162,7 @@ const NewComplaintStore: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatusName = 'INVESTIGATE'
+    const desiredStatusName = 'INVESTIGATED'
     const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
     const statusId = desiredStatus?.value
 

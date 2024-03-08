@@ -24,6 +24,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const userStore = localStorage.getItem('storeId')
   const userRole = localStorage.getItem('userRole') as any
   const userId = localStorage.getItem('user_id') as any
+  const salesId = localStorage.getItem('sales_id') as any
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
@@ -165,7 +166,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       const url =
         userRole === 'Store CS' || userRole === 'Admin HO'
           ? `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&page=${page}&take=${pageSize}`
-          : `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&store_id=${userStore}&page=${page}&take=${pageSize}`
+          : `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${salesId}&store_id=${userStore}&page=${page}&take=${pageSize}`
 
       const response = await axios.get(url, {
         headers: {
@@ -199,27 +200,27 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.orders[0]?.request_survey)
+        const orderDate = new Date(item.request_survey)
 
-        const price = parseInt(item.orders[0]?.m_order_details[0]?.unit_price ?? 0, 10)
+        const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
         const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
 
-        const quantity = parseInt(item.orders[0]?.m_order_details[0]?.quantity ?? 0, 10)
+        const quantity = parseInt(item.m_order_details[0]?.quantity ?? 0, 10)
 
-        const grandTotalPrice = parseInt(item.orders[0]?.grand_total ?? 0)
+        const grandTotalPrice = parseInt(item.grand_total)
         const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
 
-        const salesComission = parseInt(item?.comission)
+        const salesComission = parseInt(item.grand_total_comission)
         const formattedSalesComission = `Rp. ${salesComission.toLocaleString('id')}`
 
         data = {
-          order_id: item.orders[0]?.id ?? '-',
+          order_id: item.id,
           date_order: formatDate(orderDate),
-          costumer_name: item.orders[0]?.members?.full_name ?? '-',
-          phone_number: item.orders[0]?.project_number ?? '-',
-          email: item.orders[0]?.members?.email ?? '-',
-          address: item.orders[0]?.project_address ?? '-',
-          service_name: item.orders[0]?.m_order_details[0]?.item?.service_name ?? '-',
+          costumer_name: item.members.full_name,
+          phone_number: item.project_number,
+          email: item.members.email,
+          address: item.project_address,
+          service_name: item.m_order_details[0]?.item_notes ?? '-',
           quantity: quantity,
           harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,
