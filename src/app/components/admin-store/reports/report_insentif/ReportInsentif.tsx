@@ -27,7 +27,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
-  console.log(totalOrder)
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -50,6 +49,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     quantity: number
     harga: number
     grand_total: number
+    sales_comission: number
   }
 
   const columns: ColumnsType<DataType> = [
@@ -139,9 +139,21 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       width: 135,
       sorter: (a, b) => a.grand_total - b.grand_total,
     },
+    {
+      title: 'Sales Comission',
+      dataIndex: 'sales_comission',
+      key: 'sales_comission',
+      align: 'center',
+      width: 135,
+      sorter: (a, b) => a.sales_comission - b.sales_comission,
+    },
   ]
 
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return '-'
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
@@ -152,8 +164,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     try {
       const url =
         userRole === 'Store CS' || userRole === 'Admin HO'
-          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&page=${page}&take=${pageSize}`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&store_id=${userStore}&page=${page}&take=${pageSize}`
+          ? `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&page=${page}&take=${pageSize}`
+          : `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${userId}&store_id=${userStore}&page=${page}&take=${pageSize}`
 
       const response = await axios.get(url, {
         headers: {
@@ -165,8 +177,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       })
 
       if (response?.data) {
-        setTotalOrder(response.data.takeTotal)
-        setCurrentPage(response.data.page)
+        setTotalOrder(response?.data?.takeTotal)
+        setCurrentPage(response?.data?.page)
       }
 
       return response.data.data
@@ -187,27 +199,31 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.request_survey)
+        const orderDate = new Date(item.orders[0]?.request_survey)
 
-        const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
+        const price = parseInt(item.orders[0]?.m_order_details[0]?.unit_price ?? 0, 10)
         const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
 
-        const quantity = parseInt(item.m_order_details[0]?.quantity ?? 0, 10)
+        const quantity = parseInt(item.orders[0]?.m_order_details[0]?.quantity ?? 0, 10)
 
-        const grandTotalPrice = parseInt(item.grand_total)
+        const grandTotalPrice = parseInt(item.orders[0]?.grand_total ?? 0)
         const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
 
+        const salesComission = parseInt(item?.comission)
+        const formattedSalesComission = `Rp. ${salesComission.toLocaleString('id')}`
+
         data = {
-          order_id: item.id,
+          order_id: item.orders[0]?.id ?? '-',
           date_order: formatDate(orderDate),
-          costumer_name: item.members.full_name,
-          phone_number: item.project_number,
-          email: item.members.email,
-          address: item.project_address,
-          service_name: item.m_order_details[0]?.item?.service_name ?? '-',
+          costumer_name: item.orders[0]?.members?.full_name ?? '-',
+          phone_number: item.orders[0]?.project_number ?? '-',
+          email: item.orders[0]?.members?.email ?? '-',
+          address: item.orders[0]?.project_address ?? '-',
+          service_name: item.orders[0]?.m_order_details[0]?.item?.service_name ?? '-',
           quantity: quantity,
           harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,
+          sales_comission: formattedSalesComission,
         }
 
         return data

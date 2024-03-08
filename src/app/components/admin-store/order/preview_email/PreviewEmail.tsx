@@ -124,7 +124,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               </tr>
             </thead>
             <tbody>
-              {orderDetail?.order_details.map((item: any, index: any) => (
+              {orderDetail?.order_details?.map((item: any, index: any) => (
                 <>
                   <tr key={`${index} - order_detail`}>
                     <td>{item?.item_code ?? '-'}</td>

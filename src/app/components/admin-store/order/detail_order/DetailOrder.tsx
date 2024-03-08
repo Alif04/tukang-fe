@@ -33,6 +33,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     payment_type: '',
     grand_total: '',
     grand_total_comission: '',
+    is_overdistance: false,
+    additional_fee: 0,
     print_counter: null,
     created_by: null,
     updated_by: null,
@@ -168,22 +170,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {/* {order?.work_orders?.work_order_status?.length > 0
-                        ? order?.work_orders?.work_order_status[0]?.status?.category
-                        : order?.status?.category} */}
-
-                      {/* {(() => {
-                        if (order?.work_orders?.work_order_status?.length > 0) {
-                          return order?.work_orders?.work_order_status[0]?.status?.category
-                        } else if (order?.status?.category === 'QUOTEIN') {
-                          return order?.status?.category
-                        } else if (order?.status?.category === 'QUOTEOUT') {
-                          return order?.status?.category
-                        } else {
-                          return order?.status?.category
-                        }
-                      })()} */}
-
                       {(() => {
                         if (
                           order?.status?.category === 'QUOTEIN' ||
@@ -490,6 +476,30 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {/* {order?.is_overdistance === true && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                order?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                order?.grand_total
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )} */}
                       </tbody>
                     </Table>
                   </div>
@@ -538,6 +548,20 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
+
+                        {/* {order?.is_overdistance === true && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                order?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )} */}
 
                         <tr>
                           <td colSpan={6} className='text-end fw-bolder'>

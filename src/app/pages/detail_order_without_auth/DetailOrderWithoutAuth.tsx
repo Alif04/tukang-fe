@@ -46,6 +46,8 @@ const DetailOrderWithoutAuth = () => {
     payment_type: '',
     grand_total: '',
     grand_total_comission: '',
+    is_overdistance: false,
+    additional_fee: 0,
     print_counter: null,
     created_by: null,
     updated_by: null,
@@ -90,7 +92,7 @@ const DetailOrderWithoutAuth = () => {
   // Get Status
   const getStatus = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/status`, {
+      const response = await axios.get(`${apiUrl}/status?take=0`, {
         headers: {
           Accept: 'application/json',
         },
@@ -594,6 +596,30 @@ const DetailOrderWithoutAuth = () => {
 
                               <td className=' fw-bolder'>Rp. 99.000</td>
                             </tr>
+
+                            {/* {order?.is_overdistance === true && (
+                              <>
+                                <tr>
+                                  <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                    Biaya Tambahan
+                                  </td>
+
+                                  <td className=' fw-bolder'>{`Rp. ${Number(
+                                    order?.additional_fee
+                                  ).toLocaleString('id')}.`}</td>
+                                </tr>
+
+                                <tr>
+                                  <td colSpan={3} className='text-end fw-bolder'>
+                                    Grand Total
+                                  </td>
+
+                                  <td className=' fw-bolder'>{`Rp. ${Number(
+                                    order?.grand_total
+                                  ).toLocaleString('id')}.`}</td>
+                                </tr>
+                              </>
+                            )} */}
                           </tbody>
                         </Table>
                       </div>
@@ -718,6 +744,20 @@ const DetailOrderWithoutAuth = () => {
                                 </tr>
                               </>
                             ))}
+
+                            {/* {order?.is_overdistance === true && (
+                              <>
+                                <tr>
+                                  <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                    Biaya Tambahan
+                                  </td>
+
+                                  <td className=' fw-bolder'>{`Rp. ${Number(
+                                    order?.additional_fee
+                                  ).toLocaleString('id')}.`}</td>
+                                </tr>
+                              </>
+                            )} */}
 
                             <tr>
                               <td

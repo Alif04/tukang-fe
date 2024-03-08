@@ -62,6 +62,7 @@ interface Order {
   request_survey: string
   payment_type: string
   is_overdistance: boolean
+  additional_fee: number
   order_details: Array<{
     id: number | null
     item?: ItemSelect | null
@@ -110,6 +111,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     request_survey: '',
     payment_type: '',
     is_overdistance: false,
+    additional_fee: 25000,
     order_details: [
       {
         id: null,
@@ -272,6 +274,20 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                 request_survey: new Date(data.request_survey).toISOString().split('T')[0],
               }))
             }
+
+            // if (data?.is_overdistance) {
+            //   setOrderForm((prev) => ({
+            //     ...prev,
+            //     is_overdistance: data.is_overdistance,
+            //   }))
+            // }
+
+            // if (data?.additional_fee) {
+            //   setOrderForm((prev) => ({
+            //     ...prev,
+            //     additional_fee: data.additional_fee,
+            //   }))
+            // }
 
             if (data?.order_details) {
               setOrderForm((prev) => {
@@ -510,8 +526,8 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     const grandTotal = orderForm.order_details.reduce((accumulator, element) => {
       let totalOrderAmount = 0
       let biayaSurvey = 0
-      let biayaTambahan = 25000
 
+      const additionalFee = Number(orderForm.additional_fee)
       const total = element.total ? parseInt(element.total) : 0
 
       if (paymentTypeValue[0] === 'gratis') {
@@ -527,7 +543,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
 
       const calculatedGrandTotal =
         isOverdistance === true
-          ? totalOrderAmount + biayaSurvey + biayaTambahan
+          ? totalOrderAmount + biayaSurvey + additionalFee
           : totalOrderAmount + biayaSurvey
 
       return paymentTypeValue[1] === 'pemasangan_tanpa_survey'
@@ -541,7 +557,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
   useEffect(() => {
     const calculatedGrandTotal = calculatedGrandTotalOrder()
     setGrandTotal(calculatedGrandTotal)
-  }, [orderForm.order_details, paymentTypeValue, isOverdistance])
+  }, [orderForm.order_details, orderForm.additional_fee, paymentTypeValue, isOverdistance])
 
   // Submit Update Order
   const handleUpdateOrder = async () => {
@@ -560,6 +576,8 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
       {key: 'order_details', fieldName: 'Order Details'},
+      // {key: 'is_overdistance', fieldName: 'Overdistance'},
+      // {key: 'additional_fee', fieldName: 'Additional Fee'},
     ]
 
     const requiredOrderDetailsFields = [
@@ -603,7 +621,13 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
             } else {
               formData.append(key, orderForm[key])
             }
-          } else {
+          }
+          // else if (key === 'additional_fee' && isOverdistance === true) {
+          //   if (value) {
+          //     formData.append(key, orderForm[key].toString())
+          //   }
+          // }
+          else {
             errorBags.push({
               message: `${required.fieldName} cannot be empty`,
             })
@@ -1162,7 +1186,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                 {isOverdistance === true && (
                   <tr>
                     <td
-                      className='text-end fw-bolder'
+                      className='text-end fw-bolder align-middle'
                       colSpan={
                         !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
                           ? orderForm.order_details.length >= 2
@@ -1175,7 +1199,15 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                     >
                       Biaya Tambahan
                     </td>
-                    <td className=' fw-bolder'>Rp. 25.000</td>
+
+                    <td className=' fw-bolder'>
+                      <Form.Control
+                        name='additional_fee'
+                        type='number'
+                        value={orderForm.additional_fee}
+                        onChange={(e) => orderFormHandler(e)}
+                      />
+                    </td>
                   </tr>
                 )}
 

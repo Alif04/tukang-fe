@@ -195,10 +195,10 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
 
   const getCSI = async (page: number, pageSize: number) => {
     try {
-      const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+      const storeId = selectedStore && selectedStore.label ? `&store=${selectedStore.label}` : ''
 
       const vendorId =
-        selectedVendor && selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
+        selectedVendor && selectedVendor.label ? `&vendor=${selectedVendor.label}` : ''
 
       const apiReq = `${apiUrl}/csi/get/spreadsheet?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}`
 
@@ -260,7 +260,14 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+  }, [
+    dateFrom,
+    dateTo,
+    searchFilter,
+    selectedStore?.label,
+    selectedVendor?.label,
+    selectedMember?.label,
+  ])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {

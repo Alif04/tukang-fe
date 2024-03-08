@@ -68,6 +68,7 @@ interface Order {
   payment_type: string
   receipt_number: string
   is_overdistance: boolean
+  additional_fee: number
   order_details: Array<{
     item?: ItemSelect | null
     item_id: number | null
@@ -115,6 +116,7 @@ const NewOrderHO: FC = () => {
     payment_type: 'gratis',
     receipt_number: '',
     is_overdistance: false,
+    additional_fee: 25000,
     order_details: [
       {
         item: null,
@@ -556,8 +558,8 @@ const NewOrderHO: FC = () => {
     const grandTotal = orderForm.order_details.reduce((accumulator, element) => {
       let totalOrderAmount = 0
       let biayaSurvey = 0
-      let biayaTambahan = 25000
 
+      const additionalFee = Number(orderForm.additional_fee)
       const total = element.total ? parseInt(element.total) : 0
 
       if (paymentTypeValue[0] === 'gratis') {
@@ -573,7 +575,7 @@ const NewOrderHO: FC = () => {
 
       const calculatedGrandTotal =
         isOverdistance === true
-          ? totalOrderAmount + biayaSurvey + biayaTambahan
+          ? totalOrderAmount + biayaSurvey + additionalFee
           : totalOrderAmount + biayaSurvey
 
       return paymentTypeValue[1] === 'pemasangan_tanpa_survey'
@@ -587,7 +589,7 @@ const NewOrderHO: FC = () => {
   useEffect(() => {
     const calculatedGrandTotal = calculatedGrandTotalOrder()
     setGrandTotal(calculatedGrandTotal)
-  }, [orderForm.order_details, paymentTypeValue, isOverdistance])
+  }, [orderForm.order_details, orderForm.additional_fee, paymentTypeValue, isOverdistance])
 
   // Submit Update Order
   const handleSubmitNewOrder = async () => {
@@ -606,6 +608,8 @@ const NewOrderHO: FC = () => {
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
       {key: 'order_details', fieldName: 'Order Details'},
+      // {key: 'is_overdistance', fieldName: 'Overdistance'},
+      // {key: 'additional_fee', fieldName: 'Additional Fee'},
     ]
 
     const requiredOrderDetailsFields = [
@@ -645,7 +649,13 @@ const NewOrderHO: FC = () => {
             } else {
               formData.append(key, orderForm[key])
             }
-          } else {
+          }
+          // else if (key === 'additional_fee' && isOverdistance === true) {
+          //   if (value) {
+          //     formData.append(key, orderForm[key].toString())
+          //   }
+          // }
+          else {
             errorBags.push({
               message: `${required.fieldName} cannot be empty`,
             })
@@ -1336,7 +1346,7 @@ const NewOrderHO: FC = () => {
                 {isOverdistance === true && (
                   <tr>
                     <td
-                      className='text-end fw-bolder'
+                      className='text-end fw-bolder align-middle'
                       colSpan={
                         !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
                           ? orderForm.order_details.length >= 2
@@ -1349,7 +1359,15 @@ const NewOrderHO: FC = () => {
                     >
                       Biaya Tambahan
                     </td>
-                    <td className=' fw-bolder'>Rp. 25.000</td>
+
+                    <td className=' fw-bolder'>
+                      <Form.Control
+                        name='additional_fee'
+                        type='number'
+                        value={orderForm.additional_fee}
+                        onChange={(e) => orderFormHandler(e)}
+                      />
+                    </td>
                   </tr>
                 )}
 

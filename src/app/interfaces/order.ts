@@ -82,6 +82,8 @@ export interface Orders {
   payment_type: string
   grand_total: string
   grand_total_comission: string
+  is_overdistance: boolean
+  additional_fee: number
   print_counter: number | null
   created_by: number | null
   updated_by: number | null

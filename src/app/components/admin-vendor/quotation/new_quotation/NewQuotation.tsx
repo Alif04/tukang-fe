@@ -418,13 +418,7 @@ const NewQuotationVendor: FC = () => {
   }
 
   // Handle Change Quotation Detail
-  let handleChangeQuotationDetail = (
-    e: any,
-    index: any,
-    value: any,
-    type: number,
-    isNominal: number
-  ) => {
+  let handleChangeQuotationDetail = (e: any, index: any, value: any, type: number) => {
     const updatedQuotationDetail = [...quotationDetail]
     const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
 
@@ -432,16 +426,6 @@ const NewQuotationVendor: FC = () => {
       let quantity = 0
       let unit_price = 0
       let margin = 0
-      let finalPrice = 0
-      let total = Number(
-        filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price
-      )
-
-      if (isNominal === 1) {
-        finalPrice = total + total * (value / 100)
-      } else {
-        finalPrice = total + Number(value)
-      }
 
       if (filteredDetailValues[index].is_user === 1) {
         quantity = 0
@@ -451,7 +435,6 @@ const NewQuotationVendor: FC = () => {
         filteredDetailValues[index] = {
           ...filteredDetailValues[index],
           [e.target.name]: value,
-          final_price: finalPrice,
         }
       }
 
@@ -462,31 +445,28 @@ const NewQuotationVendor: FC = () => {
   }
 
   // Calculate Detail
-  const calcEachDetails = (index: any, type: number, isNominal: number) => {
-    const updatedQuotationDetail = [...quotationDetail]
-    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
+  const calcEachDetails = (isNominal: number) => {
+    setQuotationDetail((prev) => {
+      console.log(isNominal)
+      const updatedQuotationDetail = [...prev]
 
-    if (filteredDetailValues[index]) {
-      let {quantity, unit_price, margin} = filteredDetailValues[index]
+      updatedQuotationDetail.forEach((detail) => {
+        let {quantity, unit_price, margin, is_user} = detail
 
-      let total = quantity * unit_price
-      let final_price = isNominal === 1 ? total + total * (margin / 100) : total + margin
+        let total = Number(quantity) * Number(unit_price)
+        let final_price =
+          is_user === 1
+            ? 0
+            : isNominal === 1
+            ? total + total * (Number(margin) / 100)
+            : total + Number(margin)
 
-      if (filteredDetailValues[index].is_user === 1) {
-        total = 0
-        final_price = 0
-      }
+        detail.total = total
+        detail.final_price = final_price
+      })
 
-      filteredDetailValues[index] = {
-        ...filteredDetailValues[index],
-        total: total,
-        final_price: final_price,
-      }
-
-      setQuotationDetail((prev) =>
-        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
-      )
-    }
+      return updatedQuotationDetail
+    })
   }
 
   // Total Jasa
@@ -606,11 +586,11 @@ const NewQuotationVendor: FC = () => {
           quotation.work_order_item_id
         )
 
-        appendIfNotDefault(
-          formData,
-          `quotation_details[${index}][category_id]`,
-          quotation.category_id
-        )
+        // appendIfNotDefault(
+        //   formData,
+        //   `quotation_details[${index}][category_id]`,
+        //   quotation.category_id
+        // )
 
         appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
         appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
@@ -851,15 +831,7 @@ const NewQuotationVendor: FC = () => {
                           id={`item-name-${index}`}
                           name='item_name'
                           value={element.item_name}
-                          onChange={(e) =>
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              2,
-                              element.margin_type
-                            )
-                          }
+                          onChange={(e) => handleChangeQuotationDetail(e, index, e.target.value, 2)}
                         />
                       </td>
 
@@ -870,13 +842,8 @@ const NewQuotationVendor: FC = () => {
                           type='number'
                           value={element.quantity}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              2,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 2)
+                            calcEachDetails(element.margin_type)
                           }}
                         />
                       </td>
@@ -887,13 +854,7 @@ const NewQuotationVendor: FC = () => {
                           name='unit'
                           value={element.unit}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              2,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 2)
                           }}
                         />
                       </td>
@@ -905,13 +866,8 @@ const NewQuotationVendor: FC = () => {
                           name='unit_price'
                           value={element.unit_price}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              2,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 2)
+                            calcEachDetails(element.margin_type)
                           }}
                         />
                       </td>
@@ -933,13 +889,8 @@ const NewQuotationVendor: FC = () => {
                           name='margin'
                           value={element.margin}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              2,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 2)
+                            calcEachDetails(element.margin_type)
                           }}
                         />
 
@@ -951,9 +902,10 @@ const NewQuotationVendor: FC = () => {
                               id={`margin-type-${index}`}
                               type='checkbox'
                               checked={element.margin_type === 2}
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 handleMarginTypeChange(element.index, e.target.checked)
-                              }
+                                calcEachDetails(element.margin_type)
+                              }}
                             />
                           </div>
 
@@ -1038,13 +990,7 @@ const NewQuotationVendor: FC = () => {
                           name='item_name'
                           value={element.item_name}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              1,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 1)
                           }}
                         />
                       </td>
@@ -1056,13 +1002,8 @@ const NewQuotationVendor: FC = () => {
                           value={element.quantity}
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              1,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 1)
+                            calcEachDetails(element.margin_type)
                           }}
                         />
                       </td>
@@ -1074,13 +1015,7 @@ const NewQuotationVendor: FC = () => {
                           value={element.unit}
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              1,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 1)
                           }}
                         />
                       </td>
@@ -1093,13 +1028,8 @@ const NewQuotationVendor: FC = () => {
                           value={element.unit_price}
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              1,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 1)
+                            calcEachDetails(element.margin_type)
                           }}
                         />
                       </td>
@@ -1108,7 +1038,9 @@ const NewQuotationVendor: FC = () => {
                         <Form.Control
                           readOnly
                           plaintext
-                          value={`Rp. ${Number(element.unit_price).toLocaleString()}`}
+                          value={`Rp. ${(
+                            Number(element.quantity) * Number(element.unit_price)
+                          ).toLocaleString()}`}
                         />
                       </td>
 
@@ -1120,13 +1052,8 @@ const NewQuotationVendor: FC = () => {
                           value={element.margin}
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
-                            handleChangeQuotationDetail(
-                              e,
-                              index,
-                              e.target.value,
-                              1,
-                              element.margin_type
-                            )
+                            handleChangeQuotationDetail(e, index, e.target.value, 1)
+                            calcEachDetails(element.margin_type)
                           }}
                         />
                         <br></br>
@@ -1137,9 +1064,10 @@ const NewQuotationVendor: FC = () => {
                               id={`margin-type-${index}`}
                               type='checkbox'
                               checked={element.margin_type === 2}
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 handleMarginTypeChange(element.index, e.target.checked)
-                              }
+                                calcEachDetails(element.margin_type)
+                              }}
                             />
                           </div>
 

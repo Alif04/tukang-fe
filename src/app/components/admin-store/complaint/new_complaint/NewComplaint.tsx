@@ -28,6 +28,7 @@ const NewComplaintStore: FC = () => {
   const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
   const [complaintChannelId, setComplaintChannelId] = useState<string>('')
   const [complaintCode, setComplaintCode] = useState<string | number>('NaN')
+  const [complaintStatus, setComplaintStatus] = useState<any>()
 
   const getOrder = async () => {
     try {
@@ -154,12 +155,24 @@ const NewComplaintStore: FC = () => {
   const handleChangeSelectOrder = (element: any) => {
     const selectedOrder = element.value
     setOrderId(selectedOrder)
-    console.log(selectedOrder)
   }
+
+  // Complaint Status
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatusName = 'INVESTIGATE'
+    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const statusId = desiredStatus?.value
+
+    setComplaintStatus(statusId)
+  }, [complaintStatus])
 
   // Add Complaint
   const [complaintDesc, setComplaintDesc] = useState<any>('')
   const [complaintDate, setComplaintDate] = useState<string>('')
+  const [complaintType, setComplaintType] = useState<number>(1)
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
@@ -276,8 +289,10 @@ const NewComplaintStore: FC = () => {
 
       formData.append('order_id', orderId)
       formData.append('description', complaintDesc)
+      formData.append('complaint_status', complaintStatus)
       formData.append('complaint_channel', complaintChannelId)
       formData.append('complaint_date', complaintDate)
+      formData.append('type', complaintType.toString())
 
       if (complaintEvidence?.length) {
         complaintEvidence.forEach((item) => {
