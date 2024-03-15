@@ -195,12 +195,15 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
 
   const getCSI = async (page: number, pageSize: number) => {
     try {
-      const storeId = selectedStore && selectedStore.label ? `&store=${selectedStore.label}` : ''
+      const memberId =
+        selectedMember && selectedMember.label ? `&member_id=${selectedMember.value}` : ''
+
+      const storeId = selectedStore && selectedStore.label ? `&storeId=${selectedStore.value}` : ''
 
       const vendorId =
-        selectedVendor && selectedVendor.label ? `&vendor=${selectedVendor.label}` : ''
+        selectedVendor && selectedVendor.label ? `&vendor_id=${selectedVendor.value}` : ''
 
-      const apiReq = `${apiUrl}/csi/get/spreadsheet?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}`
+      const apiReq = `${apiUrl}/csi?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}${memberId}`
 
       const response = await axios.get(apiReq, {
         headers: {

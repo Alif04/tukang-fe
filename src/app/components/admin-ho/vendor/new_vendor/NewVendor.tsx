@@ -744,9 +744,9 @@ const NewVendorHO: FC = () => {
       }
 
       if (storeId?.length) {
-        storeId.forEach((item: any) => {
+        storeId.forEach((item: any, index: number) => {
           if (item) {
-            formData.append(`store_id`, item)
+            formData.append(`vendor_store[${index}][store_id]`, item)
           }
         })
       }

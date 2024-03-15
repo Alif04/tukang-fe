@@ -93,8 +93,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setPicName(data.users.username)
           }
 
-          if (data?.ktp_number && data?.npwp_number) {
+          if (data?.ktp_number) {
             setKtpNumber(data.ktp_number)
+          }
+
+          if (data?.npwp_number) {
             setNpwpNumber(data.npwp_number)
           }
 
@@ -111,21 +114,27 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setDiscount(data.vendor_area[0].default_discount)
           }
 
-          if (data?.vendor_area) {
-            const store = data.store.map((item: any) => ({
-              value: item.id,
-              label: item.store_name,
+          if (data?.vendor_store) {
+            const store = data.vendor_store.map((item: any) => ({
+              value: item.store.id,
+              label: item.store.store_name,
             }))
 
+            const storeId = data.vendor_store.map((item: any) => item.store.id)
+
+            setStoreId(storeId)
             setStoreValues(store)
           }
 
           if (data?.vendor_area) {
             const vendorArea = data.vendor_area.map((item: any) => ({
-              value: item.city_id,
+              value: item.city.id,
               label: item.city.city_name,
             }))
 
+            const vendorAreaId = data.vendor_area.map((item: any) => item.city.id)
+
+            setserviceAreaId(vendorAreaId)
             setServiceAreaValues(vendorArea)
           }
 
@@ -135,6 +144,9 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               label: item.service_type.service_type,
             }))
 
+            const vendorServiceId = data.vendor_service.map((item: any) => item.service_type_id)
+
+            setserviceTypeId(vendorServiceId)
             setServiceTypeValues(service_type)
           }
 
@@ -955,7 +967,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       if (storeId?.length) {
         storeId.forEach((item: any, index: number) => {
           if (item) {
-            formData.append(`vendor_area[${index}][store_id]`, item)
+            formData.append(`vendor_store[${index}][store_id]`, item)
           }
         })
       }

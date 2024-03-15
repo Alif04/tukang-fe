@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 type Props = {
   className: string
   chartHeight: string
+  chartWorkOrder: any[]
 }
 
-const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
+const ChartDonut2: React.FC<Props> = ({className, chartHeight, chartWorkOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartWorkOrder))
     if (chart) {
       chart.render()
     }
@@ -35,7 +36,7 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, chartWorkOrder])
 
   return (
     <div className={`card ${className}`}>
@@ -52,8 +53,9 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, chartWorkOrder: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
+
   const processColor = getCSSVariableValue('--kt-info')
   const pendingColor = getCSSVariableValue('--kt-primary')
   const cancelColor = getCSSVariableValue('--kt-dark')
@@ -61,6 +63,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
 
   return {
     series: [44, 55, 13, 30],
+    colors: [processColor, pendingColor, cancelColor, ReworkColor],
     chart: {
       width: 500,
       height: chartHeight,
@@ -75,7 +78,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor, ReworkColor],
     grid: {
       padding: {
         top: 10,

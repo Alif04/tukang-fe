@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials'
 type Props = {
   className: string
   chartHeight: string
+  orderData: any[]
 }
 
-const TotalOrder: React.FC<Props> = ({className, chartHeight}) => {
+const TotalOrder: React.FC<Props> = ({className, chartHeight, orderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const TotalOrder: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, orderData))
     if (chart) {
       chart.render()
     }
@@ -35,7 +36,7 @@ const TotalOrder: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, orderData])
 
   return (
     <div className={`card ${className}`}>
@@ -45,7 +46,7 @@ const TotalOrder: React.FC<Props> = ({className, chartHeight}) => {
 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted text-center'>Order</div>
-            <div className='fs-1 d-block m-auto'>104</div>
+            <div className='fs-1 d-block m-auto'>{orderData.length}</div>
             <div className='fs-5 text-muted'>Order bulan ini</div>
           </div>
         </div>
@@ -54,19 +55,36 @@ const TotalOrder: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, orderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-danger')
+
+  const orderIn = orderData.length
+
+  const paidOrder = orderData.filter((order: any) =>
+    order?.work_orders?.work_order_status.length > 0
+      ? order?.work_orders?.work_order_status[0]?.status?.category === 'PAID'
+      : order?.status?.category === 'PAID'
+  ).length
+
+  const canceledOrder = orderData.filter((order: any) =>
+    order?.work_orders?.work_order_status.length > 0
+      ? order?.work_orders?.work_order_status[0]?.status?.category === 'CANCEL'
+      : order?.status?.category === 'CANCEL'
+  ).length
+
+  const series = [orderIn, paidOrder, canceledOrder]
+  const noDataAvailable = series.every((value) => value === 0)
 
   return {
-    series: [44, 55, 13],
+    series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
+    labels: ['O.IN', 'PAID', 'CANCEL'],
+    colors: ['#1D7710', '#F59B22', '#D8001B'],
+    // labels: noDataAvailable ? ['No Data Available'] : ['O.IN', 'PAID', 'CANCEL'], // Set labels to empty array if no data available
+    // colors: noDataAvailable ? ['#f0f0f0'] : ['#1D7710', '#F59B22', '#D8001B'], // Set colors to default if no data available
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['O.IN', 'PAID', 'CANCEL'],
     legend: {
       show: true,
       height: 20,
@@ -75,7 +93,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
     grid: {
       padding: {
         top: 10,

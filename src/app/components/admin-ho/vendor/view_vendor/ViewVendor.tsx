@@ -249,7 +249,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   const fetchVendorList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/vendor?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/vendor?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',

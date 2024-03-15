@@ -54,7 +54,7 @@ interface Order {
   project_number: string
   request_survey: string
   payment_type: string
-  is_overdistance: boolean
+  is_overdistance: number
   additional_fee: number
   order_details: Array<{
     item?: ItemSelect | null
@@ -93,7 +93,7 @@ const NewOrderStoreCS: FC = () => {
     project_number: '',
     request_survey: '',
     payment_type: 'gratis',
-    is_overdistance: false,
+    is_overdistance: 0,
     additional_fee: 25000,
     order_details: [
       {
@@ -132,7 +132,7 @@ const NewOrderStoreCS: FC = () => {
   })
 
   const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
-  const [isOverdistance, setIsOverdistance] = useState<boolean>(false)
+  const [isOverdistance, setIsOverdistance] = useState<number>(0)
 
   // Sales
   const [sales, setSales] = useState<SalesSelect[]>([])
@@ -271,6 +271,11 @@ const NewOrderStoreCS: FC = () => {
       ...orderForm,
       [e.target.name]: e.target.value,
     })
+  }
+
+  // Checkbox Handler
+  const handleCheckboxChange = (isChecked: boolean) => {
+    setIsOverdistance(isChecked ? 1 : 0)
   }
 
   // Member Form Handler
@@ -464,7 +469,7 @@ const NewOrderStoreCS: FC = () => {
       }
 
       const calculatedGrandTotal =
-        isOverdistance === true
+        isOverdistance === 1
           ? totalOrderAmount + biayaSurvey + additionalFee
           : totalOrderAmount + biayaSurvey
 
@@ -498,8 +503,8 @@ const NewOrderStoreCS: FC = () => {
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
       {key: 'order_details', fieldName: 'Order Details'},
-      // {key: 'is_overdistance', fieldName: 'Overdistance'},
-      // {key: 'additional_fee', fieldName: 'Additional Fee'},
+      {key: 'is_overdistance', fieldName: 'Overdistance'},
+      {key: 'additional_fee', fieldName: 'Additional Fee'},
     ]
 
     const requiredOrderDetailsFields = [
@@ -539,13 +544,15 @@ const NewOrderStoreCS: FC = () => {
             } else {
               formData.append(key, orderForm[key])
             }
-          }
-          // else if (key === 'additional_fee' && isOverdistance === true) {
-          //   if (value) {
-          //     formData.append(key, orderForm[key].toString())
-          //   }
-          // }
-          else {
+          } else if (key === 'additional_fee' && isOverdistance === 1) {
+            if (value) {
+              formData.append(key, orderForm[key].toString())
+            }
+          } else if (key === 'is_overdistance') {
+            if (value) {
+              formData.append(key, orderForm[key].toString())
+            }
+          } else {
             errorBags.push({
               message: `${required.fieldName} cannot be empty`,
             })
@@ -977,7 +984,7 @@ const NewOrderStoreCS: FC = () => {
                 inline
                 label='Lebih dari 10 KM dari Store'
                 type='checkbox'
-                onChange={() => setIsOverdistance(!isOverdistance)}
+                onChange={(e) => handleCheckboxChange(e.target.checked)}
               />
             </Col>
           </Row>
@@ -1140,7 +1147,7 @@ const NewOrderStoreCS: FC = () => {
                   </tr>
                 )}
 
-                {isOverdistance === true && (
+                {isOverdistance === 1 && (
                   <tr>
                     <td
                       className='text-end fw-bolder align-middle'
@@ -1168,7 +1175,7 @@ const NewOrderStoreCS: FC = () => {
                   </tr>
                 )}
 
-                {(paymentTypeValue[1] !== 'survey' || isOverdistance === true) && (
+                {(paymentTypeValue[1] !== 'survey' || isOverdistance === 1) && (
                   <tr>
                     <td
                       className='text-end fw-bolder'

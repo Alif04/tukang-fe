@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials'
 type Props = {
   className: string
   chartHeight: string
+  workOrderData: any[]
 }
 
-const TotalWork: React.FC<Props> = ({className, chartHeight}) => {
+const TotalWork: React.FC<Props> = ({className, chartHeight, workOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const TotalWork: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, workOrderData))
     if (chart) {
       chart.render()
     }
@@ -35,7 +36,7 @@ const TotalWork: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, workOrderData])
 
   return (
     <div className={`card ${className}`}>
@@ -45,7 +46,7 @@ const TotalWork: React.FC<Props> = ({className, chartHeight}) => {
 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted text-center'>Work</div>
-            <div className='fs-1 d-block m-auto'>58</div>
+            <div className='fs-1 d-block m-auto'>{workOrderData.length}</div>
             <div className='fs-5 text-muted'>Work bulan ini</div>
           </div>
         </div>
@@ -54,19 +55,35 @@ const TotalWork: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, workOrderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-info')
+
+  const workReq = workOrderData.filter(
+    (workOrder: any) => workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKREQ'
+  ).length
+
+  const workInProgress = workOrderData.filter(
+    (workOrder: any) => workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WIP'
+  ).length
+
+  const workDone = workOrderData.filter(
+    (workOrder: any) =>
+      workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKDONE'
+  ).length
+
+  const series = [workReq, workInProgress, workDone]
+  const noDataAvailable = series.every((value) => value === 0)
 
   return {
-    series: [44, 55, 13],
+    series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
+    labels: ['W.Req', 'WIP', 'DONE'],
+    colors: ['#1D7710', '#F59B22', '#D8001B'],
+    // labels: noDataAvailable ? ['No Data Available'] : ['W.Req', 'WIP', 'DONE'], // Set labels to empty array if no data available
+    // colors: noDataAvailable ? ['#f0f0f0'] : ['#1D7710', '#F59B22', '#D8001B'], // Set colors to default if no data available
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['W.Req', 'WIP', 'DONE'],
     legend: {
       show: true,
       height: 20,
@@ -75,7 +92,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
     grid: {
       padding: {
         top: 10,

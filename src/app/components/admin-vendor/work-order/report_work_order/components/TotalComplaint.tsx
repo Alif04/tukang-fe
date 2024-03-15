@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials'
 type Props = {
   className: string
   chartHeight: string
+  complaintData: any[]
 }
 
-const TotalComplaint: React.FC<Props> = ({className, chartHeight}) => {
+const TotalComplaint: React.FC<Props> = ({className, chartHeight, complaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const TotalComplaint: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, complaintData))
     if (chart) {
       chart.render()
     }
@@ -35,7 +36,7 @@ const TotalComplaint: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, complaintData])
 
   return (
     <div className={`card ${className}`}>
@@ -45,7 +46,7 @@ const TotalComplaint: React.FC<Props> = ({className, chartHeight}) => {
 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted text-center'>COMPLAINT</div>
-            <div className='fs-1 d-block m-auto'>35</div>
+            <div className='fs-1 d-block m-auto'>{complaintData.length}</div>
             <div className='fs-5 text-muted text-center'>Complaint bulan ini</div>
           </div>
         </div>
@@ -54,21 +55,46 @@ const TotalComplaint: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, complaintData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const reworkColor = getCSSVariableValue('--kt-info')
-  const refundColor = getCSSVariableValue('--kt-danger')
-  const rescheduleColor = getCSSVariableValue('--kt-warning')
-  const investigateColor = getCSSVariableValue('--kt-success')
-  const doneColor = getCSSVariableValue('--kt-secondary')
+
+  const reworkComplaint = complaintData.filter(
+    (complaintData: any) => complaintData?.complaint?.status?.category === 'REWORK'
+  ).length
+
+  const refundComplaint = complaintData.filter(
+    (complaintData: any) => complaintData?.complaint?.status?.category === 'REFUND'
+  ).length
+
+  const rescheduleComplaint = complaintData.filter(
+    (complaintData: any) => complaintData?.complaint?.status?.category === 'RESCHEDULE'
+  ).length
+
+  const investigateComplaint = complaintData.filter(
+    (complaintData: any) => complaintData?.complaint?.status?.category === 'INVESTIGATED'
+  ).length
+
+  const complaintDone = complaintData.filter(
+    (complaintData: any) => complaintData?.complaint?.status?.category === 'DONE'
+  ).length
+
+  const series = [
+    reworkComplaint,
+    refundComplaint,
+    rescheduleComplaint,
+    investigateComplaint,
+    complaintDone,
+  ]
+  const noDataAvailable = series.every((value) => value === 0)
 
   return {
-    series: [44, 55, 13, 34, 54],
+    series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
+    labels: ['REWORK', 'REFUND', 'RESCHEDULE', 'INVESTIGATE', 'DONE'],
+    colors: ['#605BDA', '#D50119', '#E8BE3C', '#3ED997', '#E4E6EF'],
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['REWORK', 'REFUND', 'RESCHEDULE', 'INVESTIGATE', 'DONE'],
     legend: {
       show: true,
       height: 20,
@@ -77,7 +103,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [reworkColor, refundColor, rescheduleColor, investigateColor, doneColor],
     grid: {
       padding: {
         top: 10,
