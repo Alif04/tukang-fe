@@ -26,6 +26,8 @@ const DetailOrderWithoutAuth = () => {
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
   const orderId = queryParams.get('order_id')
+  const phoneNumber = queryParams.get('phone_number')
+  const emailMember = queryParams.get('email_member')
 
   const {config, classes, attributes} = useLayout()
   const {header, aside} = config
@@ -61,10 +63,17 @@ const DetailOrderWithoutAuth = () => {
     quotation: [],
   })
 
-  const trackingOrderData = async (orderId: string | null) => {
+  const trackingOrderData = async (
+    orderId: string | null,
+    phoneNumbers: string | null,
+    emailMembers: string | null
+  ) => {
+    const queryPhoneNumber = phoneNumber ? `&phone_number=${phoneNumbers}` : ``
+    const queryEmailMember = emailMember ? `&email_member=${emailMembers}` : ``
+
     try {
       await axios
-        .get(`${apiUrl}/orders/data/${orderId}`, {
+        .get(`${apiUrl}/orders/data?order_id=${orderId}${queryPhoneNumber}${queryEmailMember}`, {
           headers: {
             Accept: 'application/json',
           },
@@ -74,17 +83,17 @@ const DetailOrderWithoutAuth = () => {
           setOrder(data)
         })
     } catch (error: any) {
-      if (error.response.data.status === 400 || error.response.data.statusCode === 404) {
+      if (error.response.data.status === 400 || error.response.data.status === 404) {
         navigate('/error')
       }
     }
   }
 
   useEffect(() => {
-    if (orderId) {
-      trackingOrderData(orderId)
+    if (orderId || phoneNumber || emailMember) {
+      trackingOrderData(orderId, phoneNumber, emailMember)
     }
-  }, [orderId])
+  }, [orderId, phoneNumber, emailMember])
 
   const [status, setStatus] = useState<Status[]>([])
 

@@ -1,0 +1,81 @@
+/* Table */
+#report-insentif .table-view-report .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#report-insentif .form-control.p-0.w-100.css-b62m3t-container {
+  z-index: 99999 !important;
+}
+
+#report-insentif
+  .table-view-report
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#report-insentif
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#report-insentif .table-view-report .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#report-insentif .table-view-report .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#report-insentif .table-view-report .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#report-insentif .table-view-report .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#report-insentif .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#report-insentif .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+/* Filter Search */
+
+#report-insentif .filter-search {
+  width: 370px;
+}
+
+#report-insentif input.filter-ltr.form-control {
+  border-left: none !important;
+}
+
+#report-insentif
+  .table-view-report
+  .table-head-wrapper
+  .filter-search
+  .input-group-text.filter-ltr {
+  background-color: transparent !important;
+  border-right: none !important;
+}
+
+@media screen and (max-width: 1200px) {
+  #report-insentif .filter-search {
+    width: 100%;
+  }
+}

@@ -7,6 +7,7 @@ import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderW
 import {ViewCostumer} from '../customers/components/ViewCostumers'
 import {NewCostumers} from '../customers/components/NewCostumers'
 import {DetailCostumer} from './components/DetailCostumers'
+import {UpdateCostumers} from './components/UpdateCostumers'
 import {ReportCostumer} from './components/ReportCostumers'
 
 const costumersBreadCrumbs: Array<PageLink> = [
@@ -63,6 +64,27 @@ const CostumersPage: React.FC = () => {
             )}
             <PageTitle breadcrumbs={costumersBreadCrumbs}>NEW COSTUMER FORM</PageTitle>
             <NewCostumers />
+          </>
+        }
+      />
+
+      <Route
+        path='update-costumers/:id'
+        element={
+          <>
+            {userRole === 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={costumersBreadCrumbs}>UPDATE COSTUMER</PageTitle>
+            <UpdateCostumers />
           </>
         }
       />

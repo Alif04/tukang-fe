@@ -67,7 +67,7 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
       },
       {
         name: 'Cancel',
-        data: [70, 60, 110, 40, 50, 70],
+        data: chartComplaintData.map((item: any) => item.totalOrder),
       },
     ],
     chart: {

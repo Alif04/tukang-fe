@@ -1,10 +1,10 @@
 import React, {FC, useState, useEffect} from 'react'
 
-import './NewCostumers.css'
+import './UpdateCostumers.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 
 interface Member {
@@ -16,39 +16,48 @@ interface Member {
   address_2: string
 }
 
-const NewCostumerHO: FC = () => {
+const UpdateCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const params = useParams()
   const navigate = useNavigate()
 
   // Fetch API Data
-  // useEffect(() => {
-  //   const getMemberId = async () => {
-  //     try {
-  //       const response = await axios.get(`${apiUrl}/member/next-code`, {
-  //         headers: {
-  //           Accept: 'application/json',
-  //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //           'Access-Control-Allow-Origin': '*',
-  //           'ngrok-skip-browser-warning': 'true',
-  //         },
-  //       })
-  //       const data = response.data.code
+  useEffect(() => {
+    const getMemberData = async () => {
+      try {
+        await axios
+          .get(`${apiUrl}/member/${params.id}`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          .then((response) => {
+            const data = response.data.data.member
 
-  //       if (response.status === 200) {
-  //         const {data} = response
-  //         setMemberId(data.data.code)
-  //       }
-  //     } catch (err) {
-  //       console.error(err)
-  //     }
-  //   }
+            if (data) {
+              setMemberInfo((prev) => ({
+                ...prev,
+                full_name: data.full_name,
+                email: data.email,
+                phone_number: data.phone_number,
+                whatsapp_number: data.whatsapp_number,
+                address_1: data.address_1,
+                address_2: data.address_2,
+              }))
+            }
+          })
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
-  //   getMemberId()
-  // }, [])
+    getMemberData()
+  }, [])
 
   // Member
-  // const [memberId, setMemberId] = useState<any>()
-  // const [isWhatsapp, setIsWhatsapp] = useState<boolean>(true)
   const [memberInfo, setMemberInfo] = useState<Member>({
     full_name: '',
     email: '',
@@ -72,17 +81,9 @@ const NewCostumerHO: FC = () => {
     }))
   }
 
-  // Is Whatsapp
-  // useEffect(() => {
-  //   setMemberInfo({
-  //     ...memberInfo,
-  //     whatsapp_number: isWhatsapp === true ? memberInfo.whatsapp_number : memberInfo.phone_number,
-  //   })
-  // }, [isWhatsapp])
-
-  const handleSubmitNewMember = async () => {
+  const handleUpdateMember = async () => {
     await axios
-      .post(`${apiUrl}/member`, memberInfo, {
+      .post(`${apiUrl}/member/${params.id}`, memberInfo, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -94,7 +95,7 @@ const NewCostumerHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Add New Customers',
+            text: 'Success Update Customers Data',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -136,6 +137,7 @@ const NewCostumerHO: FC = () => {
                     <Form.Control
                       name='full_name'
                       type='text'
+                      value={memberInfo.full_name}
                       onChange={(e) => memberInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -147,6 +149,7 @@ const NewCostumerHO: FC = () => {
                     <Form.Control
                       name='email'
                       type='email'
+                      value={memberInfo.email}
                       onChange={(e) => memberInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -155,11 +158,12 @@ const NewCostumerHO: FC = () => {
 
               <Row className='input-order'>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group>
+                  <Form.Group className='mb-5'>
                     <Form.Label>Phone Number</Form.Label>
                     <Form.Control
                       name='phone_number'
                       type='number'
+                      value={memberInfo.phone_number}
                       onChange={(e) => memberInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -197,16 +201,16 @@ const NewCostumerHO: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Whatsapp Number</Form.Label>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Whatsapp Number</Form.Label>
 
-                  <InputGroup className='mb-5'>
-                    <InputGroup.Text>+ 62</InputGroup.Text>
                     <Form.Control
                       name='whatsapp_number'
-                      type='number'
+                      type='text'
+                      value={memberInfo.whatsapp_number}
                       onChange={(e) => memberInfoFormHandler(e)}
                     />
-                  </InputGroup>
+                  </Form.Group>
                 </Col>
               </Row>
 
@@ -218,6 +222,7 @@ const NewCostumerHO: FC = () => {
                       name='address_1'
                       as='textarea'
                       className='field-alamat w-100'
+                      value={memberInfo.address_1}
                       onChange={(e) => memberInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -230,6 +235,7 @@ const NewCostumerHO: FC = () => {
                       name='address_2'
                       as='textarea'
                       className='field-alamat w-100'
+                      value={memberInfo.address_2}
                       onChange={(e) => memberInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -243,8 +249,8 @@ const NewCostumerHO: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' onClick={handleSubmitNewMember}>
-              Save
+            <Button variant='dark-primary' onClick={handleUpdateMember}>
+              Update
             </Button>
           </div>
         </div>
@@ -253,4 +259,4 @@ const NewCostumerHO: FC = () => {
   )
 }
 
-export {NewCostumerHO}
+export {UpdateCostumerHO}

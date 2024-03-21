@@ -162,6 +162,9 @@ export * from './admin-ho/costumers/view_costumers/ViewCostumer'
 // New Costumer HO
 export * from './admin-ho/costumers/new_costumers/NewCostumers'
 
+// Update Costumer HO
+export * from './admin-ho/costumers/update_costumers/UpdateCostumers'
+
 // Detail Costumers HO
 export * from './admin-ho/costumers/detail_costumers/DetailCostumers'
 
@@ -290,6 +293,9 @@ export * from './admin-ho/reports/view_report/ViewReportHO'
 
 // Report
 export * from './admin-ho/reports/report/ReportHO'
+
+// Report Insentif HO
+export * from './admin-ho/reports/report_insentif/ReportInsentifHo'
 
 // CLAIM WARRANTY
 // List Claim Warranty

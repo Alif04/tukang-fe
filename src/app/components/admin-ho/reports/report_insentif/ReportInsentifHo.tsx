@@ -4,12 +4,13 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
+import Select from 'react-select'
 import * as XLSX from 'xlsx'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faSearch, faFilter, faFileExcel, faPrint} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -18,13 +19,13 @@ type Props = {
   className: string
 }
 
-const ReportInsentifStore: React.FC<Props> = ({className}) => {
-  const apiUrl = process.env.REACT_APP_API_URL
+interface SalesItem {
+  value: number | null
+  label: string
+}
 
-  const userStore = localStorage.getItem('storeId')
-  const userRole = localStorage.getItem('userRole') as any
-  const userId = localStorage.getItem('user_id') as any
-  const salesId = localStorage.getItem('sales_id') as any
+const ReportInsentifHO: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
@@ -33,6 +34,13 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const [sales, setSales] = useState<SalesItem[]>([])
+  const [selectedSales, setSelectedSales] = useState<any>({
+    value: null,
+    label: 'All Sales',
+  })
+  const salesOptions = [{value: null, label: 'All Sales'}, ...sales]
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -163,10 +171,9 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const fetchOrderList = async (page: number, pageSize: number) => {
     try {
-      const url =
-        userRole === 'Store CS' || userRole === 'Admin HO'
-          ? `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&page=${page}&take=${pageSize}`
-          : `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${salesId}&store_id=${userStore}&page=${page}&take=${pageSize}`
+      const url = !selectedSales.value
+        ? `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
+        : `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}&sales_id=${selectedSales.value}`
 
       const response = await axios.get(url, {
         headers: {
@@ -244,7 +251,37 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+  }, [dateFrom, dateTo, searchFilter, selectedSales])
+
+  useEffect(() => {
+    const getSales = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/sales?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempSales = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.full_name,
+          }))
+
+          setSales(tempSales)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getSales()
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -322,6 +359,27 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
             </Col>
           </Row>
 
+          <Row className='table-head-wrapper-bottom mb-4'>
+            <Col xs={12} md={12} lg={12} xl={2} xxl={2} className='d-flex align-items-center'>
+              <h3 className='fs-3 fw-bold w-100'>Filter By : </h3>
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={10} xxl={10} className='d-flex align-items-center'>
+              <h3 className='fs-5 fw-normal'>Sales Person : </h3>
+
+              <Select
+                name='sales_id'
+                className='form-control p-0 w-100'
+                classNamePrefix='select'
+                placeholder='Pilih Sales'
+                isSearchable={true}
+                options={salesOptions}
+                value={selectedSales}
+                onChange={(newValue) => setSelectedSales(newValue)}
+              />
+            </Col>
+          </Row>
+
           <div className='total-order'>
             <p className='fs-5'>Total order : {orderData.length}</p>
           </div>
@@ -355,4 +413,4 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ReportInsentifStore}
+export {ReportInsentifHO}

@@ -65,7 +65,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       },
       {
         name: 'Order In',
-        data: [76, 85, 101, 98, 87, 105],
+        data: chartOrderData.map((item: any) => item.totalOrder),
       },
     ],
     chart: {

@@ -7,10 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  chartOrderData: any[]
+  chartWorkOrder: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
+const ChartLine: React.FC<Props> = ({className, chartWorkOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +21,7 @@ const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartOrderData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartWorkOrder))
     if (chart) {
       chart.render()
     }
@@ -37,7 +37,7 @@ const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, chartOrderData])
+  }, [chartRef, mode, chartWorkOrder])
 
   return (
     <div className={`card ${className}`}>
@@ -50,7 +50,7 @@ const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
 
 export {ChartLine}
 
-function getChartOptions(height: number, chartOrderData: any): ApexOptions {
+function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -63,11 +63,11 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     series: [
       {
         name: 'Survey',
-        data: [60, 50, 80, 40, 100, 60],
+        data: chartWorkOrder.map((item: any) => item.totalSurveyReqOrder),
       },
       {
         name: 'Work Done',
-        data: [70, 60, 110, 40, 50, 70],
+        data: chartWorkOrder.map((item: any) => item.totalCompleteOrder),
       },
     ],
     chart: {
@@ -94,7 +94,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartOrderData.map((item: any) => item.month),
+      categories: chartWorkOrder.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },

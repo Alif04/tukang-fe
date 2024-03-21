@@ -2,11 +2,24 @@
 import React from 'react'
 
 import {ReportInsentifStore} from '../../../components'
+import {ReportInsentifHO} from '../../../components'
 
 const ReportInsentifList: React.FC = () => {
+  const userRole = localStorage.getItem('userRole')
+
   return (
     <>
-      <ReportInsentifStore className='' />
+      {userRole === 'Admin HO' ? (
+        <>
+          <ReportInsentifHO className='' />
+        </>
+      ) : userRole === 'Store Staff' || userRole === 'Store CS' ? (
+        <>
+          <ReportInsentifStore className='' />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   )
 }

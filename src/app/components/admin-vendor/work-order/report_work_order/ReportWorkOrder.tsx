@@ -16,10 +16,12 @@ const ReportWorkVendor: FC = () => {
   const vendorId = localStorage.getItem('vendor_id')
 
   const [orderData, setOrderData] = useState<any[]>([])
-  const [chartData, setChartData] = useState<any[]>([])
-  const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<any[]>([])
+
+  const [chartData, setChartData] = useState<any[]>([])
+  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
+  const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
 
   const fetchOrderList = async () => {
     try {
@@ -47,7 +49,7 @@ const ReportWorkVendor: FC = () => {
 
   const getWorkOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/work-orders?vendor_id=${vendorId}`, {
+      const response = await axios.get(`${apiUrl}/reports/work-orders?vendor_id=${vendorId}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -57,7 +59,10 @@ const ReportWorkVendor: FC = () => {
       })
 
       const data = response.data.data
+      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+
       setWorkOrderData(data)
+      setChartWorkOrder(chartDatas)
       return data
     } catch (error) {
       console.error(error)
@@ -128,7 +133,7 @@ const ReportWorkVendor: FC = () => {
           <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartData} />
         </div>
         <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartOrderData={chartData} />
+          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartWorkOrder} />
         </div>
         <div className='col-xl-4'>
           <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
@@ -150,7 +155,7 @@ const ReportWorkVendor: FC = () => {
           <ChartDonut2
             className='card-xl-stretch mb-5 mb-xl-8'
             chartHeight='300px'
-            chartWorkOrder={chartData}
+            chartWorkOrder={chartWorkOrder}
           />
         </div>
       </div>

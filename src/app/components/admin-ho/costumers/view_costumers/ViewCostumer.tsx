@@ -9,7 +9,7 @@ import {Table, DatePicker, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPrint, faFileExcel, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPrint, faFileExcel, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -35,17 +35,18 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
   interface DataType {
     number: number
-    store_name: string
+    // store_name: string
     costumer_id: number
+    member_number: number
     full_name: string
     phone_number: number
     email_address: string
     customer_since: Date
-    total_services: number
-    total_spend: number
-    total_complaint: number
-    total_cis_score: number
-    status: string
+    total_order: number
+    // total_spend: number
+    // total_complaint: number
+    // total_cis_score: number
+    // status: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -56,20 +57,20 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       align: 'center',
       sorter: (a, b) => a.number - b.number,
     },
-    {
-      title: 'Nama Toko',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-    },
+    // {
+    //   title: 'Nama Toko',
+    //   dataIndex: 'store_name',
+    //   key: 'store_name',
+    //   align: 'center',
+    //   onFilter: (value, record) => record.store_name.includes(String(value)),
+    //   sorter: (a, b) => a.store_name.length - b.store_name.length,
+    // },
     {
       title: 'Nomor Member',
-      dataIndex: 'costumer_id',
-      key: 'costumer_id',
+      dataIndex: 'member_number',
+      key: 'member_number',
       align: 'center',
-      sorter: (a, b) => a.costumer_id - b.costumer_id,
+      sorter: (a, b) => a.member_number - b.member_number,
     },
     {
       title: 'Nama Customer',
@@ -99,23 +100,23 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => new Date(a.customer_since).getTime() - new Date(b.customer_since).getTime(),
     },
     {
-      title: 'Total Invoice',
-      dataIndex: 'total_services',
-      key: 'total_services',
+      title: 'Total Order',
+      dataIndex: 'total_order',
+      key: 'total_order',
       align: 'center',
-      sorter: (a, b) => a.total_services - b.total_services,
+      sorter: (a, b) => a.total_order - b.total_order,
     },
-    {
-      title: 'Total Value',
-      dataIndex: 'total_spend',
-      key: 'total_spend',
-      sorter: (a, b) => a.total_spend - b.total_spend,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-    },
+    // {
+    //   title: 'Total Value',
+    //   dataIndex: 'total_spend',
+    //   key: 'total_spend',
+    //   sorter: (a, b) => a.total_spend - b.total_spend,
+    // },
+    // {
+    //   title: 'Status',
+    //   dataIndex: 'status',
+    //   key: 'status',
+    // },
     {
       title: 'Action',
       key: 'action',
@@ -126,10 +127,19 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
           navigate(`/costumers/detail-costumers/${id}`)
         }
 
+        const handleUpdate = () => {
+          const id = record.costumer_id
+          navigate(`/costumers/update-costumers/${id}`)
+        }
+
         return (
-          <div className='d-flex justify-content-center '>
-            <a className='button-detail' onClick={handleDetail}>
+          <div className='d-flex justify-content-center'>
+            <a className='button-detail me-2' onClick={handleDetail}>
               <FontAwesomeIcon icon={faBook} size='sm' />
+            </a>
+
+            <a className='button-update ms-2 text-dark' onClick={handleUpdate}>
+              <FontAwesomeIcon icon={faPen} size='sm' />
             </a>
           </div>
         )
@@ -162,7 +172,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)
-      return response.data.data.member
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -173,7 +183,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       const apiData = await fetchMemberList(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetch member')
         return []
       }
 
@@ -181,22 +191,23 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         let data
 
         const joinDate = new Date(item?.join_date ?? '-')
-
         let phoneNumber = item.phone_number !== 'null' ? item.phone_number : item.whatsapp_number
+        let totalOrder = item?.order.length ?? 0
 
         data = {
           number: index + 1,
-          store_name: item?.store?.store_name ?? '-',
+          // store_name: item?.store?.store_name ?? '-',
           costumer_id: item.id,
+          member_number: item.member_number,
           full_name: item.full_name,
           phone_number: phoneNumber,
           email_address: item?.email ?? '-',
           customer_since: formatDate(joinDate),
-          total_services: item?.total_service ?? '-',
-          total_spend: item?.total_spend ?? '-',
-          total_complaint: item?.total_complaint ?? '-',
-          total_cis_score: item?.total_cis_score ?? '-',
-          status: item?.is_active === true ? 'ACTIVE' : '-',
+          total_order: totalOrder,
+          // total_spend: item?.total_spend ?? '-',
+          // total_complaint: item?.total_complaint ?? '-',
+          // total_cis_score: item?.total_cis_score ?? '-',
+          // status: item?.is_active === true ? 'ACTIVE' : '-',
         }
 
         return data
@@ -252,7 +263,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
               <Form.Group as={Row} className='date-filter mb-5'>
                 <Form.Label column sm='4'>
-                  Start Date :
+                  Join Date :
                 </Form.Label>
 
                 <Col sm='8'>
@@ -274,22 +285,6 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
                   />
                 </Col>
               </Form.Group>
-            </div>
-
-            <div className='middle'>
-              <div className='select-filter'>
-                <h3>Nama Store : </h3>
-
-                <select className='form-select filter filter-order'>
-                  <option value='1'>MITRA 10 - BSD</option>
-                  <option selected value='2'>
-                    MITRA 10 - SBY
-                  </option>
-                  <option value='3'> MITRA 10 - JAKARTA</option>
-                  <option value='4'> MITRA 10 - BANDUNG</option>
-                  <option value='5'> MITRA 10 - CIANJUR</option>
-                </select>
-              </div>
             </div>
 
             <div className='right'>

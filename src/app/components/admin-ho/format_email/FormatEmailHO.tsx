@@ -59,56 +59,59 @@ const FormatEmailHO: FC = () => {
   })
 
   // Fetch Data Email
-  useEffect(() => {
-    const fetchEmailData = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/email`, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          .then((response) => {
-            const data = response.data.data
+  const fetchEmailData = async () => {
+    const emailType =
+      selectedEmailType && selectedEmailType.value ? `?type=${selectedEmailType.value}` : ''
 
-            if (data?.email) {
-              setEmailForm((prev) => ({
-                ...prev,
-                welcome_header: data?.welcome_header,
-                greetings: data?.greetings,
-                contact_detail: data?.contact_detail,
-                footer: data?.footer,
-              }))
-            }
+    try {
+      await axios
+        .get(`${apiUrl}/email${emailType}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
 
-            if (data?.terms_detail) {
-              setEmailForm((prev: any) => ({
-                ...prev,
-                terms_detail: data.terms_detail.map((item: any) => ({
-                  term: item.term,
-                })),
-              }))
-            }
+          if (data?.email) {
+            setEmailForm((prev) => ({
+              ...prev,
+              welcome_header: data?.welcome_header,
+              greetings: data?.greetings,
+              contact_detail: data?.contact_detail,
+              footer: data?.footer,
+            }))
+          }
 
-            if (data?.information_detail) {
-              setEmailForm((prev: any) => ({
-                ...prev,
-                information_detail: data.information_detail.map((item: any) => ({
-                  information: item.information,
-                })),
-              }))
-            }
-          })
-      } catch (error) {
-        console.error(error)
-      }
+          if (data?.terms_detail) {
+            setEmailForm((prev: any) => ({
+              ...prev,
+              terms_detail: data.terms_detail.map((item: any) => ({
+                term: item.term,
+              })),
+            }))
+          }
+
+          if (data?.information_detail) {
+            setEmailForm((prev: any) => ({
+              ...prev,
+              information_detail: data.information_detail.map((item: any) => ({
+                information: item.information,
+              })),
+            }))
+          }
+        })
+    } catch (error) {
+      console.error(error)
     }
+  }
 
+  useEffect(() => {
     fetchEmailData()
-  }, [])
+  }, [selectedEmailType?.value])
 
   // Template Option
   const templateOptions = [
@@ -211,6 +214,7 @@ const FormatEmailHO: FC = () => {
       return cache
     })
   }
+
   // Handle Update Email
   const handleCreateEmailMessages = async () => {
     setIsLoading(false)

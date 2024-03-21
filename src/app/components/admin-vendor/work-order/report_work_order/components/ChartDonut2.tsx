@@ -61,15 +61,21 @@ const chartOptions = (chartHeight: string, chartWorkOrder: any): ApexOptions => 
   const cancelColor = getCSSVariableValue('--kt-dark')
   const ReworkColor = getCSSVariableValue('--kt-success')
 
+  const onProgress = chartWorkOrder.map((item: any) => item.totalSurveyReqOrder)
+  const totalOnProgress = onProgress.reduce((acc: any, curr: any) => acc + curr, 0)
+
+  const workDone = chartWorkOrder.map((item: any) => item.totalCompleteOrder)
+  const totalWorkDone = workDone.reduce((acc: any, curr: any) => acc + curr, 0)
+
   return {
-    series: [44, 55, 13, 30],
-    colors: [processColor, pendingColor, cancelColor, ReworkColor],
+    series: [totalOnProgress, totalWorkDone],
+    colors: [processColor, pendingColor],
     chart: {
       width: 500,
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['On Progress', 'Done', 'Reschedule', 'Rework'],
+    labels: ['On Progress', 'Done'],
     legend: {
       show: true,
       height: 20,

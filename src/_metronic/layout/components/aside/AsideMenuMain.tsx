@@ -406,8 +406,8 @@ export function AsideMenuMain() {
       >
         <AsideMenuItem
           to='/reports/report-insentif'
-          title='Insentif'
-          role={['Store CS', 'Store Staff', 'Sales']}
+          title={userRole === 'Admin HO' ? 'Insentif Sales' : 'Insentif'}
+          role={['Store CS', 'Store Staff', 'Sales', 'Admin HO']}
           hasBullet={true}
         />
         <AsideMenuItem

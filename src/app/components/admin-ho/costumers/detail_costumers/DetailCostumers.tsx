@@ -90,13 +90,13 @@ const DetailCostumerHO: FC = () => {
       key: 'date_order',
       width: 150,
     },
+    // {
+    //   title: 'Total Invoice',
+    //   dataIndex: 'total_invoice',
+    //   key: 'total_invoice',
+    // },
     {
-      title: 'Total Invoice',
-      dataIndex: 'total_invoice',
-      key: 'total_invoice',
-    },
-    {
-      title: 'Status',
+      title: 'Status Order',
       dataIndex: 'status',
       key: 'status',
     },
@@ -145,7 +145,7 @@ const DetailCostumerHO: FC = () => {
           store_name: item?.store?.store_name ?? '-',
           receipt_number: item?.receipt_number ?? '-',
           date_order: formatDate(orderDate),
-          total_invoice: item?.total_invoice ?? '-',
+          // total_invoice: item?.total_invoice ?? '-',
           status: item?.status?.category ?? '-',
         }
 
@@ -217,7 +217,7 @@ const DetailCostumerHO: FC = () => {
           <div className='costumer-profile'>
             <h1 className='fs-1 mb-3'>{memberDetail?.full_name}</h1>
             <h3 className='fs-2 fst-3 mb-3 text-muted'>{memberDetail?.id}</h3>
-            <p className='fs-4 mb-1'>Customer of : Mitra 10-BSD</p>
+            {/* <p className='fs-4 mb-1'>Customer of : Mitra 10-BSD</p> */}
             <p className='fs-4 text-muted mb-1'>Rating</p>
 
             <Rate disabled defaultValue={memberDetail?.rating} />
@@ -300,7 +300,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly defaultValue='29' />
+                  <Form.Control plaintext readOnly value={memberDetail?.order.length ?? 0} />
                 </Col>
               </Form.Group>
             </div>
