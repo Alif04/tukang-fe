@@ -199,8 +199,8 @@ const NewOrderStoreCS: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.member)) {
-          const tempMember = response.data.data.member.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item[labelKey],
             full_name: item.full_name,
@@ -344,7 +344,7 @@ const NewOrderStoreCS: FC = () => {
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatusName = 'PICKLIST'
-    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
     setOrderForm({

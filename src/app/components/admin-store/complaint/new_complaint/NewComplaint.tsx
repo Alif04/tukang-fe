@@ -163,7 +163,7 @@ const NewComplaintStore: FC = () => {
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatusName = 'INVESTIGATED'
-    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
     setComplaintStatus(statusId)

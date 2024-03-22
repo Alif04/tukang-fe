@@ -147,7 +147,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatusName = 'FEEDBACK'
-    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
     setFeedbackStatusId(statusId)

@@ -372,8 +372,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             'ngrok-skip-browser-warning': 'true',
           },
         })
-        if (Array.isArray(response.data.data.member)) {
-          const tempMember = response.data.data.member.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.member_number,
             full_name: item.full_name,
@@ -479,7 +479,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatusName = 'BOOKED'
-    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
     setOrderForm({

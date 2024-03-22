@@ -347,8 +347,8 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
             'ngrok-skip-browser-warning': 'true',
           },
         })
-        if (Array.isArray(response.data.data.member)) {
-          const tempMember = response.data.data.member.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.member_number,
             full_name: item.full_name,
@@ -454,7 +454,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatusName = 'PICKLIST'
-    const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
+    const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
     setOrderForm({

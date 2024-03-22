@@ -345,8 +345,8 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
             'ngrok-skip-browser-warning': 'true',
           },
         })
-        if (Array.isArray(response.data.data.member)) {
-          const tempMember = response.data.data.member.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.full_name,
           }))

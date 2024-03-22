@@ -133,8 +133,8 @@ const DashboardStore: FC = () => {
             'ngrok-skip-browser-warning': 'true',
           },
         })
-        if (Array.isArray(response.data.data.member)) {
-          const tempMember = response.data.data.member.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.member_number,
             full_name: item.full_name,
