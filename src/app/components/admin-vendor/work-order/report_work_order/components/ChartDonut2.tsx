@@ -75,7 +75,7 @@ const chartOptions = (chartHeight: string, chartWorkOrder: any): ApexOptions => 
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['On Progress', 'Done'],
+    labels: ['Sedang dalam pengerjaan', 'Selesai'],
     legend: {
       show: true,
       height: 20,

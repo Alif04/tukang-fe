@@ -42,7 +42,7 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
           <h1 className='fs-1' style={{color: '#6E010F'}}>
-            Complaint
+            Komplain
           </h1>
 
           <div className='d-flex justify-content-center'>
@@ -64,7 +64,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['Investigated', 'Rejected', 'Solved'],
+    labels: ['Diselidiki', 'Ditolak', 'Diselesaikan'],
     legend: {
       show: true,
       height: 20,

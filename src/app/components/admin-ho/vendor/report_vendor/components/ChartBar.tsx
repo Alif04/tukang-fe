@@ -60,11 +60,11 @@ function getChartOptions(height: number): ApexOptions {
   return {
     series: [
       {
-        name: 'Order Done',
+        name: 'Order Selesai',
         data: [44, 55, 57, 56, 61, 58],
       },
       {
-        name: 'Order In',
+        name: 'Order Masuk',
         data: [76, 85, 101, 98, 87, 105],
       },
     ],

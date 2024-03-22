@@ -60,7 +60,7 @@ function getChartOptions(height: number): ApexOptions {
         data: [44, 55, 57, 56, 61, 58],
       },
       {
-        name: 'Work Done',
+        name: 'Pekerjaan Selesai',
         data: [76, 85, 101, 98, 87, 105],
       },
     ],

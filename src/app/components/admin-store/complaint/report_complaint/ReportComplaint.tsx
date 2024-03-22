@@ -210,21 +210,21 @@ const ReportComplaintStore: FC = () => {
                 <div className='order-in'>
                   <div className='d-flex flex-column align-items-center ms-5 gap-2'>
                     <h1 className='fw-normal'>{newComplaint}</h1>
-                    <p>NEW</p>
+                    <p>BARU</p>
                   </div>
                 </div>
 
                 <div className='order-pending'>
                   <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
                     <h1 className='fw-normal'>{rejectComplaint}</h1>
-                    <p>REJECTED</p>
+                    <p>DITOLAK</p>
                   </div>
                 </div>
 
                 <div className='order-cancel'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
                     <h1 className='fw-normal'>{acceptedComplaint}</h1>
-                    <p className='text-danger'>ACCEPTED</p>
+                    <p className='text-danger'>DITERIMA</p>
                   </div>
                 </div>
               </div>
@@ -240,29 +240,29 @@ const ReportComplaintStore: FC = () => {
               <div className='d-flex justify-content-between mb-5'>
                 <div className='survey'>
                   <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal'>{resurveyComplaint}</h1>
-                    <p>RESURVEY</p>
+                    <h1 className='fw-normal text-center'>{resurveyComplaint}</h1>
+                    <p className='text-center'>SURVEY ULANG</p>
                   </div>
                 </div>
 
                 <div className='wip'>
                   <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>{reworkComplaint}</h1>
-                    <p>REWORK</p>
+                    <h1 className='fw-normal text-center'>{reworkComplaint}</h1>
+                    <p className='text-center'>PENGERJAAN ULANG</p>
                   </div>
                 </div>
 
                 <div className='done'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
                     <h1 className='fw-normal'>{rescheduleComplaint}</h1>
-                    <p className='text-success'>RESECHEDULE</p>
+                    <p className='text-success text-center'>RESCHEDULE</p>
                   </div>
                 </div>
 
                 <div className='complaint'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
                     <h1 className='fw-normal'>{refundComplaint}</h1>
-                    <p className='text-danger'>REFUND</p>
+                    <p className='text-danger text-center'>REFUND</p>
                   </div>
                 </div>
               </div>

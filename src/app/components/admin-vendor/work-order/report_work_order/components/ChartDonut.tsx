@@ -67,7 +67,7 @@ const chartOptions = (chartHeight: string, chartComplaint: any): ApexOptions => 
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['Investigated', 'Rejected', 'Solved'],
+    labels: ['Diselidiki', 'Ditolak', 'Selesai'],
     legend: {
       show: true,
       height: 20,

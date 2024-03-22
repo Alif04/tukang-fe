@@ -224,7 +224,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
       const apiData = await getCSI(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from csi data')
         return []
       }
 
@@ -232,18 +232,18 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
         let data
 
         data = {
-          order_id: item['Member Id'],
-          store_name: item['Nama Toko'],
-          vendor_name: item['Nama Vendor'],
-          member_id: item['Member Id'],
-          member_name: item['Nama Member'],
-          member_email: item['Email Adress Pemberi Jawaban'],
-          performance_rate: item['Performance Rate'],
-          delivery_rate: item['Delivery Rate'],
-          invoicing_rate: item['Invoicing Rate'],
-          cs_rate: item['Customer Service Rate'],
-          knowledge_rate: item['Knowledge Rate'],
-          notes: item['Catatan Tambahan'],
+          order_id: item.id,
+          store_name: item?.store_name,
+          vendor_name: item?.vendor_name,
+          member_id: item?.member_id,
+          member_name: item?.member_name,
+          member_email: item?.email_address,
+          performance_rate: item?.performance_rate,
+          delivery_rate: item?.delivery_rate,
+          invoicing_rate: item?.invoicing_rate,
+          cs_rate: item?.customer_service_rate,
+          knowledge_rate: item?.knowledge_rate,
+          notes: item?.notes,
         }
 
         return data

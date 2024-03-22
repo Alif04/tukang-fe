@@ -77,7 +77,7 @@ const chartOptions = (chartHeight: string, orderData: any): ApexOptions => {
 
   return {
     series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
-    labels: ['O.IN', 'PAID', 'CANCEL'],
+    labels: ['ORDER MASUK', 'ORDER DIBAYAR', 'ORDER BATAL'],
     colors: ['#1D7710', '#F59B22', '#D8001B'],
     // labels: noDataAvailable ? ['No Data Available'] : ['O.IN', 'PAID', 'CANCEL'], // Set labels to empty array if no data available
     // colors: noDataAvailable ? ['#f0f0f0'] : ['#1D7710', '#F59B22', '#D8001B'], // Set colors to default if no data available

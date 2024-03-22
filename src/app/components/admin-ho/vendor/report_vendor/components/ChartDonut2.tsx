@@ -58,13 +58,13 @@ const chartOptions = (chartHeight: string): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
   return {
-    series: [44, 55, 13, 30],
+    series: [44, 55],
     chart: {
       width: 500,
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['On Progress', 'Done', 'Reschedule', 'Rework'],
+    labels: ['Sedang pengerjaan', 'Selesai'],
     legend: {
       show: true,
       height: 20,
@@ -73,7 +73,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: ['#009DFF', '#22E4FF', '#3BFFD0', '#04E38A'],
+    colors: ['#009DFF', '#22E4FF'],
     grid: {
       padding: {
         top: 10,

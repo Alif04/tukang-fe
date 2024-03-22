@@ -1,144 +1,107 @@
 import React, {FC, useState, useEffect} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './FormatEmailHO.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select, {SingleValue} from 'react-select'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
-
-interface templateOption {
-  value: string
-  label: string
-}
 
 interface emailLayout {
   email_type: string
   greetings: string
   footer: string
   welcome_header: string
-  // contact_detail: string
   terms_detail: Array<{
+    id: number | null
     term: string
   }>
   information_detail: Array<{
+    id: number | null
     information: string
   }>
 }
 
-const FormatEmailHO: FC = () => {
+const UpdateFormatEmailHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
-  // Email
-  const [selectedEmailType, setSelectedEmailType] = useState<SingleValue<templateOption>>({
-    value: '',
-    label: '',
-  })
 
   const [emailForm, setEmailForm] = useState<emailLayout>({
     email_type: '',
     greetings: '',
     footer: '',
     welcome_header: '',
-    // contact_detail: '',
     terms_detail: [
       {
+        id: null,
         term: '',
       },
     ],
     information_detail: [
       {
+        id: null,
         information: '',
       },
     ],
   })
 
   // Fetch Data Email
-  // const fetchEmailData = async () => {
-  //   const emailType =
-  //     selectedEmailType && selectedEmailType.value ? `?type=${selectedEmailType.value}` : ''
+  const fetchEmailData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/email-messages/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
 
-  //   try {
-  //     await axios
-  //       .get(`${apiUrl}/email${emailType}`, {
-  //         headers: {
-  //           Accept: 'application/json',
-  //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //           'Access-Control-Allow-Origin': '*',
-  //           'ngrok-skip-browser-warning': 'true',
-  //         },
-  //       })
-  //       .then((response) => {
-  //         const data = response.data.data
+          if (data) {
+            setEmailForm((prev) => ({
+              ...prev,
+              email_type: data?.email_type,
+              welcome_header: data?.welcome_header,
+              greetings: data?.greetings,
+              footer: data?.footer,
+            }))
+          }
 
-  //         if (data?.email) {
-  //           setEmailForm((prev) => ({
-  //             ...prev,
-  //             welcome_header: data?.welcome_header,
-  //             greetings: data?.greetings,
-  //             contact_detail: data?.contact_detail,
-  //             footer: data?.footer,
-  //           }))
-  //         }
+          if (data?.terms_detail) {
+            setEmailForm((prev: any) => ({
+              ...prev,
+              terms_detail: data.terms_detail.map((item: any) => ({
+                id: item.id,
+                term: item?.terms,
+              })),
+            }))
+          }
 
-  //         if (data?.terms_detail) {
-  //           setEmailForm((prev: any) => ({
-  //             ...prev,
-  //             terms_detail: data.terms_detail.map((item: any) => ({
-  //               term: item.term,
-  //             })),
-  //           }))
-  //         }
+          if (data?.information_detail) {
+            setEmailForm((prev: any) => ({
+              ...prev,
+              information_detail: data.information_detail.map((item: any) => ({
+                id: item.id,
+                information: item?.information,
+              })),
+            }))
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-  //         if (data?.information_detail) {
-  //           setEmailForm((prev: any) => ({
-  //             ...prev,
-  //             information_detail: data.information_detail.map((item: any) => ({
-  //               information: item.information,
-  //             })),
-  //           }))
-  //         }
-  //       })
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchEmailData()
-  // }, [selectedEmailType?.value])
-
-  // Template Option
-  const templateOptions = [
-    {value: 'reset_password', label: 'Reset Password'},
-    {value: 'order', label: 'Order Notification'},
-    {value: 'complaint', label: 'Complaint Notification'},
-    {value: 'quotation', label: 'Quotation Notification'},
-    // {value: 'csi', label: 'CSI'},
-    // {value: 'paid_notification', label: 'Paid Notification'},
-    // {value: 'survey_notification', label: 'Survey Notification'},
-    // {value: 'work_start_notification', label: 'Work Start Notification'},
-    // {value: 'work_end_notification', label: 'Work End Notification'},
-    // {value: 'complaint_accepted_notification', label: 'Complaint Accepted Notification'},
-    // {value: 'complaint_rejected_notification', label: 'Complaint Rejected Notification'},
-    // {value: 'refund_notification', label: 'Refund Notification'},
-    // {value: 'claim_warranty_accepted_notification', label: 'Claim Warranty Accepted Notification'},
-    // {value: 'claim_warranty_rejected_notification', label: 'Claim Warranty Rejected Notification'},
-    // {value: 'reschedule_notification', label: 'Reschedule Notification'},
-  ]
-
-  // Change Select Email Type
-  // useEffect(() => {
-  //   setEmailForm((prev) => ({
-  //     ...prev,
-  //     email_type: selectedEmailType?.value ?? '',
-  //   }))
-  // }, [selectedEmailType])
+  useEffect(() => {
+    fetchEmailData()
+  }, [])
 
   // Email Form Handler
   const emailFormHandler = (e: any) => {
@@ -177,6 +140,7 @@ const FormatEmailHO: FC = () => {
   // Terms Details
   const addTermsDetails = () => {
     const newDetail = {
+      id: null,
       term: '',
     }
 
@@ -198,6 +162,7 @@ const FormatEmailHO: FC = () => {
   // Information Details
   const addInformationDetails = () => {
     const newDetail = {
+      id: null,
       information: '',
     }
 
@@ -217,11 +182,33 @@ const FormatEmailHO: FC = () => {
   }
 
   // Handle Update Email
-  const handleCreateEmailMessages = async () => {
+  const handleUpdateEmailMessages = async () => {
     setIsLoading(false)
 
+    const updatedTerms = emailForm.terms_detail.map((terms) => {
+      if (terms.id === null) {
+        const {id, ...termsWithoutId} = terms
+        return termsWithoutId
+      }
+      return terms
+    })
+
+    const updatedInformations = emailForm.information_detail.map((information) => {
+      if (information.id === null) {
+        const {id, ...informationWithoutId} = information
+        return informationWithoutId
+      }
+      return information
+    })
+
+    const emailForms = {
+      ...emailForm,
+      terms_detail: updatedTerms,
+      information_detail: updatedInformations,
+    }
+
     await axios
-      .post(`${apiUrl}/email-messages`, emailForm, {
+      .post(`${apiUrl}/email-messages/${params.id}`, emailForms, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -238,7 +225,7 @@ const FormatEmailHO: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/home`)
+            navigate(`/email/view-format-email`)
           })
 
           setIsLoading(false)
@@ -264,7 +251,7 @@ const FormatEmailHO: FC = () => {
   }
 
   const handleCancel = () => {
-    navigate('/home')
+    navigate('/email/view-format-email')
   }
 
   return (
@@ -279,16 +266,6 @@ const FormatEmailHO: FC = () => {
                 value={emailForm.email_type}
                 onChange={(e) => emailFormHandler(e)}
               />
-
-              {/* <Select
-                name='template_option'
-                className='form-control p-0'
-                classNamePrefix='select'
-                isSearchable={true}
-                placeholder='Template untuk'
-                options={templateOptions}
-                onChange={(newValue) => setSelectedEmailType(newValue)}
-              /> */}
             </Form.Group>
 
             <Form.Group className='header-template mb-3'>
@@ -312,17 +289,6 @@ const FormatEmailHO: FC = () => {
                 onChange={(e) => emailFormHandler(e)}
               />
             </Form.Group>
-
-            {/* <Form.Group className='header-template mb-3'>
-              <Form.Label className='fs-5'>Detail Kontak :</Form.Label>
-
-              <Form.Control
-                name='contact_detail'
-                as='textarea'
-                value={emailForm.contact_detail}
-                onChange={(e) => emailFormHandler(e)}
-              />
-            </Form.Group> */}
 
             <Form.Group className='header-template mb-3'>
               <Form.Label className='fs-5'>Syarat dan Ketentuan :</Form.Label>
@@ -430,9 +396,9 @@ const FormatEmailHO: FC = () => {
             <Button
               variant='dark-primary'
               type='submit'
-              onClick={() => handleCreateEmailMessages()}
+              onClick={() => handleUpdateEmailMessages()}
             >
-              {isLoading ? 'Saving...' : 'Save Template'}
+              {isLoading ? 'Saving...' : 'Update Template'}
             </Button>
           </div>
         </Card.Body>
@@ -441,4 +407,4 @@ const FormatEmailHO: FC = () => {
   )
 }
 
-export {FormatEmailHO}
+export {UpdateFormatEmailHO}

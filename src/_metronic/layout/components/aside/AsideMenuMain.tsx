@@ -189,36 +189,24 @@ export function AsideMenuMain() {
           role={['Store CS', 'Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
-        <AsideMenuItem
-          to='/reschedule/new-reschedule'
-          title='Reschedule'
-          role={['Admin Vendor', 'Tukang']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/reschedule/view-reschedule'
-          title='Reschedule'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
 
         <AsideMenuItemWithSub
           to='/reschedule'
           title='Reschedule'
           hasBullet={true}
-          role={['Store CS']}
+          role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
         >
           <AsideMenuItem
             to='/reschedule/new-reschedule'
             title='New Reschedule'
-            role={['Store CS']}
+            role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
             hasBullet={true}
           />
 
           <AsideMenuItem
             to='/reschedule/view-reschedule'
             title='View Reschedule'
-            role={['Store CS']}
+            role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
             hasBullet={true}
           />
         </AsideMenuItemWithSub>
@@ -504,12 +492,21 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
-        <AsideMenuItem
-          to='/email/format-email'
-          title='Format Email'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
+        <AsideMenuItemWithSub to='/email' title='Format Email' hasBullet={true} role={['Admin HO']}>
+          <AsideMenuItem
+            to='/email/format-email'
+            title='Format Email'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+
+          <AsideMenuItem
+            to='/email/view-format-email'
+            title='Daftar Format Email'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
 
         <AsideMenuItem
           to='/csi/format-pertanyaan-csi'

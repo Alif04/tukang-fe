@@ -1,0 +1,38 @@
+/* Form Layout */
+#format-email .card-body {
+  padding: 20px 70px 20px 70px;
+}
+
+#format-email .row {
+  margin-bottom: 20px;
+}
+
+#format-email .header-template.row {
+  width: 50%;
+}
+
+#format-email .rich-text {
+  min-height: 350px;
+}
+
+/* Button Action */
+
+#format-email .btn.btn-dark-primary {
+  width: 160px;
+  height: 45px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#format-email .btn.btn-dark-danger {
+  width: 100px;
+  height: 45px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}

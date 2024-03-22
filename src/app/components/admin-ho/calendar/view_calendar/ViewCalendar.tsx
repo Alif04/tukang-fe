@@ -560,162 +560,6 @@ const ViewCalendarHO: React.FC = () => {
               </Row>
             </div>
 
-            {/* <div className='table-warranty-content'>
-              <Table hover responsive='md'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    {selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]
-                      ?.work_order_items.length > 0 ? (
-                      <>
-                        <th>Harga Jasa</th>
-                        <th>Jumlah</th>
-                      </>
-                    ) : (
-                      <>
-                        {!(
-                          selectedWorkOrder?.work_order_detail?.order?.payment_type === 'gratis' ||
-                          selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
-                        ) && (
-                          <>
-                            <th>Harga Jasa</th>
-                            <th>Jumlah</th>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]
-                    ?.work_order_items.length > 0 ? (
-                    <>
-                      {selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                        (item: any, index: any) => (
-                          <tr key={`${index}-work_order_detail`}>
-                            <td>{item?.item_id ?? '-'}</td>
-                            <td>{item?.item ?? '-'}</td>
-                            <td>{item?.name ?? '-'}</td>
-                            <td>{item?.quantity ?? 0}</td>
-                            <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
-                              'id'
-                            )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
-                          </tr>
-                        )
-                      )}
-
-                      <tr>
-                        <td colSpan={5} className='text-end fw-bolder'>
-                          Grand Total
-                        </td>
-                        <td className=' fw-bolder'>
-                          {`Rp. ${parseInt(
-                            selectedWorkOrder?.work_order_detail?.grand_total ?? 0
-                          ).toLocaleString('id')}`}
-                        </td>
-                      </tr>
-                    </>
-                  ) : (
-                    <>
-                      {selectedWorkOrder?.work_order_detail?.order?.m_order_details.map(
-                        (item: any, index: any) => (
-                          <tr key={`${index}-order_detail`}>
-                            <td>{item?.item_code ?? '-'}</td>
-                            <td>{item?.item_name ?? '-'}</td>
-                            <td>
-                              {selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                              'survey'
-                                ? item?.item_notes
-                                : item?.item?.service_name}
-                            </td>
-                            <td>{item?.quantity ?? 0}</td>
-                            {!(
-                              selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'gratis' ||
-                              selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
-                            ) && (
-                              <>
-                                <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                  'id'
-                                )}`}</td>
-                                <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                              </>
-                            )}
-                          </tr>
-                        )
-                      )}
-
-                      {selectedWorkOrder?.work_order_detail?.order?.payment_type !== 'gratis' &&
-                        selectedWorkOrder?.work_order_detail?.order?.payment_type !==
-                          'pemasangan_tanpa_survey' && (
-                          <tr>
-                            <td colSpan={3} className='text-end fw-bolder'>
-                              Biaya Survey
-                            </td>
-
-                            <td className=' fw-bolder'>
-                              {selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'gratis' ||
-                              selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'pemasangan_tanpa_survey'
-                                ? `Rp. ${(0).toLocaleString('id')}`
-                                : selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                  'survey'
-                                ? `Rp. ${(99000).toLocaleString('id')}`
-                                : `Rp. ${0}`}
-                            </td>
-                          </tr>
-                        )}
-
-                      {selectedWorkOrder?.work_order_detail?.order?.payment_type !== 'survey' && (
-                        <tr>
-                          <td
-                            colSpan={
-                              selectedWorkOrder?.work_order_detail?.order?.payment_type !== 'gratis'
-                                ? 5
-                                : 3
-                            }
-                            className='text-end fw-bolder'
-                          >
-                            Grand Total
-                          </td>
-
-                          <td className=' fw-bolder'>
-                            {(() => {
-                              if (
-                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'gratis'
-                              ) {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              } else if (
-                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'pemasangan_tanpa_survey'
-                              ) {
-                                return `Rp. ${parseInt(
-                                  selectedWorkOrder?.work_order_detail?.order?.grand_total
-                                ).toLocaleString('id')}`
-                              } else if (
-                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'survey'
-                              ) {
-                                return `Rp. ${(99000).toLocaleString('id')}`
-                              } else {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              }
-                            })()}
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  )}
-                </tbody>
-              </Table>
-            </div> */}
-
             {(() => {
               if (
                 selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' ||
@@ -734,7 +578,7 @@ const ViewCalendarHO: React.FC = () => {
                       </thead>
 
                       <tbody>
-                        {selectedWorkOrder?.work_order_detail?.order?.order_details.map(
+                        {selectedWorkOrder?.work_order_detail?.order?.m_order_details.map(
                           (item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
@@ -867,7 +711,7 @@ const ViewCalendarHO: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedWorkOrder?.work_order_detail?.order?.order_details.map(
+                        {selectedWorkOrder?.work_order_detail?.order?.m_order_details.map(
                           (item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>

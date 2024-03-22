@@ -189,21 +189,21 @@ const DashboardVendor: FC = () => {
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{survey}</h1>
-                    <p className='fs-6 text-center'>Survey</p>
+                    <p className='fs-6 text-center'>Order Survey</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{onProgress}</h1>
-                    <p className='fs-6 text-center'>On Progress</p>
+                    <p className='fs-6 text-center'>Order sedang dalam pengerjaan</p>
                   </div>
                 </Col>
 
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
                     <h1 className='fw-normal'>{complete}</h1>
-                    <p className='fs-6 text-center'>Complete</p>
+                    <p className='fs-6 text-center'>Order Selesai</p>
                   </div>
                 </Col>
 

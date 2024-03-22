@@ -56,11 +56,11 @@ function getChartOptions(height: number): ApexOptions {
   return {
     series: [
       {
-        name: 'Survey',
+        name: 'Order Survey',
         data: [20, 30, 40, 50, 60, 70],
       },
       {
-        name: 'Work Done',
+        name: 'Pekerjaan Selesai',
         data: [30, 40, 60, 50, 30, 100],
       },
     ],

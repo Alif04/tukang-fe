@@ -76,7 +76,7 @@ const chartOptions = (chartHeight: string, workOrderData: any): ApexOptions => {
 
   return {
     series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
-    labels: ['W.Req', 'WIP', 'DONE'],
+    labels: ['REQUEST PENGERJAAN', 'SEDANG DIKERJAKAN', 'PEKERJAAN SELESAI'],
     colors: ['#1D7710', '#F59B22', '#D8001B'],
     // labels: noDataAvailable ? ['No Data Available'] : ['W.Req', 'WIP', 'DONE'], // Set labels to empty array if no data available
     // colors: noDataAvailable ? ['#f0f0f0'] : ['#1D7710', '#F59B22', '#D8001B'], // Set colors to default if no data available

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useEffect, useState} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 
-import './ListStore.css'
+import './FormatEmailList.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -13,11 +13,19 @@ import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {Table, PaginationProps} from 'antd'
 
-const ListStoreHO: React.FC = () => {
+interface DataType {
+  numbering: number
+  id: number
+  email_type: string
+  created_at: string
+  is_active: string
+}
+
+const FormatEmailList: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  const [storeData, setStoreData] = useState<DataType[]>([])
+  const [formatEmail, setFormatEmail] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -28,112 +36,59 @@ const ListStoreHO: React.FC = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  interface DataType {
-    number_id: number
-    store_id: number
-    store_name: string
-    phone_number: number
-    email: string
-    address: string
-    city: string
-    bank_name: string
-    account_number: number
-    account_name: string
-  }
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'No.',
-      dataIndex: 'number_id',
-      key: 'number_id',
+      dataIndex: 'numbering',
+      key: 'numbering',
       align: 'center',
-      sorter: (a, b) => a.number_id - b.number_id,
+      sorter: (a, b) => a.numbering - b.numbering,
       width: 50,
     },
     {
-      title: 'Nama Toko',
-      dataIndex: 'store_name',
-      key: 'store_name',
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      align: 'center',
+      sorter: (a, b) => a.id - b.id,
+      width: 50,
+    },
+    {
+      title: 'Email Type',
+      dataIndex: 'email_type',
+      key: 'email_type',
       align: 'center',
       className: 'text-start',
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
+      onFilter: (value, record) => record.email_type.includes(String(value)),
+      sorter: (a, b) => a.email_type.length - b.email_type.length,
       width: 120,
     },
     {
-      title: 'Nomor Telp',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       align: 'center',
-      sorter: (a, b) => a.phone_number - b.phone_number,
+      onFilter: (value, record) => record.created_at.includes(String(value)),
+      sorter: (a, b) => a.created_at.length - b.created_at.length,
       width: 120,
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: 'Status',
+      dataIndex: 'is_active',
+      key: 'is_active',
       align: 'center',
-      onFilter: (value, record) => record.email.includes(String(value)),
-      sorter: (a, b) => a.email.length - b.email.length,
-      width: 130,
-    },
-    {
-      title: 'Alamat',
-      dataIndex: 'address',
-      key: 'address',
-      align: 'center',
-      onFilter: (value, record) => record.address.includes(String(value)),
-      sorter: (a, b) => a.address.length - b.address.length,
-      width: 130,
-    },
-    {
-      title: 'Kota',
-      dataIndex: 'city',
-      key: 'city',
-      align: 'center',
-      onFilter: (value, record) => record.city.includes(String(value)),
-      sorter: (a, b) => a.city.length - b.city.length,
-      width: 130,
-    },
-    {
-      title: 'Nama Bank',
-      dataIndex: 'bank_name',
-      key: 'bank_name',
-      align: 'center',
-      onFilter: (value, record) => record.bank_name.includes(String(value)),
-      sorter: (a, b) => a.bank_name.length - b.bank_name.length,
-      width: 130,
-    },
-    {
-      title: 'Nomor Akun',
-      dataIndex: 'account_number',
-      key: 'account_number',
-      align: 'center',
-      sorter: (a, b) => a.account_number - b.account_number,
-      width: 130,
-    },
-    {
-      title: 'Nama Akun',
-      dataIndex: 'account_name',
-      key: 'account_name',
-      align: 'center',
-      onFilter: (value, record) => record.account_name.includes(String(value)),
-      sorter: (a, b) => a.account_name.length - b.account_name.length,
-      width: 130,
+      onFilter: (value, record) => record.is_active.includes(String(value)),
+      sorter: (a, b) => a.is_active.length - b.is_active.length,
+      width: 120,
     },
     {
       title: 'Action',
       key: 'action',
       render: (record) => {
         const handleUpdate = () => {
-          const id = record.store_id
-          navigate(`/store/update-store/${id}`)
+          const id = record.id
+          navigate(`/email/update-format-email/${id}`)
         }
-
-        // const handleDetail = () => {
-        //   const id = record.store_id
-        //   navigate(`/store/detail-store/${id}`)
-        // }
 
         const handleDeleteId = () => {
           const id = record.store_id
@@ -186,17 +141,13 @@ const ListStoreHO: React.FC = () => {
 
         return (
           <div className='button-wrapper'>
-            {/* <a className='button-detail' onClick={handleDetail}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a> */}
-
             <a className='button-detail' onClick={handleUpdate}>
               <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
             </a>
 
-            <a className='button-delete' onClick={handleDeleteId}>
+            {/* <a className='button-delete' onClick={handleDeleteId}>
               <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+            </a> */}
           </div>
         )
       },
@@ -212,10 +163,10 @@ const ListStoreHO: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const getStoresList = async (page: number, pageSize: number) => {
+  const getFormatEmailList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/stores?page=${page}&take=${pageSize}&search=${searchFilter}&order_by=desc`,
+        `${apiUrl}/email-messages?page=${page}&take=${pageSize}&search=${searchFilter}&order_by=desc`,
         {
           headers: {
             Accept: 'application/json',
@@ -228,53 +179,47 @@ const ListStoreHO: React.FC = () => {
 
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewStores = async (page: number, pageSize: number) => {
+  const ViewFormatEmail = async (page: number, pageSize: number) => {
     try {
-      const apiData = await getStoresList(page, pageSize)
+      const apiData = await getFormatEmailList(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from getFormatEmailList')
         return []
       }
 
-      const storeData = apiData.map((item: any, index: number) => {
+      const formatEmailData = apiData.map((item: any, index: number) => {
         let data
 
-        const phoneNumber =
-          item?.phone_number_1 !== null ? item?.phone_number_1 : item?.phone_number_2
+        const CreatedAt = new Date(item?.created_at ?? '-')
 
         data = {
-          number_id: index + 1,
-          store_id: item?.id,
-          store_name: item?.store_name ?? '',
-          phone_number: phoneNumber,
-          email: item?.email ?? '',
-          address: item?.address ?? '',
-          city: item?.city?.city_name ?? '',
-          bank_name: item?.bank_name ?? '-',
-          account_number: item?.bank_account ?? '-',
-          account_name: item?.bank_number ?? '-',
+          numbering: index + 1,
+          id: item?.id,
+          email_type: item?.email_type ?? '-',
+          created_at: formatDate(CreatedAt),
+          is_active: item?.is_active === true ? 'Active' : 'Non Active',
         }
 
         return data
       })
 
-      return storeData
+      return formatEmailData
     } catch (error) {
-      console.error('Error getting store list data:', error)
+      console.error('Error getting format email list data:', error)
       return []
     }
   }
 
   const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewStores(page, pageSize)
-    setStoreData(data)
+    const data = await ViewFormatEmail(page, pageSize)
+    setFormatEmail(data)
   }
 
   useEffect(() => {
@@ -321,8 +266,8 @@ const ListStoreHO: React.FC = () => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={storeData}
-            rowKey={(record) => record.store_id}
+            dataSource={formatEmail}
+            rowKey={(record) => record.id}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,
@@ -335,7 +280,7 @@ const ListStoreHO: React.FC = () => {
               itemRender: itemRender,
               showTotal: (total, range) => (
                 <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Store
+                  Showing {range[0]} - {range[1]} of {total} Total Format Email
                 </span>
               ),
             }}
@@ -346,4 +291,4 @@ const ListStoreHO: React.FC = () => {
   )
 }
 
-export {ListStoreHO}
+export {FormatEmailList}

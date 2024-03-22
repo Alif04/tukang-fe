@@ -59,7 +59,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   return {
     series: [
       {
-        name: 'Complete',
+        name: 'Order Selesai',
         data: [44, 55, 57, 56, 61, 58],
       },
       {

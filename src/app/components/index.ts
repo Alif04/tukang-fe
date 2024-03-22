@@ -188,6 +188,12 @@ export * from './admin-ho/csi/report_csi/ReportCSI'
 // New Format Email
 export * from './admin-ho/format_email/FormatEmailHO'
 
+// Update Format Email
+export * from './admin-ho/format_email_update/UpdateFormatEmailHO'
+
+// List Format Email
+export * from './admin-ho/format_email_list/FormatEmailList'
+
 // SALES
 // Update Sales
 export * from './admin-ho/sales/update_sales/UpdateSales'

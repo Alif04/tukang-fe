@@ -89,7 +89,7 @@ const chartOptions = (chartHeight: string, complaintData: any): ApexOptions => {
 
   return {
     series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
-    labels: ['REWORK', 'REFUND', 'RESCHEDULE', 'INVESTIGATE', 'DONE'],
+    labels: ['PENGERJAAN ULANG', 'REFUND', 'RESCHEDULE', 'DISELIDIKI', 'SELESAI'],
     colors: ['#605BDA', '#D50119', '#E8BE3C', '#3ED997', '#E4E6EF'],
     chart: {
       width: chartHeight,
