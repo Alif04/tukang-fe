@@ -270,8 +270,8 @@ const ListStoreHO: React.FC = () => {
           address: item?.address ?? '',
           city: item?.city?.city_name ?? '',
           bank_name: item?.bank_name ?? '-',
-          account_number: item?.bank_account ?? '-',
-          account_name: item?.bank_number ?? '-',
+          account_number: item?.bank_number ?? '-',
+          account_name: item?.bank_account ?? '-',
         }
 
         return data
