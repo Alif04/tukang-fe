@@ -73,8 +73,6 @@ const NewItemHO: FC = () => {
     ],
   })
 
-  console.log('item_detail', itemDetail)
-
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
   const [storeGroup, setStoreGroup] = useState<StoreSelect[]>([])
@@ -371,10 +369,6 @@ const NewItemHO: FC = () => {
       })
   }
 
-  console.log('store', store)
-  console.log('store group', storeGroup)
-  console.log('merge store option', storeGroup.concat(store))
-
   return (
     <section id='new-item'>
       <div className='card'>
@@ -476,8 +470,12 @@ const NewItemHO: FC = () => {
             <Table hover>
               <thead>
                 <tr>
-                  <th className='text-center'>Periode</th>
-                  <th className='text-center'>Assign To Store</th>
+                  <th className='text-center' style={{maxWidth: '200px'}}>
+                    Periode
+                  </th>
+                  <th className='text-center' style={{maxWidth: '200px'}}>
+                    Assign To Store
+                  </th>
                   <th className='text-center'>Minimum Order</th>
                   <th className='text-center'>Price</th>
                   <th className='text-center'>Action</th>

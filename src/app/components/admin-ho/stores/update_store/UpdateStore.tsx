@@ -21,14 +21,17 @@ interface Bank {
 interface Store {
   store_id: number | null
   store_name: string
-  address_1: string
-  address_2: string
+  address: string
+  additional_address: string
   city_id: number | null
-  phone_number: number | null
+  phone_number_1: number | null
   email: string
-  bank_id: number | null
-  account_name: string
-  account_number: number | null
+  bank_name: string
+  bank_number: string
+  bank_account: number | null
+  zip_code: string
+  username: string
+  default_password: string
 }
 
 const UpdateStores: FC = () => {
@@ -40,14 +43,17 @@ const UpdateStores: FC = () => {
   const [storeInfo, setStoreInfo] = useState<Store>({
     store_id: null,
     store_name: '',
-    address_1: '',
-    address_2: '',
+    address: '',
+    additional_address: '',
     city_id: null,
-    phone_number: null,
+    phone_number_1: null,
     email: '',
-    bank_id: null,
-    account_name: '',
-    account_number: null,
+    bank_name: '',
+    bank_number: '',
+    bank_account: null,
+    zip_code: '',
+    username: '',
+    default_password: '',
   })
 
   // City
@@ -58,11 +64,11 @@ const UpdateStores: FC = () => {
   })
 
   // Bank
-  const [bank, setBank] = useState<Bank[]>([])
-  const [selectedBank, setSelectedBank] = useState<SingleValue<Bank>>({
-    value: null,
-    label: '',
-  })
+  // const [bank, setBank] = useState<Bank[]>([])
+  // const [selectedBank, setSelectedBank] = useState<SingleValue<Bank>>({
+  //   value: null,
+  //   label: '',
+  // })
 
   // Fetch API Data
   useEffect(() => {
@@ -93,30 +99,34 @@ const UpdateStores: FC = () => {
               }))
             }
 
-            if (data) {
-              setStoreInfo((prev) => ({
-                ...prev,
-                bank_id: data?.bank_id,
-              }))
+            // if (data) {
+            //   setStoreInfo((prev) => ({
+            //     ...prev,
+            //     bank_id: data?.bank_id,
+            //   }))
 
-              setSelectedBank((prev) => ({
-                ...prev,
-                value: data?.id,
-                label: data?.bank_name,
-              }))
-            }
+            //   setSelectedBank((prev) => ({
+            //     ...prev,
+            //     value: data?.id,
+            //     label: data?.bank_name,
+            //   }))
+            // }
 
             if (data) {
               setStoreInfo((prev) => ({
                 ...prev,
                 store_id: data?.id,
                 store_name: data?.store_name,
-                address_1: data?.address,
-                address_2: data?.address_2,
-                phone_number: data?.phone_number_1,
+                address: data?.address,
+                additional_address: data?.additional_address,
+                phone_number_1: data?.phone_number_1,
                 email: data?.email,
-                account_name: data?.bank_account,
-                account_number: data?.bank_number,
+                bank_name: data?.bank_name,
+                bank_number: data?.bank_number,
+                bank_account: data?.bank_account,
+                zip_code: data?.zip_code,
+                username: data?.username,
+                default_password: data?.default_password,
               }))
             }
           })
@@ -151,34 +161,34 @@ const UpdateStores: FC = () => {
       }
     }
 
-    const getBank = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/bank`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+    // const getBank = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/bank`, {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //         'Access-Control-Allow-Origin': '*',
+    //         'ngrok-skip-browser-warning': 'true',
+    //       },
+    //     })
 
-        if (Array.isArray(response.data.data)) {
-          const tempBank = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.bank_name,
-          }))
+    //     if (Array.isArray(response.data.data)) {
+    //       const tempBank = response.data.data.map((item: any) => ({
+    //         value: item.id,
+    //         label: item.bank_name,
+    //       }))
 
-          setBank(tempBank)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
+    //       setBank(tempBank)
+    //     } else {
+    //       console.error('API response data is not an array:', response.data)
+    //     }
+    //   } catch (err) {
+    //     console.error(err)
+    //   }
+    // }
 
     getCity()
-    getBank()
+    // getBank()
     getStoreData()
   }, [])
 
@@ -199,12 +209,12 @@ const UpdateStores: FC = () => {
   }, [selectedCity])
 
   // Change Select Bank
-  useEffect(() => {
-    setStoreInfo((prev) => ({
-      ...prev,
-      bank_id: selectedBank?.value ?? null,
-    }))
-  }, [selectedBank])
+  // useEffect(() => {
+  //   setStoreInfo((prev) => ({
+  //     ...prev,
+  //     bank_id: selectedBank?.value ?? null,
+  //   }))
+  // }, [selectedBank])
 
   // Store Validation
   const StoreValidation = () => {
@@ -217,10 +227,10 @@ const UpdateStores: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.address_1) {
+    } else if (!storeInfo.address) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill Alamat 1 form',
+        text: 'Please fill Alamat form',
         icon: 'error',
       })
       valid = false
@@ -231,7 +241,7 @@ const UpdateStores: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.phone_number) {
+    } else if (!storeInfo.phone_number_1) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Telpon form',
@@ -245,24 +255,31 @@ const UpdateStores: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.bank_id) {
+    } else if (!storeInfo.bank_name) {
       Swal.fire({
         title: 'Error',
-        text: 'Please select Bank form',
+        text: 'Please fill Nama Bank form',
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.account_name) {
+    } else if (!storeInfo.bank_account) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nama Akun form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!storeInfo.bank_number) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nama Pemilik Akun form',
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.account_number) {
+    } else if (!storeInfo.default_password) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill Nomor Akun form',
+        text: 'Please fill Password form',
         icon: 'error',
       })
       valid = false
@@ -272,6 +289,10 @@ const UpdateStores: FC = () => {
   }
 
   const handleUpdateStoreInfo = async () => {
+    if (!StoreValidation()) {
+      return false
+    }
+
     await axios
       .post(`${apiUrl}/stores/${params.id}`, storeInfo, {
         headers: {
@@ -352,20 +373,22 @@ const UpdateStores: FC = () => {
                   <Form.Label>Alamat</Form.Label>
                   <Form.Control
                     as='textarea'
-                    name='address_1'
+                    name='address'
                     className='field-alamat'
-                    value={storeInfo.address_1 ?? ''}
+                    value={storeInfo.address ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Alamat 2</Form.Label>
+                  <Form.Label>
+                    Alamat Kedua<span className='text-optional text-danger'> (optional)</span>
+                  </Form.Label>
                   <Form.Control
                     as='textarea'
-                    name='address_2'
+                    name='additional_address'
                     className='field-alamat'
-                    value={storeInfo.address_2 ?? ''}
+                    value={storeInfo.additional_address ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
@@ -389,25 +412,63 @@ const UpdateStores: FC = () => {
                   </Form.Group>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}></Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type='email'
+                    name='email'
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
+                </Col>
               </Row>
 
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Telpon</Form.Label>
                   <Form.Control
-                    name='phone_number'
-                    value={storeInfo.phone_number ?? ''}
+                    name='phone_number_1'
+                    value={storeInfo.phone_number_1 ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>Zip Code</Form.Label>
                   <Form.Control
-                    type='email'
-                    name='email'
-                    value={storeInfo.email ?? ''}
+                    type='number'
+                    name='zip_code'
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
+                </Col>
+              </Row>
+
+              <Row>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>
+                    Username <span className='text-optional text-danger'> (optional)</span>
+                  </Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    name='username'
+                    value={storeInfo.username}
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
+
+                  <Form.Text className='fs-8 fs-l text-dark-danger'>
+                    *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
+                    dari nama toko, dengan format semua huruf kecil dan spasi diganti menjadi
+                    underscore ( _ ).
+                  </Form.Text>
+                </Col>
+
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>Default Password</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    name='default_password'
+                    value={storeInfo.default_password}
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
@@ -418,6 +479,15 @@ const UpdateStores: FC = () => {
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group>
+                    <Form.Label>Nama Bank</Form.Label>
+                    <Form.Control
+                      type='text'
+                      name='bank_name'
+                      onChange={(e) => storeInfoFormHandler(e)}
+                    />
+                  </Form.Group>
+
+                  {/* <Form.Group>
                     <Form.Label>Nama Bank</Form.Label>
                     <Select
                       classNamePrefix='select'
@@ -430,14 +500,14 @@ const UpdateStores: FC = () => {
                       }}
                       onChange={(newValue) => setSelectedBank(newValue)}
                     />
-                  </Form.Group>
+                  </Form.Group> */}
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Nomor Akun</Form.Label>
                   <Form.Control
-                    name='account_number'
-                    value={storeInfo.account_number ?? ''}
+                    name='bank_number'
+                    value={storeInfo.bank_number ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
@@ -449,8 +519,8 @@ const UpdateStores: FC = () => {
                     <Form.Label>Nama Pemilik Akun</Form.Label>
                     <Form.Control
                       type='text'
-                      name='account_name'
-                      value={storeInfo.account_name ?? ''}
+                      name='bank_account'
+                      value={storeInfo.bank_account ?? ''}
                       onChange={(e) => storeInfoFormHandler(e)}
                     />
                   </Form.Group>

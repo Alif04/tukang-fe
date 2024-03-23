@@ -162,7 +162,7 @@ const NewBank: FC = () => {
             </Button>
 
             <Button variant='dark-primary' onClick={handleSubmitNewBank}>
-              Save Update
+              Save
             </Button>
           </div>
         </Card.Body>

@@ -27,15 +27,16 @@ interface Store {
   id: number | null
   store_name: string
   address: string
-  address_2: string
+  additional_address: string
   city_id: number | null
-  // province_id: number | null
   phone_number_1: number | null
   email: string
   bank_name: string
   bank_number: string
   bank_account: number | null
   zip_code: string
+  username: string
+  default_password: string
 }
 
 const NewStore: FC = () => {
@@ -47,15 +48,16 @@ const NewStore: FC = () => {
     id: null,
     store_name: '',
     address: '',
-    address_2: '',
+    additional_address: '',
     city_id: null,
-    // province_id: null,
     phone_number_1: null,
     email: '',
     bank_name: '',
     bank_number: '',
     bank_account: null,
     zip_code: '',
+    username: '',
+    default_password: '',
   })
 
   // City
@@ -209,7 +211,7 @@ const NewStore: FC = () => {
     } else if (!storeInfo.address) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill Alamat 1 form',
+        text: 'Please fill Alamat form',
         icon: 'error',
       })
       valid = false
@@ -237,7 +239,14 @@ const NewStore: FC = () => {
     } else if (!storeInfo.bank_name) {
       Swal.fire({
         title: 'Error',
-        text: 'Please select Bank form',
+        text: 'Please fill Nama Bank form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!storeInfo.bank_account) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nama Akun form',
         icon: 'error',
       })
       valid = false
@@ -248,10 +257,10 @@ const NewStore: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.bank_account) {
+    } else if (!storeInfo.default_password) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill Nomor Akun form',
+        text: 'Please fill Password form',
         icon: 'error',
       })
       valid = false
@@ -278,7 +287,7 @@ const NewStore: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Add New Stores',
+            text: 'Success Add New Store',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -351,10 +360,12 @@ const NewStore: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Alamat 2</Form.Label>
+                  <Form.Label>
+                    Alamat Kedua<span className='text-optional text-danger'> (optional)</span>
+                  </Form.Label>
                   <Form.Control
                     as='textarea'
-                    name='address_2'
+                    name='additional_address'
                     className='field-alamat'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
@@ -382,20 +393,6 @@ const NewStore: FC = () => {
                     name='email'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
-                  {/* <Form.Group>
-                    <Form.Label>Province</Form.Label>
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Nama Provinsi'
-                      isSearchable={true}
-                      options={province}
-                      value={{
-                        value: selectedProvince?.value ?? null,
-                        label: selectedProvince?.label ?? '',
-                      }}
-                      onChange={(newValue) => setSelectedProvince(newValue)}
-                    />
-                  </Form.Group> */}
                 </Col>
               </Row>
 
@@ -416,12 +413,36 @@ const NewStore: FC = () => {
                     name='zip_code'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
-                  {/* <Form.Label>Email</Form.Label>
+                </Col>
+              </Row>
+
+              <Row>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>
+                    Username <span className='text-optional text-danger'> (optional)</span>
+                  </Form.Label>
+
                   <Form.Control
-                    type='email'
-                    name='email'
+                    type='text'
+                    name='username'
                     onChange={(e) => storeInfoFormHandler(e)}
-                  /> */}
+                  />
+
+                  <Form.Text className='fs-8 fs-l text-dark-danger'>
+                    *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
+                    dari nama toko, dengan format semua huruf kecil dan spasi diganti menjadi
+                    underscore ( _ ).
+                  </Form.Text>
+                </Col>
+
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>Default Password</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    name='default_password'
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
                 </Col>
               </Row>
 
@@ -436,13 +457,6 @@ const NewStore: FC = () => {
                       name='bank_name'
                       onChange={(e) => storeInfoFormHandler(e)}
                     />
-                    {/* <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Nama Bank'
-                      isSearchable={true}
-                      options={bank}
-                      onChange={(newValue) => setSelectedBank(newValue)}
-                    /> */}
                   </Form.Group>
                 </Col>
 
@@ -479,7 +493,7 @@ const NewStore: FC = () => {
             </Button>
 
             <Button variant='dark-primary' onClick={handleSubmitNewStore}>
-              Save Update
+              Save
             </Button>
           </div>
         </Card.Body>

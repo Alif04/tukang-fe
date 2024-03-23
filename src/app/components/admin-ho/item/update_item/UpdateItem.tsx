@@ -108,15 +108,20 @@ const UpdateItemHO: FC = () => {
               periodic_end: dayjs(item?.periodic_end).format('YYYY-MM-DD'),
               min_order: item?.min_order,
               price: item?.price,
-              // price_store: item?.price_stores
-              //   ? item.price_stores.map((storeItem: any) => ({
-              //       store_id: storeItem?.store?.store_name,
-              //       store_group_id: storeItem?.store?.store_name,
-              //     }))
-              //   : [],
+              price_store: item?.price_stores
+                ? item.price_stores.map((storeItem: any) => ({
+                    // store_id: storeItem?.store?.store_name,
+                    label: storeItem?.store?.store_name,
+                    // store_group_id: storeItem?.store?.store_name,
+                  }))
+                : [],
             }))
 
-            console.log('prices_item', pricesItem)
+            const pricesStore = data?.prices.flatMap((item: any) =>
+              item?.price_stores?.map((storeItem: any) => ({
+                label: storeItem?.store?.store_name,
+              }))
+            )
 
             setItemDetail((prev) => ({
               ...prev,
@@ -127,6 +132,11 @@ const UpdateItemHO: FC = () => {
               default_price: data?.default_price,
               prices: pricesItem,
             }))
+
+            // setStore((prev) => ({
+            //   ...prev,
+            //   label: pricesStore,
+            // }))
 
             setSelectedCategory((prev) => ({
               ...prev,
@@ -224,22 +234,6 @@ const UpdateItemHO: FC = () => {
     getStoreGroup()
     getCategories()
   }, [])
-
-  // Format Date
-  const today = new Date().toISOString().split('T')[0]
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  const formatPeriodicDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${year}-${month}-${day}`
-  }
 
   // Add Item Detail
   const handleAddForm = () => {
@@ -403,7 +397,7 @@ const UpdateItemHO: FC = () => {
     }
 
     await axios
-      .post(`${apiUrl}/items`, newItemDetail, {
+      .post(`${apiUrl}/items/${params.id}`, newItemDetail, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -415,7 +409,7 @@ const UpdateItemHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Create Item',
+            text: 'Success Update Item',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -447,7 +441,7 @@ const UpdateItemHO: FC = () => {
         <div className='card-body'>
           <Row className='mb-5'>
             <h1 className='text-center fw-bolder' style={{fontSize: '30px'}}>
-              FORMULIR ITEM BARU
+              UPDATE FORMULIR ITEM
             </h1>
           </Row>
 
@@ -554,10 +548,10 @@ const UpdateItemHO: FC = () => {
             <Table hover>
               <thead>
                 <tr>
-                  <th className='text-center' style={{minWidth: '200px'}}>
+                  <th className='text-center' style={{maxWidth: '200px'}}>
                     Periode
                   </th>
-                  <th className='text-center' style={{minWidth: '200px'}}>
+                  <th className='text-center' style={{maxWidth: '200px'}}>
                     Assign To Store
                   </th>
                   <th className='text-center'>Minimum Order</th>
