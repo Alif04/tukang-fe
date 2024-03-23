@@ -32,6 +32,7 @@ const ListStoreHO: React.FC = () => {
     number_id: number
     store_id: number
     store_name: string
+    username_store: string
     phone_number: number
     email: string
     address: string
@@ -58,6 +59,16 @@ const ListStoreHO: React.FC = () => {
       className: 'text-start',
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
+      width: 120,
+    },
+    {
+      title: 'Username',
+      dataIndex: 'username_store',
+      key: 'username_store',
+      align: 'center',
+      className: 'text-start',
+      onFilter: (value, record) => record.username_store.includes(String(value)),
+      sorter: (a, b) => a.username_store.length - b.username_store.length,
       width: 120,
     },
     {
@@ -253,6 +264,7 @@ const ListStoreHO: React.FC = () => {
           number_id: index + 1,
           store_id: item?.id,
           store_name: item?.store_name ?? '',
+          username_store: item?.store_name,
           phone_number: phoneNumber,
           email: item?.email ?? '',
           address: item?.address ?? '',

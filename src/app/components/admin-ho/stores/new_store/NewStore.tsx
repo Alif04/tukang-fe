@@ -27,7 +27,7 @@ interface Store {
   id: number | null
   store_name: string
   address: string
-  // address_2: string
+  address_2: string
   city_id: number | null
   // province_id: number | null
   phone_number_1: number | null
@@ -47,7 +47,7 @@ const NewStore: FC = () => {
     id: null,
     store_name: '',
     address: '',
-    // address_2: '',
+    address_2: '',
     city_id: null,
     // province_id: null,
     phone_number_1: null,
@@ -354,7 +354,7 @@ const NewStore: FC = () => {
                   <Form.Label>Alamat 2</Form.Label>
                   <Form.Control
                     as='textarea'
-                    // name='address_2'
+                    name='address_2'
                     className='field-alamat'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
