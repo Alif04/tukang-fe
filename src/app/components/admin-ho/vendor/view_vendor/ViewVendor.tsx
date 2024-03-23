@@ -4,23 +4,14 @@ import React, {useEffect, useState} from 'react'
 import './ViewVendor.css'
 
 import axios from 'axios'
-import Select from 'react-select'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, Tag, PaginationProps} from 'antd'
+import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-  faUserPlus,
-  faFilter,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faTrash, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -30,7 +21,7 @@ type Props = {
 }
 
 interface StoreItem {
-  value: string
+  value: number | null
   label: string
 }
 
@@ -46,19 +37,17 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [store, setStore] = useState<StoreItem[]>([])
-  const [searchByStore, setSearchByStore] = useState<any>('')
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: 'All Store',
+  })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
 
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    const updatedStoreName = element.label
-
-    setSearchByStore(updatedStoreId)
-  }
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
 
   interface DataType {
     no: number
@@ -247,9 +236,11 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   }
 
   const fetchVendorList = async (page: number, pageSize: number) => {
+    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+
     try {
       const response = await axios.get(
-        `${apiUrl}/vendor?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/vendor?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -261,7 +252,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response.data.total)
+      setTotalData(response.data.takeTotal)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -321,7 +312,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+  }, [dateFrom, dateTo, searchFilter, selectedStore?.value])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -420,8 +411,8 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
                 classNamePrefix='select'
                 placeholder='Pilih Toko'
                 isSearchable={true}
-                options={store}
-                onChange={(element) => handleChangeSelectStore(element)}
+                options={storeOptions}
+                onChange={(newValue) => setSelectedStore(newValue)}
               />
             </Col>
           </Row>
