@@ -1,14 +1,4 @@
 /* Header */
-#detail-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#detail-item .card {
-  width: 900px;
-}
-
 #detail-item .card .card-body {
   min-height: 100vh;
   padding: 3rem 3rem !important;
@@ -18,9 +8,8 @@
   margin: 0 0 30px 0;
 }
 
-#detail-item .card .card-body .vendor-information .vendor-detail h1 {
-  color: #007eb4;
-  font-size: 41px;
+#detail-item .card .card-body .title h1 {
+  font-size: 30px;
   padding: 0 0 10px 0;
 }
 

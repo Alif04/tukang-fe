@@ -5,34 +5,55 @@ import './ViewItem.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import Select, {SingleValue} from 'react-select'
+import {Table, PaginationProps} from 'antd'
 import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faTrash, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
 
-import {Table} from 'antd'
+import {DatePicker} from 'antd'
+const {RangePicker} = DatePicker
+
+interface DataType {
+  no: number
+  material_id: number
+  store_name: string
+  product_name: string
+  service_name: string
+  default_price: number
+  min_order: number
+}
+
+interface StoreItem {
+  value: number | null
+  label: string
+}
 
 const ViewItemHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [itemData, setItemData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const [store, setStore] = useState<StoreItem[]>([])
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: 'All Vendor',
+  })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
 
-  interface DataType {
-    no: number
-    material_id: number
-    store_name: string
-    product_name: string
-    service_name: string
-    default_price: number
-    min_order: number
-  }
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
 
   const columns: ColumnsType<DataType> = [
     {
@@ -172,9 +193,6 @@ const ViewItemHO: React.FC = () => {
     },
   ]
 
-  // Fetch Data Material
-  const [itemData, setItemData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -182,10 +200,12 @@ const ViewItemHO: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const getItemList = async () => {
+  const getItemList = async (page: number, pageSize: number) => {
+    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+
     try {
       const response = await axios.get(
-        `${apiUrl}/items?take=0&search=${searchFilter}&order_by=desc`,
+        `${apiUrl}/items?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -195,15 +215,18 @@ const ViewItemHO: React.FC = () => {
           },
         }
       )
+
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.takeTotal)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewItem = async () => {
+  const ViewItem = async (page: number, pageSize: number) => {
     try {
-      const apiData = await getItemList()
+      const apiData = await getItemList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from getItemList')
@@ -237,21 +260,88 @@ const ViewItemHO: React.FC = () => {
     }
   }
 
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewItem(page, pageSize)
+    setItemData(data)
+  }
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
+
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewItem()
-      setItemData(data)
+    fetchData(1, 10)
+  }, [dateFrom, dateTo, searchFilter, selectedStore?.value])
+
+  useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+            city_id: item.city_id,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
     }
 
-    fetchData()
-  }, [searchFilter])
+    getStore()
+  }, [])
 
   return (
     <section id='view-item'>
       <div className='card'>
         <div className='card-body'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Form.Group as={Row}>
+                <Form.Label className='fs-3' column sm='4'>
+                  <FontAwesomeIcon icon={faFilter} size='sm' className='me-1' />
+                  Date :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <RangePicker
+                    format={'DD-MM-YYYY'}
+                    className='date-range ms-3'
+                    onChange={(values) => {
+                      if (values && values.length === 2) {
+                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                        setDateFrom(dateFromFormatted)
+                        setDateTo(dateToFormatted)
+                      } else {
+                        setDateFrom('')
+                        setDateTo('')
+                      }
+                    }}
+                  />
+                </Col>
+              </Form.Group>
+            </Col>
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
@@ -269,7 +359,17 @@ const ViewItemHO: React.FC = () => {
               </div>
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Select
+                name='store_id'
+                className='form-control p-0'
+                classNamePrefix='select'
+                placeholder='Pilih Toko'
+                isSearchable={true}
+                options={storeOptions}
+                onChange={(newValue) => setSelectedStore(newValue)}
+              />
+            </Col>
           </Row>
 
           <Table
@@ -279,7 +379,22 @@ const ViewItemHO: React.FC = () => {
             dataSource={itemData}
             rowKey={(record) => record.material_id}
             // scroll={{x: 1800}}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Total Item
+                </span>
+              ),
+            }}
           />
         </div>
       </div>

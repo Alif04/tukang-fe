@@ -270,12 +270,12 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/tukang/view-tukang'
           title='List Tukang'
           role={['Admin HO']}
           hasBullet={true}
-        />
+        /> */}
         <AsideMenuItem
           to='/vendor/view-vendor'
           title='List Vendor'
@@ -469,13 +469,9 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/setting'
         icon='/media/icons/duotune/art/art002.svg'
-        title={
-          userRole === 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales'
-            ? 'Pengaturan'
-            : 'Setting'
-        }
+        title={userRole === 'Store CS' || userRole === 'Sales' ? 'Pengaturan' : 'Setting'}
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Admin Vendor']}
+        role={['Store CS', 'Sales', 'Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItemWithSub to='/bank' title='Bank' hasBullet={true} role={['Admin HO']}>
           <AsideMenuItem
@@ -562,14 +558,14 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
-        <AsideMenuItemWithSub to='/tukang' title='Tukang' hasBullet={true} role={['Admin HO']}>
+        {/* <AsideMenuItemWithSub to='/tukang' title='Tukang' hasBullet={true} role={['Admin HO']}>
           <AsideMenuItem
             to='/tukang/view-tukang'
             title='List Tukang'
             role={['Admin HO']}
             hasBullet={true}
           />
-        </AsideMenuItemWithSub>
+        </AsideMenuItemWithSub> */}
 
         {/* <AsideMenuItem
           to='/item/view-item'

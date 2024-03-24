@@ -147,7 +147,7 @@ const UpdateTukangVendor: FC = () => {
 
   const getTukangService = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/tukang-service`, {
+      const response = await axios.get(`${apiUrl}/service-type`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -156,10 +156,10 @@ const UpdateTukangVendor: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.tukang_service)) {
-        const tempServiceType = response.data.data.tukang_service.map((item: any) => ({
-          value: item.service_type_id,
-          label: item.service_type_id,
+      if (Array.isArray(response.data.data)) {
+        const tempServiceType = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.service_type,
         }))
 
         setTukangService(tempServiceType)

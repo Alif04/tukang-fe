@@ -1,14 +1,4 @@
 /* Header */
-#update-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#update-item .card {
-  width: 900px;
-}
-
 #update-item .card .card-body {
   min-height: 100vh;
   padding: 3rem 3rem !important;

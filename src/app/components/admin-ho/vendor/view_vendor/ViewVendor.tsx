@@ -39,7 +39,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   const [store, setStore] = useState<StoreItem[]>([])
   const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
     value: null,
-    label: 'All Store',
+    label: 'All Vendor',
   })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {

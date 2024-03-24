@@ -5,6 +5,15 @@
   margin-bottom: 20px;
 }
 
+#view-item .select__control.css-13cymwt-control {
+  height: 45px;
+}
+
+#view-item .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+  border: none;
+}
+
 #view-item .table-head-wrapper .right {
   display: flex;
   justify-content: space-between;

@@ -21,8 +21,8 @@ interface CategorySelect {
 }
 
 interface StoreSelect {
-  store_id: number
-  store_group_id: number
+  store_id: number | null
+  store_group_id: number | null
   label: string
 }
 
@@ -37,6 +37,7 @@ interface ItemDetail {
     price_store: Array<{
       store_id: number | null
       store_group_id: number | null
+      // label: string
     }>
     periodic_start: string | null | Date
     periodic_end: string | null | Date
@@ -65,6 +66,7 @@ const UpdateItemHO: FC = () => {
           {
             store_id: null,
             store_group_id: null,
+            // label: '',
           },
         ],
         periodic_start: null,
@@ -75,10 +77,22 @@ const UpdateItemHO: FC = () => {
     ],
   })
 
+  console.log('item_detail', itemDetail)
+
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
   const [storeGroup, setStoreGroup] = useState<StoreSelect[]>([])
-  const storeOptions = storeGroup.concat(store)
+  const [storeOptions, setStoreOptions] = useState<StoreSelect[]>([])
+  const [selectedStore, setSelectedStore] = useState<StoreSelect[]>([])
+
+  useEffect(() => {
+    setStoreOptions(storeGroup.concat(store))
+  }, [store, storeGroup])
+
+  console.log('store', store)
+  console.log('store_group', storeGroup)
+  console.log('store_options', storeOptions)
+  console.log('selected_store', selectedStore)
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -110,18 +124,35 @@ const UpdateItemHO: FC = () => {
               price: item?.price,
               price_store: item?.price_stores
                 ? item.price_stores.map((storeItem: any) => ({
-                    // store_id: storeItem?.store?.store_name,
+                    // store_id: storeItem?.store?.store_id,
                     label: storeItem?.store?.store_name,
-                    // store_group_id: storeItem?.store?.store_name,
+                    // store_group_id: storeItem?.store?.store_group_id,
                   }))
                 : [],
             }))
 
-            const pricesStore = data?.prices.flatMap((item: any) =>
-              item?.price_stores?.map((storeItem: any) => ({
-                label: storeItem?.store?.store_name,
-              }))
-            )
+            // const pricesStore = data?.prices.map((item: any) =>
+            //   item?.price_stores?.map((storeItem: any) => ({
+            //     label: storeItem?.store?.store_name,
+            //   }))
+            // )
+
+            // const pricesStore = data?.prices
+            //   .map((item: any) =>
+            //     item?.price_stores?.map((storeItem: any) => ({
+            //       store_id: storeItem?.store?.store_id,
+            //       // store_group_id: storeItem?.store?.store_group_id,
+            //       label: storeItem?.store?.store_name,
+            //     }))
+            //   )
+            //   .flat()
+
+            // setSelectedStore(pricesStore)
+
+            // setStoreOptions((prev) => ({
+            //   ...prev,
+            //   label: pricesStore,
+            // }))
 
             setItemDetail((prev) => ({
               ...prev,
@@ -132,11 +163,6 @@ const UpdateItemHO: FC = () => {
               default_price: data?.default_price,
               prices: pricesItem,
             }))
-
-            // setStore((prev) => ({
-            //   ...prev,
-            //   label: pricesStore,
-            // }))
 
             setSelectedCategory((prev) => ({
               ...prev,
@@ -243,6 +269,7 @@ const UpdateItemHO: FC = () => {
         {
           store_id: null,
           store_group_id: null,
+          // label: '',
         },
       ],
       periodic_start: dayjs(new Date()).format('YYYY-MM-DD'),
@@ -287,10 +314,21 @@ const UpdateItemHO: FC = () => {
         }
       })
 
+      // const newValue = value.map((item: any) => {
+      //   if (item.store_id !== undefined) {
+      //     return {store_id: item.store_id, label: item.label}
+      //   } else if (item.store_group_id !== undefined) {
+      //     return {store_group_id: item.store_group_id, label: item.label}
+      //   }
+      // })
+
       cache.prices[index] = {
         ...cache.prices[index],
         [target]: newValue,
       }
+
+      // const updatedSelectedStore = cache.prices.flatMap((price) => price.price_store)
+      // setSelectedStore(updatedSelectedStore)
 
       return cache
     })
@@ -548,12 +586,8 @@ const UpdateItemHO: FC = () => {
             <Table hover>
               <thead>
                 <tr>
-                  <th className='text-center' style={{maxWidth: '200px'}}>
-                    Periode
-                  </th>
-                  <th className='text-center' style={{maxWidth: '200px'}}>
-                    Assign To Store
-                  </th>
+                  <th className='text-center'>Periode</th>
+                  <th className='text-center'>Assign To Store</th>
                   <th className='text-center'>Minimum Order</th>
                   <th className='text-center'>Price</th>
                   <th className='text-center'>Action</th>
@@ -562,7 +596,7 @@ const UpdateItemHO: FC = () => {
               <tbody>
                 {itemDetail.prices.map((element, index) => (
                   <tr key={`${index}-item_details`}>
-                    <td>
+                    <td style={{maxWidth: '300px'}}>
                       <RangePicker
                         id={`date-range-${index}`}
                         className='date-range ms-1 me-1 w-100'
@@ -589,7 +623,7 @@ const UpdateItemHO: FC = () => {
                       />
                     </td>
 
-                    <td>
+                    <td style={{maxWidth: '300px'}}>
                       <Select
                         id={`store-id-${index}`}
                         name='store'
@@ -601,11 +635,12 @@ const UpdateItemHO: FC = () => {
                         options={storeOptions}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
                         getOptionValue={(option: StoreSelect) => `${option.store_id}`}
+                        // value={selectedStore}
                         onChange={(e) => storeHandler(e, 'price_store', index)}
                       />
                     </td>
 
-                    <td>
+                    <td style={{maxWidth: '150px'}}>
                       <Form.Control
                         id={`min-order-${index}`}
                         name={`min_order`}

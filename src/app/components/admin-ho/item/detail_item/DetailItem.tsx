@@ -59,50 +59,43 @@ const DetailItemHO: FC = () => {
     <section id='detail-item'>
       <div className='card'>
         <div className='card-body'>
-          <div className='invoice-detail d-flex justify-content-between'>
-            <div className='vendor-information'>
-              <div className='vendor-detail'>
-                <img
-                  alt='Logo'
-                  className='h-50px logo mb-3'
-                  src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
-                />
+          <div className='title text-center'>
+            <h1 className='fw-bolder'>DETAIL ITEM</h1>
+          </div>
 
-                <div className='address'>
-                  <h2 className='fw-semibold mb-2'>{itemDetail?.prices[0]?.store?.store_name}</h2>
-                  <h3 className='fw-normal'>{itemDetail?.prices[0]?.store?.address}</h3>
-                </div>
-              </div>
-            </div>
-
-            <div className='payment-request'>
-              <h1 className='fw-bolder'>ITEM</h1>
-
-              <h3 className='fw-semibold'>
+          <Row className='mt-5 mb-5'>
+            <Col>
+              <h3 className='pt-2 pb-2 fw-semibold'>
                 Item ID : <span className='fw-normal'>{itemDetail?.id}</span>
               </h3>
 
-              <h3 className='fw-semibold'>
+              <h3 className='pt-2 pb-2 fw-semibold'>
+                Item Code : <span className='fw-normal'>{itemDetail?.item_code}</span>
+              </h3>
+
+              <h3 className='pt-2 pb-2 fw-semibold'>
                 Nama Material :
                 <span className='ms-1 fw-normal'>{itemDetail?.item_name || '-'}</span>
               </h3>
+            </Col>
 
-              <h3 className='fw-semibold'>
+            <Col>
+              <h3 className='pt-2 pb-2 fw-semibold'>
                 Nama Jasa Pemasangan : <span className='fw-normal'>{itemDetail?.service_name}</span>
               </h3>
 
-              <h3 className='fw-semibold'>
+              <h3 className='pt-2 pb-2 fw-semibold'>
                 Kategori : <span className='fw-normal'>{itemDetail?.category.category_name}</span>
               </h3>
 
-              <h3 className='fw-semibold'>
+              <h3 className='pt-2 pb-2 fw-semibold'>
                 Harga Normal :{' '}
                 <span className='fw-normal'>{`Rp. ${parseInt(
                   itemDetail?.default_price ? itemDetail?.default_price : 0
                 ).toLocaleString('id')}`}</span>
               </h3>
-            </div>
-          </div>
+            </Col>
+          </Row>
 
           <div className='detail-table'>
             <Table hover>
@@ -117,16 +110,23 @@ const DetailItemHO: FC = () => {
               <tbody>
                 {itemDetail?.prices.map((item: any, index: number) => (
                   <tr key={`price-${index}`}>
-                    <td>{`${formatDateTime(new Date(item?.periodic_start))} — ${formatDateTime(
-                      new Date(item?.periodic_end)
-                    )}`}</td>
-                    <td>
+                    <td style={{maxWidth: '200px'}}>{`${formatDateTime(
+                      new Date(item?.periodic_start)
+                    )} — ${formatDateTime(new Date(item?.periodic_end))}`}</td>
+
+                    <td style={{maxWidth: '250px'}}>
                       {item?.price_stores
                         .map((storeDetail: any) => storeDetail?.store?.store_name ?? '-')
                         .join(', ')}
                     </td>
-                    <td className='text-center'>{item?.min_order}</td>
-                    <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+
+                    <td style={{maxWidth: '200px'}} className='text-center'>
+                      {item?.min_order}
+                    </td>
+
+                    <td style={{width: '200px'}} className='text-center'>{`Rp. ${parseInt(
+                      item?.price || 0
+                    ).toLocaleString('id')}`}</td>
                   </tr>
                 ))}
               </tbody>

@@ -347,6 +347,8 @@ const NewItemHO: FC = () => {
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
+          }).then(() => {
+            window.location.reload()
           })
         } else {
           Swal.fire({
@@ -355,8 +357,6 @@ const NewItemHO: FC = () => {
             icon: 'error',
           })
         }
-
-        navigate('/item/view-item')
       })
       .catch((error) => {
         console.error(error)
@@ -470,12 +470,8 @@ const NewItemHO: FC = () => {
             <Table hover>
               <thead>
                 <tr>
-                  <th className='text-center' style={{maxWidth: '200px'}}>
-                    Periode
-                  </th>
-                  <th className='text-center' style={{maxWidth: '200px'}}>
-                    Assign To Store
-                  </th>
+                  <th className='text-center'>Periode</th>
+                  <th className='text-center'>Assign To Store</th>
                   <th className='text-center'>Minimum Order</th>
                   <th className='text-center'>Price</th>
                   <th className='text-center'>Action</th>
@@ -484,7 +480,7 @@ const NewItemHO: FC = () => {
               <tbody>
                 {itemDetail.prices.map((element, index) => (
                   <tr key={`${index}-item_details`}>
-                    <td style={{minWidth: '230px'}}>
+                    <td style={{maxWidth: '300px'}}>
                       <RangePicker
                         id={`date-range-${index}`}
                         className='date-range ms-3 w-100'
@@ -519,7 +515,7 @@ const NewItemHO: FC = () => {
                       />
                     </td>
 
-                    <td style={{minWidth: '150px'}}>
+                    <td style={{maxWidth: '300px'}}>
                       <Select
                         id={`store-id-${index}`}
                         name='store'
@@ -535,7 +531,7 @@ const NewItemHO: FC = () => {
                       />
                     </td>
 
-                    <td>
+                    <td style={{maxWidth: '150px'}}>
                       <Form.Control
                         id={`min-order-${index}`}
                         name={`min_order`}
