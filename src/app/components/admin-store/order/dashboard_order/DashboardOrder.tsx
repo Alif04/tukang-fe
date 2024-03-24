@@ -46,6 +46,7 @@ const statusToStateMap: StatusToStateMap = {
 const DashboardOrderStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userStore = localStorage.getItem('storeId')
+
   const [orderData, setOrderData] = useState<any[]>([])
   const [chartData, setChartData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
@@ -292,7 +293,7 @@ const DashboardOrderStore: FC = () => {
           <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartData} />
         </div>
         <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-xl-8' />
+          <ChartLine className='card-xl-stretch mb-xl-8' orderData={chartData} />
         </div>
       </div>
       {/* end::Row */}

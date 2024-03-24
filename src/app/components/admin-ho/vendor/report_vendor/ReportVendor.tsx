@@ -40,6 +40,7 @@ const ReportVendorHO: FC = () => {
 
     getVendor()
   }, [])
+
   return (
     <>
       {/* begin::Row */}

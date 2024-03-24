@@ -7,9 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  workOrderData: any[]
 }
 
-const ChartBarSurvey: React.FC<Props> = ({className}) => {
+const ChartBarSurvey: React.FC<Props> = ({className, workOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +22,7 @@ const ChartBarSurvey: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
+  }, [chartRef, mode, workOrderData])
 
   const refreshChart = () => {
     if (!chartRef.current) {
@@ -30,7 +31,7 @@ const ChartBarSurvey: React.FC<Props> = ({className}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, workOrderData))
     if (chart) {
       chart.render()
     }
@@ -49,19 +50,19 @@ const ChartBarSurvey: React.FC<Props> = ({className}) => {
 
 export {ChartBarSurvey}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, workOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
   return {
     series: [
       {
-        name: 'Survey',
-        data: [44, 55, 57, 56, 61, 58],
+        name: 'Order Survey',
+        data: workOrderData.map((item: any) => item?.totalSurveyReqOrder),
       },
       {
-        name: 'Pekerjaan Selesai',
-        data: [76, 85, 101, 98, 87, 105],
+        name: 'Pengerjaan Selesai',
+        data: workOrderData.map((item: any) => item?.totalCompleteOrder),
       },
     ],
     chart: {
@@ -92,7 +93,7 @@ function getChartOptions(height: number): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: workOrderData.map((item: any) => item?.month),
       axisBorder: {
         show: false,
       },

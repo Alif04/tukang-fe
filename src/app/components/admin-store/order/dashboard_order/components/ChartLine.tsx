@@ -3,13 +3,13 @@ import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
 import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
 import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
-import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  orderData: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className}) => {
+const ChartLine: React.FC<Props> = ({className, orderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -20,7 +20,7 @@ const ChartLine: React.FC<Props> = ({className}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, orderData))
     if (chart) {
       chart.render()
     }
@@ -36,7 +36,7 @@ const ChartLine: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
+  }, [chartRef, mode, orderData])
 
   return (
     <div className={`card ${className}`}>
@@ -49,7 +49,7 @@ const ChartLine: React.FC<Props> = ({className}) => {
 
 export {ChartLine}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, orderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -57,7 +57,7 @@ function getChartOptions(height: number): ApexOptions {
     series: [
       {
         name: 'Menunggu Bayar',
-        data: [60, 50, 80, 40, 100, 60],
+        data: orderData.map((item: any) => item?.totalUnpaidOrder ?? 0),
       },
     ],
     chart: {
@@ -85,7 +85,7 @@ function getChartOptions(height: number): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: orderData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },

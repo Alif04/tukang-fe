@@ -4,12 +4,13 @@ import React, {useState, useEffect} from 'react'
 import './ViewQuotation.css'
 
 import axios from 'axios'
+import Select, {SingleValue} from 'react-select'
 import {Table, Tag, DatePicker, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faFilter, faSearch, faPlus} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -17,7 +18,26 @@ type Props = {
   className: string
 }
 
+interface DataType {
+  key: React.Key
+  quotation_id: number
+  store_name: string
+  order_id: number
+  date_order: Date
+  costumer_name: string
+  vendor_name: string
+  payment_status: string
+  order_status: string
+  quotation_status: string
+}
+
+interface StoreItem {
+  value: number | null
+  label: string
+}
+
 const ViewQuotationHO: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const [quotationData, setQuotationData] = useState<DataType[]>([])
@@ -28,23 +48,18 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
+  const [store, setStore] = useState<StoreItem[]>([])
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: 'All Vendor',
+  })
+
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
 
-  interface DataType {
-    key: React.Key
-    quotation_id: number
-    store_name: string
-    order_id: number
-    date_order: Date
-    costumer_name: string
-    vendor_name: string
-    payment_status: string
-    order_status: string
-    quotation_status: string
-  }
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
 
   const columns: ColumnsType<DataType> = [
     {
@@ -201,12 +216,12 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async (page: number, pageSize: number) => {
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL
+  const getQuotationList = async (page: number, pageSize: number) => {
+    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
 
+    try {
       const response = await axios.get(
-        `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}`,
+        `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -225,16 +240,16 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewOrder = async (page: number, pageSize: number) => {
+  const ViewQuotation = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await getQuotationList(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from getQuotationList')
         return []
       }
 
-      const orderData = apiData.map((item: any) => {
+      const quotationData = apiData.map((item: any) => {
         let data
         const orderDate = new Date(item.order.created_at)
 
@@ -255,7 +270,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         return data
       })
 
-      return orderData
+      return quotationData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
@@ -263,13 +278,13 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   }
 
   const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
+    const data = await ViewQuotation(page, pageSize)
     setQuotationData(data)
   }
 
   useEffect(() => {
     fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+  }, [dateFrom, dateTo, searchFilter, selectedStore?.value])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -280,6 +295,37 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     }
     return originalElement
   }
+
+  useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+            city_id: item.city_id,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getStore()
+  }, [])
 
   return (
     <section id='view-quotation'>
@@ -327,27 +373,15 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             </Col>
 
             <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-              <div className='select-filter'>
-                <select className='form-select filter filter-one'>
-                  <option selected>All Store</option>
-                  <option value='1'>Mitra 10 - BSD</option>
-                  <option value='2'>Mitra 10 - Depok</option>
-                  <option value='3'>Mitra 10 - Fatmawati</option>
-                </select>
-
-                <select className='form-select filter filter-two'>
-                  <option selected>All Vendor</option>
-                  <option value='1'>Vendor A</option>
-                  <option value='2'>Vendor B</option>
-                  <option value='3'>Vendor C</option>
-                </select>
-
-                <select className='form-select filter filter-four'>
-                  <option selected>All Quotation Status</option>
-                  <option value='1'>PENDING</option>
-                  <option value='2'>PAID</option>
-                </select>
-              </div>
+              <Select
+                name='store_id'
+                className='form-control p-0'
+                classNamePrefix='select'
+                placeholder='Pilih Toko'
+                isSearchable={true}
+                options={storeOptions}
+                onChange={(newValue) => setSelectedStore(newValue)}
+              />
             </Col>
           </Row>
 

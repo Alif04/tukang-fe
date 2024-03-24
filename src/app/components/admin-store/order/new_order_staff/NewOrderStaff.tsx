@@ -151,6 +151,8 @@ const NewOrderStoreStaff: FC = () => {
 
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
+    // const itemFree = paymentTypeValue[0] === 'gratis' ? '?search_free_item=true' : ''
+
     try {
       const response = await axios.get(`${apiUrl}/items?take=0&search=${itemNameSearch}`, {
         headers: {
@@ -186,6 +188,10 @@ const NewOrderStoreStaff: FC = () => {
       console.error(err)
     }
   }
+
+  useEffect(() => {
+    getItem('')
+  }, [])
 
   useEffect(() => {
     const getMember = async () => {
@@ -264,7 +270,6 @@ const NewOrderStoreStaff: FC = () => {
     }
 
     getSales()
-    getItem('')
   }, [])
 
   // Order Form Handler

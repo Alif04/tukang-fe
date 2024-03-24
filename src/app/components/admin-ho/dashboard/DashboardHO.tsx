@@ -51,8 +51,13 @@ const statusToStateMap: StatusToStateMap = {
 
 const DashboardHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
+  const [workOrderData, setWorkOrderData] = useState<any[]>([])
+
+  const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
+  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
 
   const today = new Date()
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
@@ -92,9 +97,11 @@ const DashboardHO: FC = () => {
   }, [selectedStore])
 
   const fetchOrderList = async () => {
+    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -105,6 +112,10 @@ const DashboardHO: FC = () => {
         }
       )
       const data = response.data.data
+      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+
+      setOrderData(data)
+      setChartDataOrder(chartDatas)
       setOrderList(data)
       return data
     } catch (error) {
@@ -135,9 +146,33 @@ const DashboardHO: FC = () => {
     }
   }
 
+  const getWorkOrder = async () => {
+    const storeId = selectedStore && selectedStore.value ? `?store_id=${selectedStore.value}` : ''
+
+    try {
+      const response = await axios.get(`${apiUrl}/reports/work-orders${storeId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data
+      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+
+      setWorkOrderData(data)
+      setChartWorkOrder(chartDatas)
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     fetchOrderList()
-  }, [dateFrom, dateTo])
+  }, [dateFrom, dateTo, selectedStore])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -150,6 +185,7 @@ const DashboardHO: FC = () => {
     }
 
     fetchData()
+    getWorkOrder()
   }, [orderList])
 
   useEffect(() => {
@@ -393,17 +429,17 @@ const DashboardHO: FC = () => {
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarSurvey className='card-xl-stretch' />
+          <ChartBarSurvey className='card-xl-stretch' workOrderData={chartWorkOrder} />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarOrder className='card-xl-stretch' />
+          <ChartBarOrder className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
       </Row>
 
       <Row className='mb-5'>
         <Col md={12}>
-          <ChartBarPerformance className='card-xl-stretch' />
+          <ChartBarPerformance orderData={chartDataOrder} className='card-xl-stretch' />
         </Col>
       </Row>
 

@@ -21,6 +21,15 @@
   background-color: #183383;
 }
 
+#view-quotation .select__control.css-13cymwt-control {
+  height: 45px;
+}
+
+#view-quotation .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+  border: none;
+}
+
 #view-quotation
   .ant-table-wrapper
   .ant-table-container
