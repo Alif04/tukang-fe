@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 type Props = {
   className: string
   chartHeight: string
+  memberData: any[]
 }
 
-const ChartPie: React.FC<Props> = ({className, chartHeight}) => {
+const ChartPie: React.FC<Props> = ({className, chartHeight, memberData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const ChartPie: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, memberData))
     if (chart) {
       chart.render()
     }
@@ -35,7 +36,7 @@ const ChartPie: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, memberData])
 
   return (
     <div className={`card ${className}`}>
@@ -45,7 +46,7 @@ const ChartPie: React.FC<Props> = ({className, chartHeight}) => {
 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>Customer</div>
-            <div className='fs-1 '>60</div>
+            <div className='fs-1 '>{memberData.length}</div>
             <div className='fs-5 text-muted'>Total Customer</div>
           </div>
         </div>
@@ -54,20 +55,25 @@ const ChartPie: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, memberData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-success')
-  const pendingColor = getCSSVariableValue('--kt-warning')
-  const cancelColor = getCSSVariableValue('--kt-danger')
-  const multiOrder = getCSSVariableValue('--kt-info')
+
+  const singleOrder = memberData.filter((member: any) => member?.orders?.length === 1).length
+  const multiOrder = memberData.filter((member: any) => member?.orders?.length > 1).length
+
+  const series = [singleOrder, multiOrder]
+  const noDataAvailable = series.every((value) => value === 0)
 
   return {
-    series: [15, 4, 11, 50],
+    series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
+    labels: ['ORDER SATU', 'ORDER BANYAK'],
+    colors: ['#009DFF', '#22E4FF'], // Set colors to default if no data available
+    // labels: noDataAvailable ? ['No Data Available'] : ['Diselidiki', 'Ditolak', 'Diselesaikan'], // Set labels to empty array if no data available
+    // colors: noDataAvailable ? ['#f0f0f0'] : ['#009DFF', '#22E4FF'], // Set colors to default if no data available
     chart: {
       width: chartHeight,
       type: 'pie',
     },
-    labels: ['NEW', '0 0RDER', '1 ORDER', 'MULTI ORDER'],
     legend: {
       show: true,
       height: 20,
@@ -76,7 +82,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [pendingColor, processColor, cancelColor, multiOrder],
     grid: {
       padding: {
         top: 10,

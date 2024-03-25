@@ -11,8 +11,6 @@ type Props = {
 const TopVendorWidget: React.FC<Props> = ({className, vendorData}) => {
   const topThree = vendorData.slice(0, 3)
 
-  console.log('vendor_data', vendorData)
-
   return (
     <div className={`card ${className}`}>
       <div className='card-header border-0'>

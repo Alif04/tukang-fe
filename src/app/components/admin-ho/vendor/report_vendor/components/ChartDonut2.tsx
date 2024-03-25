@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 type Props = {
   className: string
   chartHeight: string
+  workOrderData: any[]
 }
 
-const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
+const ChartDonut2: React.FC<Props> = ({className, chartHeight, workOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, workOrderData))
     if (chart) {
       chart.render()
     }
@@ -35,7 +36,7 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, workOrderData])
 
   return (
     <div className={`card ${className}`}>
@@ -54,17 +55,31 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, workOrderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
+  const workInProgress = workOrderData.filter(
+    (workOrder: any) => workOrder?.status?.category === 'WIP'
+  ).length
+
+  const workDone = workOrderData.filter(
+    (workOrder: any) => workOrder?.status?.category === 'WORKDONE'
+  ).length
+
+  const series = [workInProgress, workDone]
+  const noDataAvailable = series.every((value) => value === 0)
+
   return {
-    series: [44, 55],
+    series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
+    labels: ['Sedang pengerjaan', 'Selesai'],
+    colors: ['#009DFF', '#22E4FF'], // Set colors to default if no data available
+    // labels: noDataAvailable ? ['No Data Available'] : ['Diselidiki', 'Ditolak', 'Diselesaikan'], // Set labels to empty array if no data available
+    // colors: noDataAvailable ? ['#f0f0f0'] : ['#009DFF', '#22E4FF'], // Set colors to default if no data available
     chart: {
       width: 500,
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['Sedang pengerjaan', 'Selesai'],
     legend: {
       show: true,
       height: 20,
@@ -73,7 +88,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: ['#009DFF', '#22E4FF'],
     grid: {
       padding: {
         top: 10,

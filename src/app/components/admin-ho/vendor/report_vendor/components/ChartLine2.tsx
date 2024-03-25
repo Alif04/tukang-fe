@@ -7,9 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  chartComplaintData: any[]
 }
 
-const ChartLine2: React.FC<Props> = ({className}) => {
+const ChartLine2: React.FC<Props> = ({className, chartComplaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -20,7 +21,7 @@ const ChartLine2: React.FC<Props> = ({className}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartComplaintData))
     if (chart) {
       chart.render()
     }
@@ -36,7 +37,7 @@ const ChartLine2: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
+  }, [chartRef, mode, chartComplaintData])
 
   return (
     <div className={`card ${className}`}>
@@ -49,24 +50,19 @@ const ChartLine2: React.FC<Props> = ({className}) => {
 
 export {ChartLine2}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const baseLightColor = getCSSVariableValue('--kt-primary-light')
-  const secondaryColor = getCSSVariableValue('--kt-info')
-  const secondaryLightColor = getCSSVariableValue('--kt-info-light')
 
   return {
     series: [
       {
         name: 'Komplain Masuk',
-        data: [60, 50, 80, 40, 100, 60],
+        data: chartComplaintData.map((item: any) => item.totalOrder),
       },
       {
         name: 'Ditolak',
-        data: [70, 60, 110, 40, 50, 70],
+        data: chartComplaintData.map((item: any) => item.totalOrder),
       },
     ],
     chart: {
@@ -93,7 +89,7 @@ function getChartOptions(height: number): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: chartComplaintData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },

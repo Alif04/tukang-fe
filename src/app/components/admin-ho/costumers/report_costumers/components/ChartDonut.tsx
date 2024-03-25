@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 type Props = {
   className: string
   chartHeight: string
+  complaintData: any[]
 }
 
-const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
+const ChartDonut: React.FC<Props> = ({className, chartHeight, complaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, complaintData))
     if (chart) {
       chart.render()
     }
@@ -35,7 +36,7 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, complaintData])
 
   return (
     <div className={`card ${className}`}>
@@ -52,20 +53,35 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, complaintData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const processColor = getCSSVariableValue('--kt-primary')
-  const pendingColor = getCSSVariableValue('--kt-gray-800')
-  const cancelColor = getCSSVariableValue('--kt-info')
+
+  const investigated = complaintData.filter(
+    (complaint: any) => complaint?.status?.category === 'INVESTIGATED'
+  ).length
+
+  const rejected = complaintData.filter(
+    (complaint: any) => complaint?.status?.category === 'REJECTEDBYVENDOR'
+  ).length
+
+  const solved = complaintData.filter(
+    (complaint: any) => complaint?.status?.category === 'DONE'
+  ).length
+
+  const series = [investigated, rejected, solved]
+  const noDataAvailable = series.every((value) => value === 0)
 
   return {
-    series: [44, 55, 13],
+    series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
+    labels: ['Diselidiki', 'Ditolak', 'Diselesaikan'],
+    colors: ['#009DFF', '#22E4FF', '#3BFFD0'], // Set colors to default if no data available
+    // labels: noDataAvailable ? ['No Data Available'] : ['Diselidiki', 'Ditolak', 'Diselesaikan'], // Set labels to empty array if no data available
+    // colors: noDataAvailable ? ['#f0f0f0'] : ['#009DFF', '#22E4FF', '#3BFFD0'], // Set colors to default if no data available
     chart: {
       width: 500,
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['Investigated', 'Rejected', 'Solved'],
     legend: {
       show: true,
       height: 20,
@@ -74,7 +90,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: [processColor, pendingColor, cancelColor],
     grid: {
       padding: {
         top: 10,

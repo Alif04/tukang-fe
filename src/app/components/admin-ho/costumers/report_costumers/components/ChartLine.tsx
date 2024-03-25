@@ -7,9 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  chartWorkOrderData: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className}) => {
+const ChartLine: React.FC<Props> = ({className, chartWorkOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -20,7 +21,7 @@ const ChartLine: React.FC<Props> = ({className}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartWorkOrderData))
     if (chart) {
       chart.render()
     }
@@ -36,7 +37,7 @@ const ChartLine: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
+  }, [chartRef, mode, chartWorkOrderData])
 
   return (
     <div className={`card ${className}`}>
@@ -49,7 +50,7 @@ const ChartLine: React.FC<Props> = ({className}) => {
 
 export {ChartLine}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, chartWorkOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -62,11 +63,11 @@ function getChartOptions(height: number): ApexOptions {
     series: [
       {
         name: 'Survey',
-        data: [60, 50, 80, 40, 100, 60],
+        data: chartWorkOrderData.map((item: any) => item.totalSurveyReqOrder),
       },
       {
-        name: 'Work Done',
-        data: [70, 60, 110, 40, 50, 70],
+        name: 'Pekerjaan Selesai',
+        data: chartWorkOrderData.map((item: any) => item.totalCompleteOrder),
       },
     ],
     chart: {
@@ -93,7 +94,7 @@ function getChartOptions(height: number): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: chartWorkOrderData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },
@@ -158,7 +159,7 @@ function getChartOptions(height: number): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return '$' + val + ' thousands'
+          return '' + val
         },
       },
     },
