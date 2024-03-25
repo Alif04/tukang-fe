@@ -17,6 +17,22 @@ type Props = {
   className: string
 }
 
+interface DataType {
+  number: number
+  // store_name: string
+  costumer_id: number
+  member_number: number
+  full_name: string
+  phone_number: number
+  email_address: string
+  customer_since: Date
+  total_order: number
+  // total_spend: number
+  // total_complaint: number
+  // total_cis_score: number
+  // status: string
+}
+
 const ViewCostumerHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
@@ -31,22 +47,6 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    number: number
-    // store_name: string
-    costumer_id: number
-    member_number: number
-    full_name: string
-    phone_number: number
-    email_address: string
-    customer_since: Date
-    total_order: number
-    // total_spend: number
-    // total_complaint: number
-    // total_cis_score: number
-    // status: string
   }
 
   const columns: ColumnsType<DataType> = [

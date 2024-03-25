@@ -13,6 +13,14 @@ const ViewReportStore = () => {
     navigate(`/reports/report-${reportType}`)
   }
 
+  const newTabs = (reportType: string, label: string) => {
+    return (
+      <a className='fs-3 fw-normal text-black' href={`/reports/report-${reportType}`}>
+        {label}
+      </a>
+    )
+  }
+
   return (
     <section id='view-report'>
       <Card>
@@ -31,7 +39,8 @@ const ViewReportStore = () => {
                     width={50}
                     height={50}
                   />
-                  <div className='fs-3 fw-normal'>Total Order</div>
+
+                  {newTabs('total-order', 'Total Order')}
                 </Card.Body>
               </Card>
             </Col>
@@ -50,7 +59,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Pending Survey</div>
+                  {newTabs('pending-survey', 'Pending Survey')}
                 </Card.Body>
               </Card>
             </Col>
@@ -69,7 +78,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Survey</div>
+                  {newTabs('survey', 'Survey')}
                 </Card.Body>
               </Card>
             </Col>
@@ -88,7 +97,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Pending Quotation</div>
+                  {newTabs('pending-quotation', 'Pending Quotation')}
                 </Card.Body>
               </Card>
             </Col>
@@ -107,7 +116,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Pending Bayar</div>
+                  {newTabs('pending-bayar', 'Pending Bayar')}
                 </Card.Body>
               </Card>
             </Col>
@@ -128,7 +137,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>On Progress</div>
+                  {newTabs('on-progress', 'On Progress')}
                 </Card.Body>
               </Card>
             </Col>
@@ -147,7 +156,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Complete</div>
+                  {newTabs('complete', 'Complete')}
                 </Card.Body>
               </Card>
             </Col>
@@ -166,7 +175,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Reschedule</div>
+                  {newTabs('reschedule', 'Reschedule')}
                 </Card.Body>
               </Card>
             </Col>
@@ -185,7 +194,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Cancel</div>
+                  {newTabs('cancel', 'Cancel')}
                 </Card.Body>
               </Card>
             </Col>
@@ -204,7 +213,7 @@ const ViewReportStore = () => {
                     height={50}
                   />
 
-                  <div className='fs-3 fw-normal'>Refund</div>
+                  {newTabs('refund', 'Refund')}
                 </Card.Body>
               </Card>
             </Col>

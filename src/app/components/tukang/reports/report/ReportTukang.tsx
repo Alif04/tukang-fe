@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportTukang.css'
 
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 import {Table, PaginationProps, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Card, Row, Col} from 'react-bootstrap'
@@ -721,6 +722,119 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
       ]
       break
 
+    case 'csi':
+      columns = [
+        {
+          title: 'Order ID',
+          dataIndex: 'order_id',
+          key: 'order_id',
+          align: 'center',
+          width: 90,
+          className: 'col_order_id',
+          defaultSortOrder: 'descend',
+          sorter: (a, b) => a.order_id - b.order_id,
+        },
+        {
+          title: 'Nama Toko',
+          dataIndex: 'store_name',
+          key: 'store_name',
+          align: 'center',
+          width: 110,
+          onFilter: (value, record) => record.store_name.includes(String(value)),
+          sorter: (a, b) => a.store_name.length - b.store_name.length,
+        },
+        {
+          title: 'Nama Vendor',
+          dataIndex: 'vendor_name',
+          key: 'vendor_name',
+          align: 'center',
+          width: 120,
+          onFilter: (value, record) => record.vendor_name.includes(String(value)),
+          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+        },
+        {
+          title: 'No Member',
+          dataIndex: 'member_id',
+          key: 'member_id',
+          align: 'center',
+          width: 110,
+          sorter: (a, b) => a.member_id - b.member_id,
+        },
+        {
+          title: 'Nama Member',
+          dataIndex: 'member_name',
+          key: 'member_name',
+          align: 'left',
+          width: 130,
+          onFilter: (value, record) => record.member_name.includes(String(value)),
+          sorter: (a, b) => a.member_name.length - b.member_name.length,
+        },
+        {
+          title: 'Email Member',
+          dataIndex: 'member_email',
+          key: 'member_email',
+          align: 'left',
+          width: 140,
+          onFilter: (value, record) => record.member_email.includes(String(value)),
+          sorter: (a, b) => a.member_email.length - b.member_email.length,
+        },
+        {
+          title: 'Performance Rate',
+          dataIndex: 'performance_rate',
+          key: 'performance_rate',
+          align: 'left',
+          width: 120,
+          onFilter: (value, record) => record.performance_rate.includes(String(value)),
+          sorter: (a, b) => a.performance_rate.length - b.performance_rate.length,
+        },
+        {
+          title: 'Delivery Rate',
+          dataIndex: 'delivery_rate',
+          key: 'delivery_rate',
+          align: 'left',
+          width: 120,
+          onFilter: (value, record) => record.delivery_rate.includes(String(value)),
+          sorter: (a, b) => a.delivery_rate.length - b.delivery_rate.length,
+        },
+        {
+          title: 'Invoicing Rate',
+          dataIndex: 'invoicing_rate',
+          key: 'invoicing_rate',
+          align: 'left',
+          width: 120,
+          onFilter: (value, record) => record.invoicing_rate.includes(String(value)),
+          sorter: (a, b) => a.invoicing_rate.length - b.invoicing_rate.length,
+        },
+        {
+          title: 'Customer Service Rate',
+          dataIndex: 'cs_rate',
+          key: 'cs_rate',
+          align: 'left',
+          width: 120,
+          onFilter: (value, record) => record.cs_rate.includes(String(value)),
+          sorter: (a, b) => a.cs_rate.length - b.cs_rate.length,
+        },
+        {
+          title: 'Knowledge Rate',
+          dataIndex: 'knowledge_rate',
+          key: 'knowledge_rate',
+          align: 'left',
+          width: 120,
+          onFilter: (value, record) => record.knowledge_rate.includes(String(value)),
+          sorter: (a, b) => a.knowledge_rate.length - b.knowledge_rate.length,
+        },
+        {
+          title: 'Catatan Tambahan',
+          dataIndex: 'notes',
+          key: 'notes',
+          align: 'left',
+          width: 120,
+          onFilter: (value, record) => record.notes.includes(String(value)),
+          sorter: (a, b) => a.notes.length - b.notes.length,
+        },
+      ]
+      break
+
     default:
       columns = [
         {
@@ -887,6 +1001,7 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
       let quotationData
       let refundData
       let rescheduleData
+      let csiData
 
       switch (endpoint) {
         case 'orders':
@@ -1063,6 +1178,29 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           })
           break
 
+        case 'csi':
+          csiData = apiData.map((item: any) => {
+            let data
+
+            data = {
+              order_id: item.id,
+              store_name: item?.store_name,
+              vendor_name: item?.vendor_name,
+              member_id: item?.member_id,
+              member_name: item?.member_name,
+              member_email: item?.email_address,
+              performance_rate: item?.performance_rate,
+              delivery_rate: item?.delivery_rate,
+              invoicing_rate: item?.invoicing_rate,
+              cs_rate: item?.customer_service_rate,
+              knowledge_rate: item?.knowledge_rate,
+              notes: item?.notes,
+            }
+
+            return data
+          })
+          break
+
         default:
           break
       }
@@ -1077,6 +1215,8 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
         ? refundData
         : endpoint === 'reschedule'
         ? rescheduleData
+        : endpoint === 'csi'
+        ? csiData
         : []
     } catch (error) {
       console.error('Error getting report list data:', error)
@@ -1101,6 +1241,14 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  // Export To Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(reportData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+    XLSX.writeFile(workbook, `Report ${title}.xlsx`)
   }
 
   return (
@@ -1142,10 +1290,21 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
         <Col>
           <Card className={`border-top border-${headerColor} border-5`}>
             <Card.Body>
-              <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
-              <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
-                'id'
-              )}`}</h1>
+              <div className='d-flex justify-content-between align-items-center'>
+                <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
+
+                <button className='button-export' onClick={exportToExcel}>
+                  <h3 className='fs-5 fw-semibold'>Export To Excel</h3>
+                </button>
+              </div>
+
+              {endpoint !== 'csi' ? (
+                <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
+                  'id'
+                )}`}</h1>
+              ) : (
+                <></>
+              )}
             </Card.Body>
           </Card>
         </Col>

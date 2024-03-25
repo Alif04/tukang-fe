@@ -10,8 +10,8 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import Select from 'react-select'
-import {Container, Row, Col, Modal, Form, InputGroup, Table} from 'react-bootstrap'
+import Select, {SingleValue} from 'react-select'
+import {Row, Col, Modal, Form, InputGroup, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
 
@@ -39,27 +39,28 @@ interface WorkOrder {
 const ViewCalendarHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const [store, setStore] = useState<StoreItem[]>([])
+  const [vendor, setVendor] = useState<VendorItem[]>([])
+
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: 'All Store',
+  })
+
+  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
+  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
+    value: null,
+    label: 'All Vendor',
+  })
+
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
-  const [store, setStore] = useState<StoreItem[]>([])
-  const [vendor, setVendor] = useState<VendorItem[]>([])
-  const [searchByStore, setSearchByStore] = useState<any>('')
-  const [searchByVendor, setSearchByVendor] = useState<any>('')
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    setSearchByStore(updatedStoreId)
-  }
-
-  const handleChangeSelectVendor = (element: any) => {
-    const updatedVendorId = element.value
-    setSearchByVendor(updatedVendorId)
   }
 
   const [workOrder, setWorkOrder] = useState<WorkOrder[]>([
@@ -73,12 +74,16 @@ const ViewCalendarHO: React.FC = () => {
 
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null)
 
+  const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+  const vendorId =
+    selectedVendor && selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
+
   // Fetch Data
   useEffect(() => {
     const getWorkOrder = async () => {
       try {
         await axios
-          .get(`${apiUrl}/work-orders`, {
+          .get(`${apiUrl}/work-orders?take=0${storeId}${vendorId}`, {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -121,7 +126,7 @@ const ViewCalendarHO: React.FC = () => {
     }
 
     getWorkOrder()
-  }, [])
+  }, [dateFrom, dateTo, selectedStore?.value, selectedVendor?.value])
 
   useEffect(() => {
     const getStore = async () => {
@@ -275,8 +280,9 @@ const ViewCalendarHO: React.FC = () => {
             classNamePrefix='select'
             placeholder='Pilih Toko'
             isSearchable={true}
-            options={store}
-            onChange={(element) => handleChangeSelectStore(element)}
+            options={storeOptions}
+            value={selectedStore}
+            onChange={(newValue) => setSelectedStore(newValue)}
           />
         </Col>
 
@@ -287,8 +293,9 @@ const ViewCalendarHO: React.FC = () => {
             classNamePrefix='select'
             placeholder='Pilih Vendor'
             isSearchable={true}
-            options={vendor}
-            onChange={(element) => handleChangeSelectVendor(element)}
+            options={vendorOptions}
+            value={selectedVendor}
+            onChange={(newValue) => setSelectedVendor(newValue)}
           />
         </Col>
       </Row>

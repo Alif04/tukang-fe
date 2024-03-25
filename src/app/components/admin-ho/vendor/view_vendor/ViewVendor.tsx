@@ -47,7 +47,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  const storeOptions = [{value: null, label: 'All Store'}, ...store]
+  const storeOptions = [{value: null, label: 'All Vendor'}, ...store]
 
   interface DataType {
     no: number
@@ -409,9 +409,10 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
                 name='store_id'
                 className='form-control p-0'
                 classNamePrefix='select'
-                placeholder='Pilih Toko'
+                placeholder='Pilih Vendor'
                 isSearchable={true}
                 options={storeOptions}
+                value={selectedStore}
                 onChange={(newValue) => setSelectedStore(newValue)}
               />
             </Col>

@@ -173,6 +173,20 @@ iframe.csi-frame {
 
 /* Button Action */
 
+.button-export {
+  display: flex;
+  width: fit-content;
+  padding: 5px !important;
+  align-items: center;
+  background-color: transparent;
+  color: #ffff;
+  border-radius: 5px;
+}
+
+svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
+  margin: 5px;
+}
+
 .button-wrapper {
   display: flex;
   justify-content: space-between;
@@ -193,24 +207,6 @@ iframe.csi-frame {
 .button-delete svg.svg-inline--fa.fa-trash.fa-sm {
   margin: 0;
   color: #d50119;
-}
-
-.button-export {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 165px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #04844b;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
-  margin: 5px;
 }
 
 .button-new-order {

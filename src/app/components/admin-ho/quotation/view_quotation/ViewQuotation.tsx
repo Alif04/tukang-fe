@@ -51,7 +51,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [store, setStore] = useState<StoreItem[]>([])
   const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
     value: null,
-    label: 'All Vendor',
+    label: 'All Store',
   })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -380,6 +380,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
                 placeholder='Pilih Toko'
                 isSearchable={true}
                 options={storeOptions}
+                value={selectedStore}
                 onChange={(newValue) => setSelectedStore(newValue)}
               />
             </Col>

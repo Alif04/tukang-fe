@@ -191,6 +191,7 @@ const ReportCostumerHO: FC = () => {
                   placeholder='Pilih Member'
                   isSearchable={true}
                   options={memberOptions}
+                  value={selectedMember}
                   onChange={(newValue) => setSelectedMember(newValue)}
                 />
               </div>

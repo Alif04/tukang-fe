@@ -5,7 +5,7 @@ import './ViewCSI.css'
 
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
-import {Table, Tag, PaginationProps} from 'antd'
+import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
@@ -60,20 +60,27 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+
   const [store, setStore] = useState<StoreSelect[]>([])
   const [vendor, setVendor] = useState<VendorSelect[]>([])
   const [member, setMember] = useState<MemberSelect[]>([])
+
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
   const [selectedStore, setSelectedStore] = useState<SingleValue<StoreSelect>>({
     value: null,
-    label: '',
+    label: 'All Store',
   })
+
+  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
   const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorSelect>>({
     value: null,
-    label: '',
+    label: 'All Vendor',
   })
+
+  const memberOptions = [{value: null, label: 'All Member'}, ...member]
   const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
     value: null,
-    label: '',
+    label: 'All Member',
   })
 
   // Handle Change Search Filter
@@ -203,16 +210,20 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
       const vendorId =
         selectedVendor && selectedVendor.label ? `&vendor_id=${selectedVendor.value}` : ''
 
-      const apiReq = `${apiUrl}/csi?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}${memberId}`
+      const response = await axios.get(
+        `${apiUrl}/csi?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}${memberId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
-      const response = await axios.get(apiReq, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.takeTotal)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -425,7 +436,8 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
                     placeholder='Pilih/Ketik Nama Store'
                     isSearchable={true}
                     isClearable={true}
-                    options={store}
+                    options={storeOptions}
+                    value={selectedStore}
                     onChange={(newValue) => setSelectedStore(newValue)}
                   />
                 </Col>
@@ -445,7 +457,8 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
                     placeholder='Pilih/Ketik Nama Vendor'
                     isSearchable={true}
                     isClearable={true}
-                    options={vendor}
+                    options={vendorOptions}
+                    value={selectedVendor}
                     onChange={(newValue) => setSelectedVendor(newValue)}
                   />
                 </Col>
@@ -466,6 +479,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
                     isSearchable={true}
                     isClearable={true}
                     options={member}
+                    value={selectedMember}
                     onChange={(newValue) => setSelectedMember(newValue)}
                   />
                 </Col>

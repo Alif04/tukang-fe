@@ -13,6 +13,14 @@ const ViewReportHO = () => {
     navigate(`/reports/ho-report-${reportType}`)
   }
 
+  const newTabs = (reportType: string, label: string) => {
+    return (
+      <a className='fs-3 fw-normal text-black' href={`/reports/ho-report-${reportType}`}>
+        {label}
+      </a>
+    )
+  }
+
   return (
     <section id='view-report-ho'>
       <Card>
@@ -39,7 +47,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Claim Voucher</div>
+
+                    {newTabs('claim-voucher', 'Laporan Claim Voucher')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -58,7 +67,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Expense Promosi</div>
+
+                    {newTabs('expense-promosi', 'Laporan Expense Promosi')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -77,7 +87,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Other Income</div>
+
+                    {newTabs('other-income', 'Laporan Other Income')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -98,7 +109,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Refund</div>
+
+                    {newTabs('refund', 'Laporan Refund')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -117,7 +129,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Total Penalty</div>
+
+                    {newTabs('total-penalty', 'Laporan Total Penalty')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -148,7 +161,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan CSI belum direspon</div>
+
+                    {newTabs('csi-unrespon', 'Laporan CSI belum direspon')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -167,7 +181,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan CSI belum terkirim</div>
+
+                    {newTabs('unsent-csi', 'Laporan CSI belum terkirim')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -186,7 +201,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan CSI direspon</div>
+
+                    {newTabs('csi-responded', 'Laporan CSI direspon')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -207,7 +223,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan CSI terkirim</div>
+
+                    {newTabs('csi', 'Laporan CSI terkirim')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -240,7 +257,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Insentive belum dibayar</div>
+
+                    {newTabs('insentive-unpaid', 'Laporan Insentive belum dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -259,7 +277,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Insentive dibayar</div>
+
+                    {newTabs('insentive-paid', 'Laporan Insentive dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -278,7 +297,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Order komplit</div>
+
+                    {newTabs('complete-order', 'Laporan Order komplit')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -299,7 +319,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Order tidak komplit</div>
+
+                    {newTabs('uncomplete-order', 'Laporan Order tidak komplit')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -332,7 +353,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Quotation ( Omset )</div>
+
+                    {newTabs('quotation', 'Laporan Quotation ( Omset )')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -351,7 +373,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Survey ( Omset )</div>
+
+                    {newTabs('survey', 'Laporan Survey ( Omset )')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -370,7 +393,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Transaksi All ( Omset )</div>
+
+                    {newTabs('transaksi-all', 'Laporan Transaksi All ( Omset )')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -399,7 +423,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Pending Payment</div>
+
+                    {newTabs('pending-payment', 'Laporan Pending Payment')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -418,7 +443,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Tagihan Belum Dibayar</div>
+
+                    {newTabs('unpaid', 'Laporan Tagihan Belum Dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -437,7 +463,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Tagihan Bulanan</div>
+
+                    {newTabs('tagihan-bulanan', 'Laporan Tagihan Bulanan')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -458,7 +485,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Tagihan Dibayar</div>
+
+                    {newTabs('paid', 'Laporan Tagihan Dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -491,7 +519,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Garansi</div>
+
+                    {newTabs('claim-garansi', 'Laporan Garansi')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -510,7 +539,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan On Progress</div>
+
+                    {newTabs('on-progress', 'Laporan On Progress')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -529,7 +559,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Pengaduan</div>
+
+                    {newTabs('complaint', 'Laporan Pengaduan')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -550,7 +581,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Pending Payment</div>
+
+                    {newTabs('pending-payment', 'Laporan Pending Payment')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -569,7 +601,8 @@ const ViewReportHO = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Reschedule</div>
+
+                    {newTabs('reschedule', 'Laporan Reschedule')}
                   </Card.Body>
                 </Card>
               </Col>

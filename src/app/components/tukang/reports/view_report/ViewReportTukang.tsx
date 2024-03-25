@@ -13,6 +13,14 @@ const ViewReportTukang = () => {
     navigate(`/reports/tukang-report-${reportType}`)
   }
 
+  const newTabs = (reportType: string, label: string) => {
+    return (
+      <a className='fs-3 fw-normal text-black' href={`/reports/tukang-report-${reportType}`}>
+        {label}
+      </a>
+    )
+  }
+
   return (
     <section id='view-report-tukang'>
       <Card>
@@ -39,7 +47,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Expense Promosi</div>
+
+                    {newTabs('expense-promosi', 'Laporan Expense Promosi')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -58,7 +67,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Other Income</div>
+
+                    {newTabs('other-income', 'Laporan Other Income')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -77,7 +87,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Penalty atas Refund</div>
+
+                    {newTabs('refund', 'Laporan Penalty')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -106,7 +117,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Pending Payment</div>
+
+                    {newTabs('pending-payment', 'Laporan Pending Payment')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -125,7 +137,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan tagihan bulanan</div>
+
+                    {newTabs('tagihan-bulanan', 'Laporan tagihan bulanan')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -144,7 +157,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan tagihan dibayar</div>
+
+                    {newTabs('paid', 'Laporan tagihan dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -165,7 +179,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan tagihan belum dibayar</div>
+
+                    {newTabs('unpaid', 'Laporan tagihan belum dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -198,7 +213,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Quotation (omset)</div>
+
+                    {newTabs('quotation', 'Laporan Quotation (omset)')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -217,7 +233,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Survey (omset)</div>
+
+                    {newTabs('survey', 'Laporan Survey (omset)')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -236,7 +253,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Transaksi All (omset)</div>
+
+                    {newTabs('transaksi-all', 'Laporan Transaksi All (omset)')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -265,7 +283,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Pending Payment</div>
+
+                    {newTabs('pending-payment', 'Laporan Pending Payment')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -284,7 +303,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan tagihan bulanan</div>
+
+                    {newTabs('tagihan-bulanan', 'Laporan tagihan bulanan')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -303,7 +323,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan tagihan dibayar</div>
+
+                    {newTabs('paid', 'Laporan tagihan dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -324,7 +345,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan tagihan belum dibayar</div>
+
+                    {newTabs('unpaid', 'Laporan tagihan belum dibayar')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -357,7 +379,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Garansi</div>
+
+                    {newTabs('claim-garansi', 'Laporan Garansi')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -376,7 +399,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Pengaduan</div>
+
+                    {newTabs('complaint', 'Laporan Pengaduan')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -395,7 +419,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan On Progress</div>
+
+                    {newTabs('on-progress', 'Laporan On Progress')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -416,7 +441,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Quotation</div>
+
+                    {newTabs('quotation', 'Laporan Quotation')}
                   </Card.Body>
                 </Card>
               </Col>
@@ -435,7 +461,8 @@ const ViewReportTukang = () => {
                       width={50}
                       height={50}
                     />
-                    <div className='fs-3 fw-normal'>Laporan Reschedule</div>
+
+                    {newTabs('reschedule', 'Laporan Reschedule')}
                   </Card.Body>
                 </Card>
               </Col>

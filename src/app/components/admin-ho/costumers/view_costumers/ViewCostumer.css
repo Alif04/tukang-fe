@@ -115,6 +115,7 @@
   height: 45px;
   background-color: transparent;
   color: #04844b;
+  border: none !important;
 }
 
 #view-costumer .button-print {

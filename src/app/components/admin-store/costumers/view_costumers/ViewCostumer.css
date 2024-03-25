@@ -130,24 +130,6 @@
   color: #d50119;
 }
 
-.button-export {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 165px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #04844b;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
-  margin: 5px;
-}
-
 .button-new-order {
   display: flex;
   justify-content: center;

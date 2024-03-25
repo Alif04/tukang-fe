@@ -84,7 +84,7 @@ const ReportVendorHO: FC = () => {
   const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendorOption]
   const [selectedVendor, setSelectedVendor] = useState<any>({
     value: null,
-    label: 'All Store',
+    label: 'All Vendor',
   })
 
   const [dateFrom, setDateFrom] = useState<any>('')
@@ -278,6 +278,7 @@ const ReportVendorHO: FC = () => {
                   placeholder='Pilih Vendor'
                   isSearchable={true}
                   options={vendorOptions}
+                  value={selectedVendor}
                   onChange={(newValue) => setSelectedVendor(newValue)}
                 />
               </div>
