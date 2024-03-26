@@ -35,6 +35,7 @@ interface ItemDetail {
   prices: Array<{
     id: number | null
     price_store: Array<{
+      id: number | null
       store_id: number | null
       store_group_id: number | null
       label: string
@@ -64,6 +65,7 @@ const UpdateItemHO: FC = () => {
         id: null,
         price_store: [
           {
+            id: null,
             store_id: null,
             store_group_id: null,
             label: '',
@@ -124,6 +126,7 @@ const UpdateItemHO: FC = () => {
               price: item?.price,
               price_store: item?.price_stores
                 ? item.price_stores.map((storeItem: any) => ({
+                    id: storeItem?.id,
                     store_id: storeItem?.store_id,
                     label: storeItem?.store?.store_name,
                     // store_group_id: storeItem?.store?.store_group_id,
@@ -131,28 +134,30 @@ const UpdateItemHO: FC = () => {
                 : [],
             }))
 
-            // const pricesStore = data?.prices.map((item: any) =>
-            //   item?.price_stores?.map((storeItem: any) => ({
-            //     label: storeItem?.store?.store_name,
-            //   }))
-            // )
+            // const pricesStore = data?.prices
+            //   .map((item: any) =>
+            //     item?.price_stores?.map((storeItem: any) => ({
+            //       id: storeItem?.id,
+            //       store_id: storeItem?.store_id,
+            //       label: storeItem?.store?.store_name,
+            //       // store_group_id: storeItem?.store?.store_group_id,
+            //     }))
+            //   )
+            //   .flat()
 
-            const pricesStore = data?.prices
-              .map((item: any) =>
-                item?.price_stores?.map((storeItem: any) => ({
-                  store_id: storeItem?.store_id,
-                  label: storeItem?.store?.store_name,
-                  // store_group_id: storeItem?.store?.store_group_id,
-                }))
-              )
-              .flat()
+            const pricesStore = data?.prices.map((item: any) => ({
+              id: item?.id,
+              price_store: item?.price_stores
+                ? item?.price_stores?.map((storeItem: any) => ({
+                    id: storeItem?.id,
+                    store_id: storeItem?.store_id,
+                    label: storeItem?.store?.store_name,
+                    // store_group_id: storeItem?.store?.store_group_id,
+                  }))
+                : [],
+            }))
 
             setSelectedStore(pricesStore)
-
-            // setStoreOptions((prev) => ({
-            //   ...prev,
-            //   label: pricesStore,
-            // }))
 
             setItemDetail((prev) => ({
               ...prev,
@@ -267,6 +272,7 @@ const UpdateItemHO: FC = () => {
       id: null,
       price_store: [
         {
+          id: null,
           store_id: null,
           store_group_id: null,
           label: '',
@@ -308,19 +314,11 @@ const UpdateItemHO: FC = () => {
 
       const newValue = value.map((item: any) => {
         if (item.store_id !== undefined) {
-          return {store_id: item.store_id, label: item.label}
+          return {id: item?.id ?? null, store_id: item.store_id, label: item.label}
         } else if (item.store_group_id !== undefined) {
-          return {store_group_id: item.store_group_id, label: item.label}
+          return {id: item?.id ?? null, store_group_id: item.store_group_id, label: item.label}
         }
       })
-
-      // const newValue = value.map((item: any) => {
-      //   if (item.store_id !== undefined) {
-      //     return {store_id: item.store_id, label: item.label}
-      //   } else if (item.store_group_id !== undefined) {
-      //     return {store_group_id: item.store_group_id, label: item.label}
-      //   }
-      // })
 
       cache.prices[index] = {
         ...cache.prices[index],
@@ -421,10 +419,20 @@ const UpdateItemHO: FC = () => {
       return false
     }
 
+    const filteredPricesStore = itemDetail.prices.flatMap((price) =>
+      price.price_store.map((storeItem) => {
+        if (storeItem.id === null) {
+          const {id, ...priceStoreWithoutId} = storeItem
+          return priceStoreWithoutId
+        }
+        return storeItem
+      })
+    )
+
     const updatedPrices = itemDetail.prices.map((price) => {
       if (price.id === null) {
         const {id, ...priceWithoutId} = price
-        return priceWithoutId
+        return {...priceWithoutId, price_store: filteredPricesStore}
       }
       return price
     })
@@ -434,43 +442,45 @@ const UpdateItemHO: FC = () => {
       prices: updatedPrices,
     }
 
-    await axios
-      .post(`${apiUrl}/items/${params.id}`, newItemDetail, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Update Item',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
+    console.log('handleSubmit', newItemDetail)
 
-        navigate('/item/view-item')
-      })
-      .catch((error) => {
-        console.error(error)
+    // await axios
+    //   .post(`${apiUrl}/items/${params.id}`, newItemDetail, {
+    //     headers: {
+    //       Accept: 'application/json',
+    //       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //       'Access-Control-Allow-Origin': '*',
+    //       'ngrok-skip-browser-warning': 'true',
+    //     },
+    //   })
+    //   .then((response) => {
+    //     if (response.data.status === 200 || response.data.status === 201) {
+    //       Swal.fire({
+    //         title: 'Success',
+    //         text: 'Success Update Item',
+    //         icon: 'success',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //       })
+    //     } else {
+    //       Swal.fire({
+    //         title: 'Error',
+    //         text: response.data.message,
+    //         icon: 'error',
+    //       })
+    //     }
 
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
+    //     navigate('/item/view-item')
+    //   })
+    //   .catch((error) => {
+    //     console.error(error)
+
+    //     Swal.fire({
+    //       title: 'Error',
+    //       text: error.response.data.message,
+    //       icon: 'error',
+    //     })
+    //   })
   }
 
   return (
@@ -635,7 +645,7 @@ const UpdateItemHO: FC = () => {
                         options={storeOptions}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
                         getOptionValue={(option: StoreSelect) => `${option.store_id}`}
-                        value={selectedStore}
+                        value={selectedStore[index]}
                         onChange={(e) => storeHandler(e, 'price_store', index)}
                       />
                     </td>

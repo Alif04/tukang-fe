@@ -47,7 +47,7 @@ const NewCSIHO: FC = () => {
 
   // Handle Create CSI
   const handleCreateCSI = async () => {
-    setIsLoading(false)
+    setIsLoading(true)
 
     await axios
       .post(`${apiUrl}/csi`, csiForm, {

@@ -39,6 +39,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
   const params = useParams()
 
   const [csiAnswer, setCsiAnswer] = useState<any[]>([])
+  console.log('csi_answer', csiAnswer)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -239,7 +240,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
   return (
     <section id='view-csi'>
       <div className='table-view-order'>
-        <Row className='table-head-wrapper'>
+        {/* <Row className='table-head-wrapper'>
           <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
             <div className='d-flex align-items-center me-3'>
               <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
@@ -341,7 +342,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
               </Col>
             </Row>
           </Col>
-        </Row>
+        </Row> */}
 
         <Row>
           <List
@@ -366,17 +367,23 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
             }}
             renderItem={(item) => (
               <Card className='mb-5'>
-                <List.Item key={item?.Timestamp}>
+                <List.Item key={item?.wewe}>
                   <List.Item.Meta
                     title={
-                      <div className='fs-1 text-dark fw-semibold'>{item['Catatan Tambahan']}</div>
+                      <div className='fs-3 text-dark fw-semibold'>
+                        <FontAwesomeIcon icon={faClock} /> Tanggal : {item?.Timestamp}
+                      </div>
                     }
                   />
 
-                  <Space>
-                    <FontAwesomeIcon icon={faClock} />
-                    <div className='fs-5'>Date Created : {item?.Timestamp}</div>
-                  </Space>
+                  {Object.entries(item)
+                    .splice(2)
+                    .map(([key, value]) => (
+                      <div>
+                        <div className='fs-5'>{`Pertanyaan : ${key}`}</div>
+                        <div className='fs-5'>{`Jawaban : ${value}`}</div>
+                      </div>
+                    ))}
                 </List.Item>
               </Card>
             )}

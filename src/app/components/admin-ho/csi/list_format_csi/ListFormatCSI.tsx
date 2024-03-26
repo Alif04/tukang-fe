@@ -6,7 +6,7 @@ import axios from 'axios'
 import {List, Space, PaginationProps} from 'antd'
 import {Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPen, faBook, faClock, faFileExcel} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faBook, faClock, faFileExcel, faDatabase} from '@fortawesome/free-solid-svg-icons'
 
 const ListFormatCSI: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -130,6 +130,13 @@ const ListFormatCSI: FC = () => {
                   text='Open Spreadsheet'
                   link={item.spreadsheets_link}
                   openNewTab={true}
+                />,
+
+                <IconText
+                  icon={faDatabase}
+                  text='Open Respons Survey'
+                  link={`/csi/view-csi/${item.id}`}
+                  openNewTab={false}
                 />,
               ]}
             >

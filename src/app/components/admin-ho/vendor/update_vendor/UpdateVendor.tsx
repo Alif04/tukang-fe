@@ -55,6 +55,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const navigate = useNavigate()
   const params = useParams()
   const animatedComponents = makeAnimated()
+
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [vendorDetail, setVendorDetail] = useState<any>()
 
   // Fetch API
@@ -1493,8 +1495,13 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           </Row>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-primary' type='submit' onClick={handleUpdateVendor}>
-              Save
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleUpdateVendor}
+            >
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

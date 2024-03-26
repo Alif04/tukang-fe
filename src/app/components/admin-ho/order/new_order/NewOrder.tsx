@@ -179,15 +179,20 @@ const NewOrderHO: FC = () => {
 
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
+    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=0' : ''
+
     try {
-      const response = await axios.get(`${apiUrl}/items?take=0&search=${itemNameSearch}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/items?take=0&search=${itemNameSearch}${itemFree}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const item = response.data.data.map((item: any) => ({
@@ -214,6 +219,10 @@ const NewOrderHO: FC = () => {
       console.error(err)
     }
   }
+
+  useEffect(() => {
+    getItem('')
+  }, [paymentTypeValue])
 
   useEffect(() => {
     const getMember = async () => {
@@ -349,7 +358,6 @@ const NewOrderHO: FC = () => {
     getStore()
     getSales()
     getVendor()
-    getItem('')
   }, [])
 
   // Order Form Handler

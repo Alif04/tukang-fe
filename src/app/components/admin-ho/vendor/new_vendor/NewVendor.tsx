@@ -44,6 +44,8 @@ const NewVendorHO: FC = () => {
   const navigate = useNavigate()
   const animatedComponents = makeAnimated()
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const getStore = async () => {
     try {
       const response = await axios.get(`${apiUrl}/stores?take=0`, {
@@ -679,6 +681,7 @@ const NewVendorHO: FC = () => {
   // Handle Submit New Vendor
   const handleSubmitNewVendor = async () => {
     if (VendorValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('id', vendorId)
@@ -777,24 +780,28 @@ const NewVendorHO: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/vendor/view-vendor')
         })
         .catch((error) => {
-          console.error(error)
-
           Swal.fire({
             title: 'Error',
             text: error.response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         })
     }
   }
@@ -1273,8 +1280,13 @@ const NewVendorHO: FC = () => {
           </Row>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitNewVendor}>
-              Save
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleSubmitNewVendor}
+            >
+              {isLoading ? 'Saving' : 'Save'}
             </Button>
           </div>
         </div>
