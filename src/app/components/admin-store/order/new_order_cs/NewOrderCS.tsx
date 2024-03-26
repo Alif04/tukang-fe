@@ -612,7 +612,7 @@ const NewOrderStoreCS: FC = () => {
             icon: 'error',
           })
 
-          setIsLoading(true)
+          setIsLoading(false)
         }
       })
       .catch((error) => {

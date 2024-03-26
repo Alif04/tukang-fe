@@ -80,7 +80,7 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
 
-        <AsideMenuItem to='/csi/list-csi' title='List CSI' role={['Admin HO']} hasBullet={true} />
+        {/* <AsideMenuItem to='/csi/list-csi' title='List CSI' role={['Admin HO']} hasBullet={true} /> */}
 
         <AsideMenuItem
           to='/order/view-order'
@@ -320,28 +320,26 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       {/* Halaman CSI */}
-      {/* <AsideMenuItemWithSub
-        to='/cis'
+      <AsideMenuItemWithSub
+        to='/csi'
         title='CSI'
         icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
         role={['Admin HO']}
       >
-        <AsideMenuItem to='/csi/view-csi' title='List CSI' role={['Admin HO']} hasBullet={true} />
-        <AsideMenuItem to='/csi/new-csi' title='New CSI' role={['Admin HO']} hasBullet={true} />
         <AsideMenuItem
-          to='/csi/update-csi'
-          title='Update CSI'
+          to='/csi/new-csi'
+          title='Formulir Baru CSI'
           role={['Admin HO']}
           hasBullet={true}
         />
+
         <AsideMenuItem
-          to='/csi/report-csi'
-          title='Report CSI'
+          to='/csi/format-pertanyaan-csi'
+          title='List Format CSI'
           role={['Admin HO']}
           hasBullet={true}
         />
-      </AsideMenuItemWithSub> */}
+      </AsideMenuItemWithSub>
 
       {/* Halaman Item */}
       {/* <AsideMenuItemWithSub
@@ -500,22 +498,6 @@ export function AsideMenuMain() {
           <AsideMenuItem
             to='/email/view-format-email'
             title='Daftar Format Email'
-            role={['Admin HO']}
-            hasBullet={true}
-          />
-        </AsideMenuItemWithSub>
-
-        <AsideMenuItemWithSub to='/csi' title='CSI' hasBullet={true} role={['Admin HO']}>
-          <AsideMenuItem
-            to='/csi/new-csi'
-            title='Formulir CSI'
-            role={['Admin HO']}
-            hasBullet={true}
-          />
-
-          <AsideMenuItem
-            to='/csi/format-pertanyaan-csi'
-            title='List Format CSI'
             role={['Admin HO']}
             hasBullet={true}
           />

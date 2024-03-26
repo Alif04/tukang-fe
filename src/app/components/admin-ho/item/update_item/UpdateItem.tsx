@@ -37,7 +37,7 @@ interface ItemDetail {
     price_store: Array<{
       store_id: number | null
       store_group_id: number | null
-      // label: string
+      label: string
     }>
     periodic_start: string | null | Date
     periodic_end: string | null | Date
@@ -66,7 +66,7 @@ const UpdateItemHO: FC = () => {
           {
             store_id: null,
             store_group_id: null,
-            // label: '',
+            label: '',
           },
         ],
         periodic_start: null,
@@ -124,7 +124,7 @@ const UpdateItemHO: FC = () => {
               price: item?.price,
               price_store: item?.price_stores
                 ? item.price_stores.map((storeItem: any) => ({
-                    // store_id: storeItem?.store?.store_id,
+                    store_id: storeItem?.store_id,
                     label: storeItem?.store?.store_name,
                     // store_group_id: storeItem?.store?.store_group_id,
                   }))
@@ -137,17 +137,17 @@ const UpdateItemHO: FC = () => {
             //   }))
             // )
 
-            // const pricesStore = data?.prices
-            //   .map((item: any) =>
-            //     item?.price_stores?.map((storeItem: any) => ({
-            //       store_id: storeItem?.store?.store_id,
-            //       // store_group_id: storeItem?.store?.store_group_id,
-            //       label: storeItem?.store?.store_name,
-            //     }))
-            //   )
-            //   .flat()
+            const pricesStore = data?.prices
+              .map((item: any) =>
+                item?.price_stores?.map((storeItem: any) => ({
+                  store_id: storeItem?.store_id,
+                  label: storeItem?.store?.store_name,
+                  // store_group_id: storeItem?.store?.store_group_id,
+                }))
+              )
+              .flat()
 
-            // setSelectedStore(pricesStore)
+            setSelectedStore(pricesStore)
 
             // setStoreOptions((prev) => ({
             //   ...prev,
@@ -269,7 +269,7 @@ const UpdateItemHO: FC = () => {
         {
           store_id: null,
           store_group_id: null,
-          // label: '',
+          label: '',
         },
       ],
       periodic_start: dayjs(new Date()).format('YYYY-MM-DD'),
@@ -308,9 +308,9 @@ const UpdateItemHO: FC = () => {
 
       const newValue = value.map((item: any) => {
         if (item.store_id !== undefined) {
-          return {store_id: item.store_id}
+          return {store_id: item.store_id, label: item.label}
         } else if (item.store_group_id !== undefined) {
-          return {store_group_id: item.store_group_id}
+          return {store_group_id: item.store_group_id, label: item.label}
         }
       })
 
@@ -327,8 +327,8 @@ const UpdateItemHO: FC = () => {
         [target]: newValue,
       }
 
-      // const updatedSelectedStore = cache.prices.flatMap((price) => price.price_store)
-      // setSelectedStore(updatedSelectedStore)
+      const updatedSelectedStore = cache.prices.flatMap((price) => price.price_store)
+      setSelectedStore(updatedSelectedStore)
 
       return cache
     })
@@ -635,7 +635,7 @@ const UpdateItemHO: FC = () => {
                         options={storeOptions}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
                         getOptionValue={(option: StoreSelect) => `${option.store_id}`}
-                        // value={selectedStore}
+                        value={selectedStore}
                         onChange={(e) => storeHandler(e, 'price_store', index)}
                       />
                     </td>

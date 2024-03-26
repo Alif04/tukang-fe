@@ -80,7 +80,7 @@ const UpdateCSIHO: FC = () => {
 
   // Handle Update CSI
   const handleUpdateCSI = async () => {
-    setIsLoading(false)
+    setIsLoading(true)
 
     await axios
       .post(`${apiUrl}/csi/${params.id}`, csiForm, {
@@ -105,7 +105,7 @@ const UpdateCSIHO: FC = () => {
 
           setIsLoading(false)
         } else {
-          setIsLoading(true)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',

@@ -50,6 +50,8 @@ const DashboardStore: FC = () => {
     city_id: null,
   })
 
+  const storeId = selectedStore && selectedStore.value ? `&${selectedStore.value}` : ''
+
   const fetchOrderData = async () => {
     try {
       let url =
@@ -106,8 +108,13 @@ const DashboardStore: FC = () => {
     }
 
     const getSales = async () => {
+      const url =
+        userRole === 'Store Staff'
+          ? `${apiUrl}/sales?take=0&top_best=true&order_by=desc&store_id=${userStore}`
+          : `${apiUrl}/sales?take=0&top_best=true&order_by=desc${storeId}`
+
       try {
-        const response = await axios.get(`${apiUrl}/sales?take=0&top_best=true&order_by=desc`, {
+        const response = await axios.get(url, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -124,8 +131,13 @@ const DashboardStore: FC = () => {
     }
 
     const getMember = async () => {
+      const url =
+        userRole === 'Store Staff'
+          ? `${apiUrl}/member?take=0&store_id=${userStore}`
+          : `${apiUrl}/member?take=0${storeId}`
+
       try {
-        const response = await axios.get(`${apiUrl}/member`, {
+        const response = await axios.get(url, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -156,7 +168,7 @@ const DashboardStore: FC = () => {
     getStore()
     getSales()
     getMember()
-  }, [])
+  }, [userRole, selectedStore?.value])
 
   useEffect(() => {
     fetchOrderData()
