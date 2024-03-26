@@ -319,8 +319,8 @@ const ViewPaymentHO: FC = () => {
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex justify-content-end'>
               <button className='button-export' onClick={exportToExcel}>
-                Export To Excel
-                <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon' />
+                <h3 className='fs-5 fw-semibold text-black'>Export To Excel</h3>
+                <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon text-black' />
               </button>
             </Col>
           </Row>

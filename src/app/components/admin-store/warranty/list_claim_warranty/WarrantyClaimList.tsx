@@ -21,6 +21,7 @@ type Props = {
 const WarrantyClaimList: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userStore = localStorage.getItem('storeId')
+  const userRole = localStorage.getItem('userRole')
   const navigate = useNavigate()
 
   const [claimWarrantyData, setclaimWarrantyData] = useState<DataType[]>([])
@@ -233,18 +234,20 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
   }
 
   const fetchOrderList = async (page: number, pageSize: number) => {
+    const url =
+      userRole !== 'Tukang'
+        ? `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&store_id=${userStore}&page=${page}&take=${pageSize}`
+        : `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`
+
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&store_id=${userStore}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)

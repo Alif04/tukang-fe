@@ -378,7 +378,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
 
     const getSales = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales?take=0`, {
+        const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
