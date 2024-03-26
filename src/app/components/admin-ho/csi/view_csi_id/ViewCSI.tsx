@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './ViewCSI.css'
 
@@ -7,7 +8,6 @@ import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
@@ -20,7 +20,8 @@ type Props = {
 }
 
 interface DataType {
-  order_id: number
+  index: number
+  id: number
   store_name: string
   vendor_name: string
   member_id: number
@@ -52,8 +53,9 @@ interface MemberSelect {
 const ViewCSIHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const params = useParams()
 
-  const [orderData, setOrderData] = useState<DataType[]>([])
+  const [csiData, setCsiData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -91,14 +93,13 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'Order ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
+      title: 'No.',
+      dataIndex: 'index',
+      key: 'index',
       align: 'center',
       width: 90,
       className: 'col_order_id',
-      defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
+      sorter: (a, b) => a.index - b.index,
     },
     {
       title: 'Nama Toko',
@@ -203,15 +204,15 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
   const getCSI = async (page: number, pageSize: number) => {
     try {
       const memberId =
-        selectedMember && selectedMember.label ? `&member_id=${selectedMember.value}` : ''
+        selectedMember && selectedMember.value ? `&member_id=${selectedMember.value}` : ''
 
-      const storeId = selectedStore && selectedStore.label ? `&storeId=${selectedStore.value}` : ''
+      const storeId = selectedStore && selectedStore.value ? `&storeId=${selectedStore.value}` : ''
 
       const vendorId =
-        selectedVendor && selectedVendor.label ? `&vendor_id=${selectedVendor.value}` : ''
+        selectedVendor && selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
 
       const response = await axios.get(
-        `${apiUrl}/csi?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}${memberId}`,
+        `${apiUrl}/csi/${params.id}?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}${memberId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -224,6 +225,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
 
       setCurrentPage(response.data.page)
       setTotalData(response.data.takeTotal)
+
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -239,24 +241,32 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
         return []
       }
 
-      const csiData = apiData.map((item: any) => {
+      const csiData = apiData?.csi_answers.map((item: any, index: number) => {
         let data
 
-        data = {
-          order_id: item.id,
-          store_name: item?.store_name,
-          vendor_name: item?.vendor_name,
-          member_id: item?.member_id,
-          member_name: item?.member_name,
-          member_email: item?.email_address,
-          performance_rate: item?.performance_rate,
-          delivery_rate: item?.delivery_rate,
-          invoicing_rate: item?.invoicing_rate,
-          cs_rate: item?.customer_service_rate,
-          knowledge_rate: item?.knowledge_rate,
-          notes: item?.notes,
-        }
+        const jsonData = JSON.parse(item.data)
 
+        data = {
+          index: index + 1,
+          id: item.id,
+          store_name: jsonData['Nama Toko'],
+          vendor_name: jsonData['Nama Vendor yang menangani'],
+          member_id: jsonData['Member ID'],
+          member_name: jsonData['Nama Member'],
+          member_email: jsonData['Email Address'],
+          performance_rate:
+            jsonData[
+              'Performance : Apakah tehnisi/tukang melakukan pekerjaan sesuai dengan spesifikasi yang diharuskan ?'
+            ],
+          delivery_rate: jsonData['Delivery : Apakah pengiriman barang tepat waktu ?'],
+          invoicing_rate:
+            jsonData['Invoicing : Bagaimana harga final dibandingan dengan budget? apakah sesuai?'],
+          cs_rate:
+            jsonData['Customer Service : Bagaimana tehnisi/tukang kami menjawab pertanyaan?'],
+          knowledge_rate:
+            jsonData['Knowledge : Seberapa dalamkan pengetahuan tehnisi/Tukang kami?'],
+          notes: jsonData['Catatan Tambahan'],
+        }
         return data
       })
 
@@ -269,7 +279,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
 
   const fetchData = async (page: number, pageSize: number) => {
     const data = await ViewCSI(page, pageSize)
-    setOrderData(data)
+    setCsiData(data)
   }
 
   useEffect(() => {
@@ -437,7 +447,6 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
                     isSearchable={true}
                     isClearable={true}
                     options={storeOptions}
-                    value={selectedStore}
                     onChange={(newValue) => setSelectedStore(newValue)}
                   />
                 </Col>
@@ -458,7 +467,6 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
                     isSearchable={true}
                     isClearable={true}
                     options={vendorOptions}
-                    value={selectedVendor}
                     onChange={(newValue) => setSelectedVendor(newValue)}
                   />
                 </Col>
@@ -478,8 +486,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
                     placeholder='Pilih/Ketik Nama Member'
                     isSearchable={true}
                     isClearable={true}
-                    options={member}
-                    value={selectedMember}
+                    options={memberOptions}
                     onChange={(newValue) => setSelectedMember(newValue)}
                   />
                 </Col>
@@ -491,8 +498,8 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.order_id}
+            dataSource={csiData}
+            rowKey={(record) => record.id}
             scroll={{x: 1600}}
             pagination={{
               position: ['bottomRight'],
@@ -506,7 +513,7 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
               itemRender: itemRender,
               showTotal: (total, range) => (
                 <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} List CSI
+                  Showing {range[0]} - {range[1]} of {total} List Respons
                 </span>
               ),
             }}

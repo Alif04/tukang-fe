@@ -216,7 +216,7 @@ const FormatEmailHO: FC = () => {
     })
   }
 
-  // Handle Update Email
+  // Handle Create Email
   const handleCreateEmailMessages = async () => {
     setIsLoading(false)
 
@@ -238,7 +238,7 @@ const FormatEmailHO: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/home`)
+            window.location.reload()
           })
 
           setIsLoading(false)
@@ -430,6 +430,7 @@ const FormatEmailHO: FC = () => {
             <Button
               variant='dark-primary'
               type='submit'
+              disabled={isLoading}
               onClick={() => handleCreateEmailMessages()}
             >
               {isLoading ? 'Saving...' : 'Save Template'}

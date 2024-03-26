@@ -79,7 +79,8 @@ export function AsideMenuMain() {
           role={['Store CS', 'Admin HO']}
           hasBullet={true}
         />
-        <AsideMenuItem to='/csi/view-csi' title='List CSI' role={['Admin HO']} hasBullet={true} />
+
+        <AsideMenuItem to='/csi/list-csi' title='List CSI' role={['Admin HO']} hasBullet={true} />
 
         <AsideMenuItem
           to='/order/view-order'
@@ -504,12 +505,29 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
+        <AsideMenuItemWithSub to='/csi' title='CSI' hasBullet={true} role={['Admin HO']}>
+          <AsideMenuItem
+            to='/csi/new-csi'
+            title='Formulir CSI'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+
+          <AsideMenuItem
+            to='/csi/format-pertanyaan-csi'
+            title='List Format CSI'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
+
+        {/* 
         <AsideMenuItem
           to='/csi/format-pertanyaan-csi'
           title='Format Pertanyaan CSI'
           role={['Admin HO']}
           hasBullet={true}
-        />
+        /> */}
 
         <AsideMenuItem
           to='/sales/new-sales'

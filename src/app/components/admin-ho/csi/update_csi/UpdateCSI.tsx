@@ -1,169 +1,189 @@
-import React, {FC, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import React, {FC, useState, useEffect} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateCSI.css'
 
-import {Form, Button, Row, Col} from 'react-bootstrap'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import {Form, Button, Row, Card} from 'react-bootstrap'
+
+interface csi {
+  name: string
+  survey_link: string
+  spreadsheets_link: string
+  active: boolean
+}
 
 const UpdateCSIHO: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+  const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Fetch Data Email
+  const fetchCSIData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/csi/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+
+          if (data) {
+            setCsiForm((prev) => ({
+              ...prev,
+              name: data?.name,
+              survey_link: data?.survey_link,
+              spreadsheets_link: data?.spreadsheets_link,
+              active: data?.active,
+            }))
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCSIData()
+  }, [])
+
+  // CSI State
+  const [csiForm, setCsiForm] = useState<csi>({
+    name: '',
+    survey_link: '',
+    spreadsheets_link: '',
+    active: true,
+  })
+
+  // CSI Form Handler
+  const csiFormHandler = (e: any) => {
+    setCsiForm({
+      ...csiForm,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  // Checkbox Handler
+  const handleCheckboxChange = (isChecked: boolean) => {
+    setCsiForm({
+      ...csiForm,
+      active: isChecked,
+    })
+  }
+
+  // Handle Update CSI
+  const handleUpdateCSI = async () => {
+    setIsLoading(false)
+
+    await axios
+      .post(`${apiUrl}/csi/${params.id}`, csiForm, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.statusCode === 200) {
+          Swal.fire({
+            title: 'Success',
+            icon: 'success',
+            text: 'Success Update Format CSI',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            navigate('/csi/format-pertanyaan-csi')
+          })
+
+          setIsLoading(false)
+        } else {
+          setIsLoading(true)
+
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+      })
+      .catch((error) => {
+        setIsLoading(false)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
   return (
     <section id='update-csi'>
-      <div className='card mb-5'>
-        <div className='card-body'>
-          <div className='header-information'>
-            <div className='information-detail'>
-              <Form.Group as={Row} controlId='formPlaintextPassword'>
-                <Form.Label column sm='5'>
-                  Nama Toko :
-                </Form.Label>
-                <Col sm='7'>
-                  <Form.Select>
-                    <option value='1' selected>
-                      MITRA 10 BSD
-                    </option>
-                    <option value='2'>MITRA 10 BANDUNG</option>
-                    <option value='3'>MITRA 10 CIREBON</option>
-                    <option value='4'>MITRA 10 CIBINONG</option>
-                  </Form.Select>
-                </Col>
-              </Form.Group>
-            </div>
+      <Card className='mb-5'>
+        <Card.Body>
+          <Row>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Judul :</Form.Label>
 
-            <div className='information-detail'>
-              <Form.Group as={Row}>
-                <Form.Label column sm='5'>
-                  Costumer ID :
-                </Form.Label>
-                <Col sm='7'>
-                  <Form.Control type='text' />
-                </Col>
-              </Form.Group>
-            </div>
-
-            <div className='information-detail'>
-              <Form.Group as={Row}>
-                <Form.Label column sm='6'>
-                  Nama Costumer :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control type='text' />
-                </Col>
-              </Form.Group>
-            </div>
-
-            <div className='information-detail'>
-              <Form.Group as={Row} controlId='formPlaintextPassword'>
-                <Form.Label column sm='6'>
-                  Change Status :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Select>
-                    <option value='1'>CISIN</option>
-                    <option value='2'>CISOUT</option>
-                  </Form.Select>
-                </Col>
-              </Form.Group>
-            </div>
-          </div>
-
-          <div className='question'>
-            <ul>
-              <li className='list-question'>
-                <div className='list-item d-flex justify-content-between'>
-                  <h3>
-                    Performance: Apakah tehnisi/tukang melakukan pekerjaan sesuai dengan spesifikasi
-                    yang di haruskan?
-                  </h3>
-
-                  <div className='form-check-question'>
-                    <Form.Check inline label='1' name='group1' type='radio' />
-                    <Form.Check inline label='2' name='group1' type='radio' />
-                    <Form.Check inline label='3' name='group1' type='radio' />
-                    <Form.Check inline label='4' name='group1' type='radio' />
-                    <Form.Check inline label='5' name='group1' type='radio' />
-                  </div>
-                </div>
-              </li>
-
-              <li className='list-question'>
-                <div className='list-item d-flex justify-content-between'>
-                  <h3>Delivery: Apakah pengiriman barang tepat waktu?</h3>
-
-                  <div className='form-check-question'>
-                    <Form.Check inline label='1' name='group1' type='radio' />
-                    <Form.Check inline label='2' name='group1' type='radio' />
-                    <Form.Check inline label='3' name='group1' type='radio' />
-                    <Form.Check inline label='4' name='group1' type='radio' />
-                    <Form.Check inline label='5' name='group1' type='radio' />
-                  </div>
-                </div>
-              </li>
-
-              <li className='list-question'>
-                <div className='list-item d-flex justify-content-between'>
-                  <h3>
-                    Invoicing: Bagaimana harga final dibandingan dengan budget? apakah sesuai?
-                  </h3>
-
-                  <div className='form-check-question'>
-                    <Form.Check inline label='1' name='group1' type='radio' />
-                    <Form.Check inline label='2' name='group1' type='radio' />
-                    <Form.Check inline label='3' name='group1' type='radio' />
-                    <Form.Check inline label='4' name='group1' type='radio' />
-                    <Form.Check inline label='5' name='group1' type='radio' />
-                  </div>
-                </div>
-              </li>
-
-              <li className='list-question'>
-                <div className='list-item d-flex justify-content-between'>
-                  <h3>Customer Service: Bagaimana tehnisi/tukang kami menjawab pertanyaan?</h3>
-
-                  <div className='form-check-question'>
-                    <Form.Check inline label='1' name='group1' type='radio' />
-                    <Form.Check inline label='2' name='group1' type='radio' />
-                    <Form.Check inline label='3' name='group1' type='radio' />
-                    <Form.Check inline label='4' name='group1' type='radio' />
-                    <Form.Check inline label='5' name='group1' type='radio' />
-                  </div>
-                </div>
-              </li>
-
-              <li className='list-question'>
-                <div className='list-item d-flex justify-content-between'>
-                  <h3>Knowledge: Seberapa dalamkan pengetahuan tehnisi/Tukang kami?</h3>
-
-                  <div className='form-check-question'>
-                    <Form.Check inline label='1' name='group1' type='radio' />
-                    <Form.Check inline label='2' name='group1' type='radio' />
-                    <Form.Check inline label='3' name='group1' type='radio' />
-                    <Form.Check inline label='4' name='group1' type='radio' />
-                    <Form.Check inline label='5' name='group1' type='radio' />
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <div className='notes'>
-            <h3 className='mb-3'>Catatan Tambahan</h3>
-
-            <Form.Group className='mb-5'>
-              <Form.Control as='textarea' rows={3} />
+              <Form.Control name='name' value={csiForm.name} onChange={(e) => csiFormHandler(e)} />
             </Form.Group>
-          </div>
+
+            <Form.Group className='form-template'>
+              <div className='d-flex justify-content-between'>
+                <Form.Label className='fs-5'>Link Survey ( Google Form ) :</Form.Label>
+
+                <Form.Check
+                  inline
+                  label='Active ?'
+                  name='active'
+                  type='checkbox'
+                  checked={csiForm.active === true}
+                  onChange={(e) => handleCheckboxChange(e.target.checked)}
+                />
+              </div>
+
+              <Form.Control
+                className='rich-text'
+                name='survey_link'
+                as='textarea'
+                value={csiForm.survey_link}
+                onChange={(e) => csiFormHandler(e)}
+              />
+            </Form.Group>
+
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Link Spreadsheets ( Hasil Google Form ) :</Form.Label>
+
+              <Form.Control
+                className='rich-text'
+                name='spreadsheets_link'
+                as='textarea'
+                value={csiForm.spreadsheets_link}
+                onChange={(e) => csiFormHandler(e)}
+              />
+            </Form.Group>
+          </Row>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit'>
-              Cancel
-            </Button>
-
-            <Button variant='dark-primary' type='submit'>
-              Save
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={() => handleUpdateCSI()}
+            >
+              {isLoading ? 'Updating...' : 'Update'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

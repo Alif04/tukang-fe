@@ -1,152 +1,16 @@
-/* Header */
-#update-csi .header-information {
-  display: flex;
-  justify-content: space-between;
+/* Form Layout */
+#update-csi .form-template {
   margin-bottom: 20px;
 }
 
-#update-csi .header-information .information-detail {
-  width: 270px;
-}
-
-#update-csi .header-information .information-detail h3 {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: normal;
-}
-
-#update-csi .question {
-  margin: 30px 0 30px 0;
-}
-
-#update-csi .question .list-question .list-item {
-  margin: 10px 0 10px;
-}
-
-#update-csi .question .list-question .list-item h3 {
-  font-size: 16px;
-  font-weight: normal;
-}
-
-#update-csi .question .list-question .list-item .form-check-question .form-check-input {
-  margin-top: 0;
-  width: 15px;
-  height: 15px;
-}
-
-#update-csi .notes h3 {
-  font-size: 16px;
-  text-decoration: underline;
-  font-weight: normal;
-}
-
-/* Table */
-
-#update-csi .ant-table-wrapper .ant-table-thead > tr > th {
-  color: #ffff;
-  font-weight: 500;
-  background-color: #183383;
-}
-
-#update-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child {
-  border-start-start-radius: 0;
-}
-
-#update-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
-  border-start-end-radius: 0;
-}
-
-#update-csi .table-head-wrapper {
-  margin-bottom: 20px;
-}
-
-#update-csi .ant-table-fixed {
-  table-layout: fixed;
-}
-
-#update-csi .ant-table-tbody > tr.ant-table-row:hover > td {
-  background-color: #dcdcdc;
-}
-
-#update-csi .ant-table-tbody > tr > td {
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-#update-csi .table-striped-rows tr:nth-child(even) td {
-  background-color: #ffff;
-}
-
-#update-csi .table-striped-rows tr:nth-child(odd) td {
-  background-color: #e4e9f7;
-}
-
-/* Searchbar */
-
-#update-csi .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
-}
-
-#update-csi .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
+#update-csi .rich-text {
+  min-height: 100px;
 }
 
 /* Button Action */
 
-#update-csi .button-export {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 10px;
-  width: 140px;
-  height: 43px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #04844b;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-#update-csi .button-print {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 0 0 10px;
-  width: 130px;
-  height: 43px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #555555;
-  color: #ffff;
-  border: none;
-  border-radius: 5px;
-}
-
-#update-csi svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
-  margin: 5px;
-}
-
-#update-csi svg.svg-inline--fa.fa-print.fa-lg.print-icon {
-  margin: 5px;
-}
-
-#update-csi svg.svg-inline--fa.fa-plus.fa-sm {
-  color: black;
-  margin: 5px;
-}
-
-#update-csi .button-detail svg.svg-inline--fa.fa-book.fa-sm {
-  color: black;
-}
-
-#update-csi .button-edit svg.svg-inline--fa.fa-pen.fa-sm {
-  color: black;
-}
-
-#update-csi .button-delete svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0;
-  color: #d50119;
+#update-csi .btn.btn-dark-primary {
+  width: fit-content;
+  height: 45px;
+  margin: 0 10px 0 10px;
 }

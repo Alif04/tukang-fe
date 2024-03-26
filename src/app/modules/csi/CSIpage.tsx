@@ -5,6 +5,8 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 
 import {ViewCSI} from './components/ViewCSI'
+import {ListCSI} from './components/ListCSI'
+import {ListFormatCSI} from '../../components'
 import {NewCSI} from './components/NewCSI'
 import {UpdateCSI} from './components/UpdateCSI'
 import {ReportCSI} from './components/ReportCSI'
@@ -16,12 +18,6 @@ const orderBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const CSIpage: React.FC = () => {
@@ -30,7 +26,7 @@ const CSIpage: React.FC = () => {
   return (
     <Routes>
       <Route
-        path='view-csi'
+        path='list-csi'
         element={
           <>
             {userRole == 'Admin HO' ? (
@@ -42,6 +38,24 @@ const CSIpage: React.FC = () => {
             )}
 
             <PageTitle breadcrumbs={orderBreadCrumbs}>SURVEY KEPUASAN PELANGGAN</PageTitle>
+            <ListCSI />
+          </>
+        }
+      />
+
+      <Route
+        path='view-csi/:id'
+        element={
+          <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>RESPON SURVEY KEPUASAN PELANGGAN</PageTitle>
             <ViewCSI />
           </>
         }
@@ -59,8 +73,46 @@ const CSIpage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FORMAT PERTANYAAN CSI</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LIST FORMAT PERTANYAAN CSI</PageTitle>
+            <ListFormatCSI />
+          </>
+        }
+      />
+
+      <Route
+        path='new-csi'
+        element={
+          <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              FORMULIR PEMBUATAN SURVEY KEPUASAN PELANGGAN
+            </PageTitle>
             <NewCSI />
+          </>
+        }
+      />
+
+      <Route
+        path='update-csi/:id'
+        element={
+          <>
+            {userRole == 'Admin HO' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE SURVEY KEPUASAN PELANGGAN</PageTitle>
+            <UpdateCSI />
           </>
         }
       />

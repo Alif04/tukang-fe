@@ -31,12 +31,12 @@ const BestCostumers: React.FC<Props> = ({className, memberData}) => {
 
               <div className='flex-grow-1 me-2'>
                 <div className='text-dark fw-bold fs-6'>{item?.full_name}</div>
-                <span className='text-muted d-block fw-semibold'>{item?.email_address}</span>
+                <span className='text-muted d-block fw-semibold'>{item?.email}</span>
               </div>
             </div>
 
             <div className='d-flex flex-column justify-content-center align-items-end'>
-              <span className='fw-normal text-dark'>{item?.orders.length ?? 0} Order</span>
+              <span className='fw-normal text-dark'>{item?.order?.length ?? 0} Order</span>
             </div>
           </div>
         ))}

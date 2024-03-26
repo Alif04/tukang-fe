@@ -5,12 +5,10 @@ export * from './admin-store/dashboard/DashboardStore'
 export * from './admin-ho/dashboard/DashboardHO'
 
 // DASHBOARD PAGE ( Admin Vendor )
-// export * from './admin-vendor/dashboard/DashboardVendor'
-export * from './admin-vendor/dashboard copy/DashboardVendor'
+export * from './admin-vendor/dashboard/DashboardVendor'
 
 // DASHBOARD PAGE ( TUKANG )
-// export * from './tukang/dashboard/DashboardTukang'
-export * from './tukang/dashboard copy/DashboardTukang'
+export * from './tukang/dashboard/DashboardTukang'
 
 // STORE PAGES
 
@@ -172,8 +170,14 @@ export * from './admin-ho/costumers/detail_costumers/DetailCostumers'
 export * from './admin-ho/costumers/report_costumers/ReportCostumers'
 
 // CSI
-// View CSI
-export * from './admin-ho/csi/view_csi/ViewCSI'
+// List Format CSI
+export * from './admin-ho/csi/list_format_csi/ListFormatCSI'
+
+// List CSI
+export * from './admin-ho/csi/list_csi/ListCSI'
+
+// View CSI ( By ID )
+export * from './admin-ho/csi/view_csi_id/ViewCSI'
 
 // New CSI
 export * from './admin-ho/csi/new_csi/NewCSI'
