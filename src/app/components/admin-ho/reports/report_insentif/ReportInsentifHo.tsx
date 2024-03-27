@@ -185,7 +185,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       })
 
       if (response?.data) {
-        setTotalOrder(response?.data?.takeTotal)
+        setTotalOrder(response?.data?.data.length ?? 0)
         setCurrentPage(response?.data?.page)
       }
 

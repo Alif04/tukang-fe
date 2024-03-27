@@ -52,6 +52,8 @@ const statusToStateMap: StatusToStateMap = {
 const DashboardHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
@@ -114,6 +116,7 @@ const DashboardHO: FC = () => {
       const data = response.data.data
       const chartDatas = response.data.monthlyOrders.slice(1, 7)
 
+      setCurrentPage(response.data.page)
       setOrderData(data)
       setChartDataOrder(chartDatas)
       setOrderList(data)
@@ -445,7 +448,7 @@ const DashboardHO: FC = () => {
 
       <Row className='mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch' orderData={orderData} />
+          <TableList className='card-xl-stretch' orderData={orderData} currentPage={currentPage} />
         </Col>
       </Row>
     </section>

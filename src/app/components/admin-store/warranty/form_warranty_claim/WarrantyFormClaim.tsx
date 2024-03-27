@@ -54,7 +54,6 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
 
   // Add Warranty Claim
   const [complaintStatus, setComplaintStatus] = useState<any>()
-  console.log(complaintStatus)
   const [date, setDate] = useState<any>()
   const [desc, setDesc] = useState<any>()
   const [complantChannel, setComplaintChannel] = useState<number>(1)

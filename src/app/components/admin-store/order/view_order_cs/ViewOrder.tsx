@@ -265,7 +265,8 @@ const ViewOrderStoreCS: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response.data.takeTotal)
+      setTotalData(response?.data?.data.length ?? 0)
+
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)

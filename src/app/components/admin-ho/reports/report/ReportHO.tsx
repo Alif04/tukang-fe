@@ -1003,7 +1003,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           }
 
           setCurrentPage(response.data.page)
-          setTotalOrder(response.data.total)
+          setTotalOrder(response?.data?.data.length ?? 0)
         }
 
         return endpoint === 'reschedule' ? response.data.data.data : response.data.data

@@ -39,6 +39,8 @@ const DashboardVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const vendorId = localStorage.getItem('vendor_id')
 
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
 
@@ -63,8 +65,12 @@ const DashboardVendor: FC = () => {
           },
         }
       )
+
       const data = response.data.data
+
       setOrderList(data)
+      setCurrentPage(response.data.page)
+
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -243,7 +249,7 @@ const DashboardVendor: FC = () => {
 
       <Row className='mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch' orderData={orderData} />
+          <TableList className='card-xl-stretch' orderData={orderData} currentPage={currentPage} />
         </Col>
       </Row>
     </section>

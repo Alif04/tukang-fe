@@ -258,7 +258,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         )
 
         setCurrentPage(response.data.page)
-        setTotalData(response.data.takeTotal)
+        setTotalData(response?.data?.data.length ?? 0)
+
         return response.data.data
       } else {
         console.error('Desired status not found in statusData')

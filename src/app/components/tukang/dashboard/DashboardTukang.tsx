@@ -55,6 +55,9 @@ const statusToStateMap: StatusToStateMap = {
 
 const DashboardTukang: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
 
@@ -93,8 +96,12 @@ const DashboardTukang: FC = () => {
           },
         }
       )
+
       const data = response.data.data
+
       setOrderList(data)
+      setCurrentPage(response.data.page)
+
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -462,7 +469,11 @@ const DashboardTukang: FC = () => {
 
       <Row className='g-5 g-xl-8 mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
+          <TableList
+            className='card-xl-stretch mb-5 mb-xl-8'
+            orderData={orderData}
+            currentPage={currentPage}
+          />
         </Col>
       </Row>
     </section>

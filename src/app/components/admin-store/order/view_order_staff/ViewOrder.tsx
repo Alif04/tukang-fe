@@ -31,6 +31,8 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(1)
 
+  console.log('total_data', totalData)
+
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
@@ -265,7 +267,8 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response.data.takeTotal)
+      setTotalData(response?.data?.data.length ?? 0)
+
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)

@@ -6,7 +6,7 @@ import './ViewSales.css'
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, Tag} from 'antd'
+import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
@@ -37,6 +37,10 @@ const ViewSalesHO: React.FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(1)
+
   const [store, setStore] = useState<StoreItem[]>([])
   const [searchByStore, setSearchByStore] = useState<any>('')
 
@@ -219,10 +223,10 @@ const ViewSalesHO: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchSalesList = async () => {
+  const fetchSalesList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/sales?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0`,
+        `${apiUrl}/sales?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',
@@ -233,15 +237,18 @@ const ViewSalesHO: React.FC = () => {
         }
       )
 
+      setCurrentPage(response.data.page)
+      setTotalData(response?.data?.data.length ?? 0)
+
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewSales = async () => {
+  const ViewSales = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchSalesList()
+      const apiData = await fetchSalesList(page, pageSize)
 
       if (!apiData) {
         console.error('No data received from fetchVendorList')
@@ -275,13 +282,13 @@ const ViewSalesHO: React.FC = () => {
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await ViewSales()
-      setSalesData(data)
-    }
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewSales(page, pageSize)
+    setSalesData(data)
+  }
 
-    fetchData()
+  useEffect(() => {
+    fetchData(1, 10)
   }, [dateFrom, dateTo, searchFilter])
 
   useEffect(() => {
@@ -314,6 +321,16 @@ const ViewSalesHO: React.FC = () => {
 
     getStore()
   }, [])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
 
   return (
     <section id='view-sales'>
@@ -384,7 +401,22 @@ const ViewSalesHO: React.FC = () => {
             dataSource={salesData}
             rowKey={(record) => record.sales_id}
             scroll={{x: 1500}}
-            pagination={{position: ['bottomRight']}}
+            pagination={{
+              position: ['bottomRight'],
+              current: currentPage,
+              total: totalData,
+              showSizeChanger: true,
+              pageSizeOptions: [5, 10, 20, 50, 100],
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
+              itemRender: itemRender,
+              showTotal: (total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Sales
+                </span>
+              ),
+            }}
           />
         </div>
       </div>
