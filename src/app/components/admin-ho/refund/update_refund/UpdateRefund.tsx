@@ -725,15 +725,15 @@ const UpdateRefundHO: FC = () => {
               <div className='col-xxl-4'>
                 <div className='row'>
                   <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Customer</h4>
-                    <h4 className='mb-5'>Input Voucher</h4>
-
-                    <Form.Control
-                      type='text'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangeRefundVoucher(element)}
-                      value={refundValues.voucher}
-                    />
+                    <Form.Group>
+                      <Form.Label className='fs-4 fw-bold mb-1'>Untuk Customer</Form.Label>
+                      <Form.Label className='mb-1'>Input Voucher</Form.Label>
+                      <Form.Control
+                        type='text'
+                        onChange={(element) => handleChangeRefundVoucher(element)}
+                        value={refundValues.voucher}
+                      />
+                    </Form.Group>
 
                     {/* <CreatableSelect
                       className='mt-5 mb-5'
@@ -749,21 +749,21 @@ const UpdateRefundHO: FC = () => {
                       value={value}
                     /> */}
 
-                    <Button variant='primary'>Voucher</Button>
+                    {/* <Button variant='primary'>Voucher</Button> */}
                   </div>
 
                   <div className='col-xxl-6'>
-                    <h4 className='mb-2'>Untuk Vendor</h4>
-                    <h4 className='mb-2'>Input Nominal Denda</h4>
+                    <Form.Group>
+                      <Form.Label className='fs-4 fw-bold mb-1'>Untuk Vendor</Form.Label>
+                      <Form.Label className='mb-1'>Input Nominal Denda</Form.Label>
+                      <Form.Control
+                        type='text'
+                        onChange={(element) => handleChangePenaltyAmount(element)}
+                        value={refundValues.penalty_nominal}
+                      />
+                    </Form.Group>
 
-                    <Form.Control
-                      type='number'
-                      className='mt-5 mb-5'
-                      onChange={(element) => handleChangePenaltyAmount(element)}
-                      value={refundValues.penalty_nominal}
-                    />
-
-                    <Button variant='danger'>Penalty</Button>
+                    {/* <Button variant='danger'>Penalty</Button> */}
                   </div>
                 </div>
               </div>
