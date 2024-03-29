@@ -94,6 +94,23 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     navigate(`/order/update-order/${params.id}`)
   }
 
+  // Grand Total Order
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
+
+    let totalAmount = 0
+
+    if (payment_type === 'gratis') {
+      totalAmount = is_overdistance === 0 ? 0 : grand_total + additional_fee
+    } else if (payment_type === 'pemasangan_tanpa_survey') {
+      totalAmount = is_overdistance === 0 ? grand_total : grand_total + additional_fee
+    } else if (payment_type === 'survey') {
+      totalAmount = is_overdistance === 0 ? 99000 : grand_total + additional_fee ?? 0
+    }
+
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
+
   return (
     <section id='printout-order'>
       <div className='card'>
@@ -225,27 +242,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
                 <tr>
                   <td className='fs-3 fw-bolder'>Total</td>
-                  <td className='fs-3'>
-                    {(() => {
-                      if (orderDetail?.payment_type === 'gratis') {
-                        return `Rp. ${0?.toLocaleString('id')} ( GRATIS )`
-                      } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                        return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                      } else if (
-                        orderDetail?.payment_type === 'survey' &&
-                        orderDetail?.is_overdistance === false
-                      ) {
-                        return `Rp. ${99000?.toLocaleString('id')}`
-                      } else if (
-                        orderDetail?.payment_type === 'survey' &&
-                        orderDetail?.is_overdistance === true
-                      ) {
-                        return `Rp. ${124000?.toLocaleString('id')}`
-                      } else {
-                        return `Rp. ${0?.toLocaleString('id')}`
-                      }
-                    })()}
-                  </td>
+                  <td className='fs-3'>{calculateTotal(orderDetail)}</td>
                 </tr>
               </tbody>
             </Table>

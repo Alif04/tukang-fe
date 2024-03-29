@@ -183,7 +183,7 @@ const UpdateFormatEmailHO: FC = () => {
 
   // Handle Update Email
   const handleUpdateEmailMessages = async () => {
-    setIsLoading(false)
+    setIsLoading(true)
 
     const updatedTerms = emailForm.terms_detail.map((terms) => {
       if (terms.id === null) {
@@ -230,7 +230,7 @@ const UpdateFormatEmailHO: FC = () => {
 
           setIsLoading(false)
         } else {
-          setIsLoading(true)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -398,7 +398,7 @@ const UpdateFormatEmailHO: FC = () => {
               type='submit'
               onClick={() => handleUpdateEmailMessages()}
             >
-              {isLoading ? 'Saving...' : 'Update Template'}
+              {isLoading ? 'Updating...' : 'Update Template'}
             </Button>
           </div>
         </Card.Body>

@@ -218,7 +218,7 @@ const FormatEmailHO: FC = () => {
 
   // Handle Create Email
   const handleCreateEmailMessages = async () => {
-    setIsLoading(false)
+    setIsLoading(true)
 
     await axios
       .post(`${apiUrl}/email-messages`, emailForm, {
@@ -243,7 +243,7 @@ const FormatEmailHO: FC = () => {
 
           setIsLoading(false)
         } else {
-          setIsLoading(true)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',

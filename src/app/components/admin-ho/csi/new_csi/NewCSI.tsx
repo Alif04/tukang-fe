@@ -72,7 +72,7 @@ const NewCSIHO: FC = () => {
 
           setIsLoading(false)
         } else {
-          setIsLoading(true)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',

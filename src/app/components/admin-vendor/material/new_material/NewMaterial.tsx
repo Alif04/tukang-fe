@@ -50,7 +50,10 @@ const NewMaterialVendor: FC = () => {
   const navigate = useNavigate()
 
   // Loader
-  const [loading, setIsLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+
+  // Loader for Submit
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Work Order
   const [workOrder, setWorkOrder] = useState<any>()
@@ -142,7 +145,7 @@ const NewMaterialVendor: FC = () => {
 
   const getWorkOrderDetail = async () => {
     try {
-      setIsLoading(false)
+      setLoading(false)
       setWorkOrderHistory([])
 
       await axios
@@ -276,7 +279,7 @@ const NewMaterialVendor: FC = () => {
   const handleChangeSelectWorkOrder = (value: any) => {
     const selectedWorkOrder = value
     setSelectedWorkOrderId(selectedWorkOrder)
-    setIsLoading(true)
+    setLoading(true)
     setWorkOrderHistory([])
     setWorkOrderItem([])
   }
@@ -372,6 +375,7 @@ const NewMaterialVendor: FC = () => {
 
   // Update Work Order
   const handleUpdateWorkOrder = async () => {
+    setIsLoading(true)
     const formData = new FormData()
 
     // Work Order Detail
@@ -421,18 +425,23 @@ const NewMaterialVendor: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
 
         navigate('/work-order/view-work-order')
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -913,8 +922,12 @@ const NewMaterialVendor: FC = () => {
           </Row>
 
           <div className='d-flex justify-content-center align-items-center'>
-            <Button className='button-dark-primary' onClick={() => handleUpdateWorkOrder()}>
-              Save
+            <Button
+              className='button-dark-primary'
+              disabled={isLoading}
+              onClick={() => handleUpdateWorkOrder()}
+            >
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </Card.Body>

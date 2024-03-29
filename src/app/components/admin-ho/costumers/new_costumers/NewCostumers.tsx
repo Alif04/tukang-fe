@@ -19,36 +19,8 @@ interface Member {
 const NewCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Fetch API Data
-  // useEffect(() => {
-  //   const getMemberId = async () => {
-  //     try {
-  //       const response = await axios.get(`${apiUrl}/member/next-code`, {
-  //         headers: {
-  //           Accept: 'application/json',
-  //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //           'Access-Control-Allow-Origin': '*',
-  //           'ngrok-skip-browser-warning': 'true',
-  //         },
-  //       })
-  //       const data = response.data.code
-
-  //       if (response.status === 200) {
-  //         const {data} = response
-  //         setMemberId(data.data.code)
-  //       }
-  //     } catch (err) {
-  //       console.error(err)
-  //     }
-  //   }
-
-  //   getMemberId()
-  // }, [])
-
-  // Member
-  // const [memberId, setMemberId] = useState<any>()
-  // const [isWhatsapp, setIsWhatsapp] = useState<boolean>(true)
   const [memberInfo, setMemberInfo] = useState<Member>({
     full_name: '',
     email: '',
@@ -101,16 +73,22 @@ const NewCostumerHO: FC = () => {
           }).then(() => {
             navigate(`/costumers/view-costumers`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
+
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -243,8 +221,8 @@ const NewCostumerHO: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' onClick={handleSubmitNewMember}>
-              Save
+            <Button variant='dark-primary' disabled={isLoading} onClick={handleSubmitNewMember}>
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

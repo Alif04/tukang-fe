@@ -42,6 +42,7 @@ const UpdateRefundHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Refund Detail
   const [orderId, setOrderId] = useState<string>('')
@@ -440,6 +441,8 @@ const UpdateRefundHO: FC = () => {
               </Row>
             </div>
 
+            {/* New */}
+
             {(() => {
               if (
                 refundDetail?.orders?.payment_type === 'survey' ||
@@ -447,6 +450,16 @@ const UpdateRefundHO: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {refundDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -476,6 +489,30 @@ const UpdateRefundHO: FC = () => {
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {refundDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                refundDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                refundDetail?.orders?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -486,6 +523,16 @@ const UpdateRefundHO: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {refundDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -493,7 +540,6 @@ const UpdateRefundHO: FC = () => {
                           <th className='text-center'>QTY</th>
                           <th className='text-center'>Satuan</th>
                           <th className='text-center'>Price</th>
-                          <th className='text-center'>Margin</th>
                           <th className='text-center'>Total</th>
                           <th className='text-center'>Keterangan</th>
                         </tr>
@@ -507,7 +553,6 @@ const UpdateRefundHO: FC = () => {
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
                               <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
                               <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
                                 'id'
                               )}`}</td>
@@ -527,8 +572,22 @@ const UpdateRefundHO: FC = () => {
                           </td>
                         </tr>
 
+                        {refundDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                refundDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
                         <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
+                          <td colSpan={5} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -579,6 +638,16 @@ const UpdateRefundHO: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {refundDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -615,6 +684,20 @@ const UpdateRefundHO: FC = () => {
                             </tr>
                           </>
                         ))}
+
+                        {refundDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                refundDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
 
                         <tr>
                           <td
@@ -775,8 +858,13 @@ const UpdateRefundHO: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit' onClick={handleUpdateRefund}>
-              Update Refund
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleUpdateRefund}
+            >
+              {isLoading ? 'Updating..' : 'Update Refund'}
             </Button>
           </div>
         </div>

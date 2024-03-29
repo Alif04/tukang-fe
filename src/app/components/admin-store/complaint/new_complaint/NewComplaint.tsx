@@ -3,7 +3,7 @@ import React, {FC, useState, useEffect, useRef} from 'react'
 import './NewComplaint.css'
 
 import axios from 'axios'
-import Select from 'react-select'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
@@ -11,46 +11,107 @@ import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
+interface Complaint {
+  order_id: number | null
+  description: string
+  complaint_channel: number | null
+  complaint_date: string
+  complaint_status: string
+  complaint_type: number
+}
+
 interface ComplaintChannel {
-  value: BigInteger
+  value: number | null
   label: string
 }
 
-const NewComplaintStore: FC = () => {
+interface Order {
+  value: number | null
+  label: string
+}
+
+const NewComplaintForm: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
 
+  const userStore = localStorage.getItem('storeId')
+  const userRole = localStorage.getItem('userRole')
+  const userVendor = localStorage.getItem('vendor_id')
+
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   // Fetch Data Order
-  const [order, setOrder] = useState<any>()
-  const [orderId, setOrderId] = useState<string>('')
-  const [orderDetail, setOrderDetail] = useState<any>()
-  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
-  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
+  const [order, setOrder] = useState<Order[]>([])
+  const [orderDetail, setOrderDetail] = useState<any>(null)
+  const [selectedOrderId, setSelectedOrderId] = useState<SingleValue<Order>>({
+    value: null,
+    label: 'Ketik/Pilih Order Id',
+  })
+
+  // Add Complaint
   const [complaintCode, setComplaintCode] = useState<string | number>('NaN')
-  const [complaintStatus, setComplaintStatus] = useState<any>()
+  const [complaintForm, setComplaintForm] = useState<Complaint>({
+    order_id: null,
+    description: '',
+    complaint_channel: null,
+    complaint_date: '',
+    complaint_status: '',
+    complaint_type: 1,
+  })
+
+  // Complaint Channel
+  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [selectedComplaintChannel, setSelectedComplaintChannel] = useState<
+    SingleValue<ComplaintChannel>
+  >({
+    value: null,
+    label: 'Complaint Via',
+  })
+
+  const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const getOrder = async () => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
+      const url = (() => {
+        switch (userRole) {
+          case 'Store CS':
+            return `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0`
+          case 'Admin HO':
+            return `${apiUrl}/orders?order_by=desc&take=0`
+          case 'Admin Vendor':
+            return `${apiUrl}/orders?order_by=desc&vendor_id=${userVendor}&take=0`
+          default:
+            return `${apiUrl}/orders?order_by=desc&take=0`
         }
-      )
+      })()
+
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       if (Array.isArray(response.data.data)) {
         const tempOrder = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.id,
+          status: item.status.category,
         }))
 
-        setOrder(tempOrder)
+        const filteredOrder = tempOrder.filter(
+          (detail: any) =>
+            !['UNPAID', 'PICKLIST', 'BOOK', 'BOOKED', 'INVESTIGATED'].includes(detail.status)
+        )
+
+        setOrder(filteredOrder)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -62,7 +123,7 @@ const NewComplaintStore: FC = () => {
   const getOrderDetail = async () => {
     try {
       await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
+        .get(`${apiUrl}/orders/${selectedOrderId?.value}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -116,8 +177,6 @@ const NewComplaintStore: FC = () => {
         },
       })
 
-      console.log(response, response.status)
-
       if (response.status === 200) {
         const {data} = response
         setComplaintCode(data.data.code)
@@ -127,35 +186,37 @@ const NewComplaintStore: FC = () => {
     }
   }
 
-  useEffect(() => {
-    getOrder()
-    getComplaintChannel()
-    getCode()
-  }, [])
-
-  useEffect(() => {
-    if (orderId) {
-      getOrderDetail()
-    }
-  }, [orderId])
-
-  const phoneNumber =
-    orderDetail?.members.phone_number !== null
-      ? orderDetail?.members.phone_number
-      : orderDetail?.members.whatsapp_number
-
+  const today = new Date().toISOString().split('T')[0]
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return '--/--/----'
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
   }
 
-  // Select Order
-  const handleChangeSelectOrder = (element: any) => {
-    const selectedOrder = element.value
-    setOrderId(selectedOrder)
-  }
+  useEffect(() => {
+    getOrder()
+    getComplaintChannel()
+    getCode()
+  }, [complaintCode])
+
+  useEffect(() => {
+    if (selectedOrderId?.value) {
+      getOrderDetail()
+    }
+  }, [selectedOrderId?.value])
+
+  useEffect(() => {
+    setComplaintForm({
+      ...complaintForm,
+      order_id: selectedOrderId?.value ?? null,
+      complaint_channel: selectedComplaintChannel?.value ?? null,
+    })
+  }, [selectedOrderId, selectedComplaintChannel])
 
   // Complaint Status
   useEffect(() => {
@@ -166,32 +227,18 @@ const NewComplaintStore: FC = () => {
     const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
-    setComplaintStatus(statusId)
-  }, [complaintStatus])
+    setComplaintForm({
+      ...complaintForm,
+      complaint_status: statusId,
+    })
+  }, [complaintForm])
 
-  // Add Complaint
-  const [complaintDesc, setComplaintDesc] = useState<any>('')
-  const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintType, setComplaintType] = useState<number>(1)
-  const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
-  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  const [previewImage, setPreviewImage] = useState<any>()
-  const [visible, setVisible] = useState(false)
-
-  // Handle Input Change
-  const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setComplaintDesc(updatedInputValue)
-  }
-
-  // Handle Complaint Date Change
-  const today = new Date().toISOString().split('T')[0]
-
-  const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedComplaintDate = event.target.value
-    setComplaintDate(updatedComplaintDate)
+  // Complaint Form Handler
+  const complaintFormHandler = (e: any) => {
+    setComplaintForm({
+      ...complaintForm,
+      [e.target.name]: e.target.value,
+    })
   }
 
   // Handle Change Upload File
@@ -227,12 +274,6 @@ const NewComplaintStore: FC = () => {
     }
   }
 
-  // Handle Change Complaint Channel
-  const handleChangeSelectComplaintChannel = (element: any) => {
-    const updatedSelectComplaintChannel = element.value
-    setComplaintChannelId(updatedSelectComplaintChannel)
-  }
-
   const handleFileClick = (index: number) => {
     setPreviewImage(complaintEvidence[index]?.name)
     setVisible(true)
@@ -243,28 +284,28 @@ const NewComplaintStore: FC = () => {
   const ComplaintValidation = () => {
     let valid = true
 
-    if (!orderId) {
+    if (!selectedOrderId?.value) {
       Swal.fire({
         title: 'Error',
         text: 'Please select order Id',
         icon: 'error',
       })
       valid = false
-    } else if (!complaintDesc) {
+    } else if (!complaintForm.description) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill complaint description form',
         icon: 'error',
       })
       valid = false
-    } else if (!complaintChannelId) {
+    } else if (!selectedComplaintChannel?.value) {
       Swal.fire({
         title: 'Error',
         text: 'Please select complaint channel',
         icon: 'error',
       })
       valid = false
-    } else if (!complaintDate) {
+    } else if (!complaintForm.complaint_date) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill complaint date form',
@@ -282,17 +323,45 @@ const NewComplaintStore: FC = () => {
     return valid
   }
 
+  // Clear State
+  const clear = () => {
+    // Order
+    setOrderDetail(null)
+    setSelectedOrderId({
+      value: null,
+      label: 'Ketik/Pilih Order Id',
+    })
+
+    // Complaint
+    setComplaintCode('')
+    setComplaintForm({
+      ...complaintForm,
+      order_id: null,
+      complaint_channel: null,
+      description: '',
+      complaint_date: '',
+      complaint_status: '',
+      complaint_type: 1,
+    })
+    setComplaintEvidence([])
+    setSelectedComplaintChannel({
+      value: null,
+      label: 'Complaint Via',
+    })
+  }
+
   // Handle Submit Complaint
   const handleSubmitNewComplaint = async () => {
     if (ComplaintValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
-      formData.append('order_id', orderId)
-      formData.append('description', complaintDesc)
-      formData.append('complaint_status', complaintStatus)
-      formData.append('complaint_channel', complaintChannelId)
-      formData.append('complaint_date', complaintDate)
-      formData.append('type', complaintType.toString())
+      formData.append('order_id', String(complaintForm.order_id))
+      formData.append('description', complaintForm.description)
+      formData.append('complaint_status', complaintForm.complaint_status)
+      formData.append('complaint_channel', String(complaintForm.complaint_channel))
+      formData.append('complaint_date', complaintForm.complaint_date)
+      formData.append('type', complaintForm.complaint_type.toString())
 
       if (complaintEvidence?.length) {
         complaintEvidence.forEach((item) => {
@@ -319,25 +388,29 @@ const NewComplaintStore: FC = () => {
               icon: 'success',
               showConfirmButton: false,
               timer: 1500,
+            }).then(() => {
+              clear()
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
-          }
 
-          navigate('/complaint/view-complaint')
+            setIsLoading(false)
+          }
         })
         .catch((error) => {
-          console.error(error)
-
           Swal.fire({
             title: 'Error',
             text: error.response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         })
     }
   }
@@ -375,7 +448,8 @@ const NewComplaintStore: FC = () => {
                       placeholder='Ketik/Pilih Order Id'
                       isSearchable={true}
                       options={order}
-                      onChange={(e) => handleChangeSelectOrder(e)}
+                      value={selectedOrderId}
+                      onChange={(newValue) => setSelectedOrderId(newValue)}
                     />
                   </Col>
                 </Form.Group>
@@ -447,7 +521,15 @@ const NewComplaintStore: FC = () => {
                         Nomor Telp/WA :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={phoneNumber || ''} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={
+                            orderDetail?.members.phone_number !== null
+                              ? orderDetail?.members.phone_number
+                              : orderDetail?.members.whatsapp_number
+                          }
+                        />
                       </Col>
                     </Form.Group>
 
@@ -557,98 +639,6 @@ const NewComplaintStore: FC = () => {
               </Row>
             </div>
 
-            {/* Old */}
-            {/* <div className='table-warranty-content'>
-              <Table hover responsive='md'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    {!(
-                      orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'survey'
-                    ) && (
-                      <>
-                        <th>Harga Jasa</th>
-                        <th>Jumlah</th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr key={`${index} - detail-order`}>
-                        <td>{item?.item_code ?? '-'}</td>
-                        <td>{item?.item_name ?? '-'}</td>
-                        <td>{item?.item?.service_name ?? '-'}</td>
-                        <td>{item?.quantity ?? '-'}</td>
-                        {!(
-                          orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'survey'
-                        ) && (
-                          <>
-                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                              'id'
-                            )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                          </>
-                        )}
-                      </tr>
-                    </>
-                  ))}
-
-                  {orderDetail?.payment_type !== 'gratis' &&
-                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
-                      <tr>
-                        <td
-                          colSpan={orderDetail?.payment_type === 'survey' ? 3 : 5}
-                          className='text-end fw-bolder'
-                        >
-                          Biaya Survey
-                        </td>
-
-                        <td className=' fw-bolder'>
-                          {orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                            ? `Rp. ${(0).toLocaleString('id')}`
-                            : orderDetail?.payment_type === 'survey'
-                            ? `Rp. ${(99000).toLocaleString('id')}`
-                            : `Rp. ${0}`}
-                        </td>
-                      </tr>
-                    )}
-
-                  {orderDetail?.payment_type !== 'survey' && (
-                    <tr>
-                      <td
-                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
-                        className='text-end fw-bolder'
-                      >
-                        Grand Total
-                      </td>
-
-                      <td className=' fw-bolder'>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'gratis') {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'survey') {
-                            return `Rp. ${(99000).toLocaleString('id')}`
-                          } else {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          }
-                        })()}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div> */}
-
             {/* New */}
             {(() => {
               if (
@@ -657,6 +647,16 @@ const NewComplaintStore: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -668,7 +668,7 @@ const NewComplaintStore: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -686,6 +686,30 @@ const NewComplaintStore: FC = () => {
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -696,6 +720,16 @@ const NewComplaintStore: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -725,6 +759,31 @@ const NewComplaintStore: FC = () => {
                         )}
 
                         <tr>
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
+                        <tr>
                           <td colSpan={5} className='text-end fw-bolder'>
                             Grand Total
                           </td>
@@ -739,7 +798,7 @@ const NewComplaintStore: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 orderDetail?.work_orders?.work_order_status.length > 1 &&
@@ -750,12 +809,9 @@ const NewComplaintStore: FC = () => {
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
+                          <th>Item / Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          <th>Harga Jasa</th>
-                          <th>Jumlah</th>
+                          <th>Satuan</th>
                         </tr>
                       </thead>
 
@@ -763,26 +819,12 @@ const NewComplaintStore: FC = () => {
                         {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.item_id ?? '-'}</td>
-                              <td>{item?.item ?? '-'}</td>
                               <td>{item?.name ?? '-'}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                              <td>{item?.unit ?? ''}</td>
                             </tr>
                           )
                         )}
-
-                        <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
                   </div>
@@ -793,6 +835,16 @@ const NewComplaintStore: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -809,7 +861,7 @@ const NewComplaintStore: FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -829,6 +881,20 @@ const NewComplaintStore: FC = () => {
                             </tr>
                           </>
                         ))}
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
 
                         <tr>
                           <td
@@ -866,11 +932,18 @@ const NewComplaintStore: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group className='mb-3'>
                 <Form.Label>Tanggal Komplain :</Form.Label>
-                <Form.Control type='date' onChange={handleChangeComplaintDate} min={today} />
+                <Form.Control
+                  name='complaint_date'
+                  type='date'
+                  value={complaintForm.complaint_date}
+                  onChange={(e) => complaintFormHandler(e)}
+                  min={today}
+                />
               </Form.Group>
 
               <Form.Group className='mb-3'>
                 <Form.Label>Komplain melalui : </Form.Label>
+
                 <Select
                   name='complaint_channel_id'
                   className='form-control p-0'
@@ -878,7 +951,8 @@ const NewComplaintStore: FC = () => {
                   placeholder='Complaint Via'
                   isSearchable={true}
                   options={complaintChannel}
-                  onChange={(e) => handleChangeSelectComplaintChannel(e)}
+                  value={selectedComplaintChannel}
+                  onChange={(newValue) => setSelectedComplaintChannel(newValue)}
                 />
               </Form.Group>
             </Col>
@@ -886,10 +960,10 @@ const NewComplaintStore: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Label>Alasan :</Form.Label>
               <Form.Control
-                style={{minHeight: '250px'}}
                 as='textarea'
-                value={complaintDesc}
-                onChange={handleInputComplaintDesc}
+                name='description'
+                style={{minHeight: '250px'}}
+                onChange={(e) => complaintFormHandler(e)}
               ></Form.Control>
             </Col>
 
@@ -978,9 +1052,10 @@ const NewComplaintStore: FC = () => {
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleSubmitNewComplaint}
             >
-              Submit
+              {isLoading ? 'Submitting..' : 'Submit'}
             </Button>
           </div>
         </div>
@@ -989,4 +1064,4 @@ const NewComplaintStore: FC = () => {
   )
 }
 
-export {NewComplaintStore}
+export {NewComplaintForm}

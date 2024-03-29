@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 type Props = {
   className: string
   chartHeight: string
+  chartComplaint: any[]
 }
 
-const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
+const ChartDonut: React.FC<Props> = ({className, chartHeight, chartComplaint}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartComplaint))
     if (chart) {
       chart.render()
     }
@@ -35,15 +36,13 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, chartComplaint])
 
   return (
     <div className={`card ${className}`}>
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
-          <h1 className='fs-1' style={{color: '#6E010F'}}>
-            Komplain
-          </h1>
+          <h1 className='fs-1 text-danger'>Komplain</h1>
 
           <div className='d-flex justify-content-center'>
             <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -54,17 +53,30 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, chartComplaint: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
+  const processColor = getCSSVariableValue('--kt-primary')
+  const pendingColor = getCSSVariableValue('--kt-gray-800')
+  const cancelColor = getCSSVariableValue('--kt-info')
+
+  const investigated = chartComplaint.map((item: any) => item.totalOrder)
+  const totalInvestigated = investigated.reduce((acc: any, curr: any) => acc + curr, 0)
+
+  const rejected = chartComplaint.map((item: any) => item.totalOrder)
+  const totalRejected = rejected.reduce((acc: any, curr: any) => acc + curr, 0)
+
+  const done = chartComplaint.map((item: any) => item.totalOrder)
+  const totalDone = done.reduce((acc: any, curr: any) => acc + curr, 0)
+
   return {
-    series: [44, 55, 13],
+    series: [totalInvestigated, totalRejected, totalDone],
     chart: {
       width: 500,
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['Diselidiki', 'Ditolak', 'Diselesaikan'],
+    labels: ['Diselidiki', 'Ditolak', 'Selesai'],
     legend: {
       show: true,
       height: 20,
@@ -73,7 +85,7 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: ['#009DFF', '#22E4FF', '#3BFFD0'],
+    colors: [processColor, pendingColor, cancelColor],
     grid: {
       padding: {
         top: 10,

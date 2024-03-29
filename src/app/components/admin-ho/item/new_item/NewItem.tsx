@@ -268,13 +268,6 @@ const NewItemHO: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (!itemDetail.default_price) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill Harga form',
-        icon: 'warning',
-      })
-      valid = false
     }
 
     itemDetail.prices.map((item) => {
@@ -296,13 +289,6 @@ const NewItemHO: FC = () => {
         Swal.fire({
           title: 'Warning',
           text: 'Please fill Minimum Order  form',
-          icon: 'warning',
-        })
-        valid = false
-      } else if (item.price === 0) {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Price  form',
           icon: 'warning',
         })
         valid = false

@@ -1627,7 +1627,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button onClick={handleUpdateOrder} variant='dark-primary'>
+            <Button onClick={handleUpdateOrder} disabled={isLoading} variant='dark-primary'>
               {isLoading ? 'Submitting..' : 'Submit Order & Email'}
             </Button>
           </div>

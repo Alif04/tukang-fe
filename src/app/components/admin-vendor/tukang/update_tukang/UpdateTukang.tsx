@@ -31,6 +31,7 @@ const UpdateTukangVendor: FC = () => {
   const navigate = useNavigate()
   const params = useParams()
   const animatedComponents = makeAnimated()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const fetchTukangDetail = async () => {
     try {
@@ -340,6 +341,7 @@ const UpdateTukangVendor: FC = () => {
 
   // Handle Submit Tukang
   const handleUpdateTukang = async () => {
+    setIsLoading(true)
     const formData = new FormData()
 
     formData.append('vendor_id', vendorId)
@@ -390,12 +392,16 @@ const UpdateTukangVendor: FC = () => {
           }).then(() => {
             navigate('/tukang/view-tukang')
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
@@ -404,6 +410,8 @@ const UpdateTukangVendor: FC = () => {
           text: error.response.data.message,
           icon: 'error',
         })
+
+        setIsLoading(false)
       })
   }
 
@@ -605,8 +613,13 @@ const UpdateTukangVendor: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit' onClick={handleUpdateTukang}>
-              Save
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleUpdateTukang}
+            >
+              {isLoading ? 'Updating..' : 'Update'}
             </Button>
           </div>
         </div>

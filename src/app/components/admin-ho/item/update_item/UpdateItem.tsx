@@ -80,8 +80,6 @@ const UpdateItemHO: FC = () => {
     ],
   })
 
-  console.log('item_detail', itemDetail)
-
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
   const [storeGroup, setStoreGroup] = useState<StoreSelect[]>([])
@@ -90,10 +88,6 @@ const UpdateItemHO: FC = () => {
   useEffect(() => {
     setStoreOptions(storeGroup.concat(store))
   }, [store, storeGroup])
-
-  console.log('store', store)
-  console.log('store_group', storeGroup)
-  console.log('store_options', storeOptions)
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -341,13 +335,6 @@ const UpdateItemHO: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (!itemDetail.default_price) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill Harga form',
-        icon: 'warning',
-      })
-      valid = false
     }
 
     itemDetail.prices.map((item) => {
@@ -369,13 +356,6 @@ const UpdateItemHO: FC = () => {
         Swal.fire({
           title: 'Warning',
           text: 'Please fill Minimum Order  form',
-          icon: 'warning',
-        })
-        valid = false
-      } else if (item.price === 0) {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Price  form',
           icon: 'warning',
         })
         valid = false
@@ -604,7 +584,6 @@ const UpdateItemHO: FC = () => {
                         options={storeOptions}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
                         getOptionValue={(option: StoreSelect) => `${option.store_id}`}
-                        // value={selectedStore}
                         value={itemDetail.prices[index].price_store}
                         onChange={(e) => storeHandler(e, 'price_store', index)}
                       />

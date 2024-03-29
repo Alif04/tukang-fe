@@ -42,7 +42,7 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight, chartComplaint}) =
     <div className={`card ${className}`}>
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
-          <h1 className='fs-1 text-danger'>Complaint</h1>
+          <h1 className='fs-1 text-danger'>Komplain</h1>
 
           <div className='d-flex justify-content-center'>
             <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -60,8 +60,17 @@ const chartOptions = (chartHeight: string, chartComplaint: any): ApexOptions => 
   const pendingColor = getCSSVariableValue('--kt-gray-800')
   const cancelColor = getCSSVariableValue('--kt-info')
 
+  const investigated = chartComplaint.map((item: any) => item.totalOrder)
+  const totalInvestigated = investigated.reduce((acc: any, curr: any) => acc + curr, 0)
+
+  const rejected = chartComplaint.map((item: any) => item.totalOrder)
+  const totalRejected = rejected.reduce((acc: any, curr: any) => acc + curr, 0)
+
+  const done = chartComplaint.map((item: any) => item.totalOrder)
+  const totalDone = done.reduce((acc: any, curr: any) => acc + curr, 0)
+
   return {
-    series: [44, 55, 13],
+    series: [totalInvestigated, totalRejected, totalDone],
     chart: {
       width: 500,
       height: chartHeight,

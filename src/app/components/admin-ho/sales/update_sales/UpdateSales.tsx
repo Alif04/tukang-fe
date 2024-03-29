@@ -48,6 +48,7 @@ const UpdateSales: FC = () => {
   const navigate = useNavigate()
   const params = useParams()
   const animatedComponents = makeAnimated()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
@@ -392,6 +393,8 @@ const UpdateSales: FC = () => {
       return false
     }
 
+    setIsLoading(true)
+
     await axios
       .post(`${apiUrl}/sales/${params.id}`, salesInfo, {
         headers: {
@@ -595,11 +598,12 @@ const UpdateSales: FC = () => {
             <Button
               variant='dark-primary'
               type='submit'
+              disabled={isLoading}
               onClick={() => {
                 handleUpdateSales()
               }}
             >
-              Save
+              {isLoading ? 'Updating..' : 'Update'}
             </Button>
           </div>
         </div>

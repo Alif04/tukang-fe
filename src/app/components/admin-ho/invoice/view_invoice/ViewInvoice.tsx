@@ -39,6 +39,7 @@ interface Status {
 const ViewInvoiceHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -282,6 +283,7 @@ const ViewInvoiceHO: FC = () => {
 
   // Handle Approve Invoice
   const handleApproveInvoice = async () => {
+    setIsLoading(true)
     const formData = new FormData()
 
     formData.append('status_id', String(invoices.status_id))
@@ -312,16 +314,22 @@ const ViewInvoiceHO: FC = () => {
           }).then(() => {
             window.location.reload()
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
+
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -408,9 +416,10 @@ const ViewInvoiceHO: FC = () => {
               className='d-flex justify-content-center align-items-center'
               variant='dark-success'
               type='submit'
+              disabled={isLoading}
               onClick={() => handleApproveInvoice()}
             >
-              Approve Invoice
+              {isLoading ? 'Approve..' : 'Approve Invoice'}
             </Button>
           </div>
         </div>

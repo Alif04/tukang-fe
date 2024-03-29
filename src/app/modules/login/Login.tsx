@@ -23,6 +23,7 @@ export function Login() {
 
   const handleLogin = () => {
     setIsLoading(true)
+
     axios
       .post(
         `${apiUrl}/auth/login`,
@@ -82,7 +83,7 @@ export function Login() {
             icon: 'error',
           })
 
-          setIsLoading(true)
+          setIsLoading(false)
         }
       })
       .catch((err) => {

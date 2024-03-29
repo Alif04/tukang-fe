@@ -45,8 +45,9 @@ interface Sales {
 
 const NewSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const userRole = localStorage.getItem('userRole')
   const navigate = useNavigate()
+  const userRole = localStorage.getItem('userRole')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const animatedComponents = makeAnimated()
 
@@ -551,6 +552,7 @@ const NewSales: FC = () => {
   // Handle Submit New Sales
   const handleSubmitNewSales = async () => {
     if (!SalesValidation()) {
+      setIsLoading(true)
       return false
     }
 
@@ -572,18 +574,23 @@ const NewSales: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
 
         window.location.reload()
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -744,11 +751,12 @@ const NewSales: FC = () => {
               <Button
                 variant='dark-primary'
                 type='submit'
+                disabled={isLoading}
                 onClick={() => {
                   handleSubmitNewSales()
                 }}
               >
-                Save
+                {isLoading ? 'Saving..' : 'Save'}
               </Button>
             </div>
           </div>

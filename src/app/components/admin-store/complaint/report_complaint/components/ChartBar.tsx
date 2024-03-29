@@ -1,17 +1,16 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {KTSVG} from '../../../../../../_metronic/helpers'
-import {Dropdown1} from '../../../../../../_metronic/partials/content/dropdown/Dropdown1'
 import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
 import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  chartOrderData: any[]
 }
 
-const ChartBar: React.FC<Props> = ({className}) => {
+const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -23,7 +22,7 @@ const ChartBar: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
+  }, [chartRef, mode, chartOrderData])
 
   const refreshChart = () => {
     if (!chartRef.current) {
@@ -32,7 +31,7 @@ const ChartBar: React.FC<Props> = ({className}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartOrderData))
     if (chart) {
       chart.render()
     }
@@ -51,19 +50,22 @@ const ChartBar: React.FC<Props> = ({className}) => {
 
 export {ChartBar}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
+
+  const baseColor = getCSSVariableValue('--kt-primary')
+  const secondaryColor = getCSSVariableValue('--kt-info')
 
   return {
     series: [
       {
         name: 'Order Selesai',
-        data: [44, 55, 57, 56, 61, 58],
+        data: chartOrderData.map((item: any) => item.totalOrder),
       },
       {
         name: 'Order Masuk',
-        data: [76, 85, 101, 98, 87, 105],
+        data: chartOrderData.map((item: any) => item.totalOrder),
       },
     ],
     chart: {
@@ -94,7 +96,7 @@ function getChartOptions(height: number): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: chartOrderData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },
@@ -150,7 +152,7 @@ function getChartOptions(height: number): ApexOptions {
         },
       },
     },
-    colors: ['#009DFF', '#22E4FF'],
+    colors: [baseColor, secondaryColor],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

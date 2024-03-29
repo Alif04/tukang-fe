@@ -43,6 +43,7 @@ interface QuotationDetail {
 const NewQuotationVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch Data Order
   const [order, setOrder] = useState<any>()
@@ -71,7 +72,7 @@ const NewQuotationVendor: FC = () => {
   const [quotationDetail, setQuotationDetail] = useState<QuotationDetail[]>([
     {
       id: null,
-      index: Date.now().toString(),
+      index: (Date.now() + 1).toString(),
       item_id: null,
       work_order_item_id: null,
       category_id: null,
@@ -90,7 +91,7 @@ const NewQuotationVendor: FC = () => {
     },
     {
       id: null,
-      index: Date.now().toString(),
+      index: (Date.now() + 2).toString(),
       item_id: null,
       category_id: null,
       category_name: '',
@@ -560,6 +561,7 @@ const NewQuotationVendor: FC = () => {
   // Handle Submit Quotation
   const handleSubmitNewQuotation = async () => {
     if (QuotationValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('order_id', orderId)
@@ -620,18 +622,23 @@ const NewQuotationVendor: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/quotation/view-quotation')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -1155,9 +1162,10 @@ const NewQuotationVendor: FC = () => {
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleSubmitNewQuotation}
             >
-              Save & Email
+              {isLoading ? 'Saving..' : 'Save & Email'}
             </Button>
           </div>
         </div>

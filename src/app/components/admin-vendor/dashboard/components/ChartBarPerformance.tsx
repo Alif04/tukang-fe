@@ -7,9 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  tukangData: any[]
 }
 
-const ChartBarPerformance: React.FC<Props> = ({className}) => {
+const ChartBarPerformance: React.FC<Props> = ({className, tukangData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +22,7 @@ const ChartBarPerformance: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
+  }, [chartRef, mode, tukangData])
 
   const refreshChart = () => {
     if (!chartRef.current) {
@@ -30,7 +31,7 @@ const ChartBarPerformance: React.FC<Props> = ({className}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, tukangData))
     if (chart) {
       chart.render()
     }
@@ -55,27 +56,19 @@ const ChartBarPerformance: React.FC<Props> = ({className}) => {
 
 export {ChartBarPerformance}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, tukangData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
   return {
     series: [
       {
-        name: 'Sutoyo',
-        data: [44, 55, 57, 56, 61, 58],
+        name: 'Total Invoice',
+        data: tukangData.map((item: any) => item.totalInvoices),
       },
       {
-        name: 'Slamet',
-        data: [76, 85, 101, 98, 87, 105],
-      },
-      {
-        name: 'Adi',
-        data: [56, 35, 11, 48, 84, 25],
-      },
-      {
-        name: 'Surya',
-        data: [66, 45, 31, 58, 94, 55],
+        name: 'Total Quotation',
+        data: tukangData.map((item: any) => item.totalQuotation),
       },
     ],
     chart: {
@@ -106,7 +99,7 @@ function getChartOptions(height: number): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: tukangData.map((item: any) => item.tukang.full_name),
       axisBorder: {
         show: false,
       },

@@ -768,7 +768,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             icon: 'error',
           })
 
-          setIsLoading(true)
+          setIsLoading(false)
         }
 
         navigate('/work-order/view-work-order')

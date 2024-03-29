@@ -30,6 +30,7 @@ interface TukangService {
 const NewTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const animatedComponents = makeAnimated()
 
@@ -357,6 +358,7 @@ const NewTukangVendor: FC = () => {
   // Handle Submit Tukang
   const handleSubmitNewTukang = async () => {
     if (TukangValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('vendor_id', vendorId)
@@ -399,18 +401,23 @@ const NewTukangVendor: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/tukang/view-tukang')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -580,8 +587,13 @@ const NewTukangVendor: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitNewTukang}>
-              Save
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleSubmitNewTukang}
+            >
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

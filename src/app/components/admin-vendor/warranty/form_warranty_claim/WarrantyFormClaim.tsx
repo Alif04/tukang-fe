@@ -19,6 +19,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [orderDetail, setOrderDetail] = useState<any>()
   const [workOrder, setWorkOrder] = useState<WorkOrder>({
@@ -101,7 +102,6 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
 
   // Add Warranty Claim
   const [complaintStatus, setComplaintStatus] = useState<any>()
-  console.log(complaintStatus)
   const [date, setDate] = useState<any>()
   const [desc, setDesc] = useState<any>()
   const [complantChannel, setComplaintChannel] = useState<number>(1)
@@ -159,6 +159,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
   // Handle Submit Claim Warranty
   const handleSubmitWarrantyClaim = async () => {
     if (ClaimWarrantyValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('order_id', orderDetail.orders.id)
@@ -183,18 +184,23 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
               text: 'Success Add Claim Warranty',
               icon: 'success',
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/warranty/claim-warranty-list')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -419,65 +425,24 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
               </Row>
             </div>
 
-            {/* Old */}
-            {/* <div className='table-warranty-content'>
-              <Table hover responsive='md'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr>
-                        <td>{item?.item_code}</td>
-                        <td>{item?.item_name}</td>
-                        <td>{item?.item?.service_name}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
-                      </tr>
-                    </>
-                  ))}
-
-                  {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                    (item: any, index: any) => (
-                      <>
-                        <tr>
-                          <td>{item?.item_id || '-'}</td>
-                          <td>{item?.item || '-'}</td>
-                          <td>{item?.name}</td>
-                          <td>{item?.quantity}</td>
-                          <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                          <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                        </tr>
-                      </>
-                    )
-                  )}
-
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      {`Rp. ${parseInt(orderDetail?.grand_total || 0).toLocaleString('id')}`}
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
-            </div> */}
-
             {/* New */}
             {(() => {
-              if (orderDetail?.payment_type === 'survey' && !orderDetail?.work_orders) {
+              if (
+                orderDetail?.payment_type === 'survey' ||
+                orderDetail?.work_orders?.work_order_status.length === 1
+              ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -489,7 +454,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                       </thead>
 
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -507,6 +472,30 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -517,6 +506,16 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -530,7 +529,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                       </thead>
 
                       <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details?.map(
+                        {orderDetail?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>
@@ -543,6 +542,31 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                               <td>{item?.description ? '' : '-'}</td>
                             </tr>
                           )
+                        )}
+
+                        <tr>
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
                         )}
 
                         <tr>
@@ -560,7 +584,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                   </div>
                 )
               } else if (
-                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 orderDetail?.work_orders?.work_order_status.length > 1 &&
@@ -571,12 +595,9 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
+                          <th>Item / Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          <th>Harga Jasa</th>
-                          <th>Jumlah</th>
+                          <th>Satuan</th>
                         </tr>
                       </thead>
 
@@ -584,26 +605,12 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                         {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.item_id ?? '-'}</td>
-                              <td>{item?.item ?? '-'}</td>
                               <td>{item?.name ?? '-'}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                              <td>{item?.unit ?? ''}</td>
                             </tr>
                           )
                         )}
-
-                        <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(orderDetail?.grand_total ?? 0).toLocaleString('id')}`}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
                   </div>
@@ -614,6 +621,16 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -630,7 +647,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -650,6 +667,20 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                             </tr>
                           </>
                         ))}
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
 
                         <tr>
                           <td
@@ -698,8 +729,8 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='dark-primary' onClick={handleSubmitWarrantyClaim}>
-              Ajukan Claim
+            <Button variant='dark-primary' disabled={isLoading} onClick={handleSubmitWarrantyClaim}>
+              {isLoading ? 'Mengajukan Claim..' : 'Ajukan Claim'}
             </Button>
           </div> */}
         </div>

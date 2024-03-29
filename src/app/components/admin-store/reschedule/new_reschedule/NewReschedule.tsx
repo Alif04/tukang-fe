@@ -18,7 +18,6 @@ interface Reschedule {
   reschedule_status_id: any
   description: string
   reschedule_status_by: string
-  reschedule_evidences: Array<any>
 }
 
 interface Status {
@@ -33,11 +32,13 @@ const NewReschedule: FC = () => {
 
   const userRole = localStorage.getItem('userRole') as string
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const [order, setOrder] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
   const [selectedOrder, setSelectedOrder] = useState<any>({
     value: null,
-    label: '',
+    label: 'Ketik/Pilih Order Id',
     status_id: null,
   })
 
@@ -48,7 +49,6 @@ const NewReschedule: FC = () => {
     reschedule_status_id: null,
     description: '',
     reschedule_status_by: userRole,
-    reschedule_evidences: [],
   })
 
   const getOrder = async () => {
@@ -208,63 +208,129 @@ const NewReschedule: FC = () => {
     }
   }
 
+  // Reschedule Validation
+  const RescheduleValidation = () => {
+    let valid = true
+
+    if (!selectedOrder?.value) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select order Id',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!reschedule.description) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill reschedule description form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!reschedule.reschedule_date) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill reschedule date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!rescheduleEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill reschedule evidence form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  // Clear State After Submit
+  const clear = () => {
+    // Order
+    setOrderDetail(null)
+    setSelectedOrder({
+      value: null,
+      label: 'Ketik/Pilih Order Id',
+    })
+
+    // Complaint
+    setReschedule({
+      ...reschedule,
+      order_id: null,
+      status_id: null,
+      reschedule_date: '',
+      reschedule_status_id: null,
+      description: '',
+      reschedule_status_by: userRole,
+    })
+    setRescheduleEvidence([])
+  }
+
   // Handle Submit New Reschedule
   const handleSubmitReschedule = async () => {
-    const formData = new FormData()
+    if (RescheduleValidation()) {
+      setIsLoading(true)
+      const formData = new FormData()
 
-    formData.append('order_id', reschedule.order_id)
-    formData.append('status_id', reschedule.status_id)
-    formData.append('reschedule_date', reschedule.reschedule_date)
+      formData.append('order_id', reschedule.order_id)
+      formData.append('status_id', reschedule.status_id)
+      formData.append('reschedule_date', reschedule.reschedule_date)
 
-    formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
-    formData.append('reschedule_status[description]', reschedule.description)
-    formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
+      formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
+      formData.append('reschedule_status[description]', reschedule.description)
+      formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
 
-    if (rescheduleEvidence?.length) {
-      rescheduleEvidence.forEach((item) => {
-        if (item) {
-          formData.append(`reschedule_evidences`, item, item?.name)
-        }
-      })
-    }
+      if (rescheduleEvidence?.length) {
+        rescheduleEvidence.forEach((item) => {
+          if (item) {
+            formData.append(`reschedule_evidences`, item, item?.name)
+          }
+        })
+      }
 
-    await axios
-      .post(`${apiUrl}/reschedule`, formData, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Create Reschedule',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
+      await axios
+        .post(`${apiUrl}/reschedule`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Create Reschedule',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+
+            setIsLoading(false)
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+
+            setIsLoading(false)
+          }
+
+          navigate('/reschedule/view-reschedule')
+        })
+        .catch((error) => {
+          console.error(error)
+          setIsLoading(false)
+
           Swal.fire({
             title: 'Error',
-            text: response.data.message,
+            text: error.response.data.message,
             icon: 'error',
           })
-        }
-
-        navigate('/complaint/report-complaint')
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
         })
-      })
+    }
   }
 
   return (
@@ -440,98 +506,6 @@ const NewReschedule: FC = () => {
               </Row>
             </div>
 
-            {/* Old */}
-            {/* <div className='table-warranty-content'>
-              <Table hover responsive='md'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    {!(
-                      orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'survey'
-                    ) && (
-                      <>
-                        <th>Harga Jasa</th>
-                        <th>Jumlah</th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {orderDetail?.order_details.map((item: any, index: any) => (
-                    <>
-                      <tr key={`${index} - detail-order`}>
-                        <td>{item?.item_code ?? '-'}</td>
-                        <td>{item?.item_name ?? '-'}</td>
-                        <td>{item?.item?.service_name ?? '-'}</td>
-                        <td>{item?.quantity ?? '-'}</td>
-                        {!(
-                          orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'survey'
-                        ) && (
-                          <>
-                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                              'id'
-                            )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                          </>
-                        )}
-                      </tr>
-                    </>
-                  ))}
-
-                  {orderDetail?.payment_type !== 'gratis' &&
-                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
-                      <tr>
-                        <td
-                          colSpan={orderDetail?.payment_type === 'survey' ? 3 : 5}
-                          className='text-end fw-bolder'
-                        >
-                          Biaya Survey
-                        </td>
-
-                        <td className=' fw-bolder'>
-                          {orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                            ? `Rp. ${(0).toLocaleString('id')}`
-                            : orderDetail?.payment_type === 'survey'
-                            ? `Rp. ${(99000).toLocaleString('id')}`
-                            : `Rp. ${0}`}
-                        </td>
-                      </tr>
-                    )}
-
-                  {orderDetail?.payment_type !== 'survey' && (
-                    <tr>
-                      <td
-                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
-                        className='text-end fw-bolder'
-                      >
-                        Grand Total
-                      </td>
-
-                      <td className=' fw-bolder'>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'gratis') {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
-                          } else if (orderDetail?.payment_type === 'survey') {
-                            return `Rp. ${(99000).toLocaleString('id')}`
-                          } else {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          }
-                        })()}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div> */}
-
             {/* New */}
             {(() => {
               if (
@@ -540,6 +514,16 @@ const NewReschedule: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -551,7 +535,7 @@ const NewReschedule: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -569,6 +553,30 @@ const NewReschedule: FC = () => {
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -579,6 +587,16 @@ const NewReschedule: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -586,7 +604,6 @@ const NewReschedule: FC = () => {
                           <th className='text-center'>QTY</th>
                           <th className='text-center'>Satuan</th>
                           <th className='text-center'>Price</th>
-                          <th className='text-center'>Margin</th>
                           <th className='text-center'>Total</th>
                           <th className='text-center'>Keterangan</th>
                         </tr>
@@ -600,7 +617,6 @@ const NewReschedule: FC = () => {
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
                               <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
                               <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
                                 'id'
                               )}`}</td>
@@ -620,8 +636,22 @@ const NewReschedule: FC = () => {
                           </td>
                         </tr>
 
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
                         <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
+                          <td colSpan={5} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -672,6 +702,16 @@ const NewReschedule: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -688,7 +728,7 @@ const NewReschedule: FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -708,6 +748,20 @@ const NewReschedule: FC = () => {
                             </tr>
                           </>
                         ))}
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
 
                         <tr>
                           <td
@@ -763,6 +817,7 @@ const NewReschedule: FC = () => {
                   name='reschedule_date'
                   type='date'
                   min={today}
+                  value={reschedule.reschedule_date}
                   onChange={(e) => RescheduleFormHandler(e)}
                 />
               </Form.Group>
@@ -852,8 +907,13 @@ const NewReschedule: FC = () => {
           </Row>
 
           <div className='d-flex justify-content-center mt-5'>
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitReschedule}>
-              Save Update
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleSubmitReschedule}
+            >
+              {isLoading ? 'Submitting..' : 'Submit'}
             </Button>
           </div>
         </Card.Body>

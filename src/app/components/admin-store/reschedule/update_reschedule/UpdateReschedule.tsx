@@ -27,6 +27,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [orderId, setOrderId] = useState<any>()
   const [rescheduleDetail, setRescheduleDetail] = useState<any>()
@@ -171,63 +172,101 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
     }
   }
 
-  // Handle Update Reschedule
-  const handleSubmitReschedule = async () => {
-    const formData = new FormData()
+  // Reschedule Validation
+  const RescheduleValidation = () => {
+    let valid = true
 
-    formData.append('order_id', reschedule.order_id)
-    formData.append('status_id', reschedule.status_id)
-    formData.append('reschedule_date', reschedule.reschedule_date)
-
-    formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
-    formData.append('reschedule_status[description]', reschedule.description)
-    formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
-
-    if (rescheduleEvidence?.length) {
-      rescheduleEvidence.forEach((item) => {
-        if (item) {
-          formData.append(`reschedule_evidences`, item, item?.name)
-        }
+    if (!reschedule.description) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill reschedule description form',
+        icon: 'error',
       })
+      valid = false
+    } else if (!reschedule.reschedule_date) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill reschedule date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!rescheduleEvidence) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill reschedule evidence form',
+        icon: 'error',
+      })
+      valid = false
     }
+    return valid
+  }
 
-    await axios
-      .post(`${apiUrl}/reschedule/${params.id}`, formData, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Update Reschedule',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
+  // Handle Update Reschedule
+  const handleUpdateReschedule = async () => {
+    if (RescheduleValidation()) {
+      setIsLoading(true)
+      const formData = new FormData()
+
+      formData.append('order_id', reschedule.order_id)
+      formData.append('status_id', reschedule.status_id)
+      formData.append('reschedule_date', reschedule.reschedule_date)
+
+      formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
+      formData.append('reschedule_status[description]', reschedule.description)
+      formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
+
+      if (rescheduleEvidence?.length) {
+        rescheduleEvidence.forEach((item) => {
+          if (item) {
+            formData.append(`reschedule_evidences`, item, item?.name)
+          }
+        })
+      }
+
+      await axios
+        .post(`${apiUrl}/reschedule/${params.id}`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Update Reschedule',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+
+            setIsLoading(false)
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+
+            setIsLoading(false)
+          }
+
+          navigate('/complaint/report-complaint')
+        })
+        .catch((error) => {
+          console.error(error)
+
           Swal.fire({
             title: 'Error',
-            text: response.data.message,
+            text: error.response.data.message,
             icon: 'error',
           })
-        }
 
-        navigate('/complaint/report-complaint')
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
+          setIsLoading(false)
         })
-      })
+    }
   }
 
   return (
@@ -410,6 +449,16 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -439,6 +488,30 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -451,6 +524,16 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -458,7 +541,6 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                           <th className='text-center'>QTY</th>
                           <th className='text-center'>Satuan</th>
                           <th className='text-center'>Price</th>
-                          <th className='text-center'>Margin</th>
                           <th className='text-center'>Total</th>
                           <th className='text-center'>Keterangan</th>
                         </tr>
@@ -472,7 +554,6 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
                               <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
                               <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
                                 'id'
                               )}`}</td>
@@ -492,8 +573,22 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                           </td>
                         </tr>
 
+                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
                         <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
+                          <td colSpan={5} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -544,6 +639,16 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -580,6 +685,20 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                             </tr>
                           </>
                         ))}
+
+                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
 
                         <tr>
                           <td
@@ -735,7 +854,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
           </Row>
 
           <div className='d-flex justify-content-center mt-5'>
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitReschedule}>
+            <Button variant='dark-primary' type='submit' onClick={handleUpdateReschedule}>
               Save Update
             </Button>
           </div>

@@ -40,6 +40,7 @@ interface InvoiceData {
 const NewInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // User Vendor
   const vendorId = localStorage.getItem('vendor_id')
@@ -377,10 +378,10 @@ const NewInvoiceVendor: FC = () => {
       return false
     }
 
+    setIsLoading(true)
     const formData = new FormData()
 
     formData.append('vendor_id', String(invoices.vendor_id))
-
     invoices.invoice_details.forEach((invoice, index) => {
       if (invoice.order_id !== null) {
         if (invoice.quotation_id !== null) {
@@ -411,16 +412,22 @@ const NewInvoiceVendor: FC = () => {
           }).then(() => {
             navigate(`/invoice/view-invoice`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
+
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -522,9 +529,10 @@ const NewInvoiceVendor: FC = () => {
               className='d-flex justify-content-center align-items-center'
               variant='dark-success'
               type='submit'
+              disabled={isLoading}
               onClick={() => handleCreateInvoice()}
             >
-              Create Invoice
+              {isLoading ? 'Submitting..' : 'Create Invoice'}
             </Button>
           </div>
         </div>

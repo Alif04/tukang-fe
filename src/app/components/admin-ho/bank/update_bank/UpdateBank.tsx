@@ -16,6 +16,7 @@ const UpdateBanks: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Bank
   const [bankInfo, setBankInfo] = useState<Bank>({
@@ -83,6 +84,7 @@ const UpdateBanks: FC = () => {
       return false
     }
 
+    setIsLoading(true)
     await axios
       .post(`${apiUrl}/bank/${params.id}`, bankInfo, {
         headers: {
@@ -103,16 +105,22 @@ const UpdateBanks: FC = () => {
           }).then(() => {
             navigate(`/store/view-store`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
+
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -165,8 +173,8 @@ const UpdateBanks: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' onClick={handleUpdateBankInfo}>
-              Save Update
+            <Button variant='dark-primary' disabled={isLoading} onClick={handleUpdateBankInfo}>
+              {isLoading ? 'Updating..' : 'Save Update'}
             </Button>
           </div>
         </Card.Body>

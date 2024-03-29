@@ -28,6 +28,8 @@ const NewRefundCS: FC = () => {
   const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   // Fetch Data Order
   const [order, setOrder] = useState<any>()
   const [orderId, setOrderId] = useState<string>('')
@@ -218,61 +220,105 @@ const NewRefundCS: FC = () => {
     setSelectedFileIndex(index)
   }
 
+  // Reschedule Validation
+  const RefundValidation = () => {
+    let valid = true
+
+    if (!refundValues.notes) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill refund notes form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!refundValues.reason) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill refund reason',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!refundValues.date_of_filing) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill refund date form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!refundFiles) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill refund file form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
   // Handle Submit New Refund
   const handleSubmitNewRefund = async () => {
-    const formData = new FormData()
+    if (RefundValidation()) {
+      setIsLoading(true)
+      const formData = new FormData()
 
-    formData.append('order_id', refundValues.order_id)
-    formData.append('refund_status', refundValues.refund_status)
-    formData.append('notes', refundValues.notes)
-    formData.append('reason', refundValues.reason)
-    formData.append('date_of_filing', refundValues.date_of_filing)
+      formData.append('order_id', refundValues.order_id)
+      formData.append('refund_status', refundValues.refund_status)
+      formData.append('notes', refundValues.notes)
+      formData.append('reason', refundValues.reason)
+      formData.append('date_of_filing', refundValues.date_of_filing)
 
-    if (refundFiles.length) {
-      refundFiles.forEach((item) => {
-        if (item) {
-          formData.append(`refund_evidences`, item, item?.name)
-        }
-      })
-    }
+      if (refundFiles.length) {
+        refundFiles.forEach((item) => {
+          if (item) {
+            formData.append(`refund_evidences`, item, item?.name)
+          }
+        })
+      }
 
-    await axios
-      .post(`${apiUrl}/refund`, formData, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Create Refund',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
+      await axios
+        .post(`${apiUrl}/refund`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Create Refund',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+
+            setIsLoading(false)
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+
+            setIsLoading(false)
+          }
+
+          navigate('/refund/view-refund')
+        })
+        .catch((error) => {
+          console.error(error)
+          setIsLoading(false)
+
           Swal.fire({
             title: 'Error',
-            text: response.data.message,
+            text: error.response.data.message,
             icon: 'error',
           })
-        }
-
-        navigate('/refund/view-refund')
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
         })
-      })
+    }
   }
 
   const handleCancelRefund = () => {
@@ -460,6 +506,16 @@ const NewRefundCS: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -471,7 +527,7 @@ const NewRefundCS: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -489,6 +545,30 @@ const NewRefundCS: FC = () => {
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -499,6 +579,16 @@ const NewRefundCS: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -506,7 +596,6 @@ const NewRefundCS: FC = () => {
                           <th className='text-center'>QTY</th>
                           <th className='text-center'>Satuan</th>
                           <th className='text-center'>Price</th>
-                          <th className='text-center'>Margin</th>
                           <th className='text-center'>Total</th>
                           <th className='text-center'>Keterangan</th>
                         </tr>
@@ -520,7 +609,6 @@ const NewRefundCS: FC = () => {
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
                               <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td>
                               <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
                                 'id'
                               )}`}</td>
@@ -540,8 +628,22 @@ const NewRefundCS: FC = () => {
                           </td>
                         </tr>
 
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
                         <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
+                          <td colSpan={5} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -592,6 +694,16 @@ const NewRefundCS: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -608,7 +720,7 @@ const NewRefundCS: FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -628,6 +740,20 @@ const NewRefundCS: FC = () => {
                             </tr>
                           </>
                         ))}
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
 
                         <tr>
                           <td
@@ -783,8 +909,13 @@ const NewRefundCS: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' type='submit' onClick={handleSubmitNewRefund}>
-              Submit Refund
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleSubmitNewRefund}
+            >
+              {isLoading ? 'Submitting..' : 'Submit Refund'}
             </Button>
           </div>
         </div>

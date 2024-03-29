@@ -284,19 +284,21 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               }))
             }
 
-            // if (data?.is_overdistance) {
-            //   setOrderForm((prev) => ({
-            //     ...prev,
-            //     is_overdistance: data.is_overdistance,
-            //   }))
-            // }
+            if (data?.is_overdistance) {
+              setOrderForm((prev) => ({
+                ...prev,
+                is_overdistance: data?.is_overdistance ?? 0,
+              }))
 
-            // if (data?.additional_fee) {
-            //   setOrderForm((prev) => ({
-            //     ...prev,
-            //     additional_fee: data.additional_fee,
-            //   }))
-            // }
+              setIsOverdistance(data?.is_overdistance ?? 0)
+            }
+
+            if (data?.additional_fee) {
+              setOrderForm((prev) => ({
+                ...prev,
+                additional_fee: data?.additional_fee ?? 0,
+              }))
+            }
 
             if (data?.order_details) {
               setOrderForm((prev) => {
@@ -432,6 +434,13 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
   const handleCheckboxChange = (isChecked: boolean) => {
     setIsOverdistance(isChecked ? 1 : 0)
   }
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      is_overdistance: isOverdistance,
+    })
+  }, [isOverdistance])
 
   useEffect(() => {
     setOrderForm({
@@ -1025,6 +1034,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                 inline
                 label='Lebih dari 10 KM dari Store'
                 type='checkbox'
+                checked={isOverdistance === 1}
                 onChange={(e) => handleCheckboxChange(e.target.checked)}
               />
             </Col>

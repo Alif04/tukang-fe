@@ -27,6 +27,7 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const userId = localStorage.getItem('user_id') as any
 
@@ -274,6 +275,7 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
   // Handle Update Complaint
   const handleUpdateComplaint = async () => {
     if (UpdateComplaintValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('order_id', orderId)
@@ -308,18 +310,23 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
               showConfirmButton: false,
               timer: 1500,
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/complaint/view-complaint')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -473,6 +480,7 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
   // Handle Submit Remedial Action
   const handleSubmitRemedialAction = async () => {
     if (RemedialValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('complaint_id', complaintId)
@@ -506,18 +514,23 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
               text: 'Success Update Complaint',
               icon: 'success',
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/complaint/view-complaint')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -686,63 +699,339 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty mb-2'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+
+              <Row>
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>
+                    {complaintDetail?.orders?.payment_type === 'survey'
+                      ? 'Tanggal request survey :'
+                      : 'Tanggal request pemasangan :'}
+                  </Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {formatDate(new Date(complaintDetail?.orders?.request_survey))}
+                    </p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {complaintDetail?.orders?.vendor?.company_name ?? '-'}
+                    </p>
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Label column>Payment Type:</Form.Label>
+                  <Col>
+                    <p className='fs-7 p-0'>
+                      {(() => {
+                        if (complaintDetail?.orders?.payment_type === 'survey') {
+                          return `Berbayar & Survey`
+                        } else if (complaintDetail?.orders?.payment_type === 'gratis') {
+                          return `Gratis`
+                        } else if (
+                          complaintDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                        ) {
+                          return `Berbayar & Pemasangan Tanpa Survey`
+                        } else {
+                          return ``
+                        }
+                      })()}
+                    </p>
+                  </Col>
+                </Form.Group>
+              </Row>
             </div>
 
-            <div className='table-warranty-content'>
-              <Table hover responsive='md'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Jasa Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {complaintDetail?.orders.m_order_details.map((item: any, index: any) => (
-                    <>
-                      <tr key={`${index} - detail-order`}>
-                        <td>{item?.item_id}</td>
-                        <td>{item?.item_name}</td>
-                        <td>{item?.item?.service_name ?? '-'}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0).toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                      </tr>
-                    </>
-                  ))}
+            {(() => {
+              if (
+                complaintDetail?.orders?.payment_type === 'survey' ||
+                complaintDetail?.orders?.work_orders?.work_order_status.length === 1
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {complaintDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Biaya Survey
-                    </td>
-                    <td className=' fw-bolder'>
-                      {complaintDetail?.orders.payment_type === 'gratis' ||
-                      complaintDetail?.orders.payment_type === 'pemasangan_tanpa_survey'
-                        ? `                      Rp. ${0?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : complaintDetail?.orders.payment_type === 'survey'
-                        ? `                      Rp. ${99000?.toLocaleString(
-                            'id'
-                          )}                        `
-                        : `Rp. ${0}`}
-                    </td>
-                  </tr>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                        </tr>
+                      </thead>
 
-                  <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      Rp. {parseInt(complaintDetail?.orders.grand_total || 0)?.toLocaleString('id')}
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
-            </div>
+                      <tbody>
+                        {complaintDetail?.orders?.m_order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item_notes}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
+                          </>
+                        ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Biaya Survey
+                          </td>
+
+                          <td className=' fw-bolder'>Rp. 99.000</td>
+                        </tr>
+
+                        {complaintDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                complaintDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                complaintDetail?.orders?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                ['QUOTEIN', 'QUOTEOUT'].includes(complaintDetail?.orders?.status?.category ?? '') &&
+                complaintDetail?.orders?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {complaintDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center'>Jenis Jasa</th>
+                          <th className='text-center'>QTY</th>
+                          <th className='text-center'>Satuan</th>
+                          <th className='text-center'>Price</th>
+                          <th className='text-center'>Total</th>
+                          <th className='text-center'>Keterangan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {complaintDetail?.orders?.quotation[0]?.quotation_details.map(
+                          (item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                              <td>{item?.description ? '' : '-'}</td>
+                            </tr>
+                          )
+                        )}
+
+                        <tr>
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              complaintDetail?.orders?.quotation[0]?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        {complaintDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                complaintDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
+                        <tr>
+                          <td colSpan={5} className='text-end fw-bolder'>
+                            Grand Total
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              complaintDetail?.orders?.quotation[0]?.quotation_grand_total ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                  complaintDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
+                ) &&
+                complaintDetail?.orders?.work_orders?.work_order_status.length > 1 &&
+                complaintDetail?.orders?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item / Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          <th>Satuan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {complaintDetail?.orders?.work_orders?.work_order_status[0]?.work_order_items.map(
+                          (item: any, index: any) => (
+                            <tr key={`${index}-work_order_detail`}>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit ?? ''}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                complaintDetail?.orders?.payment_type === 'gratis' ||
+                complaintDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {complaintDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          {!(complaintDetail?.orders?.payment_type === 'gratis') && (
+                            <>
+                              <th>Harga Jasa</th>
+                              <th>Jumlah</th>
+                            </>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {complaintDetail?.orders?.m_order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              {!(complaintDetail?.orders?.payment_type === 'gratis') && (
+                                <>
+                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </>
+                              )}
+                            </tr>
+                          </>
+                        ))}
+
+                        {complaintDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                complaintDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
+                        <tr>
+                          <td
+                            colSpan={complaintDetail?.orders?.payment_type !== 'gratis' ? 5 : 3}
+                            className='text-end fw-bolder'
+                          >
+                            Grand Total
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {(() => {
+                              if (complaintDetail?.orders?.payment_type === 'gratis') {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              } else if (
+                                complaintDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                              ) {
+                                return `Rp. ${parseInt(
+                                  complaintDetail?.orders?.grand_total
+                                ).toLocaleString('id')}`
+                              } else {
+                                return `Rp. ${(0).toLocaleString('id')}`
+                              }
+                            })()}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              }
+            })()}
           </Row>
 
           <hr />
@@ -1028,9 +1317,10 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                   variant='dark-primary'
                   className='d-flex justify-content-center align-items-center'
                   type='submit'
+                  disabled={isLoading}
                   onClick={handleUpdateComplaint}
                 >
-                  Update Complaint
+                  {isLoading ? 'Updating..' : 'Update Complaint'}
                 </Button>
               </div>
             </Col>
@@ -1041,9 +1331,10 @@ const UpdateComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                   variant='dark-success'
                   className='d-flex justify-content-center align-items-center'
                   type='submit'
+                  disabled={isLoading}
                   onClick={handleSubmitRemedialAction}
                 >
-                  Submit Remedial
+                  {isLoading ? 'Submitting..' : 'Submit Remedial'}
                 </Button>
               </div>
             </Col>

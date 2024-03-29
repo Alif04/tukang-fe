@@ -47,9 +47,18 @@ const statusToStateMap: StatusToStateMap = {
 
 const ReportComplaintStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
+  const vendorId = localStorage.getItem('vendor_id')
+
+  const [orderData, setOrderData] = useState<any[]>([])
+  const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<any[]>([])
   const [complaintList, setComplaintList] = useState<any>()
+
+  const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
+  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
+  const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
 
   const today = new Date()
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
@@ -66,21 +75,88 @@ const ReportComplaintStore: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchComplaintList = async () => {
+  const fetchOrder = async () => {
+    const url = (() => {
+      switch (userRole) {
+        case 'Store CS':
+          return `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0`
+        case 'Admin Vendor':
+          return `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&take=0`
+        default:
+          return `${apiUrl}/orders?order_by=desc&take=0`
+      }
+    })()
+
     try {
-      const response = await axios.get(
-        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
       const data = response.data.data
+      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+
+      setOrderData(data)
+      setChartDataOrder(chartDatas)
+      return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const fetchWorkOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/work-orders?vendor_id=${vendorId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data
+      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+
+      setWorkOrderData(data)
+      setChartWorkOrder(chartDatas)
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const fetchComplaintList = async () => {
+    const url = (() => {
+      switch (userRole) {
+        case 'Store CS':
+          return `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&store_id=${userStore}`
+        case 'Admin Vendor':
+          return `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&vendor_id=${vendorId}`
+        default:
+          return `${apiUrl}/orders?order_by=desc&take=0`
+      }
+    })()
+
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data
+      const chartDatas = response.data.monthlyComplaint.slice(1, 7)
+
       setComplaintList(data)
+      setChartDataComplaint(chartDatas)
+
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -125,6 +201,8 @@ const ReportComplaintStore: FC = () => {
     }
 
     fetchData()
+    fetchOrder()
+    fetchWorkOrder()
   }, [complaintList])
 
   // Catch Value From Response API by Status
@@ -313,13 +391,13 @@ const ReportComplaintStore: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' />
+          <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
         </div>
         <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' />
+          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartWorkOrder} />
         </div>
         <div className='col-xl-4'>
-          <ChartLine2 className='card-xl-stretch mb-xl-8' />
+          <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
         </div>
       </div>
       {/* end::Row */}
@@ -327,11 +405,21 @@ const ReportComplaintStore: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <ChartDonut className='card-xl-stretch mb-xl-8' chartHeight='300px' />
+          <ChartDonut
+            className='card-xl-stretch mb-xl-8'
+            chartHeight='300px'
+            chartComplaint={chartDataComplaint}
+          />
         </div>
+
         <div className='col-xl-4'>
-          <ChartDonut2 className='card-xl-stretch mb-5 mb-xl-8' chartHeight='300px' />
+          <ChartDonut2
+            className='card-xl-stretch mb-5 mb-xl-8'
+            chartHeight='300px'
+            chartWorkOrder={chartWorkOrder}
+          />
         </div>
+
         <div className='col-xl-4'>
           <TableList className='card-xl-stretch mb-5 mb-xl-8' complaintData={complaintData} />
         </div>

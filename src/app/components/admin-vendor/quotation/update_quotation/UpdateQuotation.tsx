@@ -40,6 +40,7 @@ const UpdateQuotationVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Id
   const [orderId, setOrderId] = useState<string>('')
@@ -67,7 +68,7 @@ const UpdateQuotationVendor: FC = () => {
   const [quotationDetail, setQuotationDetail] = useState<QuotationDetail[]>([
     {
       id: null,
-      index: Date.now().toString(),
+      index: (Date.now() + 1).toString(),
       item_id: null,
       work_order_item_id: null,
       category_id: null,
@@ -86,7 +87,7 @@ const UpdateQuotationVendor: FC = () => {
     },
     {
       id: null,
-      index: Date.now().toString(),
+      index: (Date.now() + 2).toString(),
       item_id: null,
       category_id: null,
       category_name: '',
@@ -496,6 +497,7 @@ const UpdateQuotationVendor: FC = () => {
   // Handle Submit Quotation
   const handleUpdateQuotation = async () => {
     if (QuotationValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('order_id', orderId)
@@ -566,18 +568,23 @@ const UpdateQuotationVendor: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/quotation/view-quotation')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -1108,9 +1115,10 @@ const UpdateQuotationVendor: FC = () => {
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleUpdateQuotation}
             >
-              Save
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

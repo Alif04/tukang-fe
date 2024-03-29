@@ -29,6 +29,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [orderId, setOrderId] = useState<any>()
   const [rescheduleDetail, setRescheduleDetail] = useState<any>()
@@ -177,6 +178,8 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
   // Handle Update Reschedule
   const handleUpdateReschedule = async () => {
+    setIsLoading(true)
+
     const formData = new FormData()
 
     formData.append('order_id', reschedule.order_id)
@@ -213,18 +216,23 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
 
         navigate('/complaint/report-complaint')
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -408,102 +416,6 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               </Row>
             </div>
 
-            {/* Old */}
-            {/* <div className='table-warranty-content'>
-              <Table hover responsive='md'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    {!(
-                      rescheduleDetail?.order?.payment_type === 'gratis' ||
-                      rescheduleDetail?.order?.payment_type === 'survey'
-                    ) && (
-                      <>
-                        <th>Harga Jasa</th>
-                        <th>Jumlah</th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rescheduleDetail?.order?.m_order_details.map((item: any, index: any) => (
-                    <>
-                      <tr key={`${index} - detail-order`}>
-                        <td>{item?.item_code ?? '-'}</td>
-                        <td>{item?.item_name ?? '-'}</td>
-                        <td>{item?.item?.service_name ?? '-'}</td>
-                        <td>{item?.quantity ?? '-'}</td>
-                        {!(
-                          rescheduleDetail?.order?.payment_type === 'gratis' ||
-                          rescheduleDetail?.order?.payment_type === 'survey'
-                        ) && (
-                          <>
-                            <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                              'id'
-                            )}`}</td>
-                            <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                          </>
-                        )}
-                      </tr>
-                    </>
-                  ))}
-
-                  {rescheduleDetail?.order?.payment_type !== 'gratis' &&
-                    rescheduleDetail?.order?.payment_type !== 'pemasangan_tanpa_survey' && (
-                      <tr>
-                        <td
-                          colSpan={rescheduleDetail?.order?.payment_type === 'survey' ? 3 : 5}
-                          className='text-end fw-bolder'
-                        >
-                          Biaya Survey
-                        </td>
-
-                        <td className=' fw-bolder'>
-                          {rescheduleDetail?.order?.payment_type === 'gratis' ||
-                          rescheduleDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
-                            ? `Rp. ${(0).toLocaleString('id')}`
-                            : rescheduleDetail?.order?.payment_type === 'survey'
-                            ? `Rp. ${(99000).toLocaleString('id')}`
-                            : `Rp. ${0}`}
-                        </td>
-                      </tr>
-                    )}
-
-                  {rescheduleDetail?.order?.payment_type !== 'survey' && (
-                    <tr>
-                      <td
-                        colSpan={rescheduleDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
-                        className='text-end fw-bolder'
-                      >
-                        Grand Total
-                      </td>
-
-                      <td className=' fw-bolder'>
-                        {(() => {
-                          if (rescheduleDetail?.order?.payment_type === 'gratis') {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          } else if (
-                            rescheduleDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
-                          ) {
-                            return `Rp. ${parseInt(
-                              rescheduleDetail?.order?.grand_total
-                            ).toLocaleString('id')}`
-                          } else if (rescheduleDetail?.order?.payment_type === 'survey') {
-                            return `Rp. ${(99000).toLocaleString('id')}`
-                          } else {
-                            return `Rp. ${(0).toLocaleString('id')}`
-                          }
-                        })()}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div> */}
-
             {/* New */}
             {(() => {
               if (
@@ -512,6 +424,16 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -523,7 +445,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                       </thead>
 
                       <tbody>
-                        {rescheduleDetail?.order?.order_details.map((item: any, index: any) => (
+                        {rescheduleDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -541,16 +463,52 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(rescheduleDetail?.order?.status?.category ?? '') &&
-                rescheduleDetail?.order?.payment_type === 'survey'
+                ['QUOTEIN', 'QUOTEOUT'].includes(
+                  rescheduleDetail?.orders?.status?.category ?? ''
+                ) &&
+                rescheduleDetail?.orders?.payment_type === 'survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -564,7 +522,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                       </thead>
 
                       <tbody>
-                        {rescheduleDetail?.order?.quotation[0]?.quotation_details.map(
+                        {rescheduleDetail?.orders?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>
@@ -580,54 +538,28 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                         )}
 
                         <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              rescheduleDetail?.order?.quotation[0]?.quotation_grand_total ?? 0
+                              rescheduleDetail?.orders?.quotation[0]?.quotation_disc ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                  rescheduleDetail?.order?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
-                rescheduleDetail?.order?.work_orders?.work_order_status.length > 1 &&
-                rescheduleDetail?.order?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                          <th>Harga Jasa</th>
-                          <th>Jumlah</th>
-                        </tr>
-                      </thead>
 
-                      <tbody>
-                        {rescheduleDetail?.order?.work_orders?.work_order_status[0]?.work_order_items.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.item_id ?? '-'}</td>
-                              <td>{item?.item ?? '-'}</td>
-                              <td>{item?.name ?? '-'}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
                             </tr>
-                          )
+                          </>
                         )}
 
                         <tr>
@@ -636,7 +568,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              rescheduleDetail?.order?.grand_total ?? 0
+                              rescheduleDetail?.orders?.quotation[0]?.quotation_grand_total ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -645,11 +577,53 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   </div>
                 )
               } else if (
-                rescheduleDetail?.order?.payment_type === 'gratis' ||
-                rescheduleDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
+                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                  rescheduleDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
+                ) &&
+                rescheduleDetail?.orders?.work_orders?.work_order_status.length > 1 &&
+                rescheduleDetail?.orders?.payment_type === 'survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item / Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          <th>Satuan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {rescheduleDetail?.orders?.work_orders?.work_order_status[0]?.work_order_items.map(
+                          (item: any, index: any) => (
+                            <tr key={`${index}-work_order_detail`}>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit ?? ''}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                rescheduleDetail?.orders?.payment_type === 'gratis' ||
+                rescheduleDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -657,7 +631,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           <th>Item Name</th>
                           <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          {!(rescheduleDetail?.order?.payment_type === 'gratis') && (
+                          {!(rescheduleDetail?.orders?.payment_type === 'gratis') && (
                             <>
                               <th>Harga Jasa</th>
                               <th>Jumlah</th>
@@ -666,14 +640,14 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                         </tr>
                       </thead>
                       <tbody>
-                        {rescheduleDetail?.order?.order_details.map((item: any, index: any) => (
+                        {rescheduleDetail?.orders?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
                               <td>{item?.item_name}</td>
                               <td>{item?.item?.service_name}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              {!(rescheduleDetail?.order?.payment_type === 'gratis') && (
+                              {!(rescheduleDetail?.orders?.payment_type === 'gratis') && (
                                 <>
                                   <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
                                     'id'
@@ -687,9 +661,23 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           </>
                         ))}
 
+                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                rescheduleDetail?.orders?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
+                        )}
+
                         <tr>
                           <td
-                            colSpan={rescheduleDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
+                            colSpan={rescheduleDetail?.orders?.payment_type !== 'gratis' ? 5 : 3}
                             className='text-end fw-bolder'
                           >
                             Grand Total
@@ -697,13 +685,13 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
                           <td className=' fw-bolder'>
                             {(() => {
-                              if (rescheduleDetail?.order?.payment_type === 'gratis') {
+                              if (rescheduleDetail?.orders?.payment_type === 'gratis') {
                                 return `Rp. ${(0).toLocaleString('id')}`
                               } else if (
-                                rescheduleDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
+                                rescheduleDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
                               ) {
                                 return `Rp. ${parseInt(
-                                  rescheduleDetail?.order?.grand_total
+                                  rescheduleDetail?.orders?.grand_total
                                 ).toLocaleString('id')}`
                               } else {
                                 return `Rp. ${(0).toLocaleString('id')}`
@@ -853,9 +841,10 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               variant='dark-success'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleUpdateReschedule}
             >
-              Approved
+              {isLoading ? 'Updating..' : 'Update Reschedule'}
             </Button>
           </div>
         </Card.Body>

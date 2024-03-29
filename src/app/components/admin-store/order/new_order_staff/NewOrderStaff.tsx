@@ -328,6 +328,13 @@ const NewOrderStoreStaff: FC = () => {
   useEffect(() => {
     setOrderForm({
       ...orderForm,
+      is_overdistance: isOverdistance,
+    })
+  }, [isOverdistance])
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
       project_address: selectedMember?.address_1 ?? '',
       project_number:
         (isWhatsapp ? selectedMember?.whatsapp_number : selectedMember?.phone_number) ?? '',
@@ -577,7 +584,7 @@ const NewOrderStoreStaff: FC = () => {
             icon: 'error',
           })
 
-          setIsLoading(true)
+          setIsLoading(false)
         }
       })
       .catch((error) => {

@@ -892,6 +892,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   // Handle Submit New Vendor
   const handleUpdateVendor = async () => {
     if (VendorValidation()) {
+      setIsLoading(true)
+
       const formData = new FormData()
 
       formData.append('id', vendorId)
@@ -992,18 +994,23 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               showConfirmButton: false,
               timer: 1500,
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/vendor/view-vendor')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',

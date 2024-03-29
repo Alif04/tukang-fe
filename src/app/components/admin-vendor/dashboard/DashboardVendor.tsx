@@ -9,7 +9,6 @@ import {MoreInformation} from './components/MoreInformation'
 import {TableList} from './components/TableList'
 
 import axios from 'axios'
-import Select from 'react-select'
 import {DatePicker} from 'antd'
 import {Row, Col, Card, Form} from 'react-bootstrap'
 
@@ -43,6 +42,11 @@ const DashboardVendor: FC = () => {
 
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
+  const [workOrderData, setWorkOrderData] = useState<any[]>([])
+
+  const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
+  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
+  const [chartReportTukang, setChartReportTukang] = useState<any[]>([])
 
   const today = new Date()
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
@@ -67,9 +71,12 @@ const DashboardVendor: FC = () => {
       )
 
       const data = response.data.data
+      const chartDatas = response.data.monthlyOrders.slice(1, 7)
 
-      setOrderList(data)
       setCurrentPage(response.data.page)
+      setOrderData(data)
+      setChartDataOrder(chartDatas)
+      setOrderList(data)
 
       return data
     } catch (error) {
@@ -100,6 +107,47 @@ const DashboardVendor: FC = () => {
     }
   }
 
+  const getWorkOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/work-orders?vendor_id=${vendorId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data
+      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+
+      setWorkOrderData(data)
+      setChartWorkOrder(chartDatas)
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const getReportTukang = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/tukang?vendor_id=${vendorId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data
+      setChartReportTukang(data)
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     fetchOrderList()
   }, [dateFrom, dateTo])
@@ -115,6 +163,8 @@ const DashboardVendor: FC = () => {
     }
 
     fetchData()
+    getWorkOrder()
+    getReportTukang()
   }, [orderList])
 
   // Catch Value From Response API by Status
@@ -233,17 +283,17 @@ const DashboardVendor: FC = () => {
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarSurvey className='card-xl-stretch' />
+          <ChartBarSurvey className='card-xl-stretch' workOrderData={chartWorkOrder} />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarOrder className='card-xl-stretch' />
+          <ChartBarOrder className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
       </Row>
 
       <Row className='mb-5'>
         <Col md={12}>
-          <ChartBarPerformance className='card-xl-stretch' />
+          <ChartBarPerformance className='card-xl-stretch' tukangData={chartReportTukang} />
         </Col>
       </Row>
 

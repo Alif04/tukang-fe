@@ -20,6 +20,7 @@ const UpdateCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch API Data
   useEffect(() => {
@@ -82,6 +83,8 @@ const UpdateCostumerHO: FC = () => {
   }
 
   const handleUpdateMember = async () => {
+    setIsLoading(true)
+
     await axios
       .post(`${apiUrl}/member/${params.id}`, memberInfo, {
         headers: {
@@ -102,16 +105,22 @@ const UpdateCostumerHO: FC = () => {
           }).then(() => {
             navigate(`/costumers/view-costumers`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
+
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -249,8 +258,8 @@ const UpdateCostumerHO: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' onClick={handleUpdateMember}>
-              Update
+            <Button variant='dark-primary' disabled={isLoading} onClick={handleUpdateMember}>
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

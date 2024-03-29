@@ -1286,7 +1286,7 @@ const NewVendorHO: FC = () => {
               disabled={isLoading}
               onClick={handleSubmitNewVendor}
             >
-              {isLoading ? 'Saving' : 'Save'}
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

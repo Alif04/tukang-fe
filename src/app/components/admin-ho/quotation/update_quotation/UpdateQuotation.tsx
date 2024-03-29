@@ -40,6 +40,7 @@ const UpdateQuotationHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Id
   const [orderId, setOrderId] = useState<string>('')
@@ -534,6 +535,7 @@ const UpdateQuotationHO: FC = () => {
   // Handle Submit Quotation
   const handleUpdateQuotation = async () => {
     if (QuotationValidation()) {
+      setIsLoading(true)
       const formData = new FormData()
 
       formData.append('order_id', orderId)
@@ -604,18 +606,23 @@ const UpdateQuotationHO: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             })
+
+            setIsLoading(false)
           } else {
             Swal.fire({
               title: 'Error',
               text: response.data.message,
               icon: 'error',
             })
+
+            setIsLoading(false)
           }
 
           navigate('/quotation/view-quotation')
         })
         .catch((error) => {
           console.error(error)
+          setIsLoading(false)
 
           Swal.fire({
             title: 'Error',
@@ -1151,9 +1158,10 @@ const UpdateQuotationHO: FC = () => {
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleUpdateQuotation}
             >
-              Save
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

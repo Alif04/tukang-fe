@@ -413,6 +413,13 @@ const NewOrderHO: FC = () => {
   useEffect(() => {
     setOrderForm({
       ...orderForm,
+      is_overdistance: isOverdistance,
+    })
+  }, [isOverdistance])
+
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
       store_id: selectedStore?.value ?? null,
     })
   }, [selectedStore])
@@ -728,7 +735,7 @@ const NewOrderHO: FC = () => {
             icon: 'error',
           })
 
-          setIsLoading(true)
+          setIsLoading(false)
         }
       })
       .catch((error) => {
@@ -1496,7 +1503,7 @@ const NewOrderHO: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button onClick={handleSubmitNewOrder} variant='dark-primary'>
+            <Button onClick={handleSubmitNewOrder} disabled={isLoading} variant='dark-primary'>
               {isLoading ? 'Submitting..' : 'Submit Order & Email'}
             </Button>
           </div>

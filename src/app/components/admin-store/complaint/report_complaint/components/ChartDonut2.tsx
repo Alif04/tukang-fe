@@ -7,9 +7,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 type Props = {
   className: string
   chartHeight: string
+  chartWorkOrder: any[]
 }
 
-const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
+const ChartDonut2: React.FC<Props> = ({className, chartHeight, chartWorkOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -18,7 +19,7 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartWorkOrder))
     if (chart) {
       chart.render()
     }
@@ -35,15 +36,13 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, chartWorkOrder])
 
   return (
     <div className={`card ${className}`}>
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
-          <h1 className='fs-1' style={{color: '#04792A'}}>
-            Pekerjaan
-          </h1>
+          <h1 className='fs-1 text-success'>Work</h1>
 
           <div className='d-flex justify-content-center'>
             <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -54,11 +53,23 @@ const ChartDonut2: React.FC<Props> = ({className, chartHeight}) => {
   )
 }
 
-const chartOptions = (chartHeight: string): ApexOptions => {
+const chartOptions = (chartHeight: string, chartWorkOrder: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
+  const processColor = getCSSVariableValue('--kt-info')
+  const pendingColor = getCSSVariableValue('--kt-primary')
+  const cancelColor = getCSSVariableValue('--kt-dark')
+  const ReworkColor = getCSSVariableValue('--kt-success')
+
+  const onProgress = chartWorkOrder.map((item: any) => item.totalSurveyReqOrder)
+  const totalOnProgress = onProgress.reduce((acc: any, curr: any) => acc + curr, 0)
+
+  const workDone = chartWorkOrder.map((item: any) => item.totalCompleteOrder)
+  const totalWorkDone = workDone.reduce((acc: any, curr: any) => acc + curr, 0)
+
   return {
-    series: [44, 55],
+    series: [totalOnProgress, totalWorkDone],
+    colors: [processColor, pendingColor],
     chart: {
       width: 500,
       height: chartHeight,
@@ -73,7 +84,6 @@ const chartOptions = (chartHeight: string): ApexOptions => {
     dataLabels: {
       enabled: false,
     },
-    colors: ['#009DFF', '#22E4FF'],
     grid: {
       padding: {
         top: 10,

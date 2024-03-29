@@ -15,6 +15,7 @@ interface Bank {
 const NewBank: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Bank
   const [bankInfo, setBankInfo] = useState<Bank>({
@@ -80,6 +81,7 @@ const NewBank: FC = () => {
       return false
     }
 
+    setIsLoading(true)
     await axios
       .post(`${apiUrl}/bank`, bankInfo, {
         headers: {
@@ -100,16 +102,22 @@ const NewBank: FC = () => {
           }).then(() => {
             navigate(`/bank/view-bank`)
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
+
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -161,8 +169,8 @@ const NewBank: FC = () => {
               Cancel
             </Button>
 
-            <Button variant='dark-primary' onClick={handleSubmitNewBank}>
-              Save
+            <Button variant='dark-primary' disabled={isLoading} onClick={handleSubmitNewBank}>
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </Card.Body>
