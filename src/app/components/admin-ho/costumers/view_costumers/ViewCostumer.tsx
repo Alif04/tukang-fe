@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ViewCostumer.css'
 
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 import {useNavigate} from 'react-router-dom'
 import {Table, DatePicker, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -240,6 +241,14 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
+  // Export To Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(memberData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+    XLSX.writeFile(workbook, `List Member.xlsx`)
+  }
+
   return (
     <section id='view-costumer'>
       <div className={`card ${className}`}>
@@ -290,7 +299,12 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
             <div className='right'>
               <button className='button-export'>
-                <FontAwesomeIcon icon={faFileExcel} size='2xl' className='excel-icon' />
+                <FontAwesomeIcon
+                  icon={faFileExcel}
+                  size='2xl'
+                  className='excel-icon'
+                  onClick={exportToExcel}
+                />
               </button>
 
               <button className='button-print'>

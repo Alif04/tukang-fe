@@ -765,7 +765,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </thead>
 
                       <tbody>
-                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
+                        {orderDetail?.order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -944,7 +944,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
+                        {orderDetail?.order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>

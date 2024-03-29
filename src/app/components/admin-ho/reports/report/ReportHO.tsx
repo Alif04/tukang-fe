@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportHO.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
 import Select from 'react-select'
 import {Table, PaginationProps, Tag} from 'antd'
@@ -1354,6 +1355,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
   // Export To Excel
   const exportToExcel = () => {
+    if (reportData.length === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
     const worksheet = XLSX.utils.json_to_sheet(reportData)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')

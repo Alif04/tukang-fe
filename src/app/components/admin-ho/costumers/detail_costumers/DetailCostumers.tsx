@@ -8,6 +8,8 @@ import {Table, Rate} from 'antd'
 import {useParams} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, Tabs, Tab} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faCircleUser, faUser} from '@fortawesome/free-solid-svg-icons'
 
 const DetailCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -210,7 +212,7 @@ const DetailCostumerHO: FC = () => {
     <section id='detail-costumer'>
       <Row className='row-1'>
         <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
-          <i className='bi bi-person-circle'></i>
+          <FontAwesomeIcon icon={faCircleUser} style={{fontSize: '150px'}} />
         </Col>
 
         <Col xxl={9} xl={9} lg={9} md={9} sm={12}>
@@ -273,7 +275,7 @@ const DetailCostumerHO: FC = () => {
           <div className='tab'>
             <div className='tab-title'>
               <div className='title'>
-                <i className='bi bi-person-fill'></i>
+                <FontAwesomeIcon icon={faUser} size='2xl' />
                 <p>About</p>
               </div>
             </div>
