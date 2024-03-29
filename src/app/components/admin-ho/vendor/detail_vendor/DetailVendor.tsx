@@ -136,148 +136,147 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               </h1>
 
               <Row className='d-flex justify-content-center'>
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Vendor ID :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>{vendorDetail?.id}</Form.Label>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Join Since :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail ? formatDate(new Date(vendorDetail.created_at)) : ''}
+                <Col>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Vendor ID :
                     </Form.Label>
-                  </Col>
-                </Form.Group>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>{vendorDetail?.id}</p>
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Status :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail?.is_active ? 'ACTIVE' : 'NON ACTIVE'}
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Join Since :
                     </Form.Label>
-                  </Col>
-                </Form.Group>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Margin :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail?.vendor_area[0].default_markup} %
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>
+                        {vendorDetail ? formatDate(new Date(vendorDetail.created_at)) : ''}
+                      </p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Status :
                     </Form.Label>
-                  </Col>
-                </Form.Group>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>
+                        {vendorDetail?.is_active ? 'ACTIVE' : 'NON ACTIVE'}
+                      </p>
+                    </Col>
+                  </Form.Group>
 
-                <Rate className='d-flex justify-content-center' />
-
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Phone Number :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>{vendorDetail?.phone_number}</Form.Label>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Email Address :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail?.email_address}
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Margin :
                     </Form.Label>
-                  </Col>
-                </Form.Group>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>
+                        {vendorDetail?.vendor_area[0].default_markup} %
+                      </p>
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Address :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>{vendorDetail?.address}</Form.Label>
-                  </Col>
-                </Form.Group>
+                  <Rate className='d-flex justify-content-center' />
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Nama PIC :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail?.users?.username ?? ''}
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Phone Number :
                     </Form.Label>
-                  </Col>
-                </Form.Group>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>{vendorDetail?.phone_number}</p>
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Phone Number :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>{vendorDetail?.phone_number}</Form.Label>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Email Address :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fw-normal mt-3'>
-                      {vendorDetail?.email_address}
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Email Address :
                     </Form.Label>
-                  </Col>
-                </Form.Group>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>{vendorDetail?.email_address}</p>
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Service Type :
-                  </Form.Label>
-                  <Col sm='6'>
-                    {vendorDetail?.vendor_service.length ? (
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Address :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>{vendorDetail?.address}</p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Nama PIC :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>{vendorDetail?.users?.username ?? ''}</p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Phone Number :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>{vendorDetail?.phone_number}</p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Email Address :
+                    </Form.Label>
+
+                    <Col sm='6'>
+                      <p className='fw-normal mt-3'>{vendorDetail?.email_address}</p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Service Type :
+                    </Form.Label>
+
+                    <Col sm='6'>
+                      {vendorDetail?.vendor_service.length ? (
+                        <p className='fs-7'>
+                          {vendorDetail?.vendor_service
+                            .map((item: any) => item?.service_type_name)
+                            .join(', ')}
+                        </p>
+                      ) : (
+                        <p className='fs-7'>Service type belum diset</p>
+                      )}
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Service Area :
+                    </Form.Label>
+                    <Col sm='6'>
                       <p className='fs-7'>
-                        {vendorDetail?.vendor_service
-                          .map((item: any) => item?.service_type_name)
+                        {vendorDetail?.vendor_area
+                          .map((item: any) => item?.city?.city_name)
                           .join(', ')}
                       </p>
-                    ) : (
-                      <p className='fs-7'>Service type belum diset</p>
-                    )}
-                  </Col>
-                </Form.Group>
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Service Area :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <p className='fs-7'>
-                      {vendorDetail?.vendor_area
-                        .map((item: any) => item?.city?.city_name)
-                        .join(', ')}
-                    </p>
-                  </Col>
-                </Form.Group>
-
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='6'>
-                    Jumlah Teknisi :
-                  </Form.Label>
-                  <Col sm='6'>
-                    <Form.Label className='fs-1 fw-semibold'>20</Form.Label>
-                  </Col>
-                </Form.Group>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Jumlah Teknisi :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <p className='fs-1 fw-semibold'>{vendorDetail?.tukang?.length}</p>
+                    </Col>
+                  </Form.Group>
+                </Col>
               </Row>
             </Col>
 
