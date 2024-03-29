@@ -433,7 +433,7 @@ const DetailOrderWithoutAuth = () => {
                 {/* Newest */}
                 {(() => {
                   if (
-                    order?.payment_type === 'survey' ||
+                    order?.payment_type === 'survey' &&
                     order?.work_orders?.work_order_status.length === 1
                   ) {
                     return (

@@ -509,7 +509,7 @@ const NewReschedule: FC = () => {
             {/* New */}
             {(() => {
               if (
-                orderDetail?.payment_type === 'survey' ||
+                orderDetail?.payment_type === 'survey' &&
                 orderDetail?.work_orders?.work_order_status.length === 1
               ) {
                 return (

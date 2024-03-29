@@ -165,7 +165,12 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     },
   ]
 
-  console.log(formatDate(new Date(orderDetail?.work_orders?.survey_date)))
+  // console.log(
+  //   'item',
+  //   orderDetail?.order_details?.map((item: any) => {
+  //     return item?.item?.service_name
+  //   })
+  // )
 
   return (
     <section id='detail-work-order'>
@@ -444,7 +449,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             {/* Newest */}
             {(() => {
               if (
-                orderDetail?.payment_type === 'survey' ||
+                orderDetail?.payment_type === 'survey' &&
                 orderDetail?.work_orders?.work_order_status.length === 1
               ) {
                 return (
@@ -667,8 +672,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.item?.item_name}</td>
+                              <td>{item?.item?.service_name ?? '-'}</td>
                               <td>{item?.quantity ?? 0}</td>
                               {!(orderDetail?.payment_type === 'gratis') && (
                                 <>
