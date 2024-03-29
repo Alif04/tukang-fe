@@ -996,6 +996,7 @@ const NewQuotationVendor: FC = () => {
                           id={`item-name-${index}`}
                           name='item_name'
                           value={element.item_name}
+                          disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
                             handleChangeQuotationDetail(e, index, e.target.value, 1)
                           }}
@@ -1071,6 +1072,7 @@ const NewQuotationVendor: FC = () => {
                               id={`margin-type-${index}`}
                               type='checkbox'
                               checked={element.margin_type === 2}
+                              disabled={element.is_user === 1 ? true : false}
                               onChange={(e) => {
                                 handleMarginTypeChange(element.index, e.target.checked)
                                 calcEachDetails(element.margin_type)
@@ -1146,6 +1148,11 @@ const NewQuotationVendor: FC = () => {
                 </tr>
               </tbody>
             </Table>
+
+            <Form.Text className='fs-8 text-dark'>
+              *Jika <span className='fw-bolder text-decoration-underline'>Material</span> diceklis,
+              maka material tersebut disediakan oleh customer
+            </Form.Text>
           </div>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>

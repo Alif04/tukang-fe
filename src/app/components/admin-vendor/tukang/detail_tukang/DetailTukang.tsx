@@ -7,6 +7,8 @@ import axios from 'axios'
 import {Table, Rate} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, Row, Col, Tabs, Tab} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faCircleUser, faUser} from '@fortawesome/free-solid-svg-icons'
 
 interface DataTypeOrder {
   number: number
@@ -14,7 +16,7 @@ interface DataTypeOrder {
   store_name: string
   receipt_number: string
   date_order: string
-  total_invoice: string
+  total: string
   status: string
 }
 
@@ -28,7 +30,10 @@ const DetailTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
 
-  const [orderData, setOrderData] = useState<DataTypeOrder[]>([])
+  const [tukangId, setTukangId] = useState<any>('')
+  const [orderData, setOrderData] = useState<any[]>([])
+  const [orderList, setOrderList] = useState<any[]>([])
+  const [order, setOrder] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
   const [tukangDetail, setTukangDetail] = useState<any>()
 
@@ -46,11 +51,82 @@ const DetailTukangVendor: FC = () => {
         .then((response) => {
           const data = response.data.data.data
           setTukangDetail(data)
+          setTukangId(response.data.data.data.id)
         })
     } catch (error) {
       console.log(error)
     }
   }
+
+  const fetchOrderList = async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/orders?order_by=desc&take=0&tukang_id=${tukangId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      const data = response.data.data
+      setOrderData(data)
+      return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewOrder = async () => {
+    try {
+      const apiData = await fetchOrderList()
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const orderData = apiData.map((item: any, index: number) => {
+        let data
+
+        const orderDate = new Date(item?.request_survey)
+
+        data = {
+          number: index + 1,
+          order_id: item.id,
+          date_order: formatDate(orderDate),
+          store_name: item?.store?.store_name ?? '-',
+          costumer_name: item?.members?.full_name ?? '-',
+          receipt_number: item?.receipt_number ?? '',
+          total: `Rp. ${parseInt(item.grand_total).toLocaleString('id')}`,
+          status: item?.status?.category,
+        }
+
+        return data
+      })
+
+      return orderData
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+      return []
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await ViewOrder()
+        setOrderList(data)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [tukangId])
 
   useEffect(() => {
     fetchTukangDetail()
@@ -82,22 +158,15 @@ const DetailTukangVendor: FC = () => {
       width: 150,
     },
     {
-      title: 'Nomor WO/Complain',
-      dataIndex: 'receipt_number',
-      key: 'receipt_number',
-      align: 'center',
-      width: 180,
-    },
-    {
       title: 'Tanggal Pengerjaan',
       dataIndex: 'date_order',
       key: 'date_order',
       width: 150,
     },
     {
-      title: 'Total Value Pekerjaan',
-      dataIndex: 'total_invoice',
-      key: 'total_invoice',
+      title: 'Grand Total',
+      dataIndex: 'total',
+      key: 'total',
     },
     {
       title: 'Status',
@@ -128,169 +197,11 @@ const DetailTukangVendor: FC = () => {
     },
   ]
 
-  // const ViewOrder = async () => {
-  //   try {
-  //     const apiData = tukangDetail?.order
-
-  //     const orderData = apiData.map((item: any) => {
-  //       let data
-
-  //       const orderDate = new Date(item?.request_survey ?? '-')
-
-  //       data = {
-  //         number: apiData.indexOf(item) + 1,
-  //         order_id: item.id,
-  //         store_name: item?.store?.store_name ?? '-',
-  //         receipt_number: item?.receipt_number ?? '-',
-  //         date_order: formatDate(orderDate),
-  //         total_invoice: item?.total_invoice ?? '-',
-  //         status: item?.status?.category ?? '-',
-  //       }
-
-  //       return data
-  //     })
-
-  //     return orderData
-  //   } catch (error) {
-  //     console.error('Error getting order list data:', error)
-  //     return []
-  //   }
-  // }
-
-  // const ViewComplaint = async () => {
-  //   try {
-  //     const apiData = tukangDetail?.order
-
-  //     if (apiData) {
-  //       let complaintNumber = 1
-
-  //       const complaintDataArray = apiData.flatMap((orderItem: any) => {
-  //         return orderItem.complaints.map((complaintItem: any) => {
-  //           const complaintDate = new Date(complaintItem.complaint_date)
-
-  //           const complaintData = {
-  //             number: complaintNumber,
-  //             complaint_id: complaintItem.id,
-  //             complaint_date: formatDate(complaintDate),
-  //           }
-
-  //           complaintNumber++
-  //           return complaintData
-  //         })
-  //       })
-
-  //       return complaintDataArray
-  //     } else {
-  //       return []
-  //     }
-  //   } catch (error) {
-  //     console.error('Error getting complaint data:', error)
-  //     return []
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   const fetchOrderData = async () => {
-  //     const data = await ViewOrder()
-  //     setOrderData(data)
-  //   }
-
-  //   const fetchComplaintData = async () => {
-  //     const data = await ViewComplaint()
-  //     setComplaintData(data)
-  //   }
-
-  //   fetchOrderData()
-  //   fetchComplaintData()
-  // }, [])
-
   return (
-    // <section id='detail-tukang'>
-    //   <Row>
-    //     <div className='content-top d-flex'>
-    //       <Col md={3}>
-    //         <i className='bi bi-person-circle'></i>
-    //       </Col>
-
-    //       <Col md={9}>
-    //         <div className='box'>
-    //           <h1>{tukangDetail?.full_name}</h1>
-    //           <p>TUKANG</p>
-    //           <small>rating</small>
-    //           <div className='star-rating'>
-    //             <Rate className='mt-2' disabled defaultValue={tukangDetail?.rating} />
-    //           </div>
-    //         </div>
-    //       </Col>
-    //     </div>
-
-    //     <div className='content-bottom'>
-    //       <Col md={3}>
-    //         <div className='box'>
-    //           <div className='title'>
-    //             <h4>Keahlian</h4>
-    //           </div>
-    //           <ul>
-    //             <li>Pasar Genteng</li>
-    //             <li>Pengecatan</li>
-    //             <li>Pasang Keramik</li>
-    //             <li>Pasang Fikstur</li>
-    //           </ul>
-    //         </div>
-    //       </Col>
-
-    //       <Col md={9}>
-    //         <div className='tab'>
-    //           <div className='tab-title'>
-    //             <div className='title'>
-    //               <i className='bi bi-person-fill'></i>
-    //               <p>About</p>
-    //             </div>
-    //           </div>
-    //           <div className='data-diri'>
-    //             <div className='data'>
-    //               <tr>
-    //                 <td className='left'>Address : </td>
-    //                 <td className='right'>{tukangDetail?.address}</td>
-    //               </tr>
-    //               <tr>
-    //                 <td className='left'>Phone : </td>
-    //                 <td className='right'>{tukangDetail?.phone_number}</td>
-    //               </tr>
-    //               <tr>
-    //                 <td className='left'>Email : </td>
-    //                 <td className='right'>{tukangDetail?.email}</td>
-    //               </tr>
-    //             </div>
-    //           </div>
-
-    //           <div className='basic-info'>
-    //             <hr />
-    //             <p>Basic Information</p>
-    //             <div className='data'>
-    //               <tr>
-    //                 <td>Tanggal Lahir : </td>
-    //                 <td className='right'>
-    //                   {tukangDetail ? formatDate(new Date(tukangDetail?.join_date)) : ''}
-    //                 </td>
-    //               </tr>
-
-    //               <tr>
-    //                 <td>Nomor Telepon : </td>
-    //                 <td className='right'>{tukangDetail?.phone_number}</td>
-    //               </tr>
-    //             </div>
-    //           </div>
-    //         </div>
-    //       </Col>
-    //     </div>
-    //   </Row>
-    // </section>
-
     <section id='detail-tukang'>
       <Row className='row-1'>
         <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
-          <i className='bi bi-person-circle'></i>
+          <FontAwesomeIcon icon={faCircleUser} style={{fontSize: '150px'}} />
         </Col>
 
         <Col xxl={9} xl={9} lg={9} md={9} sm={12}>
@@ -349,10 +260,10 @@ const DetailTukangVendor: FC = () => {
         </Col>
 
         <Col xxl={9} xl={9} lg={12} md={12} sm={12} className='mb-5'>
-          <div className='tab'>
+          <div className='tab mb-3'>
             <div className='tab-title'>
               <div className='title'>
-                <i className='bi bi-person-fill'></i>
+                <FontAwesomeIcon icon={faUser} size='2xl' />
                 <p>About</p>
               </div>
             </div>
@@ -417,12 +328,12 @@ const DetailTukangVendor: FC = () => {
                         plaintext
                         readOnly
                         type='text'
-                        value={tukangDetail ? formatDate(new Date(tukangDetail?.bod)) : ''}
+                        value={tukangDetail?.ktp_number}
                       />
                     </Col>
                   </Form.Group>
 
-                  <Form.Group as={Row}>
+                  {/* <Form.Group as={Row}>
                     <Form.Label column sm='6'>
                       Total Value Pekerjaan :
                     </Form.Label>
@@ -430,7 +341,7 @@ const DetailTukangVendor: FC = () => {
                     <Col sm='6'>
                       <Form.Control plaintext readOnly defaultValue='Rp. 1.000.000' />
                     </Col>
-                  </Form.Group>
+                  </Form.Group> */}
 
                   <Form.Group as={Row}>
                     <Form.Label column sm='6'>
@@ -482,9 +393,9 @@ const DetailTukangVendor: FC = () => {
                 className='table-striped-rows mt-3'
                 bordered
                 columns={columnsOrder}
-                dataSource={orderData}
+                dataSource={order}
                 rowKey={(record) => record.order_id}
-                pagination={{position: ['bottomCenter']}}
+                pagination={{position: ['bottomRight']}}
               />
             </Tab>
 
@@ -495,7 +406,7 @@ const DetailTukangVendor: FC = () => {
                 columns={columnsComplaint}
                 dataSource={complaintData}
                 rowKey={(record) => record.complaint_id}
-                pagination={{position: ['bottomCenter']}}
+                pagination={{position: ['bottomRight']}}
               />
             </Tab>
           </Tabs>

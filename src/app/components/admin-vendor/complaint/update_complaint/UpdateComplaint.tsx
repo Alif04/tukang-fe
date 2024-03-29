@@ -906,7 +906,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
                   <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
                   <ListGroup>
-                    {complaintDetail?.complaint_evidence.map((item: any) => (
+                    {complaintDetail?.complaint_evidence?.map((item: any) => (
                       <ListGroup.Item
                         key={item.id}
                         action

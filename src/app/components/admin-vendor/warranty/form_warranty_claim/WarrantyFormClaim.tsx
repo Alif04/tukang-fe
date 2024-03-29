@@ -454,7 +454,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                       </thead>
 
                       <tbody>
-                        {orderDetail?.m_order_details.map((item: any, index: any) => (
+                        {orderDetail?.order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -647,7 +647,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.m_order_details.map((item: any, index: any) => (
+                        {orderDetail?.order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>

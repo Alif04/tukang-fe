@@ -420,7 +420,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       </thead>
 
                       <tbody>
-                        {orderDetail?.m_order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -613,7 +613,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.m_order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>

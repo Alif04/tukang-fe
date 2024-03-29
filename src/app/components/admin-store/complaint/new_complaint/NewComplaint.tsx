@@ -59,6 +59,8 @@ const NewComplaintForm: FC = () => {
     complaint_type: 1,
   })
 
+  console.log(complaintForm)
+
   // Complaint Channel
   const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
   const [selectedComplaintChannel, setSelectedComplaintChannel] = useState<
@@ -231,7 +233,7 @@ const NewComplaintForm: FC = () => {
       ...complaintForm,
       complaint_status: statusId,
     })
-  }, [complaintForm])
+  }, [])
 
   // Complaint Form Handler
   const complaintFormHandler = (e: any) => {
@@ -324,7 +326,9 @@ const NewComplaintForm: FC = () => {
   }
 
   // Clear State
-  const clear = () => {
+  const clear = (e: any) => {
+    e.preventDefault()
+
     // Order
     setOrderDetail(null)
     setSelectedOrderId({
@@ -335,7 +339,6 @@ const NewComplaintForm: FC = () => {
     // Complaint
     setComplaintCode('')
     setComplaintForm({
-      ...complaintForm,
       order_id: null,
       complaint_channel: null,
       description: '',
@@ -351,7 +354,7 @@ const NewComplaintForm: FC = () => {
   }
 
   // Handle Submit Complaint
-  const handleSubmitNewComplaint = async () => {
+  const handleSubmitNewComplaint = async (e: any) => {
     if (ComplaintValidation()) {
       setIsLoading(true)
       const formData = new FormData()
@@ -389,7 +392,7 @@ const NewComplaintForm: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              clear()
+              clear(e)
             })
 
             setIsLoading(false)
@@ -525,9 +528,9 @@ const NewComplaintForm: FC = () => {
                           plaintext
                           readOnly
                           value={
-                            orderDetail?.members.phone_number !== null
+                            orderDetail?.members.phone_number
                               ? orderDetail?.members.phone_number
-                              : orderDetail?.members.whatsapp_number
+                              : orderDetail?.members.whatsapp_number || ''
                           }
                         />
                       </Col>
@@ -556,7 +559,7 @@ const NewComplaintForm: FC = () => {
                       </Form.Label>
 
                       <Col md='8'>
-                        <Form.Control plaintext readOnly value={orderDetail?.sales?.id} />
+                        <Form.Control plaintext readOnly value={orderDetail?.sales?.id ?? ''} />
                       </Col>
                     </Form.Group>
 
@@ -566,7 +569,11 @@ const NewComplaintForm: FC = () => {
                       </Form.Label>
 
                       <Col md='7'>
-                        <Form.Control plaintext readOnly value={orderDetail?.sales?.full_name} />
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={orderDetail?.sales?.full_name ?? ''}
+                        />
                       </Col>
                     </Form.Group>
                   </div>
@@ -668,7 +675,7 @@ const NewComplaintForm: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.m_order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -861,7 +868,7 @@ const NewComplaintForm: FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.m_order_details.map((item: any, index: any) => (
+                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -935,7 +942,7 @@ const NewComplaintForm: FC = () => {
                 <Form.Control
                   name='complaint_date'
                   type='date'
-                  value={complaintForm.complaint_date}
+                  value={complaintForm?.complaint_date ?? ''}
                   onChange={(e) => complaintFormHandler(e)}
                   min={today}
                 />
@@ -963,6 +970,7 @@ const NewComplaintForm: FC = () => {
                 as='textarea'
                 name='description'
                 style={{minHeight: '250px'}}
+                value={complaintForm?.description ?? ''}
                 onChange={(e) => complaintFormHandler(e)}
               ></Form.Control>
             </Col>

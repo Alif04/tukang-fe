@@ -4,8 +4,8 @@ import React, {FC, useState, useEffect} from 'react'
 import './ViewTukang.css'
 
 import axios from 'axios'
-import Swal from 'sweetalert2'
-import Select from 'react-select'
+import * as XLSX from 'xlsx'
+import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
@@ -21,7 +21,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 interface TukangService {
-  value: string
+  value: number | null
   label: string
 }
 
@@ -34,34 +34,32 @@ const ViewTukangVendor: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [joinDate, setJoinDate] = useState<any>('')
-  const [endDate, setEndDate] = useState<any>('')
-  const [tukangService, setTukangService] = useState<TukangService[]>([])
-  const [searchByTukangService, setSearchByTukangService] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+
+  const [tukangService, setTukangService] = useState<TukangService[]>([])
+  const [selectedTukangService, setSelectedTukangService] = useState<SingleValue<TukangService>>({
+    value: null,
+    label: '',
+  })
 
   // Handle Change Join Date
   const handleChangeJoinDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchJoinDate = event.target.value
-    setJoinDate(updatedSearchJoinDate)
+    setDateFrom(updatedSearchJoinDate)
   }
 
   // Handle Change End Date
   const handleChangeEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchEndDate = event.target.value
-    setJoinDate(updatedSearchEndDate)
+    setDateTo(updatedSearchEndDate)
   }
 
   // Handle Change Search Filter
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  // Handle Change Filter By Tukang Service
-  const handleChangeSelectTukangService = (element: any) => {
-    const {value: updatedStoreId} = element
-    setSearchByTukangService(updatedStoreId)
   }
 
   interface DataType {
@@ -255,10 +253,15 @@ const ViewTukangVendor: FC = () => {
     return `${day}/${month}/${year}`
   }
 
+  const serviceTypeId =
+    selectedTukangService && selectedTukangService.value
+      ? `&service_type=${selectedTukangService.value}`
+      : ``
+
   const fetchTukangList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/tukang?date_from=${joinDate}&date_to=${endDate}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/tukang?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${serviceTypeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -326,7 +329,7 @@ const ViewTukangVendor: FC = () => {
 
   useEffect(() => {
     fetchData(1, 10)
-  }, [joinDate, endDate, searchFilter])
+  }, [dateFrom, dateTo, searchFilter, selectedTukangService])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -367,6 +370,14 @@ const ViewTukangVendor: FC = () => {
 
     getTukangService()
   }, [])
+
+  // Export To Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(tukangData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+    XLSX.writeFile(workbook, `List Tukang.xlsx`)
+  }
 
   return (
     <section id='view-tukang'>
@@ -417,7 +428,7 @@ const ViewTukangVendor: FC = () => {
                     placeholder='Keahlian'
                     isSearchable={true}
                     options={tukangService}
-                    onChange={(element: any) => handleChangeSelectTukangService(element)}
+                    onChange={(newValue) => setSelectedTukangService(newValue)}
                   />
                 </Col>
               </Form.Group>
@@ -425,7 +436,12 @@ const ViewTukangVendor: FC = () => {
 
             <div className='right'>
               <button className='button-export'>
-                <FontAwesomeIcon icon={faFileExcel} size='2xl' className='excel-icon' />
+                <FontAwesomeIcon
+                  icon={faFileExcel}
+                  size='2xl'
+                  className='excel-icon'
+                  onClick={exportToExcel}
+                />
               </button>
             </div>
           </div>
