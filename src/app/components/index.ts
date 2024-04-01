@@ -248,9 +248,6 @@ export * from './admin-ho/quotation/new_quotation/NewQuotation'
 // Update Quotation HO
 export * from './admin-ho/quotation/update_quotation/UpdateQuotation'
 
-// Dashboard Finance HO
-export * from './admin-ho/quotation/dashboard_finance/DashboardFinance'
-
 // Detail Quotation HO
 export * from './admin-ho/quotation/detail_quotation/DetailQuotation'
 
@@ -333,9 +330,6 @@ export * from './admin-vendor/quotation/new_quotation/NewQuotation'
 
 // Update Quotation Vendor
 export * from './admin-vendor/quotation/update_quotation/UpdateQuotation'
-
-// Dashboard Finance Vendor
-export * from './admin-vendor/quotation/dashboard_finance/DashboardFinance'
 
 // Detail Quotation Vendor
 export * from './admin-vendor/quotation/detail_quotation/DetailQuotation'

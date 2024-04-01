@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportTukang.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
 import {Table, PaginationProps, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -976,8 +977,8 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
               break
           }
 
-          setCurrentPage(response.data.page)
-          setTotalOrder(response?.data?.data.length ?? 0)
+          setCurrentPage(response?.data?.page ?? 1)
+          setTotalOrder(response?.data?.total ?? 0)
         }
 
         return endpoint === 'reschedule' ? response.data.data.data : response.data.data
@@ -1245,6 +1246,11 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
   // Export To Excel
   const exportToExcel = () => {
+    if (reportData.length === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
     const worksheet = XLSX.utils.json_to_sheet(reportData)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')

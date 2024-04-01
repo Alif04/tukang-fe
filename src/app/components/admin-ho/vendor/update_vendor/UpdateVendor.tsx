@@ -1071,7 +1071,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   <Form.Group>
                     <Form.Label>Nama PIC</Form.Label>
 
-                    <Form.Control disabled type='text' value={picName} />
+                    <Form.Control type='text' value={picName} />
                   </Form.Group>
                 </Col>
 

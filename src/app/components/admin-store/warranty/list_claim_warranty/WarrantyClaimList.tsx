@@ -250,7 +250,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       })
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data.length ?? 0)
+      setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
     } catch (error) {
@@ -322,7 +322,6 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <FontAwesomeIcon icon={faFilter} size='2xl' className='me-2' />
                 <h3 className='date-text'>Date : </h3>
               </div>
               <RangePicker

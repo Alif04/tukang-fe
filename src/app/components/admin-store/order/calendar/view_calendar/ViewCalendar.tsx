@@ -5,7 +5,6 @@ import './ViewCalendar.css'
 
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
@@ -115,11 +114,11 @@ const ViewCalendarCS: React.FC = () => {
   return (
     <section id='view-calendar'>
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        plugins={[dayGridPlugin, interactionPlugin]}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          right: 'dayGridMonth,dayGridWeek,dayGridDay',
         }}
         initialView='dayGridMonth'
         weekends={true}

@@ -237,8 +237,8 @@ const ListStoreHO: React.FC = () => {
         }
       )
 
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data?.data.length ?? 0)
+      setCurrentPage(response.data?.data?.page ?? 1)
+      setTotalData(response?.data?.data?.total ?? 0)
 
       return response.data.data.data
     } catch (error) {

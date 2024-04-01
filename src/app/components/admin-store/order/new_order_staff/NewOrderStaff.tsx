@@ -34,6 +34,8 @@ interface SalesSelect {
 interface ItemSelect {
   value: number | null
   label: string
+  item_code: string
+  item_name: string
   category: string
   default_price: number
   prices: Array<{
@@ -170,6 +172,8 @@ const NewOrderStoreStaff: FC = () => {
         const item = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.service_name,
+          item_code: item?.item_code ?? '',
+          item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
           prices: item.prices.map((priceItem: any) => ({
@@ -1002,8 +1006,9 @@ const NewOrderStoreStaff: FC = () => {
                     <td>
                       <Form.Control
                         id={`item-code-${index}`}
-                        name={`item_code`}
                         plaintext
+                        name={`item_code`}
+                        value={element?.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
                       />
                     </td>
@@ -1013,6 +1018,7 @@ const NewOrderStoreStaff: FC = () => {
                         id={`item-name-${index}`}
                         plaintext
                         name={`item_name`}
+                        value={element?.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
                           getItem(e.target.value)
@@ -1045,6 +1051,8 @@ const NewOrderStoreStaff: FC = () => {
                               cache.order_details[index] = {
                                 ...cache.order_details[index],
                                 item_id: newValue?.value ?? null,
+                                item_code: newValue?.item_code ?? '',
+                                item_name: newValue?.item_name ?? '',
                                 item: newValue,
                               }
                               return cache

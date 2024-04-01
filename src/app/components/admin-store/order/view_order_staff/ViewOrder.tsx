@@ -29,9 +29,9 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [totalData, setTotalData] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
-  console.log('total_data', totalData)
+  console.log(totalData)
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -246,6 +246,10 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
   ]
 
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return '--/--/----'
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
@@ -267,7 +271,7 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data.length ?? 0)
+      setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
     } catch (error) {
@@ -359,7 +363,6 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <FontAwesomeIcon icon={faFilter} size='lg' className='me-2' />
                 <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
 

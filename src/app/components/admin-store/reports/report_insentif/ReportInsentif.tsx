@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -178,8 +179,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       })
 
       if (response?.data) {
-        setTotalOrder(response?.data?.data.length ?? 0)
-        setCurrentPage(response?.data?.page)
+        setTotalOrder(response?.data?.total ?? 0)
+        setCurrentPage(response?.data?.page ?? 1)
       }
 
       return response.data.data
@@ -258,6 +259,11 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   // Export To Excel
   const exportToExcel = () => {
+    if (orderData.length === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
     const worksheet = XLSX.utils.json_to_sheet(orderData)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
@@ -271,7 +277,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <FontAwesomeIcon icon={faFilter} size='lg' className='me-2' />
                 <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
 

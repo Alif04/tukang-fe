@@ -217,7 +217,7 @@ const ViewItemHO: React.FC = () => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data.length ?? 0)
+      setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
     } catch (error) {
@@ -319,7 +319,6 @@ const ViewItemHO: React.FC = () => {
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <Form.Group as={Row}>
                 <Form.Label className='fs-3' column sm='4'>
-                  <FontAwesomeIcon icon={faFilter} size='sm' className='me-1' />
                   Date :
                 </Form.Label>
 

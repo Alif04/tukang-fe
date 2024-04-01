@@ -2470,6 +2470,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-helmet@^6.1.11":
+  version "6.1.11"
+  resolved "https://registry.npmjs.org/@types/react-helmet/-/react-helmet-6.1.11.tgz"
+  integrity sha512-0QcdGLddTERotCXo3VFlUSWO3ztraw8nZ6e3zJSgG7apwV5xt+pJUS8ewPBqT4NYB1optGLprNQzFleIY84u/g==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-table@^7.7.9":
   version "7.7.11"
   resolved "https://registry.npmjs.org/@types/react-table/-/react-table-7.7.11.tgz"
@@ -7852,7 +7859,7 @@ prop-types-extra@^1.1.0:
     react-is "^16.3.2"
     warning "^4.0.0"
 
-prop-types@^15.5.7, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.8.1:
+prop-types@^15.5.7, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -8409,10 +8416,25 @@ react-fast-compare@^2.0.1:
   resolved "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-2.0.4.tgz"
   integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
 
+react-fast-compare@^3.1.1:
+  version "3.2.2"
+  resolved "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-3.2.2.tgz"
+  integrity sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==
+
 react-from-dom@^0.6.2:
   version "0.6.2"
   resolved "https://registry.npmjs.org/react-from-dom/-/react-from-dom-0.6.2.tgz"
   integrity sha512-qvWWTL/4xw4k/Dywd41RBpLQUSq97csuv15qrxN+izNeLYlD9wn5W8LspbfYe5CWbaSdkZ72BsaYBPQf2x4VbQ==
+
+react-helmet@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.npmjs.org/react-helmet/-/react-helmet-6.1.0.tgz"
+  integrity sha512-4uMzEY9nlDlgxr61NL3XbKRy1hEkXmKNXhjbAIOVw5vcFrsdYbH2FEwcNyWvWinl103nXgzYNlns9ca+8kFiWw==
+  dependencies:
+    object-assign "^4.1.1"
+    prop-types "^15.7.2"
+    react-fast-compare "^3.1.1"
+    react-side-effect "^2.1.0"
 
 react-inlinesvg@3.0.0:
   version "3.0.0"
@@ -8552,6 +8574,11 @@ react-select@^5.7.4:
     react-transition-group "^4.3.0"
     use-isomorphic-layout-effect "^1.1.2"
 
+react-side-effect@^2.1.0:
+  version "2.1.2"
+  resolved "https://registry.npmjs.org/react-side-effect/-/react-side-effect-2.1.2.tgz"
+  integrity sha512-PVjOcvVOyIILrYoyGEpDN3vmYNLdy1CajSFNt4TDsVQC5KpTijDvWVoR+/7Rz2xT978D8/ZtFceXxzsPwZEDvw==
+
 react-table@^7.8.0:
   version "7.8.0"
   resolved "https://registry.npmjs.org/react-table/-/react-table-7.8.0.tgz"
@@ -8574,7 +8601,7 @@ react-transition-group@^4.3.0, react-transition-group@^4.4.2:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-react@18.0.0:
+react@*, "react@^15.3.0 || 16 || 17 || 18", "react@^16.3.0 || ^17.0.0 || ^18.0.0", "react@^16.3.0 || 17 || 18", "react@^16.7.0 || ^17 || ^18", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.0-rc.1 || ^18.0.0", "react@^16.8.3 || ^17.0.0-0 || ^18.0.0", react@^18.0.0, "react@>= 16", react@>=0.13, react@>=0.14.0, react@>=0.14.9, react@>=15.0.0, react@>=16.0.0, react@>=16.11.0, react@>=16.14.0, react@>=16.3, react@>=16.3.0, react@>=16.6.0, react@>=16.8, react@>=16.8.0, react@>=16.9.0, react@18.0.0:
   version "18.0.0"
   resolved "https://registry.npmjs.org/react/-/react-18.0.0.tgz"
   integrity sha512-x+VL6wbT4JRVPm7EGxXhZ8w8LTROaxPXOqhlGyVSrv0sB1jkyFGgXxJ8LVoPRLvPR6/CIZGFmfzqUa2NYeMr2A==

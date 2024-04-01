@@ -39,6 +39,8 @@ interface SalesSelect {
 interface ItemSelect {
   value: number | null
   label: string
+  item_code: string
+  item_name: string
   category_id: number | null
   default_price: number | null
   prices: Array<{
@@ -186,6 +188,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         const item = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.service_name,
+          item_code: item?.item_code ?? '',
+          item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
           prices: item.prices.map((priceItem: any) => ({
@@ -322,6 +326,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   const previousItem = {
                     value: item.id,
                     label: item?.item?.service_name,
+                    item_code: item?.item_code ?? '',
+                    item_name: item?.item_name ?? '',
                     category_id: item?.item?.category.id,
                     default_price: item?.item?.default_price,
                     prices: [
@@ -1244,6 +1250,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                           value={{
                             value: orderForm.order_details[index]?.item_id ?? null,
                             label: orderForm.order_details[index]?.item?.label ?? '',
+                            item_code: orderForm.order_details[index]?.item_code ?? '',
+                            item_name: orderForm.order_details[index]?.item_name ?? '',
                             category_id: orderForm.order_details[index]?.item?.category_id ?? null,
                             default_price:
                               orderForm.order_details[index]?.item?.default_price ?? null,
@@ -1255,6 +1263,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                               cache.order_details[index] = {
                                 ...cache.order_details[index],
                                 item_id: newValue?.value ?? null,
+                                item_code: newValue?.item_code ?? '',
+                                item_name: newValue?.item_name ?? '',
                                 item: newValue,
                               }
                               return cache

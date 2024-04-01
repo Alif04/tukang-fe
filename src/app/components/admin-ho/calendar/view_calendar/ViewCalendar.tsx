@@ -5,7 +5,6 @@ import './ViewCalendar.css'
 
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
@@ -232,7 +231,6 @@ const ViewCalendarHO: React.FC = () => {
         <Col xxl={4} xl={6} lg={6} md={6} sm={12}>
           <Form.Group as={Row}>
             <Form.Label className='fs-3' column sm='3'>
-              <FontAwesomeIcon icon={faFilter} size='sm' className='me-1' />
               Date :
             </Form.Label>
 
@@ -301,11 +299,11 @@ const ViewCalendarHO: React.FC = () => {
       </Row>
 
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        plugins={[dayGridPlugin, interactionPlugin]}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          right: 'dayGridMonth,dayGridWeek,dayGridDay',
         }}
         initialView='dayGridMonth'
         weekends={true}

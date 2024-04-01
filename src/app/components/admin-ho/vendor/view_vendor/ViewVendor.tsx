@@ -252,7 +252,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data.length ?? 0)
+      setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
     } catch (error) {
@@ -364,7 +364,6 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
             <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <Form.Group as={Row}>
                 <Form.Label className='fs-3' column sm='4'>
-                  <FontAwesomeIcon icon={faFilter} size='sm' className='me-1' />
                   Date :
                 </Form.Label>
 
