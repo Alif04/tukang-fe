@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {FC, createContext, useContext, useEffect, useState} from 'react'
 import {WithChildren} from '../../helpers'
+import {Helmet} from 'react-helmet'
 
 export interface PageLink {
   title: string
@@ -26,8 +27,6 @@ const PageDataContext = createContext<PageDataContextModel>({
 
 const PageDataProvider: FC<WithChildren> = ({children}) => {
   const [pageTitle, setPageTitle] = useState<string>('')
-  console.log('page title', pageTitle)
-
   const [pageDescription, setPageDescription] = useState<string>('')
   const [pageBreadcrumbs, setPageBreadcrumbs] = useState<Array<PageLink>>([])
   const value: PageDataContextModel = {
@@ -38,7 +37,19 @@ const PageDataProvider: FC<WithChildren> = ({children}) => {
     pageBreadcrumbs,
     setPageBreadcrumbs,
   }
-  return <PageDataContext.Provider value={value}>{children}</PageDataContext.Provider>
+
+  return (
+    <PageDataContext.Provider value={value}>
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>{`${pageTitle
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase())} | Tukang Web | Mitra 10`}</title>
+      </Helmet>
+
+      {children}
+    </PageDataContext.Provider>
+  )
 }
 
 function usePageData() {

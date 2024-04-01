@@ -770,7 +770,6 @@ const NewSales: FC = () => {
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
                 <Form.Group as={Row}>
                   <Form.Label className='fs-3' column sm='4'>
-                    <FontAwesomeIcon icon={faFilter} size='sm' className='me-1' />
                     Date :
                   </Form.Label>
 

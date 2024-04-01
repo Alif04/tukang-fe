@@ -277,7 +277,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <FontAwesomeIcon icon={faFilter} size='lg' className='me-2' />
                 <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
 
