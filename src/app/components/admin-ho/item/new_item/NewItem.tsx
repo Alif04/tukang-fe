@@ -48,6 +48,7 @@ const NewItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const animatedComponents = makeAnimated()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Item
   const [itemDetail, setItemDetail] = useState<ItemDetail>({
@@ -303,6 +304,8 @@ const NewItemHO: FC = () => {
       return false
     }
 
+    setIsLoading(true)
+
     const updatedPrices = itemDetail.prices.map((price) => {
       if (price.id === null) {
         const {id, ...priceWithoutId} = price
@@ -336,16 +339,21 @@ const NewItemHO: FC = () => {
           }).then(() => {
             window.location.reload()
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
       })
       .catch((error) => {
         console.error(error)
+        setIsLoading(false)
 
         Swal.fire({
           title: 'Error',
@@ -552,9 +560,10 @@ const NewItemHO: FC = () => {
             <Button
               className='btn-submit d-flex justify-content-center align-items-center'
               variant='dark-primary'
+              disabled={isLoading}
               onClick={() => handleSubmitNewItem()}
             >
-              Save
+              {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
         </div>

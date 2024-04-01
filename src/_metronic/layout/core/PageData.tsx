@@ -26,6 +26,8 @@ const PageDataContext = createContext<PageDataContextModel>({
 
 const PageDataProvider: FC<WithChildren> = ({children}) => {
   const [pageTitle, setPageTitle] = useState<string>('')
+  console.log('page title', pageTitle)
+
   const [pageDescription, setPageDescription] = useState<string>('')
   const [pageBreadcrumbs, setPageBreadcrumbs] = useState<Array<PageLink>>([])
   const value: PageDataContextModel = {

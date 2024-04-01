@@ -161,7 +161,7 @@ const ListBankHO: React.FC = () => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data.length ?? 0)
+      setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
     } catch (error) {

@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ViewCostumer.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
 import {useNavigate} from 'react-router-dom'
 import {Table, DatePicker, PaginationProps} from 'antd'
@@ -172,7 +173,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data.length ?? 0)
+      setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
     } catch (error) {
@@ -243,6 +244,11 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
   // Export To Excel
   const exportToExcel = () => {
+    if (memberData.length === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
     const worksheet = XLSX.utils.json_to_sheet(memberData)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')

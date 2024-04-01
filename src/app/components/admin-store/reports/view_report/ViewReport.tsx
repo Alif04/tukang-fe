@@ -2,22 +2,16 @@ import React from 'react'
 
 import './ViewReport.css'
 
-import {useNavigate} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {Row, Col, Card} from 'react-bootstrap'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 const ViewReportStore = () => {
-  const navigate = useNavigate()
-
-  const goToReport = (reportType: string) => {
-    navigate(`/reports/report-${reportType}`)
-  }
-
   const newTabs = (reportType: string, label: string) => {
     return (
-      <a className='fs-3 fw-normal text-black' href={`/reports/report-${reportType}`}>
+      <Link className='fs-3 fw-normal text-black' to={`/reports/report-${reportType}`}>
         {label}
-      </a>
+      </Link>
     )
   }
 
@@ -27,195 +21,182 @@ const ViewReportStore = () => {
         <Card.Body>
           <Row className='row-1'>
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('total-order')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-total-order`}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('total-order', 'Total Order')}
-                </Card.Body>
-              </Card>
+                    {newTabs('total-order', 'Total Order')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('pending-survey')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-pending-survey`}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('pending-survey', 'Pending Survey')}
-                </Card.Body>
-              </Card>
+                    {newTabs('pending-survey', 'Pending Survey')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('survey')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-survey`}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('survey', 'Survey')}
-                </Card.Body>
-              </Card>
+                    {newTabs('survey', 'Survey')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('pending-quotation')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-pending-quotation`}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('pending-quotation', 'Pending Quotation')}
-                </Card.Body>
-              </Card>
+                    {newTabs('pending-quotation', 'Pending Quotation')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('pending-bayar')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-pending-bayar`}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('pending-bayar', 'Pending Bayar')}
-                </Card.Body>
-              </Card>
+                    {newTabs('pending-bayar', 'Pending Bayar')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
           </Row>
 
           <Row className='row-2'>
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('on-progress')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-on-progress`}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('on-progress', 'On Progress')}
-                </Card.Body>
-              </Card>
+                    {newTabs('on-progress', 'On Progress')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('complete')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-complete`}>
+                <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex justify-content-left align-items-center'>
+                    <img
+                      className='m-2'
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('complete', 'Complete')}
-                </Card.Body>
-              </Card>
+                    {newTabs('complete', 'Complete')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('reschedule')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-reschedule`}>
+                <Card className='content-card' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
+                    <img
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('reschedule', 'Reschedule')}
-                </Card.Body>
-              </Card>
+                    {newTabs('reschedule', 'Reschedule')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('cancel')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-cancel`}>
+                <Card className='content-card' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
+                    <img
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('cancel', 'Cancel')}
-                </Card.Body>
-              </Card>
+                    {newTabs('cancel', 'Cancel')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
 
             <Col>
-              <Card
-                className='content-card'
-                onClick={() => goToReport('refund')}
-                style={{cursor: 'pointer'}}
-              >
-                <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
-                  <img
-                    alt=''
-                    src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                    width={50}
-                    height={50}
-                  />
+              <Link to={`/reports/report-refund`}>
+                <Card className='content-card' style={{cursor: 'pointer'}}>
+                  <Card.Body className='d-flex flex-column justify-content-center align-items-center'>
+                    <img
+                      alt=''
+                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                      width={50}
+                      height={50}
+                    />
 
-                  {newTabs('refund', 'Refund')}
-                </Card.Body>
-              </Card>
+                    {newTabs('refund', 'Refund')}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
           </Row>
         </Card.Body>

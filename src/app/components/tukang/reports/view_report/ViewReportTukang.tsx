@@ -2,17 +2,11 @@ import React from 'react'
 
 import './ViewReportTukang.css'
 
-import {useNavigate} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {Row, Col, Card} from 'react-bootstrap'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 const ViewReportTukang = () => {
-  const navigate = useNavigate()
-
-  const goToReport = (reportType: string) => {
-    navigate(`/reports/tukang-report-${reportType}`)
-  }
-
   const newTabs = (reportType: string, label: string) => {
     return (
       <a className='fs-3 fw-normal text-black' href={`/reports/tukang-report-${reportType}`}>
@@ -34,63 +28,57 @@ const ViewReportTukang = () => {
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('expense-promosi')}
-                >
-                  <Card.Body className='d-flex  justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-expense-promosi`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('expense-promosi', 'Laporan Expense Promosi')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('expense-promosi', 'Laporan Expense Promosi')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-green'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('other-income')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-other-income`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('other-income', 'Laporan Other Income')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('other-income', 'Laporan Other Income')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-green'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('refund')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-refund`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('refund', 'Laporan Penalty')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('refund', 'Laporan Refund')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
             </Row>
           </div>
@@ -104,85 +92,77 @@ const ViewReportTukang = () => {
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-yellow'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('pending-payment')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-pending-payment`}>
+                  <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('pending-payment', 'Laporan Pending Payment')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('pending-payment', 'Laporan Pending Payment')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-green'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('tagihan-bulanan')}
-                >
-                  <Card.Body className='d-flex  justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-tagihan-bulanan`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('tagihan-bulanan', 'Laporan tagihan bulanan')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('tagihan-bulanan', 'Laporan Tagihan Bulanan')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-green'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('paid')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-paid`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('paid', 'Laporan tagihan dibayar')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('paid', 'Laporan Tagihan Dibayar')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
             </Row>
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('unpaid')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-unpaid`}>
+                  <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('unpaid', 'Laporan tagihan belum dibayar')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('unpaid', 'Laporan Tagihan Belum Dibayar')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}></Col>
@@ -200,63 +180,57 @@ const ViewReportTukang = () => {
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('quotation')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-quotation`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('quotation', 'Laporan Quotation (omset)')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('quotation', 'Laporan Quotation ( Omset )')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('survey')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-survey`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('survey', 'Laporan Survey (omset)')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('survey', 'Laporan Survey ( Omset )')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('transaksi-all')}
-                >
-                  <Card.Body className='d-flex  justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-transaksi-all`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('transaksi-all', 'Laporan Transaksi All (omset)')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('transaksi-all', 'Laporan Transaksi All ( Omset )')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
             </Row>
           </div>
@@ -270,85 +244,77 @@ const ViewReportTukang = () => {
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-yellow'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('pending-payment')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-pending-payment`}>
+                  <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('pending-payment', 'Laporan Pending Payment')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('pending-payment', 'Laporan Pending Payment')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-green'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('tagihan-bulanan')}
-                >
-                  <Card.Body className='d-flex  justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-tagihan-bulanan`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('tagihan-bulanan', 'Laporan tagihan bulanan')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('tagihan-bulanan', 'Laporan Tagihan Bulanan')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-green'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('paid')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-paid`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('paid', 'Laporan tagihan dibayar')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('paid', 'Laporan Tagihan Dibayar')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
             </Row>
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('unpaid')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-unpaid`}>
+                  <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('unpaid', 'Laporan tagihan belum dibayar')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('unpaid', 'Laporan Tagihan Belum Dibayar')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}></Col>
@@ -366,105 +332,95 @@ const ViewReportTukang = () => {
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-blue'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('claim-garansi')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-claim-garansi`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('claim-garansi', 'Laporan Garansi')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('claim-garansi', 'Laporan Garansi')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('complaint')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-complaint`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('complaint', 'Laporan Pengaduan')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('complaint', 'Laporan Pengaduan')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-blue'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('on-progress')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-on-progress`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('on-progress', 'Laporan On Progress')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('on-progress', 'Laporan On Progress')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
             </Row>
 
             <Row>
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('quotation')}
-                >
-                  <Card.Body className='d-flex  justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-quotation`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('quotation', 'Laporan Quotation')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('quotation', 'Laporan Quotation')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}>
-                <Card
-                  className='content-card border-red'
-                  style={{cursor: 'pointer'}}
-                  onClick={() => goToReport('reschedule')}
-                >
-                  <Card.Body className='d-flex justify-content-left align-items-center'>
-                    <img
-                      className='m-2'
-                      alt=''
-                      src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                      width={50}
-                      height={50}
-                    />
+                <Link to={`/reports/tukang-report-reschedule`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
 
-                    {newTabs('reschedule', 'Laporan Reschedule')}
-                  </Card.Body>
-                </Card>
+                      {newTabs('reschedule', 'Laporan Reschedule')}
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
 
               <Col md={4}></Col>

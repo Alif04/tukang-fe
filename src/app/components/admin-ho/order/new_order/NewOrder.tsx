@@ -43,6 +43,8 @@ interface VendorSelect {
 interface ItemSelect {
   value: number | null
   label: string
+  item_code: string
+  item_name: string
   category_id: number | null
   default_price: number | null
   prices: Array<{
@@ -198,6 +200,8 @@ const NewOrderHO: FC = () => {
         const item = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.service_name,
+          item_code: item?.item_code ?? '',
+          item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
           prices: item.prices.map((priceItem: any) => ({
@@ -1244,9 +1248,9 @@ const NewOrderHO: FC = () => {
                     <td>
                       <Form.Control
                         id={`item-code-${index}`}
-                        name={`item_code`}
                         plaintext
-                        value={element.item_code ?? ''}
+                        name={`item_code`}
+                        value={element?.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
                       />
                     </td>
@@ -1256,7 +1260,7 @@ const NewOrderHO: FC = () => {
                         id={`item-name-${index}`}
                         plaintext
                         name={`item_name`}
-                        value={element.item_name ?? ''}
+                        value={element?.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
                           getItem(e.target.value)
@@ -1289,6 +1293,8 @@ const NewOrderHO: FC = () => {
                               cache.order_details[index] = {
                                 ...cache.order_details[index],
                                 item_id: newValue?.value ?? null,
+                                item_code: newValue?.item_code ?? '',
+                                item_name: newValue?.item_name ?? '',
                                 item: newValue,
                               }
                               return cache

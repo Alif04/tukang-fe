@@ -21,8 +21,6 @@ export function AsideMenuMain() {
     }).then(() => {
       document.location.href = '/login'
     })
-
-    console.log('Logout Successful')
   }
 
   // Delete Local Storage after 1 day
@@ -43,15 +41,6 @@ export function AsideMenuMain() {
         fontIcon='bi-app-indicator'
         role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Admin Vendor', 'Tukang']}
       />
-
-      {/* Halaman Calendar */}
-      {/* <AsideMenuItem
-        to='/calendar/view-calendar'
-        icon='/media/icons/duotune/art/art002.svg'
-        title='Kalender Kerja'
-        fontIcon='bi-app-indicator'
-        role={['Tukang']}
-      /> */}
 
       {/* Halaman Order */}
       <AsideMenuItemWithSub
@@ -79,8 +68,6 @@ export function AsideMenuMain() {
           role={['Store CS', 'Admin HO']}
           hasBullet={true}
         />
-
-        {/* <AsideMenuItem to='/csi/list-csi' title='List CSI' role={['Admin HO']} hasBullet={true} /> */}
 
         <AsideMenuItem
           to='/order/view-order'
@@ -150,12 +137,6 @@ export function AsideMenuMain() {
           role={['Admin HO', 'Admin Vendor']}
           hasBullet={true}
         />
-        {/* <AsideMenuItem
-          to='/quotation/report-finance'
-          title='Dashboard Finance'
-          role={['Admin HO']}
-          hasBullet={true}
-        /> */}
       </AsideMenuItemWithSub>
 
       {/* Halaman Pengaduan */}
@@ -235,28 +216,6 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
-      {/* Halaman Sales */}
-      {/* <AsideMenuItemWithSub
-        to='/sales'
-        title='Sales'
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-        role={['Admin HO']}
-      >
-        <AsideMenuItem
-          to='/sales/view-sales'
-          title='List Sales'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
-          to='/sales/new-sales'
-          title='Register Sales'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-      </AsideMenuItemWithSub> */}
-
       {/* Halaman Vendor */}
       <AsideMenuItemWithSub
         to='/vendor'
@@ -271,12 +230,6 @@ export function AsideMenuMain() {
           role={['Admin HO']}
           hasBullet={true}
         />
-        {/* <AsideMenuItem
-          to='/tukang/view-tukang'
-          title='List Tukang'
-          role={['Admin HO']}
-          hasBullet={true}
-        /> */}
         <AsideMenuItem
           to='/vendor/view-vendor'
           title='List Vendor'
@@ -341,22 +294,6 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
-      {/* Halaman Item */}
-      {/* <AsideMenuItemWithSub
-        to='/item'
-        title='Item'
-        icon='/media/icons/duotune/communication/com006.svg'
-        fontIcon='bi-person'
-        role={['Admin HO']}
-      >
-        <AsideMenuItem
-          to='/item/view-item'
-          title='List Item'
-          role={['Admin HO']}
-          hasBullet={true}
-        />
-      </AsideMenuItemWithSub> */}
-
       {/* Halaman Invoice */}
       <AsideMenuItemWithSub
         to='/invoice'
@@ -403,13 +340,6 @@ export function AsideMenuMain() {
           role={['Store CS', 'Admin HO', 'Admin Vendor', 'Tukang']}
           hasBullet={true}
         />
-
-        {/* <AsideMenuItem
-          to='/reports/report-performance'
-          title='Performance'
-          role={['Store CS']}
-          hasBullet={true}
-        /> */}
       </AsideMenuItemWithSub>
 
       {/* Halaman Payment */}
@@ -503,14 +433,6 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
-        {/* 
-        <AsideMenuItem
-          to='/csi/format-pertanyaan-csi'
-          title='Format Pertanyaan CSI'
-          role={['Admin HO']}
-          hasBullet={true}
-        /> */}
-
         <AsideMenuItem
           to='/sales/new-sales'
           title='Register Sales'
@@ -557,22 +479,6 @@ export function AsideMenuMain() {
             hasBullet={true}
           />
         </AsideMenuItemWithSub>
-
-        {/* <AsideMenuItemWithSub to='/tukang' title='Tukang' hasBullet={true} role={['Admin HO']}>
-          <AsideMenuItem
-            to='/tukang/view-tukang'
-            title='List Tukang'
-            role={['Admin HO']}
-            hasBullet={true}
-          />
-        </AsideMenuItemWithSub> */}
-
-        {/* <AsideMenuItem
-          to='/item/view-item'
-          title='List Items'
-          role={['Admin HO']}
-          hasBullet={true}
-        /> */}
 
         <AsideMenuItemWithSub
           to='/material'

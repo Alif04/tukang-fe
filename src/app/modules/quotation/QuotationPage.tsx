@@ -7,19 +7,12 @@ import {ViewQuotation} from './components/ViewQuotation'
 import {NewQuotation} from './components/NewQuotation'
 import {UpdateQuotation} from './components/UpdateQuotation'
 import {DetailQuotation} from './components/DetailQuotation'
-import {DashboardFinance} from './components/DashboardFinance'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
     title: 'Quotation',
     path: '/quotation/view-quotation',
     isSeparator: false,
-    isActive: false,
-  },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
     isActive: false,
   },
 ]
@@ -109,27 +102,6 @@ const VendorPage: React.FC = () => {
             )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL QUOTATION</PageTitle>
             <DetailQuotation />
-          </>
-        }
-      />
-
-      <Route
-        path='report-finance'
-        element={
-          <>
-            {userRole === 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>FINANCIAL DASHBOARD</PageTitle>
-            <DashboardFinance />
           </>
         }
       />

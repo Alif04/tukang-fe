@@ -4,6 +4,7 @@ import React, {FC, useState, useEffect} from 'react'
 import './ViewTukang.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
 import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps} from 'antd'
@@ -273,7 +274,7 @@ const ViewTukangVendor: FC = () => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.data.length ?? 0)
+      setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
     } catch (error) {
@@ -373,6 +374,11 @@ const ViewTukangVendor: FC = () => {
 
   // Export To Excel
   const exportToExcel = () => {
+    if (tukangData.length === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
     const worksheet = XLSX.utils.json_to_sheet(tukangData)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
