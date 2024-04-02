@@ -28,12 +28,25 @@
   padding: 3px 0px;
 }
 
+#printout-order img.logo {
+  height: 120px;
+}
+
 /* Table */
 #printout-order .detail-table table tr th {
   font-size: 16px;
   font-weight: 600;
   color: white;
   background-color: #555555;
+}
+
+#printout-order .table-printout th {
+  border-color: transparent !important;
+}
+
+#printout-order .table-printout td {
+  border-color: transparent !important;
+  padding: 5px 0px 5px 0px;
 }
 
 #printout-order
@@ -78,12 +91,17 @@
   }
 
   #printout-order .hide-print-button {
-    width: 100%;
+    width: 100% !important;
     margin: 5px 5px;
   }
 
   #printout-order .receipt-id {
     margin-top: 30px;
+  }
+
+  #printout-order img.logo {
+    width: 100%;
+    height: auto;
   }
 }
 
