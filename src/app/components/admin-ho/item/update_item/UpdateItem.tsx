@@ -580,6 +580,7 @@ const UpdateItemHO: FC = () => {
                         className='form-control p-0'
                         placeholder='Ketik/Pilih Store'
                         isSearchable={true}
+                        closeMenuOnSelect={false}
                         components={animatedComponents}
                         options={storeOptions}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
