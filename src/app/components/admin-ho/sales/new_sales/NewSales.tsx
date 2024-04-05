@@ -46,10 +46,10 @@ interface Sales {
 const NewSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const userRole = localStorage.getItem('userRole')
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-
   const animatedComponents = makeAnimated()
+  const userRole = localStorage.getItem('userRole')
+
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // List Store
   const [store, setStore] = useState<StoreItem[]>([])
@@ -203,11 +203,17 @@ const NewSales: FC = () => {
     getCategories()
   }, [])
 
+  // Store ID
+  const storeId =
+    userRole === 'Admin HO' && selectedStore && selectedStore.value
+      ? `&store_id=${selectedStore.value}`
+      : `&store_id=${staffStoreId}`
+
   // Fetch Sales List
   const fetchSalesList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/sales?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/sales?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -270,7 +276,7 @@ const NewSales: FC = () => {
 
   useEffect(() => {
     fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+  }, [dateFrom, dateTo, searchFilter, selectedStore])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -809,7 +815,19 @@ const NewSales: FC = () => {
                 </div>
               </Col>
 
-              <Col xxl={4} xl={4} lg={4} md={4} sm={12}></Col>
+              <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                {userRole === 'Admin HO' && (
+                  <Select
+                    name='store_id'
+                    className='form-control p-0'
+                    classNamePrefix='select'
+                    placeholder='Pilih Toko'
+                    isSearchable={true}
+                    options={store}
+                    onChange={(newValue) => setSelectedStore(newValue)}
+                  />
+                )}
+              </Col>
             </Row>
 
             <Table

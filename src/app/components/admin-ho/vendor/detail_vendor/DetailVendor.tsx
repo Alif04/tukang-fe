@@ -214,7 +214,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       Nama PIC :
                     </Form.Label>
                     <Col sm='6'>
-                      <p className='fw-normal mt-3'>{vendorDetail?.users?.username ?? ''}</p>
+                      <p className='fw-normal mt-3'>{vendorDetail?.pic_name ?? ''}</p>
                     </Col>
                   </Form.Group>
 

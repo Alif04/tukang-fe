@@ -78,6 +78,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
           if (data?.id) {
             setVendorId(data.id)
+            setPicName(data.pic_name)
           }
 
           if (data?.join_date) {
@@ -89,10 +90,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setVendorAddress(data.address)
             setEmailVendor(data.email_address)
             setPhoneNumberVendor(data.phone_number)
-          }
-
-          if (data?.users.username) {
-            setPicName(data.users.username)
           }
 
           if (data?.ktp_number) {
@@ -436,6 +433,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const handleChangeVendorName = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedVendorName = event.target.value
     setVendorName(updatedVendorName)
+  }
+
+  const handleChangeVendorPicName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedVendorPicName = event.target.value
+    setPicName(updatedVendorPicName)
   }
 
   const handleChangeVendorEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1071,7 +1073,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   <Form.Group>
                     <Form.Label>Nama PIC</Form.Label>
 
-                    <Form.Control type='text' value={picName} />
+                    <Form.Control
+                      type='text'
+                      value={picName}
+                      onChange={handleChangeVendorPicName}
+                    />
                   </Form.Group>
                 </Col>
 

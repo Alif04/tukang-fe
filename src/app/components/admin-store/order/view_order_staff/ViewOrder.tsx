@@ -9,7 +9,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch, faFilter, faPen} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -30,8 +30,6 @@ const ViewOrderStoreStaff: React.FC<Props> = ({className}) => {
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
-
-  console.log(totalData)
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value

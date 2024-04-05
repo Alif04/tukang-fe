@@ -43,7 +43,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   const apiUrl = process.env.REACT_APP_API_URL
 
   const [reportData, setReportData] = useState<any[]>([])
-  const [reportGrandTotal, setReportGrandTotal] = useState<string>('0')
+  const [reportGrandTotal, setReportGrandTotal] = useState<any>()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
@@ -988,6 +988,15 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           switch (endpoint) {
             case 'orders':
               setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
+
+              // let totalGrandTotal = 0
+              // response.data.data.forEach((item: any) => {
+              //   if (item.grand_total) {
+              //     totalGrandTotal += parseFloat(item.grand_total)
+              //   }
+              // })
+
+              // setReportGrandTotal(totalGrandTotal)
               break
 
             case 'complaints':

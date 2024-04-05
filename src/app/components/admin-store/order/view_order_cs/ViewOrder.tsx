@@ -9,7 +9,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch, faFilter, faPen} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker

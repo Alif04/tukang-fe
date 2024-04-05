@@ -205,7 +205,7 @@ const ViewItemHO: React.FC = () => {
 
     try {
       const response = await axios.get(
-        `${apiUrl}/items?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0${storeId}`,
+        `${apiUrl}/items?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -216,7 +216,7 @@ const ViewItemHO: React.FC = () => {
         }
       )
 
-      // setCurrentPage(response.data.page)
+      setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
 
       return response.data.data
@@ -382,13 +382,13 @@ const ViewItemHO: React.FC = () => {
             // scroll={{x: 1800}}
             pagination={{
               position: ['bottomRight'],
-              // current: currentPage,
+              current: currentPage,
               total: totalData,
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
-              // onChange: (page, pageSize) => {
-              //   fetchData(page, pageSize)
-              // },
+              onChange: (page, pageSize) => {
+                fetchData(page, pageSize)
+              },
               itemRender: itemRender,
               showTotal: (total, range) => (
                 <span style={{left: 0, position: 'absolute'}}>

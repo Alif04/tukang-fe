@@ -4,29 +4,20 @@ import React, {useEffect, useState} from 'react'
 import './ViewSales.css'
 
 import axios from 'axios'
-import Select from 'react-select'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-  faUserPlus,
-  faFilter,
-} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faTrash, faSearch, faPlus, faUserPlus} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 interface StoreItem {
-  value: string
+  value: number | null
   label: string
 }
 
@@ -42,18 +33,15 @@ const ViewSalesHO: React.FC = () => {
   const [totalData, setTotalData] = useState<number>(1)
 
   const [store, setStore] = useState<StoreItem[]>([])
-  const [searchByStore, setSearchByStore] = useState<any>('')
+  const [salesData, setSalesData] = useState<DataType[]>([])
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: '',
+  })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    const updatedStoreName = element.label
-
-    setSearchByStore(updatedStoreId)
   }
 
   interface DataType {
@@ -214,8 +202,6 @@ const ViewSalesHO: React.FC = () => {
     },
   ]
 
-  const [salesData, setSalesData] = useState<DataType[]>([])
-
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -223,10 +209,12 @@ const ViewSalesHO: React.FC = () => {
     return `${day}/${month}/${year}`
   }
 
+  const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+
   const fetchSalesList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/sales?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&page=${page}&take=${pageSize}`,
+        `${apiUrl}/sales?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&take=0&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -307,7 +295,6 @@ const ViewSalesHO: React.FC = () => {
           const tempStore = response.data.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
-            city_id: item.city_id,
           }))
 
           setStore(tempStore)
@@ -381,15 +368,15 @@ const ViewSalesHO: React.FC = () => {
             </Col>
 
             <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-              {/* <Select
+              <Select
                 name='store_id'
                 className='form-control p-0'
                 classNamePrefix='select'
                 placeholder='Pilih Toko'
                 isSearchable={true}
                 options={store}
-                onChange={(element) => handleChangeSelectStore(element)}
-              /> */}
+                onChange={(newValue) => setSelectedStore(newValue)}
+              />
             </Col>
           </Row>
 
