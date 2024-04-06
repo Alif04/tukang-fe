@@ -61,6 +61,8 @@ const DashboardTukang: FC = () => {
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
 
+  const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
+
   const today = new Date()
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
     .toISOString()
@@ -98,9 +100,11 @@ const DashboardTukang: FC = () => {
       )
 
       const data = response.data.data
+      const chartDatas = response.data.monthlyOrders.slice(1, 7)
 
       setOrderList(data)
       setCurrentPage(response.data.page)
+      setChartDataOrder(chartDatas)
 
       return data
     } catch (error) {
@@ -459,7 +463,7 @@ const DashboardTukang: FC = () => {
         </Col>
 
         <Col lg={7} md={12} className='mb-3'>
-          <ChartBarSurvey className='card-xl-stretch' />
+          <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
       </Row>
 

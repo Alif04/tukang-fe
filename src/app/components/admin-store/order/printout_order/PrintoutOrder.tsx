@@ -141,9 +141,9 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             <Col md={6}>
               <Table className='table-printout' borderless={true}>
                 <tr>
-                  <th style={{width: '50%'}}></th>
-                  <th style={{width: '3%'}}></th>
-                  <th style={{width: '47%'}}></th>
+                  <th className='table-heads-1'></th>
+                  <th className='table-heads-2'></th>
+                  <th className='table-heads-3'></th>
                 </tr>
 
                 <tr>
@@ -169,9 +169,9 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             <Col md={6}>
               <Table className='table-printout' borderless={true}>
                 <tr>
-                  <th style={{width: '50%'}}></th>
-                  <th style={{width: '3%'}}></th>
-                  <th style={{width: '47%'}}></th>
+                  <th className='table-heads-1'></th>
+                  <th className='table-heads-2'></th>
+                  <th className='table-heads-3'></th>
                 </tr>
 
                 <tr>

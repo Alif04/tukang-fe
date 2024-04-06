@@ -19,12 +19,6 @@ export * from './admin-store/order/calendar/view_calendar/ViewCalendar'
 // Dashboard Order
 export * from './admin-store/order/dashboard_order/DashboardOrder'
 
-// View Order Staff
-export * from './admin-store/order/view_order_staff/ViewOrder'
-
-// View Order CS
-export * from './admin-store/order/view_order_cs/ViewOrder'
-
 // New Order Staff
 export * from './admin-store/order/new_order_staff/NewOrderStaff'
 
@@ -42,6 +36,9 @@ export * from './admin-store/order/detail_order/DetailOrder'
 
 // Print Out Order
 export * from './admin-store/order/printout_order/PrintoutOrder'
+
+// Print Out CS
+export * from './admin-store/order/printout_order_cs/PrintoutCS'
 
 // Preview Email Order
 export * from './admin-store/order/preview_email/PreviewEmail'

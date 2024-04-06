@@ -8,10 +8,10 @@ import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import {Row, Col, Form, Button, Card} from 'react-bootstrap'
 
-interface City {
-  value: number | null
-  label: string
-}
+// interface City {
+//   value: number | null
+//   label: string
+// }
 
 interface Bank {
   value: number | null
@@ -23,7 +23,7 @@ interface Store {
   store_name: string
   address: string
   additional_address: string
-  city_id: number | null
+  // city_id: number | null
   phone_number_1: number | null
   email: string
   bank_name: string
@@ -46,7 +46,7 @@ const UpdateStores: FC = () => {
     store_name: '',
     address: '',
     additional_address: '',
-    city_id: null,
+    // city_id: null,
     phone_number_1: null,
     email: '',
     bank_name: '',
@@ -58,11 +58,11 @@ const UpdateStores: FC = () => {
   })
 
   // City
-  const [city, setCity] = useState<City[]>([])
-  const [selectedCity, setSelectedCity] = useState<SingleValue<City>>({
-    value: null,
-    label: '',
-  })
+  // const [city, setCity] = useState<City[]>([])
+  // const [selectedCity, setSelectedCity] = useState<SingleValue<City>>({
+  //   value: null,
+  //   label: '',
+  // })
 
   // Bank
   // const [bank, setBank] = useState<Bank[]>([])
@@ -93,11 +93,11 @@ const UpdateStores: FC = () => {
                 city_id: data.city_id,
               }))
 
-              setSelectedCity((prev) => ({
-                ...prev,
-                value: data?.city?.id,
-                label: data?.city?.city_name,
-              }))
+              // setSelectedCity((prev) => ({
+              //   ...prev,
+              //   value: data?.city?.id,
+              //   label: data?.city?.city_name,
+              // }))
             }
 
             // if (data) {
@@ -136,31 +136,31 @@ const UpdateStores: FC = () => {
       }
     }
 
-    const getCity = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/city`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+    // const getCity = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/city`, {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //         'Access-Control-Allow-Origin': '*',
+    //         'ngrok-skip-browser-warning': 'true',
+    //       },
+    //     })
 
-        if (Array.isArray(response.data.data)) {
-          const tempCity = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-          }))
+    //     if (Array.isArray(response.data.data)) {
+    //       const tempCity = response.data.data.map((item: any) => ({
+    //         value: item.id,
+    //         label: item.store_name,
+    //       }))
 
-          setCity(tempCity)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
+    //       setCity(tempCity)
+    //     } else {
+    //       console.error('API response data is not an array:', response.data)
+    //     }
+    //   } catch (err) {
+    //     console.error(err)
+    //   }
+    // }
 
     // const getBank = async () => {
     //   try {
@@ -188,7 +188,7 @@ const UpdateStores: FC = () => {
     //   }
     // }
 
-    getCity()
+    // getCity()
     // getBank()
     getStoreData()
   }, [])
@@ -202,12 +202,12 @@ const UpdateStores: FC = () => {
   }
 
   // Change Select City
-  useEffect(() => {
-    setStoreInfo((prev) => ({
-      ...prev,
-      city_id: selectedCity?.value ?? null,
-    }))
-  }, [selectedCity])
+  // useEffect(() => {
+  //   setStoreInfo((prev) => ({
+  //     ...prev,
+  //     city_id: selectedCity?.value ?? null,
+  //   }))
+  // }, [selectedCity])
 
   // Change Select Bank
   // useEffect(() => {
@@ -232,13 +232,6 @@ const UpdateStores: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Alamat form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!storeInfo.city_id) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select City form',
         icon: 'error',
       })
       valid = false
@@ -404,7 +397,7 @@ const UpdateStores: FC = () => {
 
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group>
+                  {/* <Form.Group>
                     <Form.Label>City</Form.Label>
                     <Select
                       classNamePrefix='select'
@@ -417,20 +410,17 @@ const UpdateStores: FC = () => {
                       }}
                       onChange={(newValue) => setSelectedCity(newValue)}
                     />
-                  </Form.Group>
-                </Col>
+                  </Form.Group> */}
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type='email'
                     name='email'
+                    value={storeInfo.email ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
-              </Row>
 
-              <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Telpon</Form.Label>
                   <Form.Control
@@ -439,12 +429,26 @@ const UpdateStores: FC = () => {
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
+              </Row>
 
+              <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Zip Code</Form.Label>
                   <Form.Control
                     type='number'
                     name='zip_code'
+                    value={storeInfo.zip_code ?? ''}
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
+                </Col>
+
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>Default Password</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    name='default_password'
+                    value={storeInfo?.default_password ?? ''}
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
@@ -470,16 +474,7 @@ const UpdateStores: FC = () => {
                   </Form.Text>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Default Password</Form.Label>
-
-                  <Form.Control
-                    type='text'
-                    name='default_password'
-                    value={storeInfo.default_password}
-                    onChange={(e) => storeInfoFormHandler(e)}
-                  />
-                </Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}></Col>
               </Row>
 
               <hr />
@@ -491,6 +486,7 @@ const UpdateStores: FC = () => {
                     <Form.Control
                       type='text'
                       name='bank_name'
+                      value={storeInfo.bank_name ?? ''}
                       onChange={(e) => storeInfoFormHandler(e)}
                     />
                   </Form.Group>

@@ -58,8 +58,8 @@ const ChartPie: React.FC<Props> = ({className, chartHeight, memberData}) => {
 const chartOptions = (chartHeight: string, memberData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
-  const singleOrder = memberData.filter((member: any) => member?.orders?.length === 1).length
-  const multiOrder = memberData.filter((member: any) => member?.orders?.length > 1).length
+  const singleOrder = memberData.filter((member: any) => member?.order?.length === 1).length
+  const multiOrder = memberData.filter((member: any) => member?.order?.length > 1).length
 
   const series = [singleOrder, multiOrder]
   const noDataAvailable = series.every((value) => value === 0)

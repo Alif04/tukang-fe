@@ -1,8 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 import {Link} from 'react-router-dom'
-import {KTSVG} from '../../../../../_metronic/helpers'
-import {Dropdown1} from '../../../../../_metronic/partials/content/dropdown/Dropdown1'
 
 type Props = {
   orderData: any[]

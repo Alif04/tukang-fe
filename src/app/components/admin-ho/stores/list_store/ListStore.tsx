@@ -36,7 +36,7 @@ const ListStoreHO: React.FC = () => {
     phone_number: number
     email: string
     address: string
-    city: string
+    // city: string
     bank_name: string
     account_number: number
     account_name: string
@@ -97,15 +97,15 @@ const ListStoreHO: React.FC = () => {
       sorter: (a, b) => a.address.length - b.address.length,
       width: 130,
     },
-    {
-      title: 'Kota',
-      dataIndex: 'city',
-      key: 'city',
-      align: 'center',
-      onFilter: (value, record) => record.city.includes(String(value)),
-      sorter: (a, b) => a.city.length - b.city.length,
-      width: 130,
-    },
+    // {
+    //   title: 'Kota',
+    //   dataIndex: 'city',
+    //   key: 'city',
+    //   align: 'center',
+    //   onFilter: (value, record) => record.city.includes(String(value)),
+    //   sorter: (a, b) => a.city.length - b.city.length,
+    //   width: 130,
+    // },
     {
       title: 'Nama Bank',
       dataIndex: 'bank_name',
@@ -269,7 +269,7 @@ const ListStoreHO: React.FC = () => {
           phone_number: phoneNumber,
           email: item?.email ?? '',
           address: item?.address ?? '',
-          city: item?.city?.city_name ?? '',
+          // city: item?.city?.city_name ?? '',
           bank_name: item?.bank_name ?? '-',
           account_number: item?.bank_number ?? '-',
           account_name: item?.bank_account ?? '-',

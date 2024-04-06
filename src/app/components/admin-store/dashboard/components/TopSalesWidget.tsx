@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
-import {KTSVG, toAbsoluteUrl} from '../../../../../_metronic/helpers'
-import {Dropdown1} from '../../../../../_metronic/partials/content/dropdown/Dropdown1'
+import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 type Props = {
   className: string
@@ -41,7 +40,7 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData}) => {
             {/* 
             <div className='d-flex flex-column justify-content-center align-items-end w-50'>
               <span className='fw-bold text-success'>Rp. 12.000.000</span>
-              <span className='text-muted'>6 Invoices</span>
+              <span className='text-muted'>{`${item?.order_total ?? 0} Order`}</span>
             </div> */}
           </div>
         ))}

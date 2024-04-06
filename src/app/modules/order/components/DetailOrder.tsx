@@ -6,6 +6,7 @@ import {DetailOrders} from '../../../components'
 
 const DetailOrder: FC = () => {
   const [pageTitle, setPageTitle] = useState<string>('')
+
   const updatePageTitle = (order: Orders) => {
     const orderId = order?.id || undefined
     const customerName = order?.members?.full_name || ''

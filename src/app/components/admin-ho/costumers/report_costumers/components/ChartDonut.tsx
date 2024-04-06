@@ -73,7 +73,7 @@ const chartOptions = (chartHeight: string, complaintData: any): ApexOptions => {
 
   return {
     series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
-    labels: ['Diselidiki', 'Ditolak', 'Diselesaikan'],
+    labels: ['Diterima', 'Diselidiki', 'Ditolak'],
     colors: ['#009DFF', '#22E4FF', '#3BFFD0'], // Set colors to default if no data available
     // labels: noDataAvailable ? ['No Data Available'] : ['Diselidiki', 'Ditolak', 'Diselesaikan'], // Set labels to empty array if no data available
     // colors: noDataAvailable ? ['#f0f0f0'] : ['#009DFF', '#22E4FF', '#3BFFD0'], // Set colors to default if no data available

@@ -782,7 +782,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/order/preview-email/${orderId}`)
+            navigate(`/order/printout-order/${orderId}`)
           })
 
           setIsLoading(false)

@@ -10,7 +10,7 @@ import {TableList} from './components/TableList'
 
 import axios from 'axios'
 import {DatePicker} from 'antd'
-import {Row, Col, Card, Form} from 'react-bootstrap'
+import {Row, Col, Card} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
@@ -71,14 +71,30 @@ const DashboardVendor: FC = () => {
       )
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
 
       setCurrentPage(response.data.page)
       setOrderData(data)
-      setChartDataOrder(chartDatas)
       setOrderList(data)
 
       return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getReportOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/orders`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+      setChartDataOrder(chartDatas)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -91,10 +107,13 @@ const DashboardVendor: FC = () => {
 
         data = {
           order_id: item.id,
-          store_name: item.store.store_name,
-          costumer_name: item.members.full_name,
-          service_name: item.m_order_details[0]?.item?.service_name ?? '-',
-          total: `Rp. ${parseInt(item.grand_total).toLocaleString('id')}`,
+          store_name: item?.store?.store_name ?? '-',
+          costumer_name: item?.members?.full_name ?? '-',
+          service_name:
+            item?.payment_type === 'survey'
+              ? item?.m_order_details[0]?.item_notes ?? '-'
+              : item?.m_order_details[0]?.item?.service_name ?? '-',
+          total: `Rp. ${parseInt(item?.grand_total || 0).toLocaleString('id')}`,
         }
 
         return data
@@ -147,6 +166,10 @@ const DashboardVendor: FC = () => {
       console.error(error)
     }
   }
+
+  useEffect(() => {
+    getReportOrder()
+  }, [])
 
   useEffect(() => {
     fetchOrderList()

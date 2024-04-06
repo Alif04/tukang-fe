@@ -74,11 +74,11 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
     series: [
       {
         name: 'Jumlah Order',
-        data: chartOrderData.map((item) => item.totalOrder),
+        data: chartOrderData.map((item) => item?.totalOrder),
       },
       {
         name: 'Grand Total Value',
-        data: chartOrderData.map((item) => item.totalOrderGrandTotalPerMonth),
+        data: chartOrderData.map((item) => item?.totalOrderGrandTotalPerMonth),
       },
     ],
     chart: {
