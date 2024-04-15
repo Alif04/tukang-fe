@@ -480,6 +480,27 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
+        {/* <AsideMenuItemWithSub
+          to='/user'
+          title='User Management'
+          hasBullet={true}
+          role={['Admin HO']}
+        >
+          <AsideMenuItem
+            to='/user/new-user'
+            title='Formulir Registrasi User'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+
+          <AsideMenuItem
+            to='/user/view-user'
+            title='Daftar User'
+            role={['Admin HO']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub> */}
+
         <AsideMenuItemWithSub
           to='/material'
           title='Material'

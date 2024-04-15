@@ -192,6 +192,16 @@ export * from './admin-ho/format_email_update/UpdateFormatEmailHO'
 // List Format Email
 export * from './admin-ho/format_email_list/FormatEmailList'
 
+// User Management
+// New User
+export * from './admin-ho/user_management/new_user/NewUser'
+
+// Update User
+export * from './admin-ho/user_management/update_user/UpdateUser'
+
+// List User
+export * from './admin-ho/user_management/list_user/ListUser'
+
 // SALES
 // Update Sales
 export * from './admin-ho/sales/update_sales/UpdateSales'

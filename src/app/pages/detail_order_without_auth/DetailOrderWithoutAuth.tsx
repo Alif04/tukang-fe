@@ -459,7 +459,7 @@ const DetailOrderWithoutAuth = () => {
                           </thead>
 
                           <tbody>
-                            {order?.order_details.map((item: any, index: any) => (
+                            {order?.m_order_details.map((item: any, index: any) => (
                               <>
                                 <tr key={`${index} - order_detail`}>
                                   <td>{item?.item_code}</td>
@@ -652,7 +652,7 @@ const DetailOrderWithoutAuth = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {order?.order_details.map((item: any, index: any) => (
+                            {order?.m_order_details.map((item: any, index: any) => (
                               <>
                                 <tr key={`${index} - order_detail`}>
                                   <td>{item?.item_code}</td>
