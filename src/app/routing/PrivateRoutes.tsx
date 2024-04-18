@@ -30,6 +30,7 @@ const PrivateRoutes = () => {
   const StorePage = lazy(() => import('../modules/stores/StorePage'))
   const BankPage = lazy(() => import('../modules/banks/BankPage'))
   const FormatEmailPage = lazy(() => import('../modules/format-email/FormatEmailPage'))
+  const UserManagementPage = lazy(() => import('../modules/user-management/UserManagement'))
 
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const WizardsPage = lazy(() => import('../modules/wizards/WizardsPage'))
@@ -183,6 +184,15 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <FormatEmailPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='user/*'
+          element={
+            <SuspensedView>
+              <UserManagementPage />
             </SuspensedView>
           }
         />

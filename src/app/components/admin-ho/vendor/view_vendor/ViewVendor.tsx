@@ -285,7 +285,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
         data = {
           no: index + 1,
           vendor_id: item.id,
-          pic_name: item?.users?.username,
+          pic_name: item?.pic_name,
           company_name: item.company_name,
           email_address: item.email_address,
           phone_number: item.phone_number,

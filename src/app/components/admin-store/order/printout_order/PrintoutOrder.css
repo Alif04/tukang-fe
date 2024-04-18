@@ -28,12 +28,37 @@
   padding: 3px 0px;
 }
 
+#printout-order img.logo {
+  height: 120px;
+}
+
 /* Table */
+#printout-order th.table-heads-1 {
+  width: 35%;
+}
+
+#printout-order th.table-heads-2 {
+  width: 3%;
+}
+
+#printout-order th.table-heads-3 {
+  width: 62%;
+}
+
 #printout-order .detail-table table tr th {
   font-size: 16px;
   font-weight: 600;
   color: white;
   background-color: #555555;
+}
+
+#printout-order .table-printout th {
+  border-color: transparent !important;
+}
+
+#printout-order .table-printout td {
+  border-color: transparent !important;
+  padding: 5px 0px 5px 0px;
 }
 
 #printout-order
@@ -73,17 +98,34 @@
     background-color: #555555;
   }
 
+  #printout-order th.table-heads-1 {
+    width: 50%;
+  }
+
+  #printout-order th.table-heads-2 {
+    width: 3%;
+  }
+
+  #printout-order th.table-heads-3 {
+    width: 47%;
+  }
+
   #printout-order .button-wrapper {
     flex-direction: column;
   }
 
   #printout-order .hide-print-button {
-    width: 100%;
+    width: 100% !important;
     margin: 5px 5px;
   }
 
   #printout-order .receipt-id {
     margin-top: 30px;
+  }
+
+  #printout-order img.logo {
+    width: 100%;
+    height: auto;
   }
 }
 

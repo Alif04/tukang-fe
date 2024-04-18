@@ -57,7 +57,7 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
     series: [
       {
         name: 'Menunggu Bayar',
-        data: orderData.map((item: any) => item?.totalUnpaidOrder ?? 0),
+        data: orderData.map((item: any) => item.totalUnpaidOrder),
       },
     ],
     chart: {

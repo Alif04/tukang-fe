@@ -29,20 +29,19 @@ const DashboardStore: FC = () => {
   const [orderData, setOrderData] = useState<any[]>([])
   const [chartData, setChartData] = useState<any[]>([])
 
+  console.log(chartData)
+
   const today = new Date()
-
-  const [firstDayOfMonth, setFirstDayOfMonth] = useState<any>(
-    new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
-  )
-
-  const [todays, setTodays] = useState<any>(new Date().toISOString().split('T')[0])
+  const formattedTodays = new Date().toISOString().split('T')[0]
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
+    .toISOString()
+    .split('T')[0]
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
 
   const [store, setStore] = useState<StoreItem[]>([])
   const [sales, setSales] = useState<any[]>([])
-  const [member, setMember] = useState<any[]>([])
 
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
@@ -56,7 +55,7 @@ const DashboardStore: FC = () => {
     try {
       let url =
         !dateFrom && !dateTo
-          ? `${apiUrl}/orders?order_by=desc&date_from=${firstDayOfMonth}&date_to=${todays}&store_id=${userStore}&take=0`
+          ? `${apiUrl}/orders?order_by=desc&date_from=${firstDayOfMonth}&date_to=${formattedTodays}&store_id=${userStore}&take=0`
           : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`
 
       const response = await axios.get(url, {
@@ -69,11 +68,27 @@ const DashboardStore: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyOrders
-
       setOrderData(data)
-      setChartData(chartDatas)
+
       return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getReportOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/orders`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const chartDatas = response.data.monthlyOrders
+      setChartData(chartDatas)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -109,7 +124,7 @@ const DashboardStore: FC = () => {
 
     const getSales = async () => {
       const url =
-        userRole === 'Store Staff'
+        userRole === 'Store Staff' || userRole === 'Store CS'
           ? `${apiUrl}/sales?take=0&top_best=true&order_by=desc&store_id=${userStore}`
           : `${apiUrl}/sales?take=0&top_best=true&order_by=desc${storeId}`
 
@@ -130,49 +145,17 @@ const DashboardStore: FC = () => {
       }
     }
 
-    const getMember = async () => {
-      const url =
-        userRole === 'Store Staff'
-          ? `${apiUrl}/member?take=0&store_id=${userStore}`
-          : `${apiUrl}/member?take=0${storeId}`
-
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        if (Array.isArray(response.data.data)) {
-          const tempMember = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.member_number,
-            full_name: item.full_name,
-            email: item.email,
-            phone_number: item.phone_number,
-            whatsapp_number: item.whatsapp_number,
-            address_1: item.address_1,
-          }))
-
-          setMember(tempMember)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     getStore()
     getSales()
-    getMember()
   }, [userRole, selectedStore?.value])
 
   useEffect(() => {
     fetchOrderData()
   }, [dateFrom, dateTo])
+
+  useEffect(() => {
+    getReportOrder()
+  }, [])
 
   return (
     <>

@@ -7,9 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
+  orderData: any[]
 }
 
-const ChartBarSurvey: React.FC<Props> = ({className}) => {
+const ChartBarSurvey: React.FC<Props> = ({className, orderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +22,7 @@ const ChartBarSurvey: React.FC<Props> = ({className}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode])
+  }, [chartRef, mode, orderData])
 
   const refreshChart = () => {
     if (!chartRef.current) {
@@ -30,7 +31,7 @@ const ChartBarSurvey: React.FC<Props> = ({className}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, orderData))
     if (chart) {
       chart.render()
     }
@@ -49,7 +50,7 @@ const ChartBarSurvey: React.FC<Props> = ({className}) => {
 
 export {ChartBarSurvey}
 
-function getChartOptions(height: number): ApexOptions {
+function getChartOptions(height: number, orderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -57,11 +58,11 @@ function getChartOptions(height: number): ApexOptions {
     series: [
       {
         name: 'Complete',
-        data: [44, 55, 57, 56, 61, 58],
+        data: orderData.map((item: any) => item.totalOrder),
       },
       {
         name: 'Total Order',
-        data: [76, 85, 101, 98, 87, 105],
+        data: orderData.map((item: any) => item.totalOrder),
       },
     ],
     chart: {
@@ -92,7 +93,7 @@ function getChartOptions(height: number): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: orderData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },

@@ -216,7 +216,7 @@ const ViewItemHO: React.FC = () => {
         }
       )
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
 
       return response.data.data

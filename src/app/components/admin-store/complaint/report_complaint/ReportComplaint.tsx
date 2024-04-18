@@ -96,12 +96,29 @@ const ReportComplaintStore: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      const data = response.data.data
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
 
+      const data = response.data.data
       setOrderData(data)
-      setChartDataOrder(chartDatas)
+
       return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getReportOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/orders`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const chartDatas = response.data.monthlyOrders.slice(0, 6)
+      setChartDataOrder(chartDatas)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -181,10 +198,14 @@ const ReportComplaintStore: FC = () => {
 
       return apiData
     } catch (error) {
-      console.error('Error getting order list data:', error)
+      console.error('Error getting complaint list data:', error)
       return []
     }
   }
+
+  useEffect(() => {
+    getReportOrder()
+  }, [])
 
   useEffect(() => {
     fetchComplaintList()

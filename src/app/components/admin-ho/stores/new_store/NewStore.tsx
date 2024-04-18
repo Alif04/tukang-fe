@@ -28,7 +28,7 @@ interface Store {
   store_name: string
   address: string
   additional_address: string
-  city_id: number | null
+  // city_id: number | null
   phone_number_1: number | null
   email: string
   bank_name: string
@@ -50,7 +50,7 @@ const NewStore: FC = () => {
     store_name: '',
     address: '',
     additional_address: '',
-    city_id: null,
+    // city_id: null,
     phone_number_1: null,
     email: '',
     bank_name: '',
@@ -62,11 +62,11 @@ const NewStore: FC = () => {
   })
 
   // City
-  const [city, setCity] = useState<City[]>([])
-  const [selectedCity, setSelectedCity] = useState<SingleValue<City>>({
-    value: null,
-    label: '',
-  })
+  // const [city, setCity] = useState<City[]>([])
+  // const [selectedCity, setSelectedCity] = useState<SingleValue<City>>({
+  //   value: null,
+  //   label: '',
+  // })
 
   // // Province
   // const [province, setProvince] = useState<Province[]>([])
@@ -84,31 +84,31 @@ const NewStore: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
-    const getCity = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/city?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+    // const getCity = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/city?take=0`, {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    //         'Access-Control-Allow-Origin': '*',
+    //         'ngrok-skip-browser-warning': 'true',
+    //       },
+    //     })
 
-        if (Array.isArray(response.data.data)) {
-          const tempCity = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.city_name,
-          }))
+    //     if (Array.isArray(response.data.data)) {
+    //       const tempCity = response.data.data.map((item: any) => ({
+    //         value: item.id,
+    //         label: item.city_name,
+    //       }))
 
-          setCity(tempCity)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
+    //       setCity(tempCity)
+    //     } else {
+    //       console.error('API response data is not an array:', response.data)
+    //     }
+    //   } catch (err) {
+    //     console.error(err)
+    //   }
+    // }
 
     const getStoreId = async () => {
       try {
@@ -161,7 +161,7 @@ const NewStore: FC = () => {
     //   }
     // }
 
-    getCity()
+    // getCity()
     getStoreId()
     // getBank()
   }, [])
@@ -175,12 +175,12 @@ const NewStore: FC = () => {
   }
 
   // Change Select City
-  useEffect(() => {
-    setStoreInfo((prev) => ({
-      ...prev,
-      city_id: selectedCity?.value ?? null,
-    }))
-  }, [selectedCity])
+  // useEffect(() => {
+  //   setStoreInfo((prev) => ({
+  //     ...prev,
+  //     city_id: selectedCity?.value ?? null,
+  //   }))
+  // }, [selectedCity])
 
   // Change Select Province
   // useEffect(() => {
@@ -213,13 +213,6 @@ const NewStore: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Alamat form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!storeInfo.city_id) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select City form',
         icon: 'error',
       })
       valid = false
@@ -382,7 +375,7 @@ const NewStore: FC = () => {
 
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group>
+                  {/* <Form.Group>
                     <Form.Label>City</Form.Label>
                     <Select
                       classNamePrefix='select'
@@ -391,10 +384,8 @@ const NewStore: FC = () => {
                       options={city}
                       onChange={(newValue) => setSelectedCity(newValue)}
                     />
-                  </Form.Group>
-                </Col>
+                  </Form.Group> */}
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type='email'
@@ -402,9 +393,7 @@ const NewStore: FC = () => {
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
-              </Row>
 
-              <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Telpon</Form.Label>
                   <Form.Control
@@ -413,12 +402,24 @@ const NewStore: FC = () => {
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
+              </Row>
 
+              <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Zip Code</Form.Label>
                   <Form.Control
                     type='number'
                     name='zip_code'
+                    onChange={(e) => storeInfoFormHandler(e)}
+                  />
+                </Col>
+
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Label>Default Password</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    name='default_password'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
@@ -443,15 +444,7 @@ const NewStore: FC = () => {
                   </Form.Text>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Default Password</Form.Label>
-
-                  <Form.Control
-                    type='text'
-                    name='default_password'
-                    onChange={(e) => storeInfoFormHandler(e)}
-                  />
-                </Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}></Col>
               </Row>
 
               <hr />

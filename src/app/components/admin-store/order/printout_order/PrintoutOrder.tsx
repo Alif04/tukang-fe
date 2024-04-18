@@ -7,7 +7,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
-import {Table, Form, Button, Row, Col} from 'react-bootstrap'
+import {Table, Button, Row, Col} from 'react-bootstrap'
 
 const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -119,7 +119,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             <div className='header-printout d-flex justify-content-center align-items-center flex-column '>
               <img
                 alt='Logo'
-                className='h-100px logo mb-3'
+                className='logo mb-3'
                 src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
               />
 
@@ -137,84 +137,75 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             </div>
           </Row>
 
-          <Row className='mt-5 mb-5'>
-            <Col md='6' sm='6'>
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='4' sm='12'>
-                  Order ID :
-                </Form.Label>
-                <Col md='8' sm='12'>
-                  <Form.Control plaintext readOnly value={orderDetail?.id} />
-                </Col>
-              </Form.Group>
+          <Row>
+            <Col md={6}>
+              <Table className='table-printout' borderless={true}>
+                <tr>
+                  <th className='table-heads-1'></th>
+                  <th className='table-heads-2'></th>
+                  <th className='table-heads-3'></th>
+                </tr>
 
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='4' sm='12'>
-                  Member Name :
-                </Form.Label>
-                <Col md='8' sm='12'>
-                  <Form.Control plaintext readOnly value={orderDetail?.members.full_name} />
-                </Col>
-              </Form.Group>
+                <tr>
+                  <td className='fw-bold'>Order ID</td>
+                  <td className='fw-bold'>:</td>
+                  <td>{orderDetail?.id}</td>
+                </tr>
 
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='4' sm='12'>
-                  No Telp / WA :
-                </Form.Label>
-                <Col md='8' sm='12'>
-                  <Form.Control plaintext readOnly value={orderDetail?.project_number} />
-                </Col>
-              </Form.Group>
+                <tr>
+                  <td className='fw-bold'>Member Name</td>
+                  <td className='fw-bold'>:</td>
+                  <td>{orderDetail?.members.full_name}</td>
+                </tr>
+
+                <tr>
+                  <td className='fw-bold'>No Telp / WA</td>
+                  <td className='fw-bold'>:</td>
+                  <td>{orderDetail?.project_number}</td>
+                </tr>
+              </Table>
             </Col>
 
-            <Col md='6' sm='6'>
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='6' sm='12'>
-                  Tanggal Order :
-                </Form.Label>
-                <Col md='6'>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
-                  />
-                </Col>
-              </Form.Group>
+            <Col md={6}>
+              <Table className='table-printout' borderless={true}>
+                <tr>
+                  <th className='table-heads-1'></th>
+                  <th className='table-heads-2'></th>
+                  <th className='table-heads-3'></th>
+                </tr>
 
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='6' sm='12'>
-                  Copy :
-                </Form.Label>
-                <Col md='6'>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    value={orderDetail?.print_counter < 1 ? '-' : orderDetail?.print_counter}
-                  />
-                </Col>
-              </Form.Group>
+                <tr>
+                  <td className='fw-bold'>Tanggal Order</td>
+                  <td className='fw-bold'>:</td>
+                  <td>{orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}</td>
+                </tr>
 
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column md='6' sm='12'>
-                  {orderDetail?.payment_type === 'survey'
-                    ? 'Request Tanggal Survey :'
-                    : 'Request Tanggal Pengerjaan'}
-                </Form.Label>
+                <tr>
+                  <td className='fw-bold'>Copy</td>
+                  <td className='fw-bold'>:</td>
+                  <td>{orderDetail?.print_counter < 1 ? '-' : orderDetail?.print_counter}</td>
+                </tr>
 
-                <Col md='6'>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    value={orderDetail ? formatDate(new Date(orderDetail.request_survey)) : ''}
-                  />
-                </Col>
+                <tr>
+                  <td className='fw-bold'>
+                    {orderDetail?.payment_type === 'survey'
+                      ? 'Request Tanggal Survey :'
+                      : 'Request Tanggal Pengerjaan'}
+                  </td>
+                  <td className='fw-bold'>:</td>
+                  <td>{orderDetail ? formatDate(new Date(orderDetail.request_survey)) : ''}</td>
+                </tr>
 
-                <Form.Text className='m-0 fs-8 text-dark-danger'>
-                  *Tanggal Request{' '}
-                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
-                  Konfirmasi kunjungan dilakukan oleh Vendor
-                </Form.Text>
-              </Form.Group>
+                <tr>
+                  <td colSpan={3} className='fw-bold'>
+                    <p className='m-0 p-0 fs-8 text-dark-danger'>
+                      *Tanggal Request{' '}
+                      <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
+                      pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+                    </p>
+                  </td>
+                </tr>
+              </Table>
             </Col>
           </Row>
 

@@ -9,7 +9,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -316,7 +316,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           item_name: item.m_order_details[0]?.item_name ?? '-',
           service_name:
             item.payment_type === 'survey'
-              ? item.m_order_details[0]?.item_notes
+              ? item.m_order_details[0]?.item_notes ?? '-'
               : item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status: orderStatus,

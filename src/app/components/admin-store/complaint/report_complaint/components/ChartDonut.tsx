@@ -76,7 +76,7 @@ const chartOptions = (chartHeight: string, chartComplaint: any): ApexOptions => 
       height: chartHeight,
       type: 'donut',
     },
-    labels: ['Diselidiki', 'Ditolak', 'Selesai'],
+    labels: ['Diterima', 'Diselidiki', 'Ditolak'],
     legend: {
       show: true,
       height: 20,

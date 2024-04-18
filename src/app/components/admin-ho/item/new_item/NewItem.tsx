@@ -519,6 +519,7 @@ const NewItemHO: FC = () => {
                         isSearchable={true}
                         components={animatedComponents}
                         options={storeOptions}
+                        closeMenuOnSelect={false}
                         getOptionLabel={(option: StoreSelect) => `${option.label}`}
                         getOptionValue={(option: StoreSelect) => `${option.store_id}`}
                         onChange={(e) => storeHandler(e, 'price_store', index)}

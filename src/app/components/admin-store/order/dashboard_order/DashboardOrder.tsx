@@ -81,12 +81,27 @@ const DashboardOrderStore: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyOrders
-
       setOrderList(data)
-      setChartData(chartDatas)
 
       return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getReportOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/orders`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const chartDatas = response.data.monthlyOrders
+      setChartData(chartDatas)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -100,7 +115,10 @@ const DashboardOrderStore: FC = () => {
         data = {
           order_id: item.id,
           costumer_name: item?.members?.full_name ?? '-',
-          service_name: item?.m_order_details[0]?.item?.service_name ?? '-',
+          service_name:
+            item?.payment_type === 'survey'
+              ? item?.m_order_details[0]?.item_notes ?? '-'
+              : item?.m_order_details[0]?.item?.service_name ?? '-',
           total: `Rp. ${parseInt(item?.grand_total || 0).toLocaleString('id')}`,
         }
 
@@ -113,6 +131,10 @@ const DashboardOrderStore: FC = () => {
       return []
     }
   }
+
+  useEffect(() => {
+    getReportOrder()
+  }, [])
 
   useEffect(() => {
     fetchOrderList()

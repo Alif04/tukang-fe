@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useEffect, useState} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 
 import './ViewOrder.css'
 
@@ -9,18 +9,17 @@ import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch, faFilter, faPen} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
-type Props = {
-  className: string
-}
-
-const ViewOrderHO: React.FC<Props> = ({className}) => {
+const ViewOrders: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const userRole = localStorage.getItem('userRole')
+  const userStore = localStorage.getItem('storeId')
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -119,6 +118,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
       filters: [
+        {text: 'FREE', value: 'FREE'},
         {text: 'UNPAID', value: 'UNPAID'},
         {text: 'PAID', value: 'PAID'},
       ],
@@ -132,8 +132,56 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
         let color = ''
 
         switch (orderStatus) {
+          case 'UNPAID':
+            color = 'red'
+            break
+          case 'PAID':
+            color = 'green'
+            break
+          case 'PICKLIST':
+            color = 'green'
+            break
           case 'BOOKED':
             color = 'lime'
+            break
+          case 'SURVEYREQ':
+            color = 'blue'
+            break
+          case 'SURVEYSTART':
+            color = 'blue'
+            break
+          case 'SURVEYDONE':
+            color = 'blue'
+            break
+          case 'QUOTE IN':
+            color = 'blue'
+            break
+          case 'QUOTE OUT':
+            color = 'blue'
+            break
+          case 'WORKREQ':
+            color = 'blue'
+            break
+          case 'WORKSTART':
+            color = 'blue'
+            break
+          case 'WIP':
+            color = 'blue'
+            break
+          case 'WORKEND':
+            color = 'blue'
+            break
+          case 'RESURVEYREQ':
+            color = 'blue'
+            break
+          case 'RESURVEYSTART':
+            color = 'blue'
+            break
+          case 'RESURVEYDONE':
+            color = 'blue'
+            break
+          case 'INVOICED':
+            color = 'blue'
             break
           default:
             color = 'blue'
@@ -142,7 +190,23 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [{text: 'BOOKED', value: 'BOOKED'}],
+      filters: [
+        {text: 'PICKLIST', value: 'PICKLIST'},
+        {text: 'BOOKED', value: 'BOOKED'},
+        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
+        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
+        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
+        {text: 'QUOTEIN', value: 'QUOTEIN'},
+        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
+        {text: 'WORKREQ', value: 'WORKREQ'},
+        {text: 'WORKSTART', value: 'WORKSTART'},
+        {text: 'WIP', value: 'WIP'},
+        {text: 'WORKEND', value: 'WORKEND'},
+        {text: 'INVOICED', value: 'INVOICED'},
+        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
+        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
+        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
+      ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
       align: 'left',
@@ -163,14 +227,16 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
-            <a className='button-detail' onClick={handleDetailId}>
+          <div className='d-flex justify-content-center'>
+            <a className='button-detail me-2' onClick={handleDetailId}>
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            {['PICKLIST', 'BOOK', 'BOOKED'].includes(record.order_status) && (
+              <a className='button-edit ms-2' onClick={handleUpdateId}>
+                <FontAwesomeIcon icon={faPen} size='sm' />
+              </a>
+            )}
           </div>
         )
       },
@@ -180,16 +246,22 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
   ]
 
   const formatDate = (date: any) => {
+    if (isNaN(date.getTime())) {
+      return '--/--/----'
+    }
+
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}/${month}/${year}`
   }
 
+  const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+
   const fetchOrderList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -220,9 +292,9 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.created_at)
+        const orderDate = new Date(item?.created_at)
 
-        let phoneNumber =
+        const phoneNumber =
           item.members.whatsapp_number === 'null'
             ? item.members.phone_number
             : item.members.whatsapp_number
@@ -288,7 +360,7 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
 
   return (
     <section id='view-order'>
-      <div className={`card ${className}`}>
+      <div className='card'>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
@@ -361,4 +433,4 @@ const ViewOrderHO: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ViewOrderHO}
+export {ViewOrders}
