@@ -100,7 +100,7 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
       },
     },
     xaxis: {
-      categories: chartOrderData.map((item) => item.month),
+      categories: chartOrderData.map((item) => item?.month),
       axisBorder: {
         show: false,
       },

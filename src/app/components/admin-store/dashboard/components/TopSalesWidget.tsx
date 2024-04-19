@@ -47,7 +47,7 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData}) => {
       </div>
 
       <div className='card-footer pt-1 pb-1'>
-        <p className='text-muted'>Total Sales : {salesData.length} person</p>
+        <p className='text-muted'>Total Sales : {salesData?.length} person</p>
       </div>
     </div>
   )
