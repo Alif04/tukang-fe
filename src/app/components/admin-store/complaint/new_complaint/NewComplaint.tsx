@@ -59,8 +59,6 @@ const NewComplaintForm: FC = () => {
     complaint_type: 1,
   })
 
-  console.log(complaintForm)
-
   // Complaint Channel
   const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
   const [selectedComplaintChannel, setSelectedComplaintChannel] = useState<

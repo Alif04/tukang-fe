@@ -398,9 +398,9 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/setting'
         icon='/media/icons/duotune/art/art002.svg'
-        title={userRole === 'Store CS' || userRole === 'Sales' ? 'Pengaturan' : 'Setting'}
+        title={userRole === 'Store CS' ? 'Pengaturan' : 'Setting'}
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Sales', 'Admin HO', 'Admin Vendor']}
+        role={['Store CS', 'Admin HO', 'Admin Vendor']}
       >
         <AsideMenuItemWithSub to='/bank' title='Bank' hasBullet={true} role={['Admin HO']}>
           <AsideMenuItem
@@ -480,18 +480,18 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
-        {/* <AsideMenuItemWithSub
+        <AsideMenuItemWithSub
           to='/user'
           title='User Management'
           hasBullet={true}
           role={['Admin HO']}
         >
-          <AsideMenuItem
+          {/* <AsideMenuItem
             to='/user/new-user'
             title='Formulir Registrasi User'
             role={['Admin HO']}
             hasBullet={true}
-          />
+          /> */}
 
           <AsideMenuItem
             to='/user/view-user'
@@ -499,7 +499,7 @@ export function AsideMenuMain() {
             role={['Admin HO']}
             hasBullet={true}
           />
-        </AsideMenuItemWithSub> */}
+        </AsideMenuItemWithSub>
 
         <AsideMenuItemWithSub
           to='/material'

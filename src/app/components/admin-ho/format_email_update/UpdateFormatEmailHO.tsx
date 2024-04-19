@@ -5,12 +5,18 @@ import './FormatEmailHO.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import Select, {SingleValue} from 'react-select'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
 
+interface templateOption {
+  value: number | null
+  label: string
+}
+
 interface emailLayout {
-  email_type: string
+  email_type: number | null
   greetings: string
   footer: string
   welcome_header: string
@@ -30,8 +36,14 @@ const UpdateFormatEmailHO: FC = () => {
   const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  // Email
+  const [selectedEmailType, setSelectedEmailType] = useState<SingleValue<templateOption>>({
+    value: null,
+    label: '',
+  })
+
   const [emailForm, setEmailForm] = useState<emailLayout>({
-    email_type: '',
+    email_type: null,
     greetings: '',
     footer: '',
     welcome_header: '',
@@ -93,6 +105,22 @@ const UpdateFormatEmailHO: FC = () => {
               })),
             }))
           }
+
+          if (data?.information_detail) {
+            const emailTypes: any = {
+              1: 'Order Notification',
+              2: 'Credential Mail',
+              3: 'Reset Password',
+              4: 'Quotation Notification',
+              5: 'Others',
+            }
+
+            setSelectedEmailType((prev: any) => ({
+              ...prev,
+              value: data?.email_type,
+              label: emailTypes[data?.email_type],
+            }))
+          }
         })
     } catch (error) {
       console.error(error)
@@ -102,6 +130,15 @@ const UpdateFormatEmailHO: FC = () => {
   useEffect(() => {
     fetchEmailData()
   }, [])
+
+  // Template Option
+  const templateOptions = [
+    {value: 1, label: 'Order Notification'},
+    {value: 2, label: 'Credential Mail'},
+    {value: 3, label: 'Reset Password'},
+    {value: 4, label: 'Quotation Notification'},
+    {value: 5, label: 'Others'},
+  ]
 
   // Email Form Handler
   const emailFormHandler = (e: any) => {
@@ -181,6 +218,14 @@ const UpdateFormatEmailHO: FC = () => {
     })
   }
 
+  // Change Select Email Type
+  useEffect(() => {
+    setEmailForm((prev) => ({
+      ...prev,
+      email_type: selectedEmailType?.value ?? null,
+    }))
+  }, [selectedEmailType])
+
   // Handle Update Email
   const handleUpdateEmailMessages = async () => {
     setIsLoading(true)
@@ -208,7 +253,7 @@ const UpdateFormatEmailHO: FC = () => {
     }
 
     await axios
-      .post(`${apiUrl}/email-messages/${params.id}`, emailForms, {
+      .patch(`${apiUrl}/email-messages/${params.id}`, emailForms, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -261,10 +306,18 @@ const UpdateFormatEmailHO: FC = () => {
           <Row>
             <Form.Group className='header-template mb-3'>
               <Form.Label className='fs-5'> Email template untuk :</Form.Label>
-              <Form.Control
-                name='email_type'
-                value={emailForm.email_type}
-                onChange={(e) => emailFormHandler(e)}
+              <Select
+                name='template_option'
+                className='form-control p-0'
+                classNamePrefix='select'
+                isSearchable={true}
+                placeholder='Template untuk'
+                options={templateOptions}
+                value={{
+                  value: selectedEmailType?.value ?? null,
+                  label: selectedEmailType?.label ?? '',
+                }}
+                onChange={(newValue) => setSelectedEmailType(newValue)}
               />
             </Form.Group>
 

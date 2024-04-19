@@ -3,19 +3,68 @@ import {useNavigate} from 'react-router-dom'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import Select, {SingleValue} from 'react-select'
 import {Form, Button, Row, Card} from 'react-bootstrap'
 
-interface user {
-  name: string
+interface Roles {
+  value: number | null
+  label: string
+}
+
+interface User {
+  username: string
+  password: string
+  role_id: number | null
 }
 
 const NewUserHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // User State
-  const [userForm, setUserForm] = useState<user>({
-    name: '',
+  // Fetch Data Role
+  const getRoles = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/roles`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempRoles = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setRoles(tempRoles)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getRoles()
+  }, [])
+
+  // Role
+  const [roles, setRoles] = useState<Roles[]>([])
+  const [selectedRole, setSelectedRole] = useState<SingleValue<Roles>>({
+    value: null,
+    label: '',
+  })
+
+  // User
+  const [userForm, setUserForm] = useState<User>({
+    username: '',
+    password: '',
+    role_id: null,
   })
 
   // User Form Handler
@@ -26,12 +75,27 @@ const NewUserHO: FC = () => {
     })
   }
 
-  // Function Clear State After Submit
-  const clear = () => {
+  // User Form Handler
+  useEffect(() => {
     setUserForm((prev) => ({
       ...prev,
-      name: '',
+      role_id: selectedRole?.value ?? null,
     }))
+  }, [selectedRole])
+
+  // Function Clear State After Submit
+  const clear = () => {
+    setSelectedRole({
+      value: null,
+      label: 'Ketik/Pilih Role',
+    })
+
+    setUserForm({
+      ...userForm,
+      role_id: null,
+      username: '',
+      password: '',
+    })
   }
 
   // Handle Create User
@@ -39,7 +103,7 @@ const NewUserHO: FC = () => {
     setIsLoading(true)
 
     await axios
-      .post(`${apiUrl}/auth/user`, userForm, {
+      .post(`${apiUrl}/auth/register`, userForm, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -52,11 +116,9 @@ const NewUserHO: FC = () => {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: response.data.message,
+            text: 'Success Create User',
             showConfirmButton: false,
             timer: 1500,
-          }).then(() => {
-            clear()
           })
 
           setIsLoading(false)
@@ -69,6 +131,8 @@ const NewUserHO: FC = () => {
             icon: 'error',
           })
         }
+
+        navigate('/user/view-user')
       })
       .catch((error) => {
         setIsLoading(false)
@@ -87,11 +151,41 @@ const NewUserHO: FC = () => {
         <Card.Body>
           <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Nama :</Form.Label>
+              <Form.Label className='fs-5'>Roles :</Form.Label>
+
+              <Select
+                name='role_id'
+                id='role_id'
+                className='form-control p-0 form-item-name'
+                classNamePrefix='select'
+                placeholder='Pilih/Ketik Role'
+                isSearchable={true}
+                isClearable={true}
+                options={roles}
+                onChange={(newValue) => setSelectedRole(newValue)}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Username :</Form.Label>
 
               <Form.Control
-                name='name'
-                value={userForm.name}
+                name='username'
+                value={userForm.username}
+                onChange={(e) => userFormHandler(e)}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Password :</Form.Label>
+
+              <Form.Control
+                name='password'
+                value={userForm.password}
                 onChange={(e) => userFormHandler(e)}
               />
             </Form.Group>

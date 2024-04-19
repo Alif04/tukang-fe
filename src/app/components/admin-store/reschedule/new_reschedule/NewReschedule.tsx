@@ -270,6 +270,7 @@ const NewReschedule: FC = () => {
   const handleSubmitReschedule = async () => {
     if (RescheduleValidation()) {
       setIsLoading(true)
+
       const formData = new FormData()
 
       formData.append('order_id', reschedule.order_id)

@@ -292,12 +292,8 @@ const ViewOrders: FC = () => {
 
       const orderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item?.created_at)
 
-        const phoneNumber =
-          item.members.whatsapp_number === 'null'
-            ? item.members.phone_number
-            : item.members.whatsapp_number
+        const orderDate = new Date(item?.created_at)
 
         const paymentStatus = (() => {
           if (item?.payment_type === 'survey') {
@@ -317,7 +313,7 @@ const ViewOrders: FC = () => {
           date_order: formatDate(orderDate),
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
-          phone_number: phoneNumber,
+          phone_number: item?.project_number,
           service_name:
             item.payment_type === 'survey'
               ? item.m_order_details[0]?.item_notes

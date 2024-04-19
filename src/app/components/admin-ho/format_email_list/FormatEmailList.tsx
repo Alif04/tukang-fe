@@ -46,14 +46,6 @@ const FormatEmailList: FC = () => {
       width: 50,
     },
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      align: 'center',
-      sorter: (a, b) => a.id - b.id,
-      width: 50,
-    },
-    {
       title: 'Email Type',
       dataIndex: 'email_type',
       key: 'email_type',
@@ -91,10 +83,10 @@ const FormatEmailList: FC = () => {
         }
 
         const handleDeleteId = () => {
-          const id = record.store_id
+          const id = record.id
 
           Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Store ini ?`,
+            title: `Apakah anda yakin akan menonaktifkan template email ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -104,7 +96,7 @@ const FormatEmailList: FC = () => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .delete(`${apiUrl}/stores/${id}`, {
+                  .delete(`${apiUrl}/email-type/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -177,10 +169,10 @@ const FormatEmailList: FC = () => {
         }
       )
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response?.data?.page)
       setTotalData(response?.data?.total ?? 0)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -199,11 +191,20 @@ const FormatEmailList: FC = () => {
         let data
 
         const CreatedAt = new Date(item?.created_at ?? '-')
+        const emailTypes: any = {
+          1: 'ORDERS NOTIFICATION',
+          2: 'CREDENTIAL MAIL',
+          3: 'RESET PASSWORD',
+          4: 'QUOTATION',
+          5: 'OTHERS',
+        }
+
+        const EmailType = emailTypes[item?.email_type] || ''
 
         data = {
           numbering: index + 1,
           id: item?.id,
-          email_type: item?.email_type ?? '-',
+          email_type: EmailType,
           created_at: formatDate(CreatedAt),
           is_active: item?.is_active === true ? 'Active' : 'Non Active',
         }

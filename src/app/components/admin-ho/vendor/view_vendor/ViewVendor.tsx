@@ -275,11 +275,11 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
         const joinDate = new Date(item.join_date)
 
         const vendorService = item.vendor_service
-          .map((vendor_service: any) => vendor_service.service_type.service_type)
+          .map((vendor_service: any) => vendor_service?.service_type?.service_type)
           .join(', ')
 
         const vendorArea = item.vendor_area
-          .map((vendor_area: any) => vendor_area.city.city_name)
+          .map((vendor_area: any) => vendor_area?.city?.city_name)
           .join(', ')
 
         data = {

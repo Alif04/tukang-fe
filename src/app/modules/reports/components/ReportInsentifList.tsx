@@ -13,7 +13,7 @@ const ReportInsentifList: React.FC = () => {
         <>
           <ReportInsentifHO className='' />
         </>
-      ) : userRole === 'Store Staff' || userRole === 'Store CS' ? (
+      ) : userRole === 'Store Staff' || userRole === 'Store CS' || userRole === 'Sales' ? (
         <>
           <ReportInsentifStore className='' />
         </>
