@@ -138,7 +138,22 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     },
   ]
 
-  console.log(order?.work_orders?.work_order_status.length)
+  // Grand Total Order
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total} = orderDetail ?? {}
+
+    let totalAmount = 0
+
+    if (payment_type === 'gratis') {
+      totalAmount = is_overdistance === 1 ? grand_total : 0
+    } else if (payment_type === 'pemasangan_tanpa_survey') {
+      totalAmount = is_overdistance === 1 ? grand_total : grand_total ?? 0
+    } else if (payment_type === 'survey') {
+      totalAmount = is_overdistance === 1 ? grand_total : 99000 ?? 0
+    }
+
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
 
   return (
     <section id='detail-order'>
@@ -312,10 +327,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
             {/* Newest */}
             {(() => {
-              if (
-                order?.payment_type === 'survey' &&
-                order?.work_orders?.work_order_status.length === 1
-              ) {
+              if (order?.payment_type === 'survey') {
                 return (
                   <div className='table-warranty-content'>
                     {order?.is_overdistance === 1 && (
@@ -556,13 +568,16 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         {order?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                              <td
+                                colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
+                                className='text-end fw-bolder align-middle'
+                              >
                                 Biaya Tambahan
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
                                 order?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
                         )}
@@ -575,17 +590,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>
-                            {(() => {
-                              if (order?.payment_type === 'gratis') {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
-                                return `Rp. ${parseInt(order?.grand_total).toLocaleString('id')}`
-                              } else {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              }
-                            })()}
-                          </td>
+                          <td className=' fw-bolder'>{calculateTotal(order)}</td>
                         </tr>
                       </tbody>
                     </Table>

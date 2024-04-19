@@ -987,16 +987,16 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         if (response?.data) {
           switch (endpoint) {
             case 'orders':
-              setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
+              // setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
 
-              // let totalGrandTotal = 0
-              // response.data.data.forEach((item: any) => {
-              //   if (item.grand_total) {
-              //     totalGrandTotal += parseFloat(item.grand_total)
-              //   }
-              // })
+              let totalGrandTotal = 0
+              response.data.data.forEach((item: any) => {
+                if (item?.grand_total) {
+                  totalGrandTotal += parseFloat(item?.grand_total)
+                }
+              })
 
-              // setReportGrandTotal(totalGrandTotal)
+              setReportGrandTotal(totalGrandTotal)
               break
 
             case 'complaints':

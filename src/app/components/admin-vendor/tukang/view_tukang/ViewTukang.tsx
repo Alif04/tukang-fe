@@ -297,7 +297,7 @@ const ViewTukangVendor: FC = () => {
         const BirthOfDay = new Date(item?.bod ?? '-')
 
         const tukangService = item?.tukang_service
-          .map((tukang_service: any) => tukang_service?.service_type_id ?? '-')
+          .map((tukang_service: any) => tukang_service?.service_type?.service_type ?? '-')
           .join(', ')
 
         data = {

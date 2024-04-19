@@ -21,10 +21,9 @@ interface StoreItem {
   city_id: number | null
 }
 
-interface CityItem {
+interface AreaItem {
   value: number | null
   label: string
-  province_id: number | null
 }
 
 const initialStatusState = {
@@ -61,6 +60,8 @@ const DashboardHO: FC = () => {
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
 
+  console.log('chart work order', chartWorkOrder)
+
   const today = new Date()
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
     .toISOString()
@@ -70,31 +71,30 @@ const DashboardHO: FC = () => {
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [store, setStore] = useState<StoreItem[]>([])
-  const [city, setCity] = useState<CityItem[]>([])
+  const [area, setArea] = useState<AreaItem[]>([])
 
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
     label: 'All Store',
-    city_id: null,
+    area_id: null,
   })
 
   const [selectedZone, setSelectedZone] = useState<any>({
     value: null,
     label: 'All Zona',
-    provice_id: null,
   })
 
-  const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
-  const zoneOptions = [{value: null, label: 'All Zona', province_id: null}, ...city]
+  const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
+  const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
 
   useEffect(() => {
-    const selectedStoreCityId = selectedStore?.city_id
-    const filteredZone = city.filter((item) => item.value === selectedStoreCityId)
+    const selectedStoreCityId = selectedStore?.area_id
+    const filteredZone = area.filter((item) => item.value === selectedStoreCityId)
 
     if (filteredZone.length === 1) {
       setSelectedZone(filteredZone[0])
     } else {
-      setSelectedZone({value: null, label: 'All Zona', city_id: null})
+      setSelectedZone({value: null, label: 'All Zona', area_id: null})
     }
   }, [selectedStore])
 
@@ -219,7 +219,7 @@ const DashboardHO: FC = () => {
       try {
         const url = !selectedZone.value
           ? `${apiUrl}/stores?take=0`
-          : `${apiUrl}/stores?city_id=${selectedZone.value}`
+          : `${apiUrl}/stores?area_id=${selectedZone.value}`
 
         const response = await axios.get(url, {
           headers: {
@@ -234,7 +234,7 @@ const DashboardHO: FC = () => {
           const tempStore = response.data.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
-            city_id: item.city_id,
+            area_id: item.area_id,
           }))
 
           setStore(tempStore)
@@ -246,9 +246,9 @@ const DashboardHO: FC = () => {
       }
     }
 
-    const getCity = async () => {
+    const getArea = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/city?take=0`, {
+        const response = await axios.get(`${apiUrl}/area?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -260,11 +260,10 @@ const DashboardHO: FC = () => {
         if (Array.isArray(response.data.data)) {
           const tempCity = response.data.data.map((item: any) => ({
             value: item?.id ?? null,
-            label: item?.city_name ?? '',
-            province_id: item?.province_id ?? null,
+            label: item?.area ?? '',
           }))
 
-          setCity(tempCity)
+          setArea(tempCity)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -274,7 +273,7 @@ const DashboardHO: FC = () => {
     }
 
     getStore()
-    getCity()
+    getArea()
   }, [selectedZone])
 
   // Catch Value From Response API by Status

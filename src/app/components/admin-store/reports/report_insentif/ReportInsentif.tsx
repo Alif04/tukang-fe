@@ -201,7 +201,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.request_survey)
+        const orderDate = new Date(item?.created_at)
 
         const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
         const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
@@ -217,11 +217,14 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
         data = {
           order_id: item.id,
           date_order: formatDate(orderDate),
-          costumer_name: item.members.full_name,
-          phone_number: item.project_number,
-          email: item.members.email,
-          address: item.project_address,
-          service_name: item.m_order_details[0]?.item_notes ?? '-',
+          costumer_name: item?.members?.full_name,
+          email: item?.members?.email,
+          address: item?.project_address,
+          service_name:
+            item.payment_type === 'survey'
+              ? item.m_order_details[0]?.item_notes
+              : item.m_order_details[0]?.item?.service_name ?? '-',
+          phone_number: item?.project_number,
           quantity: quantity,
           harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,

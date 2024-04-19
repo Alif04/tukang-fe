@@ -372,9 +372,9 @@ const NewTukangVendor: FC = () => {
       formData.append('phone_number', phoneNumber)
 
       if (tukangServiceId?.length) {
-        tukangServiceId.forEach((item: any) => {
+        tukangServiceId.forEach((item: any, index: number) => {
           if (item) {
-            formData.append(`service_type_id`, item)
+            formData.append(`service_types[${index}][service_type_id]`, item)
           }
         })
       }

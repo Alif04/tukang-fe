@@ -96,16 +96,16 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Grand Total Order
   const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
+    const {payment_type, is_overdistance, grand_total} = orderDetail ?? {}
 
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : grand_total + additional_fee
+      totalAmount = is_overdistance === 1 ? grand_total : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 0 ? grand_total : grand_total + additional_fee
+      totalAmount = is_overdistance === 1 ? grand_total : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 0 ? 99000 : grand_total + additional_fee ?? 0
+      totalAmount = is_overdistance === 1 ? grand_total : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`

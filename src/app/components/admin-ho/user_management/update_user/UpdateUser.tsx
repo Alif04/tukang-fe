@@ -2,11 +2,19 @@ import React, {FC, useState, useEffect} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import axios from 'axios'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import {Form, Button, Row, Card} from 'react-bootstrap'
 
-interface user {
-  name: string
+interface Roles {
+  value: number | null
+  label: string
+}
+
+interface User {
+  username: string
+  password: string
+  // role_id: number | null
 }
 
 const UpdateUserHO: FC = () => {
@@ -33,8 +41,14 @@ const UpdateUserHO: FC = () => {
           if (data) {
             setUserForm((prev) => ({
               ...prev,
-              name: data?.name,
+              username: data?.username,
             }))
+
+            // setSelectedRole((prev) => ({
+            //   ...prev,
+            //   value: data?.roles?.id,
+            //   label: data?.roles?.role_name,
+            // }))
           }
         })
     } catch (error) {
@@ -42,13 +56,50 @@ const UpdateUserHO: FC = () => {
     }
   }
 
+  // // Fetch Data Role
+  // const getRoles = async () => {
+  //   try {
+  //     const response = await axios.get(`${apiUrl}/roles`, {
+  //       headers: {
+  //         Accept: 'application/json',
+  //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  //         'Access-Control-Allow-Origin': '*',
+  //         'ngrok-skip-browser-warning': 'true',
+  //       },
+  //     })
+
+  //     if (Array.isArray(response.data.data)) {
+  //       const tempRoles = response.data.data.map((item: any) => ({
+  //         value: item.id,
+  //         label: item.name,
+  //       }))
+
+  //       setRoles(tempRoles)
+  //     } else {
+  //       console.error('API response data is not an array:', response.data)
+  //     }
+  //   } catch (err) {
+  //     console.error(err)
+  //   }
+  // }
+
   useEffect(() => {
     fetchUserData()
+    // getRoles()
   }, [])
 
-  // User State
-  const [userForm, setUserForm] = useState<user>({
-    name: '',
+  // // Role
+  // const [roles, setRoles] = useState<Roles[]>([])
+  // const [selectedRole, setSelectedRole] = useState<SingleValue<Roles>>({
+  //   value: null,
+  //   label: '',
+  // })
+
+  // User
+  const [userForm, setUserForm] = useState<User>({
+    username: '',
+    password: '',
+    // role_id: null,
   })
 
   // User Form Handler
@@ -58,6 +109,14 @@ const UpdateUserHO: FC = () => {
       [e.target.name]: e.target.value,
     })
   }
+
+  // // Change Select Role
+  // useEffect(() => {
+  //   setUserForm((prev) => ({
+  //     ...prev,
+  //     role_id: selectedRole?.value ?? null,
+  //   }))
+  // }, [selectedRole])
 
   // Handle Update User
   const handleUpdate = async () => {
@@ -73,15 +132,13 @@ const UpdateUserHO: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.statusCode === 200) {
+        if (response.data.status === 200) {
           Swal.fire({
             title: 'Success',
             icon: 'success',
             text: 'Success Update User Data',
             showConfirmButton: false,
             timer: 1500,
-          }).then(() => {
-            navigate('/csi/format-pertanyaan-csi')
           })
 
           setIsLoading(false)
@@ -94,6 +151,8 @@ const UpdateUserHO: FC = () => {
             icon: 'error',
           })
         }
+
+        navigate('/user/view-user')
       })
       .catch((error) => {
         setIsLoading(false)
@@ -110,13 +169,47 @@ const UpdateUserHO: FC = () => {
     <section id='update-user'>
       <Card className='mb-5'>
         <Card.Body>
-          <Row>
+          {/* <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Nama :</Form.Label>
+              <Form.Label className='fs-5'>Roles :</Form.Label>
+
+              <Select
+                name='role_id'
+                id='role_id'
+                className='form-control p-0 form-item-name'
+                classNamePrefix='select'
+                placeholder='Pilih/Ketik Role'
+                isSearchable={true}
+                isClearable={true}
+                options={roles}
+                value={{
+                  value: selectedRole?.value ?? null,
+                  label: selectedRole?.label ?? '',
+                }}
+                onChange={(newValue) => setSelectedRole(newValue)}
+              />
+            </Form.Group>
+          </Row> */}
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Username :</Form.Label>
 
               <Form.Control
-                name='name'
-                value={userForm.name}
+                name='username'
+                value={userForm.username}
+                onChange={(e) => userFormHandler(e)}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Reset Password :</Form.Label>
+
+              <Form.Control
+                name='password'
+                value={userForm.password}
                 onChange={(e) => userFormHandler(e)}
               />
             </Form.Group>

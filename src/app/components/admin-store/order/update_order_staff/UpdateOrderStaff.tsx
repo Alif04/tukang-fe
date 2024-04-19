@@ -555,7 +555,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
       let totalOrderAmount = 0
       let biayaSurvey = 0
 
-      const additionalFee = Number(orderForm.additional_fee)
       const total = element.total ? parseInt(element.total) : 0
 
       if (paymentTypeValue[0] === 'gratis') {
@@ -569,17 +568,17 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
         totalOrderAmount = total
       }
 
-      const calculatedGrandTotal =
-        isOverdistance === 1
-          ? totalOrderAmount + biayaSurvey + additionalFee
-          : totalOrderAmount + biayaSurvey
+      const calculatedGrandTotal = totalOrderAmount + biayaSurvey
 
       return paymentTypeValue[1] === 'pemasangan_tanpa_survey'
         ? accumulator + calculatedGrandTotal
         : calculatedGrandTotal
     }, 0)
 
-    return grandTotal
+    const additionalFee = Number(orderForm.additional_fee)
+    const grandTotalWithFee = isOverdistance === 1 ? grandTotal + additionalFee : grandTotal
+
+    return grandTotalWithFee
   }
 
   useEffect(() => {

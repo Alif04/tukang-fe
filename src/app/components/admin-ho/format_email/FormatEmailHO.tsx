@@ -11,16 +11,15 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface templateOption {
-  value: string
+  value: number | null
   label: string
 }
 
 interface emailLayout {
-  email_type: string
+  email_type: number | null
   greetings: string
   footer: string
   welcome_header: string
-  // contact_detail: string
   terms_detail: Array<{
     term: string
   }>
@@ -36,16 +35,15 @@ const FormatEmailHO: FC = () => {
 
   // Email
   const [selectedEmailType, setSelectedEmailType] = useState<SingleValue<templateOption>>({
-    value: '',
+    value: null,
     label: '',
   })
 
   const [emailForm, setEmailForm] = useState<emailLayout>({
-    email_type: '',
+    email_type: null,
     greetings: '',
     footer: '',
     welcome_header: '',
-    // contact_detail: '',
     terms_detail: [
       {
         term: '',
@@ -115,30 +113,20 @@ const FormatEmailHO: FC = () => {
 
   // Template Option
   const templateOptions = [
-    {value: 'reset_password', label: 'Reset Password'},
-    {value: 'order', label: 'Order Notification'},
-    {value: 'complaint', label: 'Complaint Notification'},
-    {value: 'quotation', label: 'Quotation Notification'},
-    // {value: 'csi', label: 'CSI'},
-    // {value: 'paid_notification', label: 'Paid Notification'},
-    // {value: 'survey_notification', label: 'Survey Notification'},
-    // {value: 'work_start_notification', label: 'Work Start Notification'},
-    // {value: 'work_end_notification', label: 'Work End Notification'},
-    // {value: 'complaint_accepted_notification', label: 'Complaint Accepted Notification'},
-    // {value: 'complaint_rejected_notification', label: 'Complaint Rejected Notification'},
-    // {value: 'refund_notification', label: 'Refund Notification'},
-    // {value: 'claim_warranty_accepted_notification', label: 'Claim Warranty Accepted Notification'},
-    // {value: 'claim_warranty_rejected_notification', label: 'Claim Warranty Rejected Notification'},
-    // {value: 'reschedule_notification', label: 'Reschedule Notification'},
+    {value: 1, label: 'Order Notification'},
+    {value: 2, label: 'Credential Mail'},
+    {value: 3, label: 'Reset Password'},
+    {value: 4, label: 'Quotation Notification'},
+    {value: 5, label: 'Others'},
   ]
 
   // Change Select Email Type
-  // useEffect(() => {
-  //   setEmailForm((prev) => ({
-  //     ...prev,
-  //     email_type: selectedEmailType?.value ?? '',
-  //   }))
-  // }, [selectedEmailType])
+  useEffect(() => {
+    setEmailForm((prev) => ({
+      ...prev,
+      email_type: selectedEmailType?.value ?? null,
+    }))
+  }, [selectedEmailType])
 
   // Email Form Handler
   const emailFormHandler = (e: any) => {
@@ -264,7 +252,7 @@ const FormatEmailHO: FC = () => {
   }
 
   const handleCancel = () => {
-    navigate('/home')
+    navigate('/email/view-format-email')
   }
 
   return (
@@ -274,13 +262,7 @@ const FormatEmailHO: FC = () => {
           <Row>
             <Form.Group className='header-template mb-3'>
               <Form.Label className='fs-5'> Email template untuk :</Form.Label>
-              <Form.Control
-                name='email_type'
-                value={emailForm.email_type}
-                onChange={(e) => emailFormHandler(e)}
-              />
-
-              {/* <Select
+              <Select
                 name='template_option'
                 className='form-control p-0'
                 classNamePrefix='select'
@@ -288,7 +270,7 @@ const FormatEmailHO: FC = () => {
                 placeholder='Template untuk'
                 options={templateOptions}
                 onChange={(newValue) => setSelectedEmailType(newValue)}
-              /> */}
+              />
             </Form.Group>
 
             <Form.Group className='header-template mb-3'>
@@ -312,17 +294,6 @@ const FormatEmailHO: FC = () => {
                 onChange={(e) => emailFormHandler(e)}
               />
             </Form.Group>
-
-            {/* <Form.Group className='header-template mb-3'>
-              <Form.Label className='fs-5'>Detail Kontak :</Form.Label>
-
-              <Form.Control
-                name='contact_detail'
-                as='textarea'
-                value={emailForm.contact_detail}
-                onChange={(e) => emailFormHandler(e)}
-              />
-            </Form.Group> */}
 
             <Form.Group className='header-template mb-3'>
               <Form.Label className='fs-5'>Syarat dan Ketentuan :</Form.Label>

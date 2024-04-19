@@ -20,7 +20,8 @@ type Props = {
 interface DataType {
   index: number
   id: number
-  name: string
+  username: string
+  role: string
 }
 
 const ListUserHO: React.FC<Props> = ({className}) => {
@@ -49,17 +50,25 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 90,
       className: 'col_order_id',
-      defaultSortOrder: 'descend',
       sorter: (a, b) => a.index - b.index,
     },
     {
-      title: 'Nama',
-      dataIndex: 'name',
-      key: 'name',
-      align: 'center',
+      title: 'Username',
+      dataIndex: 'username',
+      key: 'username',
+      align: 'start',
       width: 110,
-      onFilter: (value, record) => record.name.includes(String(value)),
-      sorter: (a, b) => a.name.length - b.name.length,
+      onFilter: (value, record) => record.username.includes(String(value)),
+      sorter: (a, b) => a.username.length - b.username.length,
+    },
+    {
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.role.includes(String(value)),
+      sorter: (a, b) => a.role.length - b.role.length,
     },
     {
       title: 'Action',
@@ -68,11 +77,6 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 80,
       render: (record) => {
-        const handleDetailId = () => {
-          const id = record.id
-          navigate(`/user/view-user/${id}`)
-        }
-
         const handleUpdateId = () => {
           const id = record.id
           navigate(`/user/update-user/${id}`)
@@ -129,15 +133,11 @@ const ListUserHO: React.FC<Props> = ({className}) => {
 
         return (
           <div className='button-wrapper d-flex justify-content-center'>
-            <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
-
             <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon className='ms-2 me-2' icon={faPen} size='sm' />
+              <FontAwesomeIcon className='me-2' icon={faPen} size='sm' />
             </a>
 
-            <a className='button-delete' onClick={handleDeleteId}>
+            <a className='button-delete ms-2' onClick={handleDeleteId}>
               <FontAwesomeIcon icon={faTrash} size='sm' />
             </a>
           </div>
@@ -149,7 +149,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
   const getUser = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/auth/get?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/auth/get?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
         {
           headers: {
             Accept: 'application/json',
@@ -160,10 +160,10 @@ const ListUserHO: React.FC<Props> = ({className}) => {
         }
       )
 
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
+      // setCurrentPage(response.data.page)
+      setTotalData(response?.data?.length)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -184,7 +184,8 @@ const ListUserHO: React.FC<Props> = ({className}) => {
         data = {
           index: index + 1,
           id: item.id,
-          name: item?.name ?? '-',
+          username: item?.username ?? '-',
+          role: item?.roles.name ?? '-',
         }
 
         return data
@@ -276,7 +277,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
             rowKey={(record) => record.id}
             pagination={{
               position: ['bottomRight'],
-              current: currentPage,
+              // current: currentPage,
               total: totalData,
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
