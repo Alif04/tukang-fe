@@ -185,15 +185,7 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
               {orderDetail?.payment_type !== 'gratis' &&
                 orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
                   <tr>
-                    <td
-                      colSpan={
-                        orderDetail?.payment_type !== 'gratis' ||
-                        orderDetail?.payment_type !== 'pemasangan_tanpa_survey'
-                          ? 3
-                          : 6
-                      }
-                      className='text-end fw-bolder'
-                    >
+                    <td colSpan={3} className='text-end fw-bolder'>
                       Biaya Survey
                     </td>
 
@@ -213,10 +205,12 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
                   <td
                     className='text-end fw-bolder'
                     colSpan={
-                      orderDetail?.payment_type !== 'gratis' ||
-                      orderDetail?.payment_type !== 'pemasangan_tanpa_survey'
+                      orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'survey'
                         ? 3
-                        : 6
+                        : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                        ? 5
+                        : 0
                     }
                   >
                     Biaya Tambahan
@@ -231,10 +225,12 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
                 <tr>
                   <td
                     colSpan={
-                      orderDetail?.payment_type !== 'gratis' ||
-                      orderDetail?.payment_type !== 'pemasangan_tanpa_survey'
+                      orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'survey'
                         ? 3
-                        : 6
+                        : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                        ? 5
+                        : 0
                     }
                     className='text-end fw-bolder'
                   >

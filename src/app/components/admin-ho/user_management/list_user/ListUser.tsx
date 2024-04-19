@@ -163,7 +163,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       // setCurrentPage(response.data.page)
       setTotalData(response?.data?.length)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

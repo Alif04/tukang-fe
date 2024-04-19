@@ -9,7 +9,7 @@ import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faPen, faSearch, faCheck} from '@fortawesome/free-solid-svg-icons'
 
 import {Table, PaginationProps} from 'antd'
 
@@ -82,11 +82,11 @@ const FormatEmailList: FC = () => {
           navigate(`/email/update-format-email/${id}`)
         }
 
-        const handleDeleteId = () => {
+        const handleActive = () => {
           const id = record.id
 
           Swal.fire({
-            title: `Apakah anda yakin akan menonaktifkan template email ini ?`,
+            title: `Apakah anda yakin akan mengaktifkan template email ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -96,14 +96,75 @@ const FormatEmailList: FC = () => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .delete(`${apiUrl}/email-type/${id}`, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
+                  .patch(
+                    `${apiUrl}/email-messages/${id}`,
+                    {
+                      is_active: true,
                     },
+                    {
+                      headers: {
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Access-Control-Allow-Origin': '*',
+                        'ngrok-skip-browser-warning': 'true',
+                      },
+                    }
+                  )
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: response.data.message,
+                      icon: 'success',
+                    }).then(() => {
+                      window.location.reload()
+                    })
                   })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+
+        const handleNonActive = () => {
+          const id = record.id
+
+          Swal.fire({
+            title: `Apakah anda yakin akan mengaktifkan template email ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Cancel',
+          })
+            .then((willDelete) => {
+              if (willDelete.value) {
+                axios
+                  .patch(
+                    `${apiUrl}/email-messages/${id}`,
+                    {
+                      is_active: false,
+                    },
+                    {
+                      headers: {
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Access-Control-Allow-Origin': '*',
+                        'ngrok-skip-browser-warning': 'true',
+                      },
+                    }
+                  )
                   .then((response) => {
                     Swal.fire({
                       title: 'Success',
@@ -137,14 +198,18 @@ const FormatEmailList: FC = () => {
               <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
             </a>
 
-            {/* <a className='button-delete' onClick={handleDeleteId}>
+            <a className='button-detail' onClick={handleActive}>
+              <FontAwesomeIcon icon={faCheck} className='text-black' size='sm' />
+            </a>
+
+            <a className='button-delete' onClick={handleNonActive}>
               <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a> */}
+            </a>
           </div>
         )
       },
       fixed: 'right',
-      width: 60,
+      width: 30,
     },
   ]
 
