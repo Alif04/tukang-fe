@@ -202,13 +202,6 @@ export * from './admin-ho/user_management/update_user/UpdateUser'
 // List User
 export * from './admin-ho/user_management/list_user/ListUser'
 
-// SALES
-// Update Sales
-export * from './admin-ho/sales/update_sales/UpdateSales'
-
-// View Sales
-export * from './admin-ho/sales/view_sales/ViewSales'
-
 // STORE
 // List Store
 export * from './admin-ho/stores/list_store/ListStore'
@@ -459,3 +452,20 @@ export * from './tukang/reports/report/ReportTukang'
 // SALES
 // New Sales
 export * from './admin-ho/sales/new_sales/NewSales'
+
+// SALES
+// Update Sales
+export * from './admin-ho/sales/update_sales/UpdateSales'
+
+// View Sales
+export * from './admin-ho/sales/view_sales/ViewSales'
+
+// STAFF
+// New Employee
+export * from './admin-ho/employee/new_employee/NewEmployee'
+
+// Update Employee
+export * from './admin-ho/employee/update_employee/UpdateEmployee'
+
+// View Employee
+export * from './admin-ho/employee/view_employee/ViewEmployee'

@@ -433,6 +433,13 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
+        {/* <AsideMenuItem
+          to='/employee/new-employee'
+          title='Register Staff'
+          role={['Store CS']}
+          hasBullet={true}
+        /> */}
+
         <AsideMenuItem
           to='/sales/new-sales'
           title='Register Sales'
@@ -486,12 +493,12 @@ export function AsideMenuMain() {
           hasBullet={true}
           role={['Admin HO']}
         >
-          {/* <AsideMenuItem
+          <AsideMenuItem
             to='/user/new-user'
             title='Formulir Registrasi User'
             role={['Admin HO']}
             hasBullet={true}
-          /> */}
+          />
 
           <AsideMenuItem
             to='/user/view-user'

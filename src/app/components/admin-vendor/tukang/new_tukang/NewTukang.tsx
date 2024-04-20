@@ -12,11 +12,6 @@ import {Form, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface Vendor {
-  value: any
-  label: string
-}
-
 interface Bank {
   value: BigInteger
   label: string
@@ -30,6 +25,10 @@ interface TukangService {
 const NewTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const vendorId = localStorage.getItem('vendor_id') as any
+  const vendorName = localStorage.getItem('vendorName') as string
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const animatedComponents = makeAnimated()
@@ -80,32 +79,6 @@ const NewTukangVendor: FC = () => {
     }
   }
 
-  const getVendor = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/vendor`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempVendor = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.company_name,
-        }))
-
-        setVendor(tempVendor)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   const getTukangService = async () => {
     try {
       const response = await axios.get(`${apiUrl}/service-type`, {
@@ -135,7 +108,6 @@ const NewTukangVendor: FC = () => {
   useEffect(() => {
     getTukangId()
     getBank()
-    getVendor()
     getTukangService()
   }, [])
 
@@ -169,10 +141,6 @@ const NewTukangVendor: FC = () => {
   const [bankId, setBankId] = useState<string>('')
   const [nomorRekening, setNomorRekening] = useState<any>()
   const [namaRekening, setNamaRekening] = useState<any>()
-
-  // Vendor Information
-  const [vendor, setVendor] = useState<Vendor[]>([])
-  const [vendorId, setVendorId] = useState<string>('')
 
   // Change Input Tukang Information
   const handleChangeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,12 +203,6 @@ const NewTukangVendor: FC = () => {
   const handleChangeNamaRekening = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedNamaRekening = event.target.value
     setNamaRekening(updatedNamaRekening)
-  }
-
-  // Change Select Vendor
-  const handleChangeSelectVendor = (element: any) => {
-    const updatedVendorId = element.value
-    setVendorId(updatedVendorId)
   }
 
   // Upload Document
@@ -337,13 +299,6 @@ const NewTukangVendor: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!vendorId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Vendor form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!uploadDocument) {
       Swal.fire({
         title: 'Error',
@@ -436,54 +391,18 @@ const NewTukangVendor: FC = () => {
     <section id='new-tukang'>
       <div className='card mb-5'>
         <div className='card-body'>
+          <Row className='mb-3'>
+            <Form.Label>
+              Nama Vendor{' '}
+              <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>{vendorName}</span>
+            </Form.Label>
+          </Row>
+
           <Row>
             <Col xxl={4}>
               <Form.Group className='tukang-info'>
-                <Form.Label>Username</Form.Label>
-                <Form.Control type='text' onChange={handleChangeUsername} />
-              </Form.Group>
-
-              <Form.Group className='tukang-info'>
                 <Form.Label>Tukang ID</Form.Label>
-                <Form.Control type='number' disabled value={tukangId} />
-              </Form.Group>
-
-              <Form.Group className='tukang-info'>
-                <Form.Label>Email</Form.Label>
-                <Form.Control type='email' onChange={handleChangeEmail} />
-              </Form.Group>
-
-              <Form.Group className='tukang-info'>
-                <Form.Label>Tanggal Lahir</Form.Label>
-                <Form.Control type='date' onChange={handleChangeDateBirth} />
-              </Form.Group>
-
-              <Form.Group className='tukang-info'>
-                <div className='d-flex justify-content-between'>
-                  <Form.Label>Keahlian</Form.Label>
-
-                  {/* <a href='/tukang/view-tukang' className='form-button-request'>
-                    <Form.Label>Tambah Keahlian & jasa</Form.Label>
-                    <i className='bi bi-plus'></i>
-                  </a> */}
-                </div>
-
-                <Select
-                  classNamePrefix='select'
-                  placeholder='Pilih Keahlian Tukang'
-                  closeMenuOnSelect={false}
-                  components={animatedComponents}
-                  isMulti
-                  options={tukangService}
-                  onChange={(element) => handleChangeServiceTypeId(element)}
-                />
-              </Form.Group>
-            </Col>
-
-            <Col xxl={4}>
-              <Form.Group className='tukang-info'>
-                <Form.Label>Password</Form.Label>
-                <Form.Control type='text' onChange={handleChangePassword} />
+                <Form.Control readOnly type='number' value={tukangId} />
               </Form.Group>
 
               <Form.Group className='tukang-info'>
@@ -497,20 +416,49 @@ const NewTukangVendor: FC = () => {
               </Form.Group>
 
               <Form.Group className='tukang-info'>
+                <Form.Label>Username</Form.Label>
+                <Form.Control type='text' onChange={handleChangeUsername} />
+              </Form.Group>
+
+              <Form.Group className='tukang-info'>
+                <Form.Label>Tanggal Lahir</Form.Label>
+                <Form.Control type='date' onChange={handleChangeDateBirth} />
+              </Form.Group>
+            </Col>
+
+            <Col xxl={4}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Keahlian</Form.Label>
+
+                <Select
+                  classNamePrefix='select'
+                  placeholder='Pilih Keahlian Tukang'
+                  closeMenuOnSelect={false}
+                  components={animatedComponents}
+                  isMulti
+                  options={tukangService}
+                  onChange={(element) => handleChangeServiceTypeId(element)}
+                />
+              </Form.Group>
+
+              <Form.Group className='tukang-info'>
+                <Form.Label>Email</Form.Label>
+                <Form.Control type='email' onChange={handleChangeEmail} />
+              </Form.Group>
+
+              <Form.Group className='tukang-info'>
                 <Form.Label>Nomor KTP</Form.Label>
                 <Form.Control type='number' onChange={handleChangeKtpNumber} />
               </Form.Group>
 
               <Form.Group className='tukang-info'>
-                <Form.Label>Vendor</Form.Label>
+                <Form.Label>Password</Form.Label>
+                <Form.Control type='text' onChange={handleChangePassword} />
+              </Form.Group>
 
-                <Select
-                  classNamePrefix='select'
-                  placeholder='Pilih Nama Vendor'
-                  isSearchable={true}
-                  options={vendor}
-                  onChange={(element) => handleChangeSelectVendor(element)}
-                />
+              <Form.Group className='tukang-info'>
+                <Form.Label>Alamat</Form.Label>
+                <Form.Control as='textarea' type='text' onChange={handleChangeAddress} />
               </Form.Group>
             </Col>
 
@@ -573,13 +521,6 @@ const NewTukangVendor: FC = () => {
                 </div>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
-            <Form.Group className='tukang-info'>
-              <Form.Label>Alamat</Form.Label>
-              <Form.Control as='textarea' type='text' onChange={handleChangeAddress} />
-            </Form.Group>
           </Row>
 
           <div className='d-flex justify-content-center'>

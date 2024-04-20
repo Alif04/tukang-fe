@@ -30,6 +30,7 @@ const ViewTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const userRole = localStorage.getItem('userRole')
+  const vendorId = localStorage.getItem('vendor_id')
 
   const [tukangData, setTukangData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -262,7 +263,7 @@ const ViewTukangVendor: FC = () => {
   const fetchTukangList = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/tukang?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${serviceTypeId}`,
+        `${apiUrl}/tukang?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${serviceTypeId}&vendor_id=${vendorId}`,
         {
           headers: {
             Accept: 'application/json',

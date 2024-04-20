@@ -1,65 +1,79 @@
 import React, {useState, useEffect, FC} from 'react'
 import {useNavigate} from 'react-router-dom'
 
-import './NewSales.css'
+import './NewEmployee.css'
 
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import Swal from 'sweetalert2'
-import makeAnimated from 'react-select/animated'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPen, faTrash, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
-interface BankSelect {
+interface PositionSelect {
   value: number | null
   label: string
 }
 
-interface CategorySelect {
+interface StoreSelect {
   value: number | null
   label: string
 }
 
-interface StoreItem {
-  value: number | null
-  label: string
-}
-
-interface Sales {
+interface Employee {
   store_id: number | null
-  bank_id: number | null
+  position_id: number | null
   full_name: string
-  account_name: string
+  birth: string
+  email: string
+  nik: string
   phone_number: string
-  account_number: string
-  sales_brand: string
-  sales_categories: CategorySelect[]
   default_password: string
 }
 
-const NewSales: FC = () => {
+interface DataType {
+  no: number
+  employee_id: number
+  store_name: string
+  position: string
+  full_name: string
+  birth: string
+  email: string
+  nik: string
+  phone_number: string
+}
+
+const NewEmployee: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const animatedComponents = makeAnimated()
   const userRole = localStorage.getItem('userRole')
+
+  const staffStoreId = localStorage.getItem('storeId') as any
+  const staffStoreName = localStorage.getItem('storeName') as string
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // List Store
-  const [store, setStore] = useState<StoreItem[]>([])
-  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+  const [store, setStore] = useState<StoreSelect[]>([])
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreSelect>>({
     value: null,
     label: '',
   })
 
-  // List Sales
-  const [salesData, setSalesData] = useState<DataType[]>([])
+  // List Position
+  const [position, setPosition] = useState<PositionSelect[]>([])
+  const [selectedPosition, setSelectedPosition] = useState<SingleValue<PositionSelect>>({
+    value: null,
+    label: '',
+  })
+
+  // List Employee
+  const [employeeData, setEmployeeData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -67,33 +81,18 @@ const NewSales: FC = () => {
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
-  const staffStoreId = localStorage.getItem('storeId') as any
-  const staffStoreName = localStorage.getItem('storeName') as string
-
-  // Sales
-  const [salesId, setSalesId] = useState<any>()
-  const [salesInfo, setSalesInfo] = useState<Sales>({
+  // Employee
+  const [employeeId, setEmployeeId] = useState<any>()
+  const [employeeInfo, setEmployeeInfo] = useState<Employee>({
     store_id: null,
-    bank_id: null,
+    position_id: null,
     full_name: '',
-    account_name: '',
+    birth: '',
+    email: '',
+    nik: '',
     phone_number: '',
-    account_number: '',
-    sales_brand: '',
-    sales_categories: [],
     default_password: '',
   })
-
-  // Bank
-  const [bank, setBank] = useState<BankSelect[]>([])
-  const [selectedBank, setSelectedBank] = useState<SingleValue<BankSelect>>({
-    value: null,
-    label: '',
-  })
-
-  // Category
-  const [categories, setCategories] = useState<CategorySelect[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<CategorySelect[]>([])
 
   // Fetch API Data
   useEffect(() => {
@@ -123,9 +122,9 @@ const NewSales: FC = () => {
       }
     }
 
-    const getSalesId = async () => {
+    const getEmployeeId = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales/next-code`, {
+        const response = await axios.get(`${apiUrl}/employee/next-code`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -133,21 +132,19 @@ const NewSales: FC = () => {
             'ngrok-skip-browser-warning': 'true',
           },
         })
-
-        const data = response.data.code
 
         if (response.status === 200) {
           const {data} = response
-          setSalesId(data.data.code)
+          setEmployeeId(data.data.code)
         }
       } catch (err) {
         console.error(err)
       }
     }
 
-    const getBank = async () => {
+    const getPosition = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/bank`, {
+        const response = await axios.get(`${apiUrl}/positions`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -157,12 +154,12 @@ const NewSales: FC = () => {
         })
 
         if (Array.isArray(response.data.data)) {
-          const tempBank = response.data.data.map((item: any) => ({
+          const tempPosition = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.bank_name,
+            label: item.position_name,
           }))
 
-          setBank(tempBank)
+          setPosition(tempPosition)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -171,51 +168,22 @@ const NewSales: FC = () => {
       }
     }
 
-    const getCategories = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/categories`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempCategories = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.category_name,
-          }))
-
-          setCategories(tempCategories)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
+    getEmployeeId()
     getStore()
-    getSalesId()
-    getBank()
-    getCategories()
+    getPosition()
   }, [])
 
   // Store ID
   const storeId =
     userRole === 'Admin HO' && selectedStore && selectedStore.value
       ? `&store_id=${selectedStore.value}`
-      : userRole === 'Store Staff' || userRole === 'Store CS'
-      ? `&store_id=${staffStoreId}`
-      : ''
+      : `&store_id=${staffStoreId}`
 
   // Fetch Sales List
-  const fetchSalesList = async (page: number, pageSize: number) => {
+  const getEmployee = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/sales?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
+        `${apiUrl}/employees?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -228,52 +196,50 @@ const NewSales: FC = () => {
 
       setCurrentPage(response.data.page)
       setTotalData(response.data.takeTotal)
+
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewSales = async (page: number, pageSize: number) => {
+  const ViewEmployee = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchSalesList(page, pageSize)
+      const apiData = await getEmployee(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchVendorList')
+        console.error('No data received from getEmployee')
         return []
       }
 
-      const salesData = apiData.map((item: any, index: number) => {
+      const employeeData = apiData.map((item: any, index: number) => {
         let data
-
-        const salesCategory = item.sales_categories
-          .map((sales_categories: any) => sales_categories.categories.category_name)
-          .join(', ')
 
         data = {
           no: index + 1,
-          sales_id: item?.id ?? '',
+          employee_id: item?.id ?? '',
           store_name: item?.store?.store_name ?? '',
+          position: item?.store?.position ?? '',
           full_name: item?.full_name ?? '',
-          // nik: item?.nik ?? '-',
-          sales_brand: item?.sales_brand ?? '-',
-          sales_category: salesCategory,
-          is_active: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
+          birth: item?.birth ?? '',
+          email: item?.email ?? '',
+          nik: item?.nik ?? '',
+          phone_number: item?.phone_number ?? '',
         }
 
         return data
       })
 
-      return salesData
+      return employeeData
     } catch (error) {
-      console.error('Error getting sales list data:', error)
+      console.error('Error getting employee list data:', error)
       return []
     }
   }
 
   const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewSales(page, pageSize)
-    setSalesData(data)
+    const data = await ViewEmployee(page, pageSize)
+    setEmployeeData(data)
   }
 
   useEffect(() => {
@@ -290,9 +256,9 @@ const NewSales: FC = () => {
     return originalElement
   }
 
-  // Sales Form
-  const salesInfoFormHandler = (e: any) => {
-    setSalesInfo((prevSalesInfo) => ({
+  // Employee Form
+  const employeeFormHandler = (e: any) => {
+    setEmployeeInfo((prevSalesInfo) => ({
       ...prevSalesInfo,
       [e.target.name]: e.target.value,
     }))
@@ -300,57 +266,25 @@ const NewSales: FC = () => {
 
   // Change Select Store
   useEffect(() => {
-    setSalesInfo((prev) => ({
+    setEmployeeInfo((prev) => ({
       ...prev,
       store_id:
         userRole === 'Admin HO' ? selectedStore?.value ?? null : Number.parseInt(staffStoreId),
     }))
   }, [selectedStore])
 
-  // Change Select Bank
+  // Change Select Position
   useEffect(() => {
-    setSalesInfo((prev) => ({
+    setEmployeeInfo((prev) => ({
       ...prev,
-      bank_id: selectedBank?.value ?? null,
+      position_id: selectedPosition?.value ?? null,
     }))
-  }, [selectedBank])
-
-  // Change Select Category
-  const handleChangeCategories = (element: any) => {
-    const updatedCategories = element.map((option: any) => ({
-      value: option.value,
-      label: option.label,
-    }))
-
-    setSelectedCategories(updatedCategories)
-
-    const updatedCategoriesId = element.map((option: any) => ({
-      category_id: option.value,
-    }))
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      sales_categories: updatedCategoriesId,
-    }))
-  }
+  }, [selectedPosition])
 
   // Filter Search Handler
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  // Data Type List Sales
-
-  interface DataType {
-    no: number
-    sales_id: number
-    store_name: string
-    full_name: string
-    // nik: number
-    sales_brand: string
-    sales_category: string
-    is_active: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -364,16 +298,34 @@ const NewSales: FC = () => {
       sorter: (a, b) => a.no - b.no,
     },
     {
-      title: 'Sales ID',
-      dataIndex: 'sales_id',
-      key: 'sales_id',
-      align: 'center',
-      width: 70,
-      className: 'col_order_id',
-      sorter: (a, b) => a.sales_id - b.sales_id,
+      title: 'Nama Staff',
+      dataIndex: 'full_name',
+      key: 'full_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.full_name.includes(String(value)),
+      sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
     {
-      title: 'Assign From Store',
+      title: 'NIK',
+      dataIndex: 'nik',
+      key: 'nik',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.nik.includes(String(value)),
+      sorter: (a, b) => a.nik.length - b.nik.length,
+    },
+    {
+      title: 'Posisi',
+      dataIndex: 'full_name',
+      key: 'full_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.full_name.includes(String(value)),
+      sorter: (a, b) => a.full_name.length - b.full_name.length,
+    },
+    {
+      title: 'Assign To Store',
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'left',
@@ -382,52 +334,22 @@ const NewSales: FC = () => {
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
     {
-      title: 'Nama Sales',
-      dataIndex: 'full_name',
-      key: 'full_name',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
       align: 'left',
       width: 140,
-      onFilter: (value, record) => record.full_name.includes(String(value)),
-      sorter: (a, b) => a.full_name.length - b.full_name.length,
-    },
-    // {
-    //   title: 'NIK',
-    //   dataIndex: 'nik',
-    //   key: 'nik',
-    //   align: 'left',
-    //   width: 120,
-    //   sorter: (a, b) => a.nik - b.nik,
-    // },
-    {
-      title: 'Brand Sales',
-      dataIndex: 'sales_brand',
-      key: 'sales_brand',
-      align: 'left',
-      width: 120,
-      onFilter: (value, record) => record.sales_brand.includes(String(value)),
-      sorter: (a, b) => a.sales_brand.length - b.sales_brand.length,
+      onFilter: (value, record) => record.email.includes(String(value)),
+      sorter: (a, b) => a.email.length - b.email.length,
     },
     {
-      title: 'Kategori Sales',
-      dataIndex: 'sales_category',
-      key: 'sales_category',
+      title: 'Phone Number',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
       align: 'left',
-      width: 120,
-      onFilter: (value, record) => record.sales_category.includes(String(value)),
-      sorter: (a, b) => a.sales_category.length - b.sales_category.length,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'is_active',
-      key: 'is_active',
-      align: 'left',
-      width: 110,
-      onFilter: (value, record) => record.is_active.includes(String(value)),
-      sorter: (a, b) => a.is_active.length - b.is_active.length,
-      filters: [
-        {text: 'ACTIVE', value: 'ACTIVE'},
-        {text: 'INACTIVE', value: 'INACTIVE'},
-      ],
+      width: 140,
+      onFilter: (value, record) => record.phone_number.includes(String(value)),
+      sorter: (a, b) => a.phone_number.length - b.phone_number.length,
     },
     {
       title: 'Action',
@@ -437,15 +359,15 @@ const NewSales: FC = () => {
       width: 45,
       render: (record) => {
         const handleUpdateId = () => {
-          const id = record.sales_id
-          navigate(`/sales/update-sales/${id}`)
+          const id = record.employee_id
+          navigate(`/employee/update-employee/${id}`)
         }
 
         const handleDeleteId = () => {
-          const id = record.sales_id
+          const id = record.employee_id
 
           Swal.fire({
-            title: `Apakah anda yakin akan mengubah status Sales ini ?`,
+            title: `Apakah anda yakin akan menghapus data staff ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -456,7 +378,7 @@ const NewSales: FC = () => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .delete(`${apiUrl}/sales/${id}`, {
+                  .delete(`${apiUrl}/employee/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -506,49 +428,49 @@ const NewSales: FC = () => {
     },
   ]
 
-  // Sales Validation
-  const SalesValidation = () => {
+  // Employee Validation
+  const EmployeeValidation = () => {
     let valid = true
 
-    if (!salesInfo.full_name) {
+    if (!employeeInfo.full_name) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill Name Sales Consultant form',
+        text: 'Please fill Nama Staff form',
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.phone_number) {
+    } else if (!employeeInfo.nik) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill NIK form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!employeeInfo.birth) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Tanggal Lahir form',
+        icon: 'error',
+      })
+      valid = false
+    } else if (!employeeInfo.phone_number) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill WA / Phone Number form',
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.sales_categories) {
+    } else if (!employeeInfo.email) {
       Swal.fire({
         title: 'Error',
-        text: 'Please select Brands form',
+        text: 'Please fill Email form',
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.bank_id) {
+    } else if (!employeeInfo.default_password) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill Nama Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.account_number) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nomor Akun Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.account_name) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nama Pemilik Akun form',
+        text: 'Please fill Password form',
         icon: 'error',
       })
       valid = false
@@ -557,15 +479,15 @@ const NewSales: FC = () => {
     return valid
   }
 
-  // Handle Submit New Sales
-  const handleSubmitNewSales = async () => {
-    if (!SalesValidation()) {
+  // Handle Submit New Employee
+  const handleSubmit = async () => {
+    if (!EmployeeValidation()) {
       setIsLoading(true)
       return false
     }
 
     await axios
-      .post(`${apiUrl}/sales`, salesInfo, {
+      .post(`${apiUrl}/employee`, employeeInfo, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -577,7 +499,7 @@ const NewSales: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Create Sales',
+            text: 'Success Create Employee',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -608,19 +530,19 @@ const NewSales: FC = () => {
       })
   }
 
-  const handleCancelCreateSales = () => {
-    navigate('/home')
+  const handleCancel = () => {
+    navigate('/employee/view-employee')
   }
 
   return (
     <>
-      <section id='new-sales'>
+      <section id='new-employee'>
         <div className='card mb-5'>
           <div className='card-body'>
             <div className='form-wrapper'>
-              <Row className='form-header'>
-                <Form.Group as={Row}>
-                  <Form.Label column sm='4'>
+              <Row className='form-header mb-4'>
+                <Form.Group>
+                  <Form.Label>
                     Nama Toko
                     {userRole === 'Admin HO' ? (
                       <Select
@@ -642,109 +564,81 @@ const NewSales: FC = () => {
               </Row>
 
               <Row>
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Sales ID</Form.Label>
-                    <Form.Control readOnly type='number' value={salesId} />
+                    <Form.Label>Staff ID</Form.Label>
+                    <Form.Control readOnly type='number' value={employeeId} />
                   </Form.Group>
-                </Col>
 
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Nama Bank</Form.Label>
-
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Nama Bank'
-                      isSearchable={true}
-                      options={bank}
-                      onChange={(newValue) => setSelectedBank(newValue)}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Brands</Form.Label>
-
-                    <Form.Control
-                      name='sales_brand'
-                      type='text'
-                      onChange={(e) => salesInfoFormHandler(e)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Nama Sales Consultant</Form.Label>
+                    <Form.Label>Nama Staff</Form.Label>
                     <Form.Control
                       name='full_name'
                       type='text'
-                      onChange={(e) => salesInfoFormHandler(e)}
+                      onChange={(e) => employeeFormHandler(e)}
                     />
                   </Form.Group>
-                </Col>
 
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Nomor Akun Bank</Form.Label>
+                    <Form.Label>Tanggal Lahir</Form.Label>
                     <Form.Control
-                      name='account_number'
-                      type='number'
-                      onChange={(e) => salesInfoFormHandler(e)}
+                      name='birth'
+                      type='date'
+                      onChange={(e) => employeeFormHandler(e)}
                     />
                   </Form.Group>
-                </Col>
 
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Category</Form.Label>
-                    <Select
-                      placeholder='Pilih Category'
-                      closeMenuOnSelect={false}
-                      components={animatedComponents}
-                      isMulti
-                      options={categories}
-                      value={selectedCategories}
-                      onChange={(element) => handleChangeCategories(element)}
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                      name='email'
+                      type='text'
+                      onChange={(e) => employeeFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
-              </Row>
 
-              <Row>
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Posisi</Form.Label>
+
+                    {userRole === 'Admin HO' ? (
+                      <Select
+                        classNamePrefix='select'
+                        placeholder='Pilih Nama Posisi'
+                        isSearchable={true}
+                        options={position}
+                        onChange={(newValue) => setSelectedPosition(newValue)}
+                      />
+                    ) : (
+                      <Form.Control readOnly type='text' value='Store Staff' />
+                    )}
+                  </Form.Group>
+
+                  <Form.Group className='mb-5'>
+                    <Form.Label>NIK</Form.Label>
+                    <Form.Control
+                      name='nik'
+                      type='number'
+                      onChange={(e) => employeeFormHandler(e)}
+                    />
+                  </Form.Group>
+
                   <Form.Group className='mb-5'>
                     <Form.Label>WA / Phone Number</Form.Label>
                     <Form.Control
                       name='phone_number'
                       type='number'
-                      onChange={(e) => salesInfoFormHandler(e)}
+                      onChange={(e) => employeeFormHandler(e)}
                     />
                   </Form.Group>
-                </Col>
 
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Nama Pemilik Akun</Form.Label>
-                    <Form.Control
-                      name='account_name'
-                      type='text'
-                      onChange={(e) => salesInfoFormHandler(e)}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Default Password</Form.Label>
                     <Form.Control
                       name='default_password'
                       type='text'
-                      onChange={(e) => salesInfoFormHandler(e)}
+                      onChange={(e) => employeeFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
@@ -752,7 +646,7 @@ const NewSales: FC = () => {
             </div>
 
             <div className='d-flex justify-content-center mt-5'>
-              <Button variant='dark-danger' type='submit' onClick={handleCancelCreateSales}>
+              <Button variant='dark-danger' type='submit' onClick={handleCancel}>
                 Cancel
               </Button>
 
@@ -761,7 +655,7 @@ const NewSales: FC = () => {
                 type='submit'
                 disabled={isLoading}
                 onClick={() => {
-                  handleSubmitNewSales()
+                  handleSubmit()
                 }}
               >
                 {isLoading ? 'Saving..' : 'Save'}
@@ -771,7 +665,7 @@ const NewSales: FC = () => {
         </div>
       </section>
 
-      <section id='view-sales'>
+      <section id='view-employee'>
         <div className='card'>
           <div className='card-body table-view-order'>
             <Row className='table-head-wrapper'>
@@ -836,8 +730,8 @@ const NewSales: FC = () => {
               className='table-striped-rows'
               bordered
               columns={columns}
-              dataSource={salesData}
-              rowKey={(record) => record.sales_id}
+              dataSource={employeeData}
+              rowKey={(record) => record.employee_id}
               pagination={{
                 position: ['bottomRight'],
                 current: currentPage,
@@ -850,7 +744,7 @@ const NewSales: FC = () => {
                 itemRender: itemRender,
                 showTotal: (total, range) => (
                   <span style={{left: 0, position: 'absolute'}}>
-                    Showing {range[0]} - {range[1]} of {total} Total Sales
+                    Showing {range[0]} - {range[1]} of {total} Total Staff
                   </span>
                 ),
               }}
@@ -862,4 +756,4 @@ const NewSales: FC = () => {
   )
 }
 
-export {NewSales}
+export {NewEmployee}

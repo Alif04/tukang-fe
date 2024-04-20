@@ -77,14 +77,14 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 80,
       render: (record) => {
+        const id = record.id
+        const role = record.role
+
         const handleUpdateId = () => {
-          const id = record.id
           navigate(`/user/update-user/${id}`)
         }
 
         const handleDeleteId = () => {
-          const id = record.id
-
           Swal.fire({
             title: `Apakah anda yakin akan menghapus User ini ?`,
             icon: 'warning',
@@ -133,13 +133,17 @@ const ListUserHO: React.FC<Props> = ({className}) => {
 
         return (
           <div className='button-wrapper d-flex justify-content-center'>
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon className='me-2' icon={faPen} size='sm' />
-            </a>
+            {!['Admin HO', 'Tukang', 'Employee', 'Member'].includes(role) && (
+              <>
+                <a className='button-edit' onClick={handleUpdateId}>
+                  <FontAwesomeIcon className='me-2' icon={faPen} size='sm' />
+                </a>
 
-            <a className='button-delete ms-2' onClick={handleDeleteId}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+                <a className='button-delete ms-2' onClick={handleDeleteId}>
+                  <FontAwesomeIcon icon={faTrash} size='sm' />
+                </a>
+              </>
+            )}
           </div>
         )
       },

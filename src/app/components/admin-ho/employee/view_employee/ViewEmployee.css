@@ -1,0 +1,66 @@
+/* Table */
+
+#view-employee .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#view-employee
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-employee .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-employee .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-employee .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-employee .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#view-employee .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#view-employee .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+/* Searchbar */
+
+#view-employee .filter-search .input-group .form-control.filter-ltr {
+  border-left: none;
+}
+
+#view-employee .filter-search .input-group-text.filter-ltr {
+  background-color: transparent;
+  border-right: none;
+}
+
+#view-employee .select__control.css-13cymwt-control {
+  height: 45px;
+}
+
+#view-employee .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+  border: none;
+}

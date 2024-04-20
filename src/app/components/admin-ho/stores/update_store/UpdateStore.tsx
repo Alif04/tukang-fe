@@ -8,10 +8,10 @@ import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import {Row, Col, Form, Button, Card} from 'react-bootstrap'
 
-// interface City {
-//   value: number | null
-//   label: string
-// }
+interface AreaItem {
+  value: number | null
+  label: string
+}
 
 interface Bank {
   value: number | null
@@ -23,7 +23,7 @@ interface Store {
   store_name: string
   address: string
   additional_address: string
-  // city_id: number | null
+  area_id: number | null
   phone_number_1: number | null
   email: string
   bank_name: string
@@ -46,7 +46,7 @@ const UpdateStores: FC = () => {
     store_name: '',
     address: '',
     additional_address: '',
-    // city_id: null,
+    area_id: null,
     phone_number_1: null,
     email: '',
     bank_name: '',
@@ -57,12 +57,12 @@ const UpdateStores: FC = () => {
     default_password: '',
   })
 
-  // City
-  // const [city, setCity] = useState<City[]>([])
-  // const [selectedCity, setSelectedCity] = useState<SingleValue<City>>({
-  //   value: null,
-  //   label: '',
-  // })
+  // Area
+  const [area, setArea] = useState<AreaItem[]>([])
+  const [selectedArea, setSelectedArea] = useState<SingleValue<AreaItem>>({
+    value: null,
+    label: '',
+  })
 
   // Bank
   // const [bank, setBank] = useState<Bank[]>([])
@@ -73,6 +73,32 @@ const UpdateStores: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
+    const getArea = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/area?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempCity = response.data.data.map((item: any) => ({
+            value: item?.id ?? null,
+            label: item?.area ?? '',
+          }))
+
+          setArea(tempCity)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     const getStoreData = async () => {
       try {
         await axios
@@ -87,17 +113,17 @@ const UpdateStores: FC = () => {
           .then((response) => {
             const data = response.data.data
 
-            if (data?.city_id) {
+            if (data?.area_id) {
               setStoreInfo((prev) => ({
                 ...prev,
-                city_id: data.city_id,
+                area_id: data.area_id,
               }))
 
-              // setSelectedCity((prev) => ({
-              //   ...prev,
-              //   value: data?.city?.id,
-              //   label: data?.city?.city_name,
-              // }))
+              setSelectedArea((prev) => ({
+                ...prev,
+                value: data?.area?.id,
+                label: data?.area?.area,
+              }))
             }
 
             // if (data) {
@@ -188,9 +214,9 @@ const UpdateStores: FC = () => {
     //   }
     // }
 
-    // getCity()
-    // getBank()
     getStoreData()
+    getArea()
+    // getBank()
   }, [])
 
   // Store Form Handler
@@ -202,12 +228,12 @@ const UpdateStores: FC = () => {
   }
 
   // Change Select City
-  // useEffect(() => {
-  //   setStoreInfo((prev) => ({
-  //     ...prev,
-  //     city_id: selectedCity?.value ?? null,
-  //   }))
-  // }, [selectedCity])
+  useEffect(() => {
+    setStoreInfo((prev) => ({
+      ...prev,
+      area_id: selectedArea?.value ?? null,
+    }))
+  }, [selectedArea])
 
   // Change Select Bank
   // useEffect(() => {
@@ -397,21 +423,6 @@ const UpdateStores: FC = () => {
 
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  {/* <Form.Group>
-                    <Form.Label>City</Form.Label>
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Nama Kota'
-                      isSearchable={true}
-                      options={city}
-                      value={{
-                        value: selectedCity?.value ?? null,
-                        label: selectedCity?.label ?? '',
-                      }}
-                      onChange={(newValue) => setSelectedCity(newValue)}
-                    />
-                  </Form.Group> */}
-
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type='email'
@@ -474,7 +485,22 @@ const UpdateStores: FC = () => {
                   </Form.Text>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}></Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group>
+                    <Form.Label>Area</Form.Label>
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Area'
+                      isSearchable={true}
+                      options={area}
+                      value={{
+                        value: selectedArea?.value ?? null,
+                        label: selectedArea?.label ?? '',
+                      }}
+                      onChange={(newValue) => setSelectedArea(newValue)}
+                    />
+                  </Form.Group>
+                </Col>
               </Row>
 
               <hr />
