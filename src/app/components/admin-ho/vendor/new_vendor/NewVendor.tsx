@@ -72,9 +72,9 @@ const NewVendorHO: FC = () => {
     }
   }
 
-  const getCity = async () => {
+  const getArea = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/city?take=0`, {
+      const response = await axios.get(`${apiUrl}/area?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -84,12 +84,12 @@ const NewVendorHO: FC = () => {
       })
 
       if (Array.isArray(response.data.data)) {
-        const tempCity = response.data.data.map((item: any) => ({
+        const tempArea = response.data.data.map((item: any) => ({
           value: item.id,
-          label: item.city_name,
+          label: item.area,
         }))
 
-        setServiceArea(tempCity)
+        setServiceArea(tempArea)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -172,7 +172,7 @@ const NewVendorHO: FC = () => {
 
   useEffect(() => {
     getStore()
-    getCity()
+    getArea()
     getServiceType()
     getBank()
     getVendorId()
@@ -730,7 +730,6 @@ const NewVendorHO: FC = () => {
 
       formData.append('pic_name', picName)
       formData.append('markup', markup)
-      // formData.append('discount', discount)
       formData.append('account_name', accountName)
       formData.append('account_number', accountNumber)
       formData.append('bank_id', bankId)
@@ -857,6 +856,20 @@ const NewVendorHO: FC = () => {
 
                 <Col>
                   <Form.Group>
+                    <Form.Label>Nomor HP / WA</Form.Label>
+
+                    <Form.Control
+                      type='text'
+                      onChange={handleChangeVendorPhoneNumber}
+                      value={phoneNumberVendor}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='form-body'>
+                <Col>
+                  <Form.Group>
                     <Form.Label>Email</Form.Label>
 
                     <Form.Control
@@ -869,12 +882,12 @@ const NewVendorHO: FC = () => {
 
                 <Col>
                   <Form.Group>
-                    <Form.Label>Nomor HP / WA</Form.Label>
+                    <Form.Label>Password</Form.Label>
 
                     <Form.Control
                       type='text'
-                      onChange={handleChangeVendorPhoneNumber}
-                      value={phoneNumberVendor}
+                      onChange={handleChangePasswordVendor}
+                      value={password}
                     />
                   </Form.Group>
                 </Col>
@@ -1254,18 +1267,6 @@ const NewVendorHO: FC = () => {
                   </div>
 
                   <Form.Control type='number' onChange={handleChangeMarkup} value={markup} />
-                </Form.Group>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Password</Form.Label>
-
-                  <Form.Control
-                    type='text'
-                    onChange={handleChangePasswordVendor}
-                    value={password}
-                  />
                 </Form.Group>
               </Row>
 

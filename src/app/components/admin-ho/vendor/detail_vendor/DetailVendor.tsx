@@ -131,9 +131,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                 />
               </div>
 
-              <h1 className='d-flex justify-content-center fs-1 fw-bold'>
-                {vendorDetail?.company_name}
-              </h1>
+              <h1 className='text-center fs-1 fw-bold'>{vendorDetail?.company_name}</h1>
 
               <Row className='d-flex justify-content-center'>
                 <Col>

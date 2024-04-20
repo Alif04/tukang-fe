@@ -59,6 +59,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [vendorDetail, setVendorDetail] = useState<any>()
 
+  console.log(vendorDetail)
+
   // Fetch API
   const fetchVendorData = async () => {
     try {
@@ -109,8 +111,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           }
 
           if (data?.vendor_area) {
-            setMarkup(data.vendor_area[0].default_markup)
-            setDiscount(data.vendor_area[0].default_discount)
+            setMarkup(data?.vendor_area[0]?.default_markup)
+            setDiscount(data?.vendor_area[0]?.default_discount)
           }
 
           if (data?.vendor_store) {
@@ -125,13 +127,13 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setStoreValues(store)
           }
 
-          if (data?.vendor_area) {
-            const vendorArea = data.vendor_area.map((item: any) => ({
-              value: item.city.id,
-              label: item.city.city_name,
+          if (data?.vendor_store) {
+            const vendorArea = data.vendor_store.map((item: any) => ({
+              value: item?.store?.area?.id,
+              label: item?.store?.area?.area,
             }))
 
-            const vendorAreaId = data.vendor_area.map((item: any) => item.city.id)
+            const vendorAreaId = data.vendor_area.map((item: any) => item?.store?.area?.id)
 
             setserviceAreaId(vendorAreaId)
             setServiceAreaValues(vendorArea)
@@ -139,8 +141,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
           if (data?.vendor_service) {
             const service_type = data.vendor_service.map((item: any) => ({
-              value: item.service_type_id,
-              label: item.service_type.service_type,
+              value: item?.service_type_id,
+              label: item?.service_type?.service_type,
             }))
 
             const vendorServiceId = data.vendor_service.map((item: any) => item.service_type_id)
@@ -230,9 +232,9 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     }
   }
 
-  const getCity = async () => {
+  const getArea = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/city`, {
+      const response = await axios.get(`${apiUrl}/area`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -242,12 +244,12 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       })
 
       if (Array.isArray(response.data.data)) {
-        const tempCity = response.data.data.map((item: any) => ({
+        const tempArea = response.data.data.map((item: any) => ({
           value: item.id,
-          label: item.city_name,
+          label: item.area,
         }))
 
-        setServiceArea(tempCity)
+        setServiceArea(tempArea)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -311,7 +313,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   useEffect(() => {
     fetchVendorData()
     getStore()
-    getCity()
+    getArea()
     getServiceType()
     getBank()
   }, [])
@@ -794,9 +796,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
     setserviceAreaId(updatedServiceAreaIds)
     setServiceAreaValues(updatedServiceArea)
-
-    console.log('Service Area Id', updatedServiceAreaIds)
-    console.log('Service Area', updatedServiceArea)
   }
 
   // Change Select Service Type
@@ -1083,6 +1082,20 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
                 <Col>
                   <Form.Group>
+                    <Form.Label>Nomor HP / WA</Form.Label>
+
+                    <Form.Control
+                      type='text'
+                      onChange={handleChangeVendorPhoneNumber}
+                      value={phoneNumberVendor}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='form-body'>
+                <Col>
+                  <Form.Group>
                     <Form.Label>Email</Form.Label>
 
                     <Form.Control
@@ -1095,12 +1108,12 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
                 <Col>
                   <Form.Group>
-                    <Form.Label>Nomor HP / WA</Form.Label>
+                    <Form.Label>Reset Password</Form.Label>
 
                     <Form.Control
                       type='text'
-                      onChange={handleChangeVendorPhoneNumber}
-                      value={phoneNumberVendor}
+                      onChange={handleChangePasswordVendor}
+                      value={password}
                     />
                   </Form.Group>
                 </Col>
@@ -1482,18 +1495,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   </div>
 
                   <Form.Control type='number' onChange={handleChangeMarkup} value={markup} />
-                </Form.Group>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Reset Password</Form.Label>
-
-                  <Form.Control
-                    type='text'
-                    onChange={handleChangePasswordVendor}
-                    value={password}
-                  />
                 </Form.Group>
               </Row>
 

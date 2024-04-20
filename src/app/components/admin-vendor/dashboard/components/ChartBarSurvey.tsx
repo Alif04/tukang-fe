@@ -58,11 +58,11 @@ function getChartOptions(height: number, workOrderData: any): ApexOptions {
     series: [
       {
         name: 'Order Survey',
-        data: workOrderData.map((item: any) => item.totalSurveyReqOrder),
+        data: workOrderData.map((item: any) => item.totalSurveyOrder),
       },
       {
-        name: 'Pekerjaan Selesai',
-        data: workOrderData.map((item: any) => item.totalCompleteOrder),
+        name: 'Pengerjaan Selesai',
+        data: workOrderData.map((item: any) => item.totalWorkEndOrder),
       },
     ],
     chart: {
@@ -93,7 +93,7 @@ function getChartOptions(height: number, workOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: workOrderData.map((item: any) => item?.month),
+      categories: workOrderData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },

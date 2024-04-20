@@ -29,8 +29,6 @@ const DashboardStore: FC = () => {
   const [orderData, setOrderData] = useState<any[]>([])
   const [chartData, setChartData] = useState<any[]>([])
 
-  console.log(chartData)
-
   const today = new Date()
   const formattedTodays = new Date().toISOString().split('T')[0]
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
@@ -49,7 +47,7 @@ const DashboardStore: FC = () => {
     city_id: null,
   })
 
-  const storeId = selectedStore && selectedStore.value ? `&${selectedStore.value}` : ''
+  const storeId = selectedStore && selectedStore?.value ? `&${selectedStore?.value}` : ''
 
   const fetchOrderData = async () => {
     try {
@@ -67,7 +65,7 @@ const DashboardStore: FC = () => {
         },
       })
 
-      const data = response.data.data
+      const data = response?.data?.data
       setOrderData(data)
 
       return data

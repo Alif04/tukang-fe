@@ -8,15 +8,10 @@ import Swal from 'sweetalert2'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, Button, Card} from 'react-bootstrap'
 
-interface City {
+interface AreaItem {
   value: number | null
   label: string
 }
-
-// interface Province {
-//   value: number | null
-//   label: string
-// }
 
 // interface Bank {
 //   value: number | null
@@ -28,7 +23,7 @@ interface Store {
   store_name: string
   address: string
   additional_address: string
-  // city_id: number | null
+  area_id: number | null
   phone_number_1: number | null
   email: string
   bank_name: string
@@ -50,7 +45,7 @@ const NewStore: FC = () => {
     store_name: '',
     address: '',
     additional_address: '',
-    // city_id: null,
+    area_id: null,
     phone_number_1: null,
     email: '',
     bank_name: '',
@@ -61,12 +56,12 @@ const NewStore: FC = () => {
     default_password: '',
   })
 
-  // City
-  // const [city, setCity] = useState<City[]>([])
-  // const [selectedCity, setSelectedCity] = useState<SingleValue<City>>({
-  //   value: null,
-  //   label: '',
-  // })
+  // Area
+  const [area, setArea] = useState<AreaItem[]>([])
+  const [selectedArea, setSelectedArea] = useState<SingleValue<AreaItem>>({
+    value: null,
+    label: '',
+  })
 
   // // Province
   // const [province, setProvince] = useState<Province[]>([])
@@ -84,31 +79,31 @@ const NewStore: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
-    // const getCity = async () => {
-    //   try {
-    //     const response = await axios.get(`${apiUrl}/city?take=0`, {
-    //       headers: {
-    //         Accept: 'application/json',
-    //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    //         'Access-Control-Allow-Origin': '*',
-    //         'ngrok-skip-browser-warning': 'true',
-    //       },
-    //     })
+    const getArea = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/area?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
-    //     if (Array.isArray(response.data.data)) {
-    //       const tempCity = response.data.data.map((item: any) => ({
-    //         value: item.id,
-    //         label: item.city_name,
-    //       }))
+        if (Array.isArray(response.data.data)) {
+          const tempCity = response.data.data.map((item: any) => ({
+            value: item?.id ?? null,
+            label: item?.area ?? '',
+          }))
 
-    //       setCity(tempCity)
-    //     } else {
-    //       console.error('API response data is not an array:', response.data)
-    //     }
-    //   } catch (err) {
-    //     console.error(err)
-    //   }
-    // }
+          setArea(tempCity)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
 
     const getStoreId = async () => {
       try {
@@ -161,8 +156,8 @@ const NewStore: FC = () => {
     //   }
     // }
 
-    // getCity()
     getStoreId()
+    getArea()
     // getBank()
   }, [])
 
@@ -175,12 +170,12 @@ const NewStore: FC = () => {
   }
 
   // Change Select City
-  // useEffect(() => {
-  //   setStoreInfo((prev) => ({
-  //     ...prev,
-  //     city_id: selectedCity?.value ?? null,
-  //   }))
-  // }, [selectedCity])
+  useEffect(() => {
+    setStoreInfo((prev) => ({
+      ...prev,
+      area_id: selectedArea?.value ?? null,
+    }))
+  }, [selectedArea])
 
   // Change Select Province
   // useEffect(() => {
@@ -375,17 +370,6 @@ const NewStore: FC = () => {
 
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  {/* <Form.Group>
-                    <Form.Label>City</Form.Label>
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Nama Kota'
-                      isSearchable={true}
-                      options={city}
-                      onChange={(newValue) => setSelectedCity(newValue)}
-                    />
-                  </Form.Group> */}
-
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type='email'
@@ -444,7 +428,18 @@ const NewStore: FC = () => {
                   </Form.Text>
                 </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}></Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Form.Group>
+                    <Form.Label>Area</Form.Label>
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Area'
+                      isSearchable={true}
+                      options={area}
+                      onChange={(newValue) => setSelectedArea(newValue)}
+                    />
+                  </Form.Group>
+                </Col>
               </Row>
 
               <hr />
