@@ -7,7 +7,6 @@ import Select, {SingleValue} from 'react-select'
 import {DatePicker} from 'antd'
 import makeAnimated from 'react-select/animated'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
@@ -20,6 +19,7 @@ interface CategorySelect {
 }
 
 interface StoreSelect {
+  all_store: number
   store_id: number
   store_group_id: number
   label: string
@@ -34,6 +34,7 @@ interface ItemDetail {
   prices: Array<{
     id: number | null
     price_store: Array<{
+      all_store: number | null
       store_id: number | null
       store_group_id: number | null
     }>
@@ -46,7 +47,6 @@ interface ItemDetail {
 
 const NewItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const navigate = useNavigate()
   const animatedComponents = makeAnimated()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -62,6 +62,7 @@ const NewItemHO: FC = () => {
         id: null,
         price_store: [
           {
+            all_store: null,
             store_id: null,
             store_group_id: null,
           },
@@ -103,7 +104,12 @@ const NewItemHO: FC = () => {
           label: item.store_name,
         }))
 
-        setStore(tempStore)
+        const tempAllStore = {
+          all_store: 1,
+          label: 'All Store',
+        }
+
+        setStore([tempAllStore, ...tempStore])
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -176,6 +182,7 @@ const NewItemHO: FC = () => {
       id: null,
       price_store: [
         {
+          all_store: null,
           store_id: null,
           store_group_id: null,
         },
@@ -219,6 +226,8 @@ const NewItemHO: FC = () => {
           return {store_id: item.store_id}
         } else if (item.store_group_id !== undefined) {
           return {store_group_id: item.store_group_id}
+        } else if (item.all_store !== undefined) {
+          return {all_store: item.all_store}
         }
       })
 
