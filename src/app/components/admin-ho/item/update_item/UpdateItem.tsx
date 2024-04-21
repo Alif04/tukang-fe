@@ -22,6 +22,7 @@ interface CategorySelect {
 
 interface StoreSelect {
   id: number | null
+  // all_store: number | null
   store_id: number | null
   store_group_id: number | null
   label: string
@@ -37,6 +38,7 @@ interface ItemDetail {
     id: number | null
     price_store: Array<{
       id: number | null
+      // all_store: number | null
       store_id: number | null
       store_group_id: number | null
       label: string
@@ -67,6 +69,7 @@ const UpdateItemHO: FC = () => {
         price_store: [
           {
             id: null,
+            // all_store: null,
             store_id: null,
             store_group_id: null,
             label: '',
@@ -84,6 +87,8 @@ const UpdateItemHO: FC = () => {
   const [store, setStore] = useState<StoreSelect[]>([])
   const [storeGroup, setStoreGroup] = useState<StoreSelect[]>([])
   const [storeOptions, setStoreOptions] = useState<StoreSelect[]>([])
+  // const [selectedAllStore, setSelectedAllStore] = useState<any[]>([])
+  // console.log('selected all store', selectedAllStore)
 
   useEffect(() => {
     setStoreOptions(storeGroup.concat(store))
@@ -127,6 +132,17 @@ const UpdateItemHO: FC = () => {
                 : [],
             }))
 
+            // const pricesStore = data?.prices.map((item: any) => ({
+            //   prices_store: item.price_stores.map((storeItem: any) => ({
+            //     id: storeItem?.id ?? null,
+            //     store_id: storeItem?.store_id ?? null,
+            //     store_group_id: storeItem?.store?.store_group_id ?? null,
+            //     label: storeItem?.store?.store_name,
+            //   })),
+            // }))
+
+            // setSelectedAllStore(pricesStore)
+
             setItemDetail((prev) => ({
               ...prev,
               item_code: data?.item_code,
@@ -166,7 +182,14 @@ const UpdateItemHO: FC = () => {
           label: item.store_name,
         }))
 
+        const tempAllStore = {
+          all_store: 1,
+          label: 'All Store',
+        }
+
         setStore(tempStore)
+
+        // setStore([tempAllStore, ...tempStore])
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -279,6 +302,7 @@ const UpdateItemHO: FC = () => {
 
       const newValue = value.map((item: StoreSelect) => ({
         id: item.id ?? null,
+        // all_store: item.all_store ?? null,
         store_id: item.store_id ?? null,
         store_group_id: item.store_group_id ?? null,
         label: item.label,
@@ -296,6 +320,24 @@ const UpdateItemHO: FC = () => {
       return cache
     })
   }
+
+  // // Check All Store
+  // const checkAllStore = (value: StoreSelect[] | MultiValue<StoreSelect>) => {
+  //   const newValue = value.map((item: StoreSelect) => ({
+  //     id: item.id ?? null,
+  //     all_store: item.all_store ?? null,
+  //     store_id: item.store_id ?? null,
+  //     store_group_id: item.store_group_id ?? null,
+  //     label: item.label,
+  //   }))
+
+  //   const filteredAllStore = newValue.filter((item) =>
+  //     Object.values(item).some((label) => label === 'All Store')
+  //   )
+
+  //   const message = filteredAllStore.length > 0 ? 'Item All Store' : 'Item Single Store'
+  //   return message
+  // }
 
   useEffect(() => {
     setItemDetail({
@@ -587,6 +629,10 @@ const UpdateItemHO: FC = () => {
                         getOptionValue={(option: StoreSelect) => `${option.store_id}`}
                         value={itemDetail.prices[index].price_store}
                         onChange={(e) => storeHandler(e, 'price_store', index)}
+                        // onChange={(e) => {
+                        //   storeHandler(e, 'price_store', index)
+                        //   checkAllStore(e)
+                        // }}
                       />
                     </td>
 
