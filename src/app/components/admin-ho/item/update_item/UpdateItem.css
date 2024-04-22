@@ -67,15 +67,26 @@
   background-color: #ffff;
 }
 
+/* Modal */
+input.store-search.form-control {
+  height: 30px !important;
+}
+
 /* Button Action */
 
 #update-item .btn.btn-dark-primary {
   width: 220px;
   height: 40px;
+  margin: 0;
   color: white !important;
   border-color: transparent !important;
   background-color: #020080 !important;
   transition: 0.3s ease-in-out;
+}
+
+#update-item
+  button.d-flex.justify-content-center.align-items-center.assign-store.btn.btn-dark-primary {
+  width: 100% !important;
 }
 
 #update-item

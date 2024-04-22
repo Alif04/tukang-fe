@@ -64,22 +64,6 @@ const ViewItemHO: React.FC = () => {
       sorter: (a, b) => a.no - b.no,
     },
     {
-      title: 'Material ID',
-      dataIndex: 'material_id',
-      key: 'material_id',
-      align: 'center',
-      sorter: (a, b) => a.material_id - b.material_id,
-    },
-    {
-      title: 'Assign To Store',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-      width: 280,
-    },
-    {
       title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
@@ -94,6 +78,15 @@ const ViewItemHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
+    },
+    {
+      title: 'Assign To Store',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+      width: 280,
     },
     {
       title: 'Price',

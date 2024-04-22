@@ -3,13 +3,12 @@ import React, {FC, useState, useEffect} from 'react'
 import './UpdateItem.css'
 
 import axios from 'axios'
-import Select, {MultiValue, SingleValue} from 'react-select'
+import Select, {SingleValue} from 'react-select'
 import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
-import makeAnimated from 'react-select/animated'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Table, Button, Row, Col} from 'react-bootstrap'
+import {Form, Table, Button, Row, Col, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -20,33 +19,31 @@ interface CategorySelect {
   label: string
 }
 
-interface StoreSelect {
+interface Store {
   id: number | null
   all_store: number | null
-  store_id: number | null
   store_group_id: number | null
+  store_id: number
   label: string
 }
 
-interface ItemDetail {
+interface Item {
   item_code: string
   item_name: string
-  name: string
+  service_name: string
   category_id: number | null
   default_price: number
   prices: Array<{
     id: number | null
+    item_id: number | null
     price_store: Array<{
-      id: number | null
-      all_store: number | null
-      store_id: number | null
-      store_group_id: number | null
-      label: string
+      store_id: number
     }>
     periodic_start: string | null | Date
     periodic_end: string | null | Date
     min_order: number
     price: number
+    created_at: string
   }>
 }
 
@@ -54,45 +51,45 @@ const UpdateItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-  const animatedComponents = makeAnimated()
 
   // Item
-  const [itemDetail, setItemDetail] = useState<ItemDetail>({
+  const [item, setItem] = useState<Item>({
     item_code: '',
     item_name: '',
-    name: '',
+    service_name: '',
     category_id: null,
     default_price: 0,
     prices: [
       {
         id: null,
-        price_store: [
-          {
-            id: null,
-            all_store: null,
-            store_id: null,
-            store_group_id: null,
-            label: '',
-          },
-        ],
+        item_id: null,
+        price_store: [],
         periodic_start: null,
         periodic_end: null,
         min_order: 0,
         price: 0,
+        created_at: '',
       },
     ],
   })
 
   // Store
-  const [store, setStore] = useState<StoreSelect[]>([])
-  const [storeGroup, setStoreGroup] = useState<StoreSelect[]>([])
-  const [storeOptions, setStoreOptions] = useState<StoreSelect[]>([])
+  const [store, setStore] = useState<Store[]>([])
+  const [storeGroup, setStoreGroup] = useState<any[]>([
+    {
+      store_group_id: 4,
+      label: 'Batam',
+    },
+  ])
+
+  // const [storeGroup, setStoreGroup] = useState<any[]>([])
+  // const [storeOptions, setStoreOptions] = useState<Store[]>([])
   // const [selectedAllStore, setSelectedAllStore] = useState<any[]>([])
   // console.log('selected all store', selectedAllStore)
 
-  useEffect(() => {
-    setStoreOptions(storeGroup.concat(store))
-  }, [store, storeGroup])
+  // useEffect(() => {
+  //   setStoreOptions(storeGroup.concat(store))
+  // }, [store, storeGroup])
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -118,36 +115,27 @@ const UpdateItemHO: FC = () => {
           if (data) {
             const pricesItem = data?.prices.map((item: any) => ({
               id: item?.id,
-              periodic_start: dayjs(item?.periodic_start).format('YYYY-MM-DD'),
-              periodic_end: dayjs(item?.periodic_end).format('YYYY-MM-DD'),
+              item_id: item?.item_id,
+              periodic_start: dayjs(item?.periodic_start).toISOString(),
+              periodic_end: dayjs(item?.periodic_end).toISOString(),
               min_order: item?.min_order,
               price: item?.price,
+              created_at: item?.created_at,
               price_store: item?.price_stores
                 ? item.price_stores.map((storeItem: any) => ({
                     id: storeItem?.id ?? null,
                     store_id: storeItem?.store_id ?? null,
-                    store_group_id: storeItem?.store?.store_group_id ?? null,
-                    label: storeItem?.store?.store_name,
+                    // store_group_id: storeItem?.store?.store_group_id ?? null,
+                    // label: storeItem?.store?.store_name,
                   }))
                 : [],
             }))
 
-            // const pricesStore = data?.prices.map((item: any) => ({
-            //   prices_store: item.price_stores.map((storeItem: any) => ({
-            //     id: storeItem?.id ?? null,
-            //     store_id: storeItem?.store_id ?? null,
-            //     store_group_id: storeItem?.store?.store_group_id ?? null,
-            //     label: storeItem?.store?.store_name,
-            //   })),
-            // }))
-
-            // setSelectedAllStore(pricesStore)
-
-            setItemDetail((prev) => ({
+            setItem((prev) => ({
               ...prev,
               item_code: data?.item_code,
               item_name: data?.item_name,
-              name: data?.service_name,
+              service_name: data?.service_name,
               category_id: data?.category_id,
               default_price: data?.default_price,
               prices: pricesItem,
@@ -179,17 +167,13 @@ const UpdateItemHO: FC = () => {
       if (Array.isArray(response.data.data.data)) {
         const tempStore = response.data.data.data.map((item: any) => ({
           store_id: item.id,
+          store_group_id: item.area_id,
           label: item.store_name,
         }))
 
-        const tempAllStore = {
-          all_store: 1,
-          label: 'All Store',
-        }
+        setStore(tempStore)
 
-        // setStore(tempStore)
-
-        setStore([tempAllStore, ...tempStore])
+        // setStore([tempAllStore, ...tempStore])
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -210,12 +194,11 @@ const UpdateItemHO: FC = () => {
       })
 
       if (Array.isArray(response.data.data)) {
-        const tempStoreGroup = response.data.data.map((item: any) => ({
-          store_group_id: item.id,
-          label: item.group_name,
-        }))
-
-        setStoreGroup(tempStoreGroup)
+        // const tempStoreGroup = response.data.data.map((item: any) => ({
+        //   store_group_id: item.id,
+        //   label: item.group_name,
+        // }))
+        // setStoreGroup(tempStoreGroup)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -261,14 +244,16 @@ const UpdateItemHO: FC = () => {
   const handleAddForm = () => {
     const newItemDetail = {
       id: null,
+      item_id: null,
       price_store: [],
       periodic_start: dayjs(new Date()).format('YYYY-MM-DD'),
       periodic_end: dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD'),
       min_order: 0,
       price: 0,
+      created_at: new Date().toISOString(),
     }
 
-    setItemDetail((prev) => {
+    setItem((prev) => {
       const cache = {...prev}
       cache.prices.push(newItemDetail)
       return cache
@@ -276,7 +261,7 @@ const UpdateItemHO: FC = () => {
   }
 
   const handleRemoveForm = (index: any) => {
-    setItemDetail((prev) => {
+    setItem((prev) => {
       const cache = {...prev}
       cache.prices.splice(index, 1)
       return cache
@@ -285,74 +270,121 @@ const UpdateItemHO: FC = () => {
 
   // Item Form Handler
   const itemFormHandler = (e: any) => {
-    setItemDetail({
-      ...itemDetail,
+    setItem({
+      ...item,
       [e.target.name]: e.target.value,
     })
   }
 
-  // Store Handler
-  const storeHandler = (
-    value: StoreSelect[] | MultiValue<StoreSelect>,
-    target: string,
-    index: number
-  ) => {
-    setItemDetail((prev) => {
+  // Modal Assign To Store
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const [modalIndex, setModalIndex] = useState<number | null>(null)
+  const [searchByStore, setSearchByStore] = useState<string>('')
+
+  const handleShowModal = (index: any) => {
+    setModalIndex(index)
+    setShowModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
+
+  // Handle Checkbox Change
+  const handleAssignToStoreByAllStore = (store_id: any, index: any, isChecked: boolean) => {
+    setItem((prev) => {
       const cache = {...prev}
 
-      const newValue = value.map((item: StoreSelect) => ({
-        id: item.id ?? null,
-        all_store: item.all_store ?? null,
-        store_id: item.store_id ?? null,
-        store_group_id: item.store_group_id ?? null,
-        label: item.label,
-      }))
-
-      const filteredValue = newValue.map((item) =>
-        Object.fromEntries(Object.entries(item).filter(([key, value]) => value !== null))
-      )
-
-      cache.prices[index] = {
-        ...cache.prices[index],
-        [target]: filteredValue,
+      // Jika checkbox "All Store" dicentang
+      if (store_id === 0 && isChecked) {
+        const allStoreIds = store.map((storeItem) => storeItem.store_id)
+        cache.prices[index].price_store = allStoreIds.map((storeId) => ({
+          store_id: storeId,
+        }))
+      } else if (!isChecked) {
+        cache.prices[index].price_store = []
       }
 
       return cache
     })
   }
 
-  // // Check All Store
-  // const checkAllStore = (value: StoreSelect[] | MultiValue<StoreSelect>) => {
-  //   const newValue = value.map((item: StoreSelect) => ({
-  //     id: item.id ?? null,
-  //     all_store: item.all_store ?? null,
-  //     store_id: item.store_id ?? null,
-  //     store_group_id: item.store_group_id ?? null,
-  //     label: item.label,
-  //   }))
+  const handleAssignToStoreByStoreGroup = (store_group_id: any, index: any, isChecked: boolean) => {
+    setItem((prev) => {
+      const cache = {...prev}
 
-  //   const filteredAllStore = newValue.filter((item) =>
-  //     Object.values(item).some((label) => label === 'All Store')
-  //   )
+      if (store_group_id && isChecked) {
+        // Mengambil store dari store_group yang dicentang
+        const storesInGroup = store.filter(
+          (storeItem) => storeItem.store_group_id === store_group_id
+        )
 
-  //   const message = filteredAllStore.length > 0 ? 'Item All Store' : 'Item Single Store'
-  //   return message
-  // }
+        // Mengambil store_id dari storesInGroup
+        const storeIds = storesInGroup.map((storeItem) => storeItem.store_id)
+
+        // Menggabungkan store_id ke price_store
+        cache.prices[index].price_store.push(...storeIds.map((storeId) => ({store_id: storeId})))
+      } else if (!isChecked) {
+        // Mengambil store dari store_group yang dicentang
+        const storesInGroup = store.filter(
+          (storeItem) => storeItem.store_group_id === store_group_id
+        )
+
+        // Mengecek jika tidak ada store_group yang dicentang maka diuncheck
+        cache.prices[index].price_store = cache.prices[index].price_store.filter(
+          (store) => !storesInGroup.some((storeItem) => storeItem.store_id === store.store_id)
+        )
+      }
+
+      return cache
+    })
+  }
+
+  const handleAssignToStore = (store_id: any, index: any, isChecked: boolean) => {
+    setItem((prev) => {
+      const cache = {...prev}
+
+      if (store_id !== null) {
+        const storeIndex = cache.prices[index].price_store.findIndex(
+          (store) => store.store_id === store_id
+        )
+
+        if (isChecked) {
+          // Jika checkbox di-check, tambahkan store_id ke price_store
+          if (storeIndex === -1) {
+            cache.prices[index].price_store.push({store_id})
+          }
+        } else {
+          // Jika checkbox di-uncheck, hapus store_id dari price_store
+          if (storeIndex !== -1) {
+            cache.prices[index].price_store.splice(storeIndex, 1)
+          }
+        }
+      }
+
+      return cache
+    })
+  }
+
+  const isStoreChecked = (store_id: any, index: any) => {
+    return item.prices[index].price_store.some((store) => store.store_id === store_id)
+  }
 
   useEffect(() => {
-    setItemDetail({
-      ...itemDetail,
+    setItem({
+      ...item,
       category_id: selectedCategory?.value ?? null,
     })
   }, [selectedCategory])
 
   // Item Detail Form Handler
   const itemDetailsFormHandler = (e: any, index: number) => {
-    setItemDetail((prev) => {
+    setItem((prev) => {
       const cache = {...prev}
       cache.prices[index] = {
         ...cache.prices[index],
         [e.target.name]: e.target.value,
+        min_order: parseInt(e.target.value),
       }
 
       return cache
@@ -363,14 +395,14 @@ const UpdateItemHO: FC = () => {
   const ItemValidation = () => {
     let valid = true
 
-    if (!itemDetail.name) {
+    if (!item.service_name) {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Item Nama Jasa Pemasangan form',
         icon: 'warning',
       })
       valid = false
-    } else if (!itemDetail.category_id) {
+    } else if (!item.category_id) {
       Swal.fire({
         title: 'Warning',
         text: 'Please select Kategori form',
@@ -379,7 +411,7 @@ const UpdateItemHO: FC = () => {
       valid = false
     }
 
-    itemDetail.prices.map((item) => {
+    item.prices.map((item) => {
       if (item.periodic_start === '') {
         Swal.fire({
           title: 'Warning',
@@ -412,16 +444,17 @@ const UpdateItemHO: FC = () => {
       return false
     }
 
-    const updatedPrices = itemDetail.prices.map((price) => {
-      if (price.id === null) {
-        const {id, ...priceWithoutId} = price
+    const updatedPrices = item.prices.map((price) => {
+      if (price.id === null && price.item_id === null) {
+        const {id, item_id, ...priceWithoutId} = price
         return priceWithoutId
       }
+
       return price
     })
 
     const newItemDetail = {
-      ...itemDetail,
+      ...item,
       prices: updatedPrices,
     }
 
@@ -486,7 +519,7 @@ const UpdateItemHO: FC = () => {
                     <Form.Control
                       name='item_code'
                       type='number'
-                      value={itemDetail.item_code}
+                      value={item.item_code}
                       onChange={(e) => itemFormHandler(e)}
                     />
                   </Col>
@@ -501,7 +534,7 @@ const UpdateItemHO: FC = () => {
                     <Form.Control
                       name='item_name'
                       type='text'
-                      value={itemDetail.item_name}
+                      value={item.item_name}
                       onChange={(e) => itemFormHandler(e)}
                     />
                   </Col>
@@ -516,7 +549,7 @@ const UpdateItemHO: FC = () => {
                     <Form.Control
                       name='default_price'
                       type='number'
-                      value={itemDetail.default_price}
+                      value={item.default_price}
                       onChange={(e) => itemFormHandler(e)}
                     />
                   </Col>
@@ -532,9 +565,9 @@ const UpdateItemHO: FC = () => {
 
                 <Col sm='8'>
                   <Form.Control
-                    name='name'
+                    name='service_name'
                     type='text'
-                    value={itemDetail.name}
+                    value={item.service_name}
                     onChange={(e) => itemFormHandler(e)}
                   />
                 </Col>
@@ -585,7 +618,7 @@ const UpdateItemHO: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {itemDetail.prices.map((element, index) => (
+                {item.prices.map((element, index) => (
                   <tr key={`${index}-item_details`}>
                     <td style={{maxWidth: '300px'}}>
                       <RangePicker
@@ -594,17 +627,17 @@ const UpdateItemHO: FC = () => {
                         format={'DD-MM-YYYY'}
                         allowClear={false}
                         value={[
-                          dayjs(itemDetail.prices[index].periodic_start, 'YYYY-MM-DD') ?? null,
-                          dayjs(itemDetail.prices[index].periodic_end, 'YYYY-MM-DD') ?? null,
+                          dayjs(item.prices[index].periodic_start, 'YYYY-MM-DD') ?? null,
+                          dayjs(item.prices[index].periodic_end, 'YYYY-MM-DD') ?? null,
                         ]}
                         onChange={(values) => {
                           if (values && values.length === 2) {
-                            setItemDetail((prev) => {
+                            setItem((prev) => {
                               const cache = {...prev}
                               cache.prices[index] = {
                                 ...cache.prices[index],
-                                periodic_start: dayjs(values[0]).format('YYYY-MM-DD') ?? null,
-                                periodic_end: dayjs(values[1]).format('YYYY-MM-DD') ?? null,
+                                periodic_start: dayjs(values[0]).toISOString() ?? null,
+                                periodic_end: dayjs(values[1]).toISOString() ?? null,
                               }
 
                               return cache
@@ -615,25 +648,13 @@ const UpdateItemHO: FC = () => {
                     </td>
 
                     <td style={{maxWidth: '300px'}}>
-                      <Select
-                        id={`store-id-${index}`}
-                        name='store'
-                        isMulti
-                        className='form-control p-0'
-                        placeholder='Ketik/Pilih Store'
-                        isSearchable={true}
-                        closeMenuOnSelect={false}
-                        components={animatedComponents}
-                        options={storeOptions}
-                        getOptionLabel={(option: StoreSelect) => `${option.label}`}
-                        getOptionValue={(option: StoreSelect) => `${option.store_id}`}
-                        value={itemDetail.prices[index].price_store}
-                        onChange={(e) => storeHandler(e, 'price_store', index)}
-                        // onChange={(e) => {
-                        //   storeHandler(e, 'price_store', index)
-                        //   checkAllStore(e)
-                        // }}
-                      />
+                      <Button
+                        className='d-flex justify-content-center align-items-center assign-store'
+                        variant='dark-primary'
+                        onClick={() => handleShowModal(index)}
+                      >
+                        Assign To Store
+                      </Button>
                     </td>
 
                     <td style={{maxWidth: '150px'}}>
@@ -666,6 +687,110 @@ const UpdateItemHO: FC = () => {
               </tbody>
             </Table>
           </div>
+
+          {showModal && (
+            <Modal
+              key={`${modalIndex}-Assign-Store`}
+              dialogClassName='modal-assign-store'
+              centered
+              show={true}
+              onHide={handleCloseModal}
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Assign To Store - Item Promo - {modalIndex}</Modal.Title>
+              </Modal.Header>
+
+              <Modal.Body>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Shortcut</Form.Label>
+
+                  <Row>
+                    <Col xxl={3} xl={3} md={3} sm={12} className='all-store'>
+                      <Form.Check
+                        label='All Store'
+                        name='all-store'
+                        value={0}
+                        type='checkbox'
+                        // checked={element.all_store === 1}
+                        onChange={(e) =>
+                          handleAssignToStoreByAllStore(0, modalIndex, e.target.checked)
+                        }
+                      />
+                    </Col>
+
+                    <Col xxl={9} xl={9} md={9} sm={12}>
+                      <Row>
+                        {storeGroup.map((item) => (
+                          <Col
+                            key={item.store_group_id}
+                            xs={12}
+                            sm={6}
+                            md={3}
+                            lg={3}
+                            className='mb-3'
+                          >
+                            <Form.Check
+                              className='mb-3'
+                              key={item.store_group_id}
+                              inline
+                              name='store-group'
+                              type='checkbox'
+                              value={item.store_group_id}
+                              label={item.label}
+                              onChange={(e) =>
+                                handleAssignToStoreByStoreGroup(
+                                  item.store_group_id,
+                                  modalIndex,
+                                  e.target.checked
+                                )
+                              }
+                            />
+                          </Col>
+                        ))}
+                      </Row>
+                    </Col>
+                  </Row>
+                </Form.Group>
+
+                <Form.Group>
+                  <Row>
+                    <Form.Label>List Store</Form.Label>
+
+                    {/* <div className='d-flex align-items-center mb-5'>
+                      <Form.Label className='me-2'>Search</Form.Label>
+
+                      <Form.Control
+                        className='store-search'
+                        name='store-search'
+                        placeholder='Search..'
+                        type='text'
+                        onChange={(e) => setSearchByStore(e.target.value)}
+                      />
+                    </div> */}
+                  </Row>
+
+                  <Row>
+                    {store.map((item) => (
+                      <Col key={item.store_id} xs={12} sm={6} md={4} lg={4} className='mb-3'>
+                        <Form.Check
+                          inline
+                          name='store'
+                          type='checkbox'
+                          id={`${modalIndex}-checkbox`}
+                          value={item.store_id}
+                          label={item.label}
+                          checked={isStoreChecked(item.store_id, modalIndex)}
+                          onChange={(e) =>
+                            handleAssignToStore(item.store_id, modalIndex, e.target.checked)
+                          }
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                </Form.Group>
+              </Modal.Body>
+            </Modal>
+          )}
 
           <div className='d-flex justify-content-center mb-5'>
             <Button

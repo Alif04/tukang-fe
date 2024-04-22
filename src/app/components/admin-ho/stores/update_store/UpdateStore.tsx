@@ -296,13 +296,6 @@ const UpdateStores: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!storeInfo.default_password) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Password form',
-        icon: 'error',
-      })
-      valid = false
     }
 
     return valid
@@ -454,7 +447,7 @@ const UpdateStores: FC = () => {
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Label>Default Password</Form.Label>
+                  <Form.Label>Reset Password</Form.Label>
 
                   <Form.Control
                     type='text'
