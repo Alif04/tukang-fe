@@ -35,6 +35,7 @@ interface Sales {
   store_id: number | null
   bank_id: number | null
   full_name: string
+  username: string
   account_name: string
   phone_number: string
   account_number: string
@@ -76,6 +77,7 @@ const NewSales: FC = () => {
     store_id: null,
     bank_id: null,
     full_name: '',
+    username: '',
     account_name: '',
     phone_number: '',
     account_number: '',
@@ -227,7 +229,7 @@ const NewSales: FC = () => {
       )
 
       setCurrentPage(response.data.page)
-      setTotalData(response.data.takeTotal)
+      setTotalData(response.data.total)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -552,6 +554,15 @@ const NewSales: FC = () => {
         icon: 'error',
       })
       valid = false
+    } else if (!salesInfo.username) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Jika anda mengosongkan kolom username, maka username akan dibuat otomatis oleh sistem dan diambil dari nama lengkap dengan format semua huruf kecil dan jika ada spasi maka diganti dengan underscore ( _ )',
+        icon: 'warning',
+        showConfirmButton: true,
+        timer: 1500,
+      })
+      valid = true
     }
 
     return valid
@@ -729,7 +740,7 @@ const NewSales: FC = () => {
 
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
-                    <Form.Label>Nama Pemilik Akun</Form.Label>
+                    <Form.Label>Nama Pemilik Akun Bank</Form.Label>
                     <Form.Control
                       name='account_name'
                       type='text'
@@ -748,6 +759,30 @@ const NewSales: FC = () => {
                     />
                   </Form.Group>
                 </Col>
+              </Row>
+
+              <Row>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>Username</Form.Label>
+
+                    <Form.Control
+                      name='username'
+                      type='text'
+                      onChange={(e) => salesInfoFormHandler(e)}
+                    />
+
+                    <Form.Text className='fs-8 fs-l text-dark-danger'>
+                      *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
+                      dari nama lengkap, dengan format semua huruf kecil dan spasi diganti menjadi
+                      underscore ( _ ).
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
               </Row>
             </div>
 
