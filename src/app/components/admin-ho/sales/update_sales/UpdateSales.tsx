@@ -4,12 +4,10 @@ import {useNavigate, useParams} from 'react-router-dom'
 import './UpdateSales.css'
 
 import axios from 'axios'
-import Select, {MultiValue, SingleValue} from 'react-select'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {Row, Col, Form, Table, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash} from '@fortawesome/free-solid-svg-icons'
+import {Row, Col, Form, Button} from 'react-bootstrap'
 
 interface StoreSelect {
   value: number | null
@@ -35,12 +33,13 @@ interface Sales {
   store_id: any
   bank_id: any
   full_name: string
+  username: string
   account_name: string
   phone_number: string
   account_number: string
   sales_brand: string
   sales_categories: CategorySelect[]
-  new_password: string
+  password: string
 }
 
 const UpdateSales: FC = () => {
@@ -63,12 +62,13 @@ const UpdateSales: FC = () => {
     store_id: null,
     bank_id: null,
     full_name: '',
+    username: '',
     account_name: '',
     phone_number: '',
     account_number: '',
     sales_brand: '',
     sales_categories: [],
-    new_password: '',
+    password: '',
   })
 
   // Bank
@@ -141,14 +141,15 @@ const UpdateSales: FC = () => {
               // }))
 
               const salesCategory = data?.sales_categories.map((item: any) => ({
-                value: item?.categories.id ?? null,
+                category_id: item?.categories.id ?? null,
                 label: item?.categories?.category_name ?? '',
                 commission: item?.commission ?? '',
               }))
 
               setSalesInfo((prev) => ({
                 ...prev,
-                full_name: data.full_name,
+                full_name: data?.full_name,
+                username: data?.users?.username,
                 account_name: data.account_name,
                 phone_number: data?.phone_number,
                 account_number: data?.account_number,
@@ -580,13 +581,31 @@ const UpdateSales: FC = () => {
                 <Form.Group className='mb-5'>
                   <Form.Label>Reset Password</Form.Label>
                   <Form.Control
-                    name='new_password'
+                    name='password'
                     type='text'
-                    value={salesInfo.new_password}
+                    value={salesInfo.password}
                     onChange={(e) => salesInfoFormHandler(e)}
                   />
                 </Form.Group>
               </Col>
+            </Row>
+
+            <Row>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    name='username'
+                    type='text'
+                    value={salesInfo.username}
+                    onChange={(e) => salesInfoFormHandler(e)}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
             </Row>
           </div>
 

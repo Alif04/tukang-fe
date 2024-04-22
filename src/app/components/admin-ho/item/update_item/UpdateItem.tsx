@@ -384,7 +384,6 @@ const UpdateItemHO: FC = () => {
       cache.prices[index] = {
         ...cache.prices[index],
         [e.target.name]: e.target.value,
-        min_order: parseInt(e.target.value),
       }
 
       return cache
