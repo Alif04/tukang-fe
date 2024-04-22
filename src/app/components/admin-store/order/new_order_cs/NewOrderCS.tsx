@@ -146,12 +146,11 @@ const NewOrderStoreCS: FC = () => {
 
   // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
-  const [total, setTotal] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
-    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=0' : ''
+    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
 
     try {
       const response = await axios.get(
@@ -315,6 +314,7 @@ const NewOrderStoreCS: FC = () => {
     }
   }
 
+  // Order Detail Form Handler
   const orderDetailsFormHandler = (e: any, index: number) => {
     setOrderForm((prev) => {
       const cache = {...prev}
@@ -327,6 +327,7 @@ const NewOrderStoreCS: FC = () => {
     })
   }
 
+  // Overdistance
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -334,6 +335,7 @@ const NewOrderStoreCS: FC = () => {
     })
   }, [isOverdistance])
 
+  // Selected Member
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -344,6 +346,7 @@ const NewOrderStoreCS: FC = () => {
     })
   }, [selectedMember, isWhatsapp])
 
+  // Selected Sales
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -351,10 +354,22 @@ const NewOrderStoreCS: FC = () => {
     })
   }, [selectedSales])
 
+  // Selected Payment Type && Clear Order Detail if user changed the payment type
   useEffect(() => {
     setOrderForm({
       ...orderForm,
       payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
+      order_details: [
+        {
+          item_id: null,
+          item_code: null,
+          item_name: null,
+          quantity: 1,
+          unit_price: null,
+          total: null,
+          item_notes: null,
+        },
+      ],
     })
   }, [paymentTypeValue])
 
@@ -786,9 +801,6 @@ const NewOrderStoreCS: FC = () => {
                             }
                             disabled={paymentTypeValue[0] === 'gratis'}
                             onChange={() => {
-                              console.log('pemasangan_tanpa_survey')
-                              console.log(paymentTypeValue[1])
-
                               setPaymentTypeValue([paymentTypeValue[0], 'pemasangan_tanpa_survey'])
                             }}
                           />
@@ -1085,6 +1097,7 @@ const NewOrderStoreCS: FC = () => {
                           isSearchable={true}
                           options={item}
                           name={`item_id`}
+                          value={orderForm.order_details[index]?.item ?? null}
                           onChange={(newValue) => {
                             setOrderForm((prev) => {
                               const cache = {...prev}

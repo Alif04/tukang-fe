@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState, useRef} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Orders} from '../../../../interfaces/order'
 
@@ -7,18 +7,9 @@ import './UpdateOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
-import {Image} from 'antd'
+import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
-
-interface StoreItemSelect {
-  value: number | null
-  label: string
-  address: string
-  city_id: number | null
-  zip_code: string
-}
+import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface MemberSelect {
   value: number | null
@@ -69,8 +60,8 @@ interface Order {
     id: number | null
     item?: ItemSelect | null
     item_id: number | null
-    item_code: string
-    item_name: string
+    item_code: string | null
+    item_name: string | null
     quantity: number
     unit_price: string | null
     total: string | null
@@ -97,10 +88,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
 
   // Order Information Detail
   const [orderDetail, setOrderDetail] = useState<any>()
-
-  // Store
-  const [storeSelectOptions, setStoreSelectOptions] = useState<StoreItemSelect[]>([])
-  const [storeId, setStoreId] = useState<string>('')
 
   // Order
   const [orderForm, setOrderForm] = useState<Order>({
@@ -160,7 +147,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
 
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
-    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=0' : ''
+    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
 
     try {
       const response = await axios.get(
@@ -424,6 +411,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     })
   }
 
+  // Order Detail Form Handler
   const orderDetailsFormHandler = (e: any, index: number) => {
     setOrderForm((prev) => {
       const cache = {...prev}
@@ -441,6 +429,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     setIsOverdistance(isChecked ? 1 : 0)
   }
 
+  // Overdistance
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -448,6 +437,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     })
   }, [isOverdistance])
 
+  // Selected Member
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -458,6 +448,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     })
   }, [selectedMember, isWhatsapp])
 
+  // Selected Sales
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -465,10 +456,23 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     })
   }, [selectedSales])
 
+  // Selected Payment Type && Clear Order Detail if user changed the payment type
   useEffect(() => {
     setOrderForm({
       ...orderForm,
       payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
+      // order_details: [
+      //   {
+      //     id: null,
+      //     item_id: null,
+      //     item_code: null,
+      //     item_name: null,
+      //     quantity: 1,
+      //     unit_price: null,
+      //     total: null,
+      //     item_notes: null,
+      //   },
+      // ],
     })
   }, [paymentTypeValue])
 

@@ -76,8 +76,8 @@ interface Order {
     id: number | null
     item?: ItemSelect | null
     item_id: number | null
-    item_code: string
-    item_name: string
+    item_code: string | null
+    item_name: string | null
     quantity: number
     unit_price: string | null
     total: string | null
@@ -182,7 +182,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
-    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=0' : ''
+    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
 
     try {
       const response = await axios.get(
@@ -560,6 +560,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     })
   }
 
+  // Order Detail Form Handler
   const orderDetailsFormHandler = (e: any, index: number) => {
     setOrderForm((prev) => {
       const cache = {...prev}
@@ -577,6 +578,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     setIsOverdistance(isChecked ? 1 : 0)
   }
 
+  // Overdistance
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -584,6 +586,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     })
   }, [isOverdistance])
 
+  // Selected Store
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -591,6 +594,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     })
   }, [selectedStore])
 
+  // Selected Member
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -601,6 +605,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     })
   }, [selectedMember, isWhatsapp])
 
+  // Selected Sales
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -608,6 +613,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     })
   }, [selectedSales])
 
+  // Selected Vendor
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -615,6 +621,27 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     })
   }, [selectedVendor])
 
+  // Selected Payment Type && Clear Order Detail if user changed the payment type
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
+      // order_details: [
+      //   {
+      //     id: null,
+      //     item_id: null,
+      //     item_code: null,
+      //     item_name: null,
+      //     quantity: 1,
+      //     unit_price: null,
+      //     total: null,
+      //     item_notes: null,
+      //   },
+      // ],
+    })
+  }, [paymentTypeValue])
+
+  // Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
@@ -632,7 +659,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
     setOrderForm({
       ...orderForm,
-      payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
       project_status_id: statusId,
     })
   }, [paymentTypeValue, orderForm.project_status_id])

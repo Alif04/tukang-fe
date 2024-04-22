@@ -22,7 +22,7 @@ interface CategorySelect {
 
 interface StoreSelect {
   id: number | null
-  // all_store: number | null
+  all_store: number | null
   store_id: number | null
   store_group_id: number | null
   label: string
@@ -38,7 +38,7 @@ interface ItemDetail {
     id: number | null
     price_store: Array<{
       id: number | null
-      // all_store: number | null
+      all_store: number | null
       store_id: number | null
       store_group_id: number | null
       label: string
@@ -69,7 +69,7 @@ const UpdateItemHO: FC = () => {
         price_store: [
           {
             id: null,
-            // all_store: null,
+            all_store: null,
             store_id: null,
             store_group_id: null,
             label: '',
@@ -187,9 +187,9 @@ const UpdateItemHO: FC = () => {
           label: 'All Store',
         }
 
-        setStore(tempStore)
+        // setStore(tempStore)
 
-        // setStore([tempAllStore, ...tempStore])
+        setStore([tempAllStore, ...tempStore])
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -302,7 +302,7 @@ const UpdateItemHO: FC = () => {
 
       const newValue = value.map((item: StoreSelect) => ({
         id: item.id ?? null,
-        // all_store: item.all_store ?? null,
+        all_store: item.all_store ?? null,
         store_id: item.store_id ?? null,
         store_group_id: item.store_group_id ?? null,
         label: item.label,
