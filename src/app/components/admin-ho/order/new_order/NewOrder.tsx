@@ -176,12 +176,11 @@ const NewOrderHO: FC = () => {
 
   // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
-  const [total, setTotal] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
-    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=0' : ''
+    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
 
     try {
       const response = await axios.get(
@@ -402,6 +401,7 @@ const NewOrderHO: FC = () => {
     }
   }
 
+  // Order Detail Form Handler
   const orderDetailsFormHandler = (e: any, index: number) => {
     setOrderForm((prev) => {
       const cache = {...prev}
@@ -414,6 +414,7 @@ const NewOrderHO: FC = () => {
     })
   }
 
+  // Overdistance
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -421,6 +422,7 @@ const NewOrderHO: FC = () => {
     })
   }, [isOverdistance])
 
+  // Selected Store
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -428,6 +430,7 @@ const NewOrderHO: FC = () => {
     })
   }, [selectedStore])
 
+  // Selected Member
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -438,6 +441,7 @@ const NewOrderHO: FC = () => {
     })
   }, [selectedMember, isWhatsapp])
 
+  // Selected Sales
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -445,6 +449,7 @@ const NewOrderHO: FC = () => {
     })
   }, [selectedSales])
 
+  // Selected Vendor
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -452,10 +457,22 @@ const NewOrderHO: FC = () => {
     })
   }, [selectedVendor])
 
+  // Selected Payment Type && Clear Order Detail if user changed the payment type
   useEffect(() => {
     setOrderForm({
       ...orderForm,
       payment_type: paymentTypeValue[0] === 'gratis' ? 'gratis' : paymentTypeValue[1],
+      order_details: [
+        {
+          item_id: null,
+          item_code: null,
+          item_name: null,
+          quantity: 1,
+          unit_price: null,
+          total: null,
+          item_notes: null,
+        },
+      ],
     })
   }, [paymentTypeValue])
 
@@ -1286,6 +1303,7 @@ const NewOrderHO: FC = () => {
                           isSearchable={true}
                           options={item}
                           name={`item_id`}
+                          value={orderForm.order_details[index]?.item ?? null}
                           onChange={(newValue) => {
                             setOrderForm((prev) => {
                               const cache = {...prev}
