@@ -214,7 +214,10 @@ const NewOrderHO: FC = () => {
           })),
         }))
 
-        setItem(item)
+        const filteredItem = item.filter((detail: any) => detail.default_price !== '0')
+        setItem(paymentTypeValue[0] === 'berbayar' ? filteredItem : item)
+
+        // setItem(item)
       } else {
         console.error('API response data is not an array:', response.data)
       }

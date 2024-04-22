@@ -64,22 +64,6 @@ const ViewItemHO: React.FC = () => {
       sorter: (a, b) => a.no - b.no,
     },
     {
-      title: 'Material ID',
-      dataIndex: 'material_id',
-      key: 'material_id',
-      align: 'center',
-      sorter: (a, b) => a.material_id - b.material_id,
-    },
-    {
-      title: 'Assign To Store',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-      width: 280,
-    },
-    {
       title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
@@ -94,6 +78,15 @@ const ViewItemHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
+    },
+    {
+      title: 'Assign To Store',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+      width: 280,
     },
     {
       title: 'Price',
@@ -237,14 +230,10 @@ const ViewItemHO: React.FC = () => {
       const itemData = apiData.map((item: any, index: number) => {
         let data
 
-        // const storeItem = item?.prices[0]?.price_stores
-        //   .map((storeDetail: any) => storeDetail?.store?.store_name ?? '-')
-        //   .join(', ')
-
         data = {
           no: index + 1,
           material_id: item?.id,
-          store_name: `${item?.prices[0]?.price_stores.length} Toko`,
+          store_name: `${item?.prices[0]?.price_stores.length ?? 0} Toko`,
           product_name: item?.item_name ?? '-',
           service_name: item?.service_name ?? '-',
           default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
