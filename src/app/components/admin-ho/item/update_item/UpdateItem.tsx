@@ -75,21 +75,7 @@ const UpdateItemHO: FC = () => {
 
   // Store
   const [store, setStore] = useState<Store[]>([])
-  const [storeGroup, setStoreGroup] = useState<any[]>([
-    {
-      store_group_id: 4,
-      label: 'Batam',
-    },
-  ])
-
-  // const [storeGroup, setStoreGroup] = useState<any[]>([])
-  // const [storeOptions, setStoreOptions] = useState<Store[]>([])
-  // const [selectedAllStore, setSelectedAllStore] = useState<any[]>([])
-  // console.log('selected all store', selectedAllStore)
-
-  // useEffect(() => {
-  //   setStoreOptions(storeGroup.concat(store))
-  // }, [store, storeGroup])
+  const [storeGroup, setStoreGroup] = useState<any[]>([])
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -125,7 +111,7 @@ const UpdateItemHO: FC = () => {
                 ? item.price_stores.map((storeItem: any) => ({
                     id: storeItem?.id ?? null,
                     store_id: storeItem?.store_id ?? null,
-                    // store_group_id: storeItem?.store?.store_group_id ?? null,
+                    store_group_id: storeItem?.store?.store_group_id ?? null,
                     // label: storeItem?.store?.store_name,
                   }))
                 : [],
@@ -172,8 +158,6 @@ const UpdateItemHO: FC = () => {
         }))
 
         setStore(tempStore)
-
-        // setStore([tempAllStore, ...tempStore])
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -184,7 +168,7 @@ const UpdateItemHO: FC = () => {
 
   const getStoreGroup = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/store-group`, {
+      const response = await axios.get(`${apiUrl}/area`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -194,11 +178,12 @@ const UpdateItemHO: FC = () => {
       })
 
       if (Array.isArray(response.data.data)) {
-        // const tempStoreGroup = response.data.data.map((item: any) => ({
-        //   store_group_id: item.id,
-        //   label: item.group_name,
-        // }))
-        // setStoreGroup(tempStoreGroup)
+        const tempStoreGroup = response.data.data.map((item: any) => ({
+          store_group_id: item.id,
+          label: item.area,
+        }))
+
+        setStoreGroup(tempStoreGroup)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -710,7 +695,6 @@ const UpdateItemHO: FC = () => {
                         name='all-store'
                         value={0}
                         type='checkbox'
-                        // checked={element.all_store === 1}
                         onChange={(e) =>
                           handleAssignToStoreByAllStore(0, modalIndex, e.target.checked)
                         }

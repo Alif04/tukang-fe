@@ -63,6 +63,7 @@ const NewSales: FC = () => {
   const [salesData, setSalesData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
+  const [pageSize, setPageSize] = useState<number>(10)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -364,6 +365,9 @@ const NewSales: FC = () => {
       width: 70,
       className: 'col_order_id',
       sorter: (a, b) => a.no - b.no,
+      render: (text: any, record: any, index: number) => {
+        return (currentPage - 1) * pageSize + index + 1
+      },
     },
     {
       title: 'Sales ID',
@@ -877,8 +881,10 @@ const NewSales: FC = () => {
                 position: ['bottomRight'],
                 current: currentPage,
                 total: totalData,
+                pageSize: pageSize,
                 showSizeChanger: true,
-                pageSizeOptions: [5, 10, 20, 50, 100],
+                pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
+                onShowSizeChange: (current, size) => setPageSize(size),
                 onChange: (page, pageSize) => {
                   fetchData(page, pageSize)
                 },

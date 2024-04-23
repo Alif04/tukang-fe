@@ -11,7 +11,7 @@ import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, InputGroup, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -38,6 +38,7 @@ const ViewItemHO: React.FC = () => {
   const [itemData, setItemData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
+  const [pageSize, setPageSize] = useState<number>(10)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -62,6 +63,9 @@ const ViewItemHO: React.FC = () => {
       key: 'no',
       align: 'center',
       sorter: (a, b) => a.no - b.no,
+      render: (text: any, record: any, index: number) => {
+        return (currentPage - 1) * pageSize + index + 1
+      },
     },
     {
       title: 'Product Name',
@@ -230,6 +234,11 @@ const ViewItemHO: React.FC = () => {
       const itemData = apiData.map((item: any, index: number) => {
         let data
 
+        // const priceStoresLength = item.prices.reduce(
+        //   (total: any, price: any) => total + price.price_stores.length,
+        //   0
+        // )
+
         data = {
           no: index + 1,
           material_id: item?.id,
@@ -374,7 +383,9 @@ const ViewItemHO: React.FC = () => {
               current: currentPage,
               total: totalData,
               showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
+              pageSize: pageSize,
+              pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
+              onShowSizeChange: (current, size) => setPageSize(size),
               onChange: (page, pageSize) => {
                 fetchData(page, pageSize)
               },

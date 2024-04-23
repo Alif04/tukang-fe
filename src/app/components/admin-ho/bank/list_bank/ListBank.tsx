@@ -20,6 +20,7 @@ const ListBankHO: React.FC = () => {
   const [bankData, setBankData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
+  const [pageSize, setPageSize] = useState<number>(10)
 
   const [searchFilter, setSearchFilter] = useState<string>('')
 
@@ -40,8 +41,11 @@ const ListBankHO: React.FC = () => {
       dataIndex: 'bank_id',
       key: 'bank_id',
       align: 'center',
-      sorter: (a, b) => a.bank_id - b.bank_id,
       width: 50,
+      sorter: (a, b) => a.bank_id - b.bank_id,
+      render: (text: any, record: any, index: number) => {
+        return (currentPage - 1) * pageSize + index + 1
+      },
     },
     {
       title: 'Nama Bank',
@@ -260,8 +264,10 @@ const ListBankHO: React.FC = () => {
               position: ['bottomRight'],
               current: currentPage,
               total: totalData,
+              pageSize: pageSize,
               showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
+              pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
+              onShowSizeChange: (current, size) => setPageSize(size),
               onChange: (page, pageSize) => {
                 fetchData(page, pageSize)
               },
