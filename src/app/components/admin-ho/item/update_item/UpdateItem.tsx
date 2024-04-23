@@ -30,7 +30,7 @@ interface Store {
 interface Item {
   item_code: string
   item_name: string
-  service_name: string
+  name: string
   category_id: number | null
   default_price: number
   prices: Array<{
@@ -56,7 +56,7 @@ const UpdateItemHO: FC = () => {
   const [item, setItem] = useState<Item>({
     item_code: '',
     item_name: '',
-    service_name: '',
+    name: '',
     category_id: null,
     default_price: 0,
     prices: [
@@ -121,7 +121,7 @@ const UpdateItemHO: FC = () => {
               ...prev,
               item_code: data?.item_code,
               item_name: data?.item_name,
-              service_name: data?.service_name,
+              name: data?.service_name,
               category_id: data?.category_id,
               default_price: data?.default_price,
               prices: pricesItem,
@@ -379,7 +379,7 @@ const UpdateItemHO: FC = () => {
   const ItemValidation = () => {
     let valid = true
 
-    if (!item.service_name) {
+    if (!item.name) {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Item Nama Jasa Pemasangan form',
@@ -549,9 +549,9 @@ const UpdateItemHO: FC = () => {
 
                 <Col sm='8'>
                   <Form.Control
-                    name='service_name'
+                    name='name'
                     type='text'
-                    value={item.service_name}
+                    value={item.name}
                     onChange={(e) => itemFormHandler(e)}
                   />
                 </Col>

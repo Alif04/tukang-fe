@@ -198,11 +198,23 @@ const ViewItemHO: React.FC = () => {
   }
 
   const getItemList = async (page: number, pageSize: number) => {
-    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+    let apiUrlWithParams = `${apiUrl}/items?order_by=desc`
+
+    if (searchFilter) {
+      apiUrlWithParams += `search=${searchFilter}`
+    }
+
+    if (dateFrom && dateTo) {
+      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+    }
+
+    if (selectedStore && selectedStore.value) {
+      apiUrlWithParams += `&store_id=${selectedStore.value}`
+    }
 
     try {
       const response = await axios.get(
-        `${apiUrl}/items?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
+        `${apiUrl}/items?order_by=desc&page=${page}&take=${pageSize}`,
         {
           headers: {
             Accept: 'application/json',
@@ -234,14 +246,15 @@ const ViewItemHO: React.FC = () => {
       const itemData = apiData.map((item: any, index: number) => {
         let data
 
-        // const priceStoresLength = item.prices.reduce(
-        //   (total: any, price: any) => total + price.price_stores.length,
-        //   0
-        // )
+        const priceStoresLength = item.prices.reduce(
+          (total: any, price: any) => total + price.price_stores.length,
+          0
+        )
 
         data = {
           no: index + 1,
           material_id: item?.id,
+          // store_name: `${priceStoresLength.length} Toko`,
           store_name: `${item?.prices[0]?.price_stores.length ?? 0} Toko`,
           product_name: item?.item_name ?? '-',
           service_name: item?.service_name ?? '-',
