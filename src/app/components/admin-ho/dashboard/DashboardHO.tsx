@@ -154,12 +154,63 @@ const DashboardHO: FC = () => {
         },
       })
 
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
-      setChartDataOrder(chartDatas)
+      const chartDatas = response.data.monthlyOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+      setChartDataOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
+
+  const getWorkOrder = async () => {
+    const storeId = selectedStore && selectedStore.value ? `?store_id=${selectedStore.value}` : ''
+
+    try {
+      const response = await axios.get(`${apiUrl}/reports/work-orders${storeId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data
+      const chartDatas = response.data.monthlyWorkOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+
+      setChartWorkOrder(slicedData)
+      setWorkOrderData(data)
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getReportOrder()
+    getWorkOrder()
+  }, [])
 
   const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
@@ -194,42 +245,10 @@ const DashboardHO: FC = () => {
     }
   }
 
-  const getWorkOrder = async () => {
-    const storeId = selectedStore && selectedStore.value ? `?store_id=${selectedStore.value}` : ''
-
-    try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
-
-      setWorkOrderData(data)
-      setChartWorkOrder(chartDatas)
-      return data
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  useEffect(() => {
-    getReportOrder()
-  }, [])
-
   const fetchData = async (page: number, pageSize: number, queryparams: any) => {
     const data = await ViewOrder(page, pageSize, queryparams)
     setOrderList(data)
   }
-
-  useEffect(() => {
-    getWorkOrder()
-  }, [orderList])
 
   useEffect(() => {
     const getStore = async () => {
@@ -369,6 +388,8 @@ const DashboardHO: FC = () => {
     const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}${store_id}`
 
     await fetchOrderList(1, 10, queryparams)
+    await getReportOrder()
+    await getWorkOrder()
     setLoadingButton(false)
   }
 

@@ -198,9 +198,11 @@ const FormatEmailList: FC = () => {
               <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
             </a>
 
-            <a className='button-detail' onClick={handleActive}>
-              <FontAwesomeIcon icon={faCheck} className='text-black' size='sm' />
-            </a>
+            {record.is_active !== 'Active' && (
+              <a className='button-detail' onClick={handleActive}>
+                <FontAwesomeIcon icon={faCheck} className='text-black' size='sm' />
+              </a>
+            )}
 
             <a className='button-delete' onClick={handleNonActive}>
               <FontAwesomeIcon icon={faTrash} size='sm' />
