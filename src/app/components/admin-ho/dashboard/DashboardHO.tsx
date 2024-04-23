@@ -6,14 +6,23 @@ import {ChartBarPerformance} from './components/ChartBarPerformance'
 import {ChartBarOrder} from './components/ChartBarOrder'
 import {ChartBarSurvey} from './components/ChartBarSurvey'
 import {MoreInformation} from './components/MoreInformation'
-import {TableList} from './components/TableList'
 
 import axios from 'axios'
 import Select from 'react-select'
 import {DatePicker} from 'antd'
-import {Row, Col, Card} from 'react-bootstrap'
+import {Row, Col, Card, Button} from 'react-bootstrap'
+import {Table, PaginationProps} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
 
 const {RangePicker} = DatePicker
+
+interface DataType {
+  order_id: number
+  store_name: string
+  costumer_name: string
+  service_name: string
+  total: string
+}
 
 interface StoreItem {
   value: number | null
@@ -48,19 +57,30 @@ const statusToStateMap: StatusToStateMap = {
   WORKRELATED: 'waitingPayment',
 }
 
+const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+  if (type === 'prev') {
+    return <a>Prev</a>
+  }
+  if (type === 'next') {
+    return <a>Next</a>
+  }
+  return originalElement
+}
+
 const DashboardHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [loadingButton, setLoadingButton] = useState(false)
 
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
+
+  const [orderList, setOrderList] = useState<DataType[]>([])
   const [orderData, setOrderData] = useState<any[]>([])
-  const [orderList, setOrderList] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
 
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
-
-  console.log('chart work order', chartWorkOrder)
 
   const today = new Date()
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
@@ -98,26 +118,25 @@ const DashboardHO: FC = () => {
     }
   }, [selectedStore])
 
-  const fetchOrderList = async () => {
-    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0${storeId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
       const data = response.data.data
 
-      setCurrentPage(response.data.page)
       setOrderData(data)
-      setOrderList(data)
+      setCurrentPage(response.data.page)
+      setTotalData(response?.data?.total ?? 0)
+
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -142,9 +161,16 @@ const DashboardHO: FC = () => {
     }
   }
 
-  const ViewOrder = () => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = orderList.map((item: any) => {
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const orderData = apiData.map((item: any) => {
         let data
 
         data = {
@@ -161,7 +187,7 @@ const DashboardHO: FC = () => {
         return data
       })
 
-      return apiData
+      return orderData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
@@ -196,21 +222,12 @@ const DashboardHO: FC = () => {
     getReportOrder()
   }, [])
 
-  useEffect(() => {
-    fetchOrderList()
-  }, [dateFrom, dateTo, selectedStore])
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
+    setOrderList(data)
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await ViewOrder()
-        setOrderData(data)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
-
-    fetchData()
     getWorkOrder()
   }, [orderList])
 
@@ -280,7 +297,7 @@ const DashboardHO: FC = () => {
   const [statusState, setStatusState] = useState(initialStatusState)
 
   useEffect(() => {
-    if (orderList) {
+    if (orderData) {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
@@ -290,7 +307,7 @@ const DashboardHO: FC = () => {
 
         if (desiredStatus) {
           const statusValue = desiredStatus.value
-          const orderCount = orderList.filter((item: any) => item.status.id === statusValue).length
+          const orderCount = orderData.filter((item: any) => item.status.id === statusValue).length
 
           setStatusState((prevState) => ({
             ...prevState,
@@ -299,15 +316,66 @@ const DashboardHO: FC = () => {
         }
       }
     }
-  }, [orderList])
+  }, [orderData])
 
   const {survey, onProgress, complete, waitingSurvey, waitingQuotation, waitingPayment} =
     statusState
 
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'left',
+      className: 'col_order_id',
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Nama Konsumen',
+      dataIndex: 'costumer_name',
+      key: 'costumer_name',
+      align: 'left',
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+    },
+    {
+      title: 'Nama Pemasangan',
+      dataIndex: 'service_name',
+      key: 'service_name',
+      align: 'left',
+      onFilter: (value, record) => record.service_name.includes(String(value)),
+      sorter: (a, b) => a.service_name.length - b.service_name.length,
+    },
+    {
+      title: 'Grand Total',
+      dataIndex: 'total',
+      key: 'total',
+      align: 'center',
+    },
+  ]
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const store_id = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ``
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}${store_id}`
+
+    await fetchOrderList(1, 10, queryparams)
+    setLoadingButton(false)
+  }
+
   return (
     <section id='dashboard-ho'>
       <Row>
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+        <Col xxl={3} xl={3} lg={12} className='mb-5'>
           <Row>
             <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
@@ -330,7 +398,7 @@ const DashboardHO: FC = () => {
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+        <Col xxl={3} xl={3} lg={12} className='mb-5'>
           <Row>
             <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Pilih Zona</h3>
@@ -379,6 +447,16 @@ const DashboardHO: FC = () => {
             </Col>
           </Row>
         </Col>
+
+        <Col xxl={2} xl={2} lg={12} className='mb-5'>
+          <Button
+            className='btn-dark-primary'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
@@ -390,7 +468,7 @@ const DashboardHO: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{orderData.length}</h1>
+                    <h1 className='fw-normal'>{totalData}</h1>
                     <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>
@@ -450,7 +528,7 @@ const DashboardHO: FC = () => {
 
       <Row>
         <Col lg={4} md={12} className='mb-5'>
-          <MoreInformation className='card-xl-stretch' orderData={orderList} />
+          <MoreInformation className='card-xl-stretch' orderData={orderData} />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
@@ -470,7 +548,37 @@ const DashboardHO: FC = () => {
 
       <Row className='mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch' orderData={orderData} currentPage={currentPage} />
+          <div className={`card`}>
+            <div className='card-body p-5'>
+              <div className='d-flex flex-column'>
+                <h1 className='fs-1 text-black mb-3'>List Order</h1>
+
+                <Table
+                  bordered
+                  columns={columns}
+                  dataSource={orderList}
+                  rowKey={(record) => record.order_id}
+                  pagination={{
+                    position: ['bottomRight'],
+                    current: currentPage,
+                    total: totalData,
+                    showSizeChanger: true,
+                    pageSizeOptions: [5, 10, 20, 50, 100],
+                    defaultPageSize: 5,
+                    onChange: (page, pageSize) => {
+                      fetchData(page, pageSize, '')
+                    },
+                    itemRender: itemRender,
+                    showTotal: (total, range) => (
+                      <span style={{left: 0, position: 'absolute'}}>
+                        Showing {range[0]} - {range[1]} of {total} List Order
+                      </span>
+                    ),
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </Col>
       </Row>
     </section>

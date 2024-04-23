@@ -151,6 +151,21 @@ iframe.csi-frame {
   height: 45px;
 }
 
+/* Button Submit On Date Range */
+
+/* .ant-picker-time-panel {
+  display: none !important;
+}
+
+.ant-btn-primary {
+  font-size: 0 !important;
+}
+
+.ant-btn-primary:after {
+  content: 'Submit' !important;
+  font-size: 12px;
+} */
+
 /* .form-check-input {
   width: 1.1rem !important;
   height: 1.1rem !important;

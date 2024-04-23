@@ -9,7 +9,7 @@ import {TableList} from './components/TableList'
 
 import axios from 'axios'
 import {DatePicker} from 'antd'
-import {Card, Row, Col} from 'react-bootstrap'
+import {Card, Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
@@ -46,6 +46,7 @@ const statusToStateMap: StatusToStateMap = {
 const DashboardOrderStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userStore = localStorage.getItem('storeId')
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const [orderData, setOrderData] = useState<any[]>([])
   const [chartData, setChartData] = useState<any[]>([])
@@ -59,18 +60,14 @@ const DashboardOrderStore: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
-  const fetchOrderList = async () => {
+  const fetchOrderList = async (queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&take=0${queryparams}`
+
+    if (userStore) {
+      apiUrlWithParams += `&store_id=${userStore}`
+    }
+
     try {
-      let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&take=0`
-
-      if (dateFrom && dateTo) {
-        apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
-      }
-
-      if (userStore) {
-        apiUrlWithParams += `&store_id=${userStore}`
-      }
-
       const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
@@ -133,12 +130,9 @@ const DashboardOrderStore: FC = () => {
   }
 
   useEffect(() => {
+    fetchOrderList('')
     getReportOrder()
   }, [])
-
-  useEffect(() => {
-    fetchOrderList()
-  }, [dateFrom, dateTo])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -191,19 +185,30 @@ const DashboardOrderStore: FC = () => {
     waitingQuotation,
   } = statusState
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}`
+    await fetchOrderList(queryparams)
+    setLoadingButton(false)
+  }
+
   return (
     <section id='dashboard-order'>
-      <div className='row'>
-        <div className='col-xxl-4 col-xl-6 col-lg-12 mb-5'>
-          <div className='row'>
-            <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center '>
-              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
-            </div>
+      <Row className='g-5 g-xl-8'>
+        <Col xxl={5} xl={5} lg={12} className='mb-5'>
+          <Row>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              className='d-flex justify-content-between align-items-center'
+            >
+              <h3 className='fs-3 fw-normal mb-3 w-50'>Pilih Periode</h3>
 
-            <div className='col-xxl-8 col-xl-8 col-lg-8'>
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range ms-3 me-3 w-100'
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -217,10 +222,18 @@ const DashboardOrderStore: FC = () => {
                   }
                 }}
               />
-            </div>
-          </div>
-        </div>
-      </div>
+
+              <Button
+                className='btn-dark-primary'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
 
       {/* begin::Row */}
       <div className='row g-5 g-xl-8 mb-5'>

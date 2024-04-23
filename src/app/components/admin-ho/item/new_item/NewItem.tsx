@@ -32,8 +32,6 @@ interface Item {
   default_price: number
   prices: Array<{
     id: number | null
-    // all_store: number
-    // element_index: string
     price_store: Array<{
       store_id: number | null
     }>
@@ -58,8 +56,6 @@ const NewItemHO: FC = () => {
     prices: [
       {
         id: null,
-        // all_store: 0,
-        // element_index: Date.now().toString(),
         price_store: [],
         periodic_start: '',
         periodic_end: '',
@@ -69,16 +65,9 @@ const NewItemHO: FC = () => {
     ],
   })
 
-  console.log('item', item)
-
   // Store
   const [store, setStore] = useState<Store[]>([])
-  const [storeGroup, setStoreGroup] = useState<any[]>([
-    {
-      store_group_id: 4,
-      label: 'Batam',
-    },
-  ])
+  const [storeGroup, setStoreGroup] = useState<any[]>([])
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -126,11 +115,12 @@ const NewItemHO: FC = () => {
       })
 
       if (Array.isArray(response.data.data)) {
-        // const tempStoreGroup = response.data.data.map((item: any) => ({
-        //   store_group_id: item.id,
-        //   label: item.area,
-        // }))
-        // setStoreGroup(tempStoreGroup)
+        const tempStoreGroup = response.data.data.map((item: any) => ({
+          store_group_id: item.id,
+          label: item.area,
+        }))
+
+        setStoreGroup(tempStoreGroup)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -175,8 +165,6 @@ const NewItemHO: FC = () => {
   const handleAddForm = () => {
     const newItemDetail = {
       id: null,
-      // all_store: 0,
-      // element_index: Date.now().toString(),
       price_store: [],
       periodic_start: '',
       periodic_end: '',
@@ -254,10 +242,6 @@ const NewItemHO: FC = () => {
         cache.prices[index].price_store = []
       }
 
-      // if (index !== -1) {
-      //   cache.prices[index].all_store = isChecked ? 1 : 0
-      // }
-
       return cache
     })
   }
@@ -320,18 +304,6 @@ const NewItemHO: FC = () => {
   }
 
   const isStoreChecked = (store_id: any, index: any) => {
-    // console.log('store_id', store_id)
-    console.log('index', index)
-
-    // const itemIndex = item.prices.findIndex((item) => item.element_index === index)
-    // const priceStore = item.prices[itemIndex]?.price_store
-    // return priceStore ? priceStore.some((store) => store.store_id === store_id) : false
-
-    // if (index >= 0 && index < item.prices.length) {
-    //   const priceStore = item.prices[index].price_store
-    //   return priceStore.some((store) => store.store_id === store_id)
-    // }
-
     return item.prices[index].price_store.some((store) => store.store_id === store_id)
   }
 
@@ -389,19 +361,6 @@ const NewItemHO: FC = () => {
     }
 
     setIsLoading(true)
-
-    // const updatedPrices = item.prices.map((price) => {
-    //   if (price.id === null) {
-    //     const {id, ...priceWithoutId} = price
-    //     return priceWithoutId
-    //   }
-    //   return price
-    // })
-
-    // const newItemDetail = {
-    //   ...item,
-    //   prices: updatedPrices,
-    // }
 
     await axios
       .post(`${apiUrl}/items`, item, {
@@ -643,7 +602,7 @@ const NewItemHO: FC = () => {
               onHide={handleCloseModal}
             >
               <Modal.Header closeButton>
-                <Modal.Title>Assign To Store - Item Promo - {modalIndex}</Modal.Title>
+                <Modal.Title>Assign To Store - Item Promo</Modal.Title>
               </Modal.Header>
 
               <Modal.Body>

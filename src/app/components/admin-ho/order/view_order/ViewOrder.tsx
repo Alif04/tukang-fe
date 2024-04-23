@@ -14,6 +14,18 @@ import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
+interface DataType {
+  order_id: number
+  assign_from: string
+  date_order: Date
+  no_member: number
+  costumer_name: string
+  phone_number: number
+  service_name: string
+  payment_status: string
+  order_status: string
+}
+
 const ViewOrders: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -32,18 +44,6 @@ const ViewOrders: FC = () => {
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    order_id: number
-    assign_from: string
-    date_order: Date
-    no_member: number
-    costumer_name: string
-    phone_number: number
-    service_name: string
-    payment_status: string
-    order_status: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -405,7 +405,6 @@ const ViewOrders: FC = () => {
             columns={columns}
             dataSource={orderData}
             rowKey={(record) => record.order_id}
-            // scroll={{x: 2000}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,
