@@ -99,6 +99,8 @@ const DashboardHO: FC = () => {
     area_id: null,
   })
 
+  const store_id = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ``
+
   const [selectedZone, setSelectedZone] = useState<any>({
     value: null,
     label: 'All Zona',
@@ -119,7 +121,7 @@ const DashboardHO: FC = () => {
   }, [selectedStore])
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}${store_id}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -145,7 +147,7 @@ const DashboardHO: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders`, {
+      const response = await axios.get(`${apiUrl}/reports/orders${store_id}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -173,10 +175,8 @@ const DashboardHO: FC = () => {
   }
 
   const getWorkOrder = async () => {
-    const storeId = selectedStore && selectedStore.value ? `?store_id=${selectedStore.value}` : ''
-
     try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders${storeId}`, {
+      const response = await axios.get(`${apiUrl}/reports/work-orders${store_id}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -384,7 +384,6 @@ const DashboardHO: FC = () => {
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
-    const store_id = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ``
     const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}${store_id}`
 
     await fetchOrderList(1, 10, queryparams)

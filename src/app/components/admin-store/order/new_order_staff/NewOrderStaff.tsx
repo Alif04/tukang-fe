@@ -78,6 +78,7 @@ const NewOrderStoreStaff: FC = () => {
 
   // If User Login is Admin Sales
   const salesId = localStorage.getItem('sales_id') as any
+  const salesName = localStorage.getItem('salesName') as string
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
@@ -913,7 +914,7 @@ const NewOrderStoreStaff: FC = () => {
                   <Form.Control
                     type='text'
                     disabled={userRole === 'Sales'}
-                    value={userRole === 'Sales' ? username : selectedSales?.full_name || ''}
+                    value={userRole === 'Sales' ? salesName : selectedSales?.full_name || ''}
                   />
                 </Col>
               </Form.Group>
