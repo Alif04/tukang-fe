@@ -49,7 +49,8 @@ const NewSales: FC = () => {
   const navigate = useNavigate()
   const animatedComponents = makeAnimated()
   const userRole = localStorage.getItem('userRole')
-
+  const staffStoreId = localStorage.getItem('storeId') as any
+  const staffStoreName = localStorage.getItem('storeName') as string
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // List Store
@@ -68,9 +69,6 @@ const NewSales: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
-
-  const staffStoreId = localStorage.getItem('storeId') as any
-  const staffStoreName = localStorage.getItem('storeName') as string
 
   // Sales
   const [salesId, setSalesId] = useState<any>()
@@ -136,8 +134,6 @@ const NewSales: FC = () => {
             'ngrok-skip-browser-warning': 'true',
           },
         })
-
-        const data = response.data.code
 
         if (response.status === 200) {
           const {data} = response

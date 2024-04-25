@@ -188,6 +188,10 @@ iframe.csi-frame {
 
 /* Button Action */
 
+button.btn-dark-primary.button-submit.btn.btn-primary {
+  height: 44px;
+}
+
 .button-export {
   display: flex;
   width: fit-content;

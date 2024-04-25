@@ -9,7 +9,7 @@ import {TopVendorWidget} from './components/TopVendor'
 
 import axios from 'axios'
 import Select from 'react-select'
-import {Card, Row, Col} from 'react-bootstrap'
+import {Card, Row, Col, Button} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -70,6 +70,7 @@ const ReportVendorHO: FC = () => {
     .toISOString()
     .split('T')[0]
 
+  const [loadingButton, setLoadingButton] = useState(false)
   const [orderData, setOrderData] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [invoiceData, setInvoiceData] = useState<any[]>([])
@@ -87,8 +88,8 @@ const ReportVendorHO: FC = () => {
     label: 'All Vendor',
   })
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const date =
     dateFrom && dateTo
@@ -177,10 +178,21 @@ const ReportVendorHO: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+      const chartDatas = response.data.monthlyOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
 
       setOrderData(data)
-      setChartOrder(chartDatas)
+      setChartOrder(slicedData)
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -189,7 +201,7 @@ const ReportVendorHO: FC = () => {
 
   const getWorkOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders?take=0${vendorId}`, {
+      const response = await axios.get(`${apiUrl}/reports/work-orders?take=0${date}${vendorId}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -199,10 +211,21 @@ const ReportVendorHO: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+      const chartDatas = response.data.monthlyWorkOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
 
       setWorkOrderData(data)
-      setChartWorkOrder(chartDatas)
+      setChartWorkOrder(slicedData)
       return data
     } catch (error) {
       console.error(error)
@@ -211,7 +234,7 @@ const ReportVendorHO: FC = () => {
 
   const getComplaint = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/complaints?order_by=desc${vendorId}`, {
+      const response = await axios.get(`${apiUrl}/complaints?order_by=desc${date}${vendorId}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -221,10 +244,21 @@ const ReportVendorHO: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyComplaint.slice(1, 7)
+      const chartDatas = response.data.monthlyComplaint
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
 
       setComplaintData(data)
-      setChartComplaint(chartDatas)
+      setChartComplaint(slicedData)
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -233,7 +267,7 @@ const ReportVendorHO: FC = () => {
 
   const getInvoices = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/invoices?order_by=desc${vendorId}`, {
+      const response = await axios.get(`${apiUrl}/invoices?order_by=desc${date}${vendorId}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -257,13 +291,23 @@ const ReportVendorHO: FC = () => {
     getWorkOrder()
     getComplaint()
     getInvoices()
-  }, [dateFrom, dateTo, selectedVendor?.value])
+  }, [])
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    await getOrder()
+    await getWorkOrder()
+    await getComplaint()
+
+    setLoadingButton(false)
+  }
 
   return (
     <>
       {/* begin::Row */}
       <div className='row g-5 g-xl-8 mb-5'>
-        <div className='col-xl-4'>
+        <div className='col-md-4'>
           <Row>
             <Col xxl={4} xl={4} lg={6} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Lihat Vendor Dashboard</h3>
@@ -286,7 +330,7 @@ const ReportVendorHO: FC = () => {
           </Row>
         </div>
 
-        <div className='col-xl-4'>
+        <div className='col-md-4'>
           <Row>
             <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
               <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
@@ -313,7 +357,15 @@ const ReportVendorHO: FC = () => {
           </Row>
         </div>
 
-        <div className='col-xl-4'></div>
+        <div className='col-md-4'>
+          <Button
+            className='btn-dark-primary button-submit m-0'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </div>
       </div>
       {/* end::Row */}
 

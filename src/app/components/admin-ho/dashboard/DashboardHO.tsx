@@ -390,6 +390,7 @@ const DashboardHO: FC = () => {
     await fetchOrderList(1, 10, queryparams)
     await getReportOrder()
     await getWorkOrder()
+
     setLoadingButton(false)
   }
 
@@ -471,7 +472,7 @@ const DashboardHO: FC = () => {
 
         <Col xxl={2} xl={2} lg={12} className='mb-5'>
           <Button
-            className='btn-dark-primary'
+            className='btn-dark-primary button-submit'
             disabled={loadingButton}
             onClick={handleSubmitFilter}
           >

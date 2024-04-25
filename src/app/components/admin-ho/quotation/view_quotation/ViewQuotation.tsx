@@ -8,9 +8,9 @@ import Select, {SingleValue} from 'react-select'
 import {Table, Tag, DatePicker, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -40,6 +40,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [loadingButton, setLoadingButton] = useState(false)
   const [quotationData, setQuotationData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -216,21 +217,18 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const getQuotationList = async (page: number, pageSize: number) => {
-    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+  const getQuotationList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
     try {
-      const response = await axios.get(
-        `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}${storeId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
@@ -241,9 +239,9 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewQuotation = async (page: number, pageSize: number) => {
+  const ViewQuotation = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await getQuotationList(page, pageSize)
+      const apiData = await getQuotationList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from getQuotationList')
@@ -278,14 +276,14 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewQuotation(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewQuotation(page, pageSize, queryparams)
     setQuotationData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter, selectedStore?.value])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -328,12 +326,22 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     getStore()
   }, [])
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}${storeId}`
+    await getQuotationList(1, 10, queryparams)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='view-quotation'>
       <div className={`card ${className}`}>
         <div className='card-body'>
           <Row className='table-head-wrapper'>
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12} className='d-flex mb-2'>
+            <Col xxl={3} xl={3} lg={3} md={3} sm={12} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
@@ -356,7 +364,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+            <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -372,7 +380,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               </div>
             </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+            <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
               <Select
                 name='store_id'
                 className='form-control p-0'
@@ -383,6 +391,16 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
                 value={selectedStore}
                 onChange={(newValue) => setSelectedStore(newValue)}
               />
+            </Col>
+
+            <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
             </Col>
           </Row>
 
@@ -400,7 +418,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
               onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
+                fetchData(page, pageSize, '')
               },
               itemRender: itemRender,
               showTotal: (total, range) => (

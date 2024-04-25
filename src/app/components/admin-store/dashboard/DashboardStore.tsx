@@ -159,82 +159,33 @@ const DashboardStore: FC = () => {
     <>
       <Row>
         <Col xxl={4} xl={4} lg={12} className='mb-5'>
-          {userRole === 'Store CS' ? (
-            <Row>
-              <Col xxl={4} xl={4} lg={6} className='d-flex align-items-center'>
-                <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
-              </Col>
+          <Row>
+            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
+            </Col>
 
-              <Col xxl={8} xl={8} lg={12}>
-                <div className='d-flex'>
-                  <Select
-                    name='store_id'
-                    className='form-control p-0'
-                    classNamePrefix='select'
-                    placeholder='Pilih Toko'
-                    isSearchable={true}
-                    options={store}
-                    onChange={(newValue) => setSelectedStore(newValue)}
-                  />
-                </div>
-              </Col>
-            </Row>
-          ) : (
-            <Row>
-              <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-                <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
-              </Col>
+            <Col xxl={8} xl={8} lg={12}>
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range w-100'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-              <Col xxl={8} xl={8} lg={12}>
-                <RangePicker
-                  format={'DD-MM-YYYY'}
-                  className='date-range w-100'
-                  onChange={(values) => {
-                    if (values && values.length === 2) {
-                      const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                      const dateToFormatted = values[1]?.format('YYYY-MM-DD')
-
-                      setDateFrom(dateFromFormatted)
-                      setDateTo(dateToFormatted)
-                    } else {
-                      setDateFrom('')
-                      setDateTo('')
-                    }
-                  }}
-                />
-              </Col>
-            </Row>
-          )}
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
+            </Col>
+          </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
-          {userRole === 'Store CS' && (
-            <Row>
-              <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-                <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
-              </Col>
-
-              <Col xxl={8} xl={8} lg={12}>
-                <RangePicker
-                  format={'DD-MM-YYYY'}
-                  className='date-range w-100'
-                  onChange={(values) => {
-                    if (values && values.length === 2) {
-                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
-
-                      setDateFrom(dateFromFormatted)
-                      setDateTo(dateToFormatted)
-                    } else {
-                      setDateFrom('')
-                      setDateTo('')
-                    }
-                  }}
-                />
-              </Col>
-            </Row>
-          )}
-        </Col>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'></Col>
       </Row>
 
       <Row className='gy-5 g-xl-8'>

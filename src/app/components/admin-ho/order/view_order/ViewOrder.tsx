@@ -7,7 +7,7 @@ import axios from 'axios'
 import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
@@ -29,6 +29,7 @@ interface DataType {
 const ViewOrders: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
@@ -256,21 +257,18 @@ const ViewOrders: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-  const fetchOrderList = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
@@ -281,9 +279,9 @@ const ViewOrders: FC = () => {
     }
   }
 
-  const ViewOrder = async (page: number, pageSize: number) => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -335,14 +333,10 @@ const ViewOrders: FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
     setOrderData(data)
   }
-
-  useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -352,6 +346,22 @@ const ViewOrders: FC = () => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  useEffect(() => {
+    fetchData(1, 10, '')
+  }, [])
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}${storeId}`
+
+    const data = await ViewOrder(1, 10, queryparams)
+    setOrderData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -382,7 +392,7 @@ const ViewOrders: FC = () => {
               />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -396,6 +406,16 @@ const ViewOrders: FC = () => {
                   />
                 </InputGroup>
               </div>
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
             </Col>
           </Row>
 
@@ -412,7 +432,7 @@ const ViewOrders: FC = () => {
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
               onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
+                fetchData(page, pageSize, '')
               },
               itemRender: itemRender,
               showTotal: (total, range) => (

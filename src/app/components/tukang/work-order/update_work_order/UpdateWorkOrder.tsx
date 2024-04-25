@@ -1343,149 +1343,385 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             </Col>
           </Row>
 
-          <Row>
-            <Col>
-              <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
+          {orderDetail?.orders?.payment_type === 'survey' ? (
+            <>
+              <Row>
+                <Col>
+                  <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
 
-              <table className='table'>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th></th>
-                    <th>Nama Produk / Jenis Jasa</th>
-                    <th>QTY</th>
-                    <th>Satuan</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderItem
-                    .filter((x) => x.type === 2)
-                    .map((element, index) => (
-                      <tr
-                        key={`${stringToHash(element.index)}-service`}
-                        id={`${element.index}-service`}
-                      >
-                        <td align='center' width={70}>
-                          <Button
-                            variant='btn-jasa button-dark-primary'
-                            onClick={() => handleAddForm(2)}
-                          >
-                            <FontAwesomeIcon icon={faPlus} />
-                          </Button>
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`service-name-${index}`}
-                            value={element.item_name}
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                          />
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity?.toString()}
-                            onChange={(e) => handleQuantityChange(element.index, e.target.value, 2)}
-                          />{' '}
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`unit-${index}`}
-                            value={element.unit?.toString()}
-                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 2)}
-                          />
-                        </td>
-
-                        <td align='center' width={70}>
-                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
-                        </td>
+                  <table className='table'>
+                    <thead className='table-item-head'>
+                      <tr>
+                        <th></th>
+                        <th>Nama Produk / Jenis Jasa</th>
+                        <th>QTY</th>
+                        <th>Satuan</th>
+                        <th>Action</th>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
-            </Col>
-          </Row>
+                    </thead>
 
-          <Row>
-            <Col>
-              <table className='table'>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th></th>
-                    <th>Disediakan Customer</th>
-                    <th>Material Yang Dibutuhkan</th>
-                    <th>QTY</th>
-                    <th>Satuan</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderItem
-                    .filter((x) => x.type === 1)
-                    .map((element, index) => (
-                      <tr
-                        key={`${stringToHash(element.index)}-material`}
-                        id={`${element.index}-material`}
-                      >
-                        <td align='center' width={70}>
-                          <Button
-                            variant='btn-material button-dark-primary'
-                            onClick={() => handleAddForm(1)}
+                    <tbody>
+                      {workOrderItem
+                        .filter((x) => x.type === 2)
+                        .map((element, index) => (
+                          <tr
+                            key={`${stringToHash(element.index)}-service`}
+                            id={`${element.index}-service`}
                           >
-                            <FontAwesomeIcon icon={faPlus} />
-                          </Button>
-                        </td>
+                            <td align='center' width={70}>
+                              <Button
+                                variant='btn-jasa button-dark-primary'
+                                onClick={() => handleAddForm(2)}
+                              >
+                                <FontAwesomeIcon icon={faPlus} />
+                              </Button>
+                            </td>
 
-                        <td align='center' style={{verticalAlign: 'middle'}}>
-                          <Form.Check
-                            id={`is-user-${index}`}
-                            type='checkbox'
-                            checked={element.is_user === 1}
-                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
-                          />
-                        </td>
+                            <td>
+                              <Form.Control
+                                id={`service-name-${index}`}
+                                value={element.item_name}
+                                onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                              />
+                            </td>
 
-                        <td>
-                          <Form.Control
-                            id={`item-name-${index}`}
-                            value={element.item_name}
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                          />
-                        </td>
+                            <td>
+                              <Form.Control
+                                id={`quantity-${index}`}
+                                value={element.quantity?.toString()}
+                                onChange={(e) =>
+                                  handleQuantityChange(element.index, e.target.value, 2)
+                                }
+                              />{' '}
+                            </td>
 
-                        <td>
-                          <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity?.toString()}
-                            onChange={(e) => handleQuantityChange(element.index, e.target.value, 1)}
-                          />
-                        </td>
+                            <td>
+                              <Form.Control
+                                id={`unit-${index}`}
+                                value={element.unit?.toString()}
+                                onChange={(e) =>
+                                  handleSatuanChange(element.index, e.target.value, 2)
+                                }
+                              />
+                            </td>
 
-                        <td>
-                          <Form.Control
-                            id={`unit-${index}`}
-                            value={element.unit?.toString()}
-                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 1)}
-                          />
-                        </td>
+                            <td align='center' width={70}>
+                              <Button
+                                variant='danger'
+                                onClick={() => handleRemoveForm(element.index)}
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
 
-                        <td align='center' width={70}>
-                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
-                        </td>
+              <Row>
+                <Col>
+                  <table className='table'>
+                    <thead className='table-item-head'>
+                      <tr>
+                        <th></th>
+                        <th>Disediakan Customer</th>
+                        <th>Material Yang Dibutuhkan</th>
+                        <th>QTY</th>
+                        <th>Satuan</th>
+                        <th>Action</th>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
-            </Col>
-          </Row>
+                    </thead>
+
+                    <tbody>
+                      {workOrderItem
+                        .filter((x) => x.type === 1)
+                        .map((element, index) => (
+                          <tr
+                            key={`${stringToHash(element.index)}-material`}
+                            id={`${element.index}-material`}
+                          >
+                            <td align='center' width={70}>
+                              <Button
+                                variant='btn-material button-dark-primary'
+                                onClick={() => handleAddForm(1)}
+                              >
+                                <FontAwesomeIcon icon={faPlus} />
+                              </Button>
+                            </td>
+
+                            <td align='center' style={{verticalAlign: 'middle'}}>
+                              <Form.Check
+                                id={`is-user-${index}`}
+                                type='checkbox'
+                                checked={element.is_user === 1}
+                                onChange={(e) =>
+                                  handleCheckboxChange(element.index, e.target.checked)
+                                }
+                              />
+                            </td>
+
+                            <td>
+                              <Form.Control
+                                id={`item-name-${index}`}
+                                value={element.item_name}
+                                onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
+                              />
+                            </td>
+
+                            <td>
+                              <Form.Control
+                                id={`quantity-${index}`}
+                                value={element.quantity?.toString()}
+                                onChange={(e) =>
+                                  handleQuantityChange(element.index, e.target.value, 1)
+                                }
+                              />
+                            </td>
+
+                            <td>
+                              <Form.Control
+                                id={`unit-${index}`}
+                                value={element.unit?.toString()}
+                                onChange={(e) =>
+                                  handleSatuanChange(element.index, e.target.value, 1)
+                                }
+                              />
+                            </td>
+
+                            <td align='center' width={70}>
+                              <Button
+                                variant='danger'
+                                onClick={() => handleRemoveForm(element.index)}
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+            </>
+          ) : (
+            <>
+              {(() => {
+                if (
+                  ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
+                  orderDetail?.payment_type === 'survey'
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      {orderDetail?.is_overdistance === 1 && (
+                        <>
+                          <Form.Text className='fs-8 text-dark'>
+                            *Order ini lebih dari
+                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                            toko sehingga dikenakan biaya tambahan
+                          </Form.Text>
+                        </>
+                      )}
+
+                      <Table>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center'>Jenis Jasa</th>
+                            <th className='text-center'>QTY</th>
+                            <th className='text-center'>Satuan</th>
+                            <th className='text-center'>Price</th>
+                            <th className='text-center'>Total</th>
+                            <th className='text-center'>Keterangan</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>{item?.name ?? '-'}</td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{item?.description ? '' : '-'}</td>
+                              </tr>
+                            )
+                          )}
+
+                          <tr>
+                            <td colSpan={6} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          {orderDetail?.is_overdistance === 1 && (
+                            <>
+                              <tr>
+                                <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                  Biaya Tambahan
+                                </td>
+
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  orderDetail?.additional_fee
+                                ).toLocaleString('id')}.`}</td>
+                              </tr>
+                            </>
+                          )}
+
+                          <tr>
+                            <td colSpan={5} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                } else if (
+                  ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                    orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                  ) &&
+                  orderDetail?.work_orders?.work_order_status.length > 1 &&
+                  orderDetail?.payment_type === 'survey'
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      <Table>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th>Item / Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
+                            <th>Satuan</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>{item?.name ?? '-'}</td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? ''}</td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                } else if (
+                  orderDetail?.payment_type === 'gratis' ||
+                  orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      {orderDetail?.is_overdistance === 1 && (
+                        <>
+                          <Form.Text className='fs-8 text-dark'>
+                            *Order ini lebih dari
+                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                            toko sehingga dikenakan biaya tambahan
+                          </Form.Text>
+                        </>
+                      )}
+
+                      <Table>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
+                            {!(orderDetail?.payment_type === 'gratis') && (
+                              <>
+                                <th>Harga Jasa</th>
+                                <th>Jumlah</th>
+                              </>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {orderDetail?.order_details?.map((item: any, index: any) => (
+                            <>
+                              <tr key={`${index} - order_detail`}>
+                                <td>{item?.item_code}</td>
+                                <td>{item?.item_name}</td>
+                                <td>{item?.item?.service_name}</td>
+                                <td>{item?.quantity ?? 0}</td>
+                                {!(orderDetail?.payment_type === 'gratis') && (
+                                  <>
+                                    <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                    <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </>
+                                )}
+                              </tr>
+                            </>
+                          ))}
+
+                          {orderDetail?.is_overdistance === 1 && (
+                            <>
+                              <tr>
+                                <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                  Biaya Tambahan
+                                </td>
+
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  orderDetail?.additional_fee
+                                ).toLocaleString('id')}.`}</td>
+                              </tr>
+                            </>
+                          )}
+
+                          <tr>
+                            <td
+                              colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                              className='text-end fw-bolder'
+                            >
+                              Grand Total
+                            </td>
+
+                            <td className=' fw-bolder'>
+                              {(() => {
+                                if (orderDetail?.payment_type === 'gratis') {
+                                  return `Rp. ${(0).toLocaleString('id')}`
+                                } else if (
+                                  orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                                ) {
+                                  return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString(
+                                    'id'
+                                  )}`
+                                } else {
+                                  return `Rp. ${(0).toLocaleString('id')}`
+                                }
+                              })()}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                }
+              })()}
+            </>
+          )}
 
           <Row>
             {orderDetail?.work_orders?.work_order_status.length > 1 &&

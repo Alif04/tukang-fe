@@ -149,7 +149,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return val + 'Order'
+          return val + ' Order'
         },
       },
     },

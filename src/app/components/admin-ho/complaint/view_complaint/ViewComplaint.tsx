@@ -6,9 +6,9 @@ import './ViewComplaint.css'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup, Row, Col} from 'react-bootstrap'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faFilter, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {Table, DatePicker, Tag, PaginationProps} from 'antd'
 const {RangePicker} = DatePicker
@@ -18,8 +18,10 @@ type Props = {
 }
 
 const ViewComplaintHO: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [loadingButton, setLoadingButton] = useState(false)
   const [complaintData, setComplaintData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -333,21 +335,18 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchComplaintList = async (page: number, pageSize: number) => {
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL
+  const fetchComplaintList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-      const response = await axios.get(
-        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+    try {
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.data?.length ?? 0)
@@ -358,9 +357,9 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewComplaint = async (page: number, pageSize: number) => {
+  const ViewComplaint = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchComplaintList(page, pageSize)
+      const apiData = await fetchComplaintList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -422,14 +421,14 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewComplaint(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewComplaint(page, pageSize, queryparams)
     setComplaintData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -439,6 +438,15 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
+    await fetchComplaintList(1, 10, queryparams)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -469,7 +477,7 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -483,6 +491,16 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
                   />
                 </InputGroup>
               </div>
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
             </Col>
           </Row>
 
@@ -500,7 +518,7 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
               onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
+                fetchData(page, pageSize, '')
               },
               itemRender: itemRender,
               showTotal: (total, range) => (

@@ -10,7 +10,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faSearch, faPlus, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -39,8 +39,9 @@ interface Status {
 const ViewInvoiceHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -190,7 +191,7 @@ const ViewInvoiceHO: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchInvoiceList = async (page: number, pageSize: number) => {
+  const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) => ['UNPAID'].includes(status.category))
@@ -199,7 +200,7 @@ const ViewInvoiceHO: FC = () => {
       const statuses = desiredStatus.map((x) => x.value)
 
       const response = await axios.get(
-        `${apiUrl}/invoices?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
+        `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`,
         {
           headers: {
             Accept: 'application/json',
@@ -219,9 +220,9 @@ const ViewInvoiceHO: FC = () => {
     }
   }
 
-  const ViewInvoice = async (page: number, pageSize: number) => {
+  const ViewInvoice = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchInvoiceList(page, pageSize)
+      const apiData = await fetchInvoiceList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchInvoiceList')
@@ -249,14 +250,14 @@ const ViewInvoiceHO: FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewInvoice(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewInvoice(page, pageSize, queryparams)
     setInvoiceData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -338,12 +339,21 @@ const ViewInvoiceHO: FC = () => {
       })
   }
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
+    await fetchInvoiceList(1, 10, queryparams)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='view-invoice'>
       <div className='card'>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
@@ -382,7 +392,15 @@ const ViewInvoiceHO: FC = () => {
               </div>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
           <Table
@@ -399,7 +417,7 @@ const ViewInvoiceHO: FC = () => {
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
               onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
+                fetchData(page, pageSize, '')
               },
               itemRender: itemRender,
               showTotal: (total, range) => (

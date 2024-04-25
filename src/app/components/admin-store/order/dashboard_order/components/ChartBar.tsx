@@ -54,7 +54,6 @@ export {ChartBar}
 
 function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
-  const sixMonthFilterOrder = chartOrderData.splice(0, 6)
 
   return {
     series: [
@@ -95,7 +94,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: sixMonthFilterOrder.map((item: any) => item.month.substring(0, 3)),
+      categories: chartOrderData.map((item: any) => item.month.substring(0, 3)),
       axisBorder: {
         show: false,
       },

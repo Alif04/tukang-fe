@@ -6,9 +6,9 @@ import './ViewRefund.css'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPen, faBook, faTrash, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {Table, DatePicker, Tag, PaginationProps} from 'antd'
 const {RangePicker} = DatePicker
@@ -20,6 +20,7 @@ type Props = {
 const ViewRefundHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [refundData, setRefundData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -336,7 +337,7 @@ const ViewRefundHO: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -350,6 +351,12 @@ const ViewRefundHO: React.FC<Props> = ({className}) => {
                   />
                 </InputGroup>
               </div>
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button className='btn-dark-primary button-submit' disabled={loadingButton}>
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
             </Col>
           </Row>
 

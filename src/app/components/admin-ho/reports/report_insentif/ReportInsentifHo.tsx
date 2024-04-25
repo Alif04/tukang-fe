@@ -28,6 +28,7 @@ interface SalesItem {
 const ReportInsentifHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -335,7 +336,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+            <Col>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -351,7 +352,13 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
               </div>
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+            <Col>
+              <Button className='btn-dark-primary button-submit' disabled={loadingButton}>
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
+
+            <Col>
               <div className='d-flex justify-content-end'>
                 <Button
                   variant='outline-primary'

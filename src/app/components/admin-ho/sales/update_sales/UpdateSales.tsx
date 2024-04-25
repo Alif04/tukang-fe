@@ -19,11 +19,6 @@ interface BankSelect {
   label: string
 }
 
-interface BrandSelect {
-  value: number | null
-  label: string
-}
-
 interface CategorySelect {
   value: number | null
   label: string
@@ -47,16 +42,19 @@ const UpdateSales: FC = () => {
   const navigate = useNavigate()
   const params = useParams()
   const animatedComponents = makeAnimated()
+  const userRole = localStorage.getItem('userRole')
+  const staffStoreId = localStorage.getItem('storeId') as any
+  const staffStoreName = localStorage.getItem('storeName') as string
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Store
+  // List Store
   const [store, setStore] = useState<StoreSelect[]>([])
   const [selectedStore, setSelectedStore] = useState<SingleValue<StoreSelect>>({
     value: null,
     label: '',
   })
 
-  // Sales
+  // List Sales
   const [salesId, setSalesId] = useState<any>()
   const [salesInfo, setSalesInfo] = useState<Sales>({
     store_id: null,
@@ -77,11 +75,6 @@ const UpdateSales: FC = () => {
     value: null,
     label: '',
   })
-
-  // Brand
-  const [brandsId, setBrandsId] = useState<any>([])
-  const [brands, setBrands] = useState<BrandSelect[]>([])
-  const [selectedBrands, setSelectedBrands] = useState<BrandSelect[]>([])
 
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
@@ -221,32 +214,6 @@ const UpdateSales: FC = () => {
       }
     }
 
-    const getBrands = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/brands`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempBrands = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.name,
-          }))
-
-          setBrands(tempBrands)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     const getCategories = async () => {
       try {
         const response = await axios.get(`${apiUrl}/categories`, {
@@ -276,9 +243,16 @@ const UpdateSales: FC = () => {
     getSalesData()
     getStore()
     getBank()
-    getBrands()
     getCategories()
   }, [])
+
+  // Store ID
+  const storeId =
+    userRole === 'Admin HO' && selectedStore && selectedStore.value
+      ? `&store_id=${selectedStore.value}`
+      : userRole === 'Store Staff' || userRole === 'Store CS'
+      ? `&store_id=${staffStoreId}`
+      : ''
 
   // Sales Form
   const salesInfoFormHandler = (e: any) => {
@@ -445,13 +419,10 @@ const UpdateSales: FC = () => {
         <div className='card-body'>
           <div className='form-wrapper'>
             <Row className='form-header'>
-              <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='mb-3'>
-                <Form.Group as={Row}>
-                  <Form.Label column sm='4'>
-                    Nama Toko
-                  </Form.Label>
-
-                  <Col sm='8'>
+              <Form.Group as={Row}>
+                <Form.Label column sm='4'>
+                  Nama Toko
+                  {userRole === 'Admin HO' ? (
                     <Select
                       name='store_id'
                       className='form-control p-0'
@@ -459,17 +430,15 @@ const UpdateSales: FC = () => {
                       placeholder='Pilih Toko'
                       isSearchable={true}
                       options={store}
-                      value={{
-                        value: selectedStore?.value ?? null,
-                        label: selectedStore?.label ?? '',
-                      }}
                       onChange={(newValue) => setSelectedStore(newValue)}
                     />
-                  </Col>
-                </Form.Group>
-              </Col>
-
-              <Col xs={12} md={9} lg={9} xl={9} xxl={9}></Col>
+                  ) : (
+                    <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                      {staffStoreName}
+                    </span>
+                  )}
+                </Form.Label>
+              </Form.Group>
             </Row>
 
             <Row>
