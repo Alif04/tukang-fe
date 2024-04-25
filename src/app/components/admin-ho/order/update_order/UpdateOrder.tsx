@@ -267,12 +267,28 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             if (data?.payment_type) {
               if (data.payment_type === 'survey') {
                 setPaymentTypeValue(['berbayar', 'survey'])
+                setOrderForm((prev) => ({
+                  ...prev,
+                  payment_type: 'berbayar',
+                }))
               } else if (data.payment_type === 'gratis') {
                 setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+                setOrderForm((prev) => ({
+                  ...prev,
+                  payment_type: 'gratis',
+                }))
               } else if (data.payment_type === 'pemasangan_tanpa_survey') {
                 setPaymentTypeValue(['berbayar', 'pemasangan_tanpa_survey'])
+                setOrderForm((prev) => ({
+                  ...prev,
+                  payment_type: 'pemasangan_tanpa_survey',
+                }))
               } else {
                 setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+                setOrderForm((prev) => ({
+                  ...prev,
+                  payment_type: 'gratis',
+                }))
               }
             }
 
@@ -643,6 +659,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       // ],
     })
   }, [paymentTypeValue])
+
+  console.log('orderForm', orderForm)
 
   // Status
   useEffect(() => {
@@ -1342,6 +1360,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 inline
                 label='Lebih dari 10 KM dari Store'
                 type='checkbox'
+                checked={isOverdistance === 1}
                 onChange={(e) => handleCheckboxChange(e.target.checked)}
               />
             </Col>
