@@ -16,12 +16,11 @@ const {RangePicker} = DatePicker
 
 interface StatusStorage {
   value: number
-  category: string
+  category: any
   description: string
 }
 
 interface StatusSelect {
-  id: number
   value: any
   label: string
 }
@@ -222,10 +221,23 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   useEffect(() => {
     const workOrderStatusOption = () => {
       const storedStatus = sessionStorage.getItem('statusData')
-
-      const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData
-        .filter((status: StatusStorage) =>
+      const paymentTypeMap = new Map<string, string[]>([
+        [
+          'pemasangan_tanpa_survey',
+          [
+            'WORKREQ',
+            'WORKSTART',
+            'WIP',
+            'WORKEND',
+            'REWORK',
+            'REWORKSTART',
+            'RIP',
+            'REWORKEND',
+            'RESCHEDULE',
+          ],
+        ],
+        [
+          'berbayar_survey',
           [
             'SURVEYREQ',
             'SURVEYSTART',
@@ -239,20 +251,21 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             'RIP',
             'REWORKEND',
             'RESCHEDULE',
-          ].includes(status.category)
+          ],
+        ],
+      ])
+
+      const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
+      const desiredStatus = statusData
+        .filter((status) =>
+          paymentTypeMap
+            .get(orderDetail?.payment_type ?? 'berbayar_survey')
+            ?.includes(status.category)
         )
-        .map((x) => ({
-          id: x.value,
-          label: x.description,
-          value: x.category,
+        .map(({description, value}) => ({
+          label: description,
+          value,
         }))
-
-      console.log(desiredStatus)
-
-      // const selectedStatus = desiredStatus.map((status: Status) => ({
-      //   value: status.value,
-      //   label: status.label,
-      // }))
 
       setWorkOrderStatus(desiredStatus)
     }
@@ -515,7 +528,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             ? {
                                 value: workOrder.work_order_status,
                                 label: workOrderStatus.find(
-                                  (option) => option.id === workOrder.work_order_status
+                                  (option) => option.value === workOrder.work_order_status
                                 )?.label,
                               }
                             : null
@@ -986,7 +999,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         {orderDetail?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={5} className='text-end fw-bolder align-middle'>
+                              <td
+                                colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                                className='text-end fw-bolder align-middle'
+                              >
                                 Biaya Tambahan
                               </td>
 
