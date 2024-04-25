@@ -45,7 +45,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Detail
-  const [orderDetail, setOrderDetail] = useState<any>(null)
+  const [orderDetail, setOrderDetail] = useState<any>({})
 
   // Work Order History
   const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
@@ -266,12 +266,14 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           label: description,
           value,
         }))
+      console.log('desiredStatus', desiredStatus)
+      console.log('orderDetail status > ', orderDetail?.payment_type)
 
       setWorkOrderStatus(desiredStatus)
     }
 
     workOrderStatusOption()
-  }, [])
+  }, [orderDetail?.status])
 
   const workOrderHandler = (
     value: number | string | Array<number | string | null> | any | null,
