@@ -38,6 +38,7 @@ const DashboardWrapper: FC = () => {
         const tempStatus = response.data.data.map((item: any) => ({
           value: item.id,
           category: item.category,
+          description: item.description,
         }))
 
         setStatus(tempStatus)
