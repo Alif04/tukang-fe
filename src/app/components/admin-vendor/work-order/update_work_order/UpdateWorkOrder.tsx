@@ -14,9 +14,13 @@ import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 const {RangePicker} = DatePicker
 
-interface Status {
-  value: any
+interface StatusStorage {
   category: string
+  description: string
+}
+
+interface StatusSelect {
+  value: any
   label: string
 }
 
@@ -63,7 +67,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
 
   // Option Work Order Status
-  const [workOrderStatus, setWorkOrderStatus] = useState<Status[]>([])
+  const [workOrderStatus, setWorkOrderStatus] = useState<StatusSelect[]>([])
 
   const fetchOrderData = async () => {
     try {
@@ -143,7 +147,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
               work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
-                ?.category,
+                ?.value,
               created_at: requestWorkTime,
               updated_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
               work_date_time: `${workStartDate} - ${workEndDate}`,
@@ -212,31 +216,36 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   useEffect(() => {
     const workOrderStatusOption = () => {
       const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: Status) =>
-        [
-          'SURVEYREQ',
-          'SURVEYSTART',
-          'SURVEYDONE',
-          'WORKREQ',
-          'WORKSTART',
-          'WIP',
-          'WORKEND',
-          'REWORK',
-          'REWORKSTART',
-          'RIP',
-          'REWORKEND',
-          'RESCHEDULE',
-        ].includes(status.category)
-      )
 
-      const selectedStatus = desiredStatus.map((status: Status) => ({
-        value: status.value,
-        category: status.category,
-        label: status.category,
-      }))
+      const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
+      const desiredStatus = statusData
+        .filter((status: StatusStorage) =>
+          [
+            'SURVEYREQ',
+            'SURVEYSTART',
+            'SURVEYDONE',
+            'WORKREQ',
+            'WORKSTART',
+            'WIP',
+            'WORKEND',
+            'REWORK',
+            'REWORKSTART',
+            'RIP',
+            'REWORKEND',
+            'RESCHEDULE',
+          ].includes(status.category)
+        )
+        .map((x) => ({
+          label: x.description,
+          value: x.category,
+        }))
 
-      setWorkOrderStatus(selectedStatus)
+      // const selectedStatus = desiredStatus.map((status: Status) => ({
+      //   value: status.value,
+      //   label: status.label,
+      // }))
+
+      setWorkOrderStatus(desiredStatus)
     }
 
     workOrderStatusOption()
@@ -498,7 +507,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                                 value: workOrder.work_order_status,
                                 label: workOrderStatus.find(
                                   (option) => option.value === workOrder.work_order_status
-                                )?.category,
+                                )?.value,
                               }
                             : null
                         }
@@ -575,7 +584,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 <Row>
                   {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
                     workOrderStatus.find((option) => option.value === workOrder.work_order_status)
-                      ?.category || ''
+                      ?.value || ''
                   ) && (
                     <Col>
                       <div className='survey mb-3'>
@@ -625,7 +634,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     'DONE',
                   ].includes(
                     workOrderStatus.find((option) => option.value === workOrder.work_order_status)
-                      ?.category || ''
+                      ?.value || ''
                   ) && (
                     <Col>
                       <div className='work-date'>
