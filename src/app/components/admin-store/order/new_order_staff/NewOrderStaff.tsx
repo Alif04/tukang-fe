@@ -995,8 +995,6 @@ const NewOrderStoreStaff: FC = () => {
                           variant='danger'
                           onClick={() => handleRemoveForm(index)}
                         >
-                          <span className='text'>Remove</span>
-
                           <span className='icon'>
                             <FontAwesomeIcon icon={faTrash} />
                           </span>
