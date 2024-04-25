@@ -15,11 +15,13 @@ import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 const {RangePicker} = DatePicker
 
 interface StatusStorage {
+  value: number
   category: string
   description: string
 }
 
 interface StatusSelect {
+  id: number
   value: any
   label: string
 }
@@ -63,11 +65,15 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     work_end_date: '',
   })
 
+  console.log(workOrder)
+
   // Option Tukang
   const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
 
   // Option Work Order Status
   const [workOrderStatus, setWorkOrderStatus] = useState<StatusSelect[]>([])
+
+  console.log('work order status', workOrderStatus)
 
   const fetchOrderData = async () => {
     try {
@@ -236,9 +242,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           ].includes(status.category)
         )
         .map((x) => ({
+          id: x.value,
           label: x.description,
           value: x.category,
         }))
+
+      console.log(desiredStatus)
 
       // const selectedStatus = desiredStatus.map((status: Status) => ({
       //   value: status.value,
@@ -506,8 +515,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             ? {
                                 value: workOrder.work_order_status,
                                 label: workOrderStatus.find(
-                                  (option) => option.value === workOrder.work_order_status
-                                )?.value,
+                                  (option) => option.id === workOrder.work_order_status
+                                )?.label,
                               }
                             : null
                         }
@@ -977,13 +986,13 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         {orderDetail?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                              <td colSpan={5} className='text-end fw-bolder align-middle'>
                                 Biaya Tambahan
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
                                 orderDetail?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
                         )}
