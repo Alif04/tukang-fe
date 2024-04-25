@@ -1360,6 +1360,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 inline
                 label='Lebih dari 10 KM dari Store'
                 type='checkbox'
+                checked={isOverdistance === 1}
                 onChange={(e) => handleCheckboxChange(e.target.checked)}
               />
             </Col>
