@@ -33,6 +33,7 @@ const ViewOrders: FC = () => {
 
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
+  const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -258,7 +259,7 @@ const ViewOrders: FC = () => {
   }
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}${storeId}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -355,8 +356,7 @@ const ViewOrders: FC = () => {
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
-    const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}${storeId}`
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)
