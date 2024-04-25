@@ -21,6 +21,7 @@ interface StatusStorage {
 }
 
 interface StatusSelect {
+  category: string
   value: any
   label: string
 }
@@ -262,8 +263,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             .get(orderDetail?.payment_type ?? 'berbayar_survey')
             ?.includes(status.category)
         )
-        .map(({description, value}) => ({
+        .map(({description, value, category}) => ({
           label: description,
+          category,
           value,
         }))
       console.log('desiredStatus', desiredStatus)
@@ -284,6 +286,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       const cache = {...prev, [target]: value}
       return cache
     })
+
+    console.log(workOrder)
   }
 
   const tukangHandler = (selectedOptions: any, field: any) => {
@@ -608,7 +612,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 <Row>
                   {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
                     workOrderStatus.find((option) => option.value === workOrder.work_order_status)
-                      ?.value || ''
+                      ?.category || ''
                   ) && (
                     <Col>
                       <div className='survey mb-3'>
@@ -658,7 +662,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     'DONE',
                   ].includes(
                     workOrderStatus.find((option) => option.value === workOrder.work_order_status)
-                      ?.value || ''
+                      ?.category || ''
                   ) && (
                     <Col>
                       <div className='work-date'>
