@@ -7,7 +7,7 @@ import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {Row, Col, Form, Button} from 'react-bootstrap'
+import {Card, Row, Col, Form, Button} from 'react-bootstrap'
 
 interface StoreSelect {
   value: number | null
@@ -53,6 +53,8 @@ const UpdateSales: FC = () => {
     value: null,
     label: '',
   })
+
+  console.log(selectedStore)
 
   // List Sales
   const [salesId, setSalesId] = useState<any>()
@@ -415,10 +417,14 @@ const UpdateSales: FC = () => {
 
   return (
     <section id='update-sales'>
-      <div className='card mb-5'>
-        <div className='card-body'>
-          <div className='form-wrapper'>
-            <Row className='form-header'>
+      <div className='form-wrapper'>
+        <Card className='mb-3'>
+          <Card.Header>
+            <Card.Title>Profile</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
+            <Row>
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
                   Nama Toko
@@ -431,6 +437,10 @@ const UpdateSales: FC = () => {
                       isSearchable={true}
                       options={store}
                       onChange={(newValue) => setSelectedStore(newValue)}
+                      value={{
+                        value: selectedStore?.value ?? null,
+                        label: selectedStore?.label ?? '',
+                      }}
                     />
                   ) : (
                     <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
@@ -546,19 +556,19 @@ const UpdateSales: FC = () => {
                 </Form.Group>
               </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Reset Password</Form.Label>
-                  <Form.Control
-                    name='password'
-                    type='text'
-                    value={salesInfo.password}
-                    onChange={(e) => salesInfoFormHandler(e)}
-                  />
-                </Form.Group>
-              </Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
             </Row>
+          </Card.Body>
+        </Card>
 
+        <hr />
+
+        <Card>
+          <Card.Header>
+            <Card.Title>Account</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
             <Row>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
@@ -572,29 +582,39 @@ const UpdateSales: FC = () => {
                 </Form.Group>
               </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Reset Password</Form.Label>
+                  <Form.Control
+                    name='password'
+                    type='text'
+                    value={salesInfo.password}
+                    onChange={(e) => salesInfoFormHandler(e)}
+                  />
+                </Form.Group>
+              </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
             </Row>
-          </div>
+          </Card.Body>
+        </Card>
+      </div>
 
-          <div className='d-flex justify-content-center mt-5'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelCreateSales}>
-              Cancel
-            </Button>
+      <div className='d-flex justify-content-center mt-5'>
+        <Button variant='dark-danger' type='submit' onClick={handleCancelCreateSales}>
+          Cancel
+        </Button>
 
-            <Button
-              variant='dark-primary'
-              type='submit'
-              disabled={isLoading}
-              onClick={() => {
-                handleUpdateSales()
-              }}
-            >
-              {isLoading ? 'Updating..' : 'Update'}
-            </Button>
-          </div>
-        </div>
+        <Button
+          variant='dark-primary'
+          type='submit'
+          disabled={isLoading}
+          onClick={() => {
+            handleUpdateSales()
+          }}
+        >
+          {isLoading ? 'Updating..' : 'Update'}
+        </Button>
       </div>
     </section>
   )

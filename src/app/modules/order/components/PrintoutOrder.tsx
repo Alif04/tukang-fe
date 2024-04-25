@@ -18,7 +18,7 @@ const PrintOutOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'Store Staff' ? (
+      {userRole == 'Store Staff' || userRole === 'Sales' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <PrintoutOrder updatePageTitle={updatePageTitle} />
