@@ -53,6 +53,7 @@ export function Login() {
 
           if (isSales) {
             localStorage.setItem('sales_id', user?.sales?.id)
+            localStorage.setItem('salesName', user?.sales?.full_name)
             localStorage.setItem('storeId', user?.sales?.store?.id)
             localStorage.setItem('storeName', user?.sales?.store?.store_name)
           } else if (isEmployee) {
