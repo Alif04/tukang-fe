@@ -53,11 +53,13 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : grand_total + additional_fee
+      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
     } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 0 ? grand_total : grand_total + additional_fee
+      totalAmount =
+        is_overdistance === 0 ? grand_total : Number(grand_total) + Number(additional_fee)
     } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 0 ? 99000 : grand_total + additional_fee ?? 0
+      totalAmount =
+        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -85,7 +87,13 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 <h1 className='fs-5 fw-bold mb-2 text-white'>
                   Tanggal Order :{' '}
                   <span className='fw-normal text-white'>
-                    {orderDetail ? formatDate(new Date(orderDetail?.created_at)) : '-'}
+                    {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+
+                    {/* {orderDetail ? formatDate(new Date(orderDetail?.created_at)) : '-'} */}
                   </span>
                 </h1>
 
@@ -103,7 +111,12 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   })()}{' '}
                   :{' '}
                   <span className='fw-normal text-white'>
-                    {orderDetail ? formatDate(new Date(orderDetail?.request_survey)) : '-'}
+                    {/* {orderDetail ? formatDate(new Date(orderDetail?.request_survey)) : '-'} */}
+                    {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
                   </span>
                 </h1>
 
