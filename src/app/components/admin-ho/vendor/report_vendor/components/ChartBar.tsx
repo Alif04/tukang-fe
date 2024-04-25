@@ -1,8 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {KTSVG} from '../../../../../../_metronic/helpers'
-import {Dropdown1} from '../../../../../../_metronic/partials/content/dropdown/Dropdown1'
 import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
 import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import {bottom} from '@popperjs/core'
@@ -60,11 +58,11 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     series: [
       {
         name: 'Order Selesai',
-        data: chartOrderData.map((item: any) => item.totalOrder),
+        data: chartOrderData?.map((item: any) => item?.totalOrder),
       },
       {
         name: 'Order Masuk',
-        data: chartOrderData.map((item: any) => item.totalOrder),
+        data: chartOrderData?.map((item: any) => item?.totalOrder),
       },
     ],
     chart: {
@@ -95,7 +93,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartOrderData.map((item: any) => item.month),
+      categories: chartOrderData?.map((item: any) => item?.month),
       axisBorder: {
         show: false,
       },
@@ -147,7 +145,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return val + 'Order'
+          return val + ' Order'
         },
       },
     },

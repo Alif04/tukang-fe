@@ -42,6 +42,7 @@ const ViewPaymentHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -277,7 +278,7 @@ const ViewPaymentHO: FC = () => {
       <div className={`card`}>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+            <Col className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
@@ -300,7 +301,7 @@ const ViewPaymentHO: FC = () => {
               />
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+            <Col>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -316,7 +317,13 @@ const ViewPaymentHO: FC = () => {
               </div>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex justify-content-end'>
+            <Col>
+              <Button className='btn-dark-primary button-submit' disabled={loadingButton}>
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
+
+            <Col className='d-flex justify-content-end'>
               <button className='button-export' onClick={exportToExcel}>
                 <h3 className='fs-5 fw-semibold text-black'>Export To Excel</h3>
                 <FontAwesomeIcon icon={faFileExcel} size='lg' className='excel-icon text-black' />

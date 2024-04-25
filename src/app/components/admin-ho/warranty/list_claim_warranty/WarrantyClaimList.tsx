@@ -7,9 +7,9 @@ import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTicket, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faTicket, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -26,6 +26,7 @@ interface Status {
 const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const [claimWarrantyData, setclaimWarrantyData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -168,7 +169,9 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchWorkOrderList = async (page: number, pageSize: number) => {
+  const fetchWorkOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+
     try {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -179,17 +182,14 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       if (desiredStatus) {
         const statuses = desiredStatus.map((x) => x.value)
 
-        const response = await axios.get(
-          `${apiUrl}/work-orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
+        const response = await axios.get(apiUrlWithParams, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
         setCurrentPage(response.data.page)
         setTotalData(response?.data?.total ?? 0)
@@ -203,9 +203,9 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewWorkOrder = async (page: number, pageSize: number) => {
+  const ViewWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchWorkOrderList(page, pageSize)
+      const apiData = await fetchWorkOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -240,14 +240,14 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewWorkOrder(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewWorkOrder(page, pageSize, queryparams)
     setclaimWarrantyData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -257,6 +257,15 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
+    await fetchWorkOrderList(1, 10, queryparams)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -286,7 +295,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
               />{' '}
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -300,6 +309,16 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
                   />
                 </InputGroup>
               </div>
+            </Col>
+
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
             </Col>
           </Row>
 
@@ -316,7 +335,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
               onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
+                fetchData(page, pageSize, '')
               },
               itemRender: itemRender,
               showTotal: (total, range) => (

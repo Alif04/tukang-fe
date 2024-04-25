@@ -58,11 +58,11 @@ function getChartOptions(height: number, chartWorkOrderData: any): ApexOptions {
     series: [
       {
         name: 'Survey',
-        data: chartWorkOrderData.map((item: any) => item.totalSurveyReqOrder),
+        data: chartWorkOrderData?.map((item: any) => item?.totalSurveyReqOrder ?? 0),
       },
       {
         name: 'Pekerjaan Selesai',
-        data: chartWorkOrderData.map((item: any) => item.totalCompleteOrder),
+        data: chartWorkOrderData?.map((item: any) => item?.totalCompleteOrder ?? 0),
       },
     ],
     chart: {
@@ -89,7 +89,7 @@ function getChartOptions(height: number, chartWorkOrderData: any): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartWorkOrderData.map((item: any) => item.month),
+      categories: chartWorkOrderData?.map((item: any) => item.month),
 
       axisBorder: {
         show: false,

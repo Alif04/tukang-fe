@@ -9,9 +9,9 @@ import Swal from 'sweetalert2'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -29,6 +29,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [vendorData, setVendorData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -235,7 +236,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchVendorList = async (page: number, pageSize: number) => {
+  const fetchVendorList = async (page: number, pageSize: number, queryparams: any) => {
     const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
 
     try {
@@ -260,9 +261,9 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewVendor = async (page: number, pageSize: number) => {
+  const ViewVendor = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchVendorList(page, pageSize)
+      const apiData = await fetchVendorList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchVendorList')
@@ -306,14 +307,14 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewVendor(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewVendor(page, pageSize, queryparams)
     setVendorData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter, selectedStore?.value])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -355,6 +356,16 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
     getStore()
   }, [])
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}${storeId}`
+    await fetchVendorList(1, 10, queryparams)
+
+    setLoadingButton(false)
+  }
 
   return (
     <section id='view-vendor'>
@@ -404,7 +415,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
               </div>
             </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+            <Col xxl={2} xl={2} lg={2} md={2} sm={12}>
               <Select
                 name='store_id'
                 className='form-control p-0'
@@ -415,6 +426,16 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
                 value={selectedStore}
                 onChange={(newValue) => setSelectedStore(newValue)}
               />
+            </Col>
+
+            <Col xxl={2} xl={2} lg={2} md={2} sm={12}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
             </Col>
           </Row>
 
@@ -432,7 +453,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
               showSizeChanger: true,
               pageSizeOptions: [5, 10, 20, 50, 100],
               onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
+                fetchData(page, pageSize, '')
               },
               itemRender: itemRender,
               showTotal: (total, range) => (

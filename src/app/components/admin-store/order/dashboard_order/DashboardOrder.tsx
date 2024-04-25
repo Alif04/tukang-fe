@@ -98,7 +98,17 @@ const DashboardOrderStore: FC = () => {
       })
 
       const chartDatas = response.data.monthlyOrders
-      setChartData(chartDatas)
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+      setChartData(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -187,8 +197,11 @@ const DashboardOrderStore: FC = () => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+
     const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}`
     await fetchOrderList(queryparams)
+    await getReportOrder()
+
     setLoadingButton(false)
   }
 
@@ -224,7 +237,7 @@ const DashboardOrderStore: FC = () => {
               />
 
               <Button
-                className='btn-dark-primary'
+                className='btn-dark-primary button-submit'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >

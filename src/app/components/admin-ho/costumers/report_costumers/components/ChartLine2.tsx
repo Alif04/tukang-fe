@@ -63,11 +63,11 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     series: [
       {
         name: 'Komplain Masuk',
-        data: chartComplaintData.map((item: any) => item.totalOrder),
+        data: chartComplaintData?.map((item: any) => item?.totalOrder ?? 0),
       },
       {
         name: 'Ditolak',
-        data: chartComplaintData.map((item: any) => item.totalOrder),
+        data: chartComplaintData?.map((item: any) => item?.totalOrder ?? 0),
       },
     ],
     chart: {
@@ -94,7 +94,7 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartComplaintData.map((item: any) => item.month),
+      categories: chartComplaintData?.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },
@@ -159,7 +159,7 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return '$' + val + ' thousands'
+          return val + ' Komplain'
         },
       },
     },

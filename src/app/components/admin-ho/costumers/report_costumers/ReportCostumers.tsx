@@ -12,7 +12,7 @@ import {BestCostumers} from './components/BestCostumers'
 
 import axios from 'axios'
 import Select from 'react-select'
-import {Card, Row, Col} from 'react-bootstrap'
+import {Card, Row, Col, Button} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -26,6 +26,7 @@ const ReportCostumerHO: FC = () => {
     .toISOString()
     .split('T')[0]
 
+  const [loadingButton, setLoadingButton] = useState(false)
   const [orderData, setOrderData] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<any[]>([])
@@ -43,8 +44,8 @@ const ReportCostumerHO: FC = () => {
     label: 'All Member',
   })
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const date =
     dateFrom && dateTo
@@ -91,10 +92,21 @@ const ReportCostumerHO: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+      const chartDatas = response.data.monthlyOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
 
       setOrderData(data)
-      setChartOrder(chartDatas)
+      setChartOrder(slicedData)
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -113,10 +125,21 @@ const ReportCostumerHO: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+      const chartDatas = response.data.monthlyWorkOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
 
       setWorkOrderData(data)
-      setChartWorkOrder(chartDatas)
+      setChartWorkOrder(slicedData)
       return data
     } catch (error) {
       console.error(error)
@@ -135,10 +158,21 @@ const ReportCostumerHO: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyComplaint.slice(1, 7)
+      const chartDatas = response.data.monthlyComplaint
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
 
       setComplaintData(data)
-      setChartComplaint(chartDatas)
+      setChartComplaint(slicedData)
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -170,7 +204,17 @@ const ReportCostumerHO: FC = () => {
     getWorkOrder()
     getComplaint()
     getCSI()
-  }, [dateFrom, dateTo, selectedMember?.value])
+  }, [])
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    await getOrder()
+    await getWorkOrder()
+    await getComplaint()
+
+    setLoadingButton(false)
+  }
 
   return (
     <>
@@ -226,7 +270,15 @@ const ReportCostumerHO: FC = () => {
           </Row>
         </div>
 
-        <div className='col-xl-4'></div>
+        <div className='col-md-4'>
+          <Button
+            className='btn-dark-primary button-submit m-0'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </div>
       </div>
       {/* end::Row */}
 

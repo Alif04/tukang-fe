@@ -10,9 +10,9 @@ import interactionPlugin from '@fullcalendar/interaction'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Modal, Form, InputGroup, Table} from 'react-bootstrap'
+import {Row, Col, Modal, Form, InputGroup, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -37,6 +37,7 @@ interface WorkOrder {
 
 const ViewCalendarHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const [store, setStore] = useState<StoreItem[]>([])
   const [vendor, setVendor] = useState<VendorItem[]>([])
@@ -73,59 +74,57 @@ const ViewCalendarHO: React.FC = () => {
 
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null)
 
-  const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
-  const vendorId =
-    selectedVendor && selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
-
   // Fetch Data
-  useEffect(() => {
-    const getWorkOrder = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/work-orders?take=0${storeId}${vendorId}`, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          .then((response) => {
-            const data = response.data.data
+  const getWorkOrder = async (queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&take=0${queryparams}`
 
-            if (data) {
-              const workOrderDetail = data.map((item: any) => {
-                const workOrderItems = item?.work_order_status[0]?.work_order_items
-                  .map((service: any) => service.name ?? '')
-                  .join(', ')
+    try {
+      await axios
+        .get(apiUrlWithParams, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
 
-                const workOrderTukang = item?.work_order_tukang
-                  .map((item: any) => item.tukang.full_name ?? '')
-                  .join(', ')
+          if (data) {
+            const workOrderDetail = data.map((item: any) => {
+              const workOrderItems = item?.work_order_status[0]?.work_order_items
+                .map((service: any) => service.name ?? '')
+                .join(', ')
 
-                return {
-                  id: item?.id.toString(),
-                  order_id: item?.order_id.toString(),
-                  title: `WORK ORDER - ${item.id}`,
-                  work_order_status: item?.work_order_status[0]?.status.category,
-                  service: workOrderItems ?? '',
-                  tukang: workOrderTukang ?? '',
-                  start: dayjs(item?.work_start_date).format('YYYY-MM-DD'),
-                  end: dayjs(item?.work_end_date).format('YYYY-MM-DD'),
-                  work_order_detail: item,
-                }
-              })
+              const workOrderTukang = item?.work_order_tukang
+                .map((item: any) => item.tukang.full_name ?? '')
+                .join(', ')
 
-              setWorkOrder(workOrderDetail)
-            }
-          })
-      } catch (error) {
-        console.error(error)
-      }
+              return {
+                id: item?.id.toString(),
+                order_id: item?.order_id.toString(),
+                title: `WORK ORDER - ${item.id}`,
+                work_order_status: item?.work_order_status[0]?.status.category,
+                service: workOrderItems ?? '',
+                tukang: workOrderTukang ?? '',
+                start: dayjs(item?.work_start_date).format('YYYY-MM-DD'),
+                end: dayjs(item?.work_end_date).format('YYYY-MM-DD'),
+                work_order_detail: item,
+              }
+            })
+
+            setWorkOrder(workOrderDetail)
+          }
+        })
+    } catch (error) {
+      console.error(error)
     }
+  }
 
-    getWorkOrder()
-  }, [dateFrom, dateTo, selectedStore?.value, selectedVendor?.value])
+  useEffect(() => {
+    getWorkOrder('')
+  }, [])
 
   useEffect(() => {
     const getStore = async () => {
@@ -225,10 +224,23 @@ const ViewCalendarHO: React.FC = () => {
     return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
   }
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const store_id = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ``
+    const vendor_id =
+      selectedVendor && selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ``
+
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}${store_id}${vendor_id}`
+    await getWorkOrder(queryparams)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='view-calendar'>
       <Row className='mb-5'>
-        <Col xxl={4} xl={6} lg={6} md={6} sm={12}>
+        <Col xxl={3} xl={6} lg={6} md={6} sm={12}>
           <Form.Group as={Row}>
             <Form.Label className='fs-3' column sm='3'>
               Date :
@@ -255,7 +267,7 @@ const ViewCalendarHO: React.FC = () => {
           </Form.Group>
         </Col>
 
-        <Col xxl={4} xl={6} lg={6} md={6} sm={12}>
+        <Col xxl={3} xl={6} lg={6} md={6} sm={12}>
           <div className='filter-search'>
             <InputGroup>
               <InputGroup.Text className='filter-ltr'>
@@ -295,6 +307,16 @@ const ViewCalendarHO: React.FC = () => {
             value={selectedVendor}
             onChange={(newValue) => setSelectedVendor(newValue)}
           />
+        </Col>
+
+        <Col xxl={2} xl={12} lg={12} md={12} sm={12}>
+          <Button
+            className='btn-dark-primary button-submit'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
         </Col>
       </Row>
 
