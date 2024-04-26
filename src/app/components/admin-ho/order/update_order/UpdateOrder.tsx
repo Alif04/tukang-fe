@@ -660,8 +660,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     })
   }, [paymentTypeValue])
 
-  console.log('orderForm', orderForm)
-
   // Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')

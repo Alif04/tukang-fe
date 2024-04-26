@@ -121,6 +121,25 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     },
   ]
 
+  // Grand Total Order
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
+
+    let totalAmount = 0
+
+    if (payment_type === 'gratis') {
+      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+    } else if (payment_type === 'pemasangan_tanpa_survey') {
+      totalAmount =
+        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+    } else if (payment_type === 'survey') {
+      totalAmount =
+        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
+    }
+
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
+
   return (
     <section id='detail-work-order'>
       <div className='card mb-5'>
@@ -168,8 +187,8 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
                       {orderDetail?.work_orders === null
-                        ? orderDetail?.status?.category
-                        : orderDetail?.work_orders?.work_order_status[0]?.status?.category ?? ''}
+                        ? orderDetail?.status?.description
+                        : orderDetail?.work_orders?.work_order_status[0]?.status?.description ?? ''}
                     </span>
                   </Form.Label>
                 </Col>
@@ -403,7 +422,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
@@ -456,9 +475,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.grand_total
-                              ).toLocaleString('id')}`}</td>
+                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
                             </tr>
                           </>
                         )}
@@ -476,7 +493,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
@@ -524,7 +541,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         {orderDetail?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                              <td colSpan={6} className='text-end fw-bolder align-middle'>
                                 Biaya Tambahan
                               </td>
 
@@ -536,7 +553,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         )}
 
                         <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
+                          <td colSpan={6} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -553,7 +570,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
-                orderDetail?.work_orders?.work_order_status.length > 1 &&
                 orderDetail?.payment_type === 'survey'
               ) {
                 return (
@@ -590,7 +606,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     {orderDetail?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
+                          *Order ini lebih dari{' '}
                           <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
@@ -637,7 +653,10 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         {orderDetail?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                              <td
+                                colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                                className='text-end fw-bolder align-middle'
+                              >
                                 Biaya Tambahan
                               </td>
 
@@ -656,19 +675,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>
-                            {(() => {
-                              if (orderDetail?.payment_type === 'gratis') {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                                return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString(
-                                  'id'
-                                )}`
-                              } else {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              }
-                            })()}
-                          </td>
+                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
                         </tr>
                       </tbody>
                     </Table>

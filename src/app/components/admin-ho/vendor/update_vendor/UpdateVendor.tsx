@@ -59,8 +59,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [vendorDetail, setVendorDetail] = useState<any>()
 
-  console.log(vendorDetail)
-
   // Fetch API
   const fetchVendorData = async () => {
     try {

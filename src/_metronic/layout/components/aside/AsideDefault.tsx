@@ -73,7 +73,15 @@ const AsideDefault: FC = () => {
             src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
           />
           <h6 className='text-center text-secondary-emphasis'>
-            {role === 'Admin Vendor' ? vendorName : role === 'Sales' ? salesName : fullName}
+            {role === 'Admin Vendor'
+              ? vendorName
+              : role === 'Sales'
+              ? salesName
+              : role === 'Admin HO'
+              ? username
+              : role === 'Tukang'
+              ? username
+              : fullName}
             <br />({role}){' '}
           </h6>
         </div>

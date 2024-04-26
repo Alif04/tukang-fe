@@ -37,6 +37,23 @@ const DetailTukangVendor: FC = () => {
   const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
   const [tukangDetail, setTukangDetail] = useState<any>()
 
+  // Tukang Evidence
+  const [imageKTP, setimageKTP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  const [imageNPWP, setimageNPWP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
   const fetchTukangDetail = async () => {
     try {
       await axios
@@ -52,6 +69,32 @@ const DetailTukangVendor: FC = () => {
           const data = response.data.data.data
           setTukangDetail(data)
           setTukangId(response.data.data.data.id)
+
+          if (data?.tukang_document) {
+            const documentTypes = ['npwp_file', 'ktp_file', 'compro_file', 'surat_permohonan_file']
+
+            type DocumentStateSetter = (state: {blob: string; fileName: string}) => void
+
+            const documentStateSetters: Record<string, DocumentStateSetter> = {
+              npwp_file: setimageNPWP,
+              ktp_file: setimageKTP,
+            }
+
+            data.tukang_document.forEach((document: any) => {
+              const {document_name, path} = document
+
+              if (documentTypes.includes(document_name)) {
+                const setter = documentStateSetters[document_name]
+
+                if (setter) {
+                  setter({
+                    blob: '',
+                    fileName: path,
+                  })
+                }
+              }
+            })
+          }
         })
     } catch (error) {
       console.log(error)
@@ -373,6 +416,67 @@ const DetailTukangVendor: FC = () => {
                     <Col sm='6'>
                       <Form.Control plaintext readOnly defaultValue='0' />
                     </Col>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </div>
+          </div>
+
+          <div className='tab mb-3'>
+            <div className='tab-title'>
+              <div className='title'>
+                <FontAwesomeIcon icon={faUser} size='2xl' />
+                <p>Dokumen Pendukung</p>
+              </div>
+            </div>
+
+            <div className='data-diri'>
+              <Row>
+                <Col>
+                  <Form.Group controlId='formFile'>
+                    <Form.Label>Foto KTP</Form.Label>
+                    <Form className='form-input-image'>
+                      <Form.Control
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image'
+                        hidden
+                      />
+
+                      {imageKTP?.fileName ? (
+                        <img
+                          src={`${apiUrl}/public/tukang/${imageKTP.fileName}`}
+                          alt={imageKTP.fileName}
+                          className='image-preview'
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </Form>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group controlId='formFile'>
+                    <Form.Label>Foto NPWP</Form.Label>
+                    <Form className='form-input-image'>
+                      <Form.Control
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image'
+                        hidden
+                      />
+
+                      {imageNPWP?.fileName ? (
+                        <img
+                          src={`${apiUrl}/public/tukang/${imageNPWP.fileName}`}
+                          alt={imageNPWP.fileName}
+                          className='image-preview'
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </Form>
                   </Form.Group>
                 </Col>
               </Row>

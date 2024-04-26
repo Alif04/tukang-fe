@@ -282,11 +282,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         let data
         const orderDate = new Date(item.created_at)
 
-        let phoneNumber =
-          item.members.whatsapp_number === 'null'
-            ? item.members.phone_number
-            : item.members.whatsapp_number
-
         const paymentStatus = (() => {
           if (item?.payment_type === 'survey') {
             return item.receipt_number === null ? 'UNPAID' : 'PAID'
@@ -310,7 +305,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           date_order: formatDate(orderDate),
           costumer_id: item.members.member_number,
           costumer_name: item.members.full_name,
-          phone_number: phoneNumber,
+          phone_number: item?.project_number,
           item_name: item.m_order_details[0]?.item_name ?? '-',
           services_name:
             item.payment_type === 'survey'

@@ -2,30 +2,13 @@
 import React, {useState, useEffect} from 'react'
 
 import './ViewCalendar.css'
-
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import Select, {SingleValue} from 'react-select'
-import {Row, Col, Modal, Form, InputGroup, Table, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch} from '@fortawesome/free-solid-svg-icons'
-
-import {DatePicker} from 'antd'
-const {RangePicker} = DatePicker
-
-interface StoreItem {
-  value: number | null
-  label: string
-}
-
-interface VendorItem {
-  value: number | null
-  label: string
-}
+import {Row, Col, Modal, Form, Table} from 'react-bootstrap'
 
 interface WorkOrder {
   id: any
@@ -37,31 +20,6 @@ interface WorkOrder {
 
 const ViewCalendarHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const [loadingButton, setLoadingButton] = useState(false)
-
-  const [store, setStore] = useState<StoreItem[]>([])
-  const [vendor, setVendor] = useState<VendorItem[]>([])
-
-  const storeOptions = [{value: null, label: 'All Store'}, ...store]
-  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
-    value: null,
-    label: 'All Store',
-  })
-
-  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
-  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
-    value: null,
-    label: 'All Vendor',
-  })
-
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
-  const [searchFilter, setSearchFilter] = useState<string>('')
-
-  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchFilter = event.target.value
-    setSearchFilter(updatedSearchFilter)
-  }
 
   const [workOrder, setWorkOrder] = useState<WorkOrder[]>([
     {
@@ -75,113 +33,53 @@ const ViewCalendarHO: React.FC = () => {
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null)
 
   // Fetch Data
-  const getWorkOrder = async (queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&take=0${queryparams}`
-
-    try {
-      await axios
-        .get(apiUrlWithParams, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          const data = response.data.data
-
-          if (data) {
-            const workOrderDetail = data.map((item: any) => {
-              const workOrderItems = item?.work_order_status[0]?.work_order_items
-                .map((service: any) => service.name ?? '')
-                .join(', ')
-
-              const workOrderTukang = item?.work_order_tukang
-                .map((item: any) => item.tukang.full_name ?? '')
-                .join(', ')
-
-              return {
-                id: item?.id.toString(),
-                order_id: item?.order_id.toString(),
-                title: `WORK ORDER - ${item.id}`,
-                work_order_status: item?.work_order_status[0]?.status.category,
-                service: workOrderItems ?? '',
-                tukang: workOrderTukang ?? '',
-                start: dayjs(item?.work_start_date).format('YYYY-MM-DD'),
-                end: dayjs(item?.work_end_date).format('YYYY-MM-DD'),
-                work_order_detail: item,
-              }
-            })
-
-            setWorkOrder(workOrderDetail)
-          }
-        })
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   useEffect(() => {
-    getWorkOrder('')
-  }, [])
-
-  useEffect(() => {
-    const getStore = async () => {
+    const getWorkOrder = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+        await axios
+          .get(`${apiUrl}/work-orders`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          .then((response) => {
+            const data = response.data.data
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            city_id: item.city_id,
-          }))
+            if (data) {
+              const workOrderDetail = data.map((item: any) => {
+                const workOrderItems = item?.work_order_status[0]?.work_order_items
+                  .map((service: any) => service.name ?? '')
+                  .join(', ')
 
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
+                const workOrderTukang = item?.work_order_tukang
+                  .map((item: any) => item.tukang.full_name ?? '')
+                  .join(', ')
+
+                return {
+                  id: item?.id.toString(),
+                  order_id: item?.order_id.toString(),
+                  title: `WORK ORDER - ${item.id}`,
+                  work_order_status: item?.work_order_status[0]?.status.category,
+                  service: workOrderItems ?? '',
+                  tukang: workOrderTukang ?? '',
+                  start: dayjs(item?.work_start_date).format('YYYY-MM-DD'),
+                  end: dayjs(item?.work_end_date).format('YYYY-MM-DD'),
+                  work_order_detail: item,
+                }
+              })
+
+              setWorkOrder(workOrderDetail)
+            }
+          })
+      } catch (error) {
+        console.error(error)
       }
     }
 
-    const getVendor = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/vendor`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempVendor = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.company_name,
-          }))
-
-          setVendor(tempVendor)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    getStore()
-    getVendor()
+    getWorkOrder()
   }, [])
 
   // MODAL
@@ -224,102 +122,27 @@ const ViewCalendarHO: React.FC = () => {
     return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
   }
 
-  const handleSubmitFilter = async () => {
-    setLoadingButton(true)
+  // Grand Total Order
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
 
-    const store_id = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ``
-    const vendor_id =
-      selectedVendor && selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ``
+    let totalAmount = 0
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}${store_id}${vendor_id}`
-    await getWorkOrder(queryparams)
+    if (payment_type === 'gratis') {
+      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+    } else if (payment_type === 'pemasangan_tanpa_survey') {
+      totalAmount =
+        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+    } else if (payment_type === 'survey') {
+      totalAmount =
+        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
+    }
 
-    setLoadingButton(false)
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
   }
 
   return (
     <section id='view-calendar'>
-      <Row className='mb-5'>
-        <Col xxl={3} xl={6} lg={6} md={6} sm={12}>
-          <Form.Group as={Row}>
-            <Form.Label className='fs-3' column sm='3'>
-              Date :
-            </Form.Label>
-
-            <Col sm='8'>
-              <RangePicker
-                format={'DD-MM-YYYY'}
-                className='date-range ms-3'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
-
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
-              />
-            </Col>
-          </Form.Group>
-        </Col>
-
-        <Col xxl={3} xl={6} lg={6} md={6} sm={12}>
-          <div className='filter-search'>
-            <InputGroup>
-              <InputGroup.Text className='filter-ltr'>
-                <FontAwesomeIcon icon={faSearch} size='sm' />
-              </InputGroup.Text>
-
-              <Form.Control
-                placeholder='Search'
-                className='filter-ltr'
-                onChange={handleChangeSearchFilter}
-              />
-            </InputGroup>
-          </div>
-        </Col>
-
-        <Col xxl={2} xl={6} lg={6} md={6} sm={12}>
-          <Select
-            name='store_id'
-            className='form-control p-0'
-            classNamePrefix='select'
-            placeholder='Pilih Toko'
-            isSearchable={true}
-            options={storeOptions}
-            value={selectedStore}
-            onChange={(newValue) => setSelectedStore(newValue)}
-          />
-        </Col>
-
-        <Col xxl={2} xl={6} lg={6} md={6} sm={12}>
-          <Select
-            name='vendor_id'
-            className='form-control p-0'
-            classNamePrefix='select'
-            placeholder='Pilih Vendor'
-            isSearchable={true}
-            options={vendorOptions}
-            value={selectedVendor}
-            onChange={(newValue) => setSelectedVendor(newValue)}
-          />
-        </Col>
-
-        <Col xxl={2} xl={12} lg={12} md={12} sm={12}>
-          <Button
-            className='btn-dark-primary button-submit'
-            disabled={loadingButton}
-            onClick={handleSubmitFilter}
-          >
-            {loadingButton ? 'Filtering..' : 'Submit'}
-          </Button>
-        </Col>
-      </Row>
-
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         headerToolbar={{
@@ -388,8 +211,8 @@ const ViewCalendarHO: React.FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Work Order Status :
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status?.category ??
-                      ''}
+                    {selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status
+                      ?.description ?? ''}
                   </span>
                 </Form.Label>
               </Col>
@@ -465,72 +288,95 @@ const ViewCalendarHO: React.FC = () => {
 
             <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
               <Row>
-                <Col md={5}>
-                  <div className='survey mb-3'>
-                    <div className='detail-info mb-3'>
-                      <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
-                      <p className='fs-7'>
-                        {formatDateTime(
-                          new Date(selectedWorkOrder?.work_order_detail?.survey_date)
-                        )}
-                      </p>
-                    </div>
-
-                    <div className='detail-info mb-3'>
-                      <p className='fs-5 fw-bold'>Oleh:</p>
-                      <p className='fs-7'>
-                        {selectedWorkOrder?.work_order_detail?.work_order_tukang
-                          .filter((x: any) => x.type === 1)
-                          .map((item: any) => item?.tukang?.full_name)
-                          .join(', ')}
-                      </p>
-                    </div>
-                  </div>
-                </Col>
-
-                <Col md={7}>
-                  <div className='work-date'>
-                    <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
-
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='3'>
-                        MULAI
-                      </Form.Label>
-
-                      <Col sm='9'>
+                {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                  selectedWorkOrder?.work_order_detail?.work_order_status.length !== 0
+                    ? selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status?.category
+                    : selectedWorkOrder?.work_order_detail?.order?.status?.category
+                ) && (
+                  <Col>
+                    <div className='survey mb-3'>
+                      <div className='detail-info mb-3'>
+                        <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
                         <p className='fs-7'>
                           {formatDateTime(
-                            new Date(selectedWorkOrder?.work_order_detail?.work_start_date)
+                            new Date(selectedWorkOrder?.work_order_detail?.survey_date)
                           )}
                         </p>
-                      </Col>
-                    </Form.Group>
+                      </div>
 
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='3'>
-                        SELESAI
-                      </Form.Label>
-
-                      <Col sm='9'>
+                      <div className='detail-info mb-3'>
+                        <p className='fs-5 fw-bold'>Oleh:</p>
                         <p className='fs-7'>
-                          {formatDateTime(
-                            new Date(selectedWorkOrder?.work_order_detail?.work_end_date)
-                          )}
+                          {selectedWorkOrder?.work_order_detail?.work_order_tukang
+                            .filter((x: any) => x.type === 1)
+                            .map((item: any) => item?.tukang?.full_name)
+                            .join(', ')}
                         </p>
-                      </Col>
-                    </Form.Group>
-
-                    <div className='detail-info mb-3'>
-                      <p className='fs-5 fw-bold'>Oleh:</p>
-                      <p className='fs-7'>
-                        {selectedWorkOrder?.work_order_detail?.work_order_tukang
-                          .filter((x: any) => x.type === 2)
-                          .map((item: any) => item?.tukang?.full_name)
-                          .join(', ')}
-                      </p>
+                      </div>
                     </div>
-                  </div>
-                </Col>
+                  </Col>
+                )}
+
+                {[
+                  'WORKREQ',
+                  'WORKSTART',
+                  'WIP',
+                  'WORKEND',
+                  'REWORK',
+                  'REWORKSTART',
+                  'RIP',
+                  'REWORKEND',
+                  'RESCHEDULE',
+                  'DONE',
+                ].includes(
+                  selectedWorkOrder?.work_order_detail?.work_order_status.length !== 0
+                    ? selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status?.category
+                    : selectedWorkOrder?.work_order_detail?.order?.status?.category
+                ) && (
+                  <Col>
+                    <div className='work-date'>
+                      <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
+
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='3'>
+                          MULAI
+                        </Form.Label>
+
+                        <Col sm='9'>
+                          <p className='fs-7'>
+                            {formatDateTime(
+                              new Date(selectedWorkOrder?.work_order_detail?.work_start_date)
+                            )}
+                          </p>
+                        </Col>
+                      </Form.Group>
+
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='3'>
+                          SELESAI
+                        </Form.Label>
+
+                        <Col sm='9'>
+                          <p className='fs-7'>
+                            {formatDateTime(
+                              new Date(selectedWorkOrder?.work_order_detail?.work_end_date)
+                            )}
+                          </p>
+                        </Col>
+                      </Form.Group>
+
+                      <div className='detail-info mb-3'>
+                        <p className='fs-5 fw-bold'>Oleh:</p>
+                        <p className='fs-7'>
+                          {selectedWorkOrder?.work_order_detail?.work_order_tukang
+                            .filter((x: any) => x.type === 2)
+                            .map((item: any) => item?.tukang?.full_name)
+                            .join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                  </Col>
+                )}
               </Row>
             </Col>
           </Row>
@@ -589,11 +435,21 @@ const ViewCalendarHO: React.FC = () => {
 
             {(() => {
               if (
-                selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' ||
+                selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' &&
                 selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -625,6 +481,30 @@ const ViewCalendarHO: React.FC = () => {
 
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
+
+                        {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                selectedWorkOrder?.work_order_detail?.order?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>
+                                {calculateTotal(selectedWorkOrder?.work_order_detail?.order)}
+                              </td>
+                            </tr>
+                          </>
+                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -637,6 +517,16 @@ const ViewCalendarHO: React.FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -663,6 +553,20 @@ const ViewCalendarHO: React.FC = () => {
                               <td>{item?.description ? '' : '-'}</td>
                             </tr>
                           )
+                        )}
+
+                        {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={6} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                selectedWorkOrder?.work_order_detail?.order?.additional_fee
+                              ).toLocaleString('id')}.`}</td>
+                            </tr>
+                          </>
                         )}
 
                         <tr>
@@ -720,6 +624,16 @@ const ViewCalendarHO: React.FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
+                    {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -764,6 +678,28 @@ const ViewCalendarHO: React.FC = () => {
                           )
                         )}
 
+                        {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td
+                                colSpan={
+                                  selectedWorkOrder?.work_order_detail?.order?.payment_type !==
+                                  'gratis'
+                                    ? 5
+                                    : 3
+                                }
+                                className='text-end fw-bolder align-middle'
+                              >
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                selectedWorkOrder?.work_order_detail?.order?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
+
                         <tr>
                           <td
                             colSpan={
@@ -777,23 +713,7 @@ const ViewCalendarHO: React.FC = () => {
                           </td>
 
                           <td className=' fw-bolder'>
-                            {(() => {
-                              if (
-                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'gratis'
-                              ) {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              } else if (
-                                selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                'pemasangan_tanpa_survey'
-                              ) {
-                                return `Rp. ${parseInt(
-                                  selectedWorkOrder?.work_order_detail?.order?.grand_total
-                                ).toLocaleString('id')}`
-                              } else {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              }
-                            })()}
+                            {calculateTotal(selectedWorkOrder?.work_order_detail?.order)}
                           </td>
                         </tr>
                       </tbody>

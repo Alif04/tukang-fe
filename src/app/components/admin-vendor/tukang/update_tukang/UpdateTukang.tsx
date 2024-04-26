@@ -1,37 +1,100 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateTukang.css'
 
 import axios from 'axios'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
 import makeAnimated from 'react-select/animated'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
+import {Image} from 'antd'
+import {Form, Row, Col, Button, ListGroup, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface Vendor {
-  value: any
-  label: string
+interface TukangServiceSelect {
+  value: number | null
+  label: any
 }
 
-interface TukangService {
-  value: BigInteger
-  label: string
-}
-
-interface TukangServiceValues {
-  value: BigInteger
-  label: string
+interface Tukang {
+  tukang_id: string
+  vendor_id: number | null
+  full_name: string
+  email: string
+  ktp_number: string
+  bod: string
+  address: string
+  phone_number: string
+  username: string
+  password: string
+  service_type_id: TukangServiceSelect[]
 }
 
 const UpdateTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const navigate = useNavigate()
   const params = useParams()
+  const navigate = useNavigate()
   const animatedComponents = makeAnimated()
+
+  const vendorId = localStorage.getItem('vendor_id') as any
+  const vendorName = localStorage.getItem('vendorName') as string
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Tukang
+  const [tukang, setTukang] = useState<Tukang>({
+    tukang_id: '',
+    vendor_id: Number.parseInt(vendorId),
+    full_name: '',
+    email: '',
+    ktp_number: '',
+    bod: '',
+    address: '',
+    phone_number: '',
+    username: '',
+    password: '',
+    service_type_id: [],
+  })
+
+  // Tukang Services
+  const [tukangServices, setTukangServices] = useState<TukangServiceSelect[]>([])
+  const [selectedServices, setSelectedServices] = useState<TukangServiceSelect[]>([])
+
+  // KTP File
+  const [previewKTP, setPreviewKTP] = useState<any>()
+  const [visibleKTP, setVisibleKTP] = useState(false)
+
+  const [ktpEvidence, setKtpEvidence] = useState<FileList | []>()
+  const [imageKTP, setimageKTP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  // NPWP FIle
+  const [previewNPWP, setPreviewNPWP] = useState<any>()
+  const [visibleNPWP, setVisibleNPWP] = useState(false)
+
+  const [npwpEvidence, setNpwpEvidence] = useState<FileList | []>()
+  const [imageNPWP, setimageNPWP] = useState<{
+    blob: string
+    fileName: string
+  }>({
+    blob: '',
+    fileName: '',
+  })
+
+  // Upload Document ( Multiple )
+  const [documentFiles, setDocumentFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Preview Image
+  const [previewImage, setPreviewImageNPWP] = useState<any>()
+  const [visible, setVisibleImageNPWP] = useState(false)
 
   const fetchTukangDetail = async () => {
     try {
@@ -46,57 +109,38 @@ const UpdateTukangVendor: FC = () => {
         })
         .then((response) => {
           const data = response.data.data.data
-          setTukangDetail(data)
 
-          if (data?.id) {
-            setTukangId(data.id)
-          }
-
-          if (data?.full_name) {
-            setTukangName(data.full_name)
-          }
-
-          if (data?.phone_number) {
-            setPhoneNumber(data.phone_number)
-          }
-
-          if (data?.ktp_number) {
-            setKtpNumber(data.ktp_number)
-          }
-
-          if (data?.bod) {
-            setDateBirth(new Date(data.join_date).toISOString().split('T')[0])
-          }
-
-          if (data?.email) {
-            setEmail(data?.email)
-          }
-
-          if (data?.address) {
-            setAddress(data.address)
-          }
-
-          if (data?.tukang_service) {
-            const tukangService = data.tukang_service.map((item: any) => ({
+          if (data) {
+            const tukangServices = data.tukang_service.map((item: any) => ({
               value: item.service_type.id,
               label: item.service_type.service_type,
             }))
 
-            setTukangServiceValues(tukangService)
-          }
+            setTukang((prev) => ({
+              ...prev,
+              tukang_id: data?.id,
+              vendor_id: data?.vendor?.id,
+              full_name: data?.full_name,
+              email: data?.email,
+              ktp_number: data?.ktp_number,
+              bod: new Date(data?.bod).toISOString().split('T')[0],
+              address: data?.address,
+              phone_number: data?.phone_number,
+              username: data?.users?.username,
+              service_type_id: tukangServices,
+            }))
 
-          if (data?.vendor.id && data?.vendor.company_name) {
-            setVendorId(data.vendor.id)
-            setVendorName(data.vendor.company_name)
+            setSelectedServices(tukangServices)
           }
 
           if (data?.tukang_document) {
-            const documentTypes = ['ktp_file']
+            const documentTypes = ['ktp_file', 'npwp_file']
 
             type DocumentStateSetter = (state: {blob: string; fileName: string}) => void
 
             const documentStateSetters: Record<string, DocumentStateSetter> = {
-              ktp_file: setImage,
+              ktp_file: setimageKTP,
+              npwp_file: setimageNPWP,
             }
 
             data.tukang_document.forEach((document: any) => {
@@ -114,35 +158,22 @@ const UpdateTukangVendor: FC = () => {
               }
             })
           }
+
+          if (data?.tukang_document) {
+            const filteredData = data?.tukang_document.filter(
+              (item: any) => item.document_name === 'vendor_document'
+            )
+
+            const TukangDocument = filteredData.map((item: any) => ({
+              id: item.id,
+              name: item.path,
+            }))
+
+            setDocumentFiles(TukangDocument)
+          }
         })
     } catch (error) {
       console.log(error)
-    }
-  }
-
-  const getVendor = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/vendor`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempVendor = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.company_name,
-        }))
-
-        setVendor(tempVendor)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
     }
   }
 
@@ -163,7 +194,7 @@ const UpdateTukangVendor: FC = () => {
           label: item.service_type,
         }))
 
-        setTukangService(tempServiceType)
+        setTukangServices(tempServiceType)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -174,140 +205,93 @@ const UpdateTukangVendor: FC = () => {
 
   useEffect(() => {
     fetchTukangDetail()
-    getVendor()
     getTukangService()
   }, [])
 
-  // Detail Tukang
-  const [tukangDetail, setTukangDetail] = useState<any>()
-
-  // Tukang Information
-  const [tukangId, setTukangId] = useState<any>()
-  const [username, setUsername] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
-
-  const [tukangName, setTukangName] = useState<string>('')
-  const [address, setAddress] = useState<string>('')
-  const [email, setEmail] = useState<string>('')
-  const [phoneNumber, setPhoneNumber] = useState<any>()
-  const [dateBirth, setDateBirth] = useState<string>('')
-  const [ktpNumber, setKtpNumber] = useState<any>()
-
-  const [tukangServiceId, setTukangServiceId] = useState<any>([])
-  const [tukangService, setTukangService] = useState<TukangService[]>([])
-  const [tukangServiceValues, setTukangServiceValues] = useState<TukangServiceValues[]>([])
-
-  const [uploadFotoDiri, setUploadFotoDiri] = useState<FileList | []>()
-  const [image, setImage] = useState<{
-    blob: string
-    fileName: string
-  }>({
-    blob: '',
-    fileName: '',
-  })
-
-  // Vendor Information
-  const [vendor, setVendor] = useState<Vendor[]>([])
-  const [vendorId, setVendorId] = useState<any>()
-  const [vendorName, setVendorName] = useState<string>('')
-
-  // Change Input Tukang Information
-  const handleChangeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedUsername = event.target.value
-    setUsername(updatedUsername)
+  // Tukang Form
+  const tukangFormHandler = (e: any) => {
+    setTukang((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
   }
 
-  const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedPassword = event.target.value
-    setPassword(updatedPassword)
-  }
+  // Change Services
+  const handleChangeServices = (element: any) => {
+    const updatedServiceId = element.map((option: any) => ({
+      service_type_id: option.value,
+    }))
 
-  const handleChangeTukangName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedTukangName = event.target.value
-    setTukangName(updatedTukangName)
-  }
-
-  const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedEmail = event.target.value
-    setEmail(updatedEmail)
-  }
-
-  const handleChangePhoneNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedPhoneNumber = event.target.value
-    setPhoneNumber(updatedPhoneNumber)
-  }
-
-  const handleChangeDateBirth = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedDateBirth = event.target.value
-    setDateBirth(updatedDateBirth)
-  }
-
-  const handleChangeKtpNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedKtpNumber = event.target.value
-    setKtpNumber(updatedKtpNumber)
-  }
-
-  const handleChangeAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedAddress = event.target.value
-    setAddress(updatedAddress)
-  }
-
-  // Change Select Tukang Service
-  const handleChangeTukangService = (element: any) => {
-    const updatedTukangService = element.map((option: any) => ({
+    const updatedServices = element.map((option: any) => ({
       value: option.value,
       label: option.label,
     }))
 
-    const updatedTukangServiceId = element.map((option: any) => option.value)
-
-    setTukangServiceId(updatedTukangServiceId)
-    setTukangServiceValues(updatedTukangService)
+    setSelectedServices(updatedServices)
+    setTukang((prev) => ({
+      ...prev,
+      service_type_id: updatedServiceId,
+    }))
   }
 
-  // Change Select Vendor
-  const handleChangeSelectVendor = (element: Vendor | null) => {
-    const newVendorInfo: Vendor = {
-      value: element?.value || 0,
-      label: element?.label || '',
-    }
-
-    setVendorId(newVendorInfo.value)
-    setVendorName(newVendorInfo.label)
-  }
-
-  // Upload Foto Diri
-  const handleUploadFotoDiri = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // KTP Evidence
+  const handleFileChangeKTP = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
 
     if (files && files[0]) {
-      setUploadFotoDiri(files)
+      setKtpEvidence(files)
 
-      setImage({
+      setimageKTP({
         blob: URL.createObjectURL(files[0]),
         fileName: files[0].name,
       })
     }
   }
 
-  const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+  const handleImageKTP = () => {
+    const inputField = document.querySelector('.input-ktp') as HTMLInputElement
     inputField.click()
   }
 
-  const handleRemoveFile = () => {
-    setImage({
+  const handleRemoveKTP = () => {
+    setimageKTP({
       blob: '',
       fileName: '',
     })
-    setUploadFotoDiri([])
+
+    setKtpEvidence([])
   }
 
-  // Upload Document ( Multiple File )
-  const [uploadFiles, setUploadFiles] = useState<Array<File | null>>([])
-  const evidenceRef = useRef<HTMLInputElement>(null)
+  // NPWP Evidence
+  const handleFileChangeNPWP = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
 
-  const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (files && files[0]) {
+      setNpwpEvidence(files)
+
+      setimageNPWP({
+        blob: URL.createObjectURL(files[0]),
+        fileName: files[0].name,
+      })
+    }
+  }
+
+  const handleUploadNPWP = () => {
+    const inputField = document.getElementById('input-npwp-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleRemoveNPWP = () => {
+    setimageNPWP({
+      blob: '',
+      fileName: '',
+    })
+
+    setNpwpEvidence([])
+  }
+
+  // Upload Document
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
     if (fileList) {
       const file: Array<File | null> = new Array<File>()
@@ -317,26 +301,30 @@ const UpdateTukangVendor: FC = () => {
         file[i] = fileList.item(i)
       }
 
-      setUploadFiles(file)
+      setDocumentFiles(file)
     }
   }
 
-  const handleImageClicks = () => {
-    const inputField = document.getElementById('file-input') as HTMLInputElement
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
     inputField.click()
   }
 
-  const handleRemoveFiles = (index: number) => {
-    const newEvidances = [...uploadFiles]
-
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...documentFiles]
     newEvidances.splice(index, 1)
-
-    setUploadFiles(newEvidances)
+    setDocumentFiles(newEvidances)
 
     // Update element value
     if (evidenceRef.current?.value) {
       evidenceRef.current.value = ''
     }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImageNPWP(documentFiles[index]?.name)
+    setVisibleImageNPWP(true)
+    setSelectedFileIndex(index)
   }
 
   // Handle Submit Tukang
@@ -345,34 +333,40 @@ const UpdateTukangVendor: FC = () => {
     const formData = new FormData()
 
     formData.append('vendor_id', vendorId)
-    formData.append('full_name', tukangName)
-    formData.append('email', email)
-    formData.append('ktp_number', ktpNumber)
-    formData.append('bod', dateBirth)
-    formData.append('address', address)
-    formData.append('phone_number', phoneNumber)
+    formData.append('full_name', tukang.full_name)
+    formData.append('email', tukang.email)
+    formData.append('ktp_number', tukang.ktp_number)
+    formData.append('bod', tukang.bod)
+    formData.append('username', tukang.username)
+    formData.append('password', tukang.password)
+    formData.append('address', tukang.address)
+    formData.append('phone_number', tukang.phone_number)
 
-    if (tukangServiceId?.length) {
-      tukangServiceId.forEach((item: any, index: number) => {
+    if (tukang.service_type_id?.length) {
+      tukang.service_type_id.forEach((item: any, index: number) => {
         if (item) {
-          formData.append(`service_type[${index}][service_type_id]`, item)
+          formData.append(`service_types[${index}][service_type_id]`, item.service_type_id)
         }
       })
     }
 
-    if (uploadFotoDiri?.length) {
-      formData.append('ktp_file', uploadFotoDiri[0])
+    if (ktpEvidence?.length) {
+      formData.append('ktp_file', ktpEvidence[0])
     }
 
-    // if (uploadFiles?.length) {
-    //   uploadFiles.forEach((item) => {
+    if (npwpEvidence?.length) {
+      formData.append('npwp_file', npwpEvidence[0])
+    }
+
+    // if (documentFiles?.length) {
+    //   documentFiles.forEach((item) => {
     //     if (item) {
-    //       formData.append(`files`, item, item?.name)
+    //       formData.append(`tukang_document`, item, item?.name)
     //     }
     //   })
     // }
 
-    const response = await axios
+    await axios
       .post(`${apiUrl}/tukang/${params.id}`, formData, {
         headers: {
           Accept: 'application/json',
@@ -421,121 +415,159 @@ const UpdateTukangVendor: FC = () => {
 
   return (
     <section id='update-tukang'>
-      <div className='card mb-5'>
-        <div className='card-body'>
+      <Card>
+        <Card.Header>
+          <Card.Title>Profile</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          <Row className='mb-3'>
+            <Form.Label>
+              Nama Vendor{' '}
+              <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>{vendorName}</span>
+            </Form.Label>
+          </Row>
+
           <Row>
-            <Col xxl={8}>
-              <Row>
-                <Col xxl={6}>
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Tukang ID</Form.Label>
-                    <Form.Control type='number' value={tukangId} />
-                  </Form.Group>
+            <Col>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Tukang ID</Form.Label>
+                <Form.Control readOnly value={tukang.tukang_id} />
+              </Form.Group>
 
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Nama Tukang</Form.Label>
-                    <Form.Control
-                      type='text'
-                      onChange={handleChangeTukangName}
-                      value={tukangName}
-                    />
-                  </Form.Group>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Nama Tukang</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='full_name'
+                  value={tukang.full_name}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
 
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>No. Handphone</Form.Label>
-                    <Form.Control
-                      type='number'
-                      onChange={handleChangePhoneNumber}
-                      value={phoneNumber}
-                    />
-                  </Form.Group>
+              <Form.Group className='tukang-info'>
+                <Form.Label>No. Handphone</Form.Label>
+                <Form.Control
+                  type='number'
+                  name='phone_number'
+                  value={tukang.phone_number}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
 
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Nomor KTP</Form.Label>
-                    <Form.Control
-                      type='number'
-                      onChange={handleChangeKtpNumber}
-                      value={ktpNumber}
-                    />
-                  </Form.Group>
-                </Col>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Keahlian</Form.Label>
 
-                <Col xxl={6}>
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Keahlian</Form.Label>
-
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Keahlian Tukang'
-                      closeMenuOnSelect={false}
-                      components={animatedComponents}
-                      isMulti
-                      options={tukangService}
-                      onChange={(element) => handleChangeTukangService(element)}
-                      value={tukangServiceValues}
-                    />
-                  </Form.Group>
-
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Tanggal Lahir</Form.Label>
-                    <Form.Control type='date' onChange={handleChangeDateBirth} value={dateBirth} />
-                  </Form.Group>
-
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type='email' onChange={handleChangeEmail} value={email} />
-                  </Form.Group>
-
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Vendor</Form.Label>
-
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Nama Vendor'
-                      isSearchable={true}
-                      options={vendor}
-                      value={{
-                        value: vendorId,
-                        label: vendorName,
-                      }}
-                      onChange={(element) => handleChangeSelectVendor(element)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Form.Group className='tukang-info'>
-                  <Form.Label>Alamat</Form.Label>
-                  <Form.Control
-                    as='textarea'
-                    type='text'
-                    onChange={handleChangeAddress}
-                    value={address}
-                  />
-                </Form.Group>
-              </Row>
+                <Select
+                  classNamePrefix='select'
+                  placeholder='Pilih Keahlian Tukang'
+                  closeMenuOnSelect={false}
+                  components={animatedComponents}
+                  isMulti
+                  options={tukangServices}
+                  value={selectedServices}
+                  onChange={(element) => handleChangeServices(element)}
+                />
+              </Form.Group>
             </Col>
 
-            <Col xxl={4}>
-              <Form.Group controlId='formFile'>
-                <Form.Label>Upload Photo Diri / KTP</Form.Label>
+            <Col>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Tanggal Lahir</Form.Label>
+                <Form.Control
+                  type='date'
+                  name='bod'
+                  value={tukang.bod}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
 
-                <Form className='form-input-image' onClick={handleImageClick}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type='email'
+                  name='email'
+                  value={tukang.email}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
+
+              <Form.Group className='tukang-info'>
+                <Form.Label>Nomor KTP</Form.Label>
+                <Form.Control
+                  type='number'
+                  name='ktp_number'
+                  value={tukang.ktp_number}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
+
+              <Form.Group className='tukang-info'>
+                <Form.Label>Alamat</Form.Label>
+                <Form.Control
+                  as='textarea'
+                  type='text'
+                  name='address'
+                  value={tukang.address}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col>
+              <div className='mb-5'>
+                <Form.Group controlId='formFile'>
+                  <Form.Label>Upload KTP</Form.Label>
+                  <Form className='form-input-image' onClick={handleImageKTP}>
+                    <Form.Control
+                      type='file'
+                      accept='image/*'
+                      className='input-ktp'
+                      hidden
+                      onChange={handleFileChangeKTP}
+                    />
+
+                    {imageKTP.blob ? (
+                      <img src={imageKTP.blob} alt={imageKTP.fileName} className='image-preview' />
+                    ) : (
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    )}
+                  </Form>
+
+                  <div className='uploaded-row'>
+                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                    <span className='upload-content'>
+                      {imageKTP.fileName ? imageKTP.fileName : ''}
+                    </span>
+
+                    <FontAwesomeIcon
+                      icon={faTrash}
+                      size='sm'
+                      color='#ed2b2a'
+                      style={{cursor: 'pointer'}}
+                      onClick={handleRemoveKTP}
+                    />
+                  </div>
+                </Form.Group>
+              </div>
+
+              <Form.Group controlId='formFile'>
+                <Form.Label>Upload NPWP</Form.Label>
+                <Form className='form-input-image' onClick={handleUploadNPWP}>
                   <Form.Control
                     type='file'
                     accept='image/*'
-                    className='input-field-image'
+                    className='input-ktp-image'
                     hidden
-                    onChange={handleUploadFotoDiri}
+                    onChange={handleFileChangeNPWP}
                   />
 
-                  {image.blob ? (
-                    <img
-                      src={image.blob ? image.blob : `${apiUrl}/public/tukang/${image.fileName}`}
-                      alt={image.fileName}
-                      className='image-preview'
-                    />
+                  {imageNPWP.blob ? (
+                    <img src={imageNPWP.blob} alt={imageNPWP.fileName} className='image-preview' />
                   ) : (
                     <div className='input-image-text'>
                       <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
@@ -547,29 +579,59 @@ const UpdateTukangVendor: FC = () => {
                 <div className='uploaded-row'>
                   <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                  <span className='upload-content'>{image.fileName ? image.fileName : ''}</span>
+                  <span className='upload-content'>
+                    <ListGroup.Item
+                      key={imageNPWP.fileName}
+                      action
+                      onClick={() => {
+                        setPreviewImageNPWP(imageNPWP?.fileName)
+                        setVisibleImageNPWP(true)
+                      }}
+                    >
+                      {imageNPWP?.fileName}
+                    </ListGroup.Item>
+                  </span>
 
                   <FontAwesomeIcon
                     icon={faTrash}
                     size='sm'
                     color='#ed2b2a'
                     style={{cursor: 'pointer'}}
-                    onClick={handleRemoveFile}
+                    onClick={handleRemoveNPWP}
                   />
                 </div>
+
+                {previewImage && (
+                  <div>
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/tukang/${previewImage}`}
+                      preview={{
+                        visible,
+                        src: `${apiUrl}/public/tukang/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisibleImageNPWP(value)
+                        },
+                      }}
+                    />
+                  </div>
+                )}
               </Form.Group>
 
-              <Form.Group>
-                <Form.Label>Dokumen Lainnya</Form.Label>
-                <Form className='form-input-image' onClick={handleImageClicks}>
+              {/* <Form.Group className='tukang-info'>
+                <Form.Label>Upload Document Lainnya</Form.Label>
+                <Form className='form-input-image' onClick={handleImageClick}>
                   <Form.Control
-                    id='file-input'
                     type='file'
-                    accept='image/*'
+                    accept='image/jpeg, image/png'
+                    className='input-field-image'
                     multiple
                     hidden
+                    id='file-input'
                     ref={evidenceRef}
-                    onChange={handleFilesChange}
+                    onChange={handleFileChange}
                   />
 
                   <div className='input-image-text'>
@@ -579,24 +641,44 @@ const UpdateTukangVendor: FC = () => {
                 </Form>
 
                 <ListGroup className='pt-3'>
-                  {uploadFiles.length ? (
-                    uploadFiles.map((item, index) => (
-                      <ListGroup.Item
-                        key={`${item?.name}-${index}-${item?.type}`}
-                        className='d-flex justify-content-between'
-                      >
-                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                  {documentFiles.length ? (
+                    documentFiles.map((item, index) => (
+                      <ListGroup>
+                        <ListGroup.Item
+                          className='d-flex justify-content-between align-items-center'
+                          key={`${item?.name}-${index}-${item?.type}`}
+                        >
+                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                        <span className='upload-content'>{item?.name}</span>
+                          <span className='upload-content' onClick={() => handleFileClick(index)}>
+                            {item?.name}
+                          </span>
 
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          size='sm'
-                          color='#ed2b2a'
-                          style={{cursor: 'pointer'}}
-                          onClick={(e) => handleRemoveFiles(index)}
-                        />
-                      </ListGroup.Item>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size='sm'
+                            color='#ed2b2a'
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => handleRemoveFile(index)}
+                          />
+                        </ListGroup.Item>
+
+                        {selectedFileIndex === index && item && (
+                          <Image
+                            key={`${previewImage} - ${index}`}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={URL.createObjectURL(item)}
+                            preview={{
+                              visible,
+                              src: URL.createObjectURL(item),
+                              onVisibleChange: (value) => {
+                                setVisibleImageNPWP(value)
+                              },
+                            }}
+                          />
+                        )}
+                      </ListGroup>
                     ))
                   ) : (
                     <ListGroup.Item className='d-flex justify-content-center'>
@@ -604,25 +686,61 @@ const UpdateTukangVendor: FC = () => {
                     </ListGroup.Item>
                   )}
                 </ListGroup>
+              </Form.Group> */}
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <hr />
+
+      <Card className='mb-5'>
+        <Card.Header>
+          <Card.Title>Account</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          <Row>
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='username'
+                  value={tukang.username}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Reset Password</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='password'
+                  value={tukang.password}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
               </Form.Group>
             </Col>
           </Row>
+        </Card.Body>
+      </Card>
 
-          <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateTukang}>
-              Cancel
-            </Button>
+      <div className='d-flex justify-content-center'>
+        <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateTukang}>
+          Cancel
+        </Button>
 
-            <Button
-              variant='dark-primary'
-              type='submit'
-              disabled={isLoading}
-              onClick={handleUpdateTukang}
-            >
-              {isLoading ? 'Updating..' : 'Update'}
-            </Button>
-          </div>
-        </div>
+        <Button
+          variant='dark-primary'
+          type='submit'
+          disabled={isLoading}
+          onClick={handleUpdateTukang}
+        >
+          {isLoading ? 'Saving..' : 'Save'}
+        </Button>
       </div>
     </section>
   )

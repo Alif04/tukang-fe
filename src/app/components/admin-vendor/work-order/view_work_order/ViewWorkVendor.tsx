@@ -284,11 +284,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         let data
         const orderDate = new Date(item.created_at)
 
-        let phoneNumber =
-          item.members.whatsapp_number === 'null'
-            ? item.members.phone_number
-            : item.members.whatsapp_number
-
         const paymentStatus = (() => {
           if (item?.payment_type === 'survey') {
             return item.receipt_number === null ? 'UNPAID' : 'PAID'
@@ -303,8 +298,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         let orderStatus =
           item.work_orders === null
-            ? item?.status?.category
-            : item?.work_orders?.work_order_status[0]?.status?.category
+            ? item?.status?.description
+            : item?.work_orders?.work_order_status[0]?.status?.description
 
         data = {
           order_id: item.id,
@@ -312,7 +307,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           date_order: formatDate(orderDate),
           costumer_id: item.members.member_number,
           costumer_name: item.members.full_name,
-          phone_number: phoneNumber,
+          phone_number: item.project_number,
           item_name: item.m_order_details[0]?.item_name ?? '-',
           service_name:
             item.payment_type === 'survey'
