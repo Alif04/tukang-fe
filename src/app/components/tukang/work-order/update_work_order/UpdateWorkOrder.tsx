@@ -16,7 +16,13 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faFileArrowUp, faPlus} from '@fortawesome/free-solid-svg-icons'
 const {RangePicker} = DatePicker
 
-interface Status {
+interface StatusStorage {
+  value: number
+  category: any
+  description: string
+}
+
+interface StatusSelect {
   value: number | null
   label: string
   category: string
@@ -79,12 +85,14 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
 
   // Work Order Status
-  const [workOrderStatus, setWorkOrderStatus] = useState<Status[]>([])
-  const [selectedWorkOrderStatus, setSelectedWorkOrderStatus] = useState<SingleValue<Status>>({
-    value: null,
-    label: '',
-    category: '',
-  })
+  const [workOrderStatus, setWorkOrderStatus] = useState<StatusSelect[]>([])
+  const [selectedWorkOrderStatus, setSelectedWorkOrderStatus] = useState<SingleValue<StatusSelect>>(
+    {
+      value: null,
+      label: '',
+      category: '',
+    }
+  )
 
   // Work Order Tukang
   const [tukang, setTukang] = useState<Tukang[]>([])
@@ -182,8 +190,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             setSelectedWorkOrderStatus((prev) => ({
               ...prev,
               value: data.work_orders?.work_order_status[0]?.status_id,
-              label: data.work_orders?.work_order_status[0]?.status.category,
-              category: data.work_orders?.work_order_status[0]?.status.category,
+              label: data.work_orders?.work_order_status[0]?.status?.description,
+              category: data.work_orders?.work_order_status[0]?.status?.category,
             }))
           }
 
@@ -208,127 +216,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
             setWorkOrderAfter(initialWorkOrderFiles)
           }
-
-          // Old
-          // if (data.work_orders.work_order_status[0].work_order_items.length > 0) {
-          //   const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
-          //     (item: any, index: number) => ({
-          //       id: item.id,
-          //       index: (Date.now() + index).toString(),
-          //       item_name: item.name,
-          //       tukang_id: item?.tukang_id,
-          //       tukang_name: item?.tukang_name,
-          //       unit: item?.unit,
-          //       is_user: item.is_customer ? 1 : 0,
-          //       type: item.type,
-          //       quantity: item.quantity,
-          //     })
-          //   )
-
-          //   setWorkOrderItem(workOrderItem)
-          // } else {
-          //   const workOrderItem = data.order_details.map((item: any, index: number) => ({
-          //     id: item.id,
-          //     index: (Date.now() + index).toString(),
-          //     item_name: item.item_name ?? '',
-          //     unit: item?.unit ?? '',
-          //     is_user: item.is_customer ? 1 : 0,
-          //     type: 2,
-          //     quantity: item?.quantity ?? 0,
-          //   }))
-
-          //   const workOrderItemMaterial = [
-          //     {
-          //       id: null,
-          //       index: (Date.now() + workOrderItem.length).toString(),
-          //       item_name: '',
-          //       tukang_id: null,
-          //       tukang_name: '',
-          //       is_user: 0,
-          //       type: 1,
-          //       quantity: null,
-          //       unit: '',
-          //     },
-          //   ]
-
-          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
-          //   setWorkOrderItem(mergedWorkOrderItem)
-          // }
-
-          // New
-          // if (
-          //   ['SURVEYREQ', 'SURVEYSTART', 'WORKREQ', 'WORKSTART'].includes(data?.status?.category) &&
-          //   !data.work_orders
-          // ) {
-          //   const workOrderItem = data.order_details.map((item: any, index: number) => ({
-          //     id: item.id,
-          //     index: (Date.now() + index).toString(),
-          //     item_name: item.item_name ?? '',
-          //     unit: item?.unit ?? '',
-          //     is_user: item.is_customer ? 1 : 0,
-          //     type: 2,
-          //     quantity: item?.quantity ?? 0,
-          //   }))
-
-          //   const workOrderItemMaterial = [
-          //     {
-          //       id: null,
-          //       index: (Date.now() + workOrderItem.length).toString(),
-          //       item_name: '',
-          //       tukang_id: null,
-          //       tukang_name: '',
-          //       is_user: 0,
-          //       type: 1,
-          //       quantity: null,
-          //       unit: '',
-          //     },
-          //   ]
-
-          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
-          //   setWorkOrderItem(mergedWorkOrderItem)
-          // } else if (
-          //   [
-          //     'SURVEYDONE',
-          //     'WIP',
-          //     'WORKEND',
-          //     'REWORKSTART',
-          //     'RIP',
-          //     'REWORKEND',
-          //     'WORKDONE',
-          //     'DONE',
-          //   ].includes(data.work_orders.work_order_status[0].status.category)
-          // ) {
-          //   const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
-          //     (item: any, index: number) => ({
-          //       id: item.id,
-          //       index: (Date.now() + index).toString(),
-          //       item_name: item.name,
-          //       tukang_id: item?.tukang_id,
-          //       tukang_name: item?.tukang_name,
-          //       unit: item?.unit,
-          //       is_user: item.is_customer ? 1 : 0,
-          //       type: item.type,
-          //       quantity: item.quantity,
-          //     })
-          //   )
-
-          //   const workOrderItemMaterial = [
-          //     {
-          //       id: null,
-          //       index: (Date.now() + workOrderItem.length).toString(),
-          //       item_name: '',
-          //       tukang_id: null,
-          //       tukang_name: '',
-          //       is_user: 0,
-          //       type: 1,
-          //       quantity: null,
-          //       unit: '',
-          //     },
-          //   ]
-
-          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
-          //   setWorkOrderItem(mergedWorkOrderItem)
-          // }
 
           // Newest
           if (
@@ -786,20 +673,54 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   const workOrderStatusOption = () => {
     const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData.filter((status: Status) =>
-      ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(
-        status.category
+    const paymentTypeMap = new Map<string, string[]>([
+      [
+        'pemasangan_tanpa_survey',
+        [
+          'WORKREQ',
+          'WORKSTART',
+          'WIP',
+          'WORKEND',
+          'REWORK',
+          'REWORKSTART',
+          'RIP',
+          'REWORKEND',
+          'RESCHEDULE',
+        ],
+      ],
+      [
+        'berbayar_survey',
+        [
+          'SURVEYREQ',
+          'SURVEYSTART',
+          'SURVEYDONE',
+          'WORKREQ',
+          'WORKSTART',
+          'WIP',
+          'WORKEND',
+          'REWORK',
+          'REWORKSTART',
+          'RIP',
+          'REWORKEND',
+          'RESCHEDULE',
+        ],
+      ],
+    ])
+
+    const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData
+      .filter((status) =>
+        paymentTypeMap
+          .get(orderDetail?.payment_type ?? 'berbayar_survey')
+          ?.includes(status.category)
       )
-    )
+      .map(({description, value, category}) => ({
+        label: description,
+        category,
+        value,
+      }))
 
-    const selectedStatus = desiredStatus.map((status: Status) => ({
-      value: status.value,
-      category: status.category,
-      label: status.category,
-    }))
-
-    setWorkOrderStatus(selectedStatus)
+    setWorkOrderStatus(desiredStatus)
   }
 
   // Work Order History
@@ -1343,7 +1264,151 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             </Col>
           </Row>
 
-          {orderDetail?.orders?.payment_type === 'survey' ? (
+          <Row>
+            <Col>
+              <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
+
+              <table className='table'>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th></th>
+                    <th>Nama Produk / Jenis Jasa</th>
+                    <th>QTY</th>
+                    <th>Satuan</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {workOrderItem
+                    .filter((x) => x.type === 2)
+                    .map((element, index) => (
+                      <tr
+                        key={`${stringToHash(element.index)}-service`}
+                        id={`${element.index}-service`}
+                      >
+                        <td align='center' width={70}>
+                          <Button
+                            variant='btn-jasa button-dark-primary'
+                            onClick={() => handleAddForm(2)}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`service-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity?.toString()}
+                            onChange={(e) => handleQuantityChange(element.index, e.target.value, 2)}
+                          />{' '}
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`unit-${index}`}
+                            value={element.unit?.toString()}
+                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 2)}
+                          />
+                        </td>
+
+                        <td align='center' width={70}>
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <table className='table'>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th></th>
+                    <th>Disediakan Customer</th>
+                    <th>Material Yang Dibutuhkan</th>
+                    <th>QTY</th>
+                    <th>Satuan</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {workOrderItem
+                    .filter((x) => x.type === 1)
+                    .map((element, index) => (
+                      <tr
+                        key={`${stringToHash(element.index)}-material`}
+                        id={`${element.index}-material`}
+                      >
+                        <td align='center' width={70}>
+                          <Button
+                            variant='btn-material button-dark-primary'
+                            onClick={() => handleAddForm(1)}
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </Button>
+                        </td>
+
+                        <td align='center' style={{verticalAlign: 'middle'}}>
+                          <Form.Check
+                            id={`is-user-${index}`}
+                            type='checkbox'
+                            checked={element.is_user === 1}
+                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`item-name-${index}`}
+                            value={element.item_name}
+                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity?.toString()}
+                            onChange={(e) => handleQuantityChange(element.index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`unit-${index}`}
+                            value={element.unit?.toString()}
+                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 1)}
+                          />
+                        </td>
+
+                        <td align='center' width={70}>
+                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </Col>
+          </Row>
+
+          {/* {orderDetail?.orders?.payment_type === 'survey' ? (
             <>
               <Row>
                 <Col>
@@ -1507,221 +1572,92 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             </>
           ) : (
             <>
-              {(() => {
-                if (
-                  ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
-                  orderDetail?.payment_type === 'survey'
-                ) {
-                  return (
-                    <div className='table-warranty-content'>
-                      {orderDetail?.is_overdistance === 1 && (
+              <div className='table-warranty-content'>
+                {orderDetail?.is_overdistance === 1 && (
+                  <>
+                    <Form.Text className='fs-8 text-dark'>
+                      *Order ini lebih dari
+                      <span className='fw-bolder text-decoration-underline'>10 KM</span> dari toko
+                      sehingga dikenakan biaya tambahan
+                    </Form.Text>
+                  </>
+                )}
+
+                <table>
+                  <thead className='table-warranty-head'>
+                    <tr>
+                      <th>Item Code</th>
+                      <th>Item Name</th>
+                      <th>Nama Pemasangan</th>
+                      <th>QTY Pemasangan</th>
+                      {!(orderDetail?.payment_type === 'gratis') && (
                         <>
-                          <Form.Text className='fs-8 text-dark'>
-                            *Order ini lebih dari
-                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                            toko sehingga dikenakan biaya tambahan
-                          </Form.Text>
+                          <th>Harga Jasa</th>
+                          <th>Jumlah</th>
                         </>
                       )}
+                    </tr>
+                  </thead>
 
-                      <Table>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center'>Jenis Jasa</th>
-                            <th className='text-center'>QTY</th>
-                            <th className='text-center'>Satuan</th>
-                            <th className='text-center'>Price</th>
-                            <th className='text-center'>Total</th>
-                            <th className='text-center'>Keterangan</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {orderDetail?.quotation[0]?.quotation_details.map(
-                            (item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>{item?.name ?? '-'}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
-                                <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                                <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
-                                  'id'
-                                )}`}</td>
-                                <td>{item?.description ? '' : '-'}</td>
-                              </tr>
-                            )
-                          )}
-
-                          <tr>
-                            <td colSpan={6} className='text-end fw-bolder'>
-                              Promosi ( Free Survey )
-                            </td>
-                            <td className=' fw-bolder'>
-                              {`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_disc ?? 0
-                              ).toLocaleString('id')}`}
-                            </td>
-                          </tr>
-
-                          {orderDetail?.is_overdistance === 1 && (
+                  <tbody>
+                    {orderDetail?.order_details?.map((item: any, index: any) => (
+                      <>
+                        <tr key={`${index} - order_detail`}>
+                          <td>{item?.item_code}</td>
+                          <td>{item?.item_name}</td>
+                          <td>{item?.item?.service_name}</td>
+                          <td>{item?.quantity ?? 0}</td>
+                          {!(orderDetail?.payment_type === 'gratis') && (
                             <>
-                              <tr>
-                                <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                  Biaya Tambahan
-                                </td>
-
-                                <td className=' fw-bolder'>{`Rp. ${Number(
-                                  orderDetail?.additional_fee
-                                ).toLocaleString('id')}.`}</td>
-                              </tr>
+                              <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                'id'
+                              )}`}</td>
+                              <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
                             </>
                           )}
+                        </tr>
+                      </>
+                    ))}
 
-                          <tr>
-                            <td colSpan={5} className='text-end fw-bolder'>
-                              Grand Total
-                            </td>
-                            <td className=' fw-bolder'>
-                              {`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
-                              ).toLocaleString('id')}`}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </Table>
-                    </div>
-                  )
-                } else if (
-                  ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                    orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                  ) &&
-                  orderDetail?.work_orders?.work_order_status.length > 1 &&
-                  orderDetail?.payment_type === 'survey'
-                ) {
-                  return (
-                    <div className='table-warranty-content'>
-                      <Table>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th>Item / Nama Pemasangan</th>
-                            <th>QTY Pemasangan</th>
-                            <th>Satuan</th>
-                          </tr>
-                        </thead>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder align-middle'>
+                            Biaya Tambahan
+                          </td>
 
-                        <tbody>
-                          {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                            (item: any, index: any) => (
-                              <tr key={`${index}-work_order_detail`}>
-                                <td>{item?.name ?? '-'}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit ?? ''}</td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </Table>
-                    </div>
-                  )
-                } else if (
-                  orderDetail?.payment_type === 'gratis' ||
-                  orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                ) {
-                  return (
-                    <div className='table-warranty-content'>
-                      {orderDetail?.is_overdistance === 1 && (
-                        <>
-                          <Form.Text className='fs-8 text-dark'>
-                            *Order ini lebih dari
-                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                            toko sehingga dikenakan biaya tambahan
-                          </Form.Text>
-                        </>
-                      )}
+                          <td className=' fw-bolder'>{`Rp. ${Number(
+                            orderDetail?.additional_fee
+                          ).toLocaleString('id')}.`}</td>
+                        </tr>
+                      </>
+                    )}
 
-                      <Table>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th>Item Code</th>
-                            <th>Item Name</th>
-                            <th>Nama Pemasangan</th>
-                            <th>QTY Pemasangan</th>
-                            {!(orderDetail?.payment_type === 'gratis') && (
-                              <>
-                                <th>Harga Jasa</th>
-                                <th>Jumlah</th>
-                              </>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {orderDetail?.order_details?.map((item: any, index: any) => (
-                            <>
-                              <tr key={`${index} - order_detail`}>
-                                <td>{item?.item_code}</td>
-                                <td>{item?.item_name}</td>
-                                <td>{item?.item?.service_name}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                                {!(orderDetail?.payment_type === 'gratis') && (
-                                  <>
-                                    <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                    <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                  </>
-                                )}
-                              </tr>
-                            </>
-                          ))}
+                    <tr>
+                      <td
+                        colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                        className='text-end fw-bolder'
+                      >
+                        Grand Total
+                      </td>
 
-                          {orderDetail?.is_overdistance === 1 && (
-                            <>
-                              <tr>
-                                <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                  Biaya Tambahan
-                                </td>
-
-                                <td className=' fw-bolder'>{`Rp. ${Number(
-                                  orderDetail?.additional_fee
-                                ).toLocaleString('id')}.`}</td>
-                              </tr>
-                            </>
-                          )}
-
-                          <tr>
-                            <td
-                              colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
-                              className='text-end fw-bolder'
-                            >
-                              Grand Total
-                            </td>
-
-                            <td className=' fw-bolder'>
-                              {(() => {
-                                if (orderDetail?.payment_type === 'gratis') {
-                                  return `Rp. ${(0).toLocaleString('id')}`
-                                } else if (
-                                  orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                                ) {
-                                  return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString(
-                                    'id'
-                                  )}`
-                                } else {
-                                  return `Rp. ${(0).toLocaleString('id')}`
-                                }
-                              })()}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </Table>
-                    </div>
-                  )
-                }
-              })()}
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'gratis') {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString('id')}`
+                          } else {
+                            return `Rp. ${(0).toLocaleString('id')}`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </>
-          )}
+          )} */}
 
           <Row>
             {orderDetail?.work_orders?.work_order_status.length > 1 &&

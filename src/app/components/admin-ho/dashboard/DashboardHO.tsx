@@ -251,6 +251,10 @@ const DashboardHO: FC = () => {
   }
 
   useEffect(() => {
+    fetchData(1, 10, '')
+  }, [])
+
+  useEffect(() => {
     const getStore = async () => {
       try {
         const url = !selectedZone.value
@@ -386,7 +390,9 @@ const DashboardHO: FC = () => {
 
     const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}${store_id}`
 
-    await fetchOrderList(1, 10, queryparams)
+    const data = await ViewOrder(1, 10, queryparams)
+    setOrderList(data)
+
     await getReportOrder()
     await getWorkOrder()
 
@@ -489,7 +495,7 @@ const DashboardHO: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{totalData}</h1>
+                    <h1 className='fw-normal'>{orderList.length}</h1>
                     <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>

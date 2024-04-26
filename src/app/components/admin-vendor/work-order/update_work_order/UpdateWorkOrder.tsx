@@ -65,15 +65,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     work_end_date: '',
   })
 
-  console.log(workOrder)
-
   // Option Tukang
   const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
 
   // Option Work Order Status
   const [workOrderStatus, setWorkOrderStatus] = useState<StatusSelect[]>([])
-
-  console.log('work order status', workOrderStatus)
 
   const fetchOrderData = async () => {
     try {
@@ -268,8 +264,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           category,
           value,
         }))
-      console.log('desiredStatus', desiredStatus)
-      console.log('orderDetail status > ', orderDetail?.payment_type)
 
       setWorkOrderStatus(desiredStatus)
     }
@@ -286,8 +280,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       const cache = {...prev, [target]: value}
       return cache
     })
-
-    console.log(workOrder)
   }
 
   const tukangHandler = (selectedOptions: any, field: any) => {
@@ -472,6 +464,25 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
     },
   ]
+
+  // Grand Total Order
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
+
+    let totalAmount = 0
+
+    if (payment_type === 'gratis') {
+      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+    } else if (payment_type === 'pemasangan_tanpa_survey') {
+      totalAmount =
+        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+    } else if (payment_type === 'survey') {
+      totalAmount =
+        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
+    }
+
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
 
   return (
     <section id='update-work-order'>
@@ -838,9 +849,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.grand_total
-                              ).toLocaleString('id')}`}</td>
+                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
                             </tr>
                           </>
                         )}
@@ -1027,19 +1036,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>
-                            {(() => {
-                              if (orderDetail?.payment_type === 'gratis') {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                                return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString(
-                                  'id'
-                                )}`
-                              } else {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              }
-                            })()}
-                          </td>
+                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
                         </tr>
                       </tbody>
                     </table>

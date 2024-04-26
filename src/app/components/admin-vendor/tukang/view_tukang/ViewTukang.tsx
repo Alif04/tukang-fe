@@ -86,13 +86,6 @@ const ViewTukangVendor: FC = () => {
       sorter: (a, b) => a.no - b.no,
     },
     {
-      title: 'Tukang ID',
-      dataIndex: 'tukang_id',
-      key: 'tukang_id',
-      align: 'center',
-      sorter: (a, b) => a.tukang_id - b.tukang_id,
-    },
-    {
       title: 'Nama Tukang',
       dataIndex: 'full_name',
       key: 'full_name',

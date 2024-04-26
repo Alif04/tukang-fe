@@ -54,8 +54,6 @@ const UpdateSales: FC = () => {
     label: '',
   })
 
-  console.log(selectedStore)
-
   // List Sales
   const [salesId, setSalesId] = useState<any>()
   const [salesInfo, setSalesInfo] = useState<Sales>({

@@ -24,6 +24,7 @@ interface DataType {
   service_name: string
   payment_status: string
   order_status: string
+  order_status_label: string
 }
 
 const ViewOrders: FC = () => {
@@ -127,10 +128,10 @@ const ViewOrders: FC = () => {
     },
     {
       title: 'Status Order',
-      dataIndex: 'order_status',
-      key: 'order_status',
-      render: (order_status) => {
-        const orderStatus = order_status
+      dataIndex: 'order_status_label',
+      key: 'order_status_label',
+      render: (order_status_label) => {
+        const orderStatus = order_status_label
         let color = ''
 
         switch (orderStatus) {
@@ -209,8 +210,8 @@ const ViewOrders: FC = () => {
         {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
         {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
       ],
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      onFilter: (value, record) => record.order_status_label.includes(String(value)),
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
       align: 'left',
       width: 140,
     },
@@ -322,6 +323,10 @@ const ViewOrders: FC = () => {
             item?.work_orders?.work_order_status.length > 0
               ? item?.work_orders?.work_order_status[0]?.status?.category
               : item?.status?.category,
+          order_status_label:
+            item?.work_orders?.work_order_status.length > 0
+              ? item?.work_orders?.work_order_status[0]?.status?.description
+              : item?.status?.description,
         }
 
         return data

@@ -56,7 +56,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
       totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
     } else if (payment_type === 'pemasangan_tanpa_survey') {
       totalAmount =
-        is_overdistance === 0 ? grand_total : Number(grand_total) + Number(additional_fee)
+        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
     } else if (payment_type === 'survey') {
       totalAmount =
         is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
@@ -92,8 +92,6 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                       month: 'long',
                       year: 'numeric',
                     })}
-
-                    {/* {orderDetail ? formatDate(new Date(orderDetail?.created_at)) : '-'} */}
                   </span>
                 </h1>
 
@@ -111,7 +109,6 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   })()}{' '}
                   :{' '}
                   <span className='fw-normal text-white'>
-                    {/* {orderDetail ? formatDate(new Date(orderDetail?.request_survey)) : '-'} */}
                     {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
                       day: 'numeric',
                       month: 'long',
