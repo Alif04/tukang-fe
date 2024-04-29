@@ -809,7 +809,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             {(() => {
               if (
                 (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
-                orderDetail?.work_orders?.work_order_status.length === 1
+                (orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.work_orders?.work_order_status.length === 1)
               ) {
                 return (
                   <div className='table-warranty-content'>
