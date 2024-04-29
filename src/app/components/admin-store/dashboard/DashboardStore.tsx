@@ -10,23 +10,15 @@ import {TotalReschedule} from './components/TotalReschedule'
 
 import axios from 'axios'
 import {DatePicker} from 'antd'
-import {Row, Col} from 'react-bootstrap'
+import {Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
-interface StoreItem {
-  value: number | null
-  label: string
-  city_id: number | null
-}
-
 const DashboardStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
-
-  const [orderData, setOrderData] = useState<any[]>([])
-  const [chartData, setChartData] = useState<any[]>([])
 
   const today = new Date()
   const formattedTodays = new Date().toISOString().split('T')[0]
@@ -36,26 +28,26 @@ const DashboardStore: FC = () => {
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
+  const [loadingButton, setLoadingButton] = useState(false)
 
-  const [store, setStore] = useState<StoreItem[]>([])
+  const [orderData, setOrderData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<any[]>([])
+
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
+
   const [sales, setSales] = useState<any[]>([])
 
-  const [selectedStore, setSelectedStore] = useState<any>({
-    value: null,
-    label: '',
-    city_id: null,
-  })
+  const getOrder = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&store_id=${userStore}&page=${page}&take=${pageSize}${queryparams}`
 
-  const storeId = selectedStore && selectedStore?.value ? `&${selectedStore?.value}` : ''
-
-  const fetchOrderData = async () => {
     try {
       let url =
         !dateFrom && !dateTo
           ? `${apiUrl}/orders?order_by=desc&date_from=${firstDayOfMonth}&date_to=${formattedTodays}&store_id=${userStore}&take=0`
           : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`
 
-      const response = await axios.get(url, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -64,10 +56,11 @@ const DashboardStore: FC = () => {
         },
       })
 
-      const data = response?.data?.data
-      setOrderData(data)
+      setOrderData(response.data.data)
+      setCurrentPage(response.data.page)
+      setTotalData(response?.data?.total ?? 0)
 
-      return data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -91,68 +84,53 @@ const DashboardStore: FC = () => {
     }
   }
 
-  useEffect(() => {
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+  const getSales = async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/sales?take=0&top_best=true&order_by=desc&store_id=${userStore}`,
+        {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
-        })
-
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            city_id: item.city_id,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
         }
-      } catch (err) {
-        console.error(err)
-      }
+      )
+
+      const data = response.data.data
+      setSales(data)
+    } catch (err) {
+      console.error(err)
     }
+  }
 
-    const getSales = async () => {
-      const url =
-        userRole === 'Store Staff' || userRole === 'Store CS'
-          ? `${apiUrl}/sales?take=0&top_best=true&order_by=desc&store_id=${userStore}`
-          : `${apiUrl}/sales?take=0&top_best=true&order_by=desc${storeId}`
+  useEffect(() => {
+    getOrder(1, 10, '')
+  }, [])
 
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        const data = response.data.data
-        setSales(data)
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    getStore()
+  useEffect(() => {
     getSales()
-  }, [userRole, selectedStore?.value])
-
-  useEffect(() => {
-    fetchOrderData()
-  }, [dateFrom, dateTo])
-
-  useEffect(() => {
     getReportOrder()
   }, [])
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    if (dateFrom) {
+      queryparams += `date_from=${dateFrom}`
+    }
+
+    if (dateTo) {
+      queryparams += `date_to=${dateTo}`
+    }
+
+    const data = await getOrder(1, 10, queryparams)
+    setOrderData(data)
+
+    setLoadingButton(false)
+  }
 
   return (
     <>
@@ -184,7 +162,15 @@ const DashboardStore: FC = () => {
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12} className='mb-5'></Col>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+          <Button
+            className='btn-dark-primary button-submit'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </Col>
       </Row>
 
       <Row className='gy-5 g-xl-8'>

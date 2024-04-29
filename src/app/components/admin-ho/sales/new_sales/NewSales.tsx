@@ -65,6 +65,7 @@ const NewSales: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
   const [pageSize, setPageSize] = useState<number>(10)
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -211,19 +212,18 @@ const NewSales: FC = () => {
       : ''
 
   // Fetch Sales List
-  const fetchSalesList = async (page: number, pageSize: number) => {
+  const fetchSalesList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/sales?order_by=desc&page=${page}&take=${pageSize}${storeId}${queryparams}`
+
     try {
-      const response = await axios.get(
-        `${apiUrl}/sales?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)
@@ -233,9 +233,9 @@ const NewSales: FC = () => {
     }
   }
 
-  const ViewSales = async (page: number, pageSize: number) => {
+  const ViewSales = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchSalesList(page, pageSize)
+      const apiData = await fetchSalesList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchVendorList')
@@ -270,14 +270,14 @@ const NewSales: FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewSales(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewSales(page, pageSize, queryparams)
     setSalesData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter, selectedStore])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -623,6 +623,29 @@ const NewSales: FC = () => {
     navigate('/home')
   }
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    let queryparams = ``
+
+    if (dateFrom) {
+      queryparams += `&date_from=${dateFrom}`
+    }
+
+    if (dateTo) {
+      queryparams += `&date_to=${dateTo}`
+    }
+
+    if (searchFilter) {
+      queryparams += `&search=${searchFilter}`
+    }
+
+    const data = await ViewSales(1, 10, queryparams)
+    setSalesData(data)
+
+    setLoadingButton(false)
+  }
+
   return (
     <>
       <section id='new-sales'>
@@ -853,16 +876,34 @@ const NewSales: FC = () => {
               </Col>
 
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-                {userRole === 'Admin HO' && (
-                  <Select
-                    name='store_id'
-                    className='form-control p-0'
-                    classNamePrefix='select'
-                    placeholder='Pilih Toko'
-                    isSearchable={true}
-                    options={store}
-                    onChange={(newValue) => setSelectedStore(newValue)}
-                  />
+                {userRole === 'Admin HO' ? (
+                  <div className='d-flex'>
+                    <Select
+                      name='store_id'
+                      className='form-control p-0'
+                      classNamePrefix='select'
+                      placeholder='Pilih Toko'
+                      isSearchable={true}
+                      options={store}
+                      onChange={(newValue) => setSelectedStore(newValue)}
+                    />
+
+                    <Button
+                      className='btn-dark-primary button-submit'
+                      disabled={loadingButton}
+                      onClick={handleSubmitFilter}
+                    >
+                      {loadingButton ? 'Filtering..' : 'Submit'}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    className='btn-dark-primary button-submit'
+                    disabled={loadingButton}
+                    onClick={handleSubmitFilter}
+                  >
+                    {loadingButton ? 'Filtering..' : 'Submit'}
+                  </Button>
                 )}
               </Col>
             </Row>
@@ -882,7 +923,7 @@ const NewSales: FC = () => {
                 pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
                 onShowSizeChange: (current, size) => setPageSize(size),
                 onChange: (page, pageSize) => {
-                  fetchData(page, pageSize)
+                  fetchData(page, pageSize, '')
                 },
                 itemRender: itemRender,
                 showTotal: (total, range) => (

@@ -49,13 +49,6 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     }
   }, [isPrinting])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   // Handle Print Order
   const handlePrintOrder = async () => {
     try {
@@ -71,7 +64,6 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           },
         })
 
-        // fetchOrderData()
         .then(() => {
           setIsPrinting(true)
         })

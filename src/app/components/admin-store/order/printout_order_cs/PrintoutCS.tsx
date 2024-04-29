@@ -4,15 +4,18 @@ import './PrintoutCS.css'
 
 import {Orders} from '../../../../interfaces/order'
 import axios from 'axios'
-import {useParams} from 'react-router-dom'
+import Swal from 'sweetalert2'
+import {useNavigate, useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
-import {Table, Row, Col, Card} from 'react-bootstrap'
+import {Table, Row, Col, Card, Button} from 'react-bootstrap'
 
 const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
+  const navigate = useNavigate()
 
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [isPrinting, setIsPrinting] = useState<boolean>(false)
 
   const fetchOrderData = async () => {
     try {
@@ -39,11 +42,49 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
     fetchOrderData()
   }, [])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  useEffect(() => {
+    if (isPrinting) {
+      window.print()
+      setIsPrinting(false)
+    }
+  }, [isPrinting])
+
+  // Handle Print
+  const handlePrintOrder = async () => {
+    try {
+      await axios
+        .request({
+          url: `${apiUrl}/orders/${params.id}/counter`,
+          method: 'post',
+          maxBodyLength: Infinity,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        // fetchOrderData()
+        .then(() => {
+          setIsPrinting(true)
+        })
+        .catch((error) => {
+          console.error(error)
+
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // Handle Cancel Print
+  const handleCancelPrint = () => {
+    navigate(`/order/update-order/${params.id}`)
   }
 
   // Grand Total Order
@@ -367,6 +408,16 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
 
           <div className='footer-card'>
             <h1 className='fs-3 fw-semibold'>Hormat Kami, Mitra10</h1>
+          </div>
+
+          <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
+            <Button className='hide-print-button' variant='dark-danger' onClick={handleCancelPrint}>
+              Cancel
+            </Button>
+
+            <Button className='hide-print-button' variant='dark-primary' onClick={handlePrintOrder}>
+              {orderDetail?.print_counter < 1 ? 'Print' : 'Reprint'}
+            </Button>
           </div>
         </Card.Body>
       </Card>
