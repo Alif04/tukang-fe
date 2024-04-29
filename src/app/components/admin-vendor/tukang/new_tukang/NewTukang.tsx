@@ -292,13 +292,6 @@ const NewTukangVendor: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (tukang.ktp_number === '') {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill KTP number form',
-        icon: 'error',
-      })
-      valid = false
     } else if (tukang.bod === '') {
       Swal.fire({
         title: 'Error',
