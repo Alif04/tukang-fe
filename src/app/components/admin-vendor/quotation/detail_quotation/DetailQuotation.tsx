@@ -71,7 +71,11 @@ const DetailQuotationVendor: FC = () => {
               <h3 className='fw-bolder'>
                 Tanggal :
                 <span className='ms-1 fw-normal'>
-                  {quotationDetail ? formatDate(new Date(quotationDetail.quotation_date)) : ''}
+                  {new Date(quotationDetail?.quotation_date).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
                 </span>
               </h3>
 
@@ -168,7 +172,6 @@ const DetailQuotationVendor: FC = () => {
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
-                  <th className='text-center'>Total</th>
                   <th className='text-center'>Keterangan</th>
                 </tr>
               </thead>
@@ -179,27 +182,17 @@ const DetailQuotationVendor: FC = () => {
                     <>
                       <tr>
                         <td>{item?.name ?? '-'}</td>
-                        <td>{item?.quantity}</td>
+                        <td>{item?.quantity ?? 0}</td>
                         <td>{item?.unit ?? '-'}</td>
-                        <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                         <td>{item?.description ? '' : '-'}</td>
                       </tr>
                     </>
                   ))}
 
-                {/* <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
-                    Total
-                  </td>
-                  <td className=' fw-bolder'>{`Rp. ${parseInt(
-                    quotationDetail?.quotation_grand_total
-                  ).toLocaleString('id')}`}</td>
-                </tr> */}
-
                 <tr>
                   <td colSpan={5} className='text-end fw-bolder'>
-                    Tax ( 11 % )
+                    Promosi / Discount
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${parseInt(
                     quotationDetail?.quotation_disc

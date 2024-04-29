@@ -14,6 +14,7 @@ const AsideDefault: FC = () => {
   const username = localStorage.getItem('username')
   const fullName = localStorage.getItem('employeeName')
   const vendorName = localStorage.getItem('vendorName')
+  const tukangName = localStorage.getItem('tukangName')
   const salesName = localStorage.getItem('salesName')
   const role = localStorage.getItem('userRole')
 
@@ -80,7 +81,7 @@ const AsideDefault: FC = () => {
               : role === 'Admin HO'
               ? username
               : role === 'Tukang'
-              ? username
+              ? tukangName
               : fullName}
             <br />({role}){' '}
           </h6>

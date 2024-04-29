@@ -48,16 +48,17 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
 
   // Grand Total Order
   const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total} = orderDetail ?? {}
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
 
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? grand_total : 0
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? grand_total : grand_total ?? 0
+      totalAmount =
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? grand_total : 99000 ?? 0
+      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -85,7 +86,11 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
                 <h1 className='fs-5 fw-bold mb-2 text-black'>
                   Tanggal Order :{' '}
                   <span className='fw-normal text-black'>
-                    {orderDetail ? formatDate(new Date(orderDetail?.created_at)) : '-'}
+                    {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
                   </span>
                 </h1>
 
@@ -103,7 +108,11 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
                   })()}{' '}
                   :{' '}
                   <span className='fw-normal text-black'>
-                    {orderDetail ? formatDate(new Date(orderDetail?.request_survey)) : '-'}
+                    {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
                   </span>
                 </h1>
               </div>

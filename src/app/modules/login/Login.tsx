@@ -44,6 +44,7 @@ export function Login() {
           const user = res.data.user
           const isSales = user.roles.name === 'Sales'
           const isVendor = user.roles.name === 'Admin Vendor'
+          const isTukang = user.roles.name === 'Tukang'
           const isEmployee = user.employee !== null && !isSales && !isVendor
 
           localStorage.setItem('user_id', res.data.user.id)
@@ -52,10 +53,10 @@ export function Login() {
           localStorage.setItem('accessToken', res.data.accessToken)
 
           if (isSales) {
-            localStorage.setItem('sales_id', user?.sales?.id)
-            localStorage.setItem('salesName', user?.sales?.full_name)
-            localStorage.setItem('storeId', user?.sales?.store?.id)
-            localStorage.setItem('storeName', user?.sales?.store?.store_name)
+            localStorage.setItem('sales_id', user?.sales[0]?.id)
+            localStorage.setItem('salesName', user?.sales[0]?.full_name)
+            localStorage.setItem('storeId', user?.sales[0]?.store?.id)
+            localStorage.setItem('storeName', user?.sales[0]?.store?.store_name)
           } else if (isEmployee) {
             localStorage.setItem('storeId', user?.employee?.store?.id)
             localStorage.setItem('employeeName', user?.employee?.full_name)
@@ -63,6 +64,9 @@ export function Login() {
           } else if (isVendor) {
             localStorage.setItem('vendor_id', user?.vendor?.id)
             localStorage.setItem('vendorName', user?.vendor?.company_name)
+          } else if (isTukang) {
+            localStorage.setItem('tukang_id', user?.tukang[0]?.id)
+            localStorage.setItem('tukangName', user?.tukang[0]?.full_name)
           } else if (!isSales && !isEmployee && !isVendor) {
             window.location.reload()
           }
