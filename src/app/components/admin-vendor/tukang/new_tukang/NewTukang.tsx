@@ -266,44 +266,44 @@ const NewTukangVendor: FC = () => {
 
     if (tukang.full_name === '') {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tukang name form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (tukang.address === '') {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tukang address form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (tukang.email === '') {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tukang email form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (tukang.phone_number === '') {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tukang phone number form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (tukang.bod === '') {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tukang birth form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (tukang.username === '') {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill username form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }
