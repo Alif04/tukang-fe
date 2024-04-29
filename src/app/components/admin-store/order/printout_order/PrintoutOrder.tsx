@@ -96,16 +96,18 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Grand Total Order
   const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total} = orderDetail ?? {}
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
 
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? grand_total : 0
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? grand_total : grand_total ?? 0
+      totalAmount =
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? grand_total : 99000 ?? 0
+      totalAmount =
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -132,7 +134,12 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             <div className='body-printout d-flex justify-content-center align-items-center flex-column mt-5'>
               <h2 className='fw-bold text-center'>Instalasi & Service</h2>
               <h4 className='fw-normal text-center'>
-                Tanggal : {orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}
+                Tanggal :{' '}
+                {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
               </h4>
             </div>
           </Row>
@@ -177,7 +184,13 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 <tr>
                   <td className='fw-bold'>Tanggal Order</td>
                   <td className='fw-bold'>:</td>
-                  <td>{orderDetail ? formatDate(new Date(orderDetail.created_at)) : ''}</td>
+                  <td>
+                    {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </td>
                 </tr>
 
                 <tr>
@@ -193,7 +206,14 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       : 'Request Tanggal Pengerjaan'}
                   </td>
                   <td className='fw-bold'>:</td>
-                  <td>{orderDetail ? formatDate(new Date(orderDetail.request_survey)) : ''}</td>
+                  <td>
+                    {' '}
+                    {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </td>
                 </tr>
 
                 <tr>

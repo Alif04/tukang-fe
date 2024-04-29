@@ -7,7 +7,7 @@ type Props = {
 }
 
 const TransactionWidget: React.FC<Props> = ({orderData}) => {
-  const filteredOrderData = orderData.slice(0, 4)
+  const filteredOrderData = orderData?.slice(0, 4)
 
   const formatDate = (date: any) => {
     const months = [
@@ -39,16 +39,16 @@ const TransactionWidget: React.FC<Props> = ({orderData}) => {
 
       <div
         className={
-          filteredOrderData.length === 0
+          filteredOrderData?.length === 0
             ? 'card-body d-flex justify-content-center align-items-center pt-2'
             : 'card-body pt-2'
         }
       >
         <div className='transaction-wrapper'>
-          {filteredOrderData.length === 0 ? (
+          {filteredOrderData?.length === 0 ? (
             <div className='text-center'>Tidak ada order dibulan ini</div>
           ) : (
-            filteredOrderData.map((item: any) => (
+            filteredOrderData?.map((item: any) => (
               <div className='d-flex align-items-center mb-7' key={item.id}>
                 <div className='flex-grow-1 me-2'>
                   <div className='fw-bolder text-gray-800 fs-5'>

@@ -143,7 +143,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 90,
+      width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''

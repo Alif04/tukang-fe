@@ -53,13 +53,12 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
       totalAmount =
-        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
+      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -181,10 +180,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   <tr>
                     <td
                       colSpan={
-                        orderDetail?.payment_type !== 'gratis' ||
-                        orderDetail?.payment_type !== 'pemasangan_tanpa_survey'
+                        orderDetail?.payment_type === 'survey'
                           ? 3
-                          : 6
+                          : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                          ? 5
+                          : 0
                       }
                       className='text-end fw-bolder'
                     >
@@ -207,16 +207,12 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                   <td
                     className='text-end fw-bolder'
                     colSpan={
-                      !(
-                        orderDetail?.payment_type === 'gratis' ||
-                        orderDetail?.payment_type === 'survey'
-                      )
-                        ? orderDetail?.order?.order_details.length >= 2
-                          ? 6
-                          : 5
-                        : orderDetail?.order?.order_details.length === 1
+                      orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'survey'
                         ? 3
-                        : 4
+                        : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                        ? 5
+                        : 0
                     }
                   >
                     Biaya Tambahan
@@ -230,7 +226,14 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               {(orderDetail?.payment_type !== 'survey' || orderDetail?.is_overdistance === 1) && (
                 <tr>
                   <td
-                    colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                    colSpan={
+                      orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'survey'
+                        ? 3
+                        : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                        ? 5
+                        : 0
+                    }
                     className='text-end fw-bolder'
                   >
                     Grand Total

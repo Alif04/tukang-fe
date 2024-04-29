@@ -45,10 +45,12 @@ const NewQuotationVendor: FC = () => {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Fetch Data Order
-  const [order, setOrder] = useState<any>()
-  const [orderId, setOrderId] = useState<string>('')
-  const [orderDetail, setOrderDetail] = useState<any>()
+  // Fetch Data Work Order
+  const [workOrder, setWorkOrder] = useState<any>()
+  const [workOrderId, setWorkOrderId] = useState<string>('')
+  const [workOrderDetail, setWorkOrderDetail] = useState<any>()
+
+  console.log('id', workOrderDetail)
 
   // Add Quotation
   const [quotationStatus, setQuotationStatus] = useState<any>()
@@ -162,32 +164,35 @@ const NewQuotationVendor: FC = () => {
     }
   }
 
-  const getOrder = async () => {
+  const getWorkOrder = async () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
-      ['SURVEYSTART', 'SURVEYREQ', 'SURVEYDONE'].includes(status?.category)
+      ['SURVEYDONE'].includes(status?.category)
     )
 
     if (desiredStatus) {
       const statuses = desiredStatus.map((x) => x.value)
 
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0&status=${statuses}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/work-orders?order_by=desc&take=0&status=${statuses}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
-        const tempOrder = response.data.data.map((item: any) => ({
+        const tempWorkOrder = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.id,
         }))
 
-        setOrder(tempOrder)
+        setWorkOrder(tempWorkOrder)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -196,10 +201,10 @@ const NewQuotationVendor: FC = () => {
     }
   }
 
-  const getOrderDetail = async () => {
+  const getWorkOrderDetail = async () => {
     try {
       await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
+        .get(`${apiUrl}/work-orders/${workOrderId}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -209,21 +214,21 @@ const NewQuotationVendor: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
-          setOrderDetail(data)
+          setWorkOrderDetail(data)
 
-          if (data?.order_details && data?.work_orders?.work_order_status) {
-            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+          if (data?.work_order_status) {
+            const workOrderItem = data.work_order_status[0].work_order_items.map(
               (item: any, index: number) => ({
-                id: item.id,
+                id: item?.id,
                 index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
-                type: item.type,
+                type: item?.type,
                 item_id: null,
                 work_order_item_id: item.item_id,
                 category_id: null,
-                item_name: item.name,
-                quantity: item.quantity,
+                item_name: item?.name,
+                quantity: item?.quantity,
                 unit: item?.unit ?? '',
-                is_user: item.is_customer ? 1 : 0,
+                is_user: item?.is_customer ? 1 : 0,
                 unit_price: 0,
                 final_price: 0,
                 margin: 0,
@@ -234,8 +239,8 @@ const NewQuotationVendor: FC = () => {
             setQuotationDetail(workOrderItem)
           }
 
-          if (data?.store) {
-            setStoreId(data.store.id)
+          if (data?.order?.store) {
+            setStoreId(data.order.store.id)
           }
         })
     } catch (err) {
@@ -264,20 +269,20 @@ const NewQuotationVendor: FC = () => {
   }
 
   useEffect(() => {
-    getOrder()
+    getWorkOrder()
     getStore()
     getCode()
   }, [])
 
   useEffect(() => {
-    if (orderId) {
-      getOrderDetail()
+    if (workOrderId) {
+      getWorkOrderDetail()
     }
 
     if (storeId) {
       getStoreDetail()
     }
-  }, [orderId, storeId])
+  }, [workOrderId, storeId])
 
   // Format Date
   const formatDate = (date: any) => {
@@ -318,10 +323,10 @@ const NewQuotationVendor: FC = () => {
     return hash
   }
 
-  // Select Order
-  const handleChangeSelectOrder = (element: any) => {
-    const selectedOrder = element.value
-    setOrderId(selectedOrder)
+  // Select Work Order
+  const handleSelectWorkOrder = (element: any) => {
+    const selectedWorkOrder = element.value
+    setWorkOrderId(selectedWorkOrder)
   }
 
   // Quotation Status
@@ -448,7 +453,6 @@ const NewQuotationVendor: FC = () => {
   // Calculate Detail
   const calcEachDetails = (isNominal: number) => {
     setQuotationDetail((prev) => {
-      console.log(isNominal)
       const updatedQuotationDetail = [...prev]
 
       updatedQuotationDetail.forEach((detail) => {
@@ -533,7 +537,7 @@ const NewQuotationVendor: FC = () => {
   const QuotationValidation = () => {
     let valid = true
 
-    if (!orderId) {
+    if (!workOrderDetail.order.id) {
       Swal.fire({
         title: 'Error',
         text: 'Please select order Id',
@@ -564,7 +568,7 @@ const NewQuotationVendor: FC = () => {
       setIsLoading(true)
       const formData = new FormData()
 
-      formData.append('order_id', orderId)
+      formData.append('order_id', workOrderDetail.order.id)
       formData.append('store_id', storeId)
       formData.append('quotation_status', quotationStatus)
       formData.append('description', quotationDescription)
@@ -665,20 +669,22 @@ const NewQuotationVendor: FC = () => {
 
                   <Col>
                     <Form.Label className='fs-3 fw-bold'>
-                      {orderDetail?.store?.store_name}
+                      {workOrderDetail?.order?.store?.store_name}
                     </Form.Label>
                   </Col>
                 </Form.Group>
 
                 <Form.Group>
-                  <Form.Label className='fs-5 fw-bold'>{orderDetail?.store?.address}</Form.Label>
+                  <Form.Label className='fs-5 fw-bold'>
+                    {workOrderDetail?.order?.store?.address}
+                  </Form.Label>
 
                   <Col>
                     <Form.Label className='fs-5 fw-bold'>
-                      {orderDetail?.store?.phone_number_1
+                      {workOrderDetail?.order?.store?.phone_number_1
                         ? `Telp : ${
-                            orderDetail?.store?.phone_number_1 ??
-                            orderDetail?.store?.phone_number_2 ??
+                            workOrderDetail?.order?.store?.phone_number_1 ??
+                            workOrderDetail?.order?.store?.phone_number_2 ??
                             'Nomor Telepon tidak tersedia'
                           }`
                         : ''}
@@ -702,7 +708,7 @@ const NewQuotationVendor: FC = () => {
                     plaintext
                     className='fs-2 fw-bold text-black'
                     type='text'
-                    value={orderDetail?.work_orders?.work_order_status[0]?.status.category}
+                    value={workOrderDetail?.work_order_status[0]?.status?.description}
                   />
                 </Col>
               </Form.Group>
@@ -728,8 +734,8 @@ const NewQuotationVendor: FC = () => {
                     className='form-control p-0'
                     placeholder='Ketik/Pilih Order Id'
                     isSearchable={true}
-                    options={order}
-                    onChange={(e) => handleChangeSelectOrder(e)}
+                    options={workOrder}
+                    onChange={(e) => handleSelectWorkOrder(e)}
                   />
                 </Col>
               </Form.Group>
@@ -750,7 +756,11 @@ const NewQuotationVendor: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='number' readOnly value={orderDetail?.members.member_number} />
+                  <Form.Control
+                    type='number'
+                    readOnly
+                    value={workOrderDetail?.order?.members?.member_number}
+                  />
                 </Col>
               </Form.Group>
 
@@ -777,13 +787,15 @@ const NewQuotationVendor: FC = () => {
               <div className='receiver-information'>
                 <div className='receiver-detail'>
                   <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                  <h1 className='fw-bolder mt-2'>{orderDetail?.members.full_name}</h1>
+                  <h1 className='fw-bolder mt-2'>{workOrderDetail?.order?.members.full_name}</h1>
                 </div>
 
                 <div className='address'>
-                  <h3 className='fw-normal'>{orderDetail?.project_address}</h3>
+                  <h3 className='fw-normal'>{workOrderDetail?.order?.project_address}</h3>
                   <h3 className='fw-normal'>
-                    {orderDetail?.project_number ? `Telp : ${orderDetail?.project_number}` : ''}
+                    {workOrderDetail?.order?.project_number
+                      ? `Telp : ${workOrderDetail?.order?.project_number}`
+                      : ''}
                   </h3>
                 </div>
               </div>

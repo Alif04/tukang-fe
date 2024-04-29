@@ -9,7 +9,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faFilter, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -24,7 +24,7 @@ interface Status {
 }
 
 interface DataType {
-  order_id: number
+  work_order_id: number
   store_name: string
   date_order: string
   costumer_id: number
@@ -39,8 +39,9 @@ interface DataType {
 const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const tukangId = localStorage.getItem('tukang_id')
 
-  const [orderData, setOrderData] = useState<DataType[]>([])
+  const [workOrderData, setWorkOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -55,14 +56,14 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'Order ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
+      title: 'Work Order ID',
+      dataIndex: 'work_order_id',
+      key: 'work_order_id',
       align: 'center',
-      width: 80,
+      width: 100,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
+      sorter: (a, b) => a.work_order_id - b.work_order_id,
     },
     {
       title: 'Nama Store',
@@ -141,7 +142,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 90,
+      width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -188,12 +189,12 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       width: 50,
       render: (record) => {
         const handleDetailId = () => {
-          const id = record.order_id
+          const id = record.work_order_id
           navigate(`/work-order/detail-work-order/${id}`)
         }
 
         const handleUpdateId = () => {
-          const id = record.order_id
+          const id = record.work_order_id
           navigate(`/work-order/update-work-order/${id}`)
         }
 
@@ -219,98 +220,71 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async (page: number, pageSize: number) => {
+  const fetchWorkOrder = async (page: number, pageSize: number) => {
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: any) =>
-        [
-          'SURVEYREQ',
-          'SURVEYSTART',
-          'SURVEYDONE',
-          'WORKREQ',
-          'WORKSTART',
-          'WIP',
-          'WORKEND',
-          'REWORK',
-          'REWORKSTART',
-          'RIP',
-          'REWORKEND',
-          'RESCHEDULE',
-          'QUOTEIN',
-          'QUOTEOUT',
-        ].includes(status.category)
+      const response = await axios.get(
+        `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&tukang_id=${tukangId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
       )
 
-      if (desiredStatus) {
-        const statuses = desiredStatus.map((x) => x.value)
+      setCurrentPage(response.data.page)
+      setTotalData(response?.data?.total ?? 0)
 
-        const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-
-        setCurrentPage(response.data.page)
-        setTotalData(response?.data?.total ?? 0)
-
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewOrder = async (page: number, pageSize: number) => {
+  const ViewWorkOrder = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await fetchWorkOrder(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetchWorkOrder')
         return []
       }
 
-      const orderData = apiData.map((item: any) => {
+      const workOrderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.created_at)
+        const orderDate = new Date(item?.order?.created_at)
 
         const paymentStatus = (() => {
-          if (item?.payment_type === 'survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
-          } else if (item?.payment_type === 'gratis') {
+          if (item?.order?.payment_type === 'survey') {
+            return item?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.order?.payment_type === 'gratis') {
             return 'FREE'
-          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.order?.payment_type === 'pemasangan_tanpa_survey') {
+            return item?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
           } else {
             return ''
           }
         })()
 
         let orderStatus =
-          item.work_orders === null
-            ? item?.status?.category
-            : item?.work_orders?.work_order_status[0]?.status?.category
+          item?.work_order_status[0].length === 0
+            ? item?.order?.status?.description
+            : item?.work_order_status[0]?.status?.description
 
         data = {
-          order_id: item.id,
-          store_name: item.store.store_name,
+          work_order_id: item.id,
+          store_name: item?.order?.store?.store_name ?? '-',
           date_order: formatDate(orderDate),
-          costumer_id: item.members.member_number,
-          costumer_name: item.members.full_name,
-          phone_number: item?.project_number,
-          item_name: item.m_order_details[0]?.item_name ?? '-',
+          costumer_id: item?.order?.members.member_number,
+          costumer_name: item?.order?.members.full_name,
+          phone_number: item?.order?.project_number,
+          item_name: item?.order?.m_order_details[0]?.item_name ?? '-',
           services_name:
-            item.payment_type === 'survey'
-              ? item.m_order_details[0]?.item_notes ?? '-'
-              : item.m_order_details[0]?.item?.service_name ?? '-',
+            item.order?.payment_type === 'survey'
+              ? item.order?.m_order_details[0]?.item_notes ?? '-'
+              : item.order?.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status: orderStatus,
         }
@@ -318,7 +292,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         return data
       })
 
-      return orderData
+      return workOrderData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
@@ -326,8 +300,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   }
 
   const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
-    setOrderData(data)
+    const data = await ViewWorkOrder(page, pageSize)
+    setWorkOrderData(data)
   }
 
   useEffect(() => {
@@ -393,8 +367,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             className='table-striped-rows'
             bordered
             columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.order_id}
+            dataSource={workOrderData}
+            rowKey={(record) => record.work_order_id}
             scroll={{x: 1700}}
             pagination={{
               position: ['bottomRight'],

@@ -174,17 +174,7 @@ const WarrantyClaimListVendor: React.FC<Props> = ({className}) => {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
       const desiredStatus = statusData.filter((status: Status) =>
-        [
-          'SURVEYSTART',
-          'WORKSTART',
-          'WIP',
-          'WORKEND',
-          'REWORK',
-          'REWORKSTART',
-          'RIP',
-          'REWORKEND',
-          'RESCHEDULE',
-        ].includes(status.category)
+        ['WORKEND'].includes(status.category)
       )
 
       if (desiredStatus) {

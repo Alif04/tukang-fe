@@ -1,5 +1,4 @@
-import React, {FC, useState, useEffect, SetStateAction} from 'react'
-import {Orders} from '../../../../interfaces/order'
+import React, {FC, useState, useEffect} from 'react'
 
 import './DetailWorkOrder.css'
 
@@ -14,19 +13,19 @@ interface Status {
   category: string
 }
 
-const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
+const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
 
-  const [orderDetail, setOrderDetail] = useState<any>()
+  const [workOrderDetail, setWorkOrderDetail] = useState<any>()
 
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
 
-  const fetchOrderData = async () => {
+  const getWorkOrderData = async () => {
     try {
       await axios
-        .get(`${apiUrl}/orders/${params.id}`, {
+        .get(`${apiUrl}/work-orders/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -36,7 +35,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
         })
         .then((response) => {
           const data = response.data.data
-          setOrderDetail(data)
+          setWorkOrderDetail(data)
           updatePageTitle(data)
         })
     } catch (error) {
@@ -45,7 +44,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   }
 
   useEffect(() => {
-    fetchOrderData()
+    getWorkOrderData()
   }, [])
 
   const formatDate = (date: any) => {
@@ -122,19 +121,18 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   ]
 
   // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
+  const calculateTotal = (workOrderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total, additional_fee} = workOrderDetail ?? {}
 
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
       totalAmount =
-        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
+      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -150,7 +148,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
                   <span className='fs-4 ms-2 fw-normal'>
-                    {orderDetail?.store?.store_name ?? ''}
+                    {workOrderDetail?.order?.store?.store_name ?? ''}
                   </span>
                 </Form.Label>
               </Col>
@@ -158,16 +156,15 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
-                    Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id ?? ''}</span>
+                    Order ID :{' '}
+                    <span className='fs-4 ms-2 fw-normal'>{workOrderDetail?.order_id ?? ''}</span>
                   </Form.Label>
                 </Col>
 
                 <Col>
                   <Form.Label className='fs-4 fw-bold'>
                     Work Order ID :{' '}
-                    <span className='fs-4 ms-2 fw-normal'>
-                      {orderDetail?.work_orders?.id ?? '-'}
-                    </span>
+                    <span className='fs-4 ms-2 fw-normal'>{workOrderDetail?.id ?? '-'}</span>
                   </Form.Label>
                 </Col>
               </Col>
@@ -177,7 +174,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Form.Label className='fs-4 fw-bold'>
                     Receipt Number :
                     <span className='fs-4 ms-2 fw-normal'>
-                      {orderDetail?.receipt_number ?? '-'}
+                      {workOrderDetail?.order?.receipt_number ?? '-'}
                     </span>
                   </Form.Label>
                 </Col>
@@ -186,9 +183,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {orderDetail?.work_orders === null
-                        ? orderDetail?.status?.description
-                        : orderDetail?.work_orders?.work_order_status[0]?.status?.description ?? ''}
+                      {workOrderDetail?.work_order_status[0].length === 0
+                        ? workOrderDetail?.status?.description
+                        : workOrderDetail?.work_order_status[0]?.status?.description ?? ''}
                     </span>
                   </Form.Label>
                 </Col>
@@ -205,7 +202,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.members?.member_number ?? ''}</p>
+                        <p className='fs-7'>
+                          {workOrderDetail?.order?.members?.member_number ?? ''}
+                        </p>
                       </Col>
                     </Form.Group>
 
@@ -214,7 +213,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.members?.full_name ?? ''}</p>
+                        <p className='fs-7'>{workOrderDetail?.order?.members?.full_name ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -223,7 +222,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         Alamat Pemasangan
                       </Form.Label>
                       <Col sm='6'>
-                        <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
+                        <p className='fs-7'>{workOrderDetail?.order?.project_address ?? ''}</p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -235,7 +234,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       </Form.Label>
 
                       <Col sm='8'>
-                        <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
+                        <p className='fs-7'>{workOrderDetail?.order?.project_number ?? ''}</p>
                       </Col>
                     </Form.Group>
 
@@ -245,7 +244,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       </Form.Label>
 
                       <Col sm='8'>
-                        <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
+                        <p className='fs-7'>{workOrderDetail?.order?.members?.email ?? ''} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -255,23 +254,19 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <Row>
                   {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                    orderDetail?.work_orders !== null
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                      : orderDetail?.status?.category
+                    workOrderDetail?.work_order_status.length
+                      ? workOrderDetail?.work_order_status[0]?.status?.category
+                      : workOrderDetail?.order?.status?.category
                   ) && (
                     <Col>
                       <div className='survey mb-3'>
                         <div className='detail-info mb-3'>
                           <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
                           <p className='fs-7'>
-                            {orderDetail?.payment_type === 'survey' ? (
+                            {workOrderDetail?.order?.payment_type === 'survey' ? (
                               <>
-                                {orderDetail?.work_orders !== null ? (
-                                  <>
-                                    {formatDateTime(
-                                      new Date(orderDetail?.work_orders?.survey_date)
-                                    )}
-                                  </>
+                                {workOrderDetail?.work_order_status.length ? (
+                                  <>{formatDateTime(new Date(workOrderDetail?.survey_date))}</>
                                 ) : (
                                   'Jadwal belum diset oleh vendor'
                                 )}
@@ -286,11 +281,11 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                         <div className='detail-info mb-3'>
                           <p className='fs-5 fw-bold'>Oleh:</p>
-                          {orderDetail?.payment_type === 'survey' ? (
+                          {workOrderDetail?.order?.payment_type === 'survey' ? (
                             <>
-                              {orderDetail?.work_orders !== null ? (
+                              {workOrderDetail?.work_order_status.length ? (
                                 <p className='fs-7'>
-                                  {orderDetail?.work_orders?.work_order_tukang
+                                  {workOrderDetail?.work_order_tukang
                                     .filter((x: any) => x.type === 1)
                                     .map((item: any) => item?.tukang?.full_name)
                                     .join(', ')}
@@ -310,8 +305,8 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   )}
 
                   {[
-                    'WORKREQ',
                     'WORKSTART',
+                    'WORKREQ',
                     'WIP',
                     'WORKEND',
                     'REWORK',
@@ -321,9 +316,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     'RESCHEDULE',
                     'DONE',
                   ].includes(
-                    orderDetail?.work_orders !== null
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                      : orderDetail?.status?.category
+                    workOrderDetail?.work_order_status.length
+                      ? workOrderDetail?.work_order_status[0]?.status?.category
+                      : workOrderDetail?.order?.status?.category
                   ) && (
                     <Col>
                       <div className='work-date'>
@@ -336,7 +331,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                           <Col sm='9'>
                             <p className='fs-7'>
-                              {formatDateTime(new Date(orderDetail?.work_orders?.work_start_date))}
+                              {formatDateTime(new Date(workOrderDetail?.work_start_date))}
                             </p>
                           </Col>
                         </Form.Group>
@@ -348,7 +343,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                           <Col sm='9'>
                             <p className='fs-7'>
-                              {formatDateTime(new Date(orderDetail?.work_orders?.work_end_date))}
+                              {formatDateTime(new Date(workOrderDetail?.work_end_date))}
                             </p>
                           </Col>
                         </Form.Group>
@@ -357,7 +352,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <p className='fs-5 fw-bold'>Oleh:</p>
 
                           <p className='fs-7'>
-                            {orderDetail?.work_orders?.work_order_tukang
+                            {workOrderDetail?.work_order_tukang
                               .filter((x: any) => x.type === 2)
                               .map((item: any) => item?.tukang?.full_name)
                               .join(', ')}
@@ -378,14 +373,16 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>Tanggal request pemasangan :</Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>{formatDate(new Date(orderDetail?.request_survey))}</p>
+                    <p className='fs-7 p-0'>
+                      {formatDate(new Date(workOrderDetail?.order?.request_survey))}
+                    </p>
                   </Col>
                 </Form.Group>
 
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
+                    <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
                   </Col>
                 </Form.Group>
 
@@ -394,11 +391,13 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Col>
                     <p className='fs-7 p-0'>
                       {(() => {
-                        if (orderDetail?.payment_type === 'survey') {
+                        if (workOrderDetail?.order?.payment_type === 'survey') {
                           return `Berbayar & Survey`
-                        } else if (orderDetail?.payment_type === 'gratis') {
+                        } else if (workOrderDetail?.order?.payment_type === 'gratis') {
                           return `Gratis`
-                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                        } else if (
+                          workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
+                        ) {
                           return `Berbayar & Pemasangan Tanpa Survey`
                         } else {
                           return ``
@@ -413,12 +412,12 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             {/* Newest */}
             {(() => {
               if (
-                orderDetail?.payment_type === 'survey' &&
-                orderDetail?.work_orders?.work_order_status.length === 1
+                workOrderDetail?.order?.payment_type === 'survey' &&
+                workOrderDetail?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {orderDetail?.is_overdistance === 1 && (
+                    {workOrderDetail?.order?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari
@@ -439,7 +438,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       </thead>
 
                       <tbody>
-                        {orderDetail?.order_details?.map((item: any, index: any) => (
+                        {workOrderDetail?.order?.m_order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -458,7 +457,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
 
-                        {orderDetail?.is_overdistance === 1 && (
+                        {workOrderDetail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder align-middle'>
@@ -466,7 +465,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.additional_fee
+                                workOrderDetail?.order?.additional_fee
                               ).toLocaleString('id')}`}</td>
                             </tr>
 
@@ -475,7 +474,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                              <td className=' fw-bolder'>
+                                {calculateTotal(workOrderDetail?.order)}
+                              </td>
                             </tr>
                           </>
                         )}
@@ -484,12 +485,12 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
-                orderDetail?.payment_type === 'survey'
+                ['QUOTEIN', 'QUOTEOUT'].includes(workOrderDetail?.order?.status?.category ?? '') &&
+                workOrderDetail?.order?.payment_type === 'survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {orderDetail?.is_overdistance === 1 && (
+                    {workOrderDetail?.order?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari
@@ -502,63 +503,123 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th className='text-center'>Jenis Jasa</th>
-                          <th className='text-center'>QTY</th>
-                          <th className='text-center'>Satuan</th>
-                          <th className='text-center'>Price</th>
-                          <th className='text-center'>Total</th>
-                          <th className='text-center'>Keterangan</th>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Price
+                          </th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details.map(
-                          (item: any, index: any) => (
+                        {workOrderDetail?.order?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 2)
+                          .map((item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
-                              <td>{item?.name ?? '-'}</td>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{item?.description ? '' : '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                             </tr>
-                          )
-                        )}
+                          ))}
 
                         <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total
+                          </td>
+
+                          <td className='fw-bolder'>
+                            {`Rp. ${workOrderDetail?.order?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2)
+                              .map((item: any) => parseInt(item?.price ?? 0))
+                              .reduce((total: number, price: number) => total + price, 0)
+                              .toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Material Yang Dibutuhkan
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {workOrderDetail?.order?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 1)
+                          .map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                            </tr>
+                          ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
                             Promosi ( Free Survey )
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_disc ?? 0
+                              workOrderDetail?.order?.quotation[0]?.quotation_disc ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
 
-                        {orderDetail?.is_overdistance === 1 && (
+                        {workOrderDetail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={6} className='text-end fw-bolder align-middle'>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
                                 Biaya Tambahan
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.additional_fee
+                                workOrderDetail?.order?.additional_fee
                               ).toLocaleString('id')}.`}</td>
                             </tr>
                           </>
                         )}
 
                         <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
+                          <td colSpan={3} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                              workOrderDetail?.order?.quotation[0]?.quotation_grand_total ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -568,26 +629,30 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 )
               } else if (
                 ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                  workOrderDetail?.work_order_status[0]?.status?.category
                 ) &&
-                orderDetail?.payment_type === 'survey'
+                workOrderDetail?.order?.payment_type === 'survey' &&
+                workOrderDetail?.work_order_status.length >= 2
               ) {
                 return (
                   <div className='table-warranty-content'>
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th>Item / Nama Pemasangan</th>
+                          <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
                           <th>Satuan</th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
+                        {workOrderDetail?.work_order_status[0]?.work_order_items.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.name ?? '-'}</td>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit ?? ''}</td>
                             </tr>
@@ -598,12 +663,12 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   </div>
                 )
               } else if (
-                orderDetail?.payment_type === 'gratis' ||
-                orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                workOrderDetail?.order?.payment_type === 'gratis' ||
+                workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {orderDetail?.is_overdistance === 1 && (
+                    {workOrderDetail?.order?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari{' '}
@@ -620,7 +685,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <th>Item Name</th>
                           <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          {!(orderDetail?.payment_type === 'gratis') && (
+                          {!(workOrderDetail?.order?.payment_type === 'gratis') && (
                             <>
                               <th>Harga Jasa</th>
                               <th>Jumlah</th>
@@ -629,14 +694,14 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.order_details?.map((item: any, index: any) => (
+                        {workOrderDetail?.order?.m_order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
                               <td>{item?.item_name}</td>
                               <td>{item?.item?.service_name}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              {!(orderDetail?.payment_type === 'gratis') && (
+                              {!(workOrderDetail?.order?.payment_type === 'gratis') && (
                                 <>
                                   <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
                                     'id'
@@ -650,18 +715,18 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           </>
                         ))}
 
-                        {orderDetail?.is_overdistance === 1 && (
+                        {workOrderDetail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
                               <td
-                                colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                                colSpan={workOrderDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
                                 className='text-end fw-bolder align-middle'
                               >
                                 Biaya Tambahan
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.additional_fee
+                                workOrderDetail?.order?.additional_fee
                               ).toLocaleString('id')}.`}</td>
                             </tr>
                           </>
@@ -669,13 +734,13 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                         <tr>
                           <td
-                            colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                            colSpan={workOrderDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
                             className='text-end fw-bolder'
                           >
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                          <td className=' fw-bolder'>{calculateTotal(workOrderDetail?.order)}</td>
                         </tr>
                       </tbody>
                     </Table>
@@ -685,17 +750,18 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             })()}
           </Row>
 
-          {orderDetail?.work_orders?.work_order_evidences.length > 0 && (
+          {workOrderDetail?.work_order_evidences.length > 0 && (
             <Row>
               <Col>
                 <Form.Label className='mt-3'>Work Before :</Form.Label>
                 <ListGroup>
-                  {orderDetail?.work_orders?.work_order_evidences
+                  {workOrderDetail?.work_order_evidences
                     .filter((x: any) => x.type === 2)
                     .map((item: any) => (
                       <ListGroup.Item
                         key={item.id}
                         action
+                        style={{cursor: 'pointer'}}
                         onClick={() => {
                           setPreviewImage(item.evidence_location)
                           setVisible(true)
@@ -728,12 +794,13 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               <Col>
                 <Form.Label className='mt-3'>Work After :</Form.Label>
                 <ListGroup>
-                  {orderDetail?.work_orders?.work_order_evidences
+                  {workOrderDetail?.work_order_evidences
                     .filter((x: any) => x.type === 3)
                     .map((item: any) => (
                       <ListGroup.Item
                         key={item.id}
                         action
+                        style={{cursor: 'pointer'}}
                         onClick={() => {
                           setPreviewImage(item.evidence_location)
                           setVisible(true)
@@ -771,9 +838,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               className='order-history-timeline'
               current={orderHistory.findIndex((step) =>
                 step.value.includes(
-                  orderDetail?.work_orders === null
-                    ? orderDetail?.project_status_id
-                    : orderDetail?.work_orders?.status_id
+                  workOrderDetail?.work_order_status.length > 0
+                    ? workOrderDetail?.work_order_status[0]?.status?.id
+                    : workOrderDetail?.order?.status?.id
                 )
               )}
               labelPlacement='vertical'
@@ -781,13 +848,13 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             />
           </div>
 
-          {orderDetail?.complaints && orderDetail?.complaints?.length >= 1 && (
+          {workOrderDetail?.complaints && workOrderDetail?.complaints?.length >= 1 && (
             <div className='complaint-history  mt-3 mb-3'>
               <div className='fs-3 text-uppercase fw-bold text-black mb-4'>Complaint History</div>
               <Steps
                 className='complaint-history-timeline'
                 current={complaintHistory.findIndex((step) =>
-                  step.value.includes(orderDetail?.complaints?.[0]?.complaint_status ?? 0)
+                  step.value.includes(workOrderDetail?.complaints?.[0]?.complaint_status ?? 0)
                 )}
                 labelPlacement='vertical'
                 items={complaintHistory}

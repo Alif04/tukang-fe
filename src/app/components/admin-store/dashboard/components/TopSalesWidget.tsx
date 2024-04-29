@@ -8,7 +8,7 @@ type Props = {
 }
 
 const TopSalesWidget: React.FC<Props> = ({className, salesData}) => {
-  const topFive = salesData.slice(0, 5)
+  const topFive = salesData?.slice(0, 5)
 
   return (
     <div className={`card ${className}`}>
@@ -29,7 +29,7 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData}) => {
               </div>
 
               <div className='flex-grow-1 me-2'>
-                <div className='text-dark fw-bold fs-6'>{item.full_name}</div>
+                <div className='text-dark fw-bold fs-6'>{item?.full_name}</div>
                 <span className='text-muted d-block fw-semibold me-5'>
                   {item?.sales_categories
                     .map((category: any) => category?.categories?.category_name ?? '-')

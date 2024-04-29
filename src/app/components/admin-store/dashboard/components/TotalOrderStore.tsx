@@ -44,7 +44,7 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
         <div className='d-flex align-items-center gap-4'>
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>Jumlah Order</div>
-            <div className='fs-1 d-block m-auto'>{orderData.length}</div>
+            <div className='fs-1 d-block m-auto'>{orderData?.length ?? 0}</div>
           </div>
 
           <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -57,19 +57,19 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
 const chartOptions = (chartHeight: string, orderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
-  const completedOrder = orderData.filter((order: any) =>
+  const completedOrder = orderData?.filter((order: any) =>
     order?.work_orders?.work_order_status.length > 0
       ? order?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND'
       : order?.status?.category === 'WORKEND'
   ).length
 
-  const canceledOrder = orderData.filter((order: any) =>
+  const canceledOrder = orderData?.filter((order: any) =>
     order?.work_orders?.work_order_status.length > 0
       ? order?.work_orders?.work_order_status[0]?.status?.category === 'CANCEL'
       : order?.status?.category === 'CANCEL'
   ).length
 
-  const refundOrder = orderData.filter((order: any) =>
+  const refundOrder = orderData?.filter((order: any) =>
     order?.work_orders?.work_order_status.length > 0
       ? order?.work_orders?.work_order_status[0]?.status?.category === 'REFUND'
       : order?.status?.category === 'REFUND'

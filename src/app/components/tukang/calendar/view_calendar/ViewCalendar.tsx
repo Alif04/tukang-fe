@@ -437,7 +437,7 @@ const ViewCalendarTukang: React.FC = () => {
             {(() => {
               if (
                 selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' &&
-                selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status.length === 1
+                selectedWorkOrder?.work_order_detail?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -462,7 +462,7 @@ const ViewCalendarTukang: React.FC = () => {
                       </thead>
 
                       <tbody>
-                        {selectedWorkOrder?.work_order_detail?.order?.m_order_details.map(
+                        {selectedWorkOrder?.work_order_detail?.order?.m_order_details?.map(
                           (item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
@@ -514,7 +514,8 @@ const ViewCalendarTukang: React.FC = () => {
                 ['QUOTEIN', 'QUOTEOUT'].includes(
                   selectedWorkOrder?.work_order_detail?.order?.status?.category ?? ''
                 ) &&
-                selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
+                selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' &&
+                selectedWorkOrder?.work_order_detail?.work_order_status?.length >= 2
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -531,35 +532,107 @@ const ViewCalendarTukang: React.FC = () => {
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th className='text-center'>Jenis Jasa</th>
-                          <th className='text-center'>QTY</th>
-                          <th className='text-center'>Satuan</th>
-                          <th className='text-center'>Price</th>
-                          <th className='text-center'>Total</th>
-                          <th className='text-center'>Keterangan</th>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Price
+                          </th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details.map(
-                          (item: any, index: any) => (
+                        {selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details
+                          ?.filter((x: any) => x.item_type === 2)
+                          ?.map((item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
-                              <td>{item?.name ?? '-'}</td>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{item?.description ? '' : '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                             </tr>
-                          )
-                        )}
+                          ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total
+                          </td>
+
+                          <td className='fw-bolder'>
+                            {`Rp. ${selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details
+                              ?.filter((x: any) => x.item_type === 2)
+                              ?.map((item: any) => parseInt(item?.price ?? 0))
+                              ?.reduce((total: number, price: number) => total + price, 0)
+                              .toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Material Yang Dibutuhkan
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details
+                          ?.filter((x: any) => x.item_type === 1)
+                          ?.map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                            </tr>
+                          ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              selectedWorkOrder?.work_order_detail?.order?.quotation[0]
+                                ?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
 
                         {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={6} className='text-end fw-bolder align-middle'>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
                                 Biaya Tambahan
                               </td>
 
@@ -571,7 +644,7 @@ const ViewCalendarTukang: React.FC = () => {
                         )}
 
                         <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
+                          <td colSpan={3} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -586,7 +659,7 @@ const ViewCalendarTukang: React.FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
                   selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.status
                     ?.category
                 ) &&

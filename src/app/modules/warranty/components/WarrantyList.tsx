@@ -10,7 +10,7 @@ const WarrantyList: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Store CS' || userRole === 'Tukang' ? (
+      {userRole === 'Store CS' ? (
         <>
           <WarrantyClaimList className='' />
         </>
@@ -18,7 +18,7 @@ const WarrantyList: React.FC = () => {
         <>
           <WarrantyClaimListHO className='' />
         </>
-      ) : userRole === 'Admin Vendor' ? (
+      ) : userRole === 'Admin Vendor' || userRole === 'Tukang' ? (
         <>
           <WarrantyClaimListVendor className='' />
         </>

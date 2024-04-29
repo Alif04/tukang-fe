@@ -251,15 +251,15 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
         let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
 
         data = {
-          quotation_id: item.id,
-          store_name: item.store.store_name,
-          order_id: item.order.id,
+          quotation_id: item?.id,
+          store_name: item?.store.store_name,
+          order_id: item?.order.id,
           date_order: formatDate(orderDate),
-          costumer_name: item.order.members.full_name,
+          costumer_name: item?.order.members.full_name,
           service_name: workOrderItems,
           payment_status: paymentStatus,
-          order_status: item.status.category,
-          quotation_status: item.status.category,
+          order_status: item?.status.description,
+          quotation_status: item?.status.description,
         }
 
         return data

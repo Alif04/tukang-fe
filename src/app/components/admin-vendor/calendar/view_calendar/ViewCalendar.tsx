@@ -130,13 +130,12 @@ const ViewCalendarVendor: React.FC = () => {
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
       totalAmount =
-        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
+      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -435,16 +434,13 @@ const ViewCalendarVendor: React.FC = () => {
             </div>
 
             {(() => {
-              if (
-                selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' &&
-                selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status.length === 1
-              ) {
+              if (selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey') {
                 return (
                   <div className='table-warranty-content'>
                     {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
+                          *Order ini lebih dari{' '}
                           <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
@@ -556,6 +552,18 @@ const ViewCalendarVendor: React.FC = () => {
                           )
                         )}
 
+                        <tr>
+                          <td colSpan={6} className='text-end fw-bolder'>
+                            Promosi ( Free Survey )
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              selectedWorkOrder?.work_order_detail?.order?.quotation[0]
+                                ?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
                         {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
@@ -571,7 +579,7 @@ const ViewCalendarVendor: React.FC = () => {
                         )}
 
                         <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
+                          <td colSpan={6} className='text-end fw-bolder'>
                             Grand Total
                           </td>
                           <td className=' fw-bolder'>
@@ -590,7 +598,6 @@ const ViewCalendarVendor: React.FC = () => {
                   selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.status
                     ?.category
                 ) &&
-                selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status.length > 1 &&
                 selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
               ) {
                 return (

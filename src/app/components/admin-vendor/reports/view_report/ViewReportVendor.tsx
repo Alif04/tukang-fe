@@ -19,70 +19,6 @@ const ViewReportVendor = () => {
     <section id='view-report-vendor'>
       <Card>
         <Card.Body>
-          <div className='additional-reports mb-5'>
-            <div className='title'>
-              <hr />
-
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Additional Reports</h1>
-            </div>
-
-            <Row>
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-expense-promosi`}>
-                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex  justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('expense-promosi', 'Laporan Expense Promosi')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-other-income`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('other-income', 'Laporan Other Income')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-refund`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('refund', 'Laporan Refund')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-            </Row>
-          </div>
-
           <div className='pembayaran-reports mb-5'>
             <div className='title'>
               <hr />
@@ -171,71 +107,7 @@ const ViewReportVendor = () => {
             </Row>
           </div>
 
-          <div className='sales-reports mb-5'>
-            <div className='title'>
-              <hr />
-
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Sales Reports</h1>
-            </div>
-
-            <Row>
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-quotation`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('quotation', 'Laporan Quotation ( Omset )')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-survey`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('survey', 'Laporan Survey ( Omset )')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-transaksi-all`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('transaksi-all', 'Laporan Transaksi All ( Omset )')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-            </Row>
-          </div>
-
-          <div className='tagihan-reports mb-5'>
+          {/* <div className='tagihan-reports mb-5'>
             <div className='title'>
               <hr />
 
@@ -321,7 +193,7 @@ const ViewReportVendor = () => {
 
               <Col md={4}></Col>
             </Row>
-          </div>
+          </div> */}
 
           <div className='work-reports mb-5'>
             <div className='title'>

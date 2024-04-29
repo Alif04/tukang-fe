@@ -9,7 +9,6 @@ import {TotalComplaint} from './components/TotalComplaint'
 import {TotalReschedule} from './components/TotalReschedule'
 
 import axios from 'axios'
-import Select from 'react-select'
 import {DatePicker} from 'antd'
 import {Row, Col} from 'react-bootstrap'
 

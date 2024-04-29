@@ -1,19 +1,30 @@
 import React, {FC, useState} from 'react'
 
 import {DetailWorkVendor, DetailWorkTukang} from '../../../components'
-
 import {PageTitle} from '../../../../_metronic/layout/core'
-import {Orders} from '../../../interfaces/order'
 
 const DetailWorkOrder: FC = () => {
   const userRole = localStorage.getItem('userRole')
   const [pageTitle, setPageTitle] = useState<string>('')
 
-  const updatePageTitle = (order: Orders) => {
-    const orderId = order?.id || undefined
-    const customerName = order?.members?.full_name || ''
+  const updatePageTitle = (order: any) => {
+    const workOrderId =
+      userRole === 'Admin Vendor'
+        ? order?.work_orders === null
+          ? order?.id
+          : order?.work_orders?.id
+        : order?.id
 
-    setPageTitle(`DETAIL ORDER - ${orderId} - ${customerName}`)
+    const customerName =
+      userRole === 'Admin Vendor'
+        ? order?.members?.full_name ?? '-'
+        : order?.order?.members?.full_name ?? '-'
+
+    setPageTitle(
+      `${
+        order?.work_orders === null ? 'DETAIL ORDER' : 'DETAIL WORK ORDER'
+      } - ${workOrderId} - ${customerName}`
+    )
   }
 
   return (

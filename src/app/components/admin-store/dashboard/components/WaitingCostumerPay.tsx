@@ -12,9 +12,10 @@ type Props = {
 }
 
 const getStatusCount = (orderData: any[]): number => {
-  return orderData.filter(
-    (order) => order.receipt_number === null && order.payment_type !== 'gratis'
-  ).length
+  return (
+    orderData?.filter((order) => order.receipt_number === null && order.payment_type !== 'gratis')
+      .length ?? 0
+  )
 }
 
 const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight, orderData}) => {
@@ -64,7 +65,7 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
 
 const chartOptions = (chartColor: string, chartHeight: string, orderData: any): ApexOptions => {
   const unpaidCount = getStatusCount(orderData)
-  const totalOrders = orderData.length
+  const totalOrders = orderData?.length
 
   const percentageUnpaidOrder = totalOrders > 0 ? Math.round((unpaidCount / totalOrders) * 100) : 0
 

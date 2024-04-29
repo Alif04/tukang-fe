@@ -11,10 +11,23 @@ const UpdateWork: FC = () => {
   const [pageTitle, setPageTitle] = useState<string>('')
 
   const updatePageTitle = (work_order: WorkOrder) => {
-    const orderId = work_order?.id || undefined
-    const customerName = work_order?.members?.full_name || ''
+    const workOrderId =
+      userRole === 'Admin Vendor'
+        ? work_order?.work_orders === null
+          ? work_order?.id
+          : work_order?.work_orders?.id
+        : work_order?.id
 
-    setPageTitle(`UPDATE ORDER - ${orderId} ${customerName}`)
+    const customerName =
+      userRole === 'Admin Vendor'
+        ? work_order?.members?.full_name ?? '-'
+        : work_order?.order?.members?.full_name ?? '-'
+
+    setPageTitle(
+      `${
+        work_order?.work_orders === null ? 'UPDATE ORDER' : 'UPDATE WORK ORDER'
+      } - ${workOrderId} - ${customerName}`
+    )
   }
 
   return (

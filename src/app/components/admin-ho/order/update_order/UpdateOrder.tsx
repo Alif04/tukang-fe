@@ -137,6 +137,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     order_files: [],
   })
 
+  console.log(orderForm)
+
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
@@ -269,7 +271,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 setPaymentTypeValue(['berbayar', 'survey'])
                 setOrderForm((prev) => ({
                   ...prev,
-                  payment_type: 'berbayar',
+                  payment_type: 'survey',
                 }))
               } else if (data.payment_type === 'gratis') {
                 setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
