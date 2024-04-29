@@ -264,70 +264,65 @@ const NewTukangVendor: FC = () => {
   const TukangValidation = () => {
     let valid = true
 
-    if (!tukang.full_name) {
+    if (tukang.full_name === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill tukang name form',
         icon: 'error',
       })
       valid = false
-    } else if (!tukang.address) {
+    } else if (tukang.address === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill tukang address form',
         icon: 'error',
       })
       valid = false
-    } else if (!tukang.email) {
+    } else if (tukang.email === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill tukang email form',
         icon: 'error',
       })
       valid = false
-    } else if (!tukang.phone_number) {
+    } else if (tukang.phone_number === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill tukang phone number form',
         icon: 'error',
       })
       valid = false
-    } else if (!tukang.ktp_number) {
+    } else if (tukang.ktp_number === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill KTP number form',
         icon: 'error',
       })
       valid = false
-    } else if (!tukang.bod) {
+    } else if (tukang.bod === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill tukang birth form',
         icon: 'error',
       })
       valid = false
-    } else if (!tukang.username) {
+    } else if (tukang.username === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill username form',
         icon: 'error',
       })
       valid = false
-    } else if (!tukang.password) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill password form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!tukang.service_type_id) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select services form',
-        icon: 'error',
-      })
-      valid = false
     }
+
+    // else if (!tukang.service_type_id) {
+    //   Swal.fire({
+    //     title: 'Error',
+    //     text: 'Please select services form',
+    //     icon: 'error',
+    //   })
+    //   valid = false
+    // }
     return valid
   }
 
