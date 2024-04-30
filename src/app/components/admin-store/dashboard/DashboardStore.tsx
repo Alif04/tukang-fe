@@ -9,7 +9,7 @@ import {TotalComplaint} from './components/TotalComplaint'
 import {TotalReschedule} from './components/TotalReschedule'
 
 import axios from 'axios'
-import {DatePicker} from 'antd'
+import {DatePicker, Skeleton} from 'antd'
 import {Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
@@ -21,32 +21,21 @@ const DashboardStore: FC = () => {
   const userStore = localStorage.getItem('storeId')
 
   const today = new Date()
-  const formattedTodays = new Date().toISOString().split('T')[0]
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
+  const [dateFrom, setDateFrom] = useState<any>(new Date(today.getFullYear(), 0, 1))
+  const [dateTo, setDateTo] = useState<any>(new Date(today.getFullYear(), 11, 31))
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
   const [loadingButton, setLoadingButton] = useState(false)
+  const [isLoadingPage, setIsLoadingPage] = useState(true)
 
   const [orderData, setOrderData] = useState<any[]>([])
   const [chartData, setChartData] = useState<any[]>([])
 
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [totalData, setTotalData] = useState<number>(0)
-
   const [sales, setSales] = useState<any[]>([])
 
-  const getOrder = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&store_id=${userStore}&page=${page}&take=${pageSize}${queryparams}`
+  const getOrder = async (queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&store_id=${userStore}${queryparams}`
 
     try {
-      let url =
-        !dateFrom && !dateTo
-          ? `${apiUrl}/orders?order_by=desc&date_from=${firstDayOfMonth}&date_to=${formattedTodays}&store_id=${userStore}&take=0`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`
-
       const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
@@ -57,9 +46,7 @@ const DashboardStore: FC = () => {
       })
 
       setOrderData(response.data.data)
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
-
+      setIsLoadingPage(false)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -68,7 +55,7 @@ const DashboardStore: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders`, {
+      const response = await axios.get(`${apiUrl}/reports/orders?store_id=${userStore}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -78,7 +65,19 @@ const DashboardStore: FC = () => {
       })
 
       const chartDatas = response.data.monthlyOrders
-      setChartData(chartDatas)
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+      setChartData(slicedData)
+      setIsLoadingPage(false)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -100,13 +99,14 @@ const DashboardStore: FC = () => {
 
       const data = response.data.data
       setSales(data)
+      setIsLoadingPage(false)
     } catch (err) {
       console.error(err)
     }
   }
 
   useEffect(() => {
-    getOrder(1, 10, '')
+    getOrder('')
   }, [])
 
   useEffect(() => {
@@ -119,15 +119,17 @@ const DashboardStore: FC = () => {
     let queryparams = ``
 
     if (dateFrom) {
-      queryparams += `date_from=${dateFrom}`
+      queryparams += `&date_from=${dateFrom}`
     }
 
     if (dateTo) {
-      queryparams += `date_to=${dateTo}`
+      queryparams += `&date_to=${dateTo}`
     }
 
-    const data = await getOrder(1, 10, queryparams)
+    const data = await getOrder(queryparams)
     setOrderData(data)
+
+    await getReportOrder()
 
     setLoadingButton(false)
   }
@@ -153,8 +155,8 @@ const DashboardStore: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
+                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
                   }
                 }}
               />
@@ -186,21 +188,33 @@ const DashboardStore: FC = () => {
 
       <Row className='gy-5 g-xl-8'>
         <Col xxl={4} xl={4} lg={12}>
-          <TransactionWidget orderData={orderData} />
+          <TransactionWidget orderData={orderData} loadingPage={isLoadingPage} />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
-          <TopSalesWidget className='card-xl-stretch mb-xl-8' salesData={sales} />
+          <TopSalesWidget
+            className='card-xl-stretch mb-xl-8'
+            salesData={sales}
+            loadingPage={isLoadingPage}
+          />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
           <Row>
             <Col xxl={6} xl={6} lg={12}>
-              <TotalComplaint orderData={orderData} className='card-xxl-stretch-50  mb-xl-8' />
+              <TotalComplaint
+                orderData={orderData}
+                className='card-xxl-stretch-50  mb-xl-8'
+                loadingPage={isLoadingPage}
+              />
             </Col>
 
             <Col xxl={6} xl={6} lg={12}>
-              <TotalReschedule orderData={orderData} className='card-xxl-stretch-50  mb-xl-8' />
+              <TotalReschedule
+                orderData={orderData}
+                className='card-xxl-stretch-50  mb-xl-8'
+                loadingPage={isLoadingPage}
+              />
             </Col>
           </Row>
 

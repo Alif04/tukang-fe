@@ -306,7 +306,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
             }}
           />
 
-          <div className='d-flex justify-content-center align-items-center mt-5'>
+          {/* <div className='d-flex justify-content-center align-items-center mt-5'>
             <Button
               variant='dark-gray'
               className='d-flex justify-content-center align-items-center'
@@ -322,7 +322,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
             >
               Email Report
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

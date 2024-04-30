@@ -1305,7 +1305,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
                 </button>
               </div>
 
-              {endpoint !== 'csi' ? (
+              {!['csi', 'complaints', 'reschedule'].includes(endpoint) ? (
                 <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
                   'id'
                 )}`}</h1>

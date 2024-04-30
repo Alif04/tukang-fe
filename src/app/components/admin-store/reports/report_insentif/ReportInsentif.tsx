@@ -6,11 +6,12 @@ import './ReportInsentif.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
-import {Table, PaginationProps} from 'antd'
+import {Table, PaginationProps, Spin, Pagination} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -23,17 +24,18 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const userStore = localStorage.getItem('storeId')
-  const userRole = localStorage.getItem('userRole') as any
-  const userId = localStorage.getItem('user_id') as any
   const salesId = localStorage.getItem('sales_id') as any
 
   const [orderData, setOrderData] = useState<DataType[]>([])
-  const [totalOrder, setTotalOrder] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalOrder, setTotalOrder] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const [loadData, setLoadData] = useState<boolean>(true)
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -151,25 +153,17 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return '-'
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+
+    if (userStore) {
+      apiUrlWithParams += `&store_id=${userStore}`
+    } else if (salesId) {
+      apiUrlWithParams += `&sales_id=${salesId}`
     }
 
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  const fetchOrderList = async (page: number, pageSize: number) => {
     try {
-      const url =
-        userRole === 'Store CS' || userRole === 'Admin HO'
-          ? `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&page=${page}&take=${pageSize}`
-          : `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&sales_id=${salesId}&store_id=${userStore}&page=${page}&take=${pageSize}`
-
-      const response = await axios.get(url, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -179,6 +173,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       })
 
       if (response?.data) {
+        setLoadData(false)
         setTotalOrder(response?.data?.total ?? 0)
         setCurrentPage(response?.data?.page ?? 1)
       }
@@ -189,9 +184,9 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewOrder = async (page: number, pageSize: number) => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -201,7 +196,11 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at)
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
         const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
@@ -216,7 +215,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
         data = {
           order_id: item.id,
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           costumer_name: item?.members?.full_name,
           email: item?.members?.email,
           address: item?.project_address,
@@ -241,14 +240,14 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
     setOrderData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -271,6 +270,29 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
     XLSX.writeFile(workbook, 'report_intensif_data.xlsx')
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    let queryparams = ``
+
+    if (dateFrom) {
+      queryparams += `&date_from=${dateFrom}`
+    }
+
+    if (dateTo) {
+      queryparams += `&date_to=${dateTo}`
+    }
+
+    if (searchFilter) {
+      queryparams += `&search=${searchFilter}`
+    }
+
+    const data = await ViewOrder(1, 10, queryparams)
+    setOrderData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -318,7 +340,15 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
             </Col>
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
-              <div className='d-flex justify-content-end'>
+              <div className='d-flex justify-content-between'>
+                <Button
+                  className='btn-dark-primary button-submit'
+                  disabled={loadingButton}
+                  onClick={handleSubmitFilter}
+                >
+                  {loadingButton ? 'Filtering..' : 'Submit'}
+                </Button>
+
                 <Button
                   variant='outline-primary'
                   className='d-flex justify-content-center align-items-center'
@@ -334,29 +364,54 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
             <p className='fs-5'>Total order : {orderData.length}</p>
           </div>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.order_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalOrder,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Order
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={orderData}
+              rowKey={(record) => record.order_id}
+              pagination={{
+                position: ['bottomRight'],
+                current: currentPage,
+                total: totalOrder,
+                showSizeChanger: true,
+                pageSizeOptions: [5, 10, 20, 50, 100],
+                onChange: (page, pageSize) => {
+                  fetchData(page, pageSize, '')
+                },
+                itemRender: itemRender,
+                showTotal: (total, range) => (
+                  <span style={{left: 0, position: 'absolute'}}>
+                    Showing {range[0]} - {range[1]} of {total} Order
+                  </span>
+                ),
+              }}
+            />
+          </Spin>
+
+          {/* <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalOrder}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
-          />
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Order
+              </span>
+            )}
+          /> */}
         </div>
       </div>
     </section>

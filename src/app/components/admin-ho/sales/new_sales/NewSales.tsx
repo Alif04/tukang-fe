@@ -11,7 +11,7 @@ import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPen, faTrash, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -512,14 +512,14 @@ const NewSales: FC = () => {
   const SalesValidation = () => {
     let valid = true
 
-    if (!salesInfo.full_name) {
+    if (salesInfo.full_name === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Name Sales Consultant form',
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.phone_number) {
+    } else if (salesInfo.phone_number === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill WA / Phone Number form',
@@ -540,21 +540,21 @@ const NewSales: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.account_number) {
+    } else if (salesInfo.account_number === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nomor Akun Bank form',
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.account_name) {
+    } else if (salesInfo.account_name === '') {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nama Pemilik Akun form',
         icon: 'error',
       })
       valid = false
-    } else if (!salesInfo.username) {
+    } else if (salesInfo.username === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Jika anda mengosongkan kolom username, maka username akan dibuat otomatis oleh sistem dan diambil dari nama lengkap dengan format semua huruf kecil dan jika ada spasi maka diganti dengan underscore ( _ )',

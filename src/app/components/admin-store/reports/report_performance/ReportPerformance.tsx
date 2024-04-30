@@ -272,7 +272,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
             pagination={{position: ['bottomCenter']}}
           />
 
-          <div className='d-flex justify-content-center align-items-center mt-5'>
+          {/* <div className='d-flex justify-content-center align-items-center mt-5'>
             <Button
               variant='dark-gray'
               className='d-flex justify-content-center align-items-center'
@@ -289,7 +289,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
             >
               Email Report
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

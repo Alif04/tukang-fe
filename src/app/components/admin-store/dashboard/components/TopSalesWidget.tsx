@@ -1,13 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {Skeleton} from 'antd'
 
 type Props = {
   className: string
   salesData: any[]
+  loadingPage: boolean
 }
 
-const TopSalesWidget: React.FC<Props> = ({className, salesData}) => {
+const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage}) => {
   const topFive = salesData?.slice(0, 5)
 
   return (
@@ -18,31 +20,32 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData}) => {
 
       <div className='card-body pt-2'>
         {topFive.map((item: any) => (
-          <div className='list-item d-flex justify-content-between mb-7' key={item.id}>
-            <div className='d-flex align-items-center'>
-              <div className='symbol symbol-50px me-5'>
-                <img
-                  src={toAbsoluteUrl('/media/avatars/300-6.jpg')}
-                  className='rounded-circle'
-                  alt=''
-                />
+          <Skeleton active avatar loading={loadingPage}>
+            <div className='list-item d-flex justify-content-between mb-7' key={item.id}>
+              <div className='d-flex align-items-center'>
+                <div className='symbol symbol-50px me-5'>
+                  <img
+                    src={toAbsoluteUrl('/media/avatars/300-6.jpg')}
+                    className='rounded-circle'
+                    alt=''
+                  />
+                </div>
+
+                <div className='flex-grow-1 me-2'>
+                  <div className='text-dark fw-bold fs-6'>{item?.full_name}</div>
+                  <span className='text-muted d-block fw-semibold me-5'>
+                    {item?.sales_categories
+                      .map((category: any) => category?.categories?.category_name ?? '-')
+                      .join(', ')}
+                  </span>
+                </div>
               </div>
 
-              <div className='flex-grow-1 me-2'>
-                <div className='text-dark fw-bold fs-6'>{item?.full_name}</div>
-                <span className='text-muted d-block fw-semibold me-5'>
-                  {item?.sales_categories
-                    .map((category: any) => category?.categories?.category_name ?? '-')
-                    .join(', ')}
-                </span>
+              <div className='d-flex flex-column justify-content-center align-items-end w-50'>
+                <span className='text-muted'>{`${item?.order_total ?? 0} Order`}</span>
               </div>
             </div>
-            {/* 
-            <div className='d-flex flex-column justify-content-center align-items-end w-50'>
-              <span className='fw-bold text-success'>Rp. 12.000.000</span>
-              <span className='text-muted'>{`${item?.order_total ?? 0} Order`}</span>
-            </div> */}
-          </div>
+          </Skeleton>
         ))}
       </div>
 

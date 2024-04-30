@@ -1,10 +1,11 @@
 import React, {FC, useState, useEffect} from 'react'
+import {Orders} from '../../../../interfaces/order'
 
 import './PrintoutCS.css'
 
-import {Orders} from '../../../../interfaces/order'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import {Skeleton} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Table, Row, Col, Card, Button} from 'react-bootstrap'
@@ -16,6 +17,7 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
 
   const [orderDetail, setOrderDetail] = useState<any>()
   const [isPrinting, setIsPrinting] = useState<boolean>(false)
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
 
   const fetchOrderData = async () => {
     try {
@@ -32,6 +34,7 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
           const data = response.data.data
           setOrderDetail(data)
           updatePageTitle(data)
+          setIsLoadingPage(false)
         })
     } catch (error) {
       console.error(error)
@@ -124,196 +127,203 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
 
             <Col md={6} sm={12}>
               <div className='header-information'>
-                <h1 className='fs-5 fw-bold mb-2 text-black'>
-                  Tanggal Order :{' '}
-                  <span className='fw-normal text-black'>
-                    {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </h1>
+                <Skeleton loading={isLoadingPage}>
+                  <h1 className='fs-5 fw-bold mb-2 text-black'>
+                    Tanggal Order :{' '}
+                    <span className='fw-normal text-black'>
+                      {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </h1>
 
-                <h1 className='fs-5 fw-bold mb-2 text-black'>
-                  {(() => {
-                    if (orderDetail?.payment_type === 'survey') {
-                      return `Request Survey`
-                    } else if (orderDetail?.payment_type === 'gratis') {
-                      return `Request Pemasangan`
-                    } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                      return `Request Pemasangan`
-                    } else {
-                      return ``
-                    }
-                  })()}{' '}
-                  :{' '}
-                  <span className='fw-normal text-black'>
-                    {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </h1>
+                  <h1 className='fs-5 fw-bold mb-2 text-black'>
+                    {(() => {
+                      if (orderDetail?.payment_type === 'survey') {
+                        return `Request Survey`
+                      } else if (orderDetail?.payment_type === 'gratis') {
+                        return `Request Pemasangan`
+                      } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                        return `Request Pemasangan`
+                      } else {
+                        return ``
+                      }
+                    })()}{' '}
+                    :{' '}
+                    <span className='fw-normal text-black'>
+                      {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </h1>
+                </Skeleton>
               </div>
             </Col>
           </Row>
         </Card.Header>
 
         <Card.Body>
-          <h3 className='fs-3 fw-semibold mb-3'>Detail Pemesanan</h3>
+          <h3 className='fs-3 fw-bold mb-3'>Detail Pemesanan</h3>
 
-          <h1 className='fs-5 fw-normal mb-1 text-black'>
-            Order ID : <span className='fw-semibold text-black'>{orderDetail?.id}</span>
-          </h1>
+          <Skeleton loading={isLoadingPage}>
+            <h1 className='fs-5 fw-normal mb-1 text-black'>
+              Order ID : <span className='fw-semibold text-black'>{orderDetail?.id}</span>
+            </h1>
 
-          <h1 className='fs-5 fw-normal mb-1 text-black'>
-            Nomor Receipt :{' '}
-            <span className='fw-semibold text-black'>{orderDetail?.receipt_number}</span>
-          </h1>
+            <h1 className='fs-5 fw-normal mb-1 text-black'>
+              Nomor Receipt :{' '}
+              <span className='fw-semibold text-black'>{orderDetail?.receipt_number}</span>
+            </h1>
 
-          <h1 className='fs-5 fw-normal mb-2 text-black'>
-            Tipe Pembayaran :{' '}
-            <span className='fw-semibold text-black'>
-              {(() => {
-                if (orderDetail?.payment_type === 'survey') {
-                  return `Berbayar & Survey`
-                } else if (orderDetail?.payment_type === 'gratis') {
-                  return `Gratis`
-                } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                  return `Berbayar & Pemasangan Tanpa Survey`
-                } else {
-                  return ``
-                }
-              })()}
-            </span>
-          </h1>
+            <h1 className='fs-5 fw-normal mb-2 text-black'>
+              Tipe Pembayaran :{' '}
+              <span className='fw-semibold text-black'>
+                {(() => {
+                  if (orderDetail?.payment_type === 'survey') {
+                    return `Berbayar & Survey`
+                  } else if (orderDetail?.payment_type === 'gratis') {
+                    return `Gratis`
+                  } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                    return `Berbayar & Pemasangan Tanpa Survey`
+                  } else {
+                    return ``
+                  }
+                })()}
+              </span>
+            </h1>
 
-          <Table hover responsive>
-            <thead>
-              <tr>
-                <th>Item Code</th>
-                <th>Item Name</th>
-                <th>Nama Jasa Pemasangan</th>
-                <th>QTY Pemasangan</th>
-                {!(
-                  orderDetail?.payment_type === 'gratis' || orderDetail?.payment_type === 'survey'
-                ) && (
+            <Table hover responsive>
+              <thead>
+                <tr>
+                  <th>Item Code</th>
+                  <th>Item Name</th>
+                  <th>Nama Jasa Pemasangan</th>
+                  <th>QTY Pemasangan</th>
+                  {!(
+                    orderDetail?.payment_type === 'gratis' || orderDetail?.payment_type === 'survey'
+                  ) && (
+                    <>
+                      <th>Harga Jasa</th>
+                      <th>Jumlah</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {orderDetail?.order_details?.map((item: any, index: any) => (
                   <>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
+                    <tr key={`${index} - order_detail`}>
+                      <td>{item?.item_code ?? '-'}</td>
+                      <td>{item?.item_name ?? '-'}</td>
+                      <td>
+                        {orderDetail?.payment_type === 'survey'
+                          ? item?.item_notes
+                          : item?.item?.service_name}
+                      </td>
+                      <td>{item?.quantity ?? 0}</td>
+                      {!(
+                        orderDetail?.payment_type === 'gratis' ||
+                        orderDetail?.payment_type === 'survey'
+                      ) && (
+                        <>
+                          <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                          <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                        </>
+                      )}
+                    </tr>
                   </>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {orderDetail?.order_details?.map((item: any, index: any) => (
-                <>
-                  <tr key={`${index} - order_detail`}>
-                    <td>{item?.item_code ?? '-'}</td>
-                    <td>{item?.item_name ?? '-'}</td>
-                    <td>
-                      {orderDetail?.payment_type === 'survey'
-                        ? item?.item_notes
-                        : item?.item?.service_name}
-                    </td>
-                    <td>{item?.quantity ?? 0}</td>
-                    {!(
-                      orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'survey'
-                    ) && (
-                      <>
-                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                        <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                      </>
-                    )}
-                  </tr>
-                </>
-              ))}
+                ))}
 
-              {orderDetail?.payment_type !== 'gratis' &&
-                orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                {orderDetail?.payment_type !== 'gratis' &&
+                  orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
+                    <tr>
+                      <td colSpan={3} className='text-end fw-bolder'>
+                        Biaya Survey
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {orderDetail?.payment_type === 'gratis' ||
+                        orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                          ? `Rp. ${(0).toLocaleString('id')}`
+                          : orderDetail?.payment_type === 'survey'
+                          ? `Rp. ${(99000).toLocaleString('id')}`
+                          : `Rp. ${0}`}
+                      </td>
+                    </tr>
+                  )}
+
+                {orderDetail?.is_overdistance === 1 && (
                   <tr>
-                    <td colSpan={3} className='text-end fw-bolder'>
-                      Biaya Survey
+                    <td
+                      className='text-end fw-bolder'
+                      colSpan={
+                        orderDetail?.payment_type === 'gratis' ||
+                        orderDetail?.payment_type === 'survey'
+                          ? 3
+                          : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                          ? 5
+                          : 0
+                      }
+                    >
+                      Biaya Tambahan
                     </td>
-
-                    <td className=' fw-bolder'>
-                      {orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                        ? `Rp. ${(0).toLocaleString('id')}`
-                        : orderDetail?.payment_type === 'survey'
-                        ? `Rp. ${(99000).toLocaleString('id')}`
-                        : `Rp. ${0}`}
-                    </td>
+                    <td className=' fw-bolder'>{`Rp. ${parseInt(
+                      orderDetail?.additional_fee ?? 0
+                    ).toLocaleString('id')}`}</td>
                   </tr>
                 )}
 
-              {orderDetail?.is_overdistance === 1 && (
-                <tr>
-                  <td
-                    className='text-end fw-bolder'
-                    colSpan={
-                      orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'survey'
-                        ? 3
-                        : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                        ? 5
-                        : 0
-                    }
-                  >
-                    Biaya Tambahan
-                  </td>
-                  <td className=' fw-bolder'>{`Rp. ${parseInt(
-                    orderDetail?.additional_fee ?? 0
-                  ).toLocaleString('id')}`}</td>
-                </tr>
-              )}
+                {(orderDetail?.payment_type !== 'survey' || orderDetail?.is_overdistance === 1) && (
+                  <tr>
+                    <td
+                      colSpan={
+                        orderDetail?.payment_type === 'gratis' ||
+                        orderDetail?.payment_type === 'survey'
+                          ? 3
+                          : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+                          ? 5
+                          : 0
+                      }
+                      className='text-end fw-bolder'
+                    >
+                      Grand Total
+                    </td>
 
-              {(orderDetail?.payment_type !== 'survey' || orderDetail?.is_overdistance === 1) && (
-                <tr>
-                  <td
-                    colSpan={
-                      orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'survey'
-                        ? 3
-                        : orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                        ? 5
-                        : 0
-                    }
-                    className='text-end fw-bolder'
-                  >
-                    Grand Total
-                  </td>
-
-                  <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
+                    <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </Skeleton>
 
           <h3 className='fs-3 fw-bold mb-1'>Detail Pemasangan</h3>
 
-          <Row className='mb-5'>
-            <Col>
-              <h3 className='fs-5 fw-normal mb-1'>
-                Nama Customer :{' '}
-                <span className='fs-5 fw-semibold mb-1'> {orderDetail?.members?.full_name}</span>
-              </h3>
+          <Skeleton loading={isLoadingPage}>
+            <Row className='mb-5'>
+              <Col>
+                <h3 className='fs-5 fw-normal mb-1'>
+                  Nama Customer :{' '}
+                  <span className='fs-5 fw-semibold mb-1'> {orderDetail?.members?.full_name}</span>
+                </h3>
 
-              <h3 className='fs-5 fw-normal mb-1'>
-                Alamat :{' '}
-                <span className='fs-5 fw-semibold mb-1'> {orderDetail?.project_address}</span>
-              </h3>
+                <h3 className='fs-5 fw-normal mb-1'>
+                  Alamat :{' '}
+                  <span className='fs-5 fw-semibold mb-1'> {orderDetail?.project_address}</span>
+                </h3>
 
-              <h3 className='fs-5 fw-normal mb-1'>
-                Telp : <span className='fs-5 fw-semibold mb-1'> {orderDetail?.project_number}</span>
-              </h3>
-            </Col>
+                <h3 className='fs-5 fw-normal mb-1'>
+                  Telp :{' '}
+                  <span className='fs-5 fw-semibold mb-1'> {orderDetail?.project_number}</span>
+                </h3>
+              </Col>
 
-            <Col></Col>
-          </Row>
+              <Col></Col>
+            </Row>
+          </Skeleton>
 
           <Row>
             <Col>
