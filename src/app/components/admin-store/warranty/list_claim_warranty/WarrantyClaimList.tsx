@@ -18,6 +18,11 @@ type Props = {
   className: string
 }
 
+interface Status {
+  value: number | null
+  category: string
+}
+
 const WarrantyClaimList: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userStore = localStorage.getItem('storeId')
@@ -234,9 +239,14 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
   }
 
   const fetchOrderList = async (page: number, pageSize: number) => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData.filter((status: any) => ['DONE'].includes(status.category))
+    const statuses = desiredStatus.map((x) => x.value)
+
     const url =
       userRole !== 'Tukang'
-        ? `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&store_id=${userStore}&page=${page}&take=${pageSize}`
+        ? `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&store_id=${userStore}&page=${page}&take=${pageSize}&status=${statuses}`
         : `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`
 
     try {

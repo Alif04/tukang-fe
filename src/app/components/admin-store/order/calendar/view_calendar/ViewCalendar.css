@@ -31,3 +31,208 @@
   border-color: #183383 !important;
   height: 44px !important;
 }
+
+/* Timeline */
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered .modal-content .modal-body .anticon svg {
+  color: white;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered .modal-content .modal-body .anticon svg {
+  color: white;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.ant-steps-small
+  .ant-steps-item-icon {
+  line-height: 20px;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.order-history-timeline
+  .ant-steps-item-wait
+  .ant-steps-item-icon
+  > .ant-steps-icon {
+  color: #ffff;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps-item-title {
+  margin: 0 20px 0 20px;
+  font-weight: 600;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  margin: 0 20px 20px;
+  font-weight: 400;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.ant-steps-label-vertical
+  .ant-steps-item-tail {
+  margin: 0 0 0 56px;
+  padding: 3px 16px;
+}
+
+/* Timeline Order History */
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.order-history-timeline
+  .ant-steps-item-wait
+  .ant-steps-item-icon {
+  background-color: #055900 !important;
+  opacity: 0.3;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.order-history-timeline
+  .ant-steps-item-process
+  .ant-steps-item-icon {
+  background-color: #055900 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.order-history-timeline
+  .ant-steps-item-finish
+  .ant-steps-item-icon {
+  background-color: #055900 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.order-history-timeline
+  .ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  opacity: 0.3;
+  height: 4px;
+  border-radius: 0;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.order-history-timeline
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  height: 4px;
+  opacity: 0.3;
+  border-radius: 0;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.order-history-timeline
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #055900 !important;
+  height: 4px;
+  border-radius: 0;
+}
+
+/* Timeline Complaint History */
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-wait
+  .ant-steps-item-icon {
+  background-color: #a30014 !important;
+  opacity: 0.3;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-process
+  .ant-steps-item-icon {
+  background-color: #a30014 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-finish
+  .ant-steps-item-icon {
+  background-color: #a30014 !important;
+  border-color: #ffff;
+  border-width: 2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #a30014 !important;
+  opacity: 0.3;
+  height: 4px;
+  border-radius: 0;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #a30014 !important;
+  height: 4px;
+  opacity: 0.3;
+  border-radius: 0;
+}
+
+.modal-dialog.modal-calendar-detail.modal-dialog-centered
+  .modal-content
+  .modal-body
+  .ant-steps.complaint-history-timeline
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  background-color: #a30014 !important;
+  height: 4px;
+  border-radius: 0;
+}

@@ -62,7 +62,7 @@ const ViewCalendarVendor: React.FC = () => {
                 return {
                   id: item?.id.toString(),
                   order_id: item?.order_id.toString(),
-                  title: `WORK ORDER - ${item.id}`,
+                  title: `WORK ORDER ID ${item?.id} - ${item?.order?.members?.full_name}`,
                   work_order_status: item?.work_order_status[0]?.status.category,
                   service: workOrderItems ?? '',
                   tukang: workOrderTukang ?? '',

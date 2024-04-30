@@ -83,11 +83,9 @@ const DashboardHO: FC = () => {
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
 
   const today = new Date()
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
-
-  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [store, setStore] = useState<StoreItem[]>([])

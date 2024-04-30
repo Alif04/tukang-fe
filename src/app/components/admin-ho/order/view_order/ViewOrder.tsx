@@ -4,7 +4,8 @@ import React, {FC, useEffect, useState} from 'react'
 import './ViewOrder.css'
 
 import axios from 'axios'
-import {Table, Tag, PaginationProps} from 'antd'
+import {Table, Tag, PaginationProps, Spin, Pagination} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
@@ -30,11 +31,13 @@ interface DataType {
 const ViewOrders: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const [loadingButton, setLoadingButton] = useState(false)
 
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
   const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -48,6 +51,13 @@ const ViewOrders: FC = () => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const statusFilters = statusData.map((item: any) => ({
+    text: item.description,
+    value: item.description,
+  }))
 
   const columns: ColumnsType<DataType> = [
     {
@@ -130,6 +140,7 @@ const ViewOrders: FC = () => {
       title: 'Status Order',
       dataIndex: 'order_status_label',
       key: 'order_status_label',
+      filters: statusFilters,
       render: (order_status_label) => {
         const orderStatus = order_status_label
         let color = ''
@@ -141,51 +152,6 @@ const ViewOrders: FC = () => {
           case 'PAID':
             color = 'green'
             break
-          case 'PICKLIST':
-            color = 'green'
-            break
-          case 'BOOKED':
-            color = 'lime'
-            break
-          case 'SURVEYREQ':
-            color = 'blue'
-            break
-          case 'SURVEYSTART':
-            color = 'blue'
-            break
-          case 'SURVEYDONE':
-            color = 'blue'
-            break
-          case 'QUOTE IN':
-            color = 'blue'
-            break
-          case 'QUOTE OUT':
-            color = 'blue'
-            break
-          case 'WORKREQ':
-            color = 'blue'
-            break
-          case 'WORKSTART':
-            color = 'blue'
-            break
-          case 'WIP':
-            color = 'blue'
-            break
-          case 'WORKEND':
-            color = 'blue'
-            break
-          case 'RESURVEYREQ':
-            color = 'blue'
-            break
-          case 'RESURVEYSTART':
-            color = 'blue'
-            break
-          case 'RESURVEYDONE':
-            color = 'blue'
-            break
-          case 'INVOICED':
-            color = 'blue'
-            break
           default:
             color = 'blue'
             break
@@ -193,23 +159,6 @@ const ViewOrders: FC = () => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'PICKLIST', value: 'PICKLIST'},
-        {text: 'BOOKED', value: 'BOOKED'},
-        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
-        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
-        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
-        {text: 'QUOTEIN', value: 'QUOTEIN'},
-        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
-        {text: 'WORKREQ', value: 'WORKREQ'},
-        {text: 'WORKSTART', value: 'WORKSTART'},
-        {text: 'WIP', value: 'WIP'},
-        {text: 'WORKEND', value: 'WORKEND'},
-        {text: 'INVOICED', value: 'INVOICED'},
-        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
-        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
-        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
-      ],
       onFilter: (value, record) => record.order_status_label.includes(String(value)),
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
       align: 'left',
@@ -274,6 +223,7 @@ const ViewOrders: FC = () => {
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -293,7 +243,11 @@ const ViewOrders: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at)
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const paymentStatus = (() => {
           if (item?.payment_type === 'survey') {
@@ -310,7 +264,7 @@ const ViewOrders: FC = () => {
         data = {
           order_id: item.id,
           assign_from: item?.store?.store_name,
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
           phone_number: item?.project_number,
@@ -424,28 +378,38 @@ const ViewOrders: FC = () => {
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.order_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize, '')
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Order
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={orderData}
+              rowKey={(record) => record.order_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Order
+              </span>
+            )}
           />
         </div>
       </div>

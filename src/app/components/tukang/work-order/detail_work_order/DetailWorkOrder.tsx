@@ -628,7 +628,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   workOrderDetail?.work_order_status[0]?.status?.category
                 ) &&
                 workOrderDetail?.order?.payment_type === 'survey' &&
@@ -646,17 +646,25 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                       </thead>
 
                       <tbody>
-                        {workOrderDetail?.work_order_status[0]?.work_order_items.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index}-work_order_detail`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit ?? ''}</td>
-                            </tr>
+                        {workOrderDetail?.work_order_status[0]?.work_order_items.length ? (
+                          workOrderDetail.work_order_status[0].work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>
+                                  {item.name ?? ''}{' '}
+                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item.quantity ?? 0}</td>
+                                <td>{item.unit ?? ''}</td>
+                              </tr>
+                            )
                           )
+                        ) : (
+                          <tr>
+                            <td>Item belum diset oleh Tukang/Vendor</td>
+                            <td>Quantity belum diset oleh Tukang/Vendor</td>
+                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                          </tr>
                         )}
                       </tbody>
                     </Table>

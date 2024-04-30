@@ -9,53 +9,34 @@ import {TotalComplaint} from './components/TotalComplaint'
 import {TotalReschedule} from './components/TotalReschedule'
 
 import axios from 'axios'
-import {DatePicker} from 'antd'
-import {Row, Col} from 'react-bootstrap'
+import {DatePicker, Skeleton} from 'antd'
+import {Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
-interface StoreItem {
-  value: number | null
-  label: string
-  city_id: number | null
-}
-
 const DashboardStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
+
+  const today = new Date()
+  const [dateFrom, setDateFrom] = useState<any>(new Date(today.getFullYear(), 0, 1))
+  const [dateTo, setDateTo] = useState<any>(new Date(today.getFullYear(), 11, 31))
+
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [isLoadingPage, setIsLoadingPage] = useState(true)
 
   const [orderData, setOrderData] = useState<any[]>([])
   const [chartData, setChartData] = useState<any[]>([])
 
-  const today = new Date()
-  const formattedTodays = new Date().toISOString().split('T')[0]
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
-
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
-
-  const [store, setStore] = useState<StoreItem[]>([])
   const [sales, setSales] = useState<any[]>([])
 
-  const [selectedStore, setSelectedStore] = useState<any>({
-    value: null,
-    label: '',
-    city_id: null,
-  })
+  const getOrder = async (queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&store_id=${userStore}${queryparams}`
 
-  const storeId = selectedStore && selectedStore?.value ? `&${selectedStore?.value}` : ''
-
-  const fetchOrderData = async () => {
     try {
-      let url =
-        !dateFrom && !dateTo
-          ? `${apiUrl}/orders?order_by=desc&date_from=${firstDayOfMonth}&date_to=${formattedTodays}&store_id=${userStore}&take=0`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${userStore}&take=0`
-
-      const response = await axios.get(url, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -64,10 +45,9 @@ const DashboardStore: FC = () => {
         },
       })
 
-      const data = response?.data?.data
-      setOrderData(data)
-
-      return data
+      setOrderData(response.data.data)
+      setIsLoadingPage(false)
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -75,7 +55,7 @@ const DashboardStore: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders`, {
+      const response = await axios.get(`${apiUrl}/reports/orders?store_id=${userStore}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -85,74 +65,74 @@ const DashboardStore: FC = () => {
       })
 
       const chartDatas = response.data.monthlyOrders
-      setChartData(chartDatas)
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+      setChartData(slicedData)
+      setIsLoadingPage(false)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  useEffect(() => {
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+  const getSales = async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/sales?take=0&top_best=true&order_by=desc&store_id=${userStore}`,
+        {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
-        })
-
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            city_id: item.city_id,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
         }
-      } catch (err) {
-        console.error(err)
-      }
+      )
+
+      const data = response.data.data
+      setSales(data)
+      setIsLoadingPage(false)
+    } catch (err) {
+      console.error(err)
     }
+  }
 
-    const getSales = async () => {
-      const url =
-        userRole === 'Store Staff' || userRole === 'Store CS'
-          ? `${apiUrl}/sales?take=0&top_best=true&order_by=desc&store_id=${userStore}`
-          : `${apiUrl}/sales?take=0&top_best=true&order_by=desc${storeId}`
+  useEffect(() => {
+    getOrder('')
+  }, [])
 
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        const data = response.data.data
-        setSales(data)
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    getStore()
+  useEffect(() => {
     getSales()
-  }, [userRole, selectedStore?.value])
-
-  useEffect(() => {
-    fetchOrderData()
-  }, [dateFrom, dateTo])
-
-  useEffect(() => {
     getReportOrder()
   }, [])
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    if (dateFrom) {
+      queryparams += `&date_from=${dateFrom}`
+    }
+
+    if (dateTo) {
+      queryparams += `&date_to=${dateTo}`
+    }
+
+    const data = await getOrder(queryparams)
+    setOrderData(data)
+
+    await getReportOrder()
+
+    setLoadingButton(false)
+  }
 
   return (
     <>
@@ -175,8 +155,8 @@ const DashboardStore: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
+                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
                   }
                 }}
               />
@@ -184,7 +164,15 @@ const DashboardStore: FC = () => {
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12} className='mb-5'></Col>
+        <Col xxl={4} xl={4} lg={12} className='mb-5'>
+          <Button
+            className='btn-dark-primary button-submit'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </Col>
       </Row>
 
       <Row className='gy-5 g-xl-8'>
@@ -200,21 +188,33 @@ const DashboardStore: FC = () => {
 
       <Row className='gy-5 g-xl-8'>
         <Col xxl={4} xl={4} lg={12}>
-          <TransactionWidget orderData={orderData} />
+          <TransactionWidget orderData={orderData} loadingPage={isLoadingPage} />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
-          <TopSalesWidget className='card-xl-stretch mb-xl-8' salesData={sales} />
+          <TopSalesWidget
+            className='card-xl-stretch mb-xl-8'
+            salesData={sales}
+            loadingPage={isLoadingPage}
+          />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
           <Row>
             <Col xxl={6} xl={6} lg={12}>
-              <TotalComplaint orderData={orderData} className='card-xxl-stretch-50  mb-xl-8' />
+              <TotalComplaint
+                orderData={orderData}
+                className='card-xxl-stretch-50  mb-xl-8'
+                loadingPage={isLoadingPage}
+              />
             </Col>
 
             <Col xxl={6} xl={6} lg={12}>
-              <TotalReschedule orderData={orderData} className='card-xxl-stretch-50  mb-xl-8' />
+              <TotalReschedule
+                orderData={orderData}
+                className='card-xxl-stretch-50  mb-xl-8'
+                loadingPage={isLoadingPage}
+              />
             </Col>
           </Row>
 

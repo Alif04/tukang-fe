@@ -77,13 +77,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const getStatuses = (categories: string[]) =>
@@ -294,7 +287,13 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       : 'Tanggal request pemasangan :'}
                   </Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>{formatDate(new Date(order?.request_survey))}</p>
+                    <p className='fs-7 p-0'>
+                      {new Date(order?.request_survey).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </p>
                   </Col>
                 </Form.Group>
 
@@ -330,7 +329,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             {(() => {
               if (
                 (order?.payment_type === 'survey' && order?.work_orders === null) ||
-                order?.work_orders?.work_order_status.length === 1
+                (order?.work_orders?.work_order_status.length === 1 &&
+                  order?.payment_type === 'survey')
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -543,7 +543,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   order?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 order?.payment_type === 'survey' &&
@@ -561,17 +561,25 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       </thead>
 
                       <tbody>
-                        {order?.work_orders?.work_order_status[0]?.work_order_items.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index}-work_order_detail`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit ?? ''}</td>
-                            </tr>
+                        {order?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                          order.work_orders.work_order_status[0].work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>
+                                  {item.name ?? ''}{' '}
+                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item.quantity ?? 0}</td>
+                                <td>{item.unit ?? ''}</td>
+                              </tr>
+                            )
                           )
+                        ) : (
+                          <tr>
+                            <td>Item belum diset oleh Tukang/Vendor</td>
+                            <td>Quantity belum diset oleh Tukang/Vendor</td>
+                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                          </tr>
                         )}
                       </tbody>
                     </Table>
@@ -663,6 +671,128 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 )
               }
             })()}
+          </Row>
+
+          <Row>
+            <Col>
+              <Row className='information-detail'>
+                <div className='fs-3 fw-bold'>Informasi Survei Yang Dilakukan Oleh Vendor</div>
+
+                <div className='survey'>
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Survey dikerjakan pada:</p>
+
+                    <p className='fs-7 p-0'>
+                      {order?.payment_type === 'survey' ? (
+                        <>
+                          {order?.work_orders?.work_order_status.length ? (
+                            <p className='fs-7'>
+                              Tanggal :{' '}
+                              {new Date(order?.work_orders?.survey_date).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                }
+                              )}
+                            </p>
+                          ) : (
+                            <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                          )}
+                        </>
+                      ) : (
+                        <p className='fs-7'>Order ini tanpa survey</p>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Oleh:</p>
+
+                    {order?.payment_type === 'survey' ? (
+                      <>
+                        {order?.work_orders?.work_order_status.length ? (
+                          <p className='fs-7'>
+                            {order?.work_orders?.work_order_tukang
+                              .filter((x: any) => x.type === 1)
+                              .map((item: any) => item?.tukang?.full_name)
+                              .join(', ')}
+                          </p>
+                        ) : (
+                          <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                        )}
+                      </>
+                    ) : (
+                      <p className='fs-7'>Order ini tanpa survey</p>
+                    )}
+                  </div>
+                </div>
+              </Row>
+            </Col>
+
+            <Col>
+              <Row className='information-detail'>
+                <div className='fs-3 fw-bold'>Informasi Pengerjaan Yang Dilakukan Oleh Vendor</div>
+
+                <div className='work-date'>
+                  <p className='fs-5 fw-bold'>Pekerjaan dilakukan pada:</p>
+
+                  <div className='detail-info mb-3'>
+                    {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
+                      .length ? (
+                      <div>
+                        <p className='fs-7'>
+                          MULAI{' '}
+                          <span className='ms-5'>
+                            {new Date(order?.work_orders?.work_start_date).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              }
+                            )}
+                          </span>
+                        </p>
+
+                        <p className='fs-7'>
+                          SELESAI{' '}
+                          <span className='ms-3'>
+                            {new Date(order?.work_orders?.work_end_date).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              }
+                            )}
+                          </span>
+                        </p>
+                      </div>
+                    ) : (
+                      <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                    )}
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Oleh:</p>
+
+                    {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
+                      ?.length ? (
+                      <p className='fs-7'>
+                        {order?.work_orders?.work_order_tukang
+                          ?.filter((x: any) => x.type === 2)
+                          ?.map((item: any) => item?.tukang?.full_name)
+                          .join(', ')}
+                      </p>
+                    ) : (
+                      <p className='fs-7'>Tukang belum diset oleh vendor</p>
+                    )}
+                  </div>
+                </div>
+              </Row>
+            </Col>
           </Row>
 
           {order?.order_files.length >= 1 ? (

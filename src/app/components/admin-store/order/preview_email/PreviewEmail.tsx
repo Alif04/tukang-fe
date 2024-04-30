@@ -39,13 +39,6 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
     fetchOrderData()
   }, [])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   // Grand Total Order
   const calculateTotal = (orderDetail: any) => {
     const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}

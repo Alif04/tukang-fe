@@ -1,35 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
+import {Skeleton} from 'antd'
 import React from 'react'
 import {Link} from 'react-router-dom'
 
 type Props = {
   orderData: any[]
+  loadingPage: boolean
 }
 
-const TransactionWidget: React.FC<Props> = ({orderData}) => {
+const TransactionWidget: React.FC<Props> = ({orderData, loadingPage}) => {
   const filteredOrderData = orderData?.slice(0, 4)
-
-  const formatDate = (date: any) => {
-    const months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
-    ]
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = months[date.getMonth()]
-    const year = date.getFullYear()
-    return `${day} ${month} ${year}`
-  }
 
   return (
     <div className='card card-xl-stretch mb-5 mb-xl-8'>
@@ -44,40 +24,46 @@ const TransactionWidget: React.FC<Props> = ({orderData}) => {
             : 'card-body pt-2'
         }
       >
-        <div className='transaction-wrapper'>
-          {filteredOrderData?.length === 0 ? (
-            <div className='text-center'>Tidak ada order dibulan ini</div>
-          ) : (
-            filteredOrderData?.map((item: any) => (
-              <div className='d-flex align-items-center mb-7' key={item.id}>
-                <div className='flex-grow-1 me-2'>
-                  <div className='fw-bolder text-gray-800 fs-5'>
-                    {item?.members?.full_name ?? ''}
+        <Skeleton active loading={loadingPage}>
+          <div className='transaction-wrapper'>
+            {filteredOrderData?.length === 0 ? (
+              <div className='text-center'>Tidak ada order dibulan ini</div>
+            ) : (
+              filteredOrderData?.map((item: any) => (
+                <div className='d-flex align-items-center mb-7' key={item.id}>
+                  <div className='flex-grow-1 me-2'>
+                    <div className='fw-bolder text-gray-800 fs-5'>
+                      {item?.members?.full_name ?? ''}
+                    </div>
+
+                    <div className='fw-bold text-gray-800 fs-6'>
+                      {item?.m_order_details
+                        .map((item: any) =>
+                          item?.item === null ? item?.item_notes : item?.item?.service_name ?? '-'
+                        )
+                        .join(', ')}
+                    </div>
+
+                    <span className='text-muted fw-semibold d-block'>
+                      {new Date(item?.request_survey).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </span>
                   </div>
 
-                  <div className='fw-bold text-gray-800 fs-6'>
-                    {item?.m_order_details
-                      .map((item: any) =>
-                        item?.item === null ? item?.item_notes : item?.item?.service_name ?? '-'
-                      )
-                      .join(', ')}
+                  <div className='d-flex flex-column align-items-end'>
+                    <span className='fw-bold text-success'>{`Rp. ${
+                      parseInt(item?.grand_total).toLocaleString('id') ?? 0
+                    }`}</span>
+                    <span className='fw-bold text-dark'>{item?.status?.category ?? ''}</span>
                   </div>
-
-                  <span className='text-muted fw-semibold d-block'>
-                    {formatDate(new Date(item?.request_survey))}
-                  </span>
                 </div>
-
-                <div className='d-flex flex-column align-items-end'>
-                  <span className='fw-bold text-success'>{`Rp. ${
-                    parseInt(item?.grand_total).toLocaleString('id') ?? 0
-                  }`}</span>
-                  <span className='fw-bold text-dark'>{item?.status?.category ?? ''}</span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        </Skeleton>
       </div>
 
       <div className='button-wrapper d-flex justify-content-center' style={{margin: '30px'}}>
