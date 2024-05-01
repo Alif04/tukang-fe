@@ -1,5 +1,5 @@
 import React from 'react'
-import {Navigate, Route, Routes} from 'react-router-dom'
+import {Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
@@ -23,21 +23,21 @@ const CalendarPage: React.FC = () => {
         path='view-calendar'
         element={
           <>
-            {userRole == 'Store CS' ? (
+            {userRole === 'Store Staff' || userRole === 'Store CS' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR INSTALASI</PageTitle>
               </>
-            ) : userRole == 'Admin HO' ? (
+            ) : userRole === 'Admin HO' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR VENDOR</PageTitle>
               </>
-            ) : userRole == 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR KERJA</PageTitle>
               </>
-            ) : userRole == 'Tukang' ? (
+            ) : userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR KERJA</PageTitle>

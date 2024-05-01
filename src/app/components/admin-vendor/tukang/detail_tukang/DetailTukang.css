@@ -1,135 +1,3 @@
-/* #detail-tukang {
-  margin-top: 20px;
-}
-
-#detail-tukang .row .content-top {
-  margin-bottom: 50px;
-}
-
-#detail-tukang .row .content-top .col-md-3 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#detail-tukang .row .content-top .col-md-3 i {
-  font-size: 150px;
-}
-
-#detail-tukang .row .content-top .col-md-9 .box {
-  padding: 10px;
-}
-
-#detail-tukang .row .content-top .col-md-9 .box h1 {
-  font-size: 34px;
-}
-
-#detail-tukang .row .content-top .col-md-9 .box p {
-  font-size: 20px;
-  margin-top: 5px;
-}
-
-#detail-tukang .row .content-top .col-md-9 .box small {
-  font-size: 14px;
-}
-
-#detail-tukang .row .content-top .col-md-9 .box .star-rating {
-  column-gap: 4px;
-  display: flex;
-}
-
-#detail-tukang .row .content-top .col-md-9 .box .star-rating span i {
-  font-size: 30px;
-}
-
-#detail-tukang .row .content-top .col-md-9 .box .star-rating .bi-star-fill {
-  color: rgb(238, 147, 98);
-}
-
-#detail-tukang .row .content-bottom .col-md-3 .box .title {
-  margin-bottom: 10px;
-  margin-top: 20px;
-}
-
-#detail-tukang .row .content-bottom .col-md-3 .box .title h4 {
-  color: #9a9a9a;
-}
-
-#detail-tukang .row .content-bottom .col-md-3 .box ul {
-  line-height: 25px;
-}
-
-#detail-tukang .row .content-bottom {
-  display: flex;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .tab-title {
-  border-bottom: 1px solid rgb(200, 200, 200);
-  margin-bottom: 10px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .tab-title .title {
-  display: flex;
-  column-gap: 5px;
-  padding: 0 10px 0 5px;
-  width: fit-content;
-  border-bottom: 1px solid black;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .tab-title .title i {
-  font-size: 30px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .tab-title .title p {
-  font-weight: 500;
-  font-size: 18px;
-  margin-top: 8px;
-  color: #9a9a9a;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .data-diri {
-  width: 50%;
-  line-height: 25px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .data-diri .data {
-  margin-top: 20px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .data-diri .left {
-  text-align: right;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .data-diri .right {
-  text-align: left;
-  padding-left: 10px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .basic-info {
-  margin-top: 80px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .basic-info .data {
-  margin-top: 20px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .basic-info p {
-  font-size: 18px;
-  background-color: #f8f8f8;
-  margin-top: -28px;
-  padding-right: 10px;
-  width: fit-content;
-  position: relative;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .basic-info tr {
-  line-height: 25px;
-}
-
-#detail-tukang .content-bottom .col-md-9 .tab .basic-info tr .right {
-  padding-left: 10px;
-} */
-
 /* Form Layout */
 
 #detail-tukang {
@@ -282,7 +150,7 @@
 #detail-tukang .navtab-detail-costumer.nav.nav-tabs .nav-link.active,
 .nav-tabs .nav-item.show .nav-link {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   color: grey;
   text-decoration-line: underline;
@@ -294,7 +162,7 @@
 
 #detail-tukang .navtab-detail-costumer.nav.nav-tabs .nav-link {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   background-color: white;
   border-color: transparent;
