@@ -146,7 +146,7 @@
 #detail-costumer .navtab-detail-costumer.nav.nav-tabs .nav-link.active,
 .nav-tabs .nav-item.show .nav-link {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   color: grey;
   text-decoration-line: underline;
@@ -158,7 +158,7 @@
 
 #detail-costumer .navtab-detail-costumer.nav.nav-tabs .nav-link {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   background-color: white;
   border-color: transparent;

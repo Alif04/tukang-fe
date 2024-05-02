@@ -13,19 +13,19 @@ const ViewCalendar: React.FC = () => {
 
   return (
     <>
-      {userRole == 'Store CS' ? (
+      {userRole === 'Store Staff' || userRole === 'Store CS' ? (
         <>
           <ViewCalendarCS />
         </>
-      ) : userRole == 'Admin HO' ? (
+      ) : userRole === 'Admin HO' ? (
         <>
           <ViewCalendarHO />
         </>
-      ) : userRole == 'Admin Vendor' ? (
+      ) : userRole === 'Admin Vendor' ? (
         <>
           <ViewCalendarVendor />
         </>
-      ) : userRole == 'Tukang' ? (
+      ) : userRole === 'Tukang' ? (
         <>
           <ViewCalendarTukang />
         </>

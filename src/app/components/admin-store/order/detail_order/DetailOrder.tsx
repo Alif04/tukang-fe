@@ -698,7 +698,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               )}
                             </p>
                           ) : (
-                            <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                            <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
                           )}
                         </>
                       ) : (
@@ -720,7 +720,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               .join(', ')}
                           </p>
                         ) : (
-                          <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                          <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
                         )}
                       </>
                     ) : (
@@ -771,7 +771,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </p>
                       </div>
                     ) : (
-                      <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                      <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
                     )}
                   </div>
 

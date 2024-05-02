@@ -268,7 +268,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                                 {workOrderDetail?.work_order_status.length ? (
                                   <>{formatDateTime(new Date(workOrderDetail?.survey_date))}</>
                                 ) : (
-                                  'Jadwal belum diset oleh vendor'
+                                  'Jadwal belum ditentukan oleh vendor'
                                 )}
                               </>
                             ) : (
@@ -291,7 +291,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                                     .join(', ')}
                                 </p>
                               ) : (
-                                'Jadwal belum diset oleh vendor'
+                                'Jadwal belum ditentukan oleh vendor'
                               )}
                             </>
                           ) : (

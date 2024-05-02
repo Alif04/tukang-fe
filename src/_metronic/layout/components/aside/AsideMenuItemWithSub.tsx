@@ -34,11 +34,14 @@ const AsideMenuItemWithSub: React.FC<Props & WithChildren> = ({
     return null
   }
 
+  // Function To Check Url ( IsActive ), if matches to sidebar it will be true, it means the sidebar will opened, but if I disabled this function it will be fine because some case there is sub menu url on different path
+  //   <div
+  //   className={clsx('menu-item', {'here show': isActive}, 'menu-accordion')}
+  //   data-kt-menu-trigger='click'
+  // >
+
   return (
-    <div
-      className={clsx('menu-item', {'here show': isActive}, 'menu-accordion')}
-      data-kt-menu-trigger='click'
-    >
+    <div className={clsx('menu-item', 'menu-accordion')} data-kt-menu-trigger='click'>
       <span className='menu-link'>
         {hasBullet && (
           <span className='menu-bullet'>
