@@ -1,13 +1,12 @@
 import React, {useState, FC, useEffect} from 'react'
-
-import './DetailOrder.css'
+import {useParams} from 'react-router-dom'
 
 import {Orders} from '../../../../interfaces/order'
+import './DetailOrder.css'
+
 import axios from 'axios'
-import {useParams} from 'react-router-dom'
-import {Image} from 'antd'
+import {Image, Steps, Skeleton} from 'antd'
 import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
-import {Steps} from 'antd'
 
 interface Status {
   value: number | null
@@ -17,6 +16,9 @@ interface Status {
 const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
+
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
+
   const [order, setOrder] = useState<Orders>({
     member_id: null,
     seles_id: null,
@@ -64,6 +66,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           const data = response.data.data as Orders
           setOrder(data)
           updatePageTitle(data)
+          setIsLoadingPage(false)
         })
     } catch (error) {
       console.error(error)
@@ -156,546 +159,588 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>{order?.store?.store_name ?? ''}</span>
-                </Form.Label>
+                <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Nama Toko :{' '}
+                    <span className='fs-4 ms-2 fw-normal'>{order?.store?.store_name ?? ''}</span>
+                  </Form.Label>
+                </Skeleton>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>{order?.id}</span>
-                </Form.Label>
+                <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Order ID : <span className='fs-4 ms-2 fw-normal'>{order?.id}</span>
+                  </Form.Label>
+                </Skeleton>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Col>
-                  <Form.Label className='fs-4 fw-bold'>
-                    Receipt Number :
-                    <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number ?? '-'}</span>
-                  </Form.Label>
+                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                    <Form.Label className='fs-4 fw-bold'>
+                      Receipt Number :
+                      <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number ?? '-'}</span>
+                    </Form.Label>
+                  </Skeleton>
                 </Col>
+
                 <Col>
-                  <Form.Label className='fs-4 fw-bold'>
-                    Order Status :
-                    <span className='fs-4 ms-2 fw-bold text-success'>
-                      {(() => {
-                        if (
-                          order?.status?.category === 'QUOTEIN' ||
-                          order?.status?.category === 'QUOTEOUT'
-                        ) {
-                          return order?.status?.description
-                        } else if (order?.work_orders?.work_order_status?.length > 0) {
-                          return order?.work_orders?.work_order_status[0]?.status?.description
-                        } else {
-                          return order?.status?.description
-                        }
-                      })()}
-                    </span>
-                  </Form.Label>
+                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                    <Form.Label className='fs-4 fw-bold'>
+                      Order Status :
+                      <span className='fs-4 ms-2 fw-bold text-success'>
+                        {(() => {
+                          if (
+                            order?.status?.category === 'QUOTEIN' ||
+                            order?.status?.category === 'QUOTEOUT'
+                          ) {
+                            return order?.status?.description
+                          } else if (order?.work_orders?.work_order_status?.length > 0) {
+                            return order?.work_orders?.work_order_status[0]?.status?.description
+                          } else {
+                            return order?.status?.description
+                          }
+                        })()}
+                      </span>
+                    </Form.Label>
+                  </Skeleton>
                 </Col>
               </Col>
             </Row>
 
             <Row className='information-detail'>
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
-                <div className='fs-3 fw-bold'>Informasi Pembeli</div>
-                <Row>
-                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
-                        No Member :
-                      </Form.Label>
-                      <Col sm='6'>
-                        <p className='fs-7'>{order?.members?.member_number}</p>
-                      </Col>
-                    </Form.Group>
+                <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                  <div className='fs-3 fw-bold'>Informasi Pembeli</div>
 
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
-                        Customer Name :
-                      </Form.Label>
-                      <Col sm='6'>
-                        <p className='fs-7'>{order?.members?.full_name}</p>
-                      </Col>
-                    </Form.Group>
+                  <Row>
+                    <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='6'>
+                          No Member :
+                        </Form.Label>
+                        <Col sm='6'>
+                          <p className='fs-7'>{order?.members?.member_number}</p>
+                        </Col>
+                      </Form.Group>
 
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
-                        Alamat Pemasangan :
-                      </Form.Label>
-                      <Col sm='6'>
-                        <p className='fs-7'>{order?.project_address}</p>
-                      </Col>
-                    </Form.Group>
-                  </Col>
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='6'>
+                          Customer Name :
+                        </Form.Label>
+                        <Col sm='6'>
+                          <p className='fs-7'>{order?.members?.full_name}</p>
+                        </Col>
+                      </Form.Group>
 
-                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='5'>
-                        Nomor Telp/WA :
-                      </Form.Label>
-                      <Col sm='7'>
-                        <p className='fs-7'>{order?.project_number}</p>
-                      </Col>
-                    </Form.Group>
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='6'>
+                          Alamat Pemasangan :
+                        </Form.Label>
+                        <Col sm='6'>
+                          <p className='fs-7'>{order?.project_address}</p>
+                        </Col>
+                      </Form.Group>
+                    </Col>
 
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='5'>
-                        Alamat Email :
-                      </Form.Label>
-                      <Col sm='7'>
-                        <p className='fs-7'>{order?.members?.email} </p>
-                      </Col>
-                    </Form.Group>
-                  </Col>
-                </Row>
+                    <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='5'>
+                          Nomor Telp/WA :
+                        </Form.Label>
+                        <Col sm='7'>
+                          <p className='fs-7'>{order?.project_number}</p>
+                        </Col>
+                      </Form.Group>
+
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='5'>
+                          Alamat Email :
+                        </Form.Label>
+                        <Col sm='7'>
+                          <p className='fs-7'>{order?.members?.email} </p>
+                        </Col>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </Skeleton>
               </Col>
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <div className='fs-3 fw-bold'>Informasi Penjual</div>
+                <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                  <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='3'>
-                    Sales ID :
-                  </Form.Label>
-                  <Col sm='9'>
-                    <p className='fs-7'>{order?.sales?.id} </p>
-                  </Col>
-                </Form.Group>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='3'>
+                      Sales ID :
+                    </Form.Label>
+                    <Col sm='9'>
+                      <p className='fs-7'>{order?.sales?.id} </p>
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group as={Row} className='detail-info'>
-                  <Form.Label column sm='3'>
-                    Sales Person :
-                  </Form.Label>
-                  <Col sm='9'>
-                    <p className='fs-7'>{order?.sales?.full_name} </p>
-                  </Col>
-                </Form.Group>
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='3'>
+                      Sales Person :
+                    </Form.Label>
+                    <Col sm='9'>
+                      <p className='fs-7'>{order?.sales?.full_name} </p>
+                    </Col>
+                  </Form.Group>
+                </Skeleton>
               </Col>
             </Row>
           </div>
 
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty'>
-              <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
-              <Row>
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>
-                    {order?.payment_type === 'survey'
-                      ? 'Tanggal request survey :'
-                      : 'Tanggal request pemasangan :'}
-                  </Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>
-                      {new Date(order?.request_survey).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </p>
-                  </Col>
-                </Form.Group>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
+                <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>{order?.vendor?.company_name ?? '-'}</p>
-                  </Col>
-                </Form.Group>
+                <Row>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>
+                      {order?.payment_type === 'survey'
+                        ? 'Tanggal request survey :'
+                        : 'Tanggal request pemasangan :'}
+                    </Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>
+                        {new Date(order?.request_survey).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </p>
+                    </Col>
+                  </Form.Group>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Payment Type:</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>
-                      {(() => {
-                        if (order?.payment_type === 'survey') {
-                          return `Berbayar & Survey`
-                        } else if (order?.payment_type === 'gratis') {
-                          return `Gratis`
-                        } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
-                          return `Berbayar & Pemasangan Tanpa Survey`
-                        } else {
-                          return ``
-                        }
-                      })()}
-                    </p>
-                  </Col>
-                </Form.Group>
-              </Row>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>{order?.vendor?.company_name ?? '-'}</p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>Payment Type:</Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>
+                        {(() => {
+                          if (order?.payment_type === 'survey') {
+                            return `Berbayar & Survey`
+                          } else if (order?.payment_type === 'gratis') {
+                            return `Gratis`
+                          } else if (order?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Berbayar & Pemasangan Tanpa Survey`
+                          } else {
+                            return ``
+                          }
+                        })()}
+                      </p>
+                    </Col>
+                  </Form.Group>
+                </Row>
+              </Skeleton>
             </div>
 
-            {/* Newest */}
-            {(() => {
-              if (
-                (order?.payment_type === 'survey' && order?.work_orders === null) ||
-                (order?.work_orders?.work_order_status.length === 1 &&
-                  order?.payment_type === 'survey')
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    {order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari{' '}
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+              {/* Newest */}
+              {(() => {
+                if (
+                  (order?.payment_type === 'survey' && order?.work_orders === null) ||
+                  (order?.work_orders?.work_order_status.length === 1 &&
+                    order?.payment_type === 'survey')
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      {order?.is_overdistance === 1 && (
+                        <>
+                          <Form.Text className='fs-8 text-dark'>
+                            *Order ini lebih dari{' '}
+                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                            toko sehingga dikenakan biaya tambahan
+                          </Form.Text>
+                        </>
+                      )}
 
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {order?.order_details.map((item: any, index: any) => (
-                          <>
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item_notes}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                            </tr>
-                          </>
-                        ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Biaya Survey
-                          </td>
-
-                          <td className=' fw-bolder'>Rp. 99.000</td>
-                        </tr>
-
-                        {order?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                order?.additional_fee
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
-
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Grand Total
-                              </td>
-
-                              <td className=' fw-bolder'>{calculateTotal(order)}</td>
-                            </tr>
-                          </>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '') &&
-                order?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    {order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Jenis Jasa
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {order?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 2)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Total
-                          </td>
-
-                          <td className='fw-bolder'>
-                            {`Rp. ${order?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 2)
-                              .map((item: any) => parseInt(item?.price ?? 0))
-                              .reduce((total: number, price: number) => total + price, 0)
-                              .toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </Table>
-
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Material Yang Dibutuhkan
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {order?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 1)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Promosi ( Free Survey )
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              order?.quotation[0]?.quotation_disc ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-
-                        {order?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                order?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              order?.quotation[0]?.quotation_grand_total ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                  order?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
-                order?.payment_type === 'survey' &&
-                order?.work_orders?.work_order_status.length >= 1
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th>Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                          <th>Satuan</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {order?.work_orders?.work_order_status[0]?.work_order_items.length ? (
-                          order.work_orders.work_order_status[0].work_order_items.map(
-                            (item: any, index: any) => (
-                              <tr key={`${index}-work_order_detail`}>
-                                <td>
-                                  {item.name ?? ''}{' '}
-                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item.quantity ?? 0}</td>
-                                <td>{item.unit ?? ''}</td>
-                              </tr>
-                            )
-                          )
-                        ) : (
+                      <Table hover responsive='md'>
+                        <thead className='table-warranty-head'>
                           <tr>
-                            <td>Item belum diset oleh Tukang/Vendor</td>
-                            <td>Quantity belum diset oleh Tukang/Vendor</td>
-                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                order?.payment_type === 'gratis' ||
-                order?.payment_type === 'pemasangan_tanpa_survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    {order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari{' '}
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
+                        </thead>
 
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                          {!(order?.payment_type === 'gratis') && (
+                        <tbody>
+                          {order?.order_details.map((item: any, index: any) => (
                             <>
-                              <th>Harga Jasa</th>
-                              <th>Jumlah</th>
+                              <tr key={`${index} - order_detail`}>
+                                <td>{item?.item_code}</td>
+                                <td>{item?.item_name}</td>
+                                <td>{item?.item_notes}</td>
+                                <td>{item?.quantity ?? 0}</td>
+                              </tr>
+                            </>
+                          ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Biaya Survey
+                            </td>
+
+                            <td className=' fw-bolder'>Rp. 99.000</td>
+                          </tr>
+
+                          {order?.is_overdistance === 1 && (
+                            <>
+                              <tr>
+                                <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                  Biaya Tambahan
+                                </td>
+
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  order?.additional_fee
+                                ).toLocaleString('id')}`}</td>
+                              </tr>
+
+                              <tr>
+                                <td colSpan={3} className='text-end fw-bolder'>
+                                  Grand Total
+                                </td>
+
+                                <td className=' fw-bolder'>{calculateTotal(order)}</td>
+                              </tr>
                             </>
                           )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {order?.order_details.map((item: any, index: any) => (
-                          <>
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item?.service_name}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              {!(order?.payment_type === 'gratis') && (
-                                <>
-                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </>
-                              )}
-                            </tr>
-                          </>
-                        ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                } else if (
+                  ['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '') &&
+                  order?.payment_type === 'survey'
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      {order?.is_overdistance === 1 && (
+                        <>
+                          <Form.Text className='fs-8 text-dark'>
+                            *Order ini lebih dari
+                            <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
+                            toko sehingga dikenakan biaya tambahan
+                          </Form.Text>
+                        </>
+                      )}
 
-                        {order?.is_overdistance === 1 && (
-                          <>
+                      <Table hover responsive='md'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Jenis Jasa
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {order?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 2)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              </tr>
+                            ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total
+                            </td>
+
+                            <td className='fw-bolder'>
+                              {`Rp. ${order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2)
+                                .map((item: any) => parseInt(item?.price ?? 0))
+                                .reduce((total: number, price: number) => total + price, 0)
+                                .toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+
+                      <Table hover responsive='md'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {order?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              </tr>
+                            ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          {order?.is_overdistance === 1 && (
+                            <>
+                              <tr>
+                                <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                  Biaya Tambahan
+                                </td>
+
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  order?.additional_fee
+                                ).toLocaleString('id')}.`}</td>
+                              </tr>
+                            </>
+                          )}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                } else if (
+                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                    order?.work_orders?.work_order_status[0]?.status?.category
+                  ) &&
+                  order?.payment_type === 'survey' &&
+                  order?.work_orders?.work_order_status.length >= 1
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      <Table hover responsive='md'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
+                            <th>Satuan</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {order?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                            order.work_orders.work_order_status[0].work_order_items.map(
+                              (item: any, index: any) => (
+                                <tr key={`${index}-work_order_detail`}>
+                                  <td>
+                                    {item.name ?? ''}{' '}
+                                    {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                  </td>
+                                  <td>{item.quantity ?? 0}</td>
+                                  <td>{item.unit ?? ''}</td>
+                                </tr>
+                              )
+                            )
+                          ) : (
                             <tr>
-                              <td
-                                colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
-                                className='text-end fw-bolder align-middle'
-                              >
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                order?.additional_fee
-                              ).toLocaleString('id')}`}</td>
+                              <td>Item belum diset oleh Tukang/Vendor</td>
+                              <td>Quantity belum diset oleh Tukang/Vendor</td>
+                              <td>Satuan belum diset oleh Tukang/Vendor</td>
                             </tr>
-                          </>
-                        )}
+                          )}
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                } else if (
+                  order?.payment_type === 'gratis' ||
+                  order?.payment_type === 'pemasangan_tanpa_survey'
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      {order?.is_overdistance === 1 && (
+                        <>
+                          <Form.Text className='fs-8 text-dark'>
+                            *Order ini lebih dari{' '}
+                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                            toko sehingga dikenakan biaya tambahan
+                          </Form.Text>
+                        </>
+                      )}
 
-                        <tr>
-                          <td
-                            colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
-                            className='text-end fw-bolder'
-                          >
-                            Grand Total
-                          </td>
+                      <Table hover responsive='md'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
+                            {!(order?.payment_type === 'gratis') && (
+                              <>
+                                <th>Harga Jasa</th>
+                                <th>Jumlah</th>
+                              </>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {order?.order_details.map((item: any, index: any) => (
+                            <>
+                              <tr key={`${index} - order_detail`}>
+                                <td>{item?.item_code}</td>
+                                <td>{item?.item_name}</td>
+                                <td>{item?.item?.service_name}</td>
+                                <td>{item?.quantity ?? 0}</td>
+                                {!(order?.payment_type === 'gratis') && (
+                                  <>
+                                    <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                    <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </>
+                                )}
+                              </tr>
+                            </>
+                          ))}
 
-                          <td className=' fw-bolder'>{calculateTotal(order)}</td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              }
-            })()}
+                          {order?.is_overdistance === 1 && (
+                            <>
+                              <tr>
+                                <td
+                                  colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
+                                  className='text-end fw-bolder align-middle'
+                                >
+                                  Biaya Tambahan
+                                </td>
+
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  order?.additional_fee
+                                ).toLocaleString('id')}`}</td>
+                              </tr>
+                            </>
+                          )}
+
+                          <tr>
+                            <td
+                              colSpan={order?.payment_type !== 'gratis' ? 5 : 3}
+                              className='text-end fw-bolder'
+                            >
+                              Grand Total
+                            </td>
+
+                            <td className=' fw-bolder'>{calculateTotal(order)}</td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                }
+              })()}
+            </Skeleton>
           </Row>
 
           <Row>
             <Col>
-              <Row className='information-detail'>
-                <div className='fs-3 fw-bold'>Informasi Survei Yang Dilakukan Oleh Vendor</div>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                <Row className='information-detail'>
+                  <div className='fs-3 fw-bold'>Informasi Survei Yang Dilakukan Oleh Vendor</div>
 
-                <div className='survey'>
-                  <div className='detail-info mb-3'>
-                    <p className='fs-5 fw-bold'>Survey dikerjakan pada:</p>
+                  <div className='survey'>
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Survey dikerjakan pada:</p>
 
-                    <p className='fs-7 p-0'>
+                      <p className='fs-7 p-0'>
+                        {order?.payment_type === 'survey' ? (
+                          <>
+                            {order?.work_orders?.work_order_status.length ? (
+                              <p className='fs-7'>
+                                Tanggal :{' '}
+                                {new Date(order?.work_orders?.survey_date).toLocaleDateString(
+                                  'id-ID',
+                                  {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                  }
+                                )}
+                              </p>
+                            ) : (
+                              <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
+                            )}
+                          </>
+                        ) : (
+                          <p className='fs-7'>Order ini tanpa survey</p>
+                        )}
+                      </p>
+                    </div>
+
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Oleh:</p>
+
                       {order?.payment_type === 'survey' ? (
                         <>
                           {order?.work_orders?.work_order_status.length ? (
                             <p className='fs-7'>
-                              Tanggal :{' '}
-                              {new Date(order?.work_orders?.survey_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                }
-                              )}
+                              {order?.work_orders?.work_order_tukang
+                                .filter((x: any) => x.type === 1)
+                                .map((item: any) => item?.tukang?.full_name)
+                                .join(', ')}
                             </p>
                           ) : (
                             <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -704,133 +749,118 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       ) : (
                         <p className='fs-7'>Order ini tanpa survey</p>
                       )}
-                    </p>
+                    </div>
                   </div>
-
-                  <div className='detail-info mb-3'>
-                    <p className='fs-5 fw-bold'>Oleh:</p>
-
-                    {order?.payment_type === 'survey' ? (
-                      <>
-                        {order?.work_orders?.work_order_status.length ? (
-                          <p className='fs-7'>
-                            {order?.work_orders?.work_order_tukang
-                              .filter((x: any) => x.type === 1)
-                              .map((item: any) => item?.tukang?.full_name)
-                              .join(', ')}
-                          </p>
-                        ) : (
-                          <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
-                        )}
-                      </>
-                    ) : (
-                      <p className='fs-7'>Order ini tanpa survey</p>
-                    )}
-                  </div>
-                </div>
-              </Row>
+                </Row>
+              </Skeleton>
             </Col>
 
             <Col>
-              <Row className='information-detail'>
-                <div className='fs-3 fw-bold'>Informasi Pengerjaan Yang Dilakukan Oleh Vendor</div>
-
-                <div className='work-date'>
-                  <p className='fs-5 fw-bold'>Pekerjaan dilakukan pada:</p>
-
-                  <div className='detail-info mb-3'>
-                    {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
-                      .length ? (
-                      <div>
-                        <p className='fs-7'>
-                          MULAI{' '}
-                          <span className='ms-5'>
-                            {new Date(order?.work_orders?.work_start_date).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              }
-                            )}
-                          </span>
-                        </p>
-
-                        <p className='fs-7'>
-                          SELESAI{' '}
-                          <span className='ms-3'>
-                            {new Date(order?.work_orders?.work_end_date).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              }
-                            )}
-                          </span>
-                        </p>
-                      </div>
-                    ) : (
-                      <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
-                    )}
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                <Row className='information-detail'>
+                  <div className='fs-3 fw-bold'>
+                    Informasi Pengerjaan Yang Dilakukan Oleh Vendor
                   </div>
 
-                  <div className='detail-info mb-3'>
-                    <p className='fs-5 fw-bold'>Oleh:</p>
+                  <div className='work-date'>
+                    <p className='fs-5 fw-bold'>Pekerjaan dilakukan pada:</p>
 
-                    {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
-                      ?.length ? (
-                      <p className='fs-7'>
-                        {order?.work_orders?.work_order_tukang
-                          ?.filter((x: any) => x.type === 2)
-                          ?.map((item: any) => item?.tukang?.full_name)
-                          .join(', ')}
-                      </p>
-                    ) : (
-                      <p className='fs-7'>Tukang belum diset oleh vendor</p>
-                    )}
+                    <div className='detail-info mb-3'>
+                      {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
+                        .length ? (
+                        <div>
+                          <p className='fs-7'>
+                            MULAI{' '}
+                            <span className='ms-5'>
+                              {new Date(order?.work_orders?.work_start_date).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                }
+                              )}
+                            </span>
+                          </p>
+
+                          <p className='fs-7'>
+                            SELESAI{' '}
+                            <span className='ms-3'>
+                              {new Date(order?.work_orders?.work_end_date).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                }
+                              )}
+                            </span>
+                          </p>
+                        </div>
+                      ) : (
+                        <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
+                      )}
+                    </div>
+
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Oleh:</p>
+
+                      {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
+                        ?.length ? (
+                        <p className='fs-7'>
+                          {order?.work_orders?.work_order_tukang
+                            ?.filter((x: any) => x.type === 2)
+                            ?.map((item: any) => item?.tukang?.full_name)
+                            .join(', ')}
+                        </p>
+                      ) : (
+                        <p className='fs-7'>Tukang belum diset oleh vendor</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Row>
+                </Row>
+              </Skeleton>
             </Col>
           </Row>
 
           {order?.order_files.length >= 1 ? (
             <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='mt-3'>Bukti Receipt :</Form.Label>
-                <ListGroup>
-                  {order?.order_files.map((item: any) => (
-                    <ListGroup.Item
-                      key={item.id}
-                      action
-                      onClick={() => {
-                        setPreviewImage(item.path)
-                        setVisible(true)
-                      }}
-                    >
-                      {item.path}
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
+                <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                  <Form.Label className='mt-3'>Bukti Receipt :</Form.Label>
+                  <ListGroup>
+                    {order?.order_files.map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        onClick={() => {
+                          setPreviewImage(item.path)
+                          setVisible(true)
+                        }}
+                      >
+                        {item.path}
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
 
-                {previewImage && (
-                  <div>
-                    <Image
-                      key={previewImage}
-                      width={200}
-                      style={{display: 'none'}}
-                      src={`${apiUrl}/public/receipt/${previewImage}`}
-                      preview={{
-                        visible,
-                        src: `${apiUrl}/public/receipt/${previewImage}`,
-                        onVisibleChange: (value) => {
-                          setVisible(value)
-                        },
-                      }}
-                    />
-                  </div>
-                )}
+                  {previewImage && (
+                    <div>
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/receipt/${previewImage}`}
+                        preview={{
+                          visible,
+                          src: `${apiUrl}/public/receipt/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisible(value)
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </Skeleton>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
@@ -840,35 +870,37 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             <></>
           )}
 
-          <div className='order-history mt-3 mb-3'>
-            <div className='fs-3 fw-bold text-success mb-4'>Order History</div>
-            <Steps
-              className='order-history-timeline'
-              current={orderHistory.findIndex((step) =>
-                step.value.includes(
-                  order?.work_orders?.work_order_status.length > 0
-                    ? order?.work_orders?.work_order_status[0]?.status?.id
-                    : order?.project_status_id
-                )
-              )}
-              labelPlacement='vertical'
-              items={orderHistory}
-            />
-          </div>
-
-          {order?.complaints && order?.complaints?.length >= 1 && (
-            <div className='complaint-history  mt-3 mb-3'>
-              <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+            <div className='order-history mt-3 mb-3'>
+              <div className='fs-3 fw-bold text-success mb-4'>Order History</div>
               <Steps
-                className='complaint-history-timeline'
-                current={complaintHistory.findIndex((step) =>
-                  step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+                className='order-history-timeline'
+                current={orderHistory.findIndex((step) =>
+                  step.value.includes(
+                    order?.work_orders?.work_order_status.length > 0
+                      ? order?.work_orders?.work_order_status[0]?.status?.id
+                      : order?.project_status_id
+                  )
                 )}
                 labelPlacement='vertical'
-                items={complaintHistory}
+                items={orderHistory}
               />
             </div>
-          )}
+
+            {order?.complaints && order?.complaints?.length >= 1 && (
+              <div className='complaint-history  mt-3 mb-3'>
+                <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
+                <Steps
+                  className='complaint-history-timeline'
+                  current={complaintHistory.findIndex((step) =>
+                    step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+                  )}
+                  labelPlacement='vertical'
+                  items={complaintHistory}
+                />
+              </div>
+            )}
+          </Skeleton>
         </div>
       </div>
     </section>

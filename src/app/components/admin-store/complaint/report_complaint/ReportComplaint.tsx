@@ -9,7 +9,7 @@ import {TableList} from './components/TableList'
 
 import axios from 'axios'
 import {DatePicker} from 'antd'
-import Card from 'react-bootstrap/Card'
+import {Card, Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
@@ -50,6 +50,7 @@ const ReportComplaintStore: FC = () => {
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
   const vendorId = localStorage.getItem('vendor_id')
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const [orderData, setOrderData] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
@@ -61,19 +62,10 @@ const ReportComplaintStore: FC = () => {
   const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
 
   const today = new Date()
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
-
-  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
 
   const fetchOrder = async () => {
     const url = (() => {
@@ -106,27 +98,26 @@ const ReportComplaintStore: FC = () => {
     }
   }
 
-  const getReportOrder = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/reports/orders`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+  const fetchComplaintList = async (queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&take=0${queryparams}`
 
-      const chartDatas = response.data.monthlyOrders.slice(0, 6)
-      setChartDataOrder(chartDatas)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
+    const url = (() => {
+      switch (userRole) {
+        case 'Store CS':
+          apiUrlWithParams += `&store_id=${userStore}`
+          break
+        case 'Admin Vendor':
+          apiUrlWithParams += `&vendor_id=${vendorId}`
+          break
+        default:
+          break
+      }
 
-  const fetchWorkOrder = async () => {
+      return apiUrlWithParams
+    })()
+
     try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders?vendor_id=${vendorId}`, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -136,25 +127,50 @@ const ReportComplaintStore: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+      setComplaintList(data)
 
-      setWorkOrderData(data)
-      setChartWorkOrder(chartDatas)
       return data
     } catch (error) {
-      console.error(error)
+      console.error('Error fetching data:', error)
     }
   }
 
-  const fetchComplaintList = async () => {
+  const ViewComplaint = () => {
+    try {
+      const apiData = complaintList.map((item: any) => {
+        let data
+
+        const complaintDate = new Date(item?.complaint_date).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
+        data = {
+          order_id: item?.orders?.id,
+          complaint_date: complaintDate,
+          complaint_status: item?.status?.description,
+        }
+
+        return data
+      })
+
+      return apiData
+    } catch (error) {
+      console.error('Error getting complaint list data:', error)
+      return []
+    }
+  }
+
+  const getReportOrder = async () => {
     const url = (() => {
       switch (userRole) {
         case 'Store CS':
-          return `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&store_id=${userStore}`
+          return `${apiUrl}/reports/orders?store_id=${userStore}&take=0`
         case 'Admin Vendor':
-          return `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&vendor_id=${vendorId}`
+          return `${apiUrl}/reports/orders?vendor_id=${vendorId}&take=0`
         default:
-          return `${apiUrl}/orders?order_by=desc&take=0`
+          return `${apiUrl}/reports/orders?take=0`
       }
     })()
 
@@ -168,62 +184,126 @@ const ReportComplaintStore: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyComplaint.slice(1, 7)
+      const chartDatas = response.data.monthlyOrders
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
 
-      setComplaintList(data)
-      setChartDataComplaint(chartDatas)
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
 
-      return data
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+      setChartDataOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewComplaint = () => {
+  const getReportComplaint = async () => {
+    const url = (() => {
+      switch (userRole) {
+        case 'Store CS':
+          return `${apiUrl}/reports/complaints?store_id=${userStore}&take=0`
+        case 'Admin Vendor':
+          return `${apiUrl}/reports/complaints?vendor_id=${vendorId}&take=0`
+        default:
+          return `${apiUrl}/reports/complaints?take=0`
+      }
+    })()
+
     try {
-      const apiData = complaintList.map((item: any) => {
-        let data
-
-        const complaintDate = new Date(item.complaint_date)
-
-        data = {
-          order_id: item.orders.id,
-          complaint_date: formatDate(complaintDate),
-          complaint_status: item.status.category,
-        }
-
-        return data
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
       })
 
-      return apiData
+      const data = response.data.data.data
+      const chartDatas = response.data.monthlyComplaint
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+
+      setWorkOrderData(data)
+      setChartDataComplaint(slicedData)
+      return data
     } catch (error) {
-      console.error('Error getting complaint list data:', error)
-      return []
+      console.error(error)
     }
   }
 
+  const getReportWorkOrder = async () => {
+    const url = (() => {
+      switch (userRole) {
+        case 'Store CS':
+          return `${apiUrl}/reports/work-orders?store_id=${userStore}&take=0`
+        case 'Admin Vendor':
+          return `${apiUrl}/reports/work-orders?vendor_id=${vendorId}&take=0`
+        default:
+          return `${apiUrl}/reports/work-orders?take=0`
+      }
+    })()
+
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data.data
+      const chartDatas = response.data.monthlyWorkOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+
+      setWorkOrderData(data)
+      setChartWorkOrder(slicedData)
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const fetchData = async () => {
+    const data = await ViewComplaint()
+    setComplaintData(data)
+  }
+
   useEffect(() => {
+    fetchComplaintList('')
     getReportOrder()
+    getReportWorkOrder()
+    getReportComplaint()
   }, [])
 
   useEffect(() => {
-    fetchComplaintList()
-  }, [dateFrom, dateTo])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await ViewComplaint()
-        setComplaintData(data)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
-
     fetchData()
     fetchOrder()
-    fetchWorkOrder()
   }, [complaintList])
 
   // Catch Value From Response API by Status
@@ -267,37 +347,69 @@ const ReportComplaintStore: FC = () => {
     resolved,
   } = statusState
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}`
+    await fetchComplaintList(queryparams)
+
+    await getReportOrder()
+    await getReportWorkOrder()
+    await getReportComplaint()
+
+    setLoadingButton(false)
+  }
+
   return (
     <>
-      {/* begin::Row */}
-      <div className='row'>
-        <div className='col-xxl-4 col-xl-6 col-lg-12 mb-5'>
-          <div className='row'>
-            <div className='col-xxl-4 col-xl-4 col-lg-4 d-flex align-items-center '>
-              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
-            </div>
+      <Row>
+        <Col
+          xxl={4}
+          xl={4}
+          lg={4}
+          md={4}
+          sm={12}
+          className='d-flex justify-content-between align-items-center mb-5'
+        >
+          <h3 className='fs-3 fw-normal mb-3 w-50'>Pilih Periode :</h3>
 
-            <div className='col-xxl-8 col-xl-8 col-lg-8'>
-              <RangePicker
-                format={'DD-MM-YYYY'}
-                className='date-range ms-3'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+          <RangePicker
+            format={'DD-MM-YYYY'}
+            className='date-range ms-3 w-100'
+            onChange={(values) => {
+              if (values && values.length === 2) {
+                const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+                setDateFrom(dateFromFormatted)
+                setDateTo(dateToFormatted)
+              } else {
+                setDateFrom(
+                  new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
+                )
+                setDateTo(new Date().toISOString().split('T')[0])
+              }
+            }}
+          />
+        </Col>
+
+        <Col
+          xxl={4}
+          xl={4}
+          lg={4}
+          md={4}
+          sm={12}
+          className='d-flex justify-content-between align-items-center mb-5'
+        >
+          <Button
+            className='btn-dark-primary button-submit m-0'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </Col>
+      </Row>
 
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
@@ -414,9 +526,11 @@ const ReportComplaintStore: FC = () => {
         <div className='col-xl-4'>
           <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
         </div>
+
         <div className='col-xl-4'>
           <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartWorkOrder} />
         </div>
+
         <div className='col-xl-4'>
           <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
         </div>

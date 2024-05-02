@@ -61,10 +61,10 @@ const chartOptions = (chartHeight: string, chartWorkOrder: any): ApexOptions => 
   const cancelColor = getCSSVariableValue('--kt-dark')
   const ReworkColor = getCSSVariableValue('--kt-success')
 
-  const onProgress = chartWorkOrder.map((item: any) => item.totalSurveyReqOrder)
+  const onProgress = chartWorkOrder.map((item: any) => item?.totalSurveyOrder)
   const totalOnProgress = onProgress.reduce((acc: any, curr: any) => acc + curr, 0)
 
-  const workDone = chartWorkOrder.map((item: any) => item.totalCompleteOrder)
+  const workDone = chartWorkOrder.map((item: any) => item?.totalCompleteOrder)
   const totalWorkDone = workDone.reduce((acc: any, curr: any) => acc + curr, 0)
 
   return {

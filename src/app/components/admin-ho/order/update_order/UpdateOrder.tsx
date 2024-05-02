@@ -137,8 +137,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     order_files: [],
   })
 
-  console.log(orderForm)
-
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
@@ -185,19 +183,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
     const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
+    const search = itemNameSearch ? `&search=${itemNameSearch}` : ''
 
     try {
-      const response = await axios.get(
-        `${apiUrl}/items?take=0&search=${itemNameSearch}${itemFree}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(`${apiUrl}/items?take=0${search}${itemFree}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       if (Array.isArray(response.data.data)) {
         const item = response.data.data.map((item: any) => ({

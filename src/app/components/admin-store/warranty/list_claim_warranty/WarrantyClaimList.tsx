@@ -5,17 +5,30 @@ import './WarrantyClaimList.css'
 
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
-import {Table, Tag, PaginationProps} from 'antd'
+import {Table, Tag, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTicket, faSearch, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faTicket, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
   className: string
+}
+
+interface DataType {
+  key: string
+  order_id: number
+  date_order: Date
+  no_member: number
+  costumer_name: string
+  phone_number: number
+  services_name: string
+  status_order: string
+  tanggal_aktif_garansi: string
 }
 
 interface Status {
@@ -25,11 +38,16 @@ interface Status {
 
 const WarrantyClaimList: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const userStore = localStorage.getItem('storeId')
-  const userRole = localStorage.getItem('userRole')
   const navigate = useNavigate()
 
-  const [claimWarrantyData, setclaimWarrantyData] = useState<DataType[]>([])
+  const userStore = localStorage.getItem('storeId')
+  const userRole = localStorage.getItem('userRole')
+  const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
+  const [claimWarrantyData, setClaimWarrantyData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(1)
 
@@ -42,17 +60,14 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  interface DataType {
-    key: string
-    order_id: number
-    date_order: Date
-    no_member: number
-    costumer_name: string
-    phone_number: number
-    services_name: string
-    status_order: string
-    tanggal_aktif_garansi: string
-  }
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.filter((status: any) => ['DONE'].includes(status.category))
+  const statuses = desiredStatus.map((x: any) => x.value)
+  const statusFilters = statusData.map((item: any) => ({
+    text: item.description,
+    value: item.description,
+  }))
 
   const columns: ColumnsType<DataType> = [
     {
@@ -111,8 +126,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       title: 'Status Order',
       dataIndex: 'status_order',
       key: 'status_order',
-      align: 'left',
-      width: 110,
+      filters: statusFilters,
       render: (status_order) => {
         const orderStatus = status_order
         let color = ''
@@ -124,54 +138,6 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
           case 'PAID':
             color = 'green'
             break
-          case 'PICKLIST':
-            color = 'green'
-            break
-          case 'BOOKED':
-            color = 'lime'
-            break
-          case 'SURVEYREQ':
-            color = 'blue'
-            break
-          case 'SURVEYSTART':
-            color = 'blue'
-            break
-          case 'SURVEYDONE':
-            color = 'blue'
-            break
-          case 'RESURVEYREQ':
-            color = 'blue'
-            break
-          case 'RESURVEYSTART':
-            color = 'blue'
-            break
-          case 'RESURVEYDONE':
-            color = 'blue'
-            break
-          case 'QUOTE IN':
-            color = 'blue'
-            break
-          case 'QUOTE OUT':
-            color = 'blue'
-            break
-          case 'WORKREQ':
-            color = 'blue'
-            break
-          case 'WORKSTART':
-            color = 'blue'
-            break
-          case 'WIP':
-            color = 'blue'
-            break
-          case 'WORKEND':
-            color = 'blue'
-            break
-          case 'INVOICED':
-            color = 'blue'
-            break
-          case 'CISOUT':
-            color = 'green'
-            break
           default:
             color = 'blue'
             break
@@ -179,26 +145,10 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'PICKLIST', value: 'PICKLIST'},
-        {text: 'BOOKED', value: 'BOOKED'},
-        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
-        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
-        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
-        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
-        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
-        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
-        {text: 'WORKREQ', value: 'WORKREQ'},
-        {text: 'WORKSTART', value: 'WORKSTART'},
-        {text: 'WIP', value: 'WIP'},
-        {text: 'WORKEND', value: 'WORKEND'},
-        {text: 'QUOTEIN', value: 'QUOTEIN'},
-        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
-        {text: 'CISOUT', value: 'CISOUT'},
-        {text: 'INVOICED', value: 'INVOICED'},
-      ],
       onFilter: (value, record) => record.status_order.includes(String(value)),
       sorter: (a, b) => a.status_order.length - b.status_order.length,
+      align: 'left',
+      width: 140,
     },
     {
       title: 'Tanggal Aktif Garansi',
@@ -231,26 +181,26 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}&statuses=${statuses}${queryparams}`
 
-  const fetchOrderList = async (page: number, pageSize: number) => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData.filter((status: any) => ['DONE'].includes(status.category))
-    const statuses = desiredStatus.map((x) => x.value)
+    const url = (() => {
+      switch (userRole) {
+        case 'Store CS':
+          apiUrlWithParams += `${storeId}`
+          break
+        case 'Tukang':
+          apiUrlWithParams += ``
+          break
+        default:
+          break
+      }
 
-    const url =
-      userRole !== 'Tukang'
-        ? `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&store_id=${userStore}&page=${page}&take=${pageSize}&status=${statuses}`
-        : `${apiUrl}/orders?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`
+      return apiUrlWithParams
+    })()
 
     try {
-      const response = await axios.get(url, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -261,6 +211,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -268,9 +219,9 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewOrder = async (page: number, pageSize: number) => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -279,21 +230,23 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
 
       const claimWarrantyData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.created_at)
 
-        let phoneNumber =
-          item.members.phone_number !== 'null'
-            ? item.members.phone_number
-            : item.members.whatsapp_number
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         data = {
           order_id: item.id,
-          date_order: formatDate(orderDate),
-          no_member: item.members.member_number,
-          costumer_name: item.members.full_name,
-          phone_number: phoneNumber,
-          services_name: item?.m_order_details[0]?.item?.service_name ?? '-',
-          status_order: item.status.category,
+          date_order: orderDate,
+          no_member: item?.members?.member_number,
+          costumer_name: item?.members?.full_name,
+          services_name:
+            item.payment_type === 'survey'
+              ? item.m_order_details[0]?.item_notes
+              : item.m_order_details[0]?.item?.service_name ?? '-',
+          status_order: item?.status?.description,
         }
 
         return data
@@ -306,14 +259,14 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
-    setclaimWarrantyData(data)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
+    setClaimWarrantyData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -325,6 +278,17 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
+
+    const data = await ViewOrder(1, 10, queryparams)
+    setClaimWarrantyData(data)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='warranty-claim-list'>
       <div className={`card ${className}`}>
@@ -332,8 +296,9 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <h3 className='date-text'>Date : </h3>
+                <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
+
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
@@ -349,10 +314,10 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
                     setDateTo('')
                   }
                 }}
-              />{' '}
+              />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -367,31 +332,50 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
                 </InputGroup>
               </div>
             </Col>
+
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={claimWarrantyData}
-            rowKey={(record) => record.key}
-            // scroll={{x: 1800}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Claim Garansi
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={claimWarrantyData}
+              rowKey={(record) => record.key}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Claim Garansi
+              </span>
+            )}
           />
         </div>
       </div>

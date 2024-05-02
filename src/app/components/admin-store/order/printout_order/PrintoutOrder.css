@@ -3,78 +3,43 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  font-family: sans-serif !important;
 }
 
+#printout-order h2 {
+  font-size: 12px;
+}
+
+#printout-order h3 {
+  font-size: 11px;
+}
+
+#printout-order h4 {
+  font-size: 10px;
+  padding-bottom: 5px;
+}
+
+#printout-order h5 {
+  font-size: 8px;
+  padding-bottom: 5px;
+}
+
+/* Layout */
+
 #printout-order .card {
-  width: 900px;
+  width: 500px;
 }
 
 #printout-order .card .card-body {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  padding: 3rem 3rem !important;
-}
-
-#printout-order .header-printout .address {
-  max-width: 310px;
-}
-
-#printout-order .detail-info.row label.form-label {
-  padding: 3px 9.75px;
-}
-
-#printout-order .detail-info.row input.form-control-plaintext {
-  padding: 3px 0px;
+  padding: 1.5rem 1.5rem !important;
 }
 
 #printout-order img.logo {
-  height: 120px;
-}
-
-/* Table */
-#printout-order th.table-heads-1 {
-  width: 35%;
-}
-
-#printout-order th.table-heads-2 {
-  width: 3%;
-}
-
-#printout-order th.table-heads-3 {
-  width: 62%;
-}
-
-#printout-order .detail-table table tr th {
-  font-size: 16px;
-  font-weight: 600;
-  color: white;
-  background-color: #555555;
-}
-
-#printout-order .table-printout th {
-  border-color: transparent !important;
-}
-
-#printout-order .table-printout td {
-  border-color: transparent !important;
-  padding: 5px 0px 5px 0px;
-}
-
-#printout-order
-  .detail-table
-  table.table.table-striped.table-bordered.table-hover
-  tr:nth-child(even)
-  td {
-  background-color: #e4e9f7;
-}
-
-#printout-order
-  .detail-table
-  table.table.table-striped.table-bordered.table-hover
-  tr:nth-child(odd)
-  td {
-  background-color: #ffff;
+  height: 40px;
+  padding-right: 8px;
 }
 
 /* Receipt ID */
@@ -83,33 +48,8 @@
   margin-top: 150px;
 }
 
-#printout-order .receipt-id hr.line {
-  width: 100%;
-  border-top: none !important;
-  border-bottom: 5px solid black !important;
-}
-
 /* Printout Order */
 @media screen and (max-width: 576px) {
-  #printout-order .detail-table table tr th {
-    font-size: 14px;
-    font-weight: 600;
-    color: white;
-    background-color: #555555;
-  }
-
-  #printout-order th.table-heads-1 {
-    width: 50%;
-  }
-
-  #printout-order th.table-heads-2 {
-    width: 3%;
-  }
-
-  #printout-order th.table-heads-3 {
-    width: 47%;
-  }
-
   #printout-order .button-wrapper {
     flex-direction: column;
   }

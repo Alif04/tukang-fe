@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
+import {getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
 import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 
 type Props = {
@@ -60,13 +60,13 @@ const chartOptions = (chartHeight: string, chartComplaint: any): ApexOptions => 
   const pendingColor = getCSSVariableValue('--kt-gray-800')
   const cancelColor = getCSSVariableValue('--kt-info')
 
-  const investigated = chartComplaint.map((item: any) => item.totalOrder)
+  const investigated = chartComplaint.map((item: any) => item?.totalOrder)
   const totalInvestigated = investigated.reduce((acc: any, curr: any) => acc + curr, 0)
 
-  const rejected = chartComplaint.map((item: any) => item.totalOrder)
+  const rejected = chartComplaint.map((item: any) => item?.totalCancelComplaint)
   const totalRejected = rejected.reduce((acc: any, curr: any) => acc + curr, 0)
 
-  const done = chartComplaint.map((item: any) => item.totalOrder)
+  const done = chartComplaint.map((item: any) => item?.totalReworkEnd)
   const totalDone = done.reduce((acc: any, curr: any) => acc + curr, 0)
 
   return {
