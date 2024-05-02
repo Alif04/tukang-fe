@@ -333,11 +333,11 @@ input.filter-ltr.form-control:focus {
 }
 
 /* Table Styling */
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-title {
-  font-size: 12px;
+.ant-table-wrapper .ant-table-column-title {
+  font-size: 11px;
 }
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+.ant-table-wrapper
   .ant-table.ant-table-bordered
   > .ant-table-container
   > .ant-table-content
@@ -348,7 +348,7 @@ input.filter-ltr.form-control:focus {
   font-size: 10px;
 }
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+.ant-table-wrapper
   .ant-table.ant-table-bordered
   > .ant-table-container
   > .ant-table-content
@@ -356,10 +356,10 @@ input.filter-ltr.form-control:focus {
   > thead
   > tr
   > th {
-  font-size: 12px;
+  font-size: 11px;
 }
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+.ant-table-wrapper
   .ant-table.ant-table-bordered
   > .ant-table-container
   > .ant-table-body
@@ -370,7 +370,7 @@ input.filter-ltr.form-control:focus {
   font-size: 10px;
 }
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
+.ant-table-wrapper
   .ant-table.ant-table-bordered
   > .ant-table-container
   > .ant-table-header
@@ -378,11 +378,11 @@ input.filter-ltr.form-control:focus {
   > thead
   > tr
   > th {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 /* Tag */
-:where(.css-dev-only-do-not-override-1ck3jst).ant-tag {
+.ant-tag {
   font-size: 10px !important;
 }
 
@@ -394,13 +394,12 @@ input.filter-ltr.form-control:focus {
 
 /* Table Filter */
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-sorter-inner {
+.ant-table-wrapper .ant-table-column-sorter-inner {
   color: white !important;
 }
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper .ant-table-column-sorter-up.active,
-:where(.css-dev-only-do-not-override-1ck3jst).ant-table-wrapper
-  .ant-table-column-sorter-down.active {
+.ant-table-wrapper .ant-table-column-sorter-up.active,
+.ant-table-wrapper .ant-table-column-sorter-down.active {
   color: #7f7f7f;
 }
 
@@ -444,24 +443,15 @@ span.anticon.anticon-filter svg {
 
 /* Timeline */
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-steps
-  .ant-steps-item-wait
-  .ant-steps-item-icon
-  > .ant-steps-icon {
+.ant-steps .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
   color: white !important;
 }
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-steps
-  .ant-steps-item-process
-  .ant-steps-item-icon
-  > .ant-steps-icon {
+.ant-steps .ant-steps-item-process .ant-steps-item-icon > .ant-steps-icon {
   color: white !important;
 }
 
-:where(.css-dev-only-do-not-override-1ck3jst).ant-steps
-  .ant-steps-item-finish
-  .ant-steps-item-icon
-  > .ant-steps-icon {
+.ant-steps .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
   color: white !important;
 }
 

@@ -762,7 +762,7 @@ const ViewCalendarCS: React.FC = () => {
                               })}
                             </p>
                           ) : (
-                            <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                            <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
                           )}
                         </>
                       ) : (
@@ -784,7 +784,7 @@ const ViewCalendarCS: React.FC = () => {
                               .join(', ')}
                           </p>
                         ) : (
-                          <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                          <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
                         )}
                       </>
                     ) : (
@@ -834,7 +834,7 @@ const ViewCalendarCS: React.FC = () => {
                         </p>
                       </div>
                     ) : (
-                      <p className='fs-7'>Jadwal belum diset oleh vendor</p>
+                      <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
                     )}
                   </div>
 
