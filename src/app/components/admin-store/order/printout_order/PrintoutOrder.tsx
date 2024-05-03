@@ -7,7 +7,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
-import {Table, Button, Row, Col} from 'react-bootstrap'
+import {Card, Table, Button, Row, Col, Stack} from 'react-bootstrap'
 
 const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -107,7 +107,150 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   return (
     <section id='printout-order'>
-      <div className='card'>
+      <Card>
+        <Card.Body>
+          <Row>
+            <div className='header-printout d-flex'>
+              <img
+                alt='Logo'
+                className='logo mb-2'
+                src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+              />
+
+              <div className='store'>
+                <h3 className='store fw-bold text-uppercase text-start'>
+                  {orderDetail?.store?.store_name}
+                </h3>
+
+                <h3 className='address fw-bold text-start text-uppercase'>
+                  {orderDetail?.store?.address}
+                </h3>
+
+                <h3 className='phone-number fw-bold text-start text-uppercase'>
+                  Telp Toko :{' '}
+                  {`${
+                    orderDetail?.store?.phone_number_1 ??
+                    orderDetail?.store?.phone_number_2 ??
+                    'Nomor telepon belum tersedia'
+                  }`}
+                </h3>
+              </div>
+            </div>
+
+            <div className='body-printout d-flex justify-content-center align-items-center flex-column mt-4'>
+              <h2 className='fw-bold text-center'>Instalasi & Service</h2>
+
+              <h4 className='fw-normal text-center'>
+                Tanggal :{' '}
+                {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </h4>
+            </div>
+          </Row>
+
+          <hr className='line-1' />
+          <hr className='line-1' />
+
+          <Row className='mt-2'>
+            <h4>Informasi Order</h4>
+
+            <h4 className='fw-normal'>
+              Order ID : <span>{orderDetail?.id}</span>
+            </h4>
+
+            <h4 className='fw-normal'>
+              Copy :{' '}
+              <span> {orderDetail?.print_counter < 1 ? '-' : orderDetail?.print_counter}</span>
+            </h4>
+
+            <h4 className='fw-normal'>
+              Tanggal Order :{' '}
+              <span>
+                {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
+            </h4>
+
+            <h4 className='fw-normal'>
+              {' '}
+              {orderDetail?.payment_type === 'survey'
+                ? 'Request Tanggal Survey :'
+                : 'Request Tanggal Pengerjaan :'}
+              <span>
+                {' '}
+                {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
+            </h4>
+
+            <h5 className='fw-normal'>
+              *Tanggal Request <span className='fw-bolder text-decoration-underline'>bukan</span>{' '}
+              tanggal pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+            </h5>
+          </Row>
+
+          <hr className='line-2' />
+
+          <Row className='mt-2'>
+            <h4>Informasi Member</h4>
+
+            <h4 className='fw-normal'>
+              Nama Member : <span>{orderDetail?.members?.full_name}</span>
+            </h4>
+
+            <h4 className='fw-normal'>
+              No. Telp/WA : <span> {orderDetail?.project_number}</span>
+            </h4>
+          </Row>
+
+          <hr className='line-3' />
+
+          <Row className='mt-2'>
+            {orderDetail?.payment_type !== 'survey' && <h4 className='mb-1'>Nama Pemasangan</h4>}
+
+            {orderDetail?.order_details.map((item: any, index: any) => (
+              <h4 className='fw-normal'>
+                {orderDetail?.payment_type === 'survey'
+                  ? `${index + 1}. ${item?.item_notes}`
+                  : `${index + 1}. ${item?.item?.service_name}`}
+              </h4>
+            ))}
+          </Row>
+
+          <hr className='line-4' />
+
+          <Row className='mt-2 d-flex justify-content-end align-items-end'>
+            <h4>Total : {calculateTotal(orderDetail)}</h4>
+          </Row>
+
+          <Row className='receipt-id mb-5'>
+            <h2>Receipt ID :</h2>
+          </Row>
+
+          <hr className='line-5' />
+
+          <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
+            <Button className='hide-print-button' variant='dark-danger' onClick={handleCancelPrint}>
+              Cancel
+            </Button>
+
+            <Button className='hide-print-button' variant='dark-primary' onClick={handlePrintOrder}>
+              {orderDetail?.print_counter < 1 ? 'Print' : 'Reprint'}
+            </Button>
+          </div>
+        </Card.Body>
+      </Card>
+
+      {/* <div className='card'>
         <div className='card-body'>
           <Row className='d-block m-auto mb-5'>
             <div className='header-printout d-flex justify-content-center align-items-center flex-column '>
@@ -273,7 +416,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             </Button>
           </div>
         </div>
-      </div>
+      </div> */}
     </section>
   )
 }

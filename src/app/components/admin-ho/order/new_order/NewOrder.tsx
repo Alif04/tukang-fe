@@ -181,19 +181,17 @@ const NewOrderHO: FC = () => {
   // Fetch API Data
   const getItem = async (itemNameSearch: string) => {
     const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
+    const search = itemNameSearch ? `&search=${itemNameSearch}` : ''
 
     try {
-      const response = await axios.get(
-        `${apiUrl}/items?take=0&search=${itemNameSearch}${itemFree}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(`${apiUrl}/items?take=0${search}${itemFree}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       if (Array.isArray(response.data.data)) {
         const item = response.data.data.map((item: any) => ({
@@ -234,8 +232,9 @@ const NewOrderHO: FC = () => {
     const getMember = async () => {
       try {
         const labelKey = determineLabelKey(searchByPhoneNumber)
+        const phoneNumber = searchByPhoneNumber ? `?search=${searchByPhoneNumber}` : ''
 
-        const response = await axios.get(`${apiUrl}/member?search=${searchByPhoneNumber}`, {
+        const response = await axios.get(`${apiUrl}/member${phoneNumber}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -266,9 +265,9 @@ const NewOrderHO: FC = () => {
 
     const determineLabelKey = (search: any) => {
       switch (true) {
-        case search.includes('-'):
-          return 'whatsapp_number'
         case search.includes('+'):
+          return 'whatsapp_number'
+        case search.includes('08'):
           return 'phone_number'
         default:
           return 'member_number'

@@ -196,6 +196,25 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
               </span>
             </h1>
 
+            {/* <hr className='line-2' />
+
+            <Row>
+              {orderDetail?.order_details?.map((item: any, index: any) => (
+                <h5 className='fw-normal'>
+                  <span>{item?.item_code ?? '-'} - </span>
+                  <span>{item?.item_name ?? '-'} - </span>
+                  <span>
+                    {orderDetail?.payment_type === 'survey'
+                      ? item?.item_notes
+                      : item?.item?.service_name}{' '}
+                  </span>
+                  <span>- {`${item?.quantity ?? 0} x`}</span>
+                </h5>
+              ))}
+            </Row>
+
+            <hr className='line-2' /> */}
+
             <Table hover responsive>
               <thead>
                 <tr>

@@ -274,20 +274,17 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
-
     let queryparams = ``
 
-    if (dateFrom) {
-      queryparams += `&date_from=${dateFrom}`
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
     }
 
-    if (dateTo) {
-      queryparams += `&date_to=${dateTo}`
-    }
-
-    if (searchFilter) {
-      queryparams += `&search=${searchFilter}`
-    }
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)

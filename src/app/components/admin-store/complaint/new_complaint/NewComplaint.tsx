@@ -608,7 +608,7 @@ const NewComplaintForm: FC = () => {
                         <Form.Control
                           plaintext
                           readOnly
-                          value={orderDetail?.orders?.vendor?.company_name ?? '-'}
+                          value={orderDetail?.vendor?.company_name ?? '-'}
                         />
                       </Col>
                     </Form.Group>

@@ -4,7 +4,7 @@ import React, {FC, useEffect, useState} from 'react'
 import './ViewOrder.css'
 
 import axios from 'axios'
-import {Table, Tag, PaginationProps, Spin, Pagination} from 'antd'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate} from 'react-router-dom'
@@ -12,7 +12,6 @@ import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 interface DataType {
@@ -197,17 +196,6 @@ const ViewOrders: FC = () => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return '--/--/----'
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}${storeId}&take=${pageSize}${queryparams}`
 
@@ -314,8 +302,17 @@ const ViewOrders: FC = () => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ``
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)

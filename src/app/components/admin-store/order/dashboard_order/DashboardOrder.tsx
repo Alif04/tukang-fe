@@ -197,8 +197,17 @@ const DashboardOrderStore: FC = () => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ``
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}`
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
     await fetchOrderList(queryparams)
     await getReportOrder()
 
