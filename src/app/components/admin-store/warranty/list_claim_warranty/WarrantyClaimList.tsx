@@ -182,7 +182,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
   ]
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}&statuses=${statuses}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
 
     const url = (() => {
       switch (userRole) {
@@ -242,6 +242,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
           date_order: orderDate,
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
+          phone_number: item?.project_number,
           services_name:
             item.payment_type === 'survey'
               ? item.m_order_details[0]?.item_notes

@@ -1,14 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './TotalOrderReport.css'
 
 import axios from 'axios'
-import {Table, PaginationProps} from 'antd'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Button} from 'react-bootstrap'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -31,9 +32,13 @@ interface DataType {
 
 const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
 
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -41,6 +46,15 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
+
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.find((status: any) => status.category === statusName)
+  let statusId = ''
+
+  if (desiredStatus) {
+    statusId = desiredStatus.value
+  }
 
   const columns: ColumnsType<DataType> = [
     {
@@ -138,25 +152,13 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchOrderList = async (page: number, pageSize: number) => {
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = statusId
+      ? `${apiUrl}/orders?order_by=desc&store_id=${staffStoreId}&status=${statusId}&page=${page}&take=${pageSize}${queryparams}`
+      : `${apiUrl}/orders?order_by=desc&store_id=${staffStoreId}&page=${page}&take=${pageSize}${queryparams}`
+
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      const desiredStatus = statusData.find((status: any) => status.category === statusName)
-
-      let statusId = ''
-
-      if (desiredStatus) {
-        statusId = desiredStatus.value
-      }
-
-      const url =
-        statusName === ''
-          ? `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${staffStoreId}&page=${page}&take=${pageSize}`
-          : `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store_id=${staffStoreId}&page=${page}&take=${pageSize}&status=${statusId}`
-
-      const response = await axios.get(url, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -167,6 +169,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
 
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -174,9 +177,9 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     }
   }
 
-  const ViewOrder = async (page: number, pageSize: number) => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -186,7 +189,11 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.request_survey)
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
         const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
@@ -198,12 +205,12 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
 
         data = {
           order_id: item.id,
-          date_order: formatDate(orderDate),
-          costumer_name: item.members.full_name,
-          phone_number: item.project_number,
-          email: item.members.email,
-          address: item.project_address,
-          service_name: item.m_order_details[0]?.item?.service_name ?? '-',
+          date_order: orderDate,
+          costumer_name: item?.members?.full_name,
+          phone_number: item?.project_number,
+          email: item?.members?.email,
+          address: item?.project_address,
+          service_name: item?.m_order_details[0]?.item?.service_name ?? '-',
           quantity: quantity,
           harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,
@@ -219,14 +226,14 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
     setOrderData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -238,26 +245,48 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
     return originalElement
   }
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    const data = await ViewOrder(1, 10, queryparams)
+    setOrderData(data)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='total-order-report'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8} className='d-flex align-items-center mb-2'>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex align-items-center mb-2'>
               <div className='fw-bold mb-5'>
                 Nama Toko
                 <span className='fs-6 ms-2 pt-2 pb-2 fw-normal bg-secondary'>{staffStoreName}</span>
               </div>
+            </Col>
 
-              <div className='d-flex align-items-center ms-5 me-3 mb-2'>
-                <h3 className='fs-6 fw-normal'>Periode : </h3>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <div className='d-flex align-items-center me-3'>
+                <h3 className='fs-5 fw-normal'>Date</h3>
+
                 <RangePicker
                   format={'DD-MM-YYYY'}
-                  className='date-range ms-3'
+                  className='date-range ms-3 w-100'
                   onChange={(values) => {
                     if (values && values.length === 2) {
-                      const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                      const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+                      const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                      const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
                       setDateFrom(dateFromFormatted)
                       setDateTo(dateToFormatted)
@@ -270,40 +299,51 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
               </div>
             </Col>
 
-            <Col
-              xs={12}
-              md={12}
-              lg={12}
-              xl={4}
-              xxl={4}
-              className='d-flex align-items-center justify-content-end'
-            >
-              <div className='fs-1 fw-bolder text-uppercase'>Total Order : {totalOrder}</div>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex justify-content-between'>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+
+              <div className='ms-1 fs-1 fw-bolder text-uppercase'>Total Order : {totalOrder}</div>
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.order_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalOrder,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Order
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={orderData}
+              rowKey={(record) => record.order_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalOrder}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Order
+              </span>
+            )}
           />
 
           {/* <div className='d-flex justify-content-center align-items-center mt-5'>

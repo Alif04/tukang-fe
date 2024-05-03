@@ -332,13 +332,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const fetchComplaintList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&page=${page}${storeId}&take=${pageSize}${queryparams}`
 
@@ -453,8 +446,17 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ``
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
 
     const data = await ViewComplaint(1, 10, queryparams)
     setComplaintData(data)

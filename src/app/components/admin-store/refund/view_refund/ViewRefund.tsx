@@ -1,27 +1,46 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewRefund.css'
 
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
+import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {Table, DatePicker, Tag, PaginationProps} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
   className: string
 }
 
+interface DataType {
+  refund_id: number
+  order_id: number
+  store_name: string
+  date_order: string
+  member_id: number
+  member_name: string
+  phone_number: number
+  item_name: string
+  service_name: string
+  payment_status: string
+  order_status: string
+}
+
 const ViewRefundCS: React.FC<Props> = ({className}) => {
-  const userStore = localStorage.getItem('storeId')
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const userStore = localStorage.getItem('storeId')
+
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [refundData, setRefundData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -35,19 +54,12 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  interface DataType {
-    refund_id: number
-    order_id: number
-    store_name: string
-    date_order: string
-    member_id: number
-    member_name: string
-    phone_number: number
-    item_name: string
-    service_name: string
-    payment_status: string
-    order_status: string
-  }
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const statusFilters = statusData.map((item: any) => ({
+    text: item.description,
+    value: item.description,
+  }))
 
   const columns: ColumnsType<DataType> = [
     {
@@ -140,6 +152,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     },
     {
       title: 'Order Status',
+      filters: statusFilters,
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
@@ -149,24 +162,10 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
         let color = ''
 
         switch (orderStatus) {
-          case 'BOOK':
-            color = 'green'
+          case 'UNPAID':
+            color = 'red'
             break
-          case 'BOOKED':
-            color = 'lime'
-            break
-          case 'SURVEYREQ':
-            color = 'blue'
-            break
-          case 'SURVEYSTART':
-          case 'SURVEYDONE':
-          case 'QUOTE IN':
-          case 'QUOTE OUT':
-          case 'WORKREQ':
-          case 'WORKSTART':
-          case 'WIP':
-          case 'WORKEND':
-          case 'CISOUT':
+          case 'PAID':
             color = 'green'
             break
           default:
@@ -176,10 +175,6 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'BOOK', value: 'BOOK'},
-        {text: 'BOOKED', value: 'BOOKED'},
-      ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
     },
@@ -214,31 +209,22 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const fetchRefundList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/refund?order_by=desc&store_id=${userStore}&page=${page}&take=${pageSize}${queryparams}`
 
-  const fetchRefundList = async (page: number, pageSize: number) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
-      const response = await axios.get(
-        `${apiUrl}/refund?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&store_id=${userStore}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -246,9 +232,9 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewRefund = async (page: number, pageSize: number) => {
+  const ViewRefund = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchRefundList(page, pageSize)
+      const apiData = await fetchRefundList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -258,23 +244,32 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       const refundData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.orders.created_at)
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
-        let phoneNumber =
-          item.orders.members.phone_number !== 'null'
-            ? item.orders.members.phone_number
-            : item.orders.members.whatsapp_number
-
-        let paymentStatus = item.orders.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
+        const paymentStatus = (() => {
+          if (item?.payment_type === 'survey') {
+            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.payment_type === 'gratis') {
+            return 'FREE'
+          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else {
+            return ''
+          }
+        })()
 
         data = {
           refund_id: item.id,
           order_id: item.order_id,
           store_name: item?.orders?.store?.store_name,
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           member_id: item?.orders?.members?.member_number,
           member_name: item?.orders?.members?.full_name,
-          phone_number: phoneNumber,
+          phone_number: item?.orders?.project_number,
           item_name: item?.orders?.m_order_details[0]?.item?.item_name,
           service_name: item?.orders?.m_order_details[0]?.item?.service_name,
           payment_status: paymentStatus,
@@ -291,14 +286,14 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewRefund(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewRefund(page, pageSize, queryparams)
     setRefundData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -308,6 +303,26 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewRefund(1, 10, queryparams)
+    setRefundData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -361,29 +376,39 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={refundData}
-            rowKey={(record) => record.order_id}
-            scroll={{x: 1800}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Refund
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={refundData}
+              rowKey={(record) => record.order_id}
+              scroll={{x: 1800}}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Refund
+              </span>
+            )}
           />
         </div>
       </div>
