@@ -1,3 +1,7 @@
+#new-vendor .card .card-header {
+  min-height: 45px !important;
+}
+
 /* Row ( Form Body ) */
 #new-vendor .row.header-body {
   padding: 0 10px 0 10px;
