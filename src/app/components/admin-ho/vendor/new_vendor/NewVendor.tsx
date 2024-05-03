@@ -7,7 +7,7 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import {useNavigate} from 'react-router-dom'
-import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
+import {Form, Row, Col, Button, ListGroup, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -194,6 +194,7 @@ const NewVendorHO: FC = () => {
   const [phoneNumberVendor, setPhoneNumberVendor] = useState<any>()
   const [vendorAddress, setVendorAddress] = useState<any>('')
   const [password, setPassword] = useState<any>('')
+  const [maxOrder, setMaxOrder] = useState<string>('')
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
@@ -318,6 +319,11 @@ const NewVendorHO: FC = () => {
   const handleChangeVendorAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedVendorAddress = event.target.value
     setVendorAddress(updatedVendorAddress)
+  }
+
+  const handleChangeMaxOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedMaxOrder = event.target.value
+    setMaxOrder(updatedMaxOrder)
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
@@ -691,6 +697,7 @@ const NewVendorHO: FC = () => {
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
       formData.append('password', password)
+      formData.append('max_order', maxOrder)
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])
@@ -807,8 +814,12 @@ const NewVendorHO: FC = () => {
 
   return (
     <section id='new-vendor'>
-      <div className='card mb-5'>
-        <div className='card-body'>
+      <Card>
+        <Card.Header>
+          <Card.Title>Informasi Vendor</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
           <Row>
             <Col xxl={6} xl={6} lg={12} md={12}>
               <Row className='header-body'>
@@ -1270,13 +1281,30 @@ const NewVendorHO: FC = () => {
                 </Form.Group>
               </Row>
 
-              {/* <Row className='form-body'>
+              <Row className='form-body'>
                 <Form.Group>
-                  <Form.Label>Discount</Form.Label>
+                  <Form.Label>Maksimal Order</Form.Label>
 
-                  <Form.Control type='number' onChange={handleChangeDiscount} value={discount} />
+                  <Form.Control
+                    min={3}
+                    type='number'
+                    onChange={handleChangeMaxOrder}
+                    value={maxOrder}
+                  />
                 </Form.Group>
-              </Row> */}
+              </Row>
+
+              <Row className='form-body'>
+                {/* <Form.Group>
+                      <Form.Label>Discount</Form.Label>
+
+                      <Form.Control
+                        type='number'
+                        onChange={handleChangeDiscount}
+                        value={discount}
+                      />
+                    </Form.Group> */}
+              </Row>
             </Col>
           </Row>
 
@@ -1290,8 +1318,39 @@ const NewVendorHO: FC = () => {
               {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
+
+      <hr />
+
+      <Card>
+        <Card.Header>
+          <Card.Title>Akun</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          <Row>
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Username</Form.Label>
+                <Form.Control type='text' name='username' />
+
+                <Form.Text className='fs-8 fs-l text-dark-danger'>
+                  *Jika username kosong, maka sistem akan menghasilkan username secara otomatis dari
+                  alamat email
+                </Form.Text>
+              </Form.Group>
+            </Col>
+
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Password</Form.Label>
+                <Form.Control type='text' name='password' />
+              </Form.Group>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

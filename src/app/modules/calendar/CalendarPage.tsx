@@ -23,7 +23,7 @@ const CalendarPage: React.FC = () => {
         path='view-calendar'
         element={
           <>
-            {userRole === 'Store Staff' || userRole === 'Store CS' ? (
+            {userRole === 'Sales' || userRole === 'Store Staff' || userRole === 'Store CS' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>KALENDAR INSTALASI</PageTitle>
               </>
@@ -45,6 +45,7 @@ const CalendarPage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <ViewCalendar />
           </>
         }

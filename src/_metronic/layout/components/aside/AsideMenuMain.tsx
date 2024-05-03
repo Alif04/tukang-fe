@@ -66,7 +66,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/calendar/view-calendar'
           title={userRole === 'Admin HO' ? 'Kalender Order' : 'Kalender Instalasi'}
-          role={['Store Staff', 'Store CS', 'Admin HO']}
+          role={['Sales', 'Store Staff', 'Store CS', 'Admin HO']}
           hasBullet={true}
         />
 

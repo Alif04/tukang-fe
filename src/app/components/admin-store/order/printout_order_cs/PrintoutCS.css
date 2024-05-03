@@ -2,6 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  font-family: sans-serif;
 }
 
 #printout-cs .card {
@@ -27,6 +28,147 @@
   align-items: center;
 }
 
+#printout-cs table.detail-item {
+  width: 100%;
+}
+
+/* Table Item */
+
+#printout-cs th.table-head-name {
+  width: 50%;
+}
+
+#printout-cs th.table-head-qty {
+  width: 10%;
+}
+
+#printout-cs th.table-head-price {
+  width: 20%;
+}
+
+#printout-cs th.table-head-subtotal {
+  width: 20%;
+}
+
+#printout-cs td.table-content-name {
+  width: 50%;
+}
+
+#printout-cs td.table-content-qty {
+  width: 10%;
+}
+
+#printout-cs td.table-content-price {
+  width: 20%;
+}
+
+#printout-cs td.table-content-subtotal {
+  width: 20%;
+}
+
+/* Table Additional Fee / Biaya Survey */
+
+#printout-cs td.table-footer-1 {
+  width: 60%;
+}
+
+#printout-cs td.table-footer-2 {
+  width: 10%;
+}
+
+#printout-cs td.table-footer-3 {
+  width: 30%;
+}
+
+/* Table Grand Total */
+
+#printout-cs td.table-footer-4 {
+  width: 50%;
+}
+
+#printout-cs td.table-footer-5 {
+  width: 20%;
+}
+
+#printout-cs td.table-footer-6 {
+  width: 30%;
+}
+
+@media screen and (max-width: 450px) {
+  /* Table Item */
+
+  #printout-cs th.table-head-name {
+    font-size: 9px;
+    width: 40%;
+  }
+
+  #printout-cs th.table-head-qty {
+    font-size: 9px;
+    width: 10%;
+  }
+
+  #printout-cs th.table-head-price {
+    font-size: 9px;
+    width: 30%;
+  }
+
+  #printout-cs th.table-head-subtotal {
+    font-size: 9px;
+    width: 20%;
+  }
+
+  #printout-cs td.table-content-name {
+    font-size: 9px;
+    width: 40%;
+  }
+
+  #printout-cs td.table-content-qty {
+    font-size: 9px;
+    width: 10%;
+  }
+
+  #printout-cs td.table-content-price {
+    font-size: 9px;
+    width: 30%;
+  }
+
+  #printout-cs td.table-content-subtotal {
+    font-size: 9px;
+    width: 20%;
+  }
+
+  /* Table Additional Fee / Biaya Survey */
+
+  #printout-cs td.table-footer-1 {
+    width: 50%;
+  }
+
+  #printout-cs td.table-footer-2 {
+    width: 10%;
+  }
+
+  #printout-cs td.table-footer-3 {
+    width: 40%;
+  }
+
+  /* Table Grand Total */
+
+  #printout-cs td.table-footer-4 {
+    font-size: 9px;
+    width: 40%;
+  }
+
+  #printout-cs td.table-footer-5 {
+    font-size: 9px;
+    width: 30%;
+  }
+
+  #printout-cs td.table-footer-6 {
+    font-size: 9px;
+    width: 30%;
+  }
+}
+
 @media screen and (max-width: 400px) {
   #printout-cs .header-logo {
     display: flex;
@@ -44,8 +186,17 @@
   }
 
   #printout-cs .header-logo h1 {
+    text-align: center;
     margin-bottom: 15px !important;
     padding-left: 0 !important;
+  }
+
+  #printout-cs .detail-info h1 {
+    margin-bottom: 10px !important;
+  }
+
+  #printout-cs .detail-member h3 {
+    margin-bottom: 10px !important;
   }
 }
 
