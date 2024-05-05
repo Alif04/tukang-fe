@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {FC, useEffect, useState} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './FormatEmailList.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup, Row, Col} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, PaginationProps, Spin, Pagination} from 'antd'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch, faCheck} from '@fortawesome/free-solid-svg-icons'
-
-import {Table, PaginationProps} from 'antd'
 
 interface DataType {
   numbering: number
@@ -24,6 +24,9 @@ interface DataType {
 const FormatEmailList: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [formatEmail, setFormatEmail] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -215,29 +218,22 @@ const FormatEmailList: FC = () => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const getFormatEmailList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/email-messages?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-  const getFormatEmailList = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/email-messages?page=${page}&take=${pageSize}&search=${searchFilter}&order_by=desc`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      setCurrentPage(response?.data?.page)
-      setTotalData(response?.data?.total ?? 0)
+      setCurrentPage(response?.data?.data?.page)
+      setTotalData(response?.data?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data.data
     } catch (error) {
@@ -245,9 +241,9 @@ const FormatEmailList: FC = () => {
     }
   }
 
-  const ViewFormatEmail = async (page: number, pageSize: number) => {
+  const ViewFormatEmail = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await getFormatEmailList(page, pageSize)
+      const apiData = await getFormatEmailList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from getFormatEmailList')
@@ -257,7 +253,12 @@ const FormatEmailList: FC = () => {
       const formatEmailData = apiData.map((item: any, index: number) => {
         let data
 
-        const CreatedAt = new Date(item?.created_at ?? '-')
+        const CreatedAt = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
         const emailTypes: any = {
           1: 'ORDERS NOTIFICATION',
           2: 'CREDENTIAL MAIL',
@@ -272,7 +273,7 @@ const FormatEmailList: FC = () => {
           numbering: index + 1,
           id: item?.id,
           email_type: EmailType,
-          created_at: formatDate(CreatedAt),
+          created_at: CreatedAt,
           is_active: item?.is_active === true ? 'Active' : 'Non Active',
         }
 
@@ -286,14 +287,14 @@ const FormatEmailList: FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewFormatEmail(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewFormatEmail(page, pageSize, queryparams)
     setFormatEmail(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -303,6 +304,24 @@ const FormatEmailList: FC = () => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewFormatEmail(1, 10, queryparams)
+    setFormatEmail(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -328,31 +347,49 @@ const FormatEmailList: FC = () => {
               </div>
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={formatEmail}
-            rowKey={(record) => record.id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Format Email
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={formatEmail}
+              rowKey={(record) => record.id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Format Email
+              </span>
+            )}
           />
         </div>
       </div>

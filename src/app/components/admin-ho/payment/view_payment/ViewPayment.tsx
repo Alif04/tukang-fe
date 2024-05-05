@@ -1,27 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {FC, useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewPayment.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
-import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faSearch,
-  faPlus,
-  faFilter,
-  faFileExcel,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch, faFileExcel} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 interface Status {
@@ -43,6 +35,8 @@ const ViewPaymentHO: FC = () => {
   const navigate = useNavigate()
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -52,6 +46,11 @@ const ViewPaymentHO: FC = () => {
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   const [selectedRows, setSelectedRows] = useState<DataType[]>([])
+
+  // Status
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.filter((status: any) => ['PAID'].includes(status.category))
 
   // Filter Table
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,45 +162,29 @@ const ViewPaymentHO: FC = () => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
+    const statuses = desiredStatus.map((x) => x.value)
+    let apiUrlWithParams = `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
+
+    const response = await axios.get(apiUrlWithParams, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+
+    setCurrentPage(response.data?.page ?? 1)
+    setTotalData(response?.data?.total ?? 0)
+    setLoadData(false)
+
+    return response.data.data
   }
 
-  const fetchInvoiceList = async (page: number, pageSize: number) => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData.filter((status: any) => ['PAID'].includes(status.category))
-
-    if (desiredStatus) {
-      const statuses = desiredStatus.map((x) => x.value)
-
-      const response = await axios.get(
-        `${apiUrl}/invoices?order_by=desc&status=${statuses}&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
-
-      return response.data.data
-    } else {
-      console.error('Desired status not found in statusData')
-    }
-  }
-
-  const ViewInvoice = async (page: number, pageSize: number) => {
+  const ViewInvoice = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchInvoiceList(page, pageSize)
+      const apiData = await fetchInvoiceList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchInvoiceList')
@@ -211,9 +194,15 @@ const ViewPaymentHO: FC = () => {
       const paymentRequestData = apiData.map((item: any) => {
         let data
 
+        const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
         data = {
           invoice_id: item?.id,
-          invoice_date: formatDate(new Date(item?.created_at)),
+          invoice_date: invoiceDate,
           vendor_name: item?.vendor?.company_name,
           amount: `-`,
           invoice_status: item?.status?.category,
@@ -229,14 +218,14 @@ const ViewPaymentHO: FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewInvoice(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewInvoice(page, pageSize, queryparams)
     setInvoiceData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -271,6 +260,26 @@ const ViewPaymentHO: FC = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet 1')
 
     XLSX.writeFile(workbook, 'exported_data.xlsx')
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewInvoice(1, 10, queryparams)
+    setInvoiceData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -331,29 +340,39 @@ const ViewPaymentHO: FC = () => {
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={invoiceData}
-            rowSelection={rowSelection}
-            rowKey={(record) => record.invoice_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Payment Request
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={invoiceData}
+              rowSelection={rowSelection}
+              rowKey={(record) => record.invoice_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Payment Request
+              </span>
+            )}
           />
         </div>
       </div>

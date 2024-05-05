@@ -281,8 +281,17 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ``
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
 
     const data = await ViewOrder(1, 10, queryparams)
     setClaimWarrantyData(data)

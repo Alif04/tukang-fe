@@ -1,21 +1,38 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ListStore.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
+import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup, Row, Col} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {Table, PaginationProps} from 'antd'
+interface DataType {
+  number_id: number
+  store_id: number
+  store_name: string
+  username_store: string
+  phone_number: number
+  email: string
+  address: string
+  // city: string
+  bank_name: string
+  account_number: number
+  account_name: string
+}
 
 const ListStoreHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [storeData, setStoreData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -27,20 +44,6 @@ const ListStoreHO: React.FC = () => {
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    number_id: number
-    store_id: number
-    store_name: string
-    username_store: string
-    phone_number: number
-    email: string
-    address: string
-    // city: string
-    bank_name: string
-    account_number: number
-    account_name: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -220,29 +223,22 @@ const ListStoreHO: React.FC = () => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const getStoresList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/stores?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-  const getStoresList = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/stores?page=${page}&take=${pageSize}&search=${searchFilter}&order_by=desc`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data?.data?.page ?? 1)
       setTotalData(response?.data?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data.data
     } catch (error) {
@@ -250,9 +246,9 @@ const ListStoreHO: React.FC = () => {
     }
   }
 
-  const ViewStores = async (page: number, pageSize: number) => {
+  const ViewStores = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await getStoresList(page, pageSize)
+      const apiData = await getStoresList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -289,14 +285,14 @@ const ListStoreHO: React.FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewStores(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewStores(page, pageSize, queryparams)
     setStoreData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -306,6 +302,24 @@ const ListStoreHO: React.FC = () => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewStores(1, 10, queryparams)
+    setStoreData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -331,33 +345,50 @@ const ListStoreHO: React.FC = () => {
               </div>
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={storeData}
-            rowKey={(record) => record.store_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              pageSize: pageSize,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
-              onShowSizeChange: (current, size) => setPageSize(size),
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Store
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={storeData}
+              rowKey={(record) => record.store_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onShowSizeChange={(current, size) => setPageSize(size)}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Store
+              </span>
+            )}
           />
         </div>
       </div>

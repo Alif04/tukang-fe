@@ -1,21 +1,24 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ListBank.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
+import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup, Row, Col} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
-
-import {Table, PaginationProps} from 'antd'
 
 const ListBankHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [bankData, setBankData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -150,22 +153,22 @@ const ListBankHO: React.FC = () => {
     },
   ]
 
-  const getBanksList = async (page: number, pageSize: number) => {
+  const getBanksList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/bank?page=${page}&take=${pageSize}${queryparams}`
+
     try {
-      const response = await axios.get(
-        `${apiUrl}/bank?page=${page}&take=${pageSize}&search=${searchFilter}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -173,9 +176,9 @@ const ListBankHO: React.FC = () => {
     }
   }
 
-  const ViewBanks = async (page: number, pageSize: number) => {
+  const ViewBanks = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await getBanksList(page, pageSize)
+      const apiData = await getBanksList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchBankList')
@@ -185,10 +188,16 @@ const ListBankHO: React.FC = () => {
       const bankData = apiData.map((item: any, index: number) => {
         let data
 
+        const joinDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
         data = {
           bank_id: index + 1,
           bank_name: item?.bank_name ?? '',
-          join_date: formatDate(new Date(item?.created_at)) ?? '',
+          join_date: joinDate,
         }
 
         return data
@@ -201,14 +210,14 @@ const ListBankHO: React.FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewBanks(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewBanks(page, pageSize, queryparams)
     setBankData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -220,11 +229,22 @@ const ListBankHO: React.FC = () => {
     return originalElement
   }
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewBanks(1, 10, queryparams)
+    setBankData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -250,34 +270,51 @@ const ListBankHO: React.FC = () => {
               </div>
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={bankData}
-            rowKey={(record) => record.bank_id}
-            scroll={{x: 1000}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              pageSize: pageSize,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
-              onShowSizeChange: (current, size) => setPageSize(size),
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Bank
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={bankData}
+              rowKey={(record) => record.bank_id}
+              pagination={false}
+              scroll={{x: 1000}}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onShowSizeChange={(current, size) => setPageSize(size)}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Bank
+              </span>
+            )}
           />
         </div>
       </div>

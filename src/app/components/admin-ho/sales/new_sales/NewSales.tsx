@@ -5,7 +5,8 @@ import './NewSales.css'
 
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
-import {Table, PaginationProps} from 'antd'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
@@ -13,7 +14,6 @@ import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 interface BankSelect {
@@ -48,16 +48,21 @@ const NewSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const animatedComponents = makeAnimated()
+
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   // List Store
   const [store, setStore] = useState<StoreItem[]>([])
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
   const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
     value: null,
-    label: '',
+    label: 'All Store',
   })
 
   // List Sales
@@ -65,7 +70,6 @@ const NewSales: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
   const [pageSize, setPageSize] = useState<number>(10)
-  const [loadingButton, setLoadingButton] = useState(false)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -227,6 +231,8 @@ const NewSales: FC = () => {
 
       setCurrentPage(response.data.page)
       setTotalData(response.data.total)
+      setLoadData(false)
+
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -884,7 +890,8 @@ const NewSales: FC = () => {
                       classNamePrefix='select'
                       placeholder='Pilih Toko'
                       isSearchable={true}
-                      options={store}
+                      isClearable={true}
+                      options={storeOptions}
                       onChange={(newValue) => setSelectedStore(newValue)}
                     />
 
@@ -908,30 +915,39 @@ const NewSales: FC = () => {
               </Col>
             </Row>
 
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={salesData}
-              rowKey={(record) => record.sales_id}
-              pagination={{
-                position: ['bottomRight'],
-                current: currentPage,
-                total: totalData,
-                pageSize: pageSize,
-                showSizeChanger: true,
-                pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
-                onShowSizeChange: (current, size) => setPageSize(size),
-                onChange: (page, pageSize) => {
-                  fetchData(page, pageSize, '')
-                },
-                itemRender: itemRender,
-                showTotal: (total, range) => (
-                  <span style={{left: 0, position: 'absolute'}}>
-                    Showing {range[0]} - {range[1]} of {total} Total Sales
-                  </span>
-                ),
+            <Spin
+              tip='Loading...'
+              spinning={loadData}
+              size='large'
+              indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            >
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={salesData}
+                rowKey={(record) => record.sales_id}
+                pagination={false}
+              />
+            </Spin>
+
+            <Pagination
+              className='mt-5'
+              style={{textAlign: 'right', position: 'relative'}}
+              current={currentPage}
+              total={totalData}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+              itemRender={itemRender}
+              onShowSizeChange={(current, size) => setPageSize(size)}
+              onChange={(page, pageSize) => {
+                fetchData(page, pageSize, '')
               }}
+              showTotal={(total, range) => (
+                <span style={{left: 0, position: 'absolute'}}>
+                  Showing {range[0]} - {range[1]} of {total} Total Sales
+                </span>
+              )}
             />
           </div>
         </div>

@@ -1,18 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect, FC} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewInvoice.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
 import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 interface DataType {
@@ -41,7 +41,9 @@ const ViewInvoiceHO: FC = () => {
   const navigate = useNavigate()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -49,6 +51,11 @@ const ViewInvoiceHO: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  // Status
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.filter((status: any) => ['UNPAID'].includes(status.category))
 
   // Update Invoice
   const [invoices, setInvoices] = useState<InvoiceData>({
@@ -184,40 +191,24 @@ const ViewInvoiceHO: FC = () => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData.filter((status: any) => ['UNPAID'].includes(status.category))
+    const statuses = desiredStatus.map((x) => x.value)
+    let apiUrlWithParams = `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
 
-    if (desiredStatus) {
-      const statuses = desiredStatus.map((x) => x.value)
+    const response = await axios.get(apiUrlWithParams, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
 
-      const response = await axios.get(
-        `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+    setCurrentPage(response?.data?.page ?? 1)
+    setTotalData(response?.data?.total ?? 0)
+    setLoadData(false)
 
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
-
-      return response.data.data
-    } else {
-      console.error('Desired status not found in statusData')
-    }
+    return response.data.data
   }
 
   const ViewInvoice = async (page: number, pageSize: number, queryparams: any) => {
@@ -232,12 +223,18 @@ const ViewInvoiceHO: FC = () => {
       const invoiceData = apiData.map((item: any) => {
         let data
 
+        const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
         data = {
           invoice_id: item?.id,
-          invoice_date: formatDate(new Date(item?.created_at)),
-          vendor_name: item?.vendor?.company_name,
+          invoice_date: invoiceDate,
+          vendor_name: item?.vendor?.company_name ?? '-',
           amount: `-`,
-          invoice_status: item?.status?.category,
+          invoice_status: item?.status?.category ?? '-',
         }
 
         return data
@@ -278,6 +275,7 @@ const ViewInvoiceHO: FC = () => {
           invoice_id: Number(key),
         })),
       }))
+
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
   }
@@ -287,10 +285,9 @@ const ViewInvoiceHO: FC = () => {
     setIsLoading(true)
     const formData = new FormData()
 
-    formData.append('status_id', String(invoices.status_id))
-
     invoices.payment_request.forEach((invoice) => {
       if (invoice.invoice_id !== null) {
+        formData.append('status_id', String(invoices.status_id))
         formData.append(`invoice_id[]`, String(invoice.invoice_id))
       }
     })
@@ -341,9 +338,20 @@ const ViewInvoiceHO: FC = () => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ``
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
-    await fetchInvoiceList(1, 10, queryparams)
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewInvoice(1, 10, queryparams)
+    setInvoiceData(data)
 
     setLoadingButton(false)
   }
@@ -403,29 +411,39 @@ const ViewInvoiceHO: FC = () => {
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={invoiceData}
-            rowSelection={rowSelection}
-            rowKey={(record) => record.invoice_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize, '')
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Invoice
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={invoiceData}
+              rowSelection={rowSelection}
+              rowKey={(record) => record.invoice_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Invoice
+              </span>
+            )}
           />
 
           <div className='d-flex justify-content-center align-items-center mt-3'>

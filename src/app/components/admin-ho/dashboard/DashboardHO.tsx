@@ -71,7 +71,6 @@ const DashboardHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const [loadingButton, setLoadingButton] = useState(false)
-
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -464,8 +463,8 @@ const DashboardHO: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
+                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
                   }
                 }}
               />

@@ -1,36 +1,47 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {FC, useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewTukang.css'
 
+import * as XLSX from 'xlsx'
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import * as XLSX from 'xlsx'
-import Select, {SingleValue} from 'react-select'
-import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
-import {Form, InputGroup, Row, Col} from 'react-bootstrap'
+import Select, {SingleValue} from 'react-select'
+import {Table, PaginationProps, Pagination, Spin} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faTrash,
-  faFileExcel,
-  faSearch,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faFileExcel, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 interface TukangService {
   value: number | null
   label: string
 }
 
+interface DataType {
+  no: number
+  tukang_id: number
+  full_name: string
+  email: string
+  phone_number: number
+  address: string
+  birth_day: string
+  keahlian: string
+  ktp: number
+  status: string
+}
+
 const ViewTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
   const userRole = localStorage.getItem('userRole')
   const vendorId = localStorage.getItem('vendor_id')
+
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [tukangData, setTukangData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -62,19 +73,6 @@ const ViewTukangVendor: FC = () => {
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    no: number
-    tukang_id: number
-    full_name: string
-    email: string
-    phone_number: number
-    address: string
-    birth_day: string
-    keahlian: string
-    ktp: number
-    status: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -241,34 +239,22 @@ const ViewTukangVendor: FC = () => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const fetchTukangList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/tukang?order_by=desc&page=${page}&take=${pageSize}&vendor_id=${vendorId}${queryparams}`
 
-  const serviceTypeId =
-    selectedTukangService && selectedTukangService.value
-      ? `&service_type=${selectedTukangService.value}`
-      : ``
-
-  const fetchTukangList = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/tukang?date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${serviceTypeId}&vendor_id=${vendorId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -276,19 +262,23 @@ const ViewTukangVendor: FC = () => {
     }
   }
 
-  const ViewTukang = async (page: number, pageSize: number) => {
+  const ViewTukang = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchTukangList(page, pageSize)
+      const apiData = await fetchTukangList(page, pageSize, queryparams)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetchTukangList')
         return []
       }
 
       const tukangData = apiData.map((item: any, index: number) => {
         let data
 
-        const BirthOfDay = new Date(item?.bod ?? '-')
+        const BirthOfDay = new Date(item?.bod).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const tukangService = item?.tukang_service
           .map((tukang_service: any) => tukang_service?.service_type?.service_type ?? '-')
@@ -301,7 +291,7 @@ const ViewTukangVendor: FC = () => {
           email: item?.email ?? '-',
           phone_number: item?.phone_number ?? '-',
           address: item?.address ?? '-',
-          birth_day: formatDate(BirthOfDay),
+          birth_day: BirthOfDay,
           ktp: item?.ktp_number ?? '-',
           keahlian: tukangService ?? '-',
           status: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
@@ -317,14 +307,14 @@ const ViewTukangVendor: FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewTukang(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewTukang(page, pageSize, queryparams)
     setTukangData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter, selectedTukangService])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -377,6 +367,27 @@ const ViewTukangVendor: FC = () => {
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
     XLSX.writeFile(workbook, `List Tukang.xlsx`)
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&service_type=`, selectedTukangService?.value)
+
+    const data = await ViewTukang(1, 10, queryparams)
+    setTukangData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -432,6 +443,14 @@ const ViewTukangVendor: FC = () => {
                   />
                 </Col>
               </Form.Group>
+
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
             </div>
 
             <div className='right'>
@@ -446,28 +465,38 @@ const ViewTukangVendor: FC = () => {
             </div>
           </div>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={tukangData}
-            rowKey={(record) => record.tukang_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Tukang
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={tukangData}
+              rowKey={(record) => record.tukang_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Tukang
+              </span>
+            )}
           />
         </div>
       </div>

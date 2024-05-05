@@ -10,7 +10,7 @@ import {TableList} from './components/TableList'
 
 import axios from 'axios'
 import {DatePicker} from 'antd'
-import {Row, Col, Card} from 'react-bootstrap'
+import {Row, Col, Card, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
@@ -38,7 +38,9 @@ const DashboardVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const vendorId = localStorage.getItem('vendor_id')
 
+  const [loadingButton, setLoadingButton] = useState(false)
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
@@ -56,27 +58,25 @@ const DashboardVendor: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
-  const fetchOrderList = async () => {
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
+
     try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&vendor_id=${vendorId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      const data = response.data.data
+      setOrderData(response.data.data)
+      setOrderList(response.data.data)
+      setCurrentPage(response?.data?.page ?? 1)
+      setTotalData(response?.data?.total ?? 0)
 
-      setCurrentPage(response.data.page)
-      setOrderData(data)
-      setOrderList(data)
-
-      return data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -93,16 +93,34 @@ const DashboardVendor: FC = () => {
         },
       })
 
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
-      setChartDataOrder(chartDatas)
+      const chartDatas = response.data.monthlyOrders
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+      setChartDataOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewOrder = () => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = orderList.map((item: any) => {
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const orderData = apiData.map((item: any) => {
         let data
 
         data = {
@@ -119,14 +137,14 @@ const DashboardVendor: FC = () => {
         return data
       })
 
-      return apiData
+      return orderData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
     }
   }
 
-  const getWorkOrder = async () => {
+  const getReportWorkOrder = async () => {
     try {
       const response = await axios.get(`${apiUrl}/reports/work-orders?vendor_id=${vendorId}`, {
         headers: {
@@ -138,10 +156,21 @@ const DashboardVendor: FC = () => {
       })
 
       const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+      const chartDatas = response.data.monthlyWorkOrders
 
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = chartDatas.slice(startIndex, endIndex)
+
+      setChartWorkOrder(slicedData)
       setWorkOrderData(data)
-      setChartWorkOrder(chartDatas)
       return data
     } catch (error) {
       console.error(error)
@@ -167,26 +196,18 @@ const DashboardVendor: FC = () => {
     }
   }
 
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
+    setOrderList(data)
+  }
+
   useEffect(() => {
-    getReportOrder()
+    fetchData(1, 10, '')
   }, [])
 
   useEffect(() => {
-    fetchOrderList()
-  }, [dateFrom, dateTo])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await ViewOrder()
-        setOrderData(data)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
-
-    fetchData()
-    getWorkOrder()
+    getReportOrder()
+    getReportWorkOrder()
     getReportTukang()
   }, [orderList])
 
@@ -204,7 +225,9 @@ const DashboardVendor: FC = () => {
 
         if (desiredStatus) {
           const statusValue = desiredStatus.value
-          const orderCount = orderList.filter((item: any) => item.status.id === statusValue).length
+          const orderCount = orderList.filter(
+            (item: any) => item?.status?.id === statusValue
+          ).length
 
           setStatusState((prevState) => ({
             ...prevState,
@@ -217,10 +240,25 @@ const DashboardVendor: FC = () => {
 
   const {survey, onProgress, complete, reschedule, waitingPayment} = statusState
 
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}`
+
+    const data = await ViewOrder(1, 10, queryparams)
+    setOrderList(data)
+
+    await getReportOrder()
+    await getReportWorkOrder()
+    await getReportTukang()
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='dashboard-vendor'>
-      <Row>
-        <Col className='mb-5'>
+      <Row className='mb-5'>
+        <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
           <Row>
             <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
@@ -238,8 +276,8 @@ const DashboardVendor: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
+                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
                   }
                 }}
               />
@@ -247,7 +285,16 @@ const DashboardVendor: FC = () => {
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'></Col>
+        <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+          <Button
+            className='btn-dark-primary button-submit'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </Col>
+
         <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'></Col>
       </Row>
 
@@ -322,7 +369,7 @@ const DashboardVendor: FC = () => {
 
       <Row className='mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch' orderData={orderData} currentPage={currentPage} />
+          <TableList className='card-xl-stretch' orderData={orderList} currentPage={currentPage} />
         </Col>
       </Row>
     </section>
