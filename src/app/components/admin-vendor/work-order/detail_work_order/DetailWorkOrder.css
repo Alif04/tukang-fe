@@ -44,18 +44,6 @@
   padding: 3px 0px;
 }
 
-#detail-work-order :where(.css-dev-only-do-not-override-1ck3jst).ant-picker.ant-picker-disabled {
-  background-color: white !important;
-}
-
-#detail-work-order
-  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
-  .ant-picker-input
-  > input[disabled] {
-  color: black !important;
-  font-weight: 600;
-}
-
 #detail-work-order .ant-picker-range-separator .anticon svg {
   color: black;
 }

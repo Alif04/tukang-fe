@@ -176,6 +176,7 @@ const NewVendorHO: FC = () => {
     getServiceType()
     getBank()
     getVendorId()
+    // eslint-disable-next-line
   }, [])
 
   const formatDate = (date: any) => {
@@ -193,6 +194,7 @@ const NewVendorHO: FC = () => {
   const [emailVendor, setEmailVendor] = useState<string>('')
   const [phoneNumberVendor, setPhoneNumberVendor] = useState<any>()
   const [vendorAddress, setVendorAddress] = useState<any>('')
+  const [username, setUsername] = useState<any>('')
   const [password, setPassword] = useState<any>('')
   const [maxOrder, setMaxOrder] = useState<string>('')
 
@@ -209,7 +211,6 @@ const NewVendorHO: FC = () => {
   const [serviceType, setServiceType] = useState<ServiceType[]>([])
 
   // File Upload
-  // const [isActive, setIsActive] = useState(false)
   const [ktpEvidence, setKtpEvidence] = useState<FileList | []>()
   const [npwpEvidence, setNpwpEvidence] = useState<FileList | []>()
   const [comproEvidence, setComproEvidence] = useState<FileList | []>()
@@ -279,7 +280,6 @@ const NewVendorHO: FC = () => {
 
   // Bank Information
   const [bank, setBank] = useState<Bank[]>([])
-  const [bankInfo, setBankInfo] = useState<Bank | null>(null)
   const [bankId, setBankId] = useState<any>()
   const [bankName, setBankName] = useState<string>('')
   const [accountNumber, setAccountNumber] = useState<any>()
@@ -333,9 +333,6 @@ const NewVendorHO: FC = () => {
     suip: false,
     ptkp: false,
   })
-
-  // console.log('isActive Compro', isActive.compro)
-  // console.log('isActive Surat Permohonan', isActive.suratPermohonan)
 
   const handleFormCheckbox = (element: keyof CheckStates) => {
     setisActive({...isActive, [element]: !isActive[element]})
@@ -526,20 +523,8 @@ const NewVendorHO: FC = () => {
       label: element?.label || '',
     }
 
-    setBankInfo(newBankInfo)
     setBankId(newBankInfo.value)
     setBankName(newBankInfo.label)
-  }
-
-  const handleChangeBankId = (element: any) => {
-    const newBankId = element.target.value
-
-    setBankInfo((prevBank) => ({
-      ...(prevBank as Bank),
-      value: newBankId,
-    }))
-
-    setBankId(newBankId)
   }
 
   const handleChangeAccountName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -557,6 +542,11 @@ const NewVendorHO: FC = () => {
     setMarkup(updatedMarkup)
   }
 
+  const handleChangeUsernameVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedUsernameVendor = event.target.value
+    setUsername(updatedUsernameVendor)
+  }
+
   const handleChangePasswordVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedPasswordVendor = event.target.value
     setPassword(updatedPasswordVendor)
@@ -571,24 +561,18 @@ const NewVendorHO: FC = () => {
   const handleChangeServiceAreaId = (element: any) => {
     const updatedServiceArea = element.map((option: any) => option.value)
     setserviceAreaId(updatedServiceArea)
-
-    // console.log('Service Area', updatedServiceArea)
   }
 
   // Change Select Store
   const handleChangeStoreId = (element: any) => {
     const updatedStore = element.map((option: any) => option.value)
     setStoreId(updatedStore)
-
-    // console.log('Service Area', updatedServiceArea)
   }
 
   // Change Select Service Type
   const handleChangeServiceTypeId = (element: any) => {
     const updatedServiceTypeId = element.map((option: any) => option.value)
     setserviceTypeId(updatedServiceTypeId)
-
-    // console.log('Service Type', updatedServiceTypeId)
   }
 
   // Vendor Validation
@@ -597,86 +581,107 @@ const NewVendorHO: FC = () => {
 
     if (!joinDate) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Join Date form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!vendorName) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Perusahaan form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!emailVendor) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Email form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!phoneNumberVendor) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nomor HP / WA form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!serviceAreaId) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please select Service Area form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!serviceTypeId) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please select Service Type form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!vendorAddress) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Vendor Address form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!ktpEvidence) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Upload KTP form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!npwpEvidence) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Upload NPWP form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!bankName) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Bank form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!accountNumber) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nomor Account form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!accountName) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Account Name form',
-        icon: 'error',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (maxOrder === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Max Order form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (maxOrder < '3') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Each Vendor have 3 minimal order',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!password) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Password form',
+        icon: 'warning',
       })
       valid = false
     }
@@ -696,8 +701,18 @@ const NewVendorHO: FC = () => {
       formData.append('phone_number', phoneNumberVendor)
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
+      formData.append('username', username)
       formData.append('password', password)
       formData.append('max_order', maxOrder)
+
+      formData.append('pic_name', picName)
+      formData.append('markup', markup)
+      formData.append('account_name', accountName)
+      formData.append('account_number', accountNumber)
+      formData.append('bank_id', bankId)
+
+      formData.append('ktp_number', ktpNumber)
+      formData.append('npwp_number', npwpNumber)
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])
@@ -734,15 +749,6 @@ const NewVendorHO: FC = () => {
           }
         })
       }
-
-      formData.append('pic_name', picName)
-      formData.append('markup', markup)
-      formData.append('account_name', accountName)
-      formData.append('account_number', accountNumber)
-      formData.append('bank_id', bankId)
-
-      formData.append('ktp_number', ktpNumber)
-      formData.append('npwp_number', npwpNumber)
 
       if (serviceAreaId?.length) {
         serviceAreaId.forEach((item: any) => {
@@ -879,29 +885,15 @@ const NewVendorHO: FC = () => {
               </Row>
 
               <Row className='form-body'>
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Email</Form.Label>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
 
-                    <Form.Control
-                      type='email'
-                      onChange={handleChangeVendorEmail}
-                      value={emailVendor}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Password</Form.Label>
-
-                    <Form.Control
-                      type='text'
-                      onChange={handleChangePasswordVendor}
-                      value={password}
-                    />
-                  </Form.Group>
-                </Col>
+                  <Form.Control
+                    type='email'
+                    onChange={handleChangeVendorEmail}
+                    value={emailVendor}
+                  />
+                </Form.Group>
               </Row>
 
               <Row className='form-body'>
@@ -1333,7 +1325,12 @@ const NewVendorHO: FC = () => {
             <Col xxl={6}>
               <Form.Group className='tukang-info'>
                 <Form.Label>Username</Form.Label>
-                <Form.Control type='text' name='username' />
+                <Form.Control
+                  type='text'
+                  name='username'
+                  onChange={handleChangeUsernameVendor}
+                  value={username}
+                />
 
                 <Form.Text className='fs-8 fs-l text-dark-danger'>
                   *Jika username kosong, maka sistem akan menghasilkan username secara otomatis dari
@@ -1345,7 +1342,12 @@ const NewVendorHO: FC = () => {
             <Col xxl={6}>
               <Form.Group className='tukang-info'>
                 <Form.Label>Password</Form.Label>
-                <Form.Control type='text' name='password' />
+                <Form.Control
+                  type='text'
+                  name='password'
+                  onChange={handleChangePasswordVendor}
+                  value={password}
+                />
               </Form.Group>
             </Col>
           </Row>

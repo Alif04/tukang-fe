@@ -174,18 +174,25 @@ iframe.csi-frame {
 
 /* Date Range */
 
-.ant-picker.ant-picker-range.css-dev-only-do-not-override-1m62vyb.date-range {
+.ant-picker.ant-picker-range.date-range {
   display: flex;
   align-items: center;
-  width: 200px;
-  height: 45px;
+  /* width: 200px; */
+  height: 45px !important;
 }
 
-.ant-picker.ant-picker-range.css-dev-only-do-not-override-1ck3jst.date-range {
-  display: flex;
-  align-items: center;
-  width: 200px;
-  height: 45px;
+.ant-picker:hover,
+.ant-picker-focused {
+  border-color: #183383 !important;
+}
+
+.ant-picker.ant-picker-disabled {
+  background-color: white !important;
+}
+
+.ant-picker .ant-picker-input > input[disabled] {
+  color: black !important;
+  font-weight: 600;
 }
 
 /* Button Submit On Date Range */
