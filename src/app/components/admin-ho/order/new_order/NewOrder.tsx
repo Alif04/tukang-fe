@@ -20,13 +20,14 @@ interface StoreItemSelect {
 }
 
 interface MemberSelect {
-  value: number | null
-  label: string
+  value?: number | null
+  label?: string
   full_name: string
   email: string
-  phone_number: string
-  whatsapp_number: string
+  phone_number?: string
+  whatsapp_number?: string
   address_1: string
+  join_location: number | null
 }
 
 interface SalesSelect {
@@ -147,16 +148,17 @@ const NewOrderHO: FC = () => {
   const [member, setMember] = useState<MemberSelect[]>([])
   const [searchByPhoneNumber, setSearchByPhoneNumber] = useState('')
   const [selectedMember, setSelectedMember] = useState<MemberSelect>({
-    value: null,
-    label: '',
+    // value: null,
+    // label: '',
     full_name: '',
     email: '',
-    phone_number: '',
-    whatsapp_number: '',
+    // phone_number: '',
+    // whatsapp_number: '',
     address_1: '',
+    join_location: null,
   })
 
-  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
+  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(true)
   const [isOverdistance, setIsOverdistance] = useState<number>(0)
 
   // Sales
@@ -232,16 +234,19 @@ const NewOrderHO: FC = () => {
     const getMember = async () => {
       try {
         const labelKey = determineLabelKey(searchByPhoneNumber)
-        const phoneNumber = searchByPhoneNumber ? `?search=${searchByPhoneNumber}` : ''
+        const phoneNumber = searchByPhoneNumber ? `&search=${searchByPhoneNumber}` : ''
 
-        const response = await axios.get(`${apiUrl}/member${phoneNumber}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+        const response = await axios.get(
+          `${apiUrl}/member?store_id=${selectedStore?.value}${phoneNumber}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
 
         if (Array.isArray(response.data.data)) {
           const tempMember = response.data.data.map((item: any) => ({
@@ -252,6 +257,7 @@ const NewOrderHO: FC = () => {
             phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
+            join_location: item.join_location,
           }))
 
           setMember(tempMember)
@@ -275,7 +281,7 @@ const NewOrderHO: FC = () => {
     }
 
     getMember()
-  }, [searchByPhoneNumber])
+  }, [searchByPhoneNumber, selectedStore])
 
   useEffect(() => {
     const getStore = async () => {
@@ -389,6 +395,7 @@ const NewOrderHO: FC = () => {
         phone_number: newValue.phone_number || '',
         whatsapp_number: newValue.whatsapp_number || '',
         address_1: newValue.address_1 || '',
+        join_location: newValue.join_location || null,
       })
     } else {
       setSelectedMember({
@@ -399,6 +406,7 @@ const NewOrderHO: FC = () => {
         phone_number: '',
         whatsapp_number: '',
         address_1: '',
+        join_location: null,
       })
     }
   }
@@ -819,12 +827,21 @@ const NewOrderHO: FC = () => {
     setIsSubmittingNewMember(true)
 
     if (selectedMember.value === null) {
-      const newMember = {
+      const newMember: MemberSelect = {
         full_name: selectedMember.full_name,
         email: selectedMember.email,
-        phone_number: selectedMember.phone_number,
-        whatsapp_number: selectedMember.whatsapp_number,
+        // phone_number: selectedMember.phone_number,
+        // whatsapp_number: selectedMember.whatsapp_number,
         address_1: selectedMember.address_1,
+        join_location: Number(selectedStore?.value),
+      }
+
+      if (selectedMember.whatsapp_number) {
+        newMember.whatsapp_number = selectedMember.whatsapp_number
+      }
+
+      if (selectedMember.phone_number) {
+        newMember.phone_number = selectedMember.phone_number
       }
 
       const response = await axios.post(`${apiUrl}/member`, newMember, {
@@ -847,7 +864,7 @@ const NewOrderHO: FC = () => {
           member_id: response.data.data.member.id,
         }))
 
-        setIsSubmittingNewMember(false)
+        setIsSubmittingNewMember(true)
       }
     } else {
       await handleSubmitNewOrder()
@@ -855,10 +872,10 @@ const NewOrderHO: FC = () => {
   }
 
   useEffect(() => {
-    if (isSubmittingNewMember) {
+    if (isSubmittingNewMember === true) {
       setOrderForm({
         ...orderForm,
-        member_id: selectedMember.value,
+        member_id: selectedMember?.value ?? null,
       })
 
       handleSubmitNewOrder()
@@ -1524,8 +1541,12 @@ const NewOrderHO: FC = () => {
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button onClick={handleSubmitNewOrder} disabled={isLoading} variant='dark-primary'>
-              {isLoading ? 'Submitting..' : 'Submit Order & Email'}
+            <Button
+              onClick={handleSubmitNewMember}
+              disabled={isLoading || isSubmittingNewMember}
+              variant='dark-primary'
+            >
+              {isLoading || isSubmittingNewMember ? 'Submitting..' : 'Submit Order & Email'}
             </Button>
           </div>
         </div>
