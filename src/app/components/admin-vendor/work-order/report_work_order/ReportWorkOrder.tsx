@@ -37,13 +37,32 @@ const ReportWorkVendor: FC = () => {
         }
       )
       const data = response.data.data
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
 
       setOrderData(data)
-      setChartData(chartDatas)
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
+    }
+  }
+
+  const getReportOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/orders?vendor_id=${vendorId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const data = response.data.data
+      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+
+      setChartData(chartDatas)
+      return data
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -60,6 +79,8 @@ const ReportWorkVendor: FC = () => {
 
       const data = response.data.data
       const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+
+      console.log(chartDatas)
 
       setWorkOrderData(data)
       setChartWorkOrder(chartDatas)
@@ -93,6 +114,7 @@ const ReportWorkVendor: FC = () => {
 
   useEffect(() => {
     fetchOrderList()
+    getReportOrder()
     getWorkOrder()
     getComplaint()
   }, [])
@@ -132,9 +154,11 @@ const ReportWorkVendor: FC = () => {
         <div className='col-xl-4'>
           <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartData} />
         </div>
+
         <div className='col-xl-4'>
           <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartWorkOrder} />
         </div>
+
         <div className='col-xl-4'>
           <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
         </div>

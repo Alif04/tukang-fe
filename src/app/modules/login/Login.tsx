@@ -9,10 +9,18 @@ import {toAbsoluteUrl} from '../../../_metronic/helpers'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'
 
+interface Status {
+  value: number
+  description: string
+  category: string
+}
+
 export function Login() {
   const navigate = useNavigate()
   const apiUrl = process.env.REACT_APP_API_URL
 
+  // eslint-disable-next-line
+  const [status, setStatus] = useState<Status[]>([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -21,6 +29,36 @@ export function Login() {
     setHandleTogglePassword(handleTogglePassword ? false : true)
   }
 
+  // Get Status
+  const getStatus = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/status?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStatus = response.data.data.map((item: any) => ({
+          value: item.id,
+          category: item.category,
+          description: item.description,
+        }))
+
+        setStatus(tempStatus)
+
+        sessionStorage.setItem('statusData', JSON.stringify(tempStatus))
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  // Handle Login
   const handleLogin = () => {
     setIsLoading(true)
 
@@ -40,7 +78,7 @@ export function Login() {
         }
       )
       .then((res) => {
-        if (res.data.statusCode == 200) {
+        if (res.data.statusCode === 200) {
           const user = res.data.user
           const isSales = user.roles.name === 'Sales'
           const isVendor = user.roles.name === 'Admin Vendor'
@@ -70,6 +108,8 @@ export function Login() {
           } else if (!isSales && !isEmployee && !isVendor) {
             window.location.reload()
           }
+
+          getStatus()
 
           Swal.fire({
             title: 'Login Success',

@@ -1,13 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewQuotation.css'
 
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
-import {Table, Tag, DatePicker, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
@@ -41,6 +42,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [quotationData, setQuotationData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -210,13 +213,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const getQuotationList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
@@ -232,6 +228,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -250,15 +247,30 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
       const quotationData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.order.created_at)
 
-        let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
+        const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
+        const paymentStatus = (() => {
+          if (item?.order?.payment_type === 'survey') {
+            return item.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.order?.payment_type === 'gratis') {
+            return 'FREE'
+          } else if (item?.order?.payment_type === 'pemasangan_tanpa_survey') {
+            return item?.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else {
+            return ''
+          }
+        })()
 
         data = {
           quotation_id: item.id,
           store_name: item?.store?.store_name ?? '-',
           order_id: item.order.id,
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           costumer_name: item?.order?.members?.full_name ?? '',
           vendor_name: item?.order?.vendor?.company_name ?? '-',
           payment_status: paymentStatus,
@@ -328,10 +340,21 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ``
 
-    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}${storeId}`
-    await getQuotationList(1, 10, queryparams)
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&store_id=`, selectedStore?.value)
+
+    const data = await ViewQuotation(1, 10, queryparams)
+    setQuotationData(data)
 
     setLoadingButton(false)
   }
@@ -404,29 +427,38 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={quotationData}
-            rowKey={(record) => record.quotation_id}
-            // scroll={{x: 1800}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize, '')
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Quotation
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={quotationData}
+              rowKey={(record) => record.quotation_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Quotation
+              </span>
+            )}
           />
         </div>
       </div>

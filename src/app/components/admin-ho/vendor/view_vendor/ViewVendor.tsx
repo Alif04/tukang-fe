@@ -1,19 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewVendor.css'
 
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, PaginationProps} from 'antd'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
+import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -25,11 +25,27 @@ interface StoreItem {
   label: string
 }
 
+interface DataType {
+  no: number
+  vendor_id: number
+  pic_name: string
+  company_name: string
+  email_address: string
+  phone_number: number
+  date_join: string
+  service_type: string
+  serving_area: string
+  rating: string
+  vendor_status: string
+}
+
 const ViewVendorHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [vendorData, setVendorData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -49,20 +65,6 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   }
 
   const storeOptions = [{value: null, label: 'All Vendor'}, ...store]
-
-  interface DataType {
-    no: number
-    vendor_id: number
-    pic_name: string
-    company_name: string
-    email_address: string
-    phone_number: number
-    date_join: string
-    service_type: string
-    serving_area: string
-    rating: string
-    vendor_status: string
-  }
 
   const columns: ColumnsType<DataType> = [
     {
@@ -237,23 +239,21 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   }
 
   const fetchVendorList = async (page: number, pageSize: number, queryparams: any) => {
-    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
+    let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
     try {
-      const response = await axios.get(
-        `${apiUrl}/vendor?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}${storeId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -273,7 +273,11 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       const vendorData = apiData.map((item: any, index: number) => {
         let data
 
-        const joinDate = new Date(item.join_date)
+        const joinDate = new Date(item?.join_date).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const vendorService = item.vendor_service
           .map((vendor_service: any) => vendor_service?.service_type?.service_type)
@@ -290,7 +294,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
           company_name: item.company_name,
           email_address: item.email_address,
           phone_number: item.phone_number,
-          date_join: formatDate(joinDate),
+          date_join: joinDate,
           service_type: vendorService,
           serving_area: vendorArea || '',
           rating: '-',
@@ -359,10 +363,21 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ``
 
-    const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ''
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}${storeId}`
-    await fetchVendorList(1, 10, queryparams)
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&store_id=`, selectedStore?.value)
+
+    const data = await ViewVendor(1, 10, queryparams)
+    setVendorData(data)
 
     setLoadingButton(false)
   }
@@ -422,6 +437,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
                 classNamePrefix='select'
                 placeholder='Pilih Vendor'
                 isSearchable={true}
+                isClearable={true}
                 options={storeOptions}
                 value={selectedStore}
                 onChange={(newValue) => setSelectedStore(newValue)}
@@ -439,29 +455,39 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={vendorData}
-            rowKey={(record) => record.vendor_id}
-            // scroll={{x: 2000}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize, '')
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Vendor
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={vendorData}
+              rowKey={(record) => record.vendor_id}
+              pagination={false}
+              scroll={{x: 1800}}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Vendor
+              </span>
+            )}
           />
         </div>
       </div>

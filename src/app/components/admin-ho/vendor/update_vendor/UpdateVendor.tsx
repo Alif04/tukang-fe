@@ -8,7 +8,7 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
+import {Form, Row, Col, Button, ListGroup, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -57,7 +57,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const animatedComponents = makeAnimated()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [vendorDetail, setVendorDetail] = useState<any>()
 
   // Fetch API
   const fetchVendorData = async () => {
@@ -73,31 +72,23 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         })
         .then((response) => {
           const data = response.data.data
-          setVendorDetail(data)
           updatePageTitle(data)
 
           if (data?.id) {
             setVendorId(data.id)
-            setPicName(data.pic_name)
-          }
-
-          if (data?.join_date) {
             setJoinDate(new Date(data.join_date).toISOString().split('T')[0])
-          }
-
-          if (data?.company_name && data?.address && data?.email_address && data?.phone_number) {
+            setPicName(data.pic_name)
             setVendorName(data.company_name)
             setVendorAddress(data.address)
             setEmailVendor(data.email_address)
             setPhoneNumberVendor(data.phone_number)
-          }
-
-          if (data?.ktp_number) {
             setKtpNumber(data.ktp_number)
+            setNpwpNumber(data.npwp_number)
+            setMaxOrder(data.max_order)
           }
 
-          if (data?.npwp_number) {
-            setNpwpNumber(data.npwp_number)
+          if (data?.users) {
+            setUsername(data.users.username)
           }
 
           if (data?.vendor_bank) {
@@ -314,6 +305,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     getArea()
     getServiceType()
     getBank()
+    // eslint-disable-next-line
   }, [])
 
   // Vendor Information
@@ -324,7 +316,9 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [emailVendor, setEmailVendor] = useState<string>('')
   const [phoneNumberVendor, setPhoneNumberVendor] = useState<any>()
   const [vendorAddress, setVendorAddress] = useState<any>('')
+  const [username, setUsername] = useState<any>('')
   const [password, setPassword] = useState<any>('')
+  const [maxOrder, setMaxOrder] = useState<string>('')
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
@@ -412,7 +406,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   // Bank Information
   const [bank, setBank] = useState<Bank[]>([])
-  const [bankInfo, setBankInfo] = useState<Bank | null>(null)
   const [bankIds, setBankIds] = useState<any>()
   const [bankId, setBankId] = useState<any>()
   const [bankName, setBankName] = useState<string>('')
@@ -455,9 +448,19 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     setVendorAddress(updatedVendorAddress)
   }
 
+  const handleChangeUsernameVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedUsernameVendor = event.target.value
+    setUsername(updatedUsernameVendor)
+  }
+
   const handleChangePasswordVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedPasswordVendor = event.target.value
     setPassword(updatedPasswordVendor)
+  }
+
+  const handleChangeMaxOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedMaxOrder = event.target.value
+    setMaxOrder(updatedMaxOrder)
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
@@ -734,20 +737,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       label: element?.label || '',
     }
 
-    setBankInfo(newBankInfo)
     setBankId(newBankInfo.value)
     setBankName(newBankInfo.label)
-  }
-
-  const handleChangeBankId = (element: any) => {
-    const newBankId = element.target.value
-
-    setBankInfo((prevBank) => ({
-      ...(prevBank as Bank),
-      value: newBankId,
-    }))
-
-    setBankId(newBankId)
   }
 
   const handleChangeAccountName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -765,10 +756,10 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     setMarkup(updatedMarkup)
   }
 
-  const handleChangeDiscount = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedDiscount = event.target.value
-    setDiscount(updatedDiscount)
-  }
+  // const handleChangeDiscount = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const updatedDiscount = event.target.value
+  //   setDiscount(updatedDiscount)
+  // }
 
   // Change Select Store Area
   const handleChangeStoreId = (element: any) => {
@@ -815,72 +806,86 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
     if (!joinDate) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Join Date form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!vendorName) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Perusahaan form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!emailVendor) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Email form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!phoneNumberVendor) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nomor HP / WA form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!serviceAreaId) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please select Service Area form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!serviceTypeId) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please select Service Type form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!vendorAddress) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Vendor Address form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!bankName) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Bank form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!accountNumber) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nomor Account form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!accountName) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Account Name form',
-        icon: 'error',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (maxOrder === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Max Order form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (maxOrder < '3') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Each Vendor have 3 minimal order',
+        icon: 'warning',
       })
       valid = false
     }
@@ -896,12 +901,29 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       const formData = new FormData()
 
       formData.append('id', vendorId)
+      formData.append('pic_name', picName)
       formData.append('company_name', vendorName)
       formData.append('address', vendorAddress)
       formData.append('phone_number', phoneNumberVendor)
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
-      formData.append('password', password)
+      formData.append('max_order', maxOrder)
+
+      formData.append('vendor_bank[id]', bankIds)
+      formData.append('vendor_bank[bank_id]', bankId)
+      formData.append('vendor_bank[account_number]', accountNumber)
+      formData.append('vendor_bank[account_name]', accountName)
+
+      formData.append('ktp_number', ktpNumber)
+      formData.append('npwp_number', npwpNumber)
+
+      if (!username) {
+        formData.append('username', username)
+      }
+
+      if (!password) {
+        formData.append('password', password)
+      }
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])
@@ -938,16 +960,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           }
         })
       }
-
-      formData.append('pic_name', picName)
-
-      formData.append('vendor_bank[id]', bankIds)
-      formData.append('vendor_bank[bank_id]', bankId)
-      formData.append('vendor_bank[account_number]', accountNumber)
-      formData.append('vendor_bank[account_name]', accountName)
-
-      formData.append('ktp_number', ktpNumber)
-      formData.append('npwp_number', npwpNumber)
 
       if (serviceAreaId?.length) {
         serviceAreaId.forEach((item: any, index: number) => {
@@ -1022,8 +1034,12 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   return (
     <section id='update-vendor'>
-      <div className='card mb-5'>
-        <div className='card-body'>
+      <Card className='mb-5'>
+        <Card.Header>
+          <Card.Title>Informasi Vendor</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
           <Row>
             <Col xxl={6} xl={6} lg={12} md={12}>
               <Row className='header-body'>
@@ -1092,29 +1108,15 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               </Row>
 
               <Row className='form-body'>
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Email</Form.Label>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
 
-                    <Form.Control
-                      type='email'
-                      onChange={handleChangeVendorEmail}
-                      value={emailVendor}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Reset Password</Form.Label>
-
-                    <Form.Control
-                      type='text'
-                      onChange={handleChangePasswordVendor}
-                      value={password}
-                    />
-                  </Form.Group>
-                </Col>
+                  <Form.Control
+                    type='email'
+                    onChange={handleChangeVendorEmail}
+                    value={emailVendor}
+                  />
+                </Form.Group>
               </Row>
 
               <Row className='form-body'>
@@ -1496,6 +1498,19 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                 </Form.Group>
               </Row>
 
+              <Row className='form-body'>
+                <Form.Group>
+                  <Form.Label>Maksimal Order</Form.Label>
+
+                  <Form.Control
+                    min={3}
+                    type='number'
+                    onChange={handleChangeMaxOrder}
+                    value={maxOrder}
+                  />
+                </Form.Group>
+              </Row>
+
               {/* <Row className='form-body'>
                 <Form.Group>
                   <Form.Label>Discount</Form.Label>
@@ -1516,8 +1531,49 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
+
+      <hr />
+
+      <Card className='mb-5'>
+        <Card.Header>
+          <Card.Title>Profile</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          <Row>
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='username'
+                  onChange={handleChangeUsernameVendor}
+                  value={username}
+                />
+
+                <Form.Text className='fs-8 fs-l text-dark-danger'>
+                  *Jika username kosong, maka sistem akan menghasilkan username secara otomatis dari
+                  alamat email
+                </Form.Text>
+              </Form.Group>
+            </Col>
+
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Reset Password</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='password'
+                  onChange={handleChangePasswordVendor}
+                  value={password}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

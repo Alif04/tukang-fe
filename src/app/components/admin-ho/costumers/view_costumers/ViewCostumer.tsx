@@ -1,15 +1,16 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewCostumer.css'
 
+import * as XLSX from 'xlsx'
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import * as XLSX from 'xlsx'
-import {useNavigate} from 'react-router-dom'
-import {Table, DatePicker, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPrint, faFileExcel, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
@@ -36,7 +37,11 @@ interface DataType {
 }
 
 const ViewCostumerHO: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [memberData, setMemberData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -149,31 +154,23 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const fetchMemberList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/member?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-  const fetchMemberList = async (page: number, pageSize: number) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      const response = await axios.get(
-        `${apiUrl}/member?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
+      const data = response.data.data
+      setCurrentPage(response?.data?.page ?? 1)
+      setTotalData(data.length)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -181,9 +178,9 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewMember = async (page: number, pageSize: number) => {
+  const ViewMember = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchMemberList(page, pageSize)
+      const apiData = await fetchMemberList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetch member')
@@ -193,9 +190,14 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       const memberData = apiData.map((item: any, index: number) => {
         let data
 
-        const joinDate = new Date(item?.join_date ?? '-')
-        let phoneNumber = item.phone_number !== 'null' ? item.phone_number : item.whatsapp_number
-        let totalOrder = item?.order.length ?? 0
+        const joinDate = new Date(item?.join_date).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
+        const phoneNumber = item.phone_number !== 'null' ? item.phone_number : item.whatsapp_number
+        const totalOrder = item?.order.length ?? 0
 
         data = {
           number: index + 1,
@@ -205,7 +207,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
           full_name: item.full_name,
           phone_number: phoneNumber,
           email_address: item?.email ?? '-',
-          customer_since: formatDate(joinDate),
+          customer_since: joinDate,
           total_order: totalOrder,
           // total_spend: item?.total_spend ?? '-',
           // total_complaint: item?.total_complaint ?? '-',
@@ -223,14 +225,14 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewMember(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewMember(page, pageSize, queryparams)
     setMemberData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -255,93 +257,132 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     XLSX.writeFile(workbook, `List Member.xlsx`)
   }
 
+  // Filter
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewMember(1, 10, queryparams)
+    setMemberData(data)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='view-costumer'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
-          <div className='filter-search'>
-            <InputGroup>
-              <Form.Control
-                placeholder='Find Customer'
-                className='filter-rtl'
-                onChange={handleChangeSearchFilter}
+          <Row className='table-head-wrapper'>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+              <div className='d-flex align-items-center me-3'>
+                <h3 className='fs-5 fw-normal'>Join Date : </h3>
+              </div>
+
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
               />
+            </Col>
 
-              <InputGroup.Text className='filter-rtl'>
-                <FontAwesomeIcon icon={faSearch} size='sm' />
-              </InputGroup.Text>
-            </InputGroup>
-          </div>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <div className='filter-search'>
+                <InputGroup>
+                  <InputGroup.Text className='filter-ltr'>
+                    <FontAwesomeIcon icon={faSearch} size='sm' />
+                  </InputGroup.Text>
 
-          <div className='table-head-wrapper'>
-            <div className='left'>
-              <h3>Filter By :</h3>
-
-              <Form.Group as={Row} className='date-filter mb-5'>
-                <Form.Label column sm='4'>
-                  Join Date :
-                </Form.Label>
-
-                <Col sm='8'>
-                  <RangePicker
-                    format={'DD-MM-YYYY'}
-                    className='date-range ms-3'
-                    onChange={(values) => {
-                      if (values && values.length === 2) {
-                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
-
-                        setDateFrom(dateFromFormatted)
-                        setDateTo(dateToFormatted)
-                      } else {
-                        setDateFrom('')
-                        setDateTo('')
-                      }
-                    }}
+                  <Form.Control
+                    placeholder='Search'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
                   />
-                </Col>
-              </Form.Group>
-            </div>
+                </InputGroup>
+              </div>
+            </Col>
 
-            <div className='right'>
-              <button className='button-export'>
-                <FontAwesomeIcon
-                  icon={faFileExcel}
-                  size='2xl'
-                  className='excel-icon'
-                  onClick={exportToExcel}
-                />
-              </button>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <div className='d-flex justify-content-between'>
+                <Button
+                  className='btn-dark-primary button-submit'
+                  disabled={loadingButton}
+                  onClick={handleSubmitFilter}
+                >
+                  {loadingButton ? 'Filtering..' : 'Submit'}
+                </Button>
 
-              <button className='button-print'>
-                <FontAwesomeIcon icon={faPrint} size='2xl' className='print-icon' />
-              </button>
-            </div>
-          </div>
+                <div className='export'>
+                  <button className='button-export'>
+                    <FontAwesomeIcon
+                      icon={faFileExcel}
+                      size='2xl'
+                      className='excel-icon'
+                      onClick={exportToExcel}
+                    />
+                  </button>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={memberData}
-            rowKey={(record) => record.costumer_id}
-            // scroll={{x: 1700}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Member
-                </span>
-              ),
+                  {/* 
+                  <button className='button-print'>
+                    <FontAwesomeIcon icon={faPrint} size='2xl' className='print-icon' />
+                  </button> */}
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={memberData}
+              rowKey={(record) => record.costumer_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Member
+              </span>
+            )}
           />
         </div>
       </div>

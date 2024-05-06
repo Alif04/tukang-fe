@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
-import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -39,7 +39,11 @@ interface DataType {
 const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
   const tukangId = localStorage.getItem('tukang_id')
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [workOrderData, setWorkOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -213,29 +217,22 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const fetchWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&tukang_id=${tukangId}&page=${page}&take=${pageSize}${queryparams}`
 
-  const fetchWorkOrder = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&tukang_id=${tukangId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -243,9 +240,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewWorkOrder = async (page: number, pageSize: number) => {
+  const ViewWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchWorkOrder(page, pageSize)
+      const apiData = await fetchWorkOrder(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchWorkOrder')
@@ -254,7 +251,12 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
       const workOrderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item?.order?.created_at)
+
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const paymentStatus = (() => {
           if (item?.order?.payment_type === 'survey') {
@@ -276,7 +278,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         data = {
           work_order_id: item.id,
           store_name: item?.order?.store?.store_name ?? '-',
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           costumer_id: item?.order?.members.member_number,
           costumer_name: item?.order?.members.full_name,
           phone_number: item?.order?.project_number,
@@ -299,14 +301,14 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewWorkOrder(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewWorkOrder(page, pageSize, queryparams)
     setWorkOrderData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -316,6 +318,26 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewWorkOrder(1, 10, queryparams)
+    setWorkOrderData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -346,7 +368,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -361,31 +383,51 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                 </InputGroup>
               </div>
             </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={workOrderData}
-            rowKey={(record) => record.work_order_id}
-            scroll={{x: 1700}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Work Order
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={workOrderData}
+              rowKey={(record) => record.work_order_id}
+              scroll={{x: 1700}}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Work Order
+              </span>
+            )}
           />
         </div>
       </div>

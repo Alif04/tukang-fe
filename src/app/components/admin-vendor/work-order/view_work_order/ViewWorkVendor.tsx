@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
-import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -42,6 +42,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   const vendorId = localStorage.getItem('vendor_id')
 
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -54,6 +57,27 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.filter((status: any) =>
+    [
+      'SURVEYREQ',
+      'SURVEYSTART',
+      'SURVEYDONE',
+      'WORKREQ',
+      'WORKSTART',
+      'WIP',
+      'WORKEND',
+      'REWORK',
+      'REWORKSTART',
+      'RIP',
+      'REWORKEND',
+      'RESCHEDULE',
+      'QUOTEIN',
+      'QUOTEOUT',
+    ].includes(status.category)
+  )
 
   const columns: ColumnsType<DataType> = [
     {
@@ -214,66 +238,29 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    const statuses = desiredStatus.map((x) => x.value)
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&status=${statuses}&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
+
+    const response = await axios.get(apiUrlWithParams, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+
+    setCurrentPage(response?.data?.page ?? 1)
+    setTotalData(response?.data?.total ?? 0)
+    setLoadData(false)
+
+    return response.data.data
   }
 
-  const fetchOrderList = async (page: number, pageSize: number) => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: any) =>
-        [
-          'SURVEYREQ',
-          'SURVEYSTART',
-          'SURVEYDONE',
-          'WORKREQ',
-          'WORKSTART',
-          'WIP',
-          'WORKEND',
-          'REWORK',
-          'REWORKSTART',
-          'RIP',
-          'REWORKEND',
-          'RESCHEDULE',
-          'QUOTEIN',
-          'QUOTEOUT',
-        ].includes(status.category)
-      )
-
-      if (desiredStatus) {
-        const statuses = desiredStatus.map((x) => x.value)
-
-        const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}&status=${statuses}&vendor_id=${vendorId}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-
-        setCurrentPage(response.data.page)
-        setTotalData(response?.data?.total ?? 0)
-
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const ViewOrder = async (page: number, pageSize: number) => {
-    try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -282,7 +269,12 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
-        const orderDate = new Date(item.created_at)
+
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const paymentStatus = (() => {
           if (item?.payment_type === 'survey') {
@@ -304,7 +296,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         data = {
           order_id: item.id,
           store_name: item.store.store_name,
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           costumer_id: item.members.member_number,
           costumer_name: item.members.full_name,
           phone_number: item.project_number,
@@ -327,14 +319,14 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
     setOrderData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -344,6 +336,26 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewOrder(1, 10, queryparams)
+    setOrderData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -390,32 +402,50 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               </div>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.order_id}
-            scroll={{x: 1700}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Work Order
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={orderData}
+              rowKey={(record) => record.order_id}
+              scroll={{x: 1700}}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Work Order
+              </span>
+            )}
           />
         </div>
       </div>

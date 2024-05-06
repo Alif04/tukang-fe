@@ -370,7 +370,11 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
             </Col>
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
-              <Button className='btn-dark-primary button-submit' disabled={loadingButton}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
             </Col>

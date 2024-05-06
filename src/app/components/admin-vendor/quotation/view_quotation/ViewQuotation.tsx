@@ -1,15 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewQuotation.css'
 
 import axios from 'axios'
-import {Table, Tag, DatePicker, PaginationProps} from 'antd'
+import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faFilter, faSearch, faPlus} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -17,9 +19,27 @@ type Props = {
   className: string
 }
 
+interface DataType {
+  key: React.Key
+  quotation_id: number
+  store_name: string
+  order_id: number
+  date_order: string
+  costumer_name: string
+  service_name: string
+  payment_status: string
+  order_status: string
+  quotation_status: string
+}
+
 const ViewQuotationVendor: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
   const userRole = localStorage.getItem('userRole')
+
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -32,19 +52,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    key: React.Key
-    quotation_id: number
-    store_name: string
-    order_id: number
-    date_order: string
-    costumer_name: string
-    service_name: string
-    payment_status: string
-    order_status: string
-    quotation_status: string
   }
 
   const columns: ColumnsType<DataType> = [
@@ -201,18 +208,11 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  const getQuotationList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-  const fetchQuotationList = async (page: number, pageSize: number) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
-      const response = await axios.get(`${apiUrl}/quotation?page=${page}&take=${pageSize}`, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -221,8 +221,9 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
         },
       })
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response?.data?.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -230,9 +231,9 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewQuotation = async (page: number, pageSize: number) => {
+  const ViewQuotation = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchQuotationList(page, pageSize)
+      const apiData = await getQuotationList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -242,19 +243,33 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.order?.request_survey ?? '-')
+        const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const workOrderItems = item?.quotation_details
           .map((service: any) => service.name ?? '-')
           .join(', ')
 
-        let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
+        const paymentStatus = (() => {
+          if (item?.order?.payment_type === 'survey') {
+            return item.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.order?.payment_type === 'gratis') {
+            return 'FREE'
+          } else if (item?.order?.payment_type === 'pemasangan_tanpa_survey') {
+            return item?.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else {
+            return ''
+          }
+        })()
 
         data = {
           quotation_id: item?.id,
           store_name: item?.store.store_name,
           order_id: item?.order.id,
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           costumer_name: item?.order.members.full_name,
           service_name: workOrderItems,
           payment_status: paymentStatus,
@@ -272,14 +287,14 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewQuotation(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewQuotation(page, pageSize, queryparams)
     setOrderData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -289,6 +304,26 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewQuotation(1, 10, queryparams)
+    setOrderData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -335,32 +370,49 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               </div>
             </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}></Col>
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.key}
-            // scroll={{x: 1800}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Quotation
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={orderData}
+              rowKey={(record) => record.quotation_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Quotation
+              </span>
+            )}
           />
         </div>
       </div>

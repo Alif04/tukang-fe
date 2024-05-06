@@ -7,13 +7,13 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import * as XLSX from 'xlsx'
-import {Table, PaginationProps} from 'antd'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch, faFilter, faFileExcel, faPrint} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -25,10 +25,26 @@ interface SalesItem {
   label: string
 }
 
+interface DataType {
+  order_id: number
+  date_order: Date
+  costumer_name: string
+  phone_number: number
+  email: string
+  address: string
+  service_name: string
+  quantity: number
+  harga: number
+  grand_total: number
+  sales_comission: number
+}
+
 const ReportInsentifHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -47,20 +63,6 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    order_id: number
-    date_order: Date
-    costumer_name: string
-    phone_number: number
-    email: string
-    address: string
-    service_name: string
-    quantity: number
-    harga: number
-    grand_total: number
-    sales_comission: number
   }
 
   const columns: ColumnsType<DataType> = [
@@ -160,24 +162,11 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return '-'
-    }
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  const fetchOrderList = async (page: number, pageSize: number) => {
     try {
-      const url = !selectedSales.value
-        ? `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
-        : `${apiUrl}/reports/sales-comission?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}&sales_id=${selectedSales.value}`
-
-      const response = await axios.get(url, {
+      const response = await axios.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -186,10 +175,9 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
         },
       })
 
-      if (response?.data) {
-        setTotalOrder(response?.data?.total ?? 0)
-        setCurrentPage(response?.data?.page ?? 1)
-      }
+      setTotalOrder(response?.data?.total ?? 0)
+      setCurrentPage(response?.data?.page ?? 1)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -197,9 +185,9 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewOrder = async (page: number, pageSize: number) => {
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize)
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -209,7 +197,11 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item.request_survey)
+        const orderDate = new Date(item?.request_survey).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
         const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
@@ -224,7 +216,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
 
         data = {
           order_id: item.id,
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           costumer_name: item.members.full_name,
           phone_number: item.project_number,
           email: item.members.email,
@@ -246,14 +238,14 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewOrder(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
     setOrderData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter, selectedSales])
+    fetchData(1, 10, '')
+  }, [])
 
   useEffect(() => {
     const getSales = async () => {
@@ -306,6 +298,27 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
     XLSX.writeFile(workbook, 'report_intensif_data.xlsx')
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&sales_id=`, selectedSales.value)
+
+    const data = await ViewOrder(1, 10, queryparams)
+    setOrderData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -396,28 +409,38 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
             <p className='fs-5'>Total order : {orderData.length}</p>
           </div>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={orderData}
-            rowKey={(record) => record.order_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalOrder,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Order
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={orderData}
+              rowKey={(record) => record.order_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalOrder}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Order
+              </span>
+            )}
           />
         </div>
       </div>

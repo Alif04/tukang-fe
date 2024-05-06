@@ -6,14 +6,14 @@ import './ViewItem.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Table, PaginationProps} from 'antd'
 import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup, Row, Col} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 interface DataType {
@@ -35,6 +35,9 @@ const ViewItemHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [itemData, setItemData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -43,7 +46,9 @@ const ViewItemHO: React.FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+
   const [store, setStore] = useState<StoreItem[]>([])
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
   const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
     value: null,
     label: 'All Store',
@@ -53,8 +58,6 @@ const ViewItemHO: React.FC = () => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
-
-  const storeOptions = [{value: null, label: 'All Store'}, ...store]
 
   const columns: ColumnsType<DataType> = [
     {
@@ -190,43 +193,22 @@ const ViewItemHO: React.FC = () => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  const getItemList = async (page: number, pageSize: number) => {
-    let apiUrlWithParams = `${apiUrl}/items?order_by=desc`
-
-    if (searchFilter) {
-      apiUrlWithParams += `search=${searchFilter}`
-    }
-
-    if (dateFrom && dateTo) {
-      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
-    }
-
-    if (selectedStore && selectedStore.value) {
-      apiUrlWithParams += `&store_id=${selectedStore.value}`
-    }
+  const getItemList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/items?order_by=desc${queryparams}&page=${page}&take=${pageSize}`
 
     try {
-      const response = await axios.get(
-        `${apiUrl}/items?order_by=desc&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -234,9 +216,9 @@ const ViewItemHO: React.FC = () => {
     }
   }
 
-  const ViewItem = async (page: number, pageSize: number) => {
+  const ViewItem = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await getItemList(page, pageSize)
+      const apiData = await getItemList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from getItemList')
@@ -272,8 +254,8 @@ const ViewItemHO: React.FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewItem(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewItem(page, pageSize, queryparams)
     setItemData(data)
   }
 
@@ -288,8 +270,8 @@ const ViewItemHO: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter, selectedStore?.value])
+    fetchData(1, 10, '')
+  }, [])
 
   useEffect(() => {
     const getStore = async () => {
@@ -321,6 +303,27 @@ const ViewItemHO: React.FC = () => {
 
     getStore()
   }, [])
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&store_id=`, selectedStore?.value)
+
+    const data = await ViewItem(1, 10, queryparams)
+    setItemData(data)
+
+    setLoadingButton(false)
+  }
 
   return (
     <section id='view-item'>
@@ -371,44 +374,63 @@ const ViewItemHO: React.FC = () => {
             </Col>
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
-              <Select
-                name='store_id'
-                className='form-control p-0'
-                classNamePrefix='select'
-                placeholder='Pilih Toko'
-                isSearchable={true}
-                options={storeOptions}
-                value={selectedStore}
-                onChange={(newValue) => setSelectedStore(newValue)}
-              />
+              <div className='d-flex'>
+                <Select
+                  name='store_id'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  placeholder='Pilih Toko'
+                  isSearchable={true}
+                  options={storeOptions}
+                  value={selectedStore}
+                  onChange={(newValue) => setSelectedStore(newValue)}
+                />
+
+                <Button
+                  className='btn-dark-primary button-submit'
+                  disabled={loadingButton}
+                  onClick={handleSubmitFilter}
+                >
+                  {loadingButton ? 'Filtering..' : 'Submit'}
+                </Button>
+              </div>
             </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={itemData}
-            rowKey={(record) => record.material_id}
-            // scroll={{x: 1800}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSize: pageSize,
-              pageSizeOptions: [5, 10, 20, 50, 100, 250, 500],
-              onShowSizeChange: (current, size) => setPageSize(size),
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Item
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={itemData}
+              rowKey={(record) => record.material_id}
+              pagination={false}
+              scroll={{x: 1000}}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onShowSizeChange={(current, size) => setPageSize(size)}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Item
+              </span>
+            )}
           />
         </div>
       </div>

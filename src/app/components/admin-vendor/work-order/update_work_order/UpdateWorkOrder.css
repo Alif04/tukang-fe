@@ -1,60 +1,3 @@
-/* 
-#update-work-order .card .card-body .information-wrapper {
-  width: 330px;
-}
-
-#update-work-order .information-wrapper .detail-header {
-  min-height: 70px;
-}
-
-#update-work-order .information-wrapper .detail-header .order-id h3 {
-  font-weight: 400;
-}
-
-#update-work-order .information-wrapper .detail-header .order-status h3 {
-  font-weight: 400;
-}
-
-#update-work-order .information-wrapper .detail-header .order-status h3 span {
-  color: #055900;
-  font-weight: 600;
-}
-
-#update-work-order .work-status {
-  margin-bottom: 50px;
-}
-
-#update-work-order .work-status h1.title {
-  font-size: 22.5px;
-  font-weight: 600;
-}
-
-#update-work-order .order-history {
-  margin-top: 50px;
-  margin-bottom: 50px;
-}
-
-#update-work-order .order-history .title h1 {
-  font-size: 22.5px;
-  padding: 0 0 20px 0;
-}
-
-
-#update-work-order .table-head-wrapper .filter-search .input-group {
-  width: 600px;
-  height: 45px;
-}
-
-#update-work-order .table-head-wrapper .filter-search .input-group .form-control.filter-rtl {
-  border-right: none;
-}
-
-#update-work-order .table-head-wrapper .filter-search .input-group-text.filter-rtl {
-  background-color: transparent;
-}
-
- */
-
 /* Form Layout */
 
 #update-work-order p {
@@ -99,18 +42,6 @@
 
 #update-work-order .sales-info .detail-info.row input.form-control-plaintext {
   padding: 3px 0px;
-}
-
-#update-work-order :where(.css-dev-only-do-not-override-1ck3jst).ant-picker.ant-picker-disabled {
-  background-color: white !important;
-}
-
-#update-work-order
-  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
-  .ant-picker-input
-  > input[disabled] {
-  color: black !important;
-  font-weight: 600;
 }
 
 #update-work-order .ant-picker-range-separator .anticon svg {

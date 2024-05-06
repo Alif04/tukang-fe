@@ -5,16 +5,6 @@
   margin: 20px 0;
 }
 
-#view-costumer .table-head-wrapper .left {
-  display: flex;
-  align-items: center;
-}
-
-#view-costumer .table-head-wrapper .middle {
-  display: flex;
-  justify-content: space-between;
-}
-
 #view-costumer .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
   font-weight: 500;

@@ -4,13 +4,13 @@ import {useNavigate} from 'react-router-dom'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch, faBook, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -28,7 +28,10 @@ const ListUserHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  const [userData, setCsiData] = useState<DataType[]>([])
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
+  const [userData, setUserData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -150,22 +153,22 @@ const ListUserHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const getUser = async (page: number, pageSize: number) => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/auth/get?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+  const getUser = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/auth/get?page=${page}&take=${pageSize}${queryparams}`
 
-      // setCurrentPage(response.data.page)
-      setTotalData(response?.data?.length)
+    try {
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      setCurrentPage(response?.data?.data?.page ?? 1)
+      setTotalData(response?.data?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data.data
     } catch (error) {
@@ -173,9 +176,9 @@ const ListUserHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const ViewUser = async (page: number, pageSize: number) => {
+  const ViewUser = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await getUser(page, pageSize)
+      const apiData = await getUser(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from user data')
@@ -202,14 +205,14 @@ const ListUserHO: React.FC<Props> = ({className}) => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewUser(page, pageSize)
-    setCsiData(data)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewUser(page, pageSize, queryparams)
+    setUserData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -221,11 +224,24 @@ const ListUserHO: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    const data = await ViewUser(1, 10, queryparams)
+    setUserData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -233,7 +249,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
@@ -256,7 +272,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={8} xxl={8}>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -271,30 +287,50 @@ const ListUserHO: React.FC<Props> = ({className}) => {
                 </InputGroup>
               </div>
             </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={userData}
-            rowKey={(record) => record.id}
-            pagination={{
-              position: ['bottomRight'],
-              // current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} List User
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={userData}
+              rowKey={(record) => record.id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} List User
+              </span>
+            )}
           />
         </div>
       </div>
