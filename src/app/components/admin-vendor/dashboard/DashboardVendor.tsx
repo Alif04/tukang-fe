@@ -357,7 +357,7 @@ const DashboardVendor: FC = () => {
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarOrder className='card-xl-stretch' orderData={chartDataOrder} />
+          <ChartBarOrder className='card-xl-stretch' orderData={chartWorkOrder} />
         </Col>
       </Row>
 
