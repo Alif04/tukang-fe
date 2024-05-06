@@ -407,7 +407,7 @@ const NewSales: FC = () => {
     //   sorter: (a, b) => a.nik - b.nik,
     // },
     {
-      title: 'Brand Sales',
+      title: 'Brands',
       dataIndex: 'sales_brand',
       key: 'sales_brand',
       align: 'left',
@@ -416,7 +416,7 @@ const NewSales: FC = () => {
       sorter: (a, b) => a.sales_brand.length - b.sales_brand.length,
     },
     {
-      title: 'Kategori Sales',
+      title: 'Category',
       dataIndex: 'sales_category',
       key: 'sales_category',
       align: 'left',
