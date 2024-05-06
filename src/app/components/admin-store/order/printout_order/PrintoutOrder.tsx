@@ -208,7 +208,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             </h4>
 
             <h4 className='fw-normal'>
-              No. Telp/WA : <span> {orderDetail?.project_number}</span>
+              WA/No. Telp : <span> {orderDetail?.project_number}</span>
             </h4>
           </Row>
 

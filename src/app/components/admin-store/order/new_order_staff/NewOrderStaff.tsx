@@ -11,13 +11,14 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface MemberSelect {
-  value: number | null
-  label: string
+  value?: number | null
+  label?: string
   full_name: string
   email: string
-  phone_number: string
-  whatsapp_number: string
+  phone_number?: string
+  whatsapp_number?: string
   address_1: string
+  join_location: number | null
 }
 
 interface SalesSelect {
@@ -79,7 +80,6 @@ const NewOrderStoreStaff: FC = () => {
   // If User Login is Admin Sales
   const salesId = localStorage.getItem('sales_id') as any
   const salesName = localStorage.getItem('salesName') as string
-  const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
@@ -109,6 +109,8 @@ const NewOrderStoreStaff: FC = () => {
     ],
   })
 
+  console.log('order form', orderForm)
+
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
 
   // Member
@@ -116,16 +118,17 @@ const NewOrderStoreStaff: FC = () => {
   const [member, setMember] = useState<MemberSelect[]>([])
   const [searchByPhoneNumber, setSearchByPhoneNumber] = useState('')
   const [selectedMember, setSelectedMember] = useState<MemberSelect>({
-    value: null,
-    label: '',
+    // value: null,
+    // label: '',
     full_name: '',
     email: '',
-    phone_number: '',
-    whatsapp_number: '',
+    // phone_number: '',
+    // whatsapp_number: '',
     address_1: '',
+    join_location: null,
   })
 
-  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(false)
+  const [isWhatsapp, setIsWhatsapp] = useState<boolean>(true)
   const [isOverdistance, setIsOverdistance] = useState<number>(0)
 
   // Sales
@@ -194,16 +197,19 @@ const NewOrderStoreStaff: FC = () => {
     const getMember = async () => {
       try {
         const labelKey = determineLabelKey(searchByPhoneNumber)
-        const phoneNumber = searchByPhoneNumber ? `?search=${searchByPhoneNumber}` : ''
+        const phoneNumber = searchByPhoneNumber ? `&search=${searchByPhoneNumber}` : ''
 
-        const response = await axios.get(`${apiUrl}/member${phoneNumber}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+        const response = await axios.get(
+          `${apiUrl}/member?store_id=${staffStoreId}${phoneNumber}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
 
         if (Array.isArray(response.data.data)) {
           const tempMember = response.data.data.map((item: any) => ({
@@ -214,6 +220,7 @@ const NewOrderStoreStaff: FC = () => {
             phone_number: item.phone_number,
             whatsapp_number: item.whatsapp_number,
             address_1: item.address_1,
+            join_location: item.join_location,
           }))
 
           setMember(tempMember)
@@ -294,6 +301,7 @@ const NewOrderStoreStaff: FC = () => {
         phone_number: newValue.phone_number || '',
         whatsapp_number: newValue.whatsapp_number || '',
         address_1: newValue.address_1 || '',
+        join_location: newValue.join_location || null,
       })
     } else {
       setSelectedMember({
@@ -304,6 +312,7 @@ const NewOrderStoreStaff: FC = () => {
         phone_number: '',
         whatsapp_number: '',
         address_1: '',
+        join_location: null,
       })
     }
   }
@@ -613,12 +622,21 @@ const NewOrderStoreStaff: FC = () => {
     setIsSubmittingNewMember(true)
 
     if (selectedMember.value === null) {
-      const newMember = {
+      const newMember: MemberSelect = {
         full_name: selectedMember.full_name,
         email: selectedMember.email,
-        phone_number: selectedMember.phone_number,
-        whatsapp_number: selectedMember.whatsapp_number,
+        // phone_number: selectedMember.phone_number,
+        // whatsapp_number: selectedMember.whatsapp_number,
         address_1: selectedMember.address_1,
+        join_location: parseInt(staffStoreId),
+      }
+
+      if (selectedMember.whatsapp_number) {
+        newMember.whatsapp_number = selectedMember.whatsapp_number
+      }
+
+      if (selectedMember.phone_number) {
+        newMember.phone_number = selectedMember.phone_number
       }
 
       const response = await axios.post(`${apiUrl}/member`, newMember, {
@@ -641,7 +659,7 @@ const NewOrderStoreStaff: FC = () => {
           member_id: response.data.data.member.id,
         }))
 
-        setIsSubmittingNewMember(false)
+        setIsSubmittingNewMember(true)
       }
     } else {
       await handleSubmitNewOrder()
@@ -649,10 +667,10 @@ const NewOrderStoreStaff: FC = () => {
   }
 
   useEffect(() => {
-    if (isSubmittingNewMember) {
+    if (isSubmittingNewMember === true) {
       setOrderForm({
         ...orderForm,
-        member_id: selectedMember.value,
+        member_id: selectedMember?.value ?? null,
       })
 
       handleSubmitNewOrder()
@@ -872,6 +890,12 @@ const NewOrderStoreStaff: FC = () => {
                       }}
                     />
                   </Form.Group>
+
+                  <Form.Label className='fs-7 fw-normal'>
+                    <span className='text-danger fw-bold'>Note :</span>
+                    <br></br>Jika member tersebut baru, maka isi data member tersebut diinputan yang
+                    telah disediakan, kecuali inputan <span className='fw-bolder'>No Member</span>
+                  </Form.Label>
                 </Col>
               </Row>
             </div>
@@ -1186,10 +1210,10 @@ const NewOrderStoreStaff: FC = () => {
             <Button
               type='submit'
               onClick={handleSubmitNewMember}
-              disabled={isLoading}
+              disabled={isLoading || isSubmittingNewMember}
               variant='dark-primary'
             >
-              {isLoading ? 'Submitting Order...' : 'Submit Order & Print'}
+              {isLoading || isSubmittingNewMember ? 'Submitting Order...' : 'Submit Order & Print'}
             </Button>
           </div>
         </div>
