@@ -206,6 +206,19 @@
   border-radius: 0;
 }
 
+#detail-order .btn.btn-warning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a16d00 !important;
+  transition: 0.3s ease-in-out;
+}
+
 @media screen and (max-width: 1400px) {
   /* Form Layout */
 

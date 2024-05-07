@@ -1,12 +1,13 @@
 import React, {useState, FC, useEffect} from 'react'
-import {useParams} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import {Orders} from '../../../../interfaces/order'
 import './DetailOrder.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import {Image, Steps, Skeleton} from 'antd'
-import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
+import {Row, Col, Form, ListGroup, Table, Button} from 'react-bootstrap'
 
 interface Status {
   value: number | null
@@ -15,6 +16,7 @@ interface Status {
 
 const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
   const params = useParams()
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
@@ -37,7 +39,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     grand_total_comission: '',
     is_overdistance: 0,
     additional_fee: 0,
-    print_counter: null,
+    print_counter: 0,
     created_by: null,
     updated_by: null,
     created_at: '',
@@ -150,6 +152,33 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
+
+  // Reprint Order
+  const handleReprintOrderCS = async () => {
+    await axios
+      .request({
+        url: `${apiUrl}/orders/${params.id}/counter`,
+        method: 'post',
+        maxBodyLength: Infinity,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then(() => {
+        navigate(`/order/printout-order/${params.id}`)
+      })
+      .catch((error) => {
+        console.error(error)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
   }
 
   return (
@@ -898,6 +927,14 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   labelPlacement='vertical'
                   items={complaintHistory}
                 />
+              </div>
+            )}
+
+            {order?.print_counter >= 1 && (
+              <div className='d-flex justify-content-center align-items-center'>
+                <Button type='submit' onClick={handleReprintOrderCS} variant='warning'>
+                  Reprint Order
+                </Button>
               </div>
             )}
           </Skeleton>
