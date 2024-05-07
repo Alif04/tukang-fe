@@ -23,7 +23,7 @@ interface MemberSelect {
   value?: number | null
   label?: string
   full_name: string
-  email: string
+  email?: string
   phone_number?: string
   whatsapp_number?: string
   address_1: string
@@ -828,11 +828,10 @@ const NewOrderHO: FC = () => {
     setIsSubmittingNewMember(true)
 
     if (selectedMember.value === null) {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
       const newMember: MemberSelect = {
         full_name: selectedMember.full_name,
-        email: selectedMember.email,
-        // phone_number: selectedMember.phone_number,
-        // whatsapp_number: selectedMember.whatsapp_number,
         address_1: selectedMember.address_1,
         join_location: Number(selectedStore?.value),
       }
@@ -843,6 +842,19 @@ const NewOrderHO: FC = () => {
 
       if (selectedMember.phone_number) {
         newMember.phone_number = selectedMember.phone_number
+      }
+
+      if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
+        Swal.fire({
+          title: 'Invalid Email',
+          text: 'Please enter a valid email address.',
+          icon: 'warning',
+        })
+
+        setIsSubmittingNewMember(false)
+        return
+      } else {
+        newMember.email = selectedMember.email
       }
 
       try {
@@ -1086,7 +1098,7 @@ const NewOrderHO: FC = () => {
                   <Form.Group className='mb-5'>
                     <Form.Label className='title'>Email</Form.Label>
                     <Form.Control
-                      type='text'
+                      type='email'
                       value={selectedMember?.email || ''}
                       onChange={(e: ChangeEvent<HTMLInputElement>) =>
                         handleChangeSelectMember({

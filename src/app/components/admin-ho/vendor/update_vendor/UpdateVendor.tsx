@@ -914,14 +914,19 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       formData.append('vendor_bank[account_number]', accountNumber)
       formData.append('vendor_bank[account_name]', accountName)
 
-      formData.append('ktp_number', ktpNumber)
-      formData.append('npwp_number', npwpNumber)
-
-      if (!username) {
+      if (username) {
         formData.append('username', username)
       }
 
-      if (!password) {
+      if (ktpNumber) {
+        formData.append('ktp_number', ktpNumber)
+      }
+
+      if (npwpNumber) {
+        formData.append('npwp_number', npwpNumber)
+      }
+
+      if (password) {
         formData.append('password', password)
       }
 
