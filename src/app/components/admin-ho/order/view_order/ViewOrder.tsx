@@ -8,7 +8,7 @@ import axios from 'axios'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, Stack, FormGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
@@ -68,6 +68,7 @@ const ViewOrders: FC = () => {
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
+      responsive: ['md'],
     },
     {
       title: 'Nama Toko',
@@ -78,6 +79,7 @@ const ViewOrders: FC = () => {
       className: 'col_order_id',
       onFilter: (value, record) => record.assign_from.includes(String(value)),
       sorter: (a, b) => a.assign_from.length - b.assign_from.length,
+      responsive: ['md'],
     },
     {
       title: 'Date Order',
@@ -86,6 +88,7 @@ const ViewOrders: FC = () => {
       align: 'center',
       width: 120,
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+      responsive: ['md'],
     },
     {
       title: 'No Member',
@@ -94,6 +97,7 @@ const ViewOrders: FC = () => {
       align: 'center',
       width: 110,
       sorter: (a, b) => a.no_member - b.no_member,
+      responsive: ['md'],
     },
     {
       title: 'Nama Customer',
@@ -103,6 +107,7 @@ const ViewOrders: FC = () => {
       width: 130,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+      responsive: ['md'],
     },
     {
       title: 'No. Telp / WA',
@@ -111,6 +116,7 @@ const ViewOrders: FC = () => {
       align: 'left',
       width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
+      responsive: ['md'],
     },
     {
       title: 'Nama Jasa Pemasangan',
@@ -120,6 +126,7 @@ const ViewOrders: FC = () => {
       width: 120,
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
+      responsive: ['md'],
     },
     {
       title: 'Status Pembayaran',
@@ -134,6 +141,7 @@ const ViewOrders: FC = () => {
         {text: 'UNPAID', value: 'UNPAID'},
         {text: 'PAID', value: 'PAID'},
       ],
+      responsive: ['md'],
     },
     {
       title: 'Status Order',
@@ -162,10 +170,12 @@ const ViewOrders: FC = () => {
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
       align: 'left',
       width: 140,
+      responsive: ['md'],
     },
     {
       title: 'Action',
       key: 'action',
+      responsive: ['md'],
       render: (record) => {
         const handleDetailId = () => {
           const id = record.order_id
@@ -325,7 +335,7 @@ const ViewOrders: FC = () => {
       <div className='card'>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+            <Stack direction='horizontal' gap={3}>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-5 fw-normal'>Date : </h3>
               </div>
@@ -346,25 +356,21 @@ const ViewOrders: FC = () => {
                   }
                 }}
               />
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
               <Button
                 className='btn-dark-primary button-submit'
                 disabled={loadingButton}
@@ -372,7 +378,7 @@ const ViewOrders: FC = () => {
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </Stack>
           </Row>
 
           <Spin

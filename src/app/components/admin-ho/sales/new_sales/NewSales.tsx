@@ -10,7 +10,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 

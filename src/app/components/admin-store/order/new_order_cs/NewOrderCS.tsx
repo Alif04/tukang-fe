@@ -691,27 +691,37 @@ const NewOrderStoreCS: FC = () => {
         newMember.phone_number = selectedMember.phone_number
       }
 
-      const response = await axios.post(`${apiUrl}/member`, newMember, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      try {
+        const response = await axios.post(`${apiUrl}/member`, newMember, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
-      if (response && response.data.data.member.id) {
-        setSelectedMember((selectedMember) => ({
-          ...selectedMember,
-          value: response.data.data.member.id,
-        }))
+        if (response.data.status === 201) {
+          setSelectedMember((selectedMember) => ({
+            ...selectedMember,
+            value: response.data.data.member.id,
+          }))
 
-        setOrderForm((prevOrderForm) => ({
-          ...prevOrderForm,
-          member_id: response.data.data.member.id,
-        }))
+          setOrderForm((prevOrderForm) => ({
+            ...prevOrderForm,
+            member_id: response.data.data.member.id,
+          }))
 
-        setIsSubmittingNewMember(true)
+          setIsSubmittingNewMember(true)
+        }
+      } catch (error: any) {
+        setIsSubmittingNewMember(false)
+
+        Swal.fire({
+          title: 'Warning',
+          text: error.response.data.message,
+          icon: 'warning',
+        })
       }
     } else {
       await handleSubmitNewOrder()
