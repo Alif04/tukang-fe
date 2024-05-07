@@ -109,8 +109,6 @@ const NewOrderStoreStaff: FC = () => {
     ],
   })
 
-  console.log('order form', orderForm)
-
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
 
   // Member
