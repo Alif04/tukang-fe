@@ -739,21 +739,21 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
         },
       })
       .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Reprint Order',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1000,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
+        // if (response.data.status === 200 || response.data.status === 201) {
+        //   Swal.fire({
+        //     title: 'Success',
+        //     text: 'Success Reprint Order',
+        //     icon: 'success',
+        //     showConfirmButton: false,
+        //     timer: 1000,
+        //   })
+        // } else {
+        //   Swal.fire({
+        //     title: 'Error',
+        //     text: response.data.message,
+        //     icon: 'error',
+        //   })
+        // }
 
         navigate(`/order/printout-order/${params.id}`)
       })
@@ -1278,9 +1278,11 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
           </div>
 
           <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
-            <Button variant='warning' onClick={handleReprintOrder}>
-              Reprint Order
-            </Button>
+            {orderDetail?.print_counter >= 1 && (
+              <Button type='submit' onClick={handleReprintOrder} variant='warning'>
+                Reprint Order
+              </Button>
+            )}
 
             <Button
               type='submit'

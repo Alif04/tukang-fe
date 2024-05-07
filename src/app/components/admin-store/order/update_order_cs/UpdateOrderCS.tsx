@@ -824,7 +824,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   }
 
   // Reprint Order
-
   const handleReprintOrder = async () => {
     await axios
       .request({
@@ -838,21 +837,21 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         },
       })
       .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Reprint Order',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1000,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
+        // if (response.data.status === 200 || response.data.status === 201) {
+        //   Swal.fire({
+        //     title: 'Success',
+        //     text: 'Success Reprint Order',
+        //     icon: 'success',
+        //     showConfirmButton: false,
+        //     timer: 1000,
+        //   })
+        // } else {
+        //   Swal.fire({
+        //     title: 'Error',
+        //     text: response.data.message,
+        //     icon: 'error',
+        //   })
+        // }
 
         navigate(`/order/printout-order/${params.id}`)
       })
@@ -1113,6 +1112,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 <Form.Control
                   name='receipt_number'
                   type='text'
+                  placeholder='Isi Nomor Receipt'
                   value={orderForm.receipt_number}
                   onChange={(e) => orderFormHandler(e)}
                 />
@@ -1496,6 +1496,12 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           </Row>
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
+            {orderDetail?.print_counter >= 1 && (
+              <Button type='submit' onClick={handleReprintOrder} variant='warning'>
+                Reprint Order
+              </Button>
+            )}
+
             <Button
               type='submit'
               disabled={isLoading}

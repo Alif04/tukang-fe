@@ -49,7 +49,7 @@ const DetailOrderWithoutAuth = () => {
     grand_total_comission: '',
     is_overdistance: 0,
     additional_fee: 0,
-    print_counter: null,
+    print_counter: 0,
     created_by: null,
     updated_by: null,
     created_at: '',
