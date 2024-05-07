@@ -38,6 +38,7 @@ export function Login() {
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
         },
+        timeout: 2500,
       })
 
       if (Array.isArray(response.data.data)) {
@@ -81,6 +82,7 @@ export function Login() {
         if (res.data.statusCode === 200) {
           const user = res.data.user
           const isSales = user.roles.name === 'Sales'
+          const isAdminHO = user.roles.name === 'Admin Ho'
           const isVendor = user.roles.name === 'Admin Vendor'
           const isTukang = user.roles.name === 'Tukang'
           const isEmployee = user.employee !== null && !isSales && !isVendor
@@ -105,22 +107,11 @@ export function Login() {
           } else if (isTukang) {
             localStorage.setItem('tukang_id', user?.tukang[0]?.id)
             localStorage.setItem('tukangName', user?.tukang[0]?.full_name)
-          } else if (!isSales && !isEmployee && !isVendor) {
+          } else if (!isSales && !isAdminHO && !isEmployee && !isVendor) {
             window.location.reload()
           }
 
-          getStatus()
-
-          Swal.fire({
-            title: 'Login Success',
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false,
-          }).then(() => {
-            window.location.reload()
-          })
-
-          setIsLoading(false)
+          handleLoginSuccess()
         } else {
           navigate('/login')
           Swal.fire({
@@ -147,6 +138,21 @@ export function Login() {
     localStorage.setItem('kt_theme_mode_menu', 'light')
     localStorage.setItem('kt_theme_mode_value', 'light')
   }, [])
+
+  const handleLoginSuccess = async () => {
+    await getStatus()
+
+    Swal.fire({
+      title: 'Login Success',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false,
+    }).then(() => {
+      window.location.reload()
+    })
+
+    setIsLoading(false)
+  }
 
   return (
     <section id='login-page'>

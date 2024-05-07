@@ -232,21 +232,20 @@ const NewOrderHO: FC = () => {
 
   useEffect(() => {
     const getMember = async () => {
+      const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
+
       try {
         const labelKey = determineLabelKey(searchByPhoneNumber)
         const phoneNumber = searchByPhoneNumber ? `&search=${searchByPhoneNumber}` : ''
 
-        const response = await axios.get(
-          `${apiUrl}/member?store_id=${selectedStore?.value}${phoneNumber}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
+        const response = await axios.get(`${apiUrl}/member?${storeId}${phoneNumber}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
         if (Array.isArray(response.data.data)) {
           const tempMember = response.data.data.map((item: any) => ({
@@ -284,6 +283,8 @@ const NewOrderHO: FC = () => {
   }, [searchByPhoneNumber, selectedStore])
 
   useEffect(() => {
+    const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
+
     const getStore = async () => {
       try {
         const response = await axios.get(`${apiUrl}/stores?take=0`, {
@@ -315,7 +316,7 @@ const NewOrderHO: FC = () => {
 
     const getSales = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/sales?take=0`, {
+        const response = await axios.get(`${apiUrl}/sales?${storeId}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -342,7 +343,7 @@ const NewOrderHO: FC = () => {
 
     const getVendor = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/vendor`, {
+        const response = await axios.get(`${apiUrl}/vendor?vendor_with_max_order=1&${storeId}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -369,7 +370,7 @@ const NewOrderHO: FC = () => {
     getStore()
     getSales()
     getVendor()
-  }, [])
+  }, [selectedStore?.value])
 
   // Order Form Handler
   const orderFormHandler = (e: any) => {
@@ -1151,7 +1152,7 @@ const NewOrderHO: FC = () => {
                 <Col sm='8'>
                   <Form.Control
                     name='receipt_number'
-                    type='number'
+                    type='text'
                     value={orderForm.receipt_number}
                     onChange={(e) => orderFormHandler(e)}
                   />
