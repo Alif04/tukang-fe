@@ -568,7 +568,7 @@ const UpdateSales: FC = () => {
 
           <Card.Body>
             <Row>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                 <Form.Group className='mb-5'>
                   <Form.Label>Username</Form.Label>
                   <Form.Control
@@ -580,7 +580,7 @@ const UpdateSales: FC = () => {
                 </Form.Group>
               </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                 <Form.Group className='mb-5'>
                   <Form.Label>Reset Password</Form.Label>
                   <Form.Control
@@ -591,8 +591,6 @@ const UpdateSales: FC = () => {
                   />
                 </Form.Group>
               </Col>
-
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
             </Row>
           </Card.Body>
         </Card>

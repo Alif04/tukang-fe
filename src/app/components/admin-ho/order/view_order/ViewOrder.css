@@ -55,6 +55,18 @@
   width: 370px;
 }
 
+#view-order input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
+}
+
+#view-order .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
+}
+
 @media screen and (max-width: 1200px) {
   #view-order .filter-search {
     width: 100%;
