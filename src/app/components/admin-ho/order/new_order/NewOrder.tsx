@@ -148,12 +148,8 @@ const NewOrderHO: FC = () => {
   const [member, setMember] = useState<MemberSelect[]>([])
   const [searchByPhoneNumber, setSearchByPhoneNumber] = useState('')
   const [selectedMember, setSelectedMember] = useState<MemberSelect>({
-    // value: null,
-    // label: '',
     full_name: '',
     email: '',
-    // phone_number: '',
-    // whatsapp_number: '',
     address_1: '',
     join_location: null,
   })
@@ -491,9 +487,16 @@ const NewOrderHO: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatusName = 'PICKLIST'
-    const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
-    const statusId = desiredStatus?.value ?? null
+    const statusNameByPaymentType =
+      paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? 'WORKREQ'
+        : 'SURVEYREQ'
+
+    const desiredStatus = statusData.find(
+      (status: any) => status.category === statusNameByPaymentType
+    )
+
+    const statusId = desiredStatus?.value
 
     setOrderForm({
       ...orderForm,
@@ -647,6 +650,7 @@ const NewOrderHO: FC = () => {
     setIsLoading(true)
     const url = `${apiUrl}/orders`
     const formData = new FormData()
+
     let errorBags = []
     const requiredOrderFields = [
       {key: 'member_id', fieldName: 'Nomor Member'},
