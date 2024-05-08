@@ -1,7 +1,7 @@
 import React, {FC, useState, useEffect} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
-import './UpdateCostumers.css'
+import './UpdateProfile.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -23,7 +23,7 @@ interface Member {
   join_location: number | null
 }
 
-const UpdateCostumerHO: FC = () => {
+const UpdateProfile: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -43,7 +43,7 @@ const UpdateCostumerHO: FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data
+            const data = response.data.data.member
 
             if (data) {
               setMemberInfo((prev) => ({
@@ -54,19 +54,6 @@ const UpdateCostumerHO: FC = () => {
                 whatsapp_number: data.whatsapp_number,
                 address_1: data.address_1,
                 address_2: data.address_2,
-              }))
-            }
-
-            if (data?.join_location_store) {
-              setSelectedStore((prev) => ({
-                ...prev,
-                value: data.join_location_store.id,
-                label: data.join_location_store.store_name,
-              }))
-
-              setMemberInfo((prev) => ({
-                ...prev,
-                join_location: data.join_location,
               }))
             }
           })
@@ -217,10 +204,6 @@ const UpdateCostumerHO: FC = () => {
                     isClearable={true}
                     options={store}
                     onChange={(newValue) => setSelectedStore(newValue)}
-                    value={{
-                      value: selectedStore?.value ?? null,
-                      label: selectedStore?.label ?? '',
-                    }}
                   />
                 </Form.Group>
               </Col>
@@ -325,4 +308,4 @@ const UpdateCostumerHO: FC = () => {
   )
 }
 
-export {UpdateCostumerHO}
+export {UpdateProfile}

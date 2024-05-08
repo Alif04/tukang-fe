@@ -366,7 +366,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xxl={3} xl={3} lg={3} md={3} sm={12} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-3 fw-normal'>Date : </h3>
+                <h3 className='fs-5 fw-normal'>Date</h3>
               </div>
 
               <RangePicker

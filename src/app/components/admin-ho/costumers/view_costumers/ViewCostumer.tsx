@@ -22,7 +22,7 @@ type Props = {
 
 interface DataType {
   number: number
-  // store_name: string
+  store_name: string
   costumer_id: number
   member_number: number
   full_name: string
@@ -64,14 +64,14 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       align: 'center',
       sorter: (a, b) => a.number - b.number,
     },
-    // {
-    //   title: 'Nama Toko',
-    //   dataIndex: 'store_name',
-    //   key: 'store_name',
-    //   align: 'center',
-    //   onFilter: (value, record) => record.store_name.includes(String(value)),
-    //   sorter: (a, b) => a.store_name.length - b.store_name.length,
-    // },
+    {
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
     {
       title: 'Nomor Member',
       dataIndex: 'member_number',
@@ -201,7 +201,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
         data = {
           number: index + 1,
-          // store_name: item?.store?.store_name ?? '-',
+          store_name: item?.join_location_store?.store_name ?? '-',
           costumer_id: item.id,
           member_number: item.member_number,
           full_name: item.full_name,
@@ -285,7 +285,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-5 fw-normal'>Join Date : </h3>
+                <h3 className='fs-5 fw-normal'>Join Date</h3>
               </div>
 
               <RangePicker

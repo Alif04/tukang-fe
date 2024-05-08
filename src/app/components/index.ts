@@ -10,6 +10,9 @@ export * from './admin-vendor/dashboard/DashboardVendor'
 // DASHBOARD PAGE ( TUKANG )
 export * from './tukang/dashboard/DashboardTukang'
 
+// PROFILE
+export * from './profile/update_profile/UpdateProfile'
+
 // STORE PAGES
 
 // ORDER

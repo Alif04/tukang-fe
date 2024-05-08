@@ -577,10 +577,11 @@ const NewSales: FC = () => {
   // Handle Submit New Sales
   const handleSubmitNewSales = async () => {
     if (!SalesValidation()) {
-      setIsLoading(true)
+      setIsLoading(false)
       return false
     }
 
+    setIsLoading(true)
     await axios
       .post(`${apiUrl}/sales`, salesInfo, {
         headers: {

@@ -32,7 +32,7 @@ const DetailCostumerHO: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.member
+          const data = response.data.data
           setMemberDetail(data)
         })
     } catch (error) {

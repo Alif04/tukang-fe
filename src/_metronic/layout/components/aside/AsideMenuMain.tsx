@@ -245,7 +245,7 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
-      {/* Halaman Costumers */}
+      {/* Halaman Customers */}
       <AsideMenuItemWithSub
         to='/costumers'
         title='Customers'
