@@ -173,7 +173,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   const getTukang = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/tukang?vendor_id=${vendorId}`, {
+      const response = await axios.get(`${apiUrl}/tukang?vendor_id=${vendorId}&take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
