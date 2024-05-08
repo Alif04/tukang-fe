@@ -1,10 +1,10 @@
 /* Form Layout */
 
-#update-costumer .form-wrapper {
+#update-profile .form-wrapper {
   margin-bottom: 30px;
 }
 
-#update-costumer .form-check-request .form-check-input {
+#update-profile .form-check-request .form-check-input {
   margin-top: 0;
   width: 15px;
   height: 15px;
@@ -12,17 +12,17 @@
 
 /* Form Header */
 
-#update-costumer .form-header.row {
+#update-profile .form-header.row {
   margin-bottom: 30px;
 }
 
-#update-costumer .form-header .form-check-request label.form-check-label {
+#update-profile .form-header .form-check-request label.form-check-label {
   font-size: 11px;
 }
 
 /* Button */
 
-#update-costumer .btn.btn-dark-danger {
+#update-profile .btn.btn-dark-danger {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,7 +35,7 @@
   transition: 0.3s ease-in-out;
 }
 
-#update-costumer .btn.btn-dark-primary {
+#update-profile .btn.btn-dark-primary {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,11 +50,11 @@
 
 @media screen and (max-width: 1400px) {
   /* Form Layout */
-  #update-costumer .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-profile .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-costumer .alamat-order.row .col {
+  #update-profile .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 }
@@ -62,15 +62,15 @@
 @media screen and (max-width: 1200px) {
   /* Form Layout */
 
-  #update-costumer .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-profile .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-costumer .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-profile .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
 
-  #update-costumer .alamat-order.row .col {
+  #update-profile .alamat-order.row .col {
     padding: 0 10px 0 10px;
   }
 }
@@ -83,17 +83,17 @@
 
 @media screen and (max-width: 576px) {
   /* Button */
-  #update-costumer .button-wrapper {
+  #update-profile .button-wrapper {
     flex-direction: column;
   }
 
-  #update-costumer .btn.btn-dark-danger {
+  #update-profile .btn.btn-dark-danger {
     width: 100%;
     margin: 5px 0;
     height: 40px;
   }
 
-  #update-costumer .btn.btn-dark-primary {
+  #update-profile .btn.btn-dark-primary {
     width: 100%;
     margin: 5px 0;
     height: 40px;

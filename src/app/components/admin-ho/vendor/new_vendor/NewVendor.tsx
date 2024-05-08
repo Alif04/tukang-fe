@@ -701,8 +701,6 @@ const NewVendorHO: FC = () => {
       formData.append('phone_number', phoneNumberVendor)
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
-      formData.append('username', username)
-      formData.append('password', password)
       formData.append('max_order', maxOrder)
 
       formData.append('pic_name', picName)
@@ -711,8 +709,21 @@ const NewVendorHO: FC = () => {
       formData.append('account_number', accountNumber)
       formData.append('bank_id', bankId)
 
-      formData.append('ktp_number', ktpNumber)
-      formData.append('npwp_number', npwpNumber)
+      if (username) {
+        formData.append('username', username)
+      }
+
+      if (password) {
+        formData.append('password', password)
+      }
+
+      if (ktpNumber) {
+        formData.append('ktp_number', ktpNumber)
+      }
+
+      if (npwpNumber) {
+        formData.append('npwp_number', npwpNumber)
+      }
 
       if (npwpEvidence?.length) {
         formData.append('npwp_file', npwpEvidence[0])

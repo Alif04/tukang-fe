@@ -23,6 +23,7 @@ type Props = {
 const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
   const salesId = localStorage.getItem('sales_id') as any
 
@@ -45,6 +46,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   interface DataType {
     order_id: number
     date_order: Date
+    sales_name: string
     costumer_name: string
     phone_number: number
     email: string
@@ -65,7 +67,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
+      sorter: (a: DataType, b: DataType) => a.order_id - b.order_id,
     },
     {
       title: 'Tanggal Order',
@@ -73,7 +75,17 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'left',
       width: 110,
-      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+      sorter: (a: DataType, b: DataType) =>
+        new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+    },
+    (userRole === 'Store Staff' || userRole === 'Store CS') && {
+      title: 'Nama Sales',
+      dataIndex: 'sales_name',
+      key: 'sales_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value: string, record: DataType) => record.sales_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.sales_name.length - b.sales_name.length,
     },
     {
       title: 'Nama Costumer',
@@ -81,8 +93,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'costumer_name',
       align: 'left',
       width: 140,
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+      onFilter: (value: string, record: DataType) => record.costumer_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.costumer_name.localeCompare(b.costumer_name),
     },
     {
       title: 'No Telepon',
@@ -90,7 +102,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'phone_number',
       align: 'center',
       width: 130,
-      sorter: (a, b) => a.phone_number - b.phone_number,
+      sorter: (a: DataType, b: DataType) => a.phone_number - b.phone_number,
     },
     {
       title: 'Email',
@@ -98,8 +110,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'email',
       align: 'left',
       width: 170,
-      onFilter: (value, record) => record.email.includes(String(value)),
-      sorter: (a, b) => a.email.length - b.email.length,
+      onFilter: (value: string, record: DataType) => record.email.includes(value),
+      sorter: (a: DataType, b: DataType) => a.email.localeCompare(b.email),
     },
     {
       title: 'Alamat',
@@ -107,8 +119,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'address',
       align: 'left',
       width: 150,
-      onFilter: (value, record) => record.address.includes(String(value)),
-      sorter: (a, b) => a.address.length - b.address.length,
+      onFilter: (value: string, record: DataType) => record.address.includes(value),
+      sorter: (a: DataType, b: DataType) => a.address.localeCompare(b.address),
     },
     {
       title: 'Nama Pemasangan',
@@ -116,8 +128,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'service_name',
       align: 'left',
       width: 170,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
+      onFilter: (value: string, record: DataType) => record.service_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.service_name.localeCompare(b.service_name),
     },
     {
       title: 'Quantity',
@@ -125,7 +137,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'quantity',
       align: 'center',
       width: 90,
-      sorter: (a, b) => a.quantity - b.quantity,
+      sorter: (a: DataType, b: DataType) => a.quantity - b.quantity,
     },
     {
       title: 'Harga',
@@ -133,7 +145,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'harga',
       align: 'center',
       width: 135,
-      sorter: (a, b) => a.harga - b.harga,
+      sorter: (a: DataType, b: DataType) => a.harga - b.harga,
     },
     {
       title: 'Grand Total',
@@ -141,7 +153,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'grand_total',
       align: 'center',
       width: 135,
-      sorter: (a, b) => a.grand_total - b.grand_total,
+      sorter: (a: DataType, b: DataType) => a.grand_total - b.grand_total,
     },
     {
       title: 'Sales Comission',
@@ -149,17 +161,17 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       key: 'sales_comission',
       align: 'center',
       width: 135,
-      sorter: (a, b) => a.sales_comission - b.sales_comission,
+      sorter: (a: DataType, b: DataType) => a.sales_comission - b.sales_comission,
     },
-  ]
+  ].filter(Boolean) as ColumnsType<DataType>
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
-    if (userStore) {
-      apiUrlWithParams += `&store_id=${userStore}`
-    } else if (salesId) {
+    if (salesId) {
       apiUrlWithParams += `&sales_id=${salesId}`
+    } else if (userStore) {
+      apiUrlWithParams += `&store_id=${userStore}`
     }
 
     try {
@@ -216,14 +228,15 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
         data = {
           order_id: item.id,
           date_order: orderDate,
-          costumer_name: item?.members?.full_name,
-          email: item?.members?.email,
+          sales_name: item?.sales?.full_name ?? '-',
+          costumer_name: item?.members?.full_name ?? '-',
+          email: item?.members?.email ?? '-',
           address: item?.project_address,
           service_name:
-            item.payment_type === 'survey'
-              ? item.m_order_details[0]?.item_notes
+            item?.payment_type === 'survey'
+              ? item.m_order_details[0]?.item_notes ?? '-'
               : item.m_order_details[0]?.item?.service_name ?? '-',
-          phone_number: item?.project_number,
+          phone_number: item?.project_number ?? '-',
           quantity: quantity,
           harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,

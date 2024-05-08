@@ -111,7 +111,16 @@ export function Login() {
             window.location.reload()
           }
 
-          handleLoginSuccess()
+          // handleLoginSuccess()
+
+          Swal.fire({
+            title: 'Login Success',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+          }).then(() => {
+            window.location.reload()
+          })
         } else {
           navigate('/login')
           Swal.fire({
@@ -139,20 +148,20 @@ export function Login() {
     localStorage.setItem('kt_theme_mode_value', 'light')
   }, [])
 
-  const handleLoginSuccess = async () => {
-    await getStatus()
+  // const handleLoginSuccess = async () => {
+  //   await getStatus()
 
-    Swal.fire({
-      title: 'Login Success',
-      icon: 'success',
-      timer: 1500,
-      showConfirmButton: false,
-    }).then(() => {
-      window.location.reload()
-    })
+  //   Swal.fire({
+  //     title: 'Login Success',
+  //     icon: 'success',
+  //     timer: 1500,
+  //     showConfirmButton: false,
+  //   }).then(() => {
+  //     window.location.reload()
+  //   })
 
-    setIsLoading(false)
-  }
+  //   setIsLoading(false)
+  // }
 
   return (
     <section id='login-page'>

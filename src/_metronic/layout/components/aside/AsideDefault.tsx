@@ -67,12 +67,14 @@ const AsideDefault: FC = () => {
             src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
           />
         </Link>
+
         <div className='d-flex justify-content-center align-items-center flex-column'>
           <img
             alt='Logo'
             className='h-75px logo rounded-circle mb-3'
-            src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
+            src={toAbsoluteUrl('/media/avatars/blank.png')}
           />
+
           <h6 className='text-center text-secondary-emphasis'>
             {role === 'Admin Vendor'
               ? vendorName

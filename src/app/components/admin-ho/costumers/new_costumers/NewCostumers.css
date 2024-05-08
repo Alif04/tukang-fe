@@ -4,10 +4,6 @@
   margin-bottom: 30px;
 }
 
-#new-costumer .form-wrapper .form-new-costumer {
-  padding: 0 200px;
-}
-
 #new-costumer .form-check-request .form-check-input {
   margin-top: 0;
   width: 15px;
@@ -55,10 +51,6 @@
 @media screen and (max-width: 1400px) {
   /* Form Layout */
 
-  #new-costumer .form-wrapper .form-new-costumer {
-    padding: 0 100px;
-  }
-
   #new-costumer .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
@@ -70,10 +62,6 @@
 
 @media screen and (max-width: 1200px) {
   /* Form Layout */
-
-  #new-costumer .form-wrapper .form-new-costumer {
-    padding: 0 0;
-  }
 
   #new-costumer .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;

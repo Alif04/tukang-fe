@@ -25,7 +25,7 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage}) =>
               <div className='d-flex align-items-center'>
                 <div className='symbol symbol-50px me-5'>
                   <img
-                    src={toAbsoluteUrl('/media/avatars/300-6.jpg')}
+                    src={toAbsoluteUrl('/media/avatars/blank.png')}
                     className='rounded-circle'
                     alt=''
                   />
