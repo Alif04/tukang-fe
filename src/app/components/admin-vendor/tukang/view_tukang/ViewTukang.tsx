@@ -13,7 +13,7 @@ import {Table, PaginationProps, Pagination, Spin} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faFileExcel, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faFileExcel, faSearch, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface TukangService {
   value: number | null
@@ -161,54 +161,54 @@ const ViewTukangVendor: FC = () => {
           navigate(`/tukang/update-tukang/${id}`)
         }
 
-        // const handleDeleteId = () => {
-        //   const id = record.tukang_id
+        const handleDeleteId = () => {
+          const id = record.tukang_id
 
-        //   Swal.fire({
-        //     title: `Apakah anda yakin akan menghapus data Tukang ini ?`,
-        //     icon: 'warning',
-        //     showConfirmButton: true,
-        //     showDenyButton: true,
-        //     confirmButtonText: 'Ya',
-        //     denyButtonText: 'Cancel',
-        //   })
-        //     .then((willDelete) => {
-        //       if (willDelete.value) {
-        //         axios
-        //           .delete(`${apiUrl}/tukang/${id}`, {
-        //             headers: {
-        //               Accept: 'application/json',
-        //               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        //               'Access-Control-Allow-Origin': '*',
-        //               'ngrok-skip-browser-warning': 'true',
-        //             },
-        //           })
-        //           .then((response) => {
-        //             Swal.fire({
-        //               title: 'Success',
-        //               text: response.data.message,
-        //               icon: 'success',
-        //             }).then(() => {
-        //               window.location.reload()
-        //             })
-        //           })
-        //           .catch((error) => {
-        //             Swal.fire({
-        //               title: 'Error',
-        //               text: error.response.data.message,
-        //               icon: 'error',
-        //             })
-        //           })
-        //       }
-        //     })
-        //     .catch((error) => {
-        //       Swal.fire({
-        //         title: 'Error',
-        //         text: error.response.data.message,
-        //         icon: 'error',
-        //       })
-        //     })
-        // }
+          Swal.fire({
+            title: `Apakah anda yakin akan menghapus data Tukang ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Cancel',
+          })
+            .then((willDelete) => {
+              if (willDelete.value) {
+                axios
+                  .delete(`${apiUrl}/tukang/${id}`, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: response.data.message,
+                      icon: 'success',
+                    }).then(() => {
+                      window.location.reload()
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
 
         return (
           <div
@@ -228,9 +228,9 @@ const ViewTukangVendor: FC = () => {
                   <FontAwesomeIcon icon={faPen} size='sm' />
                 </a>
 
-                {/* <a className='button-delete' onClick={handleDeleteId}>
+                <a className='button-delete' onClick={handleDeleteId}>
                   <FontAwesomeIcon icon={faTrash} size='sm' />
-                </a> */}
+                </a>
               </>
             )}
           </div>
