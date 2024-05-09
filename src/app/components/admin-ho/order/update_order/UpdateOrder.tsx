@@ -32,7 +32,7 @@ interface MemberSelect {
 
 interface SalesSelect {
   value: number | null
-  label: number | null
+  label: string
   full_name: string
 }
 
@@ -164,7 +164,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const [sales, setSales] = useState<SalesSelect[]>([])
   const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
-    label: null,
+    label: '',
     full_name: '',
   })
 
@@ -1189,7 +1189,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     </div>
 
                     <InputGroup className='mb-5'>
-                      <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
                         disabled
                         name='project_number'
@@ -1243,6 +1242,16 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 </Form.Label>
 
                 <Col sm='8'>
+                  <Form.Control readOnly type='number' value={selectedSales?.value || ''} />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label column sm='4'>
+                  Nama Sales :
+                </Form.Label>
+
+                <Col sm='8'>
                   <Select
                     name='sales'
                     id='sales'
@@ -1254,21 +1263,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     options={sales}
                     value={{
                       value: selectedSales?.value ?? null,
-                      label: selectedSales?.value ?? null,
+                      label: selectedSales?.full_name ?? '',
                       full_name: selectedSales?.full_name ?? '',
                     }}
                     onChange={(newValue) => setSelectedSales(newValue)}
                   />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
-                  Nama Sales :
-                </Form.Label>
-
-                <Col sm='8'>
-                  <Form.Control type='text' value={selectedSales?.full_name || ''} />
                 </Col>
               </Form.Group>
 
@@ -1397,6 +1396,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                         id={`item-code-${index}`}
                         name={`item_code`}
                         plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         value={element.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
                       />
@@ -1405,8 +1405,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     <td style={{maxWidth: '200px', minWidth: '200px'}}>
                       <Form.Control
                         id={`item-name-${index}`}
-                        plaintext
                         name={`item_name`}
+                        plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         value={element.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)

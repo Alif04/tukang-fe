@@ -725,7 +725,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
   }
 
   // Reprint Order
-
   const handleReprintOrder = async () => {
     await axios
       .request({
@@ -922,7 +921,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                     </div>
 
                     <InputGroup className='mb-5'>
-                      <InputGroup.Text>+ 62</InputGroup.Text>
                       <Form.Control
                         disabled
                         name='project_number'
@@ -1090,6 +1088,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                         id={`item-code-${index}`}
                         name={`item_code`}
                         plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         value={element.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
                       />
@@ -1098,8 +1097,9 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                     <td style={{maxWidth: '200px', minWidth: '200px'}}>
                       <Form.Control
                         id={`item-name-${index}`}
-                        plaintext
                         name={`item_name`}
+                        plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         value={element.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
