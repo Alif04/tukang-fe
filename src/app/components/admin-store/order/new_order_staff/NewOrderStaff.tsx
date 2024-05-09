@@ -6,7 +6,7 @@ import './NewOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
+import {Row, Col, Form, FormGroup, Table, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -254,7 +254,7 @@ const NewOrderStoreStaff: FC = () => {
         if (Array.isArray(response.data.data)) {
           const tempSales = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.id,
+            label: item.full_name,
             full_name: item.full_name,
           }))
 
@@ -533,6 +533,18 @@ const NewOrderStoreStaff: FC = () => {
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
+            } else if (
+              key === 'project_number' &&
+              isWhatsapp === true &&
+              isSubmittingNewMember === true
+            ) {
+              formData.append(key, `+62${orderForm[key]}`)
+            } else if (
+              key === 'project_number' &&
+              isWhatsapp === false &&
+              isSubmittingNewMember === true
+            ) {
+              formData.append(key, `08${orderForm[key]}`)
             } else {
               formData.append(key, orderForm[key])
             }
@@ -554,14 +566,13 @@ const NewOrderStoreStaff: FC = () => {
     }
 
     if (errorBags.length > 0) {
-      setIsLoading(false)
-
       Swal.fire({
         title: 'Warning',
         text: errorBags[0].message,
         icon: 'warning',
       })
 
+      setIsLoading(false)
       return false
     }
 
@@ -577,7 +588,7 @@ const NewOrderStoreStaff: FC = () => {
       .then((response) => {
         const orderId = response.data.data.id
 
-        if (response.data.status === 200 || response.data.status === 201) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             text: response.data.messages,
@@ -604,7 +615,7 @@ const NewOrderStoreStaff: FC = () => {
 
         Swal.fire({
           title: 'Error',
-          text: error.response.data.message,
+          text: error.response.data.messages,
           icon: 'error',
         })
       })
@@ -612,9 +623,9 @@ const NewOrderStoreStaff: FC = () => {
 
   // Submit New Member
   const handleSubmitNewMember = async () => {
-    setIsSubmittingNewMember(true)
-
     if (selectedMember.value === null) {
+      setIsSubmittingNewMember(true)
+
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
       const newMember: MemberSelect = {
@@ -624,11 +635,11 @@ const NewOrderStoreStaff: FC = () => {
       }
 
       if (selectedMember.whatsapp_number) {
-        newMember.whatsapp_number = selectedMember.whatsapp_number
+        newMember.whatsapp_number = '+62' + selectedMember.whatsapp_number
       }
 
       if (selectedMember.phone_number) {
-        newMember.phone_number = selectedMember.phone_number
+        newMember.phone_number = '08' + selectedMember.phone_number
       }
 
       if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
@@ -666,6 +677,14 @@ const NewOrderStoreStaff: FC = () => {
           }))
 
           setIsSubmittingNewMember(true)
+        } else {
+          setIsSubmittingNewMember(false)
+
+          Swal.fire({
+            title: 'Warning',
+            text: response.data.message,
+            icon: 'warning',
+          })
         }
       } catch (error: any) {
         setIsSubmittingNewMember(false)
@@ -834,9 +853,17 @@ const NewOrderStoreStaff: FC = () => {
                       </div>
                     </div>
 
-                    <InputGroup className='mb-5'>
-                      <InputGroup.Text>+ 62</InputGroup.Text>
+                    <FormGroup>
                       <Form.Control
+                        className={
+                          isWhatsapp === true &&
+                          (selectedMember.value === null || selectedMember.value === undefined)
+                            ? 'form-project-number-wa'
+                            : isWhatsapp === false &&
+                              (selectedMember.value === null || selectedMember.value === undefined)
+                            ? 'form-project-number-phone'
+                            : ''
+                        }
                         name='project_number'
                         value={orderForm.project_number}
                         onChange={(event) => {
@@ -848,7 +875,15 @@ const NewOrderStoreStaff: FC = () => {
                           })
                         }}
                       />
-                    </InputGroup>
+
+                      {(selectedMember.value === null || selectedMember.value === undefined) && (
+                        <span className='project-number'>
+                          <div className='prefix-number text-black'>
+                            {isWhatsapp === true ? '+62' : '08'}
+                          </div>
+                        </span>
+                      )}
+                    </FormGroup>
                   </Form.Group>
                 </Col>
               </Row>
@@ -928,16 +963,11 @@ const NewOrderStoreStaff: FC = () => {
                   {userRole === 'Sales' ? (
                     <Form.Control type='number' disabled value={salesId} />
                   ) : (
-                    <Select
-                      name='sales_id'
-                      id='sales_id'
-                      className='form-control p-0 form-item-name'
-                      classNamePrefix='select'
-                      placeholder='Pilih/Ketik ID Sales'
-                      isSearchable={true}
-                      isClearable={true}
-                      options={sales}
-                      onChange={(newValue) => setSelectedSales(newValue)}
+                    <Form.Control
+                      type='number'
+                      readOnly
+                      disabled={userRole === 'Sales'}
+                      value={userRole === 'Sales' ? salesId : selectedSales?.value || ''}
                     />
                   )}
                 </Col>
@@ -949,10 +979,16 @@ const NewOrderStoreStaff: FC = () => {
                 </Form.Label>
 
                 <Col xxl='8' xl='7' md='10'>
-                  <Form.Control
-                    type='text'
-                    disabled={userRole === 'Sales'}
-                    value={userRole === 'Sales' ? salesName : selectedSales?.full_name || ''}
+                  <Select
+                    name='sales_id'
+                    id='sales_id'
+                    className='form-control p-0 form-item-name'
+                    classNamePrefix='select'
+                    placeholder='Pilih/Ketik Nama Sales'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={sales}
+                    onChange={(newValue) => setSelectedSales(newValue)}
                   />
                 </Col>
               </Form.Group>
@@ -1043,6 +1079,7 @@ const NewOrderStoreStaff: FC = () => {
                       <Form.Control
                         id={`item-code-${index}`}
                         plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         name={`item_code`}
                         value={element?.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
@@ -1054,6 +1091,7 @@ const NewOrderStoreStaff: FC = () => {
                         id={`item-name-${index}`}
                         plaintext
                         name={`item_name`}
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         value={element?.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
@@ -1225,7 +1263,7 @@ const NewOrderStoreStaff: FC = () => {
             <Button
               type='submit'
               onClick={handleSubmitNewMember}
-              disabled={isLoading || isSubmittingNewMember}
+              disabled={isLoading}
               variant='dark-primary'
             >
               {isLoading || isSubmittingNewMember ? 'Submitting Order...' : 'Submit Order & Print'}

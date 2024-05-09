@@ -6,7 +6,7 @@ import './NewOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
+import {Row, Col, Form, FormGroup, Table, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -263,7 +263,7 @@ const NewOrderStoreCS: FC = () => {
         if (Array.isArray(response.data.data)) {
           const tempSales = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.id,
+            label: item.full_name,
             full_name: item.full_name,
           }))
 
@@ -579,6 +579,18 @@ const NewOrderStoreCS: FC = () => {
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
+            } else if (
+              key === 'project_number' &&
+              isWhatsapp === true &&
+              isSubmittingNewMember === true
+            ) {
+              formData.append(key, `+62${orderForm[key]}`)
+            } else if (
+              key === 'project_number' &&
+              isWhatsapp === false &&
+              isSubmittingNewMember === true
+            ) {
+              formData.append(key, `08${orderForm[key]}`)
             } else {
               formData.append(key, orderForm[key])
             }
@@ -600,14 +612,13 @@ const NewOrderStoreCS: FC = () => {
     }
 
     if (errorBags.length > 0) {
-      setIsLoading(false)
-
       Swal.fire({
         title: 'Warning',
         text: errorBags[0].message,
         icon: 'warning',
       })
 
+      setIsLoading(false)
       return false
     }
 
@@ -658,7 +669,7 @@ const NewOrderStoreCS: FC = () => {
 
         Swal.fire({
           title: 'Error',
-          text: error.response.data.message,
+          text: error.response.data.messages,
           icon: 'error',
         })
       })
@@ -666,9 +677,9 @@ const NewOrderStoreCS: FC = () => {
 
   // Submit New Member
   const handleSubmitNewMember = async () => {
-    setIsSubmittingNewMember(true)
-
     if (selectedMember.value === null) {
+      setIsSubmittingNewMember(true)
+
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
       const newMember: MemberSelect = {
@@ -678,11 +689,11 @@ const NewOrderStoreCS: FC = () => {
       }
 
       if (selectedMember.whatsapp_number) {
-        newMember.whatsapp_number = selectedMember.whatsapp_number
+        newMember.whatsapp_number = '+62' + selectedMember.whatsapp_number
       }
 
       if (selectedMember.phone_number) {
-        newMember.phone_number = selectedMember.phone_number
+        newMember.phone_number = '08' + selectedMember.phone_number
       }
 
       if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
@@ -720,6 +731,14 @@ const NewOrderStoreCS: FC = () => {
           }))
 
           setIsSubmittingNewMember(true)
+        } else {
+          setIsSubmittingNewMember(false)
+
+          Swal.fire({
+            title: 'Warning',
+            text: response.data.message,
+            icon: 'warning',
+          })
         }
       } catch (error: any) {
         setIsSubmittingNewMember(false)
@@ -888,9 +907,17 @@ const NewOrderStoreCS: FC = () => {
                       </div>
                     </div>
 
-                    <InputGroup className='mb-5'>
-                      <InputGroup.Text>+ 62</InputGroup.Text>
+                    <FormGroup>
                       <Form.Control
+                        className={
+                          isWhatsapp === true &&
+                          (selectedMember.value === null || selectedMember.value === undefined)
+                            ? 'form-project-number-wa'
+                            : isWhatsapp === false &&
+                              (selectedMember.value === null || selectedMember.value === undefined)
+                            ? 'form-project-number-phone'
+                            : ''
+                        }
                         name='project_number'
                         value={orderForm.project_number}
                         onChange={(event) => {
@@ -902,7 +929,15 @@ const NewOrderStoreCS: FC = () => {
                           })
                         }}
                       />
-                    </InputGroup>
+
+                      {(selectedMember.value === null || selectedMember.value === undefined) && (
+                        <span className='project-number'>
+                          <div className='prefix-number text-black'>
+                            {isWhatsapp === true ? '+62' : '08'}
+                          </div>
+                        </span>
+                      )}
+                    </FormGroup>
                   </Form.Group>
                 </Col>
               </Row>
@@ -976,16 +1011,11 @@ const NewOrderStoreCS: FC = () => {
                   {userRole === 'Sales' ? (
                     <Form.Control type='number' disabled value={userId} />
                   ) : (
-                    <Select
-                      name='sales_id'
-                      id='sales_id'
-                      className='form-control p-0 form-item-name'
-                      classNamePrefix='select'
-                      placeholder='Pilih/Ketik ID Sales'
-                      isSearchable={true}
-                      isClearable={true}
-                      options={sales}
-                      onChange={(newValue) => setSelectedSales(newValue)}
+                    <Form.Control
+                      type='number'
+                      readOnly
+                      disabled={userRole === 'Sales'}
+                      value={userRole === 'Sales' ? userId : selectedSales?.value || ''}
                     />
                   )}
                 </Col>
@@ -997,10 +1027,16 @@ const NewOrderStoreCS: FC = () => {
                 </Form.Label>
 
                 <Col xxl='8' xl='7' md='10'>
-                  <Form.Control
-                    type='text'
-                    disabled={userRole === 'Sales'}
-                    value={userRole === 'Sales' ? username : selectedSales?.full_name || ''}
+                  <Select
+                    name='sales_id'
+                    id='sales_id'
+                    className='form-control p-0 form-item-name'
+                    classNamePrefix='select'
+                    placeholder='Pilih/Ketik Nama Sales'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={sales}
+                    onChange={(newValue) => setSelectedSales(newValue)}
                   />
                 </Col>
               </Form.Group>
@@ -1091,6 +1127,7 @@ const NewOrderStoreCS: FC = () => {
                       <Form.Control
                         id={`item-code-${index}`}
                         plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         name={`item_code`}
                         value={element?.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
@@ -1101,6 +1138,7 @@ const NewOrderStoreCS: FC = () => {
                       <Form.Control
                         id={`item-name-${index}`}
                         plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         name={`item_name`}
                         value={element?.item_name ?? ''}
                         onChange={(e) => {
@@ -1348,7 +1386,7 @@ const NewOrderStoreCS: FC = () => {
             <Button
               type='submit'
               onClick={handleSubmitNewMember}
-              disabled={isLoading || isSubmittingNewMember}
+              disabled={isLoading}
               variant='dark-primary'
             >
               {isLoading || isSubmittingNewMember ? 'Submitting Order...' : 'Submit Order & Print'}

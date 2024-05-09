@@ -6,7 +6,7 @@ import './NewOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
+import {Row, Col, Form, FormGroup, Table, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -32,7 +32,7 @@ interface MemberSelect {
 
 interface SalesSelect {
   value: number | null
-  label: number | null
+  label: string
   full_name: string
 }
 
@@ -161,7 +161,7 @@ const NewOrderHO: FC = () => {
   const [sales, setSales] = useState<SalesSelect[]>([])
   const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
-    label: null,
+    label: '',
     full_name: '',
   })
 
@@ -324,7 +324,7 @@ const NewOrderHO: FC = () => {
         if (Array.isArray(response.data.data)) {
           const tempSales = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.id,
+            label: item.full_name,
             full_name: item.full_name,
           }))
 
@@ -701,6 +701,18 @@ const NewOrderHO: FC = () => {
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
+            } else if (
+              key === 'project_number' &&
+              isWhatsapp === true &&
+              isSubmittingNewMember === true
+            ) {
+              formData.append(key, `+62${orderForm[key]}`)
+            } else if (
+              key === 'project_number' &&
+              isWhatsapp === false &&
+              isSubmittingNewMember === true
+            ) {
+              formData.append(key, `08${orderForm[key]}`)
             } else {
               formData.append(key, orderForm[key])
             }
@@ -728,6 +740,7 @@ const NewOrderHO: FC = () => {
         icon: 'warning',
       })
 
+      setIsLoading(false)
       return false
     }
 
@@ -751,7 +764,7 @@ const NewOrderHO: FC = () => {
       .then((response) => {
         const orderId = response.data.data.id
 
-        if (response.data.status === 200 || response.data.status === 201) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             text: 'Success Add Order',
@@ -778,50 +791,7 @@ const NewOrderHO: FC = () => {
 
         Swal.fire({
           title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
-  }
-
-  // Reprint Order
-  const handleReprintOrder = async () => {
-    await axios
-      .request({
-        url: `${apiUrl}/orders/${params.id}/counter`,
-        method: 'post',
-        maxBodyLength: Infinity,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Reprint Order',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1000,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-
-        navigate(`/order/printout-order/${params.id}`)
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
+          text: error.response.data.messages,
           icon: 'error',
         })
       })
@@ -829,9 +799,9 @@ const NewOrderHO: FC = () => {
 
   // Submit New Member
   const handleSubmitNewMember = async () => {
-    setIsSubmittingNewMember(true)
-
     if (selectedMember.value === null) {
+      setIsSubmittingNewMember(true)
+
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
       const newMember: MemberSelect = {
@@ -841,11 +811,11 @@ const NewOrderHO: FC = () => {
       }
 
       if (selectedMember.whatsapp_number) {
-        newMember.whatsapp_number = selectedMember.whatsapp_number
+        newMember.whatsapp_number = '+62' + selectedMember.whatsapp_number
       }
 
       if (selectedMember.phone_number) {
-        newMember.phone_number = selectedMember.phone_number
+        newMember.phone_number = '08' + selectedMember.phone_number
       }
 
       if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
@@ -883,6 +853,14 @@ const NewOrderHO: FC = () => {
           }))
 
           setIsSubmittingNewMember(true)
+        } else {
+          setIsSubmittingNewMember(false)
+
+          Swal.fire({
+            title: 'Warning',
+            text: response.data.message,
+            icon: 'warning',
+          })
         }
       } catch (error: any) {
         setIsSubmittingNewMember(false)
@@ -1062,9 +1040,17 @@ const NewOrderHO: FC = () => {
                       </div>
                     </div>
 
-                    <InputGroup className='mb-5'>
-                      <InputGroup.Text>+ 62</InputGroup.Text>
+                    <FormGroup>
                       <Form.Control
+                        className={
+                          isWhatsapp === true &&
+                          (selectedMember.value === null || selectedMember.value === undefined)
+                            ? 'form-project-number-wa'
+                            : isWhatsapp === false &&
+                              (selectedMember.value === null || selectedMember.value === undefined)
+                            ? 'form-project-number-phone'
+                            : ''
+                        }
                         name='project_number'
                         value={orderForm.project_number}
                         onChange={(event) => {
@@ -1076,7 +1062,15 @@ const NewOrderHO: FC = () => {
                           })
                         }}
                       />
-                    </InputGroup>
+
+                      {(selectedMember.value === null || selectedMember.value === undefined) && (
+                        <span className='project-number'>
+                          <div className='prefix-number text-black'>
+                            {isWhatsapp === true ? '+62' : '08'}
+                          </div>
+                        </span>
+                      )}
+                    </FormGroup>
                   </Form.Group>
                 </Col>
               </Row>
@@ -1147,6 +1141,16 @@ const NewOrderHO: FC = () => {
                 </Form.Label>
 
                 <Col xxl='8' xl='7' md='10'>
+                  <Form.Control type='number' readOnly value={selectedSales?.value || ''} />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label className='title' column xxl='4' xl='5' md='2'>
+                  Nama Sales :
+                </Form.Label>
+
+                <Col xxl='8' xl='7' md='10'>
                   <Select
                     name='sales'
                     id='sales'
@@ -1158,16 +1162,6 @@ const NewOrderHO: FC = () => {
                     options={sales}
                     onChange={(newValue) => setSelectedSales(newValue)}
                   />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='mb-5'>
-                <Form.Label className='title' column xxl='4' xl='5' md='2'>
-                  Nama Sales :
-                </Form.Label>
-
-                <Col xxl='8' xl='7' md='10'>
-                  <Form.Control type='text' value={selectedSales?.full_name || ''} />
                 </Col>
               </Form.Group>
 
@@ -1307,6 +1301,7 @@ const NewOrderHO: FC = () => {
                       <Form.Control
                         id={`item-code-${index}`}
                         plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         name={`item_code`}
                         value={element?.item_code ?? ''}
                         onChange={(e) => orderDetailsFormHandler(e, index)}
@@ -1317,6 +1312,7 @@ const NewOrderHO: FC = () => {
                       <Form.Control
                         id={`item-name-${index}`}
                         plaintext
+                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
                         name={`item_name`}
                         value={element?.item_name ?? ''}
                         onChange={(e) => {
@@ -1569,8 +1565,9 @@ const NewOrderHO: FC = () => {
 
           <div className='button-submit d-flex justify-content-center align-items-center'>
             <Button
+              type='submit'
               onClick={handleSubmitNewMember}
-              disabled={isLoading || isSubmittingNewMember}
+              disabled={isLoading}
               variant='dark-primary'
             >
               {isLoading || isSubmittingNewMember ? 'Submitting..' : 'Submit Order & Email'}

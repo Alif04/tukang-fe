@@ -520,55 +520,18 @@ const NewSales: FC = () => {
 
     if (salesInfo.full_name === '') {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Name Sales Consultant form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.phone_number === '') {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill WA / Phone Number form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.sales_categories) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Brands form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.bank_id) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nama Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (salesInfo.account_number === '') {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nomor Akun Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (salesInfo.account_name === '') {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nama Pemilik Akun form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (salesInfo.username === '') {
+    } else if (salesInfo.store_id === null) {
       Swal.fire({
         title: 'Warning',
-        text: 'Jika anda mengosongkan kolom username, maka username akan dibuat otomatis oleh sistem dan diambil dari nama lengkap dengan format semua huruf kecil dan jika ada spasi maka diganti dengan underscore ( _ )',
+        text: 'Please select Store Name form',
         icon: 'warning',
-        showConfirmButton: true,
-        timer: 1500,
       })
-      valid = true
+      valid = false
     }
 
     return valid
@@ -656,8 +619,12 @@ const NewSales: FC = () => {
   return (
     <>
       <section id='new-sales'>
-        <div className='card mb-5'>
-          <div className='card-body'>
+        <Card className='mb-5'>
+          <Card.Header>
+            <Card.Title>Profile</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
             <div className='form-wrapper'>
               <Row className='form-header'>
                 <Form.Group as={Row}>
@@ -779,42 +746,55 @@ const NewSales: FC = () => {
                   </Form.Group>
                 </Col>
 
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Default Password</Form.Label>
-                    <Form.Control
-                      name='default_password'
-                      type='text'
-                      onChange={(e) => salesInfoFormHandler(e)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Username</Form.Label>
-
-                    <Form.Control
-                      name='username'
-                      type='text'
-                      onChange={(e) => salesInfoFormHandler(e)}
-                    />
-
-                    <Form.Text className='fs-8 fs-l text-dark-danger'>
-                      *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
-                      dari nama lengkap, dengan format semua huruf kecil dan spasi diganti menjadi
-                      underscore ( _ ).
-                    </Form.Text>
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
               </Row>
             </div>
+          </Card.Body>
+        </Card>
+
+        <hr />
+
+        <Card className='mb-5'>
+          <Card.Header>
+            <Card.Title>Account</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
+            <Row>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Username</Form.Label>
+
+                  <Form.Control
+                    name='username'
+                    type='text'
+                    onChange={(e) => salesInfoFormHandler(e)}
+                  />
+
+                  <Form.Text className='fs-8 fs-l text-dark-danger'>
+                    *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
+                    dari nama lengkap, nama toko dengan format semua huruf kecil dan spasi diganti
+                    menjadi underscore ( _ ). Contoh : john_doe_mitra10_gading_serpong
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>Default Password</Form.Label>
+                  <Form.Control
+                    name='default_password'
+                    type='text'
+                    onChange={(e) => salesInfoFormHandler(e)}
+                  />
+
+                  <Form.Text className='fs-8 fs-l text-dark-danger'>
+                    *Default password yang digenerate oleh sistem jika kosong adalah{' '}
+                    <b>"password"</b>
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
 
             <div className='d-flex justify-content-center mt-5'>
               <Button variant='dark-danger' type='submit' onClick={handleCancelCreateSales}>
@@ -832,8 +812,8 @@ const NewSales: FC = () => {
                 {isLoading ? 'Saving..' : 'Save'}
               </Button>
             </div>
-          </div>
-        </div>
+          </Card.Body>
+        </Card>
       </section>
 
       <section id='view-sales'>
