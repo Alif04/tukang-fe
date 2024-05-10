@@ -662,6 +662,7 @@ const NewOrderHO: FC = () => {
       {key: 'project_number', fieldName: 'Nomor Proyek'},
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
+      {key: 'receipt_number', fieldName: 'Nomor Receipt'},
       {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},

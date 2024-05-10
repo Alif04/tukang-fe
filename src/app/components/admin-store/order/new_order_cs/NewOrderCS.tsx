@@ -57,6 +57,7 @@ interface Order {
   project_number: string
   request_survey: string
   payment_type: string
+  receipt_number: string
   is_overdistance: number
   additional_fee: number
   order_details: Array<{
@@ -96,6 +97,7 @@ const NewOrderStoreCS: FC = () => {
     project_number: '',
     request_survey: '',
     payment_type: 'gratis',
+    receipt_number: '',
     is_overdistance: 0,
     additional_fee: 25000,
     order_details: [
@@ -382,7 +384,7 @@ const NewOrderStoreCS: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const desiredStatusName = 'PICKLIST'
+    const desiredStatusName = 'BOOKED'
     const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
     const statusId = desiredStatus?.value
 
@@ -540,6 +542,7 @@ const NewOrderStoreCS: FC = () => {
       {key: 'project_number', fieldName: 'Nomor Proyek'},
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
+      {key: 'receipt_number', fieldName: 'Nomor Receipt'},
       {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},
@@ -1037,6 +1040,20 @@ const NewOrderStoreCS: FC = () => {
                     isClearable={true}
                     options={sales}
                     onChange={(newValue) => setSelectedSales(newValue)}
+                  />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label column sm='4'>
+                  No Receipt
+                </Form.Label>
+                <Col sm='8'>
+                  <Form.Control
+                    name='receipt_number'
+                    type='text'
+                    value={orderForm.receipt_number}
+                    onChange={(e) => orderFormHandler(e)}
                   />
                 </Col>
               </Form.Group>
