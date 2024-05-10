@@ -301,60 +301,18 @@ const UpdateSales: FC = () => {
   const SalesValidation = () => {
     let valid = true
 
-    if (!salesInfo.store_id) {
+    if (salesInfo.full_name === '') {
       Swal.fire({
-        title: 'Error',
-        text: 'Please select Store form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.full_name) {
-      Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Name Sales Consultant form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
-    } else if (!salesInfo.phone_number) {
+    } else if (salesInfo.store_id === null) {
       Swal.fire({
-        title: 'Error',
-        text: 'Please fill WA / Phone Number form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.sales_brand) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Brands form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.sales_categories) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select Brands form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.bank_id) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nama Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.account_number) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nomor Akun Bank form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!salesInfo.account_name) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Nama Pemilik Akun form',
-        icon: 'error',
+        title: 'Warning',
+        text: 'Please select Store Name form',
+        icon: 'warning',
       })
       valid = false
     }

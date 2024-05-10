@@ -56,6 +56,7 @@ const NewSales: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
+  // const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
   // List Store
   const [store, setStore] = useState<StoreItem[]>([])
@@ -129,26 +130,6 @@ const NewSales: FC = () => {
       }
     }
 
-    const getSalesId = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/sales/next-code`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (response.status === 200) {
-          const {data} = response
-          setSalesId(data.data.code)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     const getBank = async () => {
       try {
         const response = await axios.get(`${apiUrl}/bank`, {
@@ -202,9 +183,32 @@ const NewSales: FC = () => {
     }
 
     getStore()
-    getSalesId()
     getBank()
     getCategories()
+  }, [])
+
+  useEffect(() => {
+    const getSalesId = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/sales/next-code`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (response.status === 200) {
+          const {data} = response
+          setSalesId(data.data.code)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getSalesId()
   }, [])
 
   // Store ID
@@ -537,6 +541,40 @@ const NewSales: FC = () => {
     return valid
   }
 
+  // Desctructure Object if the value null or empty string
+  const objectValueCheck = (data: Sales) => {
+    let cleanedData: Partial<Sales> = {}
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        cleanedData[key as keyof Sales] = value
+      }
+    })
+
+    return cleanedData
+  }
+
+  // Clear State After Submit
+  const clear = () => {
+    setSalesInfo({
+      ...salesInfo,
+      bank_id: null,
+      full_name: '',
+      username: '',
+      account_name: '',
+      phone_number: '',
+      account_number: '',
+      sales_brand: '',
+      default_password: '',
+      sales_categories: [],
+    })
+
+    setSelectedBank({
+      value: null,
+      label: 'Pilih Nama Bank',
+    })
+  }
+
   // Handle Submit New Sales
   const handleSubmitNewSales = async () => {
     if (!SalesValidation()) {
@@ -545,8 +583,11 @@ const NewSales: FC = () => {
     }
 
     setIsLoading(true)
+
+    const salesData = objectValueCheck(salesInfo)
+
     await axios
-      .post(`${apiUrl}/sales`, salesInfo, {
+      .post(`${apiUrl}/sales`, salesData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -565,6 +606,9 @@ const NewSales: FC = () => {
           })
 
           setIsLoading(false)
+          // setIsSuccess(true)
+          // clear()
+          // handleSubmitFilter()
         } else {
           Swal.fire({
             title: 'Error',
@@ -578,7 +622,6 @@ const NewSales: FC = () => {
         window.location.reload()
       })
       .catch((error) => {
-        console.error(error)
         setIsLoading(false)
 
         Swal.fire({
@@ -593,22 +636,20 @@ const NewSales: FC = () => {
     navigate('/home')
   }
 
+  // Filtering Data
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
-
     let queryparams = ``
 
-    if (dateFrom) {
-      queryparams += `&date_from=${dateFrom}`
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
     }
 
-    if (dateTo) {
-      queryparams += `&date_to=${dateTo}`
-    }
-
-    if (searchFilter) {
-      queryparams += `&search=${searchFilter}`
-    }
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
 
     const data = await ViewSales(1, 10, queryparams)
     setSalesData(data)
@@ -678,6 +719,7 @@ const NewSales: FC = () => {
                     <Form.Control
                       name='sales_brand'
                       type='text'
+                      value={salesInfo.sales_brand}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -691,6 +733,7 @@ const NewSales: FC = () => {
                     <Form.Control
                       name='full_name'
                       type='text'
+                      value={salesInfo.full_name}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -702,6 +745,7 @@ const NewSales: FC = () => {
                     <Form.Control
                       name='account_number'
                       type='number'
+                      value={salesInfo.account_number}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -730,6 +774,7 @@ const NewSales: FC = () => {
                     <Form.Control
                       name='phone_number'
                       type='number'
+                      value={salesInfo.phone_number}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -741,6 +786,7 @@ const NewSales: FC = () => {
                     <Form.Control
                       name='account_name'
                       type='text'
+                      value={salesInfo.account_name}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -768,6 +814,7 @@ const NewSales: FC = () => {
                   <Form.Control
                     name='username'
                     type='text'
+                    value={salesInfo.username}
                     onChange={(e) => salesInfoFormHandler(e)}
                   />
 
@@ -785,6 +832,7 @@ const NewSales: FC = () => {
                   <Form.Control
                     name='default_password'
                     type='text'
+                    value={salesInfo.default_password}
                     onChange={(e) => salesInfoFormHandler(e)}
                   />
 
