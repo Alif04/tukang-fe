@@ -82,7 +82,7 @@ const ViewOrders: FC = () => {
       responsive: ['md'],
     },
     {
-      title: 'Date Order',
+      title: 'Order Dibuat',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
