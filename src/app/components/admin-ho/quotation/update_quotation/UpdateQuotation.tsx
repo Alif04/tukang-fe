@@ -813,7 +813,7 @@ const UpdateQuotationHO: FC = () => {
                   <th className='text-center'>Price</th>
                   <th className='text-center'>Margin</th>
                   <th className='text-center'>Total</th>
-                  <th className='text-center'>Keterangan</th>
+                  {/* <th className='text-center'>Keterangan</th> */}
                 </tr>
               </thead>
 
@@ -911,9 +911,11 @@ const UpdateQuotationHO: FC = () => {
                             onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
                           /> */}
 
-                        <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
-                        <br></br>
-                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+                        <p>
+                          {element.margin_type === 1
+                            ? `${element.margin}%`
+                            : `Rp. ${element?.margin?.toLocaleString('id')}`}
+                        </p>
                       </td>
 
                       <td>
@@ -926,15 +928,15 @@ const UpdateQuotationHO: FC = () => {
                         <p>{`Rp. ${element?.final_price?.toLocaleString('id')}`}</p>
                       </td>
 
-                      <td>
-                        {/* <Form.Control
+                      {/* <td>
+                        <Form.Control
                             readOnly
                             disabled
                             plaintext
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                          /> */}
+                          />
                         <p>{element?.description ?? '-'}</p>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
               </tbody>
@@ -950,12 +952,13 @@ const UpdateQuotationHO: FC = () => {
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
+                  <th className='text-center'>Margin</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Total
                   </th>
-                  <th className='text-center' style={{minWidth: '100px'}}>
+                  {/* <th className='text-center' style={{minWidth: '100px'}}>
                     Keterangan
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody>
@@ -999,6 +1002,18 @@ const UpdateQuotationHO: FC = () => {
 
                       <td>
                         {/* <Form.Control
+                            id={`quantity-${index}`}
+                            value={element.quantity}
+                            disabled
+                            readOnly
+                            plaintext
+                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
+                          /> */}
+                        <p>{element?.unit ?? 0}</p>
+                      </td>
+
+                      <td>
+                        {/* <Form.Control
                             id={`unit-price-${index}`}
                             type='number'
                             value={element.unit_price}
@@ -1020,9 +1035,11 @@ const UpdateQuotationHO: FC = () => {
                             plaintext
                             onChange={(e) => handleMarginChange(index, e.target.value, 1)}
                           /> */}
-                        <p>{`Rp. ${element?.margin?.toLocaleString('id')}`}</p>
-                        <br></br>
-                        {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+                        <p>
+                          {element.margin_type === 1
+                            ? `${element.margin}%`
+                            : `Rp. ${element?.margin?.toLocaleString('id')}`}
+                        </p>
                       </td>
 
                       <td>
@@ -1035,16 +1052,16 @@ const UpdateQuotationHO: FC = () => {
 
                         <p>{`Rp. ${element.final_price?.toLocaleString('id')}`}</p>
                       </td>
-
+                      {/* 
                       <td>
-                        {/* <Form.Control
+                        <Form.Control
                             readOnly
                             disabled
                             plaintext
                             value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                          /> */}
-                        <p>{element?.description ?? '-'}</p>
-                      </td>
+                          /> 
+                         <p>{element?.description ?? '-'}</p> 
+                      </td> */}
                     </tr>
                   ))}
 

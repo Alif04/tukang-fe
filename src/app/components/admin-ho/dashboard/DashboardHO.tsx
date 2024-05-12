@@ -492,7 +492,7 @@ const DashboardHO: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{orderList.length}</h1>
+                    <h1 className='fw-normal'>{totalData}</h1>
                     <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>
