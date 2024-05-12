@@ -78,7 +78,11 @@ const DetailQuotationHO: FC = () => {
               <h3 className='fw-bolder'>
                 Tanggal :
                 <span className='ms-1 fw-normal'>
-                  {quotationDetail ? formatDate(new Date(quotationDetail.quotation_date)) : ''}
+                  {new Date(quotationDetail?.quotation_date).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
                 </span>
               </h3>
 
@@ -142,13 +146,15 @@ const DetailQuotationHO: FC = () => {
             <Table hover className='table-jasa'>
               <thead>
                 <tr>
-                  <th className='text-center'>Jenis Jasa</th>
+                  <th className='text-center' style={{minWidth: '233px'}}>
+                    Jenis Jasa
+                  </th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   {/* <th className='text-center'>Price</th>
                   <th className='text-center'>Margin</th> */}
                   <th className='text-center'>Final Price</th>
-                  <th className='text-center'>Keterangan</th>
+                  {/* <th className='text-center'>Keterangan</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -163,7 +169,7 @@ const DetailQuotationHO: FC = () => {
                         {/* <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
                         <td>{`Rp. ${parseInt(item?.margin || 0).toLocaleString('id')}`}</td> */}
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
-                        <td>{item?.description ? '' : '-'}</td>
+                        {/* <td>{item?.description ? '' : '-'}</td> */}
                       </tr>
                     </>
                   ))}
@@ -173,12 +179,14 @@ const DetailQuotationHO: FC = () => {
             <Table hover className='table-material'>
               <thead>
                 <tr>
-                  <th className='text-center'>Material yang dibutuhkan</th>
+                  <th className='text-center' style={{minWidth: '200px'}}>
+                    Material yang dibutuhkan
+                  </th>
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   {/* <th className='text-center'>Price</th> */}
                   <th className='text-center'>Final Price</th>
-                  <th className='text-center'>Keterangan</th>
+                  {/* <th className='text-center'>Keterangan</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -187,18 +195,21 @@ const DetailQuotationHO: FC = () => {
                   .map((item: any) => (
                     <>
                       <tr>
-                        <td>{item?.name ?? '-'}</td>
+                        <td>
+                          {item?.name ?? '-'}{' '}
+                          {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                        </td>
                         <td>{item?.quantity}</td>
                         <td>{item?.unit ?? '-'}</td>
                         {/* <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td> */}
                         <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
-                        <td>{item?.description ? '' : '-'}</td>
+                        {/* <td>{item?.description ? '' : '-'}</td> */}
                       </tr>
                     </>
                   ))}
 
                 <tr>
-                  <td colSpan={4} className='text-end fw-bolder'>
+                  <td colSpan={3} className='text-end fw-bolder'>
                     Total Jasa
                   </td>
                   <td className='fw-bolder'>{`Rp. ${parseInt(
@@ -209,8 +220,8 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={4} className='text-end fw-bolder'>
-                    Total Jasa & Material
+                  <td colSpan={3} className='text-end fw-bolder'>
+                    Total Material
                   </td>
                   <td className='fw-bolder'>{`Rp. ${parseInt(
                     quotationDetail?.quotation_details
@@ -220,7 +231,7 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={4} className='text-end fw-bolder'>
+                  <td colSpan={3} className='text-end fw-bolder'>
                     Promosi ( Free Survey )
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${parseInt(
@@ -229,7 +240,7 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={4} className='text-end fw-bolder'>
+                  <td colSpan={3} className='text-end fw-bolder'>
                     Additional Promosi
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${parseInt(
@@ -238,7 +249,7 @@ const DetailQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={4} className='text-end fw-bolder'>
+                  <td colSpan={3} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>

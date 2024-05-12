@@ -4,7 +4,6 @@ import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import './UpdateQuotation.css'
 
 import axios from 'axios'
-import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
@@ -382,28 +381,30 @@ const UpdateQuotationVendor: FC = () => {
   }
 
   // Calculate Detail
-  const calcEachDetails = (isNominal: number) => {
-    setQuotationDetail((prev) => {
-      console.log(isNominal)
-      const updatedQuotationDetail = [...prev]
+  const calcEachDetails = (isNominal: number, index: any) => {
+    setQuotationDetail((prev) =>
+      prev.map((detail) => {
+        if (detail.index === index) {
+          let {quantity, unit_price, margin, is_user} = detail
 
-      updatedQuotationDetail.forEach((detail) => {
-        let {quantity, unit_price, margin, is_user} = detail
+          let total = Number(quantity) * Number(unit_price)
 
-        let total = Number(quantity) * Number(unit_price)
-        let final_price =
-          is_user === 1
-            ? 0
-            : isNominal === 1
-            ? total + total * (Number(margin) / 100)
-            : total + Number(margin)
+          let final_price =
+            is_user === 1
+              ? 0
+              : isNominal === 1
+              ? Number(quantity) * Number(unit_price) + total * (Number(margin) / 100)
+              : total + Number(margin)
 
-        detail.total = total
-        detail.final_price = final_price
+          return {
+            ...detail,
+            total: total,
+            final_price: final_price,
+          }
+        }
+        return detail
       })
-
-      return updatedQuotationDetail
-    })
+    )
   }
 
   // Total Jasa
@@ -438,10 +439,10 @@ const UpdateQuotationVendor: FC = () => {
   }
 
   // Promosi & Discount
-  let handlePromosiChange = (value: any) => {
-    const updatedPromosiValue = value
-    setPromosiDiscount(updatedPromosiValue)
-  }
+  // let handlePromosiChange = (value: any) => {
+  //   const updatedPromosiValue = value
+  //   setPromosiDiscount(updatedPromosiValue)
+  // }
 
   // Grand Total
   const calculatedGrandTotal = () => {
@@ -507,7 +508,7 @@ const UpdateQuotationVendor: FC = () => {
       formData.append('quotation_number', quotationNumber.toString())
       formData.append('quotation_date', quotationDate)
       formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
-      formData.append('quotation_disc', promosiDiscount.toString())
+      // formData.append('quotation_disc', promosiDiscount.toString())
 
       // New
       const appendIfNotDefault = (formData: any, key: any, value: any) => {
@@ -805,7 +806,7 @@ const UpdateQuotationVendor: FC = () => {
                           value={element.quantity}
                           onChange={(e) => {
                             handleChangeQuotationDetail(e, index, e.target.value, 2)
-                            calcEachDetails(element.margin_type)
+                            calcEachDetails(element.margin_type, element.index)
                           }}
                         />
                       </td>
@@ -824,11 +825,12 @@ const UpdateQuotationVendor: FC = () => {
                       <td>
                         <Form.Control
                           id={`unit-price-${index}`}
+                          name='unit_price'
                           type='number'
                           value={element.unit_price}
                           onChange={(e) => {
                             handleChangeQuotationDetail(e, index, e.target.value, 2)
-                            calcEachDetails(element.margin_type)
+                            calcEachDetails(element.margin_type, element.index)
                           }}
                         />
                       </td>
@@ -848,9 +850,10 @@ const UpdateQuotationVendor: FC = () => {
                           id={`margin-${index}`}
                           type='number'
                           value={element.margin}
+                          name='margin'
                           onChange={(e) => {
                             handleChangeQuotationDetail(e, index, e.target.value, 2)
-                            calcEachDetails(element.margin_type)
+                            calcEachDetails(element.margin_type, element.index)
                           }}
                         />
 
@@ -864,13 +867,13 @@ const UpdateQuotationVendor: FC = () => {
                               checked={element.margin_type === 2}
                               onChange={(e) => {
                                 handleMarginTypeChange(element.index, e.target.checked)
-                                calcEachDetails(element.margin_type)
+                                calcEachDetails(element.margin_type, element.index)
                               }}
                             />
                           </div>
 
                           <div className='ms-1'>
-                            {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+                            {element.margin_type === 1 ? 'Persen' : 'Nominal'}
                           </div>
                         </div>
                       </td>
@@ -963,7 +966,7 @@ const UpdateQuotationVendor: FC = () => {
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
                             handleChangeQuotationDetail(e, index, e.target.value, 1)
-                            calcEachDetails(element.margin_type)
+                            calcEachDetails(element.margin_type, element.index)
                           }}
                         />
                       </td>
@@ -988,7 +991,7 @@ const UpdateQuotationVendor: FC = () => {
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
                             handleChangeQuotationDetail(e, index, e.target.value, 1)
-                            calcEachDetails(element.margin_type)
+                            calcEachDetails(element.margin_type, element.index)
                           }}
                         />
                       </td>
@@ -1012,7 +1015,7 @@ const UpdateQuotationVendor: FC = () => {
                           disabled={element.is_user === 1 ? true : false}
                           onChange={(e) => {
                             handleChangeQuotationDetail(e, index, e.target.value, 1)
-                            calcEachDetails(element.margin_type)
+                            calcEachDetails(element.margin_type, element.index)
                           }}
                         />
 
@@ -1026,13 +1029,13 @@ const UpdateQuotationVendor: FC = () => {
                               checked={element.margin_type === 2}
                               onChange={(e) => {
                                 handleMarginTypeChange(element.index, e.target.checked)
-                                calcEachDetails(element.margin_type)
+                                calcEachDetails(element.margin_type, element.index)
                               }}
                             />
                           </div>
 
                           <div className='ms-1'>
-                            {element.margin_type === 1 ? '( Persen )' : '( Nominal )'}
+                            {element.margin_type === 1 ? 'Persen' : 'Nominal'}
                           </div>
                         </div>
                       </td>
@@ -1066,7 +1069,7 @@ const UpdateQuotationVendor: FC = () => {
                   </td>
                   <td className=' fw-bolder'>{`Rp. ${totalJasaMaterial.toLocaleString('id')}`}</td>
                 </tr>
-
+                {/* 
                 <tr>
                   <td colSpan={8} className='text-end fw-bolder'>
                     Promosi / Discount
@@ -1080,7 +1083,7 @@ const UpdateQuotationVendor: FC = () => {
                       onChange={(e) => handlePromosiChange(e.target.value)}
                     />
                   </td>
-                </tr>
+                </tr> */}
 
                 <tr>
                   <td colSpan={8} className='text-end fw-bolder'>

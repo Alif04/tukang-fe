@@ -1493,16 +1493,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             ) {
               return (
                 <div className='table-warranty-content'>
-                  {workOrderDetail?.order?.is_overdistance === 1 && (
-                    <>
-                      <Form.Text className='fs-8 text-dark'>
-                        *Order ini lebih dari{' '}
-                        <span className='fw-bolder text-decoration-underline'>10 KM</span> dari toko
-                        sehingga dikenakan biaya tambahan
-                      </Form.Text>
-                    </>
-                  )}
-
                   <table className='table hover responsive'>
                     <thead className='table-warranty-head'>
                       <tr>
@@ -1516,10 +1506,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                         <th className='text-center' style={{width: '250px'}}>
                           Satuan
-                        </th>
-
-                        <th className='text-center' style={{width: '250px'}}>
-                          Price
                         </th>
                       </tr>
                     </thead>
@@ -1535,23 +1521,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             </td>
                             <td>{item?.quantity ?? 0}</td>
                             <td>{item?.unit}</td>
-                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                           </tr>
                         ))}
-
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Total
-                        </td>
-
-                        <td className='fw-bolder'>
-                          {`Rp. ${workOrderDetail?.order?.quotation[0]?.quotation_details
-                            ?.filter((x: any) => x.item_type === 2)
-                            ?.map((item: any) => parseInt(item?.price ?? 0))
-                            ?.reduce((total: number, price: number) => total + price, 0)
-                            .toLocaleString('id')}`}
-                        </td>
-                      </tr>
                     </tbody>
                   </table>
 
@@ -1569,10 +1540,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         <th className='text-center' style={{width: '250px'}}>
                           Satuan
                         </th>
-
-                        <th className='text-center' style={{width: '250px'}}>
-                          Price
-                        </th>
                       </tr>
                     </thead>
 
@@ -1587,45 +1554,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             </td>
                             <td>{item?.quantity ?? 0}</td>
                             <td>{item?.unit}</td>
-                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                           </tr>
                         ))}
-
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Promosi ( Free Survey )
-                        </td>
-                        <td className=' fw-bolder'>
-                          {`Rp. ${parseInt(
-                            workOrderDetail?.order?.quotation[0]?.quotation_disc ?? 0
-                          ).toLocaleString('id')}`}
-                        </td>
-                      </tr>
-
-                      {workOrderDetail?.order?.is_overdistance === 1 && (
-                        <>
-                          <tr>
-                            <td colSpan={3} className='text-end fw-bolder align-middle'>
-                              Biaya Tambahan
-                            </td>
-
-                            <td className=' fw-bolder'>{`Rp. ${Number(
-                              workOrderDetail?.order?.additional_fee
-                            ).toLocaleString('id')}.`}</td>
-                          </tr>
-                        </>
-                      )}
-
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Grand Total
-                        </td>
-                        <td className=' fw-bolder'>
-                          {`Rp. ${parseInt(
-                            workOrderDetail?.order?.quotation[0]?.quotation_grand_total ?? 0
-                          ).toLocaleString('id')}`}
-                        </td>
-                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -1683,16 +1613,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
 
                   <div className='table-warranty-content'>
-                    {workOrderDetail?.order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
                     <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -1700,12 +1620,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           <th>Item Name</th>
                           <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          {!(workOrderDetail?.order?.payment_type === 'gratis') && (
-                            <>
-                              <th>Harga Jasa</th>
-                              <th>Jumlah</th>
-                            </>
-                          )}
                         </tr>
                       </thead>
 
@@ -1717,47 +1631,9 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               <td>{item?.item_name}</td>
                               <td>{item?.item?.service_name}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              {!(workOrderDetail?.order?.payment_type === 'gratis') && (
-                                <>
-                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </>
-                              )}
                             </tr>
                           </>
                         ))}
-
-                        {workOrderDetail?.order?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td
-                                colSpan={workOrderDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
-                                className='text-end fw-bolder align-middle'
-                              >
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                workOrderDetail?.order?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td
-                            colSpan={workOrderDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
-                            className='text-end fw-bolder'
-                          >
-                            Grand Total
-                          </td>
-
-                          <td className=' fw-bolder'>{calculateTotal(workOrderDetail?.order)}</td>
-                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -1765,296 +1641,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               )
             }
           })()}
-
-          {/* {workOrderDetail?.order?.payment_type === 'survey' ? (
-            <>
-              <Row>
-                <Col>
-                  <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
-
-                  <table className='table'>
-                    <thead className='table-item-head'>
-                      <tr>
-                        <th></th>
-                        <th>Nama Produk / Jenis Jasa</th>
-                        <th>QTY</th>
-                        <th>Satuan</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {workOrderItem
-                        .filter((x) => x.type === 2)
-                        .map((element, index) => (
-                          <tr
-                            key={`${stringToHash(element.index)}-service`}
-                            id={`${element.index}-service`}
-                          >
-                            <td align='center' width={70}>
-                              <Button
-                                variant='btn-jasa button-dark-primary'
-                                onClick={() => handleAddForm(2)}
-                              >
-                                <FontAwesomeIcon icon={faPlus} />
-                              </Button>
-                            </td>
-
-                            <td>
-                              <Form.Control
-                                id={`service-name-${index}`}
-                                value={element.item_name}
-                                onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                              />
-                            </td>
-
-                            <td>
-                              <Form.Control
-                                id={`quantity-${index}`}
-                                value={element.quantity?.toString()}
-                                onChange={(e) =>
-                                  handleQuantityChange(element.index, e.target.value, 2)
-                                }
-                              />{' '}
-                            </td>
-
-                            <td>
-                              <Form.Control
-                                id={`unit-${index}`}
-                                value={element.unit?.toString()}
-                                onChange={(e) =>
-                                  handleSatuanChange(element.index, e.target.value, 2)
-                                }
-                              />
-                            </td>
-
-                            <td align='center' width={70}>
-                              <Button
-                                variant='danger'
-                                onClick={() => handleRemoveForm(element.index)}
-                              >
-                                <FontAwesomeIcon icon={faTrash} />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col>
-                  <table className='table'>
-                    <thead className='table-item-head'>
-                      <tr>
-                        <th></th>
-                        <th>Disediakan Customer</th>
-                        <th>Material Yang Dibutuhkan</th>
-                        <th>QTY</th>
-                        <th>Satuan</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {workOrderItem
-                        .filter((x) => x.type === 1)
-                        .map((element, index) => (
-                          <tr
-                            key={`${stringToHash(element.index)}-material`}
-                            id={`${element.index}-material`}
-                          >
-                            <td align='center' width={70}>
-                              <Button
-                                variant='btn-material button-dark-primary'
-                                onClick={() => handleAddForm(1)}
-                              >
-                                <FontAwesomeIcon icon={faPlus} />
-                              </Button>
-                            </td>
-
-                            <td align='center' style={{verticalAlign: 'middle'}}>
-                              <Form.Check
-                                id={`is-user-${index}`}
-                                type='checkbox'
-                                checked={element.is_user === 1}
-                                onChange={(e) =>
-                                  handleCheckboxChange(element.index, e.target.checked)
-                                }
-                              />
-                            </td>
-
-                            <td>
-                              <Form.Control
-                                id={`item-name-${index}`}
-                                value={element.item_name}
-                                onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                              />
-                            </td>
-
-                            <td>
-                              <Form.Control
-                                id={`quantity-${index}`}
-                                value={element.quantity?.toString()}
-                                onChange={(e) =>
-                                  handleQuantityChange(element.index, e.target.value, 1)
-                                }
-                              />
-                            </td>
-
-                            <td>
-                              <Form.Control
-                                id={`unit-${index}`}
-                                value={element.unit?.toString()}
-                                onChange={(e) =>
-                                  handleSatuanChange(element.index, e.target.value, 1)
-                                }
-                              />
-                            </td>
-
-                            <td align='center' width={70}>
-                              <Button
-                                variant='danger'
-                                onClick={() => handleRemoveForm(element.index)}
-                              >
-                                <FontAwesomeIcon icon={faTrash} />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </>
-          ) : (
-            <>
-              <div className='table-title-warranty mt-5'>
-                <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
-                <Row>
-                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                    <Form.Label column>
-                      {workOrderDetail?.order?.payment_type !== 'survey'
-                        ? 'Tanggal request pemasangan'
-                        : 'Tanggal request survey'}
-                    </Form.Label>
-                    <Col>
-                      <p className='fs-7 p-0'>
-                        {formatDate(new Date(workOrderDetail?.order?.request_survey))}
-                      </p>
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                    <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
-                    <Col>
-                      <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                    <Form.Label column>Payment Type:</Form.Label>
-                    <Col>
-                      <p className='fs-7 p-0'>
-                        {(() => {
-                          if (workOrderDetail?.order?.payment_type === 'survey') {
-                            return `Berbayar & Survey`
-                          } else if (workOrderDetail?.order?.payment_type === 'gratis') {
-                            return `Gratis`
-                          } else if (
-                            workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
-                          ) {
-                            return `Berbayar & Pemasangan Tanpa Survey`
-                          } else {
-                            return ``
-                          }
-                        })()}
-                      </p>
-                    </Col>
-                  </Form.Group>
-                </Row>
-              </div>
-
-              <div className='table-warranty-content'>
-                {workOrderDetail?.order?.is_overdistance === 1 && (
-                  <>
-                    <Form.Text className='fs-8 text-dark'>
-                      *Order ini lebih dari
-                      <span className='fw-bolder text-decoration-underline'>10 KM</span> dari toko
-                      sehingga dikenakan biaya tambahan
-                    </Form.Text>
-                  </>
-                )}
-
-                <table className='table hover responsive'>
-                  <thead className='table-warranty-head'>
-                    <tr>
-                      <th>Item Code</th>
-                      <th>Item Name</th>
-                      <th>Nama Pemasangan</th>
-                      <th>QTY Pemasangan</th>
-                      {!(workOrderDetail?.order?.payment_type === 'gratis') && (
-                        <>
-                          <th>Harga Jasa</th>
-                          <th>Jumlah</th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {workOrderDetail?.order?.m_order_details?.map((item: any, index: any) => (
-                      <>
-                        <tr key={`${index} - order_detail`}>
-                          <td>{item?.item_code}</td>
-                          <td>{item?.item_name}</td>
-                          <td>{item?.item?.service_name}</td>
-                          <td>{item?.quantity ?? 0}</td>
-                          {!(workOrderDetail?.order?.payment_type === 'gratis') && (
-                            <>
-                              <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                            </>
-                          )}
-                        </tr>
-                      </>
-                    ))}
-
-                    {workOrderDetail?.order?.is_overdistance === 1 && (
-                      <>
-                        <tr>
-                          <td
-                            colSpan={workOrderDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
-                            className='text-end fw-bolder align-middle'
-                          >
-                            Biaya Tambahan
-                          </td>
-
-                          <td className=' fw-bolder'>{`Rp. ${Number(
-                            workOrderDetail?.order?.additional_fee
-                          ).toLocaleString('id')}.`}</td>
-                        </tr>
-                      </>
-                    )}
-
-                    <tr>
-                      <td
-                        colSpan={workOrderDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
-                        className='text-end fw-bolder'
-                      >
-                        Grand Total
-                      </td>
-
-                      <td className=' fw-bolder'>{calculateTotal(workOrderDetail?.order)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )} */}
 
           <Row>
             {workOrderDetail?.work_order_status?.length > 1 &&
