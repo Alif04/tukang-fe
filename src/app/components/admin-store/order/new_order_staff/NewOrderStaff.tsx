@@ -1004,7 +1004,8 @@ const NewOrderStoreStaff: FC = () => {
                   type='date'
                   value={orderForm.request_survey}
                   onChange={(e) => orderFormHandler(e)}
-                  min={today}
+                  // TODO: ENABLE BACKDATE VALIDATION WHILE PRODUCTION
+                  // min={today}
                 />
                 <Form.Text className='fs-8 text-dark-danger'>
                   *Tanggal Request{' '}
