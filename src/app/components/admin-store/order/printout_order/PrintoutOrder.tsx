@@ -1,13 +1,14 @@
 import React, {FC, useState, useEffect} from 'react'
+import {Orders} from '../../../../interfaces/order'
 
 import './PrintoutOrder.css'
 
-import {Orders} from '../../../../interfaces/order'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import {Skeleton} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
-import {Card, Table, Button, Row, Col, Stack} from 'react-bootstrap'
+import {Card, Button, Row} from 'react-bootstrap'
 
 const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -16,6 +17,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   const [orderDetail, setOrderDetail] = useState<any>()
   const [isPrinting, setIsPrinting] = useState<boolean>(false)
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
 
   const fetchOrderData = async () => {
     try {
@@ -32,6 +34,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           const data = response.data.data
           setOrderDetail(data)
           updatePageTitle(data)
+          setIsLoadingPage(false)
         })
     } catch (error) {
       console.error(error)
@@ -111,312 +114,172 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         <Card.Body>
           <Row>
             <div className='header-printout d-flex'>
-              <img
-                alt='Logo'
-                className='logo mb-2'
-                src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
-              />
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                <img
+                  alt='Logo'
+                  className='logo mb-2'
+                  src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+                />
+              </Skeleton>
 
-              <div className='store'>
-                <h3 className='store fw-bold text-uppercase text-start'>
-                  {orderDetail?.store?.store_name}
-                </h3>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
+                <div className='store'>
+                  <h3 className='store fw-bold text-uppercase text-start'>
+                    {orderDetail?.store?.store_name}
+                  </h3>
 
-                <h3 className='address fw-bold text-start text-uppercase'>
-                  {orderDetail?.store?.address}
-                </h3>
+                  <h3 className='address fw-bold text-start text-uppercase'>
+                    {orderDetail?.store?.address}
+                  </h3>
 
-                <h3 className='phone-number fw-bold text-start text-uppercase'>
-                  Telp Toko :{' '}
-                  {`${
-                    orderDetail?.store?.phone_number_1 ??
-                    orderDetail?.store?.phone_number_2 ??
-                    'Nomor telepon belum tersedia'
-                  }`}
-                </h3>
-              </div>
+                  <h3 className='phone-number fw-bold text-start text-uppercase'>
+                    Telp Toko :{' '}
+                    {`${
+                      orderDetail?.store?.phone_number_1 ??
+                      orderDetail?.store?.phone_number_2 ??
+                      'Nomor telepon belum tersedia'
+                    }`}
+                  </h3>
+                </div>
+              </Skeleton>
             </div>
 
             <div className='body-printout d-flex justify-content-center align-items-center flex-column mt-4'>
-              <h2 className='fw-bold text-center'>Instalasi & Service</h2>
+              <Skeleton active loading={isLoadingPage}>
+                <h2 className='fw-bold text-center'>Instalasi & Service</h2>
 
-              <h4 className='fw-normal text-center'>
-                Tanggal :{' '}
-                {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </h4>
+                <h4 className='fw-normal text-center'>
+                  Tanggal :{' '}
+                  {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </h4>
+              </Skeleton>
             </div>
           </Row>
 
-          <hr className='line-1' />
-          <hr className='line-1' />
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+            <hr className='line-1' />
+            <hr className='line-1' />
+          </Skeleton>
 
-          <Row className='mt-2'>
-            <h4>Informasi Order</h4>
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 5}}>
+            <Row className='mt-2'>
+              <h4>Informasi Order</h4>
 
-            <h4 className='fw-normal'>
-              Order ID : <span>{orderDetail?.id}</span>
-            </h4>
-
-            <h4 className='fw-normal'>
-              Copy :{' '}
-              <span> {orderDetail?.print_counter < 1 ? '-' : orderDetail?.print_counter}</span>
-            </h4>
-
-            <h4 className='fw-normal'>
-              Tanggal Order :{' '}
-              <span>
-                {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </span>
-            </h4>
-
-            <h4 className='fw-normal'>
-              {' '}
-              {orderDetail?.payment_type === 'survey'
-                ? 'Request Tanggal Survey :'
-                : 'Request Tanggal Pengerjaan :'}
-              <span>
-                {' '}
-                {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </span>
-            </h4>
-
-            <h5 className='fw-normal'>
-              *Tanggal Request <span className='fw-bolder text-decoration-underline'>bukan</span>{' '}
-              tanggal pasti. Konfirmasi kunjungan dilakukan oleh Vendor
-            </h5>
-          </Row>
-
-          <hr className='line-2' />
-
-          <Row className='mt-2'>
-            <h4>Informasi Member</h4>
-
-            <h4 className='fw-normal'>
-              Nama Member : <span>{orderDetail?.members?.full_name}</span>
-            </h4>
-
-            <h4 className='fw-normal'>
-              WA/No. Telp : <span> {orderDetail?.project_number}</span>
-            </h4>
-          </Row>
-
-          <hr className='line-3' />
-
-          <Row className='mt-2'>
-            {orderDetail?.payment_type !== 'survey' && <h4 className='mb-1'>Nama Pemasangan</h4>}
-
-            {orderDetail?.order_details.map((item: any, index: any) => (
               <h4 className='fw-normal'>
-                {orderDetail?.payment_type === 'survey'
-                  ? `${index + 1}. ${item?.item_notes}`
-                  : `${index + 1}. ${item?.item?.service_name}`}
+                Order ID : <span>{orderDetail?.id}</span>
               </h4>
-            ))}
-          </Row>
 
-          <hr className='line-4' />
+              <h4 className='fw-normal'>
+                Copy :{' '}
+                <span> {orderDetail?.print_counter < 1 ? '-' : orderDetail?.print_counter}</span>
+              </h4>
 
-          <Row className='mt-2 d-flex justify-content-end align-items-end'>
-            <h4>Total : {calculateTotal(orderDetail)}</h4>
-          </Row>
+              <h4 className='fw-normal'>
+                Tanggal Order :{' '}
+                <span>
+                  {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
+              </h4>
 
-          <Row className='receipt-id mb-5'>
-            <h2>Receipt ID :</h2>
-          </Row>
+              <h4 className='fw-normal'>
+                {' '}
+                {orderDetail?.payment_type === 'survey'
+                  ? 'Request Tanggal Survey :'
+                  : 'Request Tanggal Pengerjaan :'}
+                <span>
+                  {' '}
+                  {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
+              </h4>
 
-          <hr className='line-5' />
+              <h5 className='fw-normal'>
+                *Tanggal Request <span className='fw-bolder text-decoration-underline'>bukan</span>{' '}
+                tanggal pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+              </h5>
+            </Row>
+          </Skeleton>
 
-          <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
-            <Button className='hide-print-button' variant='dark-danger' onClick={handleCancelPrint}>
-              Cancel
-            </Button>
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+            <hr className='line-2' />
+          </Skeleton>
 
-            <Button className='hide-print-button' variant='dark-primary' onClick={handlePrintOrder}>
-              {orderDetail?.print_counter < 1 ? 'Print' : 'Reprint'}
-            </Button>
-          </div>
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
+            <Row className='mt-2'>
+              <h4>Informasi Member</h4>
+
+              <h4 className='fw-normal'>
+                Nama Member : <span>{orderDetail?.members?.full_name}</span>
+              </h4>
+
+              <h4 className='fw-normal'>
+                WA/No. Telp : <span> {orderDetail?.project_number}</span>
+              </h4>
+            </Row>
+          </Skeleton>
+
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+            <hr className='line-3' />
+          </Skeleton>
+
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
+            <Row className='mt-2'>
+              {orderDetail?.payment_type !== 'survey' && <h4 className='mb-1'>Nama Pemasangan</h4>}
+
+              {orderDetail?.order_details.map((item: any, index: any) => (
+                <h4 className='fw-normal'>
+                  {orderDetail?.payment_type === 'survey'
+                    ? `${index + 1}. ${item?.item_notes}`
+                    : `${index + 1}. ${item?.item?.service_name}`}
+                </h4>
+              ))}
+            </Row>
+          </Skeleton>
+
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+            <hr className='line-4' />
+
+            <Row className='mt-2 d-flex justify-content-end align-items-end'>
+              <h4>Total : {calculateTotal(orderDetail)}</h4>
+            </Row>
+
+            <Row className='receipt-id mb-5'>
+              <h2>Receipt ID :</h2>
+            </Row>
+
+            <hr className='line-5' />
+
+            <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
+              <Button
+                className='hide-print-button'
+                variant='dark-danger'
+                onClick={handleCancelPrint}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                className='hide-print-button'
+                variant='dark-primary'
+                onClick={handlePrintOrder}
+              >
+                {orderDetail?.print_counter < 1 ? 'Print' : 'Reprint'}
+              </Button>
+            </div>
+          </Skeleton>
         </Card.Body>
       </Card>
-
-      {/* <div className='card'>
-        <div className='card-body'>
-          <Row className='d-block m-auto mb-5'>
-            <div className='header-printout d-flex justify-content-center align-items-center flex-column '>
-              <img
-                alt='Logo'
-                className='logo mb-3'
-                src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
-              />
-
-              <h3 className='store fw-bold text-uppercase text-center'>
-                {orderDetail?.store.store_name}
-              </h3>
-              <h3 className='address fw-normal text-center'>{orderDetail?.store.address}</h3>
-            </div>
-
-            <div className='body-printout d-flex justify-content-center align-items-center flex-column mt-5'>
-              <h2 className='fw-bold text-center'>Instalasi & Service</h2>
-              <h4 className='fw-normal text-center'>
-                Tanggal :{' '}
-                {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </h4>
-            </div>
-          </Row>
-
-          <Row>
-            <Col md={6}>
-              <Table className='table-printout' borderless={true}>
-                <tr>
-                  <th className='table-heads-1'></th>
-                  <th className='table-heads-2'></th>
-                  <th className='table-heads-3'></th>
-                </tr>
-
-                <tr>
-                  <td className='fw-bold'>Order ID</td>
-                  <td className='fw-bold'>:</td>
-                  <td>{orderDetail?.id}</td>
-                </tr>
-
-                <tr>
-                  <td className='fw-bold'>Member Name</td>
-                  <td className='fw-bold'>:</td>
-                  <td>{orderDetail?.members.full_name}</td>
-                </tr>
-
-                <tr>
-                  <td className='fw-bold'>No Telp / WA</td>
-                  <td className='fw-bold'>:</td>
-                  <td>{orderDetail?.project_number}</td>
-                </tr>
-              </Table>
-            </Col>
-
-            <Col md={6}>
-              <Table className='table-printout' borderless={true}>
-                <tr>
-                  <th className='table-heads-1'></th>
-                  <th className='table-heads-2'></th>
-                  <th className='table-heads-3'></th>
-                </tr>
-
-                <tr>
-                  <td className='fw-bold'>Tanggal Order</td>
-                  <td className='fw-bold'>:</td>
-                  <td>
-                    {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td className='fw-bold'>Copy</td>
-                  <td className='fw-bold'>:</td>
-                  <td>{orderDetail?.print_counter < 1 ? '-' : orderDetail?.print_counter}</td>
-                </tr>
-
-                <tr>
-                  <td className='fw-bold'>
-                    {orderDetail?.payment_type === 'survey'
-                      ? 'Request Tanggal Survey :'
-                      : 'Request Tanggal Pengerjaan'}
-                  </td>
-                  <td className='fw-bold'>:</td>
-                  <td>
-                    {' '}
-                    {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td colSpan={3} className='fw-bold'>
-                    <p className='m-0 p-0 fs-8 text-dark-danger'>
-                      *Tanggal Request{' '}
-                      <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
-                      pasti. Konfirmasi kunjungan dilakukan oleh Vendor
-                    </p>
-                  </td>
-                </tr>
-              </Table>
-            </Col>
-          </Row>
-
-          <div className='detail-table'>
-            <Table hover>
-              <thead>
-                {orderDetail?.payment_type !== 'survey' && (
-                  <tr>
-                    <th colSpan={2} className='text-start'>
-                      Nama Pemasangan
-                    </th>
-                  </tr>
-                )}
-              </thead>
-              <tbody>
-                {orderDetail?.order_details.map((item: any, index: any) => (
-                  <tr key={`service-${index}`}>
-                    <td colSpan={2}>
-                      {orderDetail?.payment_type === 'survey'
-                        ? item?.item_notes
-                        : item?.item?.service_name}
-                    </td>
-                  </tr>
-                ))}
-
-                <tr>
-                  <td className='fs-3 fw-bolder'>Total</td>
-                  <td className='fs-3'>{calculateTotal(orderDetail)}</td>
-                </tr>
-              </tbody>
-            </Table>
-          </div>
-
-          <div className='receipt-id mb-5'>
-            <Row>
-              <Col xl={2}>
-                <h1 className='fs-2'>Receipt ID :</h1>
-              </Col>
-
-              <Col xl={10}>
-                <hr className='line' />
-              </Col>
-            </Row>
-          </div>
-
-          <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
-            <Button className='hide-print-button' variant='dark-danger' onClick={handleCancelPrint}>
-              Cancel
-            </Button>
-
-            <Button className='hide-print-button' variant='dark-primary' onClick={handlePrintOrder}>
-              {orderDetail?.print_counter < 1 ? 'Print' : 'Reprint'}
-            </Button>
-          </div>
-        </div>
-      </div> */}
     </section>
   )
 }

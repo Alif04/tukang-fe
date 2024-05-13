@@ -67,6 +67,11 @@
   position: relative;
 }
 
+#view-order .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+  border: none !important;
+}
+
 @media screen and (max-width: 1200px) {
   #view-order .filter-search {
     width: 100%;

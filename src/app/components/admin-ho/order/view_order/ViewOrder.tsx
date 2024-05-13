@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ViewOrder.css'
 
 import axios from 'axios'
+import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
@@ -27,6 +28,11 @@ interface DataType {
   order_status_label: string
 }
 
+interface StoreItem {
+  value: number | null
+  label: string
+}
+
 const ViewOrders: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -45,6 +51,13 @@ const ViewOrders: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const [store, setStore] = useState<StoreItem[]>([])
+  const storeOptions = [{value: null, label: 'All Store'}, ...store]
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: 'All Store',
+  })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -310,6 +323,37 @@ const ViewOrders: FC = () => {
     fetchData(1, 10, '')
   }, [])
 
+  useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data.data)) {
+          const tempStore = response.data.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+            city_id: item.city_id,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getStore()
+  }, [])
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -323,6 +367,7 @@ const ViewOrders: FC = () => {
     valueCheck(`&date_from=`, dateFrom)
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
+    valueCheck(`&store_id=`, selectedStore?.value)
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)
@@ -337,7 +382,7 @@ const ViewOrders: FC = () => {
           <Row className='table-head-wrapper'>
             <Stack direction='horizontal' gap={3}>
               <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-5 fw-normal'>Date : </h3>
+                <h3 className='fs-5 fw-normal'>Date</h3>
               </div>
 
               <RangePicker
@@ -370,6 +415,19 @@ const ViewOrders: FC = () => {
                   </span>
                 </FormGroup>
               </div>
+
+              {userRole === 'Admin HO' && (
+                <Select
+                  name='store_id'
+                  className='form-control p-0 w-50'
+                  classNamePrefix='select'
+                  placeholder='Pilih Toko'
+                  isSearchable={true}
+                  options={storeOptions}
+                  value={selectedStore}
+                  onChange={(newValue) => setSelectedStore(newValue)}
+                />
+              )}
 
               <Button
                 className='btn-dark-primary button-submit'
