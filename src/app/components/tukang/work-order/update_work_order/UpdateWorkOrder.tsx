@@ -270,20 +270,45 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           if (data?.work_order_status) {
-            const workStartDate = formatDate(new Date(data.work_start_date))
-            const workEndDate = formatDate(new Date(data.work_end_date))
-            const requestWorkTime = data?.survey_date
-              ? formatDate(new Date(data.survey_date))
-              : 'Order ini tidak survey'
+            const workStartDate = new Date(data?.work_start_date).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            const workEndDate = new Date(data?.work_end_date).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            const workDateTime =
+              data?.work_end_date !== null
+                ? `${workStartDate} - ${workEndDate}`
+                : 'Belum dijadwalkan oleh vendor'
+
+            const surveyDate = new Date(data?.survey_date).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            const updatedAt = data?.updated_at
+              ? new Date(data.updated_at).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })
+              : '-'
 
             const workOrderHistoryData = data.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
               work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
                 ?.category,
               work_order_status_label: item?.status?.description,
-              created_at: requestWorkTime,
-              updated_at: item.created_at ? formatDate(new Date(item.created_at)) : '',
-              work_date_time: `${workStartDate} - ${workEndDate}`,
+              created_at: surveyDate,
+              updated_at: updatedAt,
+              work_date_time: workDateTime,
               updated_by: item.updated_by,
             }))
 
@@ -770,7 +795,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       sorter: (a, b) => a.work_order_status_label.length - b.work_order_status_label.length,
     },
     {
-      title: 'Request Work Time',
+      title: 'Tanggal Survey',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
@@ -779,7 +804,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       sorter: (a, b) => a.created_at.length - b.created_at.length,
     },
     {
-      title: 'Updated At',
+      title: 'Terakhir Update Pengerjaan',
       dataIndex: 'updated_at',
       key: 'updated_at',
       align: 'center',
@@ -788,7 +813,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       sorter: (a, b) => a.updated_at.length - b.updated_at.length,
     },
     {
-      title: 'Work Date Time',
+      title: 'Tanggal Pengerjaan',
       dataIndex: 'work_date_time',
       key: 'work_date_time',
       align: 'center',

@@ -36,12 +36,6 @@ const columns: ColumnsType<DataType> = [
     key: 'service_name',
     align: 'left',
   },
-  {
-    title: 'Total',
-    dataIndex: 'total',
-    key: 'total',
-    align: 'center',
-  },
 ]
 
 const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {

@@ -51,7 +51,7 @@ type StatusToStateMap = {
 const statusToStateMap: StatusToStateMap = {
   SURVEYSTART: 'survey',
   WIP: 'onProgress',
-  SURVEYDONE: 'complete',
+  DONE: 'complete',
   SURVEYREQ: 'waitingSurvey',
   QUOTEIN: 'waitingQuotation',
   WORKRELATED: 'waitingPayment',

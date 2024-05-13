@@ -122,6 +122,24 @@ const DashboardVendor: FC = () => {
 
       const orderData = apiData.map((item: any) => {
         let data
+        let totalAmount = 0
+
+        if (item?.payment_type === 'gratis') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 0
+        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : item?.grand_total ?? 0
+        } else if (item?.payment_type === 'survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 99000 ?? 0
+        }
 
         data = {
           order_id: item.id,
@@ -131,7 +149,7 @@ const DashboardVendor: FC = () => {
             item?.payment_type === 'survey'
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
-          total: `Rp. ${parseInt(item?.grand_total || 0).toLocaleString('id')}`,
+          total: `Rp. ${totalAmount.toLocaleString('id')}`,
         }
 
         return data
@@ -307,7 +325,7 @@ const DashboardVendor: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{orderData.length}</h1>
+                    <h1 className='fw-normal'>{totalData}</h1>
                     <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>

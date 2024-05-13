@@ -165,7 +165,6 @@ const DashboardTukang: FC = () => {
             item.order?.payment_type === 'survey'
               ? item.order?.m_order_details[0]?.item_notes ?? '-'
               : item.order?.m_order_details[0]?.item?.service_name ?? '-',
-          total: `Rp. ${parseInt(item?.grand_total ?? 0).toLocaleString('id')}`,
         }
 
         return data
@@ -419,7 +418,7 @@ const DashboardTukang: FC = () => {
               <Row className='justify-content-md-center'>
                 <Col className='mb-5'>
                   <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{orderList.length}</h1>
+                    <h1 className='fw-normal'>{totalData}</h1>
                     <p className='fs-6 text-center'>Total Order</p>
                   </div>
                 </Col>
