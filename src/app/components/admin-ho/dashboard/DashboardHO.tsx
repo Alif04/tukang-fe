@@ -220,6 +220,24 @@ const DashboardHO: FC = () => {
 
       const orderData = apiData.map((item: any) => {
         let data
+        let totalAmount = 0
+
+        if (item?.payment_type === 'gratis') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 0
+        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : item?.grand_total ?? 0
+        } else if (item?.payment_type === 'survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 99000 ?? 0
+        }
 
         data = {
           order_id: item.id,
@@ -229,7 +247,7 @@ const DashboardHO: FC = () => {
             item?.payment_type === 'survey'
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
-          total: `Rp. ${parseInt(item?.grand_total || 0).toLocaleString('id')}`,
+          total: `Rp. ${totalAmount.toLocaleString('id')}`,
         }
 
         return data
