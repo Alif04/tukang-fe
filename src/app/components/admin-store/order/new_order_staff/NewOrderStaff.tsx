@@ -859,9 +859,6 @@ const NewOrderStoreStaff: FC = () => {
                           isWhatsapp === true &&
                           (selectedMember.value === null || selectedMember.value === undefined)
                             ? 'form-project-number-wa'
-                            : isWhatsapp === false &&
-                              (selectedMember.value === null || selectedMember.value === undefined)
-                            ? 'form-project-number-phone'
                             : ''
                         }
                         name='project_number'
@@ -878,9 +875,7 @@ const NewOrderStoreStaff: FC = () => {
 
                       {(selectedMember.value === null || selectedMember.value === undefined) && (
                         <span className='project-number'>
-                          <div className='prefix-number text-black'>
-                            {isWhatsapp === true ? '+62' : '08'}
-                          </div>
+                          <div className='prefix-number text-black'>+62</div>
                         </span>
                       )}
                     </FormGroup>

@@ -41,7 +41,7 @@ interface Sales {
   account_number: string
   sales_brand: string
   sales_categories: CategorySelect[]
-  default_password: string
+  password: string
 }
 
 const NewSales: FC = () => {
@@ -88,7 +88,7 @@ const NewSales: FC = () => {
     account_number: '',
     sales_brand: '',
     sales_categories: [],
-    default_password: '',
+    password: '',
   })
 
   // Bank
@@ -565,7 +565,7 @@ const NewSales: FC = () => {
       phone_number: '',
       account_number: '',
       sales_brand: '',
-      default_password: '',
+      password: '',
       sales_categories: [],
     })
 
@@ -830,9 +830,9 @@ const NewSales: FC = () => {
                 <Form.Group className='mb-5'>
                   <Form.Label>Default Password</Form.Label>
                   <Form.Control
-                    name='default_password'
+                    name='password'
                     type='text'
-                    value={salesInfo.default_password}
+                    value={salesInfo.password}
                     onChange={(e) => salesInfoFormHandler(e)}
                   />
 

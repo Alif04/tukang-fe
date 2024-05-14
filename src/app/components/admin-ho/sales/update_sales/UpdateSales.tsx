@@ -320,6 +320,19 @@ const UpdateSales: FC = () => {
     return valid
   }
 
+  // Desctructure Object if the value null or empty string
+  const objectValueCheck = (data: Sales) => {
+    let cleanedData: Partial<Sales> = {}
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        cleanedData[key as keyof Sales] = value
+      }
+    })
+
+    return cleanedData
+  }
+
   // Handle Submit New Sales
   const handleUpdateSales = async () => {
     if (!SalesValidation()) {
@@ -328,8 +341,10 @@ const UpdateSales: FC = () => {
 
     setIsLoading(true)
 
+    const salesData = objectValueCheck(salesInfo)
+
     await axios
-      .post(`${apiUrl}/sales/${params.id}`, salesInfo, {
+      .post(`${apiUrl}/sales/${params.id}`, salesData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
