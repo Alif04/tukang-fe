@@ -37,9 +37,12 @@ const ViewOrders: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const salesId = localStorage.getItem('sales_id')
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
+
   const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+  const userSales = userRole === 'Sales' ? `&sales_id=${salesId}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -220,7 +223,7 @@ const ViewOrders: FC = () => {
   ]
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}${storeId}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}${storeId}${userSales}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {

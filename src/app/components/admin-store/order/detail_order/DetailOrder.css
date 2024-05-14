@@ -219,6 +219,76 @@
   transition: 0.3s ease-in-out;
 }
 
+/* Work Order History  */
+
+#detail-order .table-item {
+  margin: 30px 0 30px 0;
+}
+
+#detail-order .table-item .table tr,
+.table th,
+.table td {
+  border: 1px solid gray;
+}
+
+#detail-order .table-item th {
+  background-color: #555555;
+  color: #ffff;
+  font-weight: 400;
+  text-align: center;
+}
+
+#detail-order .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #398318;
+}
+
+#detail-order
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#detail-order
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#detail-order .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#detail-order .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#detail-order .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#detail-order .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#detail-order .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#detail-order .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
 @media screen and (max-width: 1400px) {
   /* Form Layout */
 
