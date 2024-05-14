@@ -963,17 +963,21 @@ const NewOrderStoreStaff: FC = () => {
                 </Form.Label>
 
                 <Col xxl='8' xl='7' md='10'>
-                  <Select
-                    name='sales_id'
-                    id='sales_id'
-                    className='form-control p-0 form-item-name'
-                    classNamePrefix='select'
-                    placeholder='Pilih/Ketik Nama Sales'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={sales}
-                    onChange={(newValue) => setSelectedSales(newValue)}
-                  />
+                  {userRole === 'Sales' ? (
+                    <Form.Control type='text' disabled value={salesName} />
+                  ) : (
+                    <Select
+                      name='sales_id'
+                      id='sales_id'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Pilih/Ketik Nama Sales'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={sales}
+                      onChange={(newValue) => setSelectedSales(newValue)}
+                    />
+                  )}
                 </Col>
               </Form.Group>
             </div>
