@@ -287,19 +287,13 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 ? `${workStartDate} - ${workEndDate}`
                 : 'Belum dijadwalkan oleh vendor'
 
-            const surveyDate = new Date(data?.survey_date).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
-
-            const updatedAt = data?.updated_at
-              ? new Date(data.updated_at).toLocaleDateString('id-ID', {
+            const surveyDate = data.survey_date
+              ? new Date(data.survey_date).toLocaleDateString('id-ID', {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
                 })
-              : '-'
+              : 'Order ini tanpa survey'
 
             const workOrderHistoryData = data.work_order_status.map((item: any) => ({
               work_order_id: item.work_order_id,
@@ -307,7 +301,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 ?.category,
               work_order_status_label: item?.status?.description,
               created_at: surveyDate,
-              updated_at: updatedAt,
+              updated_at: item.created_at
+                ? new Date(item.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                  })
+                : '-',
               work_date_time: workDateTime,
               updated_by: item.updated_by,
             }))
@@ -804,7 +806,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       sorter: (a, b) => a.created_at.length - b.created_at.length,
     },
     {
-      title: 'Terakhir Update Pengerjaan',
+      title: 'Terakhir Update Survey/Pengerjaan',
       dataIndex: 'updated_at',
       key: 'updated_at',
       align: 'center',
@@ -1348,7 +1350,12 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           </Row>
 
           {(() => {
-            if (workOrderDetail?.order?.payment_type === 'survey') {
+            if (
+              workOrderDetail?.order?.payment_type === 'survey' &&
+              ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                workOrderDetail?.work_order_status[0]?.status?.category
+              )
+            ) {
               return (
                 <>
                   <Row>
@@ -1514,6 +1521,82 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               )
             } else if (
               ['QUOTEIN', 'QUOTEOUT'].includes(workOrderDetail?.order?.status?.category ?? '') &&
+              workOrderDetail?.order?.payment_type === 'survey'
+            ) {
+              return (
+                <div className='table-warranty-content'>
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th className='text-center' style={{width: '355px'}}>
+                          Jenis Jasa
+                        </th>
+
+                        <th className='text-center' style={{width: '100px'}}>
+                          QTY
+                        </th>
+
+                        <th className='text-center' style={{width: '250px'}}>
+                          Satuan
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {workOrderDetail?.order?.quotation[0]?.quotation_details
+                        ?.filter((x: any) => x.item_type === 2)
+                        ?.map((item: any, index: any) => (
+                          <tr key={`${index}-quotation`}>
+                            <td>
+                              {item?.name ?? '-'}{' '}
+                              {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                            </td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{item?.unit}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th className='text-center' style={{width: '355px'}}>
+                          Material Yang Dibutuhkan
+                        </th>
+
+                        <th className='text-center' style={{width: '100px'}}>
+                          QTY
+                        </th>
+
+                        <th className='text-center' style={{width: '250px'}}>
+                          Satuan
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {workOrderDetail?.order?.quotation[0]?.quotation_details
+                        ?.filter((x: any) => x.item_type === 1)
+                        ?.map((item: any, index: any) => (
+                          <tr key={`${index}-quotation`}>
+                            <td>
+                              {item?.name ?? '-'}{' '}
+                              {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                            </td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{item?.unit}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            } else if (
+              ['WORKREQ', 'WIP', 'WORKEND', 'DONE'].includes(
+                workOrderDetail?.work_order_status[0]?.status?.category
+              ) &&
+              workOrderDetail?.work_order_status.length >= 2 &&
               workOrderDetail?.order?.payment_type === 'survey'
             ) {
               return (

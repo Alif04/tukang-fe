@@ -6,12 +6,22 @@ import './DetailOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {Image, Steps, Skeleton} from 'antd'
-import {Row, Col, Form, ListGroup, Table, Button} from 'react-bootstrap'
+import {Image, Steps, Skeleton, Table} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
+import {Row, Col, Form, ListGroup, Button, Card} from 'react-bootstrap'
 
 interface Status {
   value: number | null
   category: string
+}
+
+interface WorkOrderHistory {
+  work_order_id: number
+  work_order_status: string
+  work_order_status_label: string
+  survey_date: string
+  updated_at: string
+  work_date_time: string
 }
 
 const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
@@ -53,6 +63,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     quotation: [],
   })
 
+  // Work Order History
+  const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
+
   const fetchOrderData = async () => {
     try {
       await axios
@@ -69,6 +82,59 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           setOrder(data)
           updatePageTitle(data)
           setIsLoadingPage(false)
+
+          if (data.work_orders) {
+            const workStartDate = new Date(data?.work_orders?.work_start_date).toLocaleDateString(
+              'id-ID',
+              {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              }
+            )
+
+            const workEndDate = new Date(data?.work_orders?.work_end_date).toLocaleDateString(
+              'id-ID',
+              {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              }
+            )
+
+            const workDateTime =
+              data?.work_orders?.work_end_date !== null
+                ? `${workStartDate} - ${workEndDate}`
+                : 'Belum dijadwalkan oleh vendor'
+
+            const surveyDate = data.work_orders.survey_date
+              ? new Date(data.work_orders.survey_date).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })
+              : 'Order ini tanpa survey'
+
+            const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
+              work_order_id: item.work_order_id,
+              work_order_status: item?.status?.category,
+              work_order_status_label: item?.status?.description,
+              survey_date: surveyDate,
+              updated_at: item.created_at
+                ? new Date(item.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                  })
+                : '-',
+              work_date_time: workDateTime,
+              updated_by: item.updated_by,
+            }))
+
+            setWorkOrderHistory(workOrderHistoryData)
+          }
         })
     } catch (error) {
       console.error(error)
@@ -181,10 +247,59 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       })
   }
 
+  // Work Order History
+  const columns: ColumnsType<WorkOrderHistory> = [
+    {
+      title: 'ID',
+      dataIndex: 'work_order_id',
+      key: 'work_order_id',
+      align: 'center',
+      width: 100,
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.work_order_id - b.work_order_id,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'work_order_status_label',
+      key: 'work_order_status_label',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.work_order_status_label.includes(String(value)),
+      sorter: (a, b) => a.work_order_status_label.length - b.work_order_status_label.length,
+    },
+    {
+      title: 'Tanggal Survey',
+      dataIndex: 'survey_date',
+      key: 'survey_date',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.survey_date.includes(String(value)),
+      sorter: (a, b) => a.survey_date.length - b.survey_date.length,
+    },
+    {
+      title: 'Terakhir Update Survey/Pengerjaan',
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      align: 'center',
+      width: 110,
+      onFilter: (value, record) => record.updated_at.includes(String(value)),
+      sorter: (a, b) => a.updated_at.length - b.updated_at.length,
+    },
+    {
+      title: 'Tanggal Pengerjaan',
+      dataIndex: 'work_date_time',
+      key: 'work_date_time',
+      align: 'center',
+      width: 120,
+      onFilter: (value, record) => record.work_date_time.includes(String(value)),
+      sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
+    },
+  ]
+
   return (
     <section id='detail-order'>
-      <div className='card'>
-        <div className='card-body'>
+      <Card>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -394,7 +509,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </>
                       )}
 
-                      <Table hover responsive='md'>
+                      <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
                             <th>Item Code</th>
@@ -446,7 +561,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             </>
                           )}
                         </tbody>
-                      </Table>
+                      </table>
                     </div>
                   )
                 } else if (
@@ -465,7 +580,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </>
                       )}
 
-                      <Table hover responsive='md'>
+                      <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
                             <th className='text-center' style={{width: '355px'}}>
@@ -515,11 +630,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             </td>
                           </tr>
                         </tbody>
-                      </Table>
+                      </table>
 
                       {order?.quotation[0]?.quotation_details.filter((x: any) => x.item_type === 1)
                         .length ? (
-                        <Table hover responsive='md'>
+                        <table className='table hover responsive'>
                           <thead className='table-warranty-head'>
                             <tr>
                               <th className='text-center' style={{width: '355px'}}>
@@ -595,7 +710,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               </td>
                             </tr>
                           </tbody>
-                        </Table>
+                        </table>
                       ) : (
                         <></>
                       )}
@@ -610,7 +725,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 ) {
                   return (
                     <div className='table-warranty-content'>
-                      <Table hover responsive='md'>
+                      <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
                             <th>Nama Pemasangan</th>
@@ -641,7 +756,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             </tr>
                           )}
                         </tbody>
-                      </Table>
+                      </table>
                     </div>
                   )
                 } else if (
@@ -660,7 +775,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </>
                       )}
 
-                      <Table hover responsive='md'>
+                      <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
                             <th>Item Code</th>
@@ -725,7 +840,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             <td className=' fw-bolder'>{calculateTotal(order)}</td>
                           </tr>
                         </tbody>
-                      </Table>
+                      </table>
                     </div>
                   )
                 }
@@ -947,8 +1062,29 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               </div>
             )}
           </Skeleton>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
+
+      {order?.work_orders ? (
+        <Card className='mt-5'>
+          <Card.Body>
+            <div className='work-order-history'>
+              <h1 className='title fw-bold mb-5'>Work Order History</h1>
+
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={workOrderHistory}
+                rowKey={(record) => record.work_order_id}
+                pagination={{position: ['bottomRight']}}
+              />
+            </div>
+          </Card.Body>
+        </Card>
+      ) : (
+        ''
+      )}
     </section>
   )
 }

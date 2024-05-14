@@ -574,7 +574,8 @@ const UpdateQuotationHO: FC = () => {
         appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
         appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
         appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
-        appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
+        // appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
+        formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
         formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
         appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
         formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
@@ -852,6 +853,10 @@ const UpdateQuotationHO: FC = () => {
                             placeholder='Pilih Kategori'
                             isSearchable={true}
                             options={categories}
+                            value={{
+                              value: element.category_id ?? null,
+                              label: element.category_name ?? '',
+                            }}
                             onChange={(newValue) => handleCategoryChange(element.index, newValue)}
                           />
                         </td>

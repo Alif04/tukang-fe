@@ -533,18 +533,6 @@ const NewOrderStoreStaff: FC = () => {
                   formData.append(`order_details[${index}][quantity]`, item.quantity)
                 }
               })
-            } else if (
-              key === 'project_number' &&
-              isWhatsapp === true &&
-              isSubmittingNewMember === true
-            ) {
-              formData.append(key, `+62${orderForm[key]}`)
-            } else if (
-              key === 'project_number' &&
-              isWhatsapp === false &&
-              isSubmittingNewMember === true
-            ) {
-              formData.append(key, `08${orderForm[key]}`)
             } else {
               formData.append(key, orderForm[key])
             }
@@ -635,11 +623,11 @@ const NewOrderStoreStaff: FC = () => {
       }
 
       if (selectedMember.whatsapp_number) {
-        newMember.whatsapp_number = '+62' + selectedMember.whatsapp_number
+        newMember.whatsapp_number = selectedMember.whatsapp_number
       }
 
       if (selectedMember.phone_number) {
-        newMember.phone_number = '08' + selectedMember.phone_number
+        newMember.phone_number = selectedMember.phone_number
       }
 
       if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
@@ -873,11 +861,12 @@ const NewOrderStoreStaff: FC = () => {
                         }}
                       />
 
-                      {(selectedMember.value === null || selectedMember.value === undefined) && (
-                        <span className='project-number'>
-                          <div className='prefix-number text-black'>+62</div>
-                        </span>
-                      )}
+                      {(selectedMember.value === null || selectedMember.value === undefined) &&
+                        isWhatsapp === true && (
+                          <span className='project-number'>
+                            <div className='prefix-number text-black'>+62</div>
+                          </span>
+                        )}
                     </FormGroup>
                   </Form.Group>
                 </Col>
