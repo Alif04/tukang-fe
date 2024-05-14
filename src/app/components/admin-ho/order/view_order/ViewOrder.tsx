@@ -209,7 +209,9 @@ const ViewOrders: FC = () => {
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
-            {['PICKLIST', 'BOOK', 'BOOKED'].includes(record.order_status) && (
+            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
+              record.order_status
+            ) && (
               <a className='button-edit ms-2' onClick={handleUpdateId}>
                 <FontAwesomeIcon icon={faPen} size='sm' />
               </a>
