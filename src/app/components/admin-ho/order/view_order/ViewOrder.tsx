@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {FC, useEffect, useState} from 'react'
+import React, {FC, useEffect, useState, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewOrder.css'
@@ -9,9 +9,19 @@ import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Row, Col, Form, InputGroup, Button, Stack, FormGroup} from 'react-bootstrap'
+import {Image, Skeleton} from 'antd'
+import Swal from 'sweetalert2'
+import {Row, Col, Form, Button, Stack, FormGroup, Modal, Card, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
+import {
+  faBook,
+  faSearch,
+  faPen,
+  faCheckCircle,
+  faImage,
+  faTrash,
+  faFileImage,
+} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -31,6 +41,39 @@ interface DataType {
 interface StoreItem {
   value: number | null
   label: string
+}
+
+interface Quotation {
+  id: number | null
+  order_id: number | null
+  store_id: number | null
+  quotation_status: number | null
+  description: string
+  quotation_number: string
+  quotation_date: string
+  quotation_validity: string
+  quotation_disc: number
+  quotation_promotion: number
+  quotation_grand_total: number
+  readiness: number
+  quotation_details: Array<{
+    id: number | null
+    index: string
+    item_id: number | null
+    work_order_item_id: number | null
+    category_id: number | null
+    type: number
+    item_name: string
+    unit_price: number
+    unit: string
+    description: string
+    total: number
+    final_price: number
+    margin: number
+    margin_type: number
+    quantity: number
+    is_user: number
+  }>
 }
 
 const ViewOrders: FC = () => {
@@ -69,10 +112,75 @@ const ViewOrders: FC = () => {
 
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const verificationStatus = statusData.find((status: any) => status.category === 'QUOTEOUT')
   const statusFilters = statusData.map((item: any) => ({
     text: item.description,
     value: item.description,
   }))
+
+  // Modal Verification
+  const [orderId, setOrderId] = useState<any>('')
+  const [orderDetail, setOrderDetail] = useState<any>()
+  const [loadingUpdate, setLoadingUpdate] = useState(false)
+  const [loadingModal, setLoadingModal] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
+
+  // Quotation Detail
+  const [quotation, setQuotation] = useState<Quotation>({
+    id: null,
+    order_id: null,
+    store_id: null,
+    quotation_status: null,
+    description: '',
+    quotation_number: '',
+    quotation_date: '',
+    quotation_validity: '',
+    quotation_disc: 0,
+    quotation_promotion: 0,
+    quotation_grand_total: 0,
+    readiness: 1,
+    quotation_details: [
+      {
+        id: null,
+        index: (Date.now() + 1).toString(),
+        item_id: null,
+        work_order_item_id: null,
+        category_id: null,
+        type: 1,
+        item_name: '',
+        unit: '',
+        description: '',
+        unit_price: 0,
+        total: 0,
+        final_price: 0,
+        margin: 0,
+        margin_type: 1,
+        quantity: 0,
+        is_user: 0,
+      },
+      {
+        id: null,
+        index: (Date.now() + 2).toString(),
+        item_id: null,
+        category_id: null,
+        work_order_item_id: null,
+        type: 2,
+        item_name: '',
+        unit: '',
+        description: '',
+        unit_price: 0,
+        total: 0,
+        final_price: 0,
+        margin: 0,
+        margin_type: 1,
+        quantity: 0,
+        is_user: 0,
+      },
+    ],
+  })
 
   const columns: ColumnsType<DataType> = [
     {
@@ -193,28 +301,53 @@ const ViewOrders: FC = () => {
       key: 'action',
       responsive: ['md'],
       render: (record) => {
+        const id = record.order_id
+
         const handleDetailId = () => {
-          const id = record.order_id
           navigate(`/order/detail-order/${id}`)
         }
 
         const handleUpdateId = () => {
-          const id = record.order_id
           navigate(`/order/update-order/${id}`)
+        }
+
+        const handleShowModal = (id: number) => {
+          const selected = orderData.find((order) => order.order_id === id)
+
+          if (selected) {
+            setOrderId(selected.order_id)
+            setShowModal(true)
+          }
         }
 
         return (
           <div className='d-flex justify-content-center'>
-            <a className='button-detail me-2' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
+            <a className='button-detail' onClick={handleDetailId}>
+              <FontAwesomeIcon icon={faBook} className='me-3' size='sm' />
             </a>
 
             {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
               record.order_status
             ) && (
-              <a className='button-edit ms-2' onClick={handleUpdateId}>
-                <FontAwesomeIcon icon={faPen} size='sm' />
+              <a className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon icon={faPen} className='me-3' size='sm' />
               </a>
+            )}
+
+            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Admin HO' ? (
+              <a className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon icon={faPen} className='me-3' size='sm' />
+              </a>
+            ) : (
+              <></>
+            )}
+
+            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Store CS' ? (
+              <a className='button-verif' onClick={() => handleShowModal(id)}>
+                <FontAwesomeIcon icon={faCheckCircle} size='sm' />
+              </a>
+            ) : (
+              <></>
             )}
           </div>
         )
@@ -223,6 +356,133 @@ const ViewOrders: FC = () => {
       width: 50,
     },
   ]
+
+  useEffect(() => {
+    const fetchOrderData = async () => {
+      try {
+        await axios
+          .get(`${apiUrl}/orders/${orderId}`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          .then((response) => {
+            const data = response.data.data
+            setOrderDetail(data)
+            setTimeout(() => {
+              setLoadingModal(false)
+            }, 2000)
+
+            if (data?.quotation?.length) {
+              const quotationDetails = data.quotation[0].quotation_details.map(
+                (item: any, index: number) => ({
+                  id: item?.id ?? null,
+                  index: (Date.now() + index).toString(),
+                  item_id: item?.item_id ?? null,
+                  work_order_item_id: item?.work_order_items_id ?? null,
+                  category_id: item?.category_id ?? null,
+                  type: item?.item_type ?? 2,
+                  item_name: item?.name ?? '',
+                  unit_price: item?.price ?? 0,
+                  unit: item?.unit ?? '',
+                  description: item?.description ?? '',
+                  final_price: item?.final_price ?? '',
+                  margin: item?.margin ?? 0,
+                  margin_type: item?.margin_type ?? 1,
+                  quantity: item?.quantity ?? 0,
+                  is_user: item?.is_customer === true ? 1 : 0,
+                })
+              )
+
+              setQuotation((prev) => ({
+                ...prev,
+                id: data?.quotation[0]?.id,
+                order_id: data?.quotation[0]?.order_id,
+                store_id: data?.quotation[0]?.store_id,
+                quotation_status: data?.quotation[0]?.quotation_status,
+                description: data?.quotation[0]?.description,
+                quotation_number: data?.quotation[0]?.quotation_number,
+                quotation_date: data?.quotation[0]?.quotation_date,
+                quotation_validity: data?.quotation[0]?.quotation_validity,
+                quotation_disc: data?.quotation[0]?.quotation_disc,
+                quotation_promotion: data?.quotation[0]?.quotation_promotion,
+                quotation_grand_total: data?.quotation[0]?.quotation_grand_total,
+                readiness: data?.quotation[0]?.readiness,
+                quotation_details: quotationDetails,
+              }))
+            }
+
+            if (data?.quotation?.length) {
+              const initialOrderFilesValues = data.quotation[0]?.quotation_files.map(
+                (item: any) => ({
+                  id: item.id,
+                  name: item.path,
+                })
+              )
+
+              setQuotationFiles(initialOrderFilesValues)
+            }
+          })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    fetchOrderData()
+  }, [orderId])
+
+  // Quotation Files
+  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
+  // Upload Order File Handler
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...quotationFiles]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setQuotationFiles(mergedFiles)
+    }
+  }
+
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...quotationFiles]
+    newEvidances.splice(index, 1)
+    setQuotationFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(quotationFiles[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
+  }
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}${storeId}${userSales}&take=${pageSize}${queryparams}`
@@ -285,17 +545,26 @@ const ViewOrders: FC = () => {
           costumer_name: item?.members?.full_name,
           phone_number: item?.project_number,
           service_name:
-            item.payment_type === 'survey'
+            item.payment_type === 'survey' && item.quotation.length === 0
               ? item.m_order_details[0]?.item_notes
+              : item.payment_type === 'survey' && item.quotation.length >= 0
+              ? item.quotation[0]?.quotation_details[0]?.name ?? '-'
               : item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status:
-            item?.work_orders?.work_order_status.length > 0
+            item?.work_orders?.work_order_status.length > 0 && item?.status?.category !== 'QUOTEOUT'
               ? item?.work_orders?.work_order_status[0]?.status?.category
+              : item?.work_orders?.work_order_status.length > 0 &&
+                item?.status?.category === 'QUOTEOUT'
+              ? item?.status?.category
               : item?.status?.category,
           order_status_label:
-            item?.work_orders?.work_order_status.length > 0
+            item?.work_orders?.work_order_status.length > 0 &&
+            !['QOUTEOUT', 'WORKREQ'].includes(item?.status?.category)
               ? item?.work_orders?.work_order_status[0]?.status?.description
+              : item?.work_orders?.work_order_status.length > 0 &&
+                item?.status?.category === 'QUOTEOUT'
+              ? item?.status?.description
               : item?.status?.description,
         }
 
@@ -380,10 +649,111 @@ const ViewOrders: FC = () => {
     setLoadingButton(false)
   }
 
+  const handleUpdateQuotation = async () => {
+    const formData = new FormData()
+    const appendIfNotDefault = (formData: any, key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
+      }
+    }
+
+    formData.append('order_id', String(quotation.order_id))
+    formData.append('store_id', String(quotation.store_id))
+    formData.append('description', quotation.description)
+    formData.append('quotation_status', verificationStatus?.value)
+    formData.append('quotation_number', String(quotation.quotation_number))
+    formData.append('quotation_date', quotation.quotation_date)
+    formData.append('quotation_validity', quotation.quotation_validity)
+    formData.append('quotation_disc', String(quotation.quotation_disc))
+    formData.append('quotation_promotion', String(quotation.quotation_promotion))
+    formData.append('readiness', String(4))
+
+    quotation.quotation_details.forEach((quotation, index) => {
+      appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
+      appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
+      appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
+      appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
+      appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
+      appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
+      appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+      formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
+      formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
+      formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+      appendIfNotDefault(
+        formData,
+        `quotation_details[${index}][work_order_item_id]`,
+        quotation.work_order_item_id
+      )
+      appendIfNotDefault(
+        formData,
+        `quotation_details[${index}][category_id]`,
+        quotation.category_id
+      )
+    })
+
+    if (quotationFiles?.length) {
+      quotationFiles.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`quotation_files`, item, item.name)
+        }
+      })
+    }
+
+    if (quotationFiles?.length) {
+      quotationFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(`preserve_files[${index}`, item.id)
+        }
+      })
+    }
+
+    await axios
+      .post(`${apiUrl}/quotation/${quotation.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201 || response.data.status === 200) {
+          Swal.fire({
+            title: 'Success',
+            text: response.data.message,
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+
+          setLoadingUpdate(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setLoadingUpdate(false)
+        }
+
+        window.location.reload()
+      })
+      .catch((error) => {
+        setLoadingUpdate(false)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
   return (
     <section id='view-order'>
-      <div className='card'>
-        <div className='card-body table-view-order'>
+      <Card>
+        <Card.Body className='table-view-order'>
           <Row className='table-head-wrapper'>
             <Stack direction='horizontal' gap={3}>
               <div className='d-flex align-items-center me-3'>
@@ -477,8 +847,361 @@ const ViewOrders: FC = () => {
               </span>
             )}
           />
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
+
+      {orderDetail && (
+        <Modal
+          dialogClassName='modal-verification'
+          centered
+          show={showModal}
+          onHide={handleCloseModal}
+        >
+          <Modal.Header closeButton>
+            <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+              <Modal.Title>
+                Verifikasi Pembayaran Quotation - Order ID {orderDetail?.id}
+              </Modal.Title>
+            </Skeleton>
+          </Modal.Header>
+
+          <Modal.Body>
+            <Row className='mb-5'>
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                  <Form.Label className='fs-6 fw-bold'>
+                    Nama Toko :{' '}
+                    <span className='fs-6 ms-2 fw-normal'>
+                      {orderDetail?.store?.store_name ?? ''}
+                    </span>
+                  </Form.Label>
+                  <br></br>
+                  <Form.Label className='fs-6 fw-bold'>
+                    Quotation ID :{' '}
+                    <span className='fs-6 ms-2 fw-normal'>
+                      {orderDetail?.quotation?.length ? orderDetail?.quotation[0]?.id : ''}
+                    </span>
+                  </Form.Label>
+                </Skeleton>
+              </Col>
+
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                  <Form.Label className='fs-6 fw-bold'>
+                    Receipt Number :
+                    <span className='fs-6 ms-2 fw-normal'>
+                      {orderDetail?.receipt_number ?? '-'}
+                    </span>
+                  </Form.Label>
+                  <br></br>
+                  <Form.Label className='fs-6 fw-bold'>
+                    Order Status :
+                    <span className='fs-6 ms-2 fw-bold text-success'>
+                      {(() => {
+                        if (
+                          orderDetail?.status?.category === 'QUOTEIN' ||
+                          orderDetail?.status?.category === 'QUOTEOUT'
+                        ) {
+                          return orderDetail?.status?.description
+                        } else if (orderDetail?.work_orders?.work_order_status?.length > 0) {
+                          return orderDetail?.work_orders?.work_order_status[0]?.status?.description
+                        } else {
+                          return orderDetail?.status?.description
+                        }
+                      })()}
+                    </span>
+                  </Form.Label>
+                </Skeleton>
+              </Col>
+            </Row>
+
+            <Row>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+                <div className='fs-4 fw-bold mb-1'>Informasi Pembeli</div>
+              </Skeleton>
+
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <Skeleton active loading={loadingModal} paragraph={{rows: 2}}>
+                  <Form.Label className='fs-6 fw-semibold'>
+                    No Member :{' '}
+                    <span className='fs-6 ms-2 fw-normal'>
+                      {orderDetail?.members?.member_number}
+                    </span>
+                  </Form.Label>
+                  <br></br>
+                  <Form.Label className='fs-6 fw-semibold'>
+                    Customer Name :
+                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.full_name} </span>
+                  </Form.Label>
+                  <br></br>
+                  <Form.Label className='fs-6 fw-semibold'>
+                    Alamat Pemasangan :
+                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_address} </span>
+                  </Form.Label>
+                </Skeleton>
+              </Col>
+
+              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                  <Form.Label className='fs-6 fw-semibold'>
+                    Nomor Telp/WA :
+                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_number}</span>
+                  </Form.Label>
+                  <br></br>
+                  <Form.Label className='fs-6 fw-semibold'>
+                    Alamat Email :
+                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.email} </span>
+                  </Form.Label>
+                </Skeleton>
+              </Col>
+            </Row>
+
+            <Skeleton active loading={loadingModal} paragraph={{rows: 3}}>
+              {orderDetail?.quotation?.length && (
+                <Row className='information-detail'>
+                  <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari
+                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '80px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '150px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 2)
+                          .map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                            </tr>
+                          ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total
+                          </td>
+
+                          <td className='fw-bolder'>
+                            {`Rp. ${orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2)
+                              .map((item: any) => parseInt(item?.price ?? 0))
+                              .reduce((total: number, price: number) => total + price, 0)
+                              .toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    {orderDetail?.quotation[0]?.quotation_details.filter(
+                      (x: any) => x.item_type === 1
+                    ).length ? (
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
+
+                            <th className='text-center' style={{width: '80px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '150px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              </tr>
+                            ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          {orderDetail?.is_overdistance === 1 && (
+                            <>
+                              <tr>
+                                <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                  Biaya Tambahan
+                                </td>
+
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  orderDetail?.additional_fee
+                                ).toLocaleString('id')}.`}</td>
+                              </tr>
+                            </>
+                          )}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                </Row>
+              )}
+            </Skeleton>
+
+            <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+              <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                <Form.Group>
+                  <Form.Label>Upload Bukti Pembayaran Quotation</Form.Label>
+
+                  <Form className='form-input-image' onClick={handleImageClick}>
+                    <Form.Control
+                      type='file'
+                      accept='image/jpeg, image/png'
+                      className='input-field-image'
+                      multiple
+                      hidden
+                      id='file-input'
+                      ref={evidenceRef}
+                      onChange={handleFileChange}
+                    />
+
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  </Form>
+
+                  <ListGroup className='pt-3'>
+                    {quotationFiles.length ? (
+                      quotationFiles.map((item, index) => (
+                        <ListGroup>
+                          <ListGroup.Item
+                            className='d-flex justify-content-between align-items-center'
+                            key={`${item?.name}-${index}-${item?.type}`}
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                            <span
+                              className='upload-content'
+                              style={{cursor: 'pointer'}}
+                              onClick={() => handleFileClick(index)}
+                            >
+                              {item?.name}
+                            </span>
+
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+
+                          {selectedFileIndex === index && item && (
+                            <Image
+                              key={`${previewImage} - ${index}`}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/quotation/${previewImage}`
+                              }
+                              preview={{
+                                visible,
+                                src:
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/quotation/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisible(value)
+                                },
+                              }}
+                            />
+                          )}
+                        </ListGroup>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
+                      </ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Form.Group>
+              </Row>
+
+              <div className='button-submit d-flex justify-content-center align-items-center'>
+                <Button
+                  onClick={handleUpdateQuotation}
+                  disabled={loadingUpdate}
+                  variant='dark-primary'
+                >
+                  {loadingUpdate ? 'Submitting..' : 'Submit'}
+                </Button>
+              </div>
+            </Skeleton>
+          </Modal.Body>
+        </Modal>
+      )}
     </section>
   )
 }

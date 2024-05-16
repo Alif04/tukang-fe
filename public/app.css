@@ -247,6 +247,11 @@ iframe.csi-frame {
   max-width: 550px !important;
 }
 
+.ant-image-preview-root {
+  position: relative;
+  z-index: 1056 !important;
+}
+
 /* Button Action */
 
 button.btn-dark-primary.button-submit.btn.btn-primary {
@@ -281,6 +286,10 @@ svg.svg-inline--fa.fa-file-excel.fa-lg.excel-icon {
 }
 
 .button-edit svg.svg-inline--fa.fa-pen.fa-sm {
+  color: black;
+}
+
+.button-verif svg.svg-inline--fa.fa-circle-check.fa-sm {
   color: black;
 }
 
@@ -332,6 +341,20 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 .btn.btn-dark-danger:hover:not(.btn-active) {
   background-color: #d80019 !important;
+}
+
+.btn.btn-dark-warning {
+  width: fit-content !important;
+  height: 50px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a16d00 !important;
+  transition: 0.3s ease-in-out;
+}
+
+.btn.btn-dark-warning:hover:not(.btn-active) {
+  background-color: #a06d00 !important;
 }
 
 .btn.btn-dark-primary {

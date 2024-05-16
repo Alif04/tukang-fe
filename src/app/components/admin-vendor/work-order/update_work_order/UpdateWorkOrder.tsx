@@ -65,6 +65,26 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     complaint_status: null,
     work_start_date: '',
     work_end_date: '',
+    work_order_item: [
+      {
+        id: null,
+        index: Date.now().toString(),
+        item_name: '',
+        is_user: 0,
+        type: 1,
+        quantity: null,
+        unit: '',
+      },
+      {
+        id: null,
+        index: (Date.now() + 1).toString(),
+        item_name: '',
+        is_user: 0,
+        type: 2,
+        quantity: null,
+        unit: '',
+      },
+    ],
   })
 
   // Option Tukang
@@ -197,6 +217,25 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             }))
 
             setWorkOrderHistory(workOrderHistoryData)
+          }
+
+          if (data?.quotation && data?.status?.category === 'QUOTEOUT') {
+            const workOrderItem = data.quotation[0].quotation_details.map(
+              (item: any, index: number) => ({
+                id: item.id,
+                index: (Date.now() + index).toString(),
+                item_name: item?.name,
+                unit: item?.unit,
+                is_user: item?.is_customer === true ? 1 : 0,
+                type: item?.item_type,
+                quantity: item?.quantity,
+              })
+            )
+
+            setWorkOrder((prev) => ({
+              ...prev,
+              work_order_item: workOrderItem,
+            }))
           }
 
           updatePageTitle(data)
@@ -390,6 +429,52 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   }
                 }
               })
+            } else if (key === 'work_order_item') {
+              workOrder.work_order_item.map((item: any, index: number) => {
+                if (item) {
+                  if (item.id) {
+                    formData.append(
+                      `status_details[work_order_material][${index}][item_id]`,
+                      item.id
+                    )
+                  }
+
+                  if (item?.item_name !== null || item?.item_name === '') {
+                    formData.append(
+                      `status_details[work_order_material][${index}][item_name]`,
+                      item.item_name
+                    )
+                  }
+
+                  if (item?.is_user !== null) {
+                    formData.append(
+                      `status_details[work_order_material][${index}][is_user]`,
+                      item.is_user
+                    )
+                  }
+
+                  if (item?.type !== null) {
+                    formData.append(
+                      `status_details[work_order_material][${index}][type]`,
+                      item.type
+                    )
+                  }
+
+                  if (item?.quantity !== null) {
+                    formData.append(
+                      `status_details[work_order_material][${index}][quantity]`,
+                      item.quantity
+                    )
+                  }
+
+                  if (item?.unit !== null || item?.unit === '') {
+                    formData.append(
+                      `status_details[work_order_material][${index}][unit]`,
+                      item.unit
+                    )
+                  }
+                }
+              })
             } else {
               formData.append(key, workOrder[key])
             }
@@ -421,6 +506,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
       return false
     }
+
+    console.log('form data', formData)
 
     await axios
       .post(url, formData, {
@@ -462,10 +549,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           icon: 'error',
         })
       })
-  }
-
-  const handleCancelUpdateWorkOrder = () => {
-    navigate('/work-order/view-work-order')
   }
 
   // Work Order History
@@ -759,6 +842,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                                   complaint_status: null,
                                   work_start_date: '',
                                   work_end_date: '',
+                                  work_order_item: [],
                                 })
                               }
                             }}
@@ -1337,10 +1421,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               <Button
                 variant='dark-primary'
                 type='submit'
-                disabled={isLoading}
+                // disabled={isLoading}
                 onClick={handleUpdateWorkOrder}
               >
-                {isLoading ? 'Submitting Order...' : 'Save'}
+                {/* {isLoading ? 'Submitting Order...' : 'Save'} */}
+                Save
               </Button>
             </div>
           )}

@@ -274,8 +274,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           costumer_name: item?.order?.members?.full_name ?? '',
           vendor_name: item?.order?.vendor?.company_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item?.status?.category ?? '',
-          quotation_status: item?.status?.category ?? '',
+          order_status: item?.status?.description ?? '',
+          quotation_status: item?.status?.description ?? '',
         }
 
         return data

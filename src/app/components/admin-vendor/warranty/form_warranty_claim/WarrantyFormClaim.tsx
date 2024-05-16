@@ -33,6 +33,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
     complaint_status: null,
     work_start_date: '',
     work_end_date: '',
+    work_order_item: [],
   })
 
   const fetchOrderData = async () => {

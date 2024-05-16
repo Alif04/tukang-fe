@@ -176,3 +176,16 @@
   background-color: #a16d00;
   color: white;
 }
+
+#new-quotation .btn.btn-warning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a16d00 !important;
+  transition: 0.3s ease-in-out;
+}

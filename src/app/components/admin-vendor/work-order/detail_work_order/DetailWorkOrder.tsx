@@ -38,6 +38,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     complaint_status: null,
     work_start_date: '',
     work_end_date: '',
+    work_order_item: [],
   })
 
   const fetchOrderData = async () => {

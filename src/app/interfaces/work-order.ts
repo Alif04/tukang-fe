@@ -8,6 +8,16 @@ export interface WorkOrderTukang {
   type: number
 }
 
+interface WorkOrderItem {
+  id: number | null
+  index: string
+  item_name: string
+  is_user: number
+  type: number
+  quantity: number | null
+  unit: string
+}
+
 export interface WorkOrder {
   id?: number | null
   order_id: number | null
@@ -22,6 +32,8 @@ export interface WorkOrder {
 
   work_start_date: string
   work_end_date: string
+
+  work_order_item: WorkOrderItem[]
 
   [key: string]: any
 }
