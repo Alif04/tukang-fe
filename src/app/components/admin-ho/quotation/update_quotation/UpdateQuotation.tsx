@@ -8,8 +8,6 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface CategorySelect {
   value: number | null
@@ -281,44 +279,6 @@ const UpdateQuotationHO: FC = () => {
     setQuotationValidity(parsedNextDays)
   }
 
-  // Quotation Detail Form Handler
-  let handleAddForm = (type: number) => {
-    const newForm = {
-      id: null,
-      index: Date.now().toString(),
-      item_id: null,
-      work_order_item_id: null,
-      category_id: null,
-      category_name: '',
-      type: type,
-      item_name: '',
-      unit: '',
-      unit_price: 0,
-      total: 0,
-      final_price: 0,
-      margin: 0,
-      margin_type: 1,
-      quantity: 0,
-      is_user: 0,
-      description: '',
-    }
-
-    setQuotationDetail((prev) => [...prev, newForm])
-  }
-
-  let handleRemoveForm = (index: any) => {
-    setQuotationDetail((prev) => {
-      const updatedValues = [...prev]
-      const typeIndex = updatedValues.findIndex((item) => item.index === index)
-
-      if (typeIndex !== -1) {
-        updatedValues.splice(typeIndex, 1)
-      }
-
-      return updatedValues
-    })
-  }
-
   // Handle Checkbox Change
   let handleCheckboxChange = (index: any, isChecked: boolean) => {
     const updatedDetailValues = [...quotationDetail]
@@ -354,85 +314,6 @@ const UpdateQuotationHO: FC = () => {
     }
 
     setQuotationDetail(updatedDetailValues)
-  }
-
-  // Handle Item Name Change
-  let handleItemNameChange = (index: any, value: any, type: number) => {
-    const updatedQuotationDetail = [...quotationDetail]
-    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
-
-    if (filteredDetailValues[index]) {
-      filteredDetailValues[index] = {
-        ...filteredDetailValues[index],
-        item_name: value,
-      }
-
-      setQuotationDetail((prev) =>
-        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
-      )
-    }
-  }
-
-  // Handle Quantity Change
-  let handleQuantityChange = (index: any, value: any, type: number) => {
-    const updatedQuotationDetail = [...quotationDetail]
-    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
-
-    if (filteredDetailValues[index]) {
-      filteredDetailValues[index] = {
-        ...filteredDetailValues[index],
-        quantity: value,
-        total: value * filteredDetailValues[index].unit_price,
-        final_price:
-          Number(value * filteredDetailValues[index].unit_price) -
-          Number(filteredDetailValues[index].margin),
-      }
-
-      setQuotationDetail((prev) =>
-        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
-      )
-    }
-  }
-
-  // Handle Unit Price Change
-  let handleUnitPriceChange = (index: any, value: any, type: number) => {
-    const updatedQuotationDetail = [...quotationDetail]
-    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
-
-    if (filteredDetailValues[index]) {
-      filteredDetailValues[index] = {
-        ...filteredDetailValues[index],
-        unit_price: value,
-        total: value * filteredDetailValues[index].quantity,
-        final_price:
-          Number(value * filteredDetailValues[index].quantity) -
-          Number(filteredDetailValues[index].margin),
-      }
-
-      setQuotationDetail((prev) =>
-        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
-      )
-    }
-  }
-
-  // Handle Margin Change
-  let handleMarginChange = (index: any, value: any, type: number) => {
-    const updatedQuotationDetail = [...quotationDetail]
-    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
-
-    if (filteredDetailValues[index]) {
-      filteredDetailValues[index] = {
-        ...filteredDetailValues[index],
-        margin: value,
-        final_price:
-          Number(filteredDetailValues[index].quantity * filteredDetailValues[index].unit_price) -
-          Number(value),
-      }
-
-      setQuotationDetail((prev) =>
-        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
-      )
-    }
   }
 
   // Total Material
@@ -533,72 +414,108 @@ const UpdateQuotationHO: FC = () => {
   }
 
   // Handle Submit Quotation
-  const handleUpdateQuotation = async () => {
-    if (QuotationValidation()) {
-      setIsLoading(true)
-      const formData = new FormData()
+  const handleUpdateQuotation = async (readiness: number) => {
+    if (!QuotationValidation()) {
+      return
+    }
 
-      formData.append('order_id', orderId)
-      formData.append('store_id', storeId)
-      formData.append('quotation_status', quotationStatus)
-      formData.append('description', quotationDescription)
-      formData.append('quotation_number', quotationNumber.toString())
-      formData.append('quotation_date', quotationDate)
-      formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
-      formData.append('quotation_disc', promosiDiscount.toString())
-      formData.append('quotation_promotion', additionalPromosi.toString())
-
-      const appendIfNotDefault = (formData: any, key: any, value: any) => {
-        if (value !== null && value !== undefined && value !== '' && value !== 0) {
-          formData.append(key, String(value))
-        }
+    setIsLoading(true)
+    const formData = new FormData()
+    const appendIfNotDefault = (formData: any, key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
       }
+    }
 
-      quotationDetail.forEach((quotation, index) => {
-        appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
-        appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
+    formData.append('order_id', orderId)
+    formData.append('store_id', storeId)
+    formData.append('description', quotationDescription)
+    formData.append('quotation_number', quotationNumber.toString())
+    formData.append('quotation_date', quotationDate)
+    formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
+    formData.append('quotation_disc', promosiDiscount.toString())
+    formData.append('quotation_promotion', additionalPromosi.toString())
 
-        appendIfNotDefault(
-          formData,
-          `quotation_details[${index}][work_order_item_id]`,
-          quotation.work_order_item_id
-        )
+    quotationDetail.forEach((quotation, index) => {
+      appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
+      appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
+      appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
+      appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
+      appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
+      appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
+      appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+      formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
+      formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
+      formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+      appendIfNotDefault(
+        formData,
+        `quotation_details[${index}][work_order_item_id]`,
+        quotation.work_order_item_id
+      )
+      appendIfNotDefault(
+        formData,
+        `quotation_details[${index}][category_id]`,
+        quotation.category_id
+      )
+    })
 
-        appendIfNotDefault(
-          formData,
-          `quotation_details[${index}][category_id]`,
-          quotation.category_id
-        )
+    // if (quotationFiles?.length) {
+    //   quotationFiles.forEach((item) => {
+    //     if (item) {
+    //       formData.append(`quotation_files`, item, item?.name)
+    //     }
+    //   })
+    // }
 
-        appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
-        appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
-        appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
-        appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
-        // appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
-        formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
-        formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
-        appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
-        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
-      })
+    let textConfirmation = ''
+    switch (readiness) {
+      case 1:
+        formData.append('readiness', String(1))
+        formData.append('quotation_status', String(1014))
+        textConfirmation = 'Apakah Anda yakin ingin mengubah status quotation menjadi Draft ?'
+        break
 
-      // if (quotationFiles?.length) {
-      //   quotationFiles.forEach((item) => {
-      //     if (item) {
-      //       formData.append(`quotation_files`, item, item?.name)
-      //     }
-      //   })
-      // }
+      case 2:
+        formData.append('readiness', String(2))
+        formData.append('quotation_status', String(26))
+        textConfirmation = 'Apakah Anda yakin ingin menyetujui dan menyimpan quotation ini?'
+        break
 
-      await axios
-        .post(`${apiUrl}/quotation/${params.id}`, formData, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
+      case 3:
+        formData.append('readiness', String(3))
+        formData.append('quotation_status', String(27))
+        textConfirmation = 'Apakah Anda yakin ingin menolak quotation ini?'
+        break
+
+      case 4:
+        formData.append('readiness', String(4))
+        formData.append('quotation_status', quotationStatus)
+        textConfirmation = 'Apakah Anda yakin ingin mengirim email otomatis kepada pelanggan?'
+        break
+      default:
+        break
+    }
+
+    Swal.fire({
+      title: textConfirmation,
+      icon: 'question',
+      showConfirmButton: true,
+      confirmButtonColor: '#6b9230',
+      showDenyButton: true,
+      confirmButtonText: 'Ya',
+      denyButtonText: 'Tidak',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.post(`${apiUrl}/quotation/${params.id}`, formData, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
@@ -609,6 +526,7 @@ const UpdateQuotationHO: FC = () => {
             })
 
             setIsLoading(false)
+            navigate('/quotation/view-quotation')
           } else {
             Swal.fire({
               title: 'Error',
@@ -618,10 +536,7 @@ const UpdateQuotationHO: FC = () => {
 
             setIsLoading(false)
           }
-
-          navigate('/quotation/view-quotation')
-        })
-        .catch((error) => {
+        } catch (error: any) {
           console.error(error)
           setIsLoading(false)
 
@@ -630,12 +545,9 @@ const UpdateQuotationHO: FC = () => {
             text: error.response.data.message,
             icon: 'error',
           })
-        })
-    }
-  }
-
-  const handleCancelQuotation = () => {
-    navigate('/quotation/view-quotation')
+        }
+      }
+    })
   }
 
   return (
@@ -844,22 +756,20 @@ const UpdateQuotationHO: FC = () => {
                         <p>{element?.item_name ?? '-'}</p>
                       </td>
 
-                      <td align='center'>
-                        <td>
-                          <Select
-                            name='category_id'
-                            className='form-control p-0'
-                            classNamePrefix='select'
-                            placeholder='Pilih Kategori'
-                            isSearchable={true}
-                            options={categories}
-                            value={{
-                              value: element.category_id ?? null,
-                              label: element.category_name ?? '',
-                            }}
-                            onChange={(newValue) => handleCategoryChange(element.index, newValue)}
-                          />
-                        </td>
+                      <td>
+                        <Select
+                          name='category_id'
+                          className='form-control p-0'
+                          classNamePrefix='select'
+                          placeholder='Pilih Kategori'
+                          isSearchable={true}
+                          options={categories}
+                          value={{
+                            value: element.category_id ?? null,
+                            label: element.category_name ?? 'Pilih Category',
+                          }}
+                          onChange={(newValue) => handleCategoryChange(element.index, newValue)}
+                        />
 
                         {/* <p>{element?.category_name ?? '-'}</p> */}
                       </td>
@@ -1168,23 +1078,46 @@ const UpdateQuotationHO: FC = () => {
 
           <div className='d-flex justify-content-center align-items-center mt-5'>
             <Button
-              variant='dark-danger'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handleCancelQuotation}
-            >
-              Cancel
-            </Button>
-
-            <Button
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center'
               type='submit'
-              disabled={isLoading}
-              onClick={handleUpdateQuotation}
+              onClick={() => handleUpdateQuotation(1)}
             >
-              {isLoading ? 'Saving..' : 'Save'}
+              Save
             </Button>
+
+            {quotationData?.readiness === 1 && (
+              <>
+                <Button
+                  variant='dark-success'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  onClick={() => handleUpdateQuotation(2)}
+                >
+                  Approve
+                </Button>
+
+                <Button
+                  variant='dark-danger'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  onClick={() => handleUpdateQuotation(3)}
+                >
+                  Reject
+                </Button>
+              </>
+            )}
+
+            {quotationData?.readiness === 2 && (
+              <Button
+                variant='dark-warning'
+                className='d-flex justify-content-center align-items-center'
+                type='submit'
+                onClick={() => handleUpdateQuotation(4)}
+              >
+                Send Email To Customers
+              </Button>
+            )}
           </div>
         </div>
       </div>

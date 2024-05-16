@@ -9,8 +9,6 @@ import Select from 'react-select'
 import {Table, PaginationProps, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Card, Row, Col, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faFileExcel} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -42,10 +40,17 @@ interface CityItem {
 const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.filter((status: any) => status.category.includes(statusName))
+
   const [reportData, setReportData] = useState<any[]>([])
+  const [exportReportData, setExportReportData] = useState<any[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<any>()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalOrder, setTotalOrder] = useState<number>(0)
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -143,14 +148,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           width: 90,
           sorter: (a, b) => a.quantity - b.quantity,
         },
-        {
-          title: 'Harga',
-          dataIndex: 'harga',
-          key: 'harga',
-          align: 'center',
-          width: 135,
-          sorter: (a, b) => a.harga - b.harga,
-        },
+        // {
+        //   title: 'Harga',
+        //   dataIndex: 'harga',
+        //   key: 'harga',
+        //   align: 'center',
+        //   width: 135,
+        //   sorter: (a, b) => a.harga - b.harga,
+        // },
         {
           title: 'Grand Total',
           dataIndex: 'grand_total',
@@ -961,19 +966,73 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       break
   }
 
-  const fetchReportData = async (endpoint: string, page: number, pageSize: number) => {
-    try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: any) => status.category.includes(statusName))
+  const getExportData = async () => {
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&take=0`
 
+    try {
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const orderData = response.data.data.map((item: any) => ({
+        ['Order ID']: item.id,
+        ['Tanggal Order Dibuat']: new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }),
+        ['Nama Toko']: item?.store?.store_name ?? '-',
+        ['Nomor Member']: item?.members?.member_number ?? '-',
+        ['Nama Konsumen']: item?.members?.full_name ?? '-',
+        ['WA/Phone Number']: item?.project_number ?? '-',
+        ['Nama Bank']: item?.bank?.bank_name ?? '-',
+        ['Nama Jasa Pemasangan']:
+          item.payment_type === 'survey' && item.quotation.length === 0
+            ? item.m_order_details[0]?.item_notes
+            : item.payment_type === 'survey' && item.quotation.length >= 0
+            ? item.quotation[0]?.quotation_details[0]?.name ?? '-'
+            : item.m_order_details[0]?.item?.service_name ?? '-',
+        ['Quantity']: parseInt(item.m_order_details[0]?.quantity ?? 0, 10),
+        ['Grand Total']: `Rp. ${parseInt(item?.grand_total).toLocaleString('id')}`,
+        ['Status Order']:
+          item?.work_orders?.work_order_status.length > 0 &&
+          !['QOUTEOUT', 'WORKREQ'].includes(item?.status?.category)
+            ? item?.work_orders?.work_order_status[0]?.status?.description
+            : item?.work_orders?.work_order_status.length > 0 &&
+              item?.status?.category === 'QUOTEOUT'
+            ? item?.status?.description
+            : item?.status?.description,
+      }))
+
+      setExportReportData(orderData)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    getExportData()
+  }, [])
+
+  const fetchReportData = async (
+    endpoint: string,
+    page: number,
+    pageSize: number,
+    queryparams: any
+  ) => {
+    try {
       if (desiredStatus && endpoint) {
         const statuses = desiredStatus.map((x) => x.value)
 
         const url =
           statusName === '' && selectedStore.value === null
-            ? `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
-            : `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&store=${selectedStore.value}&page=${page}&take=${pageSize}&status=${statuses}`
+            ? `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+            : `${apiUrl}/${endpoint}?order_by=desc&store=${selectedStore.value}&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
 
         const response = await axios.get(url, {
           headers: {
@@ -1000,14 +1059,17 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               break
 
             case 'complaints':
+              setExportReportData(response.data)
               setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
               break
 
             case 'quotation':
+              setExportReportData(response.data)
               setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
               break
 
             default:
+              setExportReportData(response.data)
               setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
               break
           }
@@ -1023,9 +1085,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     }
   }
 
-  const ViewReportData = async (endpoint: string, page: number, pageSize: number) => {
+  const ViewReportData = async (
+    endpoint: string,
+    page: number,
+    pageSize: number,
+    queryparams: any
+  ) => {
     try {
-      const apiData = await fetchReportData(endpoint, page, pageSize)
+      const apiData = await fetchReportData(endpoint, page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from getReportData')
@@ -1044,7 +1111,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           orderData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item.request_survey)
+            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
 
             const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
             const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
@@ -1056,7 +1127,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
             data = {
               order_id: item.id,
-              date_order: formatDate(orderDate),
+              date_order: orderDate,
               costumer_name: item.members.full_name,
               phone_number: item.project_number,
               email: item.members.email,
@@ -1260,14 +1331,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewReportData(endpoint, page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewReportData(endpoint, page, pageSize, queryparams)
     setReportData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo])
+    fetchData(1, 10, '')
+  }, [])
 
   useEffect(() => {
     const selectedStoreCityId = selectedStore?.city_id
@@ -1364,21 +1435,43 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
   // Export To Excel
   const exportToExcel = () => {
-    if (reportData.length === 0) {
+    if (exportReportData.length === 0) {
       Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
       return
     }
 
-    const worksheet = XLSX.utils.json_to_sheet(reportData)
+    const worksheet = XLSX.utils.json_to_sheet(exportReportData)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
     XLSX.writeFile(workbook, `Report ${title}.xlsx`)
   }
 
+  // Submit Filter
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&store_id=`, selectedStore?.value)
+
+    const data = await ViewReportData('orders', 1, 10, queryparams)
+    setReportData(data)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='view-report-ho'>
       <Row className='mb-5'>
-        <Col xxl={4} xl={4} lg={12}>
+        <Col xxl={3} xl={3} sm={12}>
           <Row>
             <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
@@ -1401,7 +1494,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12}>
+        <Col xxl={3} xl={3} sm={12}>
           <Row>
             <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Pilih Zona</h3>
@@ -1424,7 +1517,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12}>
+        <Col xxl={4} xl={4} sm={12}>
           <Row>
             <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
               <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
@@ -1449,6 +1542,16 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               />
             </Col>
           </Row>
+        </Col>
+
+        <Col xxl={2} xl={2} sm={12}>
+          <Button
+            className='btn-dark-primary button-submit'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
         </Col>
       </Row>
 
@@ -1493,7 +1596,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
                 showSizeChanger: true,
                 pageSizeOptions: [5, 10, 20, 50, 100],
                 onChange: (page, pageSize) => {
-                  fetchData(page, pageSize)
+                  fetchData(page, pageSize, '')
                 },
                 itemRender: itemRender,
                 showTotal: (total, range) => (
@@ -1517,7 +1620,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
                 showSizeChanger: true,
                 pageSizeOptions: [5, 10, 20, 50, 100],
                 onChange: (page, pageSize) => {
-                  fetchData(page, pageSize)
+                  fetchData(page, pageSize, '')
                 },
                 itemRender: itemRender,
                 showTotal: (total, range) => (

@@ -5,7 +5,6 @@ import {useNavigate} from 'react-router-dom'
 import './ViewQuotation.css'
 
 import axios from 'axios'
-import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
@@ -37,6 +36,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const userRole = localStorage.getItem('userRole')
+  const vendorId = localStorage.getItem('vendor_id') as string
 
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -209,7 +209,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   ]
 
   const getQuotationList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -221,11 +221,16 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
         },
       })
 
+      const data = response.data.data
+      const filteredQuotation = data.filter(
+        (detail: any) => detail?.order?.vendor_id === parseInt(vendorId)
+      )
+
       setCurrentPage(response?.data?.page)
-      setTotalData(response?.data?.total ?? 0)
+      setTotalData(filteredQuotation.length)
       setLoadData(false)
 
-      return response.data.data
+      return filteredQuotation
     } catch (error) {
       console.error('Error fetching data:', error)
     }

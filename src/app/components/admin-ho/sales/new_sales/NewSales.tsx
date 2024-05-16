@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom'
 
 import './NewSales.css'
 
+import * as XLSX from 'xlsx'
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
@@ -68,6 +69,8 @@ const NewSales: FC = () => {
 
   // List Sales
   const [salesData, setSalesData] = useState<DataType[]>([])
+  const [exportSales, setExportSales] = useState<any[]>([])
+
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
   const [pageSize, setPageSize] = useState<number>(10)
@@ -208,7 +211,43 @@ const NewSales: FC = () => {
       }
     }
 
+    const getExportData = async () => {
+      let apiUrlWithParams = `${apiUrl}/sales?order_by=desc&take=0${storeId}`
+
+      try {
+        const response = await axios.get(apiUrlWithParams, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        const salesData = response.data.data.map((item: any) => ({
+          ['Sales ID']: item.id,
+          ['Nama Toko']: item?.store?.store_name ?? '-',
+          ['Nama Lengkap']: item?.full_name ?? '-',
+          ['Username']: item?.users?.username ?? '-',
+          ['WA/Phone Number']: item?.phone_number ?? '-',
+          ['Nama Bank']: item?.bank?.bank_name ?? '-',
+          ['Nomor Akun Bank']: item?.account_number ?? '-',
+          ['Nama Pemilik Akun Bank']: item?.account_name ?? '-',
+          ['Brands']: item?.sales_brand ?? '-',
+          ['Kategori Sales']: item.sales_categories
+            .map((sales_categories: any) => sales_categories?.categories?.category_name ?? '')
+            .join(', '),
+          ['Status']: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
+        }))
+
+        setExportSales(salesData)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
     getSalesId()
+    getExportData()
   }, [])
 
   // Store ID
@@ -636,6 +675,19 @@ const NewSales: FC = () => {
     navigate('/home')
   }
 
+  // Export To Excel
+  const exportToExcel = () => {
+    if (exportSales.length === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportSales)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+    XLSX.writeFile(workbook, `List Sales ${staffStoreName}.xlsx`)
+  }
+
   // Filtering Data
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
@@ -867,6 +919,14 @@ const NewSales: FC = () => {
       <section id='view-sales'>
         <div className='card'>
           <div className='card-body table-view-order'>
+            {userRole === 'Store CS' && (
+              <div className='d-flex justify-content-end mb-3'>
+                <button className='button-export' onClick={exportToExcel}>
+                  <h3 className='fs-5 fw-semibold'>Export To Excel</h3>
+                </button>
+              </div>
+            )}
+
             <Row className='table-head-wrapper'>
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
                 <Form.Group as={Row}>

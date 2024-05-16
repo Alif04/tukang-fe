@@ -42,6 +42,7 @@ interface QuotationDetail {
 
 const NewQuotationVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const vendorId = localStorage.getItem('vendor_id')
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -49,8 +50,6 @@ const NewQuotationVendor: FC = () => {
   const [workOrder, setWorkOrder] = useState<any>()
   const [workOrderId, setWorkOrderId] = useState<string>('')
   const [workOrderDetail, setWorkOrderDetail] = useState<any>()
-
-  console.log('id', workOrderDetail)
 
   // Add Quotation
   const [quotationStatus, setQuotationStatus] = useState<any>()
@@ -175,7 +174,7 @@ const NewQuotationVendor: FC = () => {
       const statuses = desiredStatus.map((x) => x.value)
 
       const response = await axios.get(
-        `${apiUrl}/work-orders?order_by=desc&take=0&status=${statuses}`,
+        `${apiUrl}/work-orders?order_by=desc&take=0&status=${statuses}&vendor_id=${vendorId}`,
         {
           headers: {
             Accept: 'application/json',
