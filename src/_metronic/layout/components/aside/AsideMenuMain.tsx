@@ -382,12 +382,6 @@ export function AsideMenuMain() {
         role={['Store CS', 'Admin HO']}
       >
         <AsideMenuItem
-          to='/refund/new-refund'
-          title='New Refund'
-          role={['Store CS', 'Admin HO']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
           to='/refund/view-refund'
           title='View Refund'
           role={['Store CS', 'Admin HO']}

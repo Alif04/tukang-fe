@@ -59,6 +59,20 @@ const ViewCalendarTukang: React.FC = () => {
                   .map((item: any) => item.tukang.full_name ?? '')
                   .join(', ')
 
+                const startDate =
+                  item.survey_date !== null && item.work_start_date === null
+                    ? item.survey_date
+                    : item.survey_date && item.work_start_date
+                    ? item.work_start_date
+                    : null
+
+                const endDate =
+                  item.survey_date !== null && item.work_end_date === null
+                    ? item.survey_date
+                    : item.survey_date && item.work_end_date
+                    ? item.work_end_date
+                    : null
+
                 return {
                   id: item?.id.toString(),
                   order_id: item?.order_id.toString(),
@@ -66,8 +80,8 @@ const ViewCalendarTukang: React.FC = () => {
                   work_order_status: item?.work_order_status[0]?.status.category,
                   service: workOrderItems ?? '',
                   tukang: workOrderTukang ?? '',
-                  start: dayjs(item?.work_start_date).format('YYYY-MM-DD'),
-                  end: dayjs(item?.work_end_date).format('YYYY-MM-DD'),
+                  start: dayjs(startDate).format('YYYY-MM-DD'),
+                  end: dayjs(endDate).format('YYYY-MM-DD'),
                   work_order_detail: item,
                 }
               })

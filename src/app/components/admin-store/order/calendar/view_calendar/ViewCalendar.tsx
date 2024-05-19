@@ -57,13 +57,37 @@ const ViewCalendarCS: React.FC = () => {
 
             if (data) {
               const orderDetail = data.map((item: any) => {
+                const startDate = item?.work_orders
+                  ? item?.work_orders &&
+                    item.work_orders.survey_date !== null &&
+                    item.work_orders.work_start_date === null
+                    ? item.work_orders.survey_date
+                    : item?.work_orders &&
+                      item.work_orders.survey_date &&
+                      item.work_orders.work_start_date
+                    ? item.work_orders.work_start_date
+                    : null
+                  : item?.request_survey
+
+                const endDate = item?.work_orders
+                  ? item?.work_orders &&
+                    item.work_orders.survey_date !== null &&
+                    item.work_orders.work_end_date === null
+                    ? item.work_orders.survey_date
+                    : item?.work_orders &&
+                      item.work_orders.survey_date &&
+                      item.work_orders.work_end_date
+                    ? item.work_orders.work_end_date
+                    : null
+                  : item?.request_survey
+
                 return {
                   id: item?.id.toString(),
-                  title: `ORDER ID ${item?.id ?? ''} - ${item?.members?.full_name ?? ''} ${
+                  title: `#${item?.id ?? ''} ${
                     item.vendor ? `- ${item.vendor.company_name}` : ''
-                  }`,
-                  start: dayjs(item?.created_at).format('YYYY-MM-DD'),
-                  end: dayjs(item?.created_at).format('YYYY-MM-DD'),
+                  } - ${item?.members?.full_name ?? ''} `,
+                  start: dayjs(startDate).format('YYYY-MM-DD'),
+                  end: dayjs(endDate).format('YYYY-MM-DD'),
                   order_detail: item,
                 }
               })

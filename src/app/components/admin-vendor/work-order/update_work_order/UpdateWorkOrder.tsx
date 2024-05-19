@@ -219,6 +219,24 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             setWorkOrderHistory(workOrderHistoryData)
           }
 
+          // if (data?.work_order.length === null) {
+          // const workOrderItem = data.quotation[0].quotation_details.map(
+          //   (item: any, index: number) => ({
+          //     id: item.id,
+          //     index: (Date.now() + index).toString(),
+          //     item_name: item?.name,
+          //     unit: item?.unit,
+          //     is_user: item?.is_customer === true ? 1 : 0,
+          //     type: item?.item_type,
+          //     quantity: item?.quantity,
+          //   })
+          // )
+          // setWorkOrder((prev) => ({
+          //   ...prev,
+          //   work_order_item: workOrderItem,
+          // }))
+          // }
+
           if (data?.quotation && data?.status?.category === 'QUOTEOUT') {
             const workOrderItem = data.quotation[0].quotation_details.map(
               (item: any, index: number) => ({

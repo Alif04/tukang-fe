@@ -21,6 +21,7 @@ import {
   faImage,
   faTrash,
   faFileImage,
+  faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
@@ -41,6 +42,21 @@ interface DataType {
 interface StoreItem {
   value: number | null
   label: string
+}
+
+interface Order {
+  id: number | null
+  project_status_id: number | null
+  order_details: Array<{
+    id: number | null
+    item_id: number | null
+    item_code: string
+    item_name: string
+    quantity: number
+    unit_price: string
+    total: string
+    item_notes: string
+  }>
 }
 
 interface Quotation {
@@ -90,6 +106,7 @@ const ViewOrders: FC = () => {
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
+  const [orderDetail, setOrderDetail] = useState<any>()
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -110,77 +127,236 @@ const ViewOrders: FC = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
+  // Status
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const cancelOrder = statusData.find((status: any) => status.category === 'CANCEL')
   const verificationStatus = statusData.find((status: any) => status.category === 'QUOTEOUT')
   const statusFilters = statusData.map((item: any) => ({
     text: item.description,
     value: item.description,
   }))
 
-  // Modal Verification
-  const [orderId, setOrderId] = useState<any>('')
-  const [orderDetail, setOrderDetail] = useState<any>()
-  const [loadingUpdate, setLoadingUpdate] = useState(false)
-  const [loadingModal, setLoadingModal] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const handleCloseModal = () => {
-    setShowModal(false)
-  }
-
-  // Quotation Detail
-  const [quotation, setQuotation] = useState<Quotation>({
+  // Order Detail
+  const [orderForm, setOrderForm] = useState<Order>({
     id: null,
-    order_id: null,
-    store_id: null,
-    quotation_status: null,
-    description: '',
-    quotation_number: '',
-    quotation_date: '',
-    quotation_validity: '',
-    quotation_disc: 0,
-    quotation_promotion: 0,
-    quotation_grand_total: 0,
-    readiness: 1,
-    quotation_details: [
+    project_status_id: null,
+    order_details: [
       {
         id: null,
-        index: (Date.now() + 1).toString(),
         item_id: null,
-        work_order_item_id: null,
-        category_id: null,
-        type: 1,
+        item_code: '',
         item_name: '',
-        unit: '',
-        description: '',
-        unit_price: 0,
-        total: 0,
-        final_price: 0,
-        margin: 0,
-        margin_type: 1,
-        quantity: 0,
-        is_user: 0,
-      },
-      {
-        id: null,
-        index: (Date.now() + 2).toString(),
-        item_id: null,
-        category_id: null,
-        work_order_item_id: null,
-        type: 2,
-        item_name: '',
-        unit: '',
-        description: '',
-        unit_price: 0,
-        total: 0,
-        final_price: 0,
-        margin: 0,
-        margin_type: 1,
-        quantity: 0,
-        is_user: 0,
+        quantity: 1,
+        unit_price: '',
+        total: '',
+        item_notes: '',
       },
     ],
   })
+
+  console.log(orderForm)
+
+  const fetchOrderData = async (order_id: number | null) => {
+    if (order_id === null) return
+
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${order_id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+          setTimeout(() => {
+            setLoadingModal(false)
+          }, 2000)
+
+          if (data) {
+            setOrderForm((prev) => ({
+              ...prev,
+              id: data?.id ?? null,
+              project_status_id: data?.project_status_id ?? null,
+            }))
+          }
+
+          if (data?.order_details) {
+            setOrderForm((prev) => {
+              const previousDetailValues = data?.order_details?.map((item: any) => {
+                const previousItem = {
+                  value: item.id,
+                  label: item?.item?.service_name,
+                  item_code: item?.item_code ?? '',
+                  item_name: item?.item_name ?? '',
+                  category_id: item?.item?.category.id,
+                  default_price: item?.item?.default_price,
+                  prices: [
+                    {
+                      id: item?.item?.prices[0].id,
+                      item_id: item?.item?.prices[0]?.item_id,
+                      store_id: item?.item?.prices[0]?.store_id,
+                      periodic_start: item?.item?.prices[0]?.periodic_start,
+                      periodic_end: item?.item?.prices[0]?.periodic_end,
+                      price: item?.item?.prices[0]?.price,
+                      min_order: item?.item?.prices[0]?.min_order,
+                    },
+                  ],
+                }
+
+                return {
+                  item: previousItem,
+                  id: item.id,
+                  item_id: item.item_id,
+                  item_code: item?.item_code === 'null' ? '' : item.item_code,
+                  item_name: item?.item_name === 'null' ? '' : item.item_name,
+                  item_notes: item?.item_notes === 'null' ? '' : item.item_notes,
+                  quantity: item.quantity,
+                  unit_price: item.unit_price,
+                  total: item.total,
+                }
+              })
+
+              return {
+                ...prev,
+                order_details: previousDetailValues,
+              }
+            })
+          }
+
+          if (data?.quotation?.length) {
+            const quotationDetails = data.quotation[0].quotation_details.map(
+              (item: any, index: number) => ({
+                id: item?.id ?? null,
+                index: (Date.now() + index).toString(),
+                item_id: item?.item_id ?? null,
+                work_order_item_id: item?.work_order_items_id ?? null,
+                category_id: item?.category_id ?? null,
+                type: item?.item_type ?? 2,
+                item_name: item?.name ?? '',
+                unit_price: item?.price ?? 0,
+                unit: item?.unit ?? '',
+                description: item?.description ?? '',
+                final_price: item?.final_price ?? '',
+                margin: item?.margin ?? 0,
+                margin_type: item?.margin_type ?? 1,
+                quantity: item?.quantity ?? 0,
+                is_user: item?.is_customer === true ? 1 : 0,
+              })
+            )
+
+            setQuotation((prev) => ({
+              ...prev,
+              id: data?.quotation[0]?.id,
+              order_id: data?.quotation[0]?.order_id,
+              store_id: data?.quotation[0]?.store_id,
+              quotation_status: data?.quotation[0]?.quotation_status,
+              description: data?.quotation[0]?.description,
+              quotation_number: data?.quotation[0]?.quotation_number,
+              quotation_date: data?.quotation[0]?.quotation_date,
+              quotation_validity: data?.quotation[0]?.quotation_validity,
+              quotation_disc: data?.quotation[0]?.quotation_disc,
+              quotation_promotion: data?.quotation[0]?.quotation_promotion,
+              quotation_grand_total: data?.quotation[0]?.quotation_grand_total,
+              readiness: data?.quotation[0]?.readiness,
+              quotation_details: quotationDetails,
+            }))
+          }
+
+          if (data?.quotation?.length) {
+            const initialOrderFilesValues = data.quotation[0]?.quotation_files.map((item: any) => ({
+              id: item.id,
+              name: item.path,
+            }))
+
+            setQuotationFiles(initialOrderFilesValues)
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrderData(null)
+  }, [])
+
+  const cancelOrderHandler = async (id: number) => {
+    await fetchOrderData(id)
+
+    const formData = new FormData()
+    const appendIfNotDefault = (formData: any, key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
+      }
+    }
+
+    formData.append('order_id', String(orderForm?.id))
+    formData.append('project_status_id', cancelOrder?.value)
+
+    orderForm.order_details.forEach((item, index) => {
+      if (item) {
+        appendIfNotDefault(formData, `order_details[${index}][id]`, item.id)
+        appendIfNotDefault(formData, `order_details[${index}][item_id]`, item.item_id)
+        appendIfNotDefault(formData, `order_details[${index}][item_code]`, item.item_code)
+        appendIfNotDefault(formData, `order_details[${index}][item_name]`, item.item_name)
+        appendIfNotDefault(formData, `order_details[${index}][item_notes]`, item.item_notes)
+        appendIfNotDefault(formData, `order_details[${index}][quantity]`, item.quantity)
+      }
+    })
+
+    Swal.fire({
+      title: 'Apakah anda yakin akan membatalkan orderan ini dan melakukan refund?',
+      icon: 'warning',
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya',
+      cancelButtonText: 'Tidak',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setLoadingButton(true)
+          const response = await axios.post(`${apiUrl}/orders/${orderForm?.id}`, formData, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+
+          setLoadingButton(false)
+          setLoadData(true)
+
+          if (response.status === 200) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Orderan berhasil dibatalkan.',
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              navigate(`/refund/new-refund/${id}`)
+            })
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: response.data.message,
+              showConfirmButton: false,
+              timer: 1500,
+            })
+          }
+        } catch (error) {
+          console.error(error)
+        }
+      }
+    })
+  }
 
   const columns: ColumnsType<DataType> = [
     {
@@ -315,28 +491,36 @@ const ViewOrders: FC = () => {
           const selected = orderData.find((order) => order.order_id === id)
 
           if (selected) {
-            setOrderId(selected.order_id)
+            fetchOrderData(selected.order_id)
             setShowModal(true)
           }
         }
 
         return (
-          <div className='d-flex justify-content-center'>
+          <div className='d-flex justify-content-center gap-4'>
+            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
+              record.order_status
+            ) && (
+              <a className='button-edit' onClick={() => cancelOrderHandler(record.order_id)}>
+                <FontAwesomeIcon className='text-danger' icon={faXmarkCircle} size='sm' />
+              </a>
+            )}
+
             <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} className='me-3' size='sm' />
+              <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
             {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
               record.order_status
             ) && (
               <a className='button-edit' onClick={handleUpdateId}>
-                <FontAwesomeIcon icon={faPen} className='me-3' size='sm' />
+                <FontAwesomeIcon icon={faPen} size='sm' />
               </a>
             )}
 
             {['QUOTEOUT'].includes(record.order_status) && userRole === 'Admin HO' ? (
               <a className='button-edit' onClick={handleUpdateId}>
-                <FontAwesomeIcon icon={faPen} className='me-3' size='sm' />
+                <FontAwesomeIcon icon={faPen} size='sm' />
               </a>
             ) : (
               <></>
@@ -357,92 +541,102 @@ const ViewOrders: FC = () => {
     },
   ]
 
-  useEffect(() => {
-    const fetchOrderData = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/orders/${orderId}`, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          .then((response) => {
-            const data = response.data.data
-            setOrderDetail(data)
-            setTimeout(() => {
-              setLoadingModal(false)
-            }, 2000)
+  // Modal Verification Payment Quotation
+  const [loadingUpdate, setLoadingUpdate] = useState(false)
+  const [loadingModal, setLoadingModal] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
 
-            if (data?.quotation?.length) {
-              const quotationDetails = data.quotation[0].quotation_details.map(
-                (item: any, index: number) => ({
-                  id: item?.id ?? null,
-                  index: (Date.now() + index).toString(),
-                  item_id: item?.item_id ?? null,
-                  work_order_item_id: item?.work_order_items_id ?? null,
-                  category_id: item?.category_id ?? null,
-                  type: item?.item_type ?? 2,
-                  item_name: item?.name ?? '',
-                  unit_price: item?.price ?? 0,
-                  unit: item?.unit ?? '',
-                  description: item?.description ?? '',
-                  final_price: item?.final_price ?? '',
-                  margin: item?.margin ?? 0,
-                  margin_type: item?.margin_type ?? 1,
-                  quantity: item?.quantity ?? 0,
-                  is_user: item?.is_customer === true ? 1 : 0,
-                })
-              )
-
-              setQuotation((prev) => ({
-                ...prev,
-                id: data?.quotation[0]?.id,
-                order_id: data?.quotation[0]?.order_id,
-                store_id: data?.quotation[0]?.store_id,
-                quotation_status: data?.quotation[0]?.quotation_status,
-                description: data?.quotation[0]?.description,
-                quotation_number: data?.quotation[0]?.quotation_number,
-                quotation_date: data?.quotation[0]?.quotation_date,
-                quotation_validity: data?.quotation[0]?.quotation_validity,
-                quotation_disc: data?.quotation[0]?.quotation_disc,
-                quotation_promotion: data?.quotation[0]?.quotation_promotion,
-                quotation_grand_total: data?.quotation[0]?.quotation_grand_total,
-                readiness: data?.quotation[0]?.readiness,
-                quotation_details: quotationDetails,
-              }))
-            }
-
-            if (data?.quotation?.length) {
-              const initialOrderFilesValues = data.quotation[0]?.quotation_files.map(
-                (item: any) => ({
-                  id: item.id,
-                  name: item.path,
-                })
-              )
-
-              setQuotationFiles(initialOrderFilesValues)
-            }
-          })
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    fetchOrderData()
-  }, [orderId])
+  // Quotation Detail
+  const [quotation, setQuotation] = useState<Quotation>({
+    id: null,
+    order_id: null,
+    store_id: null,
+    quotation_status: null,
+    description: '',
+    quotation_number: '',
+    quotation_date: '',
+    quotation_validity: '',
+    quotation_disc: 0,
+    quotation_promotion: 0,
+    quotation_grand_total: 0,
+    readiness: 1,
+    quotation_details: [
+      {
+        id: null,
+        index: (Date.now() + 1).toString(),
+        item_id: null,
+        work_order_item_id: null,
+        category_id: null,
+        type: 1,
+        item_name: '',
+        unit: '',
+        description: '',
+        unit_price: 0,
+        total: 0,
+        final_price: 0,
+        margin: 0,
+        margin_type: 1,
+        quantity: 0,
+        is_user: 0,
+      },
+      {
+        id: null,
+        index: (Date.now() + 2).toString(),
+        item_id: null,
+        category_id: null,
+        work_order_item_id: null,
+        type: 2,
+        item_name: '',
+        unit: '',
+        description: '',
+        unit_price: 0,
+        total: 0,
+        final_price: 0,
+        margin: 0,
+        margin_type: 1,
+        quantity: 0,
+        is_user: 0,
+      },
+    ],
+  })
 
   // Quotation Files
+  const [receiptQuotation, setReceiptQuotation] = useState<Array<File | null>>([])
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
+
+  const [selectedReceiptIndex, setSelectedReceiptIndex] = useState<number | null>(null)
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
   const evidenceRef = useRef<HTMLInputElement>(null)
 
+  const [previewReceipt, setPreviewReceipt] = useState<any>()
   const [previewImage, setPreviewImage] = useState<any>()
+
+  const [visibleReceipt, setVisibleReceipt] = useState(false)
   const [visible, setVisible] = useState(false)
 
   // Upload Order File Handler
+  const handleReceiptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...receiptQuotation]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setReceiptQuotation(mergedFiles)
+    }
+  }
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
 
@@ -462,9 +656,27 @@ const ViewOrders: FC = () => {
     }
   }
 
+  // Click Image
+  const handleReceiptClick = () => {
+    const inputField = document.querySelector('.input-field-receipt') as HTMLInputElement
+    inputField.click()
+  }
+
   const handleImageClick = () => {
     const inputField = document.querySelector('.input-field-image') as HTMLInputElement
     inputField.click()
+  }
+
+  // Remove File
+  const handleRemoveReceipt = (index: number) => {
+    const newEvidances = [...receiptQuotation]
+    newEvidances.splice(index, 1)
+    setReceiptQuotation(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
   }
 
   const handleRemoveFile = (index: number) => {
@@ -476,6 +688,13 @@ const ViewOrders: FC = () => {
     if (evidenceRef.current?.value) {
       evidenceRef.current.value = ''
     }
+  }
+
+  // File Click
+  const handleFileReceipt = (index: number) => {
+    setPreviewReceipt(receiptQuotation[index]?.name)
+    setVisibleReceipt(true)
+    setSelectedReceiptIndex(index)
   }
 
   const handleFileClick = (index: number) => {
@@ -690,6 +909,14 @@ const ViewOrders: FC = () => {
         quotation.category_id
       )
     })
+
+    if (receiptQuotation?.length) {
+      receiptQuotation.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`quotation_receipts`, item, item.name)
+        }
+      })
+    }
 
     if (quotationFiles?.length) {
       quotationFiles.forEach((item) => {
@@ -1107,86 +1334,174 @@ const ViewOrders: FC = () => {
             </Skeleton>
 
             <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
-              <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-                <Form.Group>
-                  <Form.Label>Upload Bukti Pembayaran Quotation</Form.Label>
+              <Row>
+                <Col md={6}>
+                  <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                    <Form.Group>
+                      <Form.Label>Upload Bukti Receipt Transaksi</Form.Label>
 
-                  <Form className='form-input-image' onClick={handleImageClick}>
-                    <Form.Control
-                      type='file'
-                      accept='image/jpeg, image/png'
-                      className='input-field-image'
-                      multiple
-                      hidden
-                      id='file-input'
-                      ref={evidenceRef}
-                      onChange={handleFileChange}
-                    />
+                      <Form className='form-input-image' onClick={handleReceiptClick}>
+                        <Form.Control
+                          type='file'
+                          accept='image/jpeg, image/png'
+                          className='input-field-receipt'
+                          multiple
+                          hidden
+                          id='file-input'
+                          ref={evidenceRef}
+                          onChange={handleReceiptChange}
+                        />
 
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  </Form>
+                        <div className='input-image-text'>
+                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                          <p>Add File</p>
+                        </div>
+                      </Form>
 
-                  <ListGroup className='pt-3'>
-                    {quotationFiles.length ? (
-                      quotationFiles.map((item, index) => (
-                        <ListGroup>
-                          <ListGroup.Item
-                            className='d-flex justify-content-between align-items-center'
-                            key={`${item?.name}-${index}-${item?.type}`}
-                          >
-                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <ListGroup className='pt-3'>
+                        {receiptQuotation.length ? (
+                          receiptQuotation.map((item, index) => (
+                            <ListGroup>
+                              <ListGroup.Item
+                                className='d-flex justify-content-between align-items-center'
+                                key={`${item?.name}-${index}-${item?.type}`}
+                              >
+                                <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                            <span
-                              className='upload-content'
-                              style={{cursor: 'pointer'}}
-                              onClick={() => handleFileClick(index)}
-                            >
-                              {item?.name}
-                            </span>
+                                <span
+                                  className='upload-content'
+                                  style={{cursor: 'pointer'}}
+                                  onClick={() => handleFileReceipt(index)}
+                                >
+                                  {item?.name}
+                                </span>
 
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              size='sm'
-                              color='#ed2b2a'
-                              style={{cursor: 'pointer'}}
-                              onClick={(e) => handleRemoveFile(index)}
-                            />
+                                <FontAwesomeIcon
+                                  icon={faTrash}
+                                  size='sm'
+                                  color='#ed2b2a'
+                                  style={{cursor: 'pointer'}}
+                                  onClick={(e) => handleRemoveReceipt(index)}
+                                />
+                              </ListGroup.Item>
+
+                              {selectedReceiptIndex === index && item && (
+                                <Image
+                                  key={`${previewReceipt} - ${index}`}
+                                  width={200}
+                                  style={{display: 'none'}}
+                                  src={
+                                    item instanceof File
+                                      ? URL.createObjectURL(item)
+                                      : `${apiUrl}/public/quotation/${previewReceipt}`
+                                  }
+                                  preview={{
+                                    visible: visibleReceipt,
+                                    src:
+                                      item instanceof File
+                                        ? URL.createObjectURL(item)
+                                        : `${apiUrl}/public/quotation/${previewReceipt}`,
+                                    onVisibleChange: (value) => {
+                                      setVisibleReceipt(value)
+                                    },
+                                  }}
+                                />
+                              )}
+                            </ListGroup>
+                          ))
+                        ) : (
+                          <ListGroup.Item className='d-flex justify-content-center'>
+                            Tidak ada file yang dipilih
                           </ListGroup.Item>
+                        )}
+                      </ListGroup>
+                    </Form.Group>
+                  </Row>
+                </Col>
 
-                          {selectedFileIndex === index && item && (
-                            <Image
-                              key={`${previewImage} - ${index}`}
-                              width={200}
-                              style={{display: 'none'}}
-                              src={
-                                item instanceof File
-                                  ? URL.createObjectURL(item)
-                                  : `${apiUrl}/public/quotation/${previewImage}`
-                              }
-                              preview={{
-                                visible,
-                                src:
-                                  item instanceof File
-                                    ? URL.createObjectURL(item)
-                                    : `${apiUrl}/public/quotation/${previewImage}`,
-                                onVisibleChange: (value) => {
-                                  setVisible(value)
-                                },
-                              }}
-                            />
-                          )}
-                        </ListGroup>
-                      ))
-                    ) : (
-                      <ListGroup.Item className='d-flex justify-content-center'>
-                        Tidak ada file yang dipilih
-                      </ListGroup.Item>
-                    )}
-                  </ListGroup>
-                </Form.Group>
+                <Col md={6}>
+                  <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                    <Form.Group>
+                      <Form.Label>Upload Bukti Transfer</Form.Label>
+
+                      <Form className='form-input-image' onClick={handleImageClick}>
+                        <Form.Control
+                          type='file'
+                          accept='image/jpeg, image/png'
+                          className='input-field-image'
+                          multiple
+                          hidden
+                          id='file-input'
+                          ref={evidenceRef}
+                          onChange={handleFileChange}
+                        />
+
+                        <div className='input-image-text'>
+                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                          <p>Add File</p>
+                        </div>
+                      </Form>
+
+                      <ListGroup className='pt-3'>
+                        {quotationFiles.length ? (
+                          quotationFiles.map((item, index) => (
+                            <ListGroup>
+                              <ListGroup.Item
+                                className='d-flex justify-content-between align-items-center'
+                                key={`${item?.name}-${index}-${item?.type}`}
+                              >
+                                <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                                <span
+                                  className='upload-content'
+                                  style={{cursor: 'pointer'}}
+                                  onClick={() => handleFileClick(index)}
+                                >
+                                  {item?.name}
+                                </span>
+
+                                <FontAwesomeIcon
+                                  icon={faTrash}
+                                  size='sm'
+                                  color='#ed2b2a'
+                                  style={{cursor: 'pointer'}}
+                                  onClick={(e) => handleRemoveFile(index)}
+                                />
+                              </ListGroup.Item>
+
+                              {selectedFileIndex === index && item && (
+                                <Image
+                                  key={`${previewImage} - ${index}`}
+                                  width={200}
+                                  style={{display: 'none'}}
+                                  src={
+                                    item instanceof File
+                                      ? URL.createObjectURL(item)
+                                      : `${apiUrl}/public/quotation/${previewImage}`
+                                  }
+                                  preview={{
+                                    visible: visible,
+                                    src:
+                                      item instanceof File
+                                        ? URL.createObjectURL(item)
+                                        : `${apiUrl}/public/quotation/${previewImage}`,
+                                    onVisibleChange: (value) => {
+                                      setVisible(value)
+                                    },
+                                  }}
+                                />
+                              )}
+                            </ListGroup>
+                          ))
+                        ) : (
+                          <ListGroup.Item className='d-flex justify-content-center'>
+                            Tidak ada file yang dipilih
+                          </ListGroup.Item>
+                        )}
+                      </ListGroup>
+                    </Form.Group>
+                  </Row>
+                </Col>
               </Row>
 
               <div className='button-submit d-flex justify-content-center align-items-center'>

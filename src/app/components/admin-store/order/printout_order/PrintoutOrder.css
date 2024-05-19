@@ -42,6 +42,15 @@
   padding-right: 8px;
 }
 
+/* Button */
+
+#printout-order .hide-print-button.btn.btn-dark-primary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px !important;
+}
+
 /* Receipt ID */
 
 #printout-order .receipt-id {
@@ -72,7 +81,7 @@
 /* Hide Print */
 @media print {
   .hide-print-button {
-    display: none;
+    display: none !important;
   }
 
   div#kt_header {

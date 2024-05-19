@@ -700,6 +700,7 @@ const NewTukangVendor: FC = () => {
         </Button>
 
         <Button
+          className='d-flex justify-content-center align-items-center'
           variant='dark-primary'
           type='submit'
           disabled={isLoading}

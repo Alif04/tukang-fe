@@ -47,7 +47,7 @@ const RefundPage: React.FC = () => {
       />
 
       <Route
-        path='new-refund'
+        path='new-refund/:id'
         element={
           <>
             {userRole == 'Admin HO' ? (

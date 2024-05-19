@@ -893,7 +893,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     return valid
   }
 
-  // Handle Submit New Vendor
+  // Handle Submit Update Vendor
   const handleUpdateVendor = async () => {
     if (VendorValidation()) {
       setIsLoading(true)
@@ -960,8 +960,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
       if (uploadFiles?.length) {
         uploadFiles.forEach((item) => {
-          if (item) {
-            formData.append(`vendor_document`, item, item?.name)
+          if (item instanceof Blob) {
+            formData.append(`vendor_document`, item, item.name)
           }
         })
       }
@@ -1525,17 +1525,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               </Row> */}
             </Col>
           </Row>
-
-          <div className='d-flex justify-content-center'>
-            <Button
-              variant='dark-primary'
-              type='submit'
-              disabled={isLoading}
-              onClick={handleUpdateVendor}
-            >
-              {isLoading ? 'Saving..' : 'Save'}
-            </Button>
-          </div>
         </Card.Body>
       </Card>
 
@@ -1577,6 +1566,17 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               </Form.Group>
             </Col>
           </Row>
+
+          <div className='d-flex justify-content-center mt-5'>
+            <Button
+              variant='dark-primary'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleUpdateVendor}
+            >
+              {isLoading ? 'Saving..' : 'Save'}
+            </Button>
+          </div>
         </Card.Body>
       </Card>
     </section>

@@ -6,9 +6,9 @@ import './NewOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, FormGroup, Table, Button} from 'react-bootstrap'
+import {Row, Col, Form, FormGroup, Table, Button, Accordion, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 
 interface MemberSelect {
   value?: number | null
@@ -110,6 +110,9 @@ const NewOrderStoreStaff: FC = () => {
   })
 
   const [paymentTypeValue, setPaymentTypeValue] = useState(['gratis', 'pemasangan_tanpa_survey'])
+
+  // Vendor
+  const [vendor, setVendor] = useState<any[]>([])
 
   // Member
   const [isSubmittingNewMember, setIsSubmittingNewMember] = useState(false)
@@ -267,7 +270,25 @@ const NewOrderStoreStaff: FC = () => {
       }
     }
 
+    const getVendor = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/vendor?store_id=${staffStoreId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        setVendor(response.data.data)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     getSales()
+    getVendor()
   }, [])
 
   // Order Form Handler
@@ -699,10 +720,78 @@ const NewOrderStoreStaff: FC = () => {
     }
   }, [selectedMember.value])
 
+  // Vendor Availbility
+  const vendorAvailbility = (data: any) => {
+    const todayDate = new Date().toISOString().split('T')[0]
+    const maxOrder = data.max_order
+
+    // Detect Survey Date Only
+    // const workOrderVendor = data.work_orders.filter((x: any) => {
+    //   const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+    //   return surveyDate === todayDate
+    // })
+
+    // Detect Survey Date and Work Date
+    const workOrderVendor = data.work_orders.filter((x: any) => {
+      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+
+      const workStartDate = x.work_start_date
+        ? new Date(x.work_start_date).toISOString().split('T')[0]
+        : null
+
+      const workEndDate = x.work_end_date
+        ? new Date(x.work_end_date).toISOString().split('T')[0]
+        : null
+
+      if (surveyDate && !workStartDate && !workEndDate) {
+        return surveyDate === todayDate
+      } else if (surveyDate && workStartDate && workEndDate) {
+        return workStartDate <= todayDate && todayDate <= workEndDate
+      } else {
+        return surveyDate === todayDate
+      }
+    })
+
+    return workOrderVendor.length >= maxOrder ? 'FULL BOOKED' : 'AVAILABLE'
+  }
+
   return (
     <section id='pre-order'>
-      <div className='card mb-5'>
-        <div className='card-body'>
+      <Accordion className='mb-5'>
+        <Accordion.Item eventKey='0'>
+          <Accordion.Header>
+            <FontAwesomeIcon icon={faCircleInfo} size='lg' className='me-2' />
+            <p className='fs-7 fw-bold'>Ketersediaan Vendor</p>
+          </Accordion.Header>
+
+          <Accordion.Body>
+            <div className='description fs-7 mb-5'>Informasi mengenai ketersediaan dari Vendor</div>
+
+            <div className='vendor-avail'>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Nama Vendor</th>
+                    <th>Ketersediaan Vendor</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {vendor.map((item: any) => (
+                    <tr key={item?.id}>
+                      <td>{item?.company_name ?? '-'}</td>
+                      <td>{vendorAvailbility(item)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+
+      <Card className='mb-5'>
+        <Card.Body>
           <div className='form-wrapper'>
             <div className='form-costumer'>
               <Row className='form-header'>
@@ -1258,8 +1347,8 @@ const NewOrderStoreStaff: FC = () => {
               {isLoading || isSubmittingNewMember ? 'Submitting Order...' : 'Submit Order & Print'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

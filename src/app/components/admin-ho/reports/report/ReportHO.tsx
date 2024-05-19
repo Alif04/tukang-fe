@@ -990,23 +990,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         ['Nomor Member']: item?.members?.member_number ?? '-',
         ['Nama Konsumen']: item?.members?.full_name ?? '-',
         ['WA/Phone Number']: item?.project_number ?? '-',
-        ['Nama Bank']: item?.bank?.bank_name ?? '-',
-        ['Nama Jasa Pemasangan']:
-          item.payment_type === 'survey' && item.quotation.length === 0
-            ? item.m_order_details[0]?.item_notes
-            : item.payment_type === 'survey' && item.quotation.length >= 0
-            ? item.quotation[0]?.quotation_details[0]?.name ?? '-'
-            : item.m_order_details[0]?.item?.service_name ?? '-',
-        ['Quantity']: parseInt(item.m_order_details[0]?.quantity ?? 0, 10),
+        ['Nama Vendor']: item?.vendor?.company_name ?? '-',
         ['Grand Total']: `Rp. ${parseInt(item?.grand_total).toLocaleString('id')}`,
-        ['Status Order']:
-          item?.work_orders?.work_order_status.length > 0 &&
-          !['QOUTEOUT', 'WORKREQ'].includes(item?.status?.category)
-            ? item?.work_orders?.work_order_status[0]?.status?.description
-            : item?.work_orders?.work_order_status.length > 0 &&
-              item?.status?.category === 'QUOTEOUT'
-            ? item?.status?.description
-            : item?.status?.description,
       }))
 
       setExportReportData(orderData)

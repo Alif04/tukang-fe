@@ -1,12 +1,11 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './NewRefund.css'
 
 import axios from 'axios'
-import Select from 'react-select'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
+import {Row, Col, Form, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -25,52 +24,19 @@ interface Refund {
 
 const NewRefundCS: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
+  const params = useParams()
 
+  // Loading
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch Data Order
-  const [order, setOrder] = useState<any>()
-  const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
-
-  const getOrder = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      if (Array.isArray(response.data.data)) {
-        const tempOrder = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.id,
-          payment_type: item.payment_type,
-        }))
-
-        const filteredOrder = tempOrder.filter((detail: any) => detail.payment_type !== 'gratis')
-
-        setOrder(filteredOrder)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
 
   const getOrderDetail = async () => {
     try {
       await axios
-        .get(`${apiUrl}/orders/${orderId}`, {
+        .get(`${apiUrl}/orders/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -88,21 +54,10 @@ const NewRefundCS: FC = () => {
   }
 
   useEffect(() => {
-    getOrder()
-  }, [])
-
-  useEffect(() => {
-    if (orderId) {
+    if (params.id) {
       getOrderDetail()
     }
-  }, [orderId])
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  }, [params.id])
 
   // Add Refund
   const [refundValues, setRefundValues] = useState<Refund>({
@@ -124,6 +79,14 @@ const NewRefundCS: FC = () => {
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
 
+  // Order ID
+  useEffect(() => {
+    setRefundValues((prevRefundValues) => ({
+      ...prevRefundValues,
+      order_id: orderDetail?.id,
+    }))
+  }, [orderDetail?.id])
+
   // Refund Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
@@ -137,18 +100,6 @@ const NewRefundCS: FC = () => {
       refund_status: statusId,
     }))
   }, [refundValues])
-
-  // Select Order
-  const handleChangeSelectOrder = (element: any) => {
-    const selectedOrder = element.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      order_id: selectedOrder,
-    }))
-
-    setOrderId(selectedOrder)
-  }
 
   // Handle Change Refund Date
   const today = new Date().toISOString().split('T')[0]
@@ -325,6 +276,24 @@ const NewRefundCS: FC = () => {
     navigate('/refund/view-refund')
   }
 
+  // Grand Total Order
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
+
+    let totalAmount = 0
+
+    if (payment_type === 'gratis') {
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
+    } else if (payment_type === 'pemasangan_tanpa_survey') {
+      totalAmount =
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
+    } else if (payment_type === 'survey') {
+      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
+    }
+
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
+
   return (
     <section id='new-refund'>
       <div className='card'>
@@ -345,15 +314,9 @@ const NewRefundCS: FC = () => {
                   <Form.Label column sm='3' className='fs-4 fw-bold'>
                     Order ID :
                   </Form.Label>
+
                   <Col sm='9'>
-                    <Select
-                      name='order-id'
-                      className='form-control p-0'
-                      placeholder='Ketik/Pilih Order Id'
-                      isSearchable={true}
-                      options={order}
-                      onChange={(e) => handleChangeSelectOrder(e)}
-                    />
+                    <Form.Control readOnly type='text' value={orderDetail?.id} />
                   </Col>
                 </Form.Group>
               </Col>
@@ -363,7 +326,9 @@ const NewRefundCS: FC = () => {
                   Receipt Number :
                   <span className='fs-4 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
                 </Form.Label>
+
                 <br></br>
+
                 <Form.Label className='fs-4 fw-bold'>
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
@@ -464,8 +429,12 @@ const NewRefundCS: FC = () => {
                   <Col>
                     <p className='fs-7 p-0'>
                       {orderDetail?.request_survey
-                        ? formatDate(new Date(orderDetail?.request_survey))
-                        : ''}
+                        ? new Date(orderDetail.request_survey).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
+                        : 'Tanggal Request Belum Ditentukan'}
                     </p>
                   </Col>
                 </Form.Group>
@@ -489,7 +458,7 @@ const NewRefundCS: FC = () => {
                         } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
                           return `Berbayar & Pemasangan Tanpa Survey`
                         } else {
-                          return ``
+                          return `-`
                         }
                       })()}
                     </p>
@@ -498,25 +467,26 @@ const NewRefundCS: FC = () => {
               </Row>
             </div>
 
-            {/* New */}
+            {/* Detail Order */}
             {(() => {
               if (
-                orderDetail?.payment_type === 'survey' &&
-                orderDetail?.work_orders?.work_order_status.length === 1
+                (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
+                (orderDetail?.work_orders?.work_order_status.length === 1 &&
+                  orderDetail?.payment_type === 'survey')
               ) {
                 return (
                   <div className='table-warranty-content'>
                     {orderDetail?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
+                          *Order ini lebih dari{' '}
                           <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
                     )}
 
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -527,7 +497,7 @@ const NewRefundCS: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
+                        {orderDetail?.order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -563,14 +533,12 @@ const NewRefundCS: FC = () => {
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.grand_total
-                              ).toLocaleString('id')}`}</td>
+                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
                             </tr>
                           </>
                         )}
                       </tbody>
-                    </Table>
+                    </table>
                   </div>
                 )
               } else if (
@@ -583,109 +551,186 @@ const NewRefundCS: FC = () => {
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
                     )}
 
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th className='text-center'>Jenis Jasa</th>
-                          <th className='text-center'>QTY</th>
-                          <th className='text-center'>Satuan</th>
-                          <th className='text-center'>Price</th>
-                          <th className='text-center'>Total</th>
-                          <th className='text-center'>Keterangan</th>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Price
+                          </th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details.map(
-                          (item: any, index: any) => (
+                        {orderDetail?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 2)
+                          .map((item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
-                              <td>{item?.name ?? '-'}</td>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{item?.description ? '' : '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                             </tr>
-                          )
-                        )}
+                          ))}
 
                         <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
-                            Promosi ( Free Survey )
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total
                           </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_disc ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
 
-                        {orderDetail?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
-                            ).toLocaleString('id')}`}
+                          <td className='fw-bolder'>
+                            {`Rp. ${orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2)
+                              .map((item: any) => parseInt(item?.price ?? 0))
+                              .reduce((total: number, price: number) => total + price, 0)
+                              .toLocaleString('id')}`}
                           </td>
                         </tr>
                       </tbody>
-                    </Table>
+                    </table>
+
+                    {orderDetail?.quotation[0]?.quotation_details.filter(
+                      (x: any) => x.item_type === 1
+                    ).length ? (
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              </tr>
+                            ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          {orderDetail?.is_overdistance === 1 && (
+                            <>
+                              <tr>
+                                <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                  Biaya Tambahan
+                                </td>
+
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  orderDetail?.additional_fee
+                                ).toLocaleString('id')}.`}</td>
+                              </tr>
+                            </>
+                          )}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    ) : (
+                      <></>
+                    )}
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
-                orderDetail?.work_orders?.work_order_status.length > 1 &&
-                orderDetail?.payment_type === 'survey'
+                orderDetail?.payment_type === 'survey' &&
+                orderDetail?.work_orders?.work_order_status.length >= 1
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
-                          <th>Item / Nama Pemasangan</th>
+                          <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
                           <th>Satuan</th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.name ?? '-'}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit ?? ''}</td>
-                            </tr>
+                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                          orderDetail?.work_orders.work_order_status[0].work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>
+                                  {item.name ?? ''}{' '}
+                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item.quantity ?? 0}</td>
+                                <td>{item.unit ?? ''}</td>
+                              </tr>
+                            )
                           )
+                        ) : (
+                          <tr>
+                            <td>Item belum diset oleh Tukang/Vendor</td>
+                            <td>Quantity belum diset oleh Tukang/Vendor</td>
+                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                          </tr>
                         )}
                       </tbody>
-                    </Table>
+                    </table>
                   </div>
                 )
               } else if (
@@ -697,14 +742,14 @@ const NewRefundCS: FC = () => {
                     {orderDetail?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
+                          *Order ini lebih dari{' '}
                           <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
                     )}
 
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -720,7 +765,7 @@ const NewRefundCS: FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.m_order_details?.map((item: any, index: any) => (
+                        {orderDetail?.order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -744,13 +789,16 @@ const NewRefundCS: FC = () => {
                         {orderDetail?.is_overdistance === 1 && (
                           <>
                             <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                              <td
+                                colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                                className='text-end fw-bolder align-middle'
+                              >
                                 Biaya Tambahan
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
                                 orderDetail?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
                         )}
@@ -763,22 +811,10 @@ const NewRefundCS: FC = () => {
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>
-                            {(() => {
-                              if (orderDetail?.payment_type === 'gratis') {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                                return `Rp. ${parseInt(orderDetail?.grand_total).toLocaleString(
-                                  'id'
-                                )}`
-                              } else {
-                                return `Rp. ${(0).toLocaleString('id')}`
-                              }
-                            })()}
-                          </td>
+                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
                         </tr>
                       </tbody>
-                    </Table>
+                    </table>
                   </div>
                 )
               }
@@ -910,6 +946,7 @@ const NewRefundCS: FC = () => {
             </Button>
 
             <Button
+              className='d-flex justify-content-center align-items-center'
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
