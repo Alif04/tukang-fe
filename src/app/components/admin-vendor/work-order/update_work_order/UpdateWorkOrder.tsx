@@ -105,7 +105,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setOrderDetail(data)
 
           if (data?.work_orders?.id) {

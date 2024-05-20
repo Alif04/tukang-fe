@@ -155,8 +155,6 @@ const ViewOrders: FC = () => {
     ],
   })
 
-  console.log(orderForm)
-
   const fetchOrderData = async (order_id: number | null) => {
     if (order_id === null) return
 
@@ -171,7 +169,7 @@ const ViewOrders: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setOrderDetail(data)
           setTimeout(() => {
             setLoadingModal(false)
@@ -268,12 +266,22 @@ const ViewOrders: FC = () => {
           }
 
           if (data?.quotation?.length) {
-            const initialOrderFilesValues = data.quotation[0]?.quotation_files.map((item: any) => ({
-              id: item.id,
-              name: item.path,
-            }))
+            const quotationFiles = data.quotation[0]?.quotation_files
+              .filter((x: any) => x.type === 1)
+              .map((item: any) => ({
+                id: item.id,
+                name: item.path,
+              }))
 
-            setQuotationFiles(initialOrderFilesValues)
+            const receiptFiles = data.quotation[0]?.quotation_files
+              .filter((x: any) => x.type === 2)
+              .map((item: any) => ({
+                id: item.id,
+                name: item.path,
+              }))
+
+            setQuotationFiles(quotationFiles)
+            setReceiptQuotation(receiptFiles)
           }
         })
     } catch (error) {
@@ -716,11 +724,11 @@ const ViewOrders: FC = () => {
         },
       })
 
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
+      setCurrentPage(response.data.data.page)
+      setTotalData(response?.data?.data?.total ?? 0)
       setLoadData(false)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

@@ -17,6 +17,7 @@ interface templateOption {
 
 interface emailLayout {
   email_type: number | null
+  title: string
   greetings: string
   footer: string
   welcome_header: string
@@ -33,7 +34,35 @@ const FormatEmailHO: FC = () => {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  // Emai Type
+  const getEmailType = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/mails/types`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      let emailTypes = Object.entries(response.data.data).map(([key, value]) => ({
+        label: key as string,
+        value: value as number,
+      }))
+
+      setEmailType(emailTypes)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getEmailType()
+  }, [])
+
   // Email
+  const [emailType, setEmailType] = useState<templateOption[]>([])
   const [selectedEmailType, setSelectedEmailType] = useState<SingleValue<templateOption>>({
     value: null,
     label: '',
@@ -41,6 +70,7 @@ const FormatEmailHO: FC = () => {
 
   const [emailForm, setEmailForm] = useState<emailLayout>({
     email_type: null,
+    title: '',
     greetings: '',
     footer: '',
     welcome_header: '',
@@ -55,70 +85,6 @@ const FormatEmailHO: FC = () => {
       },
     ],
   })
-
-  // Fetch Data Email
-  // const fetchEmailData = async () => {
-  //   const emailType =
-  //     selectedEmailType && selectedEmailType.value ? `?type=${selectedEmailType.value}` : ''
-
-  //   try {
-  //     await axios
-  //       .get(`${apiUrl}/email${emailType}`, {
-  //         headers: {
-  //           Accept: 'application/json',
-  //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //           'Access-Control-Allow-Origin': '*',
-  //           'ngrok-skip-browser-warning': 'true',
-  //         },
-  //       })
-  //       .then((response) => {
-  //         const data = response.data.data
-
-  //         if (data?.email) {
-  //           setEmailForm((prev) => ({
-  //             ...prev,
-  //             welcome_header: data?.welcome_header,
-  //             greetings: data?.greetings,
-  //             contact_detail: data?.contact_detail,
-  //             footer: data?.footer,
-  //           }))
-  //         }
-
-  //         if (data?.terms_detail) {
-  //           setEmailForm((prev: any) => ({
-  //             ...prev,
-  //             terms_detail: data.terms_detail.map((item: any) => ({
-  //               term: item.term,
-  //             })),
-  //           }))
-  //         }
-
-  //         if (data?.information_detail) {
-  //           setEmailForm((prev: any) => ({
-  //             ...prev,
-  //             information_detail: data.information_detail.map((item: any) => ({
-  //               information: item.information,
-  //             })),
-  //           }))
-  //         }
-  //       })
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchEmailData()
-  // }, [selectedEmailType?.value])
-
-  // Template Option
-  const templateOptions = [
-    {value: 1, label: 'Order Notification'},
-    {value: 2, label: 'Credential Mail'},
-    {value: 3, label: 'Reset Password'},
-    {value: 4, label: 'Quotation Notification'},
-    {value: 5, label: 'Others'},
-  ]
 
   // Change Select Email Type
   useEffect(() => {
@@ -209,7 +175,7 @@ const FormatEmailHO: FC = () => {
     setIsLoading(true)
 
     await axios
-      .post(`${apiUrl}/email-messages`, emailForm, {
+      .post(`${apiUrl}/mails`, emailForm, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -268,8 +234,19 @@ const FormatEmailHO: FC = () => {
                 classNamePrefix='select'
                 isSearchable={true}
                 placeholder='Template untuk'
-                options={templateOptions}
+                options={emailType}
                 onChange={(newValue) => setSelectedEmailType(newValue)}
+              />
+            </Form.Group>
+
+            <Form.Group className='header-template mb-3'>
+              <Form.Label className='fs-5'>Judul :</Form.Label>
+
+              <Form.Control
+                name='title'
+                as='textarea'
+                value={emailForm.title}
+                onChange={(e) => emailFormHandler(e)}
               />
             </Form.Group>
 
@@ -399,6 +376,7 @@ const FormatEmailHO: FC = () => {
             </Button>
 
             <Button
+              className='d-flex justify-content-center align-items-center'
               variant='dark-primary'
               type='submit'
               disabled={isLoading}

@@ -200,8 +200,8 @@ const UpdateQuotationVendor: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data)) {
-        const tempCategories = response.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data.data)) {
+        const tempCategories = response.data.data.data.map((item: any) => ({
           value: item.id,
           label: item.category_name,
         }))

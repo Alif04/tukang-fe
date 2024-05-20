@@ -53,7 +53,7 @@ const ViewCalendarCS: React.FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data
+            const data = response.data.data.data
 
             if (data) {
               const orderDetail = data.map((item: any) => {

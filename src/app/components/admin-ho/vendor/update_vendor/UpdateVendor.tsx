@@ -71,7 +71,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           updatePageTitle(data)
 
           if (data?.id) {

@@ -89,7 +89,7 @@ const ReportComplaintStore: FC = () => {
         },
       })
 
-      const data = response.data.data
+      const data = response.data.data.data
       setOrderData(data)
 
       return data
@@ -184,7 +184,7 @@ const ReportComplaintStore: FC = () => {
         },
       })
 
-      const chartDatas = response.data.monthlyOrders
+      const chartDatas = response.data.data.monthlyOrders
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
 
@@ -267,8 +267,8 @@ const ReportComplaintStore: FC = () => {
         },
       })
 
-      const data = response.data.data.data
-      const chartDatas = response.data.monthlyWorkOrders
+      const data = response.data.data.data.data
+      const chartDatas = response.data.data.monthlyWorkOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)

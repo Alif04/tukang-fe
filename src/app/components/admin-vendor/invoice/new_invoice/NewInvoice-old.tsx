@@ -81,7 +81,7 @@ const NewInvoiceVendor: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setOrderDetail(data)
         })
     } catch (err) {

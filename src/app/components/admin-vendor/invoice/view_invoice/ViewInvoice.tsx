@@ -1,18 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect, FC} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './ViewInvoice.css'
 
 import axios from 'axios'
-import Swal from 'sweetalert2'
-import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {useNavigate} from 'react-router-dom'
-import {Form, InputGroup, Row, Col} from 'react-bootstrap'
+import Swal from 'sweetalert2'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faTrash, faSearch, faPlus, faFilter} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 interface DataType {
@@ -28,6 +28,7 @@ interface DataType {
 const ViewInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const vendorId = localStorage.getItem('vendor_id')
 
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -36,6 +37,8 @@ const ViewInvoiceVendor: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -219,10 +222,10 @@ const ViewInvoiceVendor: FC = () => {
     return `${day}/${month}/${year}`
   }
 
-  const fetchInvoiceList = async (page: number, pageSize: number) => {
+  const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/invoices?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&page=${page}&take=${pageSize}`,
+        `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}&vendor_id=${vendorId}${queryparams}`,
         {
           headers: {
             Accept: 'application/json',
@@ -233,6 +236,7 @@ const ViewInvoiceVendor: FC = () => {
         }
       )
 
+      setLoadData(false)
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
 
@@ -242,9 +246,9 @@ const ViewInvoiceVendor: FC = () => {
     }
   }
 
-  const ViewInvoice = async (page: number, pageSize: number) => {
+  const ViewInvoice = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchInvoiceList(page, pageSize)
+      const apiData = await fetchInvoiceList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchInvoiceList')
@@ -289,14 +293,14 @@ const ViewInvoiceVendor: FC = () => {
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewInvoice(page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewInvoice(page, pageSize, queryparams)
     setInvoiceData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo, searchFilter])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -306,6 +310,26 @@ const ViewInvoiceVendor: FC = () => {
       return <a>Next</a>
     }
     return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&search=`, searchFilter)
+
+    const data = await ViewInvoice(1, 10, queryparams)
+    setInvoiceData(data)
+
+    setLoadingButton(false)
   }
 
   return (
@@ -352,31 +376,49 @@ const ViewInvoiceVendor: FC = () => {
               </div>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={invoiceData}
-            rowKey={(record) => record.invoice_id}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
-                fetchData(page, pageSize)
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Invoice
-                </span>
-              ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={invoiceData}
+              rowKey={(record) => record.invoice_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
             }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Invoice
+              </span>
+            )}
           />
         </div>
       </div>

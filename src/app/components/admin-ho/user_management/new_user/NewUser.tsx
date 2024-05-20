@@ -46,8 +46,8 @@ const NewUserHO: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data)) {
-        const tempRoles = response.data.data
+      if (Array.isArray(response.data.data.data)) {
+        const tempRoles = response.data.data.data
           .filter((item: any) => !['Admin HO', 'Tukang', 'Employee', 'Member'].includes(item.name))
           .map((item: any) => ({
             value: item.id,

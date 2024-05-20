@@ -250,7 +250,7 @@ const ViewRefundHO: React.FC<Props> = ({className}) => {
       const apiData = await fetchRefundList(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetchRefundList')
         return []
       }
 

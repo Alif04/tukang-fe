@@ -148,11 +148,11 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
         },
       })
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response.data.data.page)
       setTotalOrder(response?.data?.total ?? 0)
       setLoadData(false)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

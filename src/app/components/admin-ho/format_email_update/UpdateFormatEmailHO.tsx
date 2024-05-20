@@ -17,6 +17,7 @@ interface templateOption {
 
 interface emailLayout {
   email_type: number | null
+  title: string
   greetings: string
   footer: string
   welcome_header: string
@@ -44,6 +45,7 @@ const UpdateFormatEmailHO: FC = () => {
 
   const [emailForm, setEmailForm] = useState<emailLayout>({
     email_type: null,
+    title: '',
     greetings: '',
     footer: '',
     welcome_header: '',
@@ -65,7 +67,7 @@ const UpdateFormatEmailHO: FC = () => {
   const fetchEmailData = async () => {
     try {
       await axios
-        .get(`${apiUrl}/email-messages/${params.id}`, {
+        .get(`${apiUrl}/mails/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -106,13 +108,15 @@ const UpdateFormatEmailHO: FC = () => {
             }))
           }
 
-          if (data?.information_detail) {
+          if (data?.email_type) {
             const emailTypes: any = {
-              1: 'Order Notification',
-              2: 'Credential Mail',
-              3: 'Reset Password',
-              4: 'Quotation Notification',
-              5: 'Others',
+              1: 'ORDER',
+              2: 'CREDENTIAL',
+              3: 'QUOTATIONS',
+              4: 'REFUND',
+              5: 'COMPLAIN',
+              6: 'RESCHEDULE',
+              7: 'CSI',
             }
 
             setSelectedEmailType((prev: any) => ({
@@ -318,6 +322,16 @@ const UpdateFormatEmailHO: FC = () => {
                   label: selectedEmailType?.label ?? '',
                 }}
                 onChange={(newValue) => setSelectedEmailType(newValue)}
+              />
+            </Form.Group>
+
+            <Form.Group className='header-template mb-3'>
+              <Form.Label className='fs-5'>Judul :</Form.Label>
+
+              <Form.Control
+                name='title'
+                value={emailForm.title}
+                onChange={(e) => emailFormHandler(e)}
               />
             </Form.Group>
 

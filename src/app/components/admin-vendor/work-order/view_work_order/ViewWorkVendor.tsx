@@ -251,11 +251,11 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       },
     })
 
-    setCurrentPage(response?.data?.page ?? 1)
-    setTotalData(response?.data?.total ?? 0)
+    setCurrentPage(response?.data.data?.page ?? 1)
+    setTotalData(response?.data.data?.total ?? 0)
     setLoadData(false)
 
-    return response.data.data
+    return response.data.data.data
   }
 
   const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {

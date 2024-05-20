@@ -53,7 +53,7 @@ const ViewCalendarVendor: React.FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data
+            const data = response.data.data.data
 
             if (data) {
               const orderDetail = data.map((item: any) => {
@@ -83,9 +83,9 @@ const ViewCalendarVendor: React.FC = () => {
 
                 return {
                   id: item?.id.toString(),
-                  title: `#${item?.id ?? ''} ${
-                    item.vendor ? `- ${item.vendor.company_name}` : ''
-                  } - ${item?.members?.full_name ?? ''} `,
+                  title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
+                    item?.members?.full_name ?? ''
+                  } `,
                   start: dayjs(startDate).format('YYYY-MM-DD'),
                   end: dayjs(endDate).format('YYYY-MM-DD'),
                   order_detail: item,

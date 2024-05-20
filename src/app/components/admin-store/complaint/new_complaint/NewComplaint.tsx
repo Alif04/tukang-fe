@@ -99,8 +99,8 @@ const NewComplaintForm: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data)) {
-        const tempOrder = response.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data.data)) {
+        const tempOrder = response.data.data.data.map((item: any) => ({
           value: item.id,
           label: item.id,
           status: item.status.category,
@@ -132,7 +132,7 @@ const NewComplaintForm: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setOrderDetail(data)
         })
     } catch (err) {

@@ -35,7 +35,7 @@ const UpdateProfile: FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data.member
+            const data = response.data.data.data.member
 
             if (data) {
               setUserInfo((prev) => ({

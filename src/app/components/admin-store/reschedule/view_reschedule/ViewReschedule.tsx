@@ -225,7 +225,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
         },
       })
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response.data.data.page)
       setTotalData(response?.data?.data?.data.length ?? 0)
       setLoadData(false)
 
@@ -240,7 +240,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       const apiData = await fetchRescheduleList(page, pageSize, queryparams)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetchRescheduleList')
         return []
       }
 

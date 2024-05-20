@@ -53,7 +53,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setOrderDetail(data)
           updatePageTitle(data)
           setIsLoadingPage(false)

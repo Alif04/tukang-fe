@@ -239,7 +239,7 @@ const NewInvoiceVendor: FC = () => {
   const getOrder = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}&vendor_id=${vendorId}&take=0`,
+        `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&take=0`,
         {
           headers: {
             Accept: 'application/json',
@@ -249,7 +249,7 @@ const NewInvoiceVendor: FC = () => {
           },
         }
       )
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

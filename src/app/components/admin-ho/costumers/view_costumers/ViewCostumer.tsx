@@ -167,12 +167,12 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         },
       })
 
-      const data = response.data.data
+      const data = response.data.data.data
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(data.length)
       setLoadData(false)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

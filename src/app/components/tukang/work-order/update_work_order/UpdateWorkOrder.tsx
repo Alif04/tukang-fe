@@ -198,8 +198,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           // Newest
-          if (data.work_order_status.length > 1) {
-            const workOrderItem = data.work_order_status[0].work_order_items.map(
+          if (data?.work_order_status.length > 1) {
+            const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
                 index: (Date.now() + index).toString(),

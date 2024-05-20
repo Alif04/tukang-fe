@@ -46,7 +46,7 @@ const ChartPie: React.FC<Props> = ({className, chartHeight, memberData}) => {
 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>Customer</div>
-            <div className='fs-1 '>{memberData.length}</div>
+            <div className='fs-1 '>{memberData?.length}</div>
             <div className='fs-5 text-muted'>Total Customer</div>
           </div>
         </div>

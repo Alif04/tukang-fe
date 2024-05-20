@@ -245,7 +245,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             },
           })
           .then((response) => {
-            const data = response.data.data
+            const data = response.data.data.data
             setOrderDetail(data)
 
             if (data?.store) {

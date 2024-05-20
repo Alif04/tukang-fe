@@ -177,8 +177,26 @@ const ReportVendorHO: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyOrders
+      const data = response.data.data.data
+      setOrderData(data)
+      return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getReportOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/orders${date}${vendorId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const chartDatas = response.data.data.monthlyOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -190,10 +208,7 @@ const ReportVendorHO: FC = () => {
       const endIndex = toMonth + 1
 
       const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setOrderData(data)
       setChartOrder(slicedData)
-      return data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -210,8 +225,8 @@ const ReportVendorHO: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders
+      const data = response.data.data.data
+      const chartDatas = response.data.data.monthlyWorkOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -288,6 +303,7 @@ const ReportVendorHO: FC = () => {
   useEffect(() => {
     getVendor()
     getOrder()
+    getReportOrder()
     getWorkOrder()
     getComplaint()
     getInvoices()
@@ -297,6 +313,7 @@ const ReportVendorHO: FC = () => {
     setLoadingButton(true)
 
     await getOrder()
+    await getReportOrder()
     await getWorkOrder()
     await getComplaint()
 

@@ -31,10 +31,9 @@ interface StoreItem {
   city_id: number | null
 }
 
-interface CityItem {
+interface AreaItem {
   value: number | null
   label: string
-  province_id: number | null
 }
 
 const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) => {
@@ -56,7 +55,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   const [dateTo, setDateTo] = useState<any>('')
 
   const [store, setStore] = useState<StoreItem[]>([])
-  const [city, setCity] = useState<CityItem[]>([])
+  const [area, setArea] = useState<AreaItem[]>([])
 
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
@@ -71,7 +70,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   })
 
   const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
-  const zoneOptions = [{value: null, label: 'All Zona', province_id: null}, ...city]
+  const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
 
   let columns: ColumnsType<any> = []
 
@@ -979,7 +978,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         },
       })
 
-      const orderData = response.data.data.map((item: any) => ({
+      const orderData = response.data.data.data.map((item: any) => ({
         ['Order ID']: item.id,
         ['Tanggal Order Dibuat']: new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
@@ -1034,7 +1033,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               // setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
 
               let totalGrandTotal = 0
-              response.data.data.forEach((item: any) => {
+              response.data.data.data.forEach((item: any) => {
                 if (item?.grand_total) {
                   totalGrandTotal += parseFloat(item?.grand_total)
                 }
@@ -1059,11 +1058,13 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               break
           }
 
-          setCurrentPage(response?.data?.page ?? 1)
-          setTotalOrder(response?.data?.total ?? 0)
+          setCurrentPage(response?.data?.data?.page ?? 1)
+          setTotalOrder(response?.data?.data?.total ?? 0)
         }
 
-        return endpoint === 'reschedule' ? response.data.data.data : response.data.data
+        return ['orders', 'reschedule'].includes(endpoint)
+          ? response.data.data.data
+          : response.data.data
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -1327,7 +1328,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
   useEffect(() => {
     const selectedStoreCityId = selectedStore?.city_id
-    const filteredZone = city.filter((item) => item.value === selectedStoreCityId)
+    const filteredZone = area.filter((item) => item.value === selectedStoreCityId)
 
     if (filteredZone.length === 1) {
       setSelectedZone(filteredZone[0])
@@ -1368,9 +1369,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       }
     }
 
-    const getCity = async () => {
+    const getArea = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/city?take=0`, {
+        const response = await axios.get(`${apiUrl}/area?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -1382,11 +1383,10 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         if (Array.isArray(response.data.data)) {
           const tempCity = response.data.data.map((item: any) => ({
             value: item?.id ?? null,
-            label: item?.city_name ?? '',
-            province_id: item?.province_id ?? null,
+            label: item?.area ?? '',
           }))
 
-          setCity(tempCity)
+          setArea(tempCity)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -1396,7 +1396,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     }
 
     getStore()
-    getCity()
+    getArea()
   }, [selectedZone])
 
   // Render

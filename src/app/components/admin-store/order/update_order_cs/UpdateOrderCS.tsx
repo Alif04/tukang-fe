@@ -230,7 +230,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             },
           })
           .then((response) => {
-            const data = response.data.data
+            const data = response.data.data.data
             setOrderDetail(data)
 
             if (data?.payment_type) {

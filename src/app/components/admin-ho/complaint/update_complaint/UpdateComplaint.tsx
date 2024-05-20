@@ -46,7 +46,7 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setComplaintDetail(data)
           updatePageTitle(data)
 

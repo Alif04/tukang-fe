@@ -85,7 +85,7 @@ const DetailOrderWithoutAuth = () => {
           }
         )
         .then((response) => {
-          const data = response.data.data as Orders
+          const data = response.data.data.data as Orders
           setOrder(data)
         })
     } catch (error: any) {

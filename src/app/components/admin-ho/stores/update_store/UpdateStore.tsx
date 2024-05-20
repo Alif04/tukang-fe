@@ -111,7 +111,7 @@ const UpdateStores: FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data
+            const data = response.data.data.data
 
             if (data?.area_id) {
               setStoreInfo((prev) => ({

@@ -32,7 +32,7 @@ const DetailRefundCS: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setRefundDetail(data)
         })
     } catch (error) {

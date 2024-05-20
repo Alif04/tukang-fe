@@ -977,8 +977,8 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
               break
           }
 
-          setCurrentPage(response?.data?.page ?? 1)
-          setTotalOrder(response?.data?.total ?? 0)
+          setCurrentPage(response?.data?.data?.page ?? 1)
+          setTotalOrder(response?.data?.data?.total ?? 0)
         }
 
         return endpoint === 'reschedule' ? response.data.data.data : response.data.data
