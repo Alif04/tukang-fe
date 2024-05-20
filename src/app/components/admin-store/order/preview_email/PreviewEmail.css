@@ -14,18 +14,38 @@
 }
 
 #preview-email .card-header {
-  display: block !important;
-  background-color: #183383;
-  min-height: 80px;
+  height: 180px;
+  background-image: url('/public/media/email/header-email-instalasi-01.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 #preview-email .content-header.row {
-  margin: 20px;
+  margin-bottom: 30px;
 }
 
 #preview-email .header-logo {
   display: flex;
   align-items: center;
+}
+
+#preview-email .card .card-footer {
+  height: 164px;
+  background-image: url('/public/media/email/footer-email-instalasi-02.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+@media screen and (max-width: 800px) {
+  #preview-email .card-header {
+    height: 124px;
+  }
+
+  #preview-email .card .card-footer {
+    height: 100px;
+  }
 }
 
 @media screen and (max-width: 400px) {

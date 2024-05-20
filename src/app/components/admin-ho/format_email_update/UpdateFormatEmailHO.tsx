@@ -38,10 +38,13 @@ const UpdateFormatEmailHO: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Email
+  const [emailType, setEmailType] = useState<templateOption[]>([])
   const [selectedEmailType, setSelectedEmailType] = useState<SingleValue<templateOption>>({
     value: null,
     label: '',
   })
+
+  console.log('selected emaill', selectedEmailType)
 
   const [emailForm, setEmailForm] = useState<emailLayout>({
     email_type: null,
@@ -122,7 +125,7 @@ const UpdateFormatEmailHO: FC = () => {
             setSelectedEmailType((prev: any) => ({
               ...prev,
               value: data?.email_type,
-              label: emailTypes[data?.email_type],
+              label: emailType.find((x: any) => x.value === data?.email_type)?.label,
             }))
           }
         })
@@ -131,18 +134,32 @@ const UpdateFormatEmailHO: FC = () => {
     }
   }
 
+  const getEmailType = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/mails/types`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      let emailTypes = Object.entries(response.data.data).map(([key, value]) => ({
+        label: key as string,
+        value: value as number,
+      }))
+
+      setEmailType(emailTypes)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
+    getEmailType()
     fetchEmailData()
   }, [])
-
-  // Template Option
-  const templateOptions = [
-    {value: 1, label: 'Order Notification'},
-    {value: 2, label: 'Credential Mail'},
-    {value: 3, label: 'Reset Password'},
-    {value: 4, label: 'Quotation Notification'},
-    {value: 5, label: 'Others'},
-  ]
 
   // Email Form Handler
   const emailFormHandler = (e: any) => {
@@ -316,7 +333,7 @@ const UpdateFormatEmailHO: FC = () => {
                 classNamePrefix='select'
                 isSearchable={true}
                 placeholder='Template untuk'
-                options={templateOptions}
+                options={emailType}
                 value={{
                   value: selectedEmailType?.value ?? null,
                   label: selectedEmailType?.label ?? '',

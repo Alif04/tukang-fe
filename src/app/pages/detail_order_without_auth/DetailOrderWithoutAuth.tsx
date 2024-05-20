@@ -154,7 +154,7 @@ const DetailOrderWithoutAuth = () => {
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [

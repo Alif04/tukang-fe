@@ -18,7 +18,7 @@ const {RangePicker} = DatePicker
 
 interface StatusStorage {
   value: number
-  category: any
+  category: string
   description: string
 }
 
@@ -270,12 +270,12 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               : 'Order ini tanpa survey'
 
             const workOrderHistoryData = data.work_order_status.map((item: any) => ({
-              work_order_id: item.work_order_id,
+              work_order_id: item?.work_order_id,
               work_order_status: item?.status?.category,
               work_order_status_label: item?.status?.description,
               created_at: surveyDate,
-              updated_at: item.created_at
-                ? new Date(item.created_at).toLocaleDateString('id-ID', {
+              updated_at: item?.created_at
+                ? new Date(item?.created_at).toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric',
@@ -284,7 +284,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   })
                 : '-',
               work_date_time: workDateTime,
-              updated_by: item.updated_by,
+              updated_by: item?.updated_by,
             }))
 
             setWorkOrderHistory(workOrderHistoryData)
@@ -568,29 +568,34 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
+    console.log('statusData', statusData)
+
     const getStatusNameByCategory = (category: string) => {
       switch (category) {
         case 'SURVEYREQ':
           return 'SURVEYSTART'
         case 'SURVEYSTART':
           return 'SURVEYDONE'
+        case 'SURVEYDONE':
+          return 'SURVEYDONE'
         case 'WORKREQ':
           return 'WORKSTART'
         case 'WORKSTART':
           return 'WIP'
         case 'WIP':
-          return 'WORKDONE'
+          return 'WORKEND'
         default:
           return null
       }
     }
 
     const status = getStatusNameByCategory(workOrderDetail?.work_order_status[0]?.status?.category)
-    const desiredStatus = statusData.find((statuses: StatusStorage) => statuses.category === status)
+    const desiredStatus =
+      statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
 
     setWorkOrder({
       ...workOrder,
-      work_order_status: desiredStatus?.value ?? null,
+      work_order_status: desiredStatus,
     })
   }, [workOrderDetail?.work_order_status[0]?.status?.category, workOrder.work_order_status])
 
@@ -1680,14 +1685,19 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           <Row>
             {workOrderDetail?.work_order_status?.length > 1 &&
             workOrderDetail?.work_order_status[0]?.status?.category === 'WORKEND' ? (
-              <div className='d-flex justify-content-center'>
-                <Button className='btn-done' type='submit' disabled>
+              <div className='d-flex justify-content-center align-items-center'>
+                <Button
+                  className='btn-done d-flex justify-content-center align-items-center'
+                  type='submit'
+                  disabled
+                >
                   Order Ini Telah Selesai
                 </Button>
               </div>
             ) : (
-              <div className='d-flex justify-content-center'>
+              <div className='d-flex justify-content-center align-items-center'>
                 <Button
+                  className='d-flex justify-content-center align-items-center'
                   variant='dark-primary'
                   type='submit'
                   disabled={isLoading}

@@ -650,7 +650,7 @@ const UpdateQuotationVendor: FC = () => {
                     plaintext
                     className='fs-2 fw-bold text-black'
                     type='text'
-                    value={quotationData?.status?.category}
+                    value={quotationData?.status?.description}
                   />
                 </Col>
               </Form.Group>

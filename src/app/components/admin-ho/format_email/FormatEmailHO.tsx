@@ -17,6 +17,7 @@ interface templateOption {
 
 interface emailLayout {
   email_type: number | null
+  trigger_id: number | null
   title: string
   greetings: string
   footer: string
@@ -70,6 +71,7 @@ const FormatEmailHO: FC = () => {
 
   const [emailForm, setEmailForm] = useState<emailLayout>({
     email_type: null,
+    trigger_id: 12,
     title: '',
     greetings: '',
     footer: '',
@@ -244,7 +246,6 @@ const FormatEmailHO: FC = () => {
 
               <Form.Control
                 name='title'
-                as='textarea'
                 value={emailForm.title}
                 onChange={(e) => emailFormHandler(e)}
               />
