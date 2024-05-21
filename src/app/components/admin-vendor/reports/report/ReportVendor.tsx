@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
 import {Table, PaginationProps, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Card, Row, Col} from 'react-bootstrap'
+import {Card, Row, Col, Button} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -32,6 +32,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
 
@@ -928,7 +929,12 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
       break
   }
 
-  const fetchReportData = async (endpoint: string, page: number, pageSize: number) => {
+  const fetchReportData = async (
+    endpoint: string,
+    page: number,
+    pageSize: number,
+    queryparams: any
+  ) => {
     try {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -939,8 +945,8 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
         const url =
           statusName === ''
-            ? `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
-            : `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}&status=${statuses}`
+            ? `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+            : `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
 
         const response = await axios.get(url, {
           headers: {
@@ -970,8 +976,8 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               break
           }
 
-          setCurrentPage(response?.data?.page ?? 1)
-          setTotalOrder(response?.data?.total ?? 0)
+          setCurrentPage(response?.data?.data?.page ?? 1)
+          setTotalOrder(response?.data?.data?.total ?? 0)
         }
 
         return endpoint === 'reschedule' ? response.data.data.data : response.data.data
@@ -981,9 +987,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
     }
   }
 
-  const ViewReportData = async (endpoint: string, page: number, pageSize: number) => {
+  const ViewReportData = async (
+    endpoint: string,
+    page: number,
+    pageSize: number,
+    queryparams: any
+  ) => {
     try {
-      const apiData = await fetchReportData(endpoint, page, pageSize)
+      const apiData = await fetchReportData(endpoint, page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from getReportData')
@@ -1218,14 +1229,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
     }
   }
 
-  const fetchData = async (page: number, pageSize: number) => {
-    const data = await ViewReportData(endpoint, page, pageSize)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewReportData(endpoint, page, pageSize, queryparams)
     setReportData(data)
   }
 
   useEffect(() => {
-    fetchData(1, 10)
-  }, [dateFrom, dateTo])
+    fetchData(1, 10, '')
+  }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -1258,6 +1269,27 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
     XLSX.writeFile(workbook, `Report ${title}.xlsx`)
   }
 
+  // Submit Filter
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    const data = await ViewReportData('orders', 1, 10, queryparams)
+    setReportData(data)
+
+    setLoadingButton(false)
+  }
+
   return (
     <section id='view-report-vendor'>
       <Row className='mb-5'>
@@ -1288,7 +1320,15 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           </Row>
         </Col>
 
-        <Col xxl={4} xl={4} lg={12}></Col>
+        <Col xxl={4} xl={4} lg={12}>
+          <Button
+            className='btn-dark-primary button-submit'
+            disabled={loadingButton}
+            onClick={handleSubmitFilter}
+          >
+            {loadingButton ? 'Filtering..' : 'Submit'}
+          </Button>
+        </Col>
 
         <Col xxl={4} xl={4} lg={12}></Col>
       </Row>
@@ -1334,7 +1374,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
                 showSizeChanger: true,
                 pageSizeOptions: [5, 10, 20, 50, 100],
                 onChange: (page, pageSize) => {
-                  fetchData(page, pageSize)
+                  fetchData(page, pageSize, '')
                 },
                 itemRender: itemRender,
                 showTotal: (total, range) => (
@@ -1358,7 +1398,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
                 showSizeChanger: true,
                 pageSizeOptions: [5, 10, 20, 50, 100],
                 onChange: (page, pageSize) => {
-                  fetchData(page, pageSize)
+                  fetchData(page, pageSize, '')
                 },
                 itemRender: itemRender,
                 showTotal: (total, range) => (

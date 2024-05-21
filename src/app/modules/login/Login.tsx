@@ -79,18 +79,18 @@ export function Login() {
         }
       )
       .then((res) => {
-        if (res.data.statusCode === 200) {
-          const user = res.data.user
+        if (res.data.data.statusCode === 200) {
+          const user = res.data.data.user
           const isSales = user.roles.name === 'Sales'
           const isAdminHO = user.roles.name === 'Admin Ho'
           const isVendor = user.roles.name === 'Admin Vendor'
           const isTukang = user.roles.name === 'Tukang'
           const isEmployee = user.employee !== null && !isSales && !isVendor
 
-          localStorage.setItem('user_id', res.data.user.id)
-          localStorage.setItem('username', res.data.user.username)
-          localStorage.setItem('userRole', res.data.user.roles.name)
-          localStorage.setItem('accessToken', res.data.accessToken)
+          localStorage.setItem('user_id', res.data.data.user.id)
+          localStorage.setItem('username', res.data.data.user.username)
+          localStorage.setItem('userRole', res.data.data.user.roles.name)
+          localStorage.setItem('accessToken', res.data.data.accessToken)
 
           if (isSales) {
             localStorage.setItem('sales_id', user?.sales[0]?.id)

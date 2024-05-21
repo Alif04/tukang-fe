@@ -156,7 +156,8 @@ const NewQuotationVendor: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      const data = response.data.data
+
+      const data = response.data.data.data
       setStoreDetail(data)
     } catch (err) {
       console.error(err)

@@ -96,6 +96,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Order Information Detail
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [isCanceledOrder, setIsCanceledOrder] = useState(false)
 
   // Store
   const [store, setStore] = useState<StoreItemSelect[]>([])
@@ -144,6 +145,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+  const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
+  const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
 
   // Member
   const [member, setMember] = useState<MemberSelect[]>([])
@@ -242,7 +245,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             },
           })
           .then((response) => {
-            const data = response.data.data
+            const data = response.data.data.data
             setOrderDetail(data)
 
             if (data?.store) {
@@ -692,6 +695,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         return 'SURVEYREQ'
       } else if (paymentTypeValue[1] === 'survey' && orderDetail?.quotation?.length) {
         return 'WORKREQ'
+      } else if (isCanceledOrder === true) {
+        return 'CANCEL'
       } else {
         return 'WORKREQ'
       }
@@ -701,13 +706,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     const desiredStatus = statusData.find((statuses: any) => statuses.category === status)
     const statusId = desiredStatus?.value
 
-    console.log('desired status', desiredStatus)
-
     setOrderForm({
       ...orderForm,
       project_status_id: statusId,
     })
-  }, [paymentTypeValue, orderForm.project_status_id])
+  }, [paymentTypeValue, orderForm.project_status_id, isCanceledOrder])
 
   // Select Date Request
   const today = new Date().toISOString().split('T')[0]
@@ -979,8 +982,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            if (['QUOTEOUT'].includes(orderDetail?.status?.category)) {
+            if (['QUOTEOUT'].includes(orderDetail?.status?.category) && isCanceledOrder === false) {
               navigate(`/order/view-order`)
+            } else if (isCanceledOrder === true) {
+              navigate(`/refund/new-refund/${orderId}`)
             } else {
               navigate(`/order/preview-email/${orderId}`)
             }
@@ -1006,46 +1011,22 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }
 
   // Reprint Order
-  const handleReprintOrder = async () => {
-    await axios
-      .request({
-        url: `${apiUrl}/orders/${params.id}/counter`,
-        method: 'post',
-        maxBodyLength: Infinity,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Reprint Order',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1000,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-
-        navigate(`/order/printout-order/${params.id}`)
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
+  const handleCancelOrder = async () => {
+    Swal.fire({
+      title: 'Konfirmasi',
+      text: 'Apakah anda yakin ingin membatalkan orderan ini?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya',
+      confirmButtonColor: '#6b9230',
+      cancelButtonText: 'Tidak',
+      cancelButtonColor: '#a30014',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setIsCanceledOrder(true)
+        handleUpdateOrder()
+      }
+    })
   }
 
   return (
@@ -1612,7 +1593,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     )}
                   </div>
 
-                  <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                  <Row className='upload-receipt d-flex align-items-start mt-5'>
                     <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                       <Form.Label className='mt-3'>Bukti Receipt :</Form.Label>
                       <ListGroup>
@@ -1638,7 +1619,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                             style={{display: 'none'}}
                             src={`${apiUrl}/public/receipt/${previewImage}`}
                             preview={{
-                              visible,
+                              visible: visible,
                               src: `${apiUrl}/public/receipt/${previewImage}`,
                               onVisibleChange: (value) => {
                                 setVisible(value)
@@ -1652,20 +1633,22 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                       {orderDetail?.quotation[0]?.quotation_files.length && (
                         <>
-                          <Form.Label className='mt-3'>Bukti Transaksi Quotation :</Form.Label>
+                          <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
                           <ListGroup>
-                            {orderDetail?.quotation[0].quotation_files.map((item: any) => (
-                              <ListGroup.Item
-                                key={item.id}
-                                action
-                                onClick={() => {
-                                  setPreviewImage(item.path)
-                                  setVisible(true)
-                                }}
-                              >
-                                {item.path}
-                              </ListGroup.Item>
-                            ))}
+                            {orderDetail?.quotation[0].quotation_files
+                              .filter((x: any) => x.type === 2)
+                              .map((item: any) => (
+                                <ListGroup.Item
+                                  key={item.id}
+                                  action
+                                  onClick={() => {
+                                    setPreviewImage(item.path)
+                                    setVisibleQuotationReceipt(true)
+                                  }}
+                                >
+                                  {item.path}
+                                </ListGroup.Item>
+                              ))}
                           </ListGroup>
 
                           {previewImage && (
@@ -1676,10 +1659,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                 style={{display: 'none'}}
                                 src={`${apiUrl}/public/quotation/${previewImage}`}
                                 preview={{
-                                  visible,
+                                  visible: visibleQuotationReceipt,
                                   src: `${apiUrl}/public/quotation/${previewImage}`,
                                   onVisibleChange: (value) => {
-                                    setVisible(value)
+                                    setVisibleQuotationReceipt(value)
                                   },
                                 }}
                               />
@@ -1689,7 +1672,47 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       )}
                     </Col>
 
-                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                      {orderDetail?.quotation[0]?.quotation_files.length && (
+                        <>
+                          <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
+                          <ListGroup>
+                            {orderDetail?.quotation[0].quotation_files
+                              .filter((x: any) => x.type === 1)
+                              .map((item: any) => (
+                                <ListGroup.Item
+                                  key={item.id}
+                                  action
+                                  onClick={() => {
+                                    setPreviewImage(item.path)
+                                    setVisibleQuotationFiles(true)
+                                  }}
+                                >
+                                  {item.path}
+                                </ListGroup.Item>
+                              ))}
+                          </ListGroup>
+
+                          {previewImage && (
+                            <div>
+                              <Image
+                                key={previewImage}
+                                width={200}
+                                style={{display: 'none'}}
+                                src={`${apiUrl}/public/quotation/${previewImage}`}
+                                preview={{
+                                  visible: visibleQuotationFiles,
+                                  src: `${apiUrl}/public/quotation/${previewImage}`,
+                                  onVisibleChange: (value) => {
+                                    setVisibleQuotationFiles(value)
+                                  },
+                                }}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </Col>
                   </Row>
                 </>
               )
@@ -2036,7 +2059,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             }
           })()}
 
-          <div className='button-submit d-flex justify-content-center align-items-center'>
+          <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
             <Button onClick={handleUpdateOrder} disabled={isLoading} variant='dark-primary'>
               {['QUOTEOUT'].includes(orderDetail?.status?.category)
                 ? isLoading
@@ -2046,6 +2069,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 ? 'Submitting..'
                 : 'Submit Order & Email'}
             </Button>
+
+            {['QUOTEOUT'].includes(orderDetail?.status?.category) ? (
+              <Button onClick={handleCancelOrder} disabled={isLoading} variant='dark-danger'>
+                Cancel Order
+              </Button>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>

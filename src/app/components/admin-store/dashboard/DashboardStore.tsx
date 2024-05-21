@@ -45,9 +45,9 @@ const DashboardStore: FC = () => {
         },
       })
 
-      setOrderData(response.data.data)
+      setOrderData(response.data.data.data)
       setIsLoadingPage(false)
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -64,7 +64,7 @@ const DashboardStore: FC = () => {
         },
       })
 
-      const chartDatas = response.data.monthlyOrders
+      const chartDatas = response.data.data.monthlyOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)

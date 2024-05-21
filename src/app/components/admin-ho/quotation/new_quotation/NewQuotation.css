@@ -135,14 +135,3 @@
   padding: 0 0 10px 0;
   font-size: 14px;
 }
-
-/* Button Action */
-
-#new-quotation .btn.btn-dark-primary {
-  width: 140px;
-  height: 50px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #020080 !important;
-  transition: 0.3s ease-in-out;
-}

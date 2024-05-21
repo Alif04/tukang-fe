@@ -231,13 +231,6 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const fetchVendorList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 

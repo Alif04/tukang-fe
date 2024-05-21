@@ -36,8 +36,8 @@ const ReportWorkVendor: FC = () => {
           },
         }
       )
-      const data = response.data.data
 
+      const data = response.data.data.data
       setOrderData(data)
       return data
     } catch (error) {
@@ -56,8 +56,8 @@ const ReportWorkVendor: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+      const data = response.data.data.data
+      const chartDatas = response.data.data.monthlyOrders.slice(1, 7)
 
       setChartData(chartDatas)
       return data
@@ -77,8 +77,8 @@ const ReportWorkVendor: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
+      const data = response.data.data.data
+      const chartDatas = response.data.data.monthlyWorkOrders.slice(1, 7)
 
       console.log(chartDatas)
 

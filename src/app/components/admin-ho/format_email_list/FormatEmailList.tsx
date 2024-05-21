@@ -219,7 +219,7 @@ const FormatEmailList: FC = () => {
   ]
 
   const getFormatEmailList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/email-messages?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/mails?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -260,11 +260,13 @@ const FormatEmailList: FC = () => {
         })
 
         const emailTypes: any = {
-          1: 'ORDERS NOTIFICATION',
-          2: 'CREDENTIAL MAIL',
-          3: 'RESET PASSWORD',
-          4: 'QUOTATION',
-          5: 'OTHERS',
+          1: 'ORDER',
+          2: 'CREDENTIAL',
+          3: 'QUOTATIONS',
+          4: 'REFUND',
+          5: 'COMPLAIN',
+          6: 'RESCHEDULE',
+          7: 'CSI',
         }
 
         const EmailType = emailTypes[item?.email_type] || ''

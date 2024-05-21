@@ -26,7 +26,6 @@ interface DataType {
   member_id: number
   member_name: string
   phone_number: number
-  item_name: string
   service_name: string
   payment_status: string
   order_status: string
@@ -122,15 +121,6 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 110,
       sorter: (a, b) => a.phone_number - b.phone_number,
-    },
-    {
-      title: 'Item Name',
-      dataIndex: 'item_name',
-      key: 'item_name',
-      align: 'left',
-      width: 130,
-      onFilter: (value, record) => record.item_name.includes(String(value)),
-      sorter: (a, b) => a.item_name.length - b.item_name.length,
     },
     {
       title: 'Nama Jasa Pemasangan',
@@ -237,7 +227,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       const apiData = await fetchRefundList(page, pageSize, queryparams)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from fetchRefundList')
         return []
       }
 
@@ -251,12 +241,12 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
         })
 
         const paymentStatus = (() => {
-          if (item?.payment_type === 'survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
-          } else if (item?.payment_type === 'gratis') {
+          if (item?.orders?.payment_type === 'survey') {
+            return item?.orders.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.orders?.payment_type === 'gratis') {
             return 'FREE'
-          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.orders?.payment_type === 'pemasangan_tanpa_survey') {
+            return item?.orders?.receipt_number === null ? 'UNPAID' : 'PAID'
           } else {
             return ''
           }
@@ -270,10 +260,21 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           member_id: item?.orders?.members?.member_number,
           member_name: item?.orders?.members?.full_name,
           phone_number: item?.orders?.project_number,
-          item_name: item?.orders?.m_order_details[0]?.item?.item_name,
-          service_name: item?.orders?.m_order_details[0]?.item?.service_name,
+          service_name:
+            item?.orders?.payment_type === 'survey' && item?.orders?.quotation?.length === 0
+              ? item?.orders?.m_order_details[0]?.item_notes
+              : item?.orders?.payment_type === 'survey' && item?.orders?.quotation?.length >= 0
+              ? item?.orders?.quotation[0]?.quotation_details[0]?.name ?? '-'
+              : item?.orders?.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item?.orders?.status?.category,
+          order_status:
+            item?.orders?.work_orders?.work_order_status?.length > 0 &&
+            item?.status?.category !== 'QUOTEOUT'
+              ? item?.orders?.work_orders?.work_order_status[0]?.status?.category
+              : item?.orders?.work_orders?.work_order_status?.length > 0 &&
+                item?.orders?.status?.category === 'QUOTEOUT'
+              ? item?.orders?.status?.category
+              : item?.orders?.status?.category,
         }
 
         return data
@@ -392,7 +393,6 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
               columns={columns}
               dataSource={refundData}
               rowKey={(record) => record.order_id}
-              scroll={{x: 1800}}
               pagination={false}
             />
           </Spin>

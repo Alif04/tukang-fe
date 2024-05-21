@@ -6,10 +6,10 @@ import './NewOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, FormGroup, Table, Button, ListGroup} from 'react-bootstrap'
+import {Row, Col, Form, FormGroup, Table, Button, ListGroup, Card, Accordion} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faImage, faFileImage, faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 
 interface StoreItemSelect {
   value: number | null
@@ -166,7 +166,8 @@ const NewOrderHO: FC = () => {
   })
 
   // Vendor
-  const [vendor, setVendor] = useState<VendorSelect[]>([])
+  const [vendor, setVendor] = useState<any[]>([])
+  const [vendorSelect, setVendorSelect] = useState<VendorSelect[]>([])
   const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorSelect>>({
     value: null,
     label: '',
@@ -243,8 +244,8 @@ const NewOrderHO: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data)) {
-          const tempMember = response.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data.data)) {
+          const tempMember = response.data.data.data.map((item: any) => ({
             value: item.id,
             label: item[labelKey],
             full_name: item.full_name,
@@ -339,6 +340,27 @@ const NewOrderHO: FC = () => {
 
     const getVendor = async () => {
       try {
+        const response = await axios.get(`${apiUrl}/vendor?${storeId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          setVendor(response.data.data)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    const getVendorByMaxOrder = async () => {
+      try {
         const response = await axios.get(`${apiUrl}/vendor?vendor_with_max_order=1&${storeId}`, {
           headers: {
             Accept: 'application/json',
@@ -354,7 +376,7 @@ const NewOrderHO: FC = () => {
             label: item.company_name,
           }))
 
-          setVendor(tempVendor)
+          setVendorSelect(tempVendor)
         } else {
           console.error('API response data is not an array:', response.data)
         }
@@ -366,6 +388,7 @@ const NewOrderHO: FC = () => {
     getStore()
     getSales()
     getVendor()
+    getVendorByMaxOrder()
   }, [selectedStore?.value])
 
   // Order Form Handler
@@ -876,10 +899,78 @@ const NewOrderHO: FC = () => {
     }
   }, [selectedMember.value])
 
+  // Vendor Availbility
+  const vendorAvailbility = (data: any) => {
+    const todayDate = new Date().toISOString().split('T')[0]
+    const maxOrder = data.max_order
+
+    // Detect Survey Date Only
+    // const workOrderVendor = data.work_orders.filter((x: any) => {
+    //   const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+    //   return surveyDate === todayDate
+    // })
+
+    // Detect Survey Date and Work Date
+    const workOrderVendor = data.work_orders.filter((x: any) => {
+      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+
+      const workStartDate = x.work_start_date
+        ? new Date(x.work_start_date).toISOString().split('T')[0]
+        : null
+
+      const workEndDate = x.work_end_date
+        ? new Date(x.work_end_date).toISOString().split('T')[0]
+        : null
+
+      if (surveyDate && !workStartDate && !workEndDate) {
+        return surveyDate === todayDate
+      } else if (surveyDate && workStartDate && workEndDate) {
+        return workStartDate <= todayDate && todayDate <= workEndDate
+      } else {
+        return surveyDate === todayDate
+      }
+    })
+
+    return workOrderVendor.length >= maxOrder ? 'FULL BOOKED' : 'AVAILABLE'
+  }
+
   return (
     <section id='update-order'>
-      <div className='card mb-5'>
-        <div className='card-body'>
+      <Accordion className='mb-5'>
+        <Accordion.Item eventKey='0'>
+          <Accordion.Header>
+            <FontAwesomeIcon icon={faCircleInfo} size='lg' className='me-2' />
+            <p className='fs-7 fw-bold'>Ketersediaan Vendor</p>
+          </Accordion.Header>
+
+          <Accordion.Body>
+            <div className='description fs-7 mb-5'>Informasi mengenai ketersediaan dari Vendor</div>
+
+            <div className='vendor-avail'>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Nama Vendor</th>
+                    <th>Ketersediaan Vendor</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {vendor.map((item: any) => (
+                    <tr key={item?.id}>
+                      <td>{item?.company_name ?? '-'}</td>
+                      <td>{vendorAvailbility(item)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+
+      <Card className='mb-5'>
+        <Card.Body>
           <div className='form-wrapper'>
             <div className='form-costumer'>
               <Row className='form-header'>
@@ -1186,7 +1277,7 @@ const NewOrderHO: FC = () => {
                   placeholder='Pilih/Ketik Nama Vendor'
                   isSearchable={true}
                   isClearable={true}
-                  options={vendor}
+                  options={vendorSelect}
                   onChange={(newValue) => setSelectedVendor(newValue)}
                 />
               </Form.Group>
@@ -1559,8 +1650,8 @@ const NewOrderHO: FC = () => {
               {isLoading || isSubmittingNewMember ? 'Submitting..' : 'Submit Order & Email'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

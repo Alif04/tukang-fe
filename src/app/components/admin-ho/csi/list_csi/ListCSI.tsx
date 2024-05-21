@@ -171,10 +171,10 @@ const ListCSIHO: React.FC<Props> = ({className}) => {
         }
       )
 
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
+      setCurrentPage(response.data.data.page)
+      setTotalData(response?.data?.data?.total ?? 0)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

@@ -36,7 +36,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setVendorDetail(data)
           updatePageTitle(data)
 
@@ -244,7 +244,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       {vendorDetail?.vendor_service.length ? (
                         <p className='fs-7'>
                           {vendorDetail?.vendor_service
-                            .map((item: any) => item?.service_type_name)
+                            .map((item: any) => item?.service_type.service_type)
                             .join(', ')}
                         </p>
                       ) : (
@@ -395,15 +395,6 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       <Form.Label className='fw-normal mt-3'>
                         {vendorDetail?.vendor_bank[0].bank.bank_name}
                       </Form.Label>
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='2' className='fw-semibold'>
-                      NAMA CABANG :
-                    </Form.Label>
-                    <Col sm='10'>
-                      <Form.Label className='fw-normal mt-3'></Form.Label>
                     </Col>
                   </Form.Group>
 

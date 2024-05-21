@@ -24,7 +24,7 @@ const DetailInvoiceVendor: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.invoice
+          const data = response.data.data.data.invoice
           const grandTotals = response?.data?.data?.totalQuotation ?? 0
 
           setInvoiceDetail(data)

@@ -94,6 +94,15 @@
   width: 30%;
 }
 
+/* Button */
+
+#printout-cs .hide-print-button.btn.btn-dark-primary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px !important;
+}
+
 @media screen and (max-width: 450px) {
   /* Table Item */
 
@@ -203,7 +212,7 @@
 /* Hide Print */
 @media print {
   .hide-print-button {
-    display: none;
+    display: none !important;
   }
 
   div#kt_header {

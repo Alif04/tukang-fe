@@ -252,6 +252,16 @@ iframe.csi-frame {
   z-index: 1056 !important;
 }
 
+/* Accordion */
+.accordion-button.collapsed {
+  color: white;
+  background-color: #0f4cff;
+}
+
+.accordion-button::after {
+  color: white !important;
+}
+
 /* Button Action */
 
 button.btn-dark-primary.button-submit.btn.btn-primary {
@@ -318,7 +328,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 .btn.btn-light-dark {
   width: 150px;
-  height: 50px;
+  height: 40px;
   color: white !important;
   border-color: transparent !important;
   background-color: #7f7f7f !important;
@@ -330,8 +340,11 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 }
 
 .btn.btn-dark-danger {
-  width: 100px;
-  height: 50px;
+  width: fit-content !important;
+  height: 40px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;
@@ -345,7 +358,10 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 .btn.btn-dark-warning {
   width: fit-content !important;
-  height: 50px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;
@@ -359,7 +375,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 .btn.btn-dark-primary {
   width: fit-content !important;
-  height: 50px;
+  height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;
@@ -373,7 +389,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 .btn.btn-dark-success {
   width: 130px;
-  height: 50px;
+  height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;
@@ -387,7 +403,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 
 button.btn-done.btn.btn-primary {
   width: fit-content;
-  height: 50px;
+  height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;

@@ -75,8 +75,8 @@ const NewReschedule: FC = () => {
         }
       )
 
-      if (Array.isArray(response.data.data)) {
-        const tempOrder = response.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data.data)) {
+        const tempOrder = response.data.data.data.map((item: any) => ({
           value: item.id,
           label: item.id,
           status_id: item.status.id,
@@ -103,7 +103,7 @@ const NewReschedule: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setOrderDetail(data)
         })
     } catch (err) {

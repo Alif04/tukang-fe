@@ -121,8 +121,8 @@ const NewTukangVendor: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data)) {
-        const tempServiceType = response.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data.data)) {
+        const tempServiceType = response.data.data.data.map((item: any) => ({
           value: item.id,
           label: item.service_type,
         }))
@@ -700,6 +700,7 @@ const NewTukangVendor: FC = () => {
         </Button>
 
         <Button
+          className='d-flex justify-content-center align-items-center'
           variant='dark-primary'
           type='submit'
           disabled={isLoading}

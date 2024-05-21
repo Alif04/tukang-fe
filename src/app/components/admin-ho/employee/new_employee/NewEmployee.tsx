@@ -194,10 +194,10 @@ const NewEmployee: FC = () => {
         }
       )
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response.data.data.page)
       setTotalData(response.data.takeTotal)
 
-      return response.data.data
+      return response.data.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

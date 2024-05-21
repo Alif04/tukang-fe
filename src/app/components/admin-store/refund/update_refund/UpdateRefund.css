@@ -40,40 +40,6 @@
   width: 40%;
 }
 
-/* Button */
-
-#update-refund .btn.btn-dark-danger {
-  width: 100px;
-  height: 50px;
-  margin: 0 10px 0 10px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #a30014 !important;
-  transition: 0.3s ease-in-out;
-}
-
-.btn.btn-dark-danger:hover:not(.btn-active) {
-  background-color: #d80019 !important;
-}
-
-#update-refund .btn.btn-dark-primary {
-  width: 180px;
-  height: 50px;
-  margin: 0 10px 0 10px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #020080 !important;
-  transition: 0.3s ease-in-out;
-}
-
-#update-refund.btn.btn-dark-primary:hover:not(.btn-active) {
-  background-color: #0300b5 !important;
-}
-
-.btn.btn-dark-primary:hover:not(.btn-active) {
-  background-color: #0300b5 !important;
-}
-
 @media screen and (max-width: 1200px) {
   #update-refund .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;

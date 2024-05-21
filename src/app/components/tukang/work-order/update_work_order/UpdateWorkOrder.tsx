@@ -4,7 +4,7 @@ import {WorkOrder} from '../../../../interfaces/work-order'
 import './UpdateWorkOrder.css'
 
 import axios from 'axios'
-import Select, {SingleValue} from 'react-select'
+import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import dayjs from 'dayjs'
@@ -18,14 +18,8 @@ const {RangePicker} = DatePicker
 
 interface StatusStorage {
   value: number
-  category: any
-  description: string
-}
-
-interface StatusSelect {
-  value: number | null
-  label: string
   category: string
+  description: string
 }
 
 interface Tukang {
@@ -87,16 +81,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   // Work Order History
   const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
 
-  // Work Order Status
-  const [workOrderStatus, setWorkOrderStatus] = useState<StatusSelect[]>([])
-  const [selectedWorkOrderStatus, setSelectedWorkOrderStatus] = useState<SingleValue<StatusSelect>>(
-    {
-      value: null,
-      label: '',
-      category: '',
-    }
-  )
-
   // Work Order Tukang
   const [tukang, setTukang] = useState<Tukang[]>([])
 
@@ -155,8 +139,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     },
   ])
 
-  console.log('work order items', workOrderItem)
-
   // Fetch Data
   const getWorkOrderData = async () => {
     try {
@@ -189,15 +171,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               work_start_date: data.work_start_date,
               work_end_date: data.work_end_date,
               tukang_id: tukang,
-            }))
-          }
-
-          if (data?.work_order_status[0]?.status_id) {
-            setSelectedWorkOrderStatus((prev) => ({
-              ...prev,
-              value: data?.work_order_status[0]?.status?.id,
-              label: data?.work_order_status[0]?.status?.description,
-              category: data?.work_order_status[0]?.status?.category,
+              work_order_status: data.work_order_status[0].status.id,
             }))
           }
 
@@ -224,8 +198,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           // Newest
-          if (data.work_order_status.length > 1) {
-            const workOrderItem = data.work_order_status[0].work_order_items.map(
+          if (data?.work_order_status.length > 1) {
+            const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
                 index: (Date.now() + index).toString(),
@@ -296,13 +270,12 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               : 'Order ini tanpa survey'
 
             const workOrderHistoryData = data.work_order_status.map((item: any) => ({
-              work_order_id: item.work_order_id,
-              work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
-                ?.category,
+              work_order_id: item?.work_order_id,
+              work_order_status: item?.status?.category,
               work_order_status_label: item?.status?.description,
               created_at: surveyDate,
-              updated_at: item.created_at
-                ? new Date(item.created_at).toLocaleDateString('id-ID', {
+              updated_at: item?.created_at
+                ? new Date(item?.created_at).toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric',
@@ -311,7 +284,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   })
                 : '-',
               work_date_time: workDateTime,
-              updated_by: item.updated_by,
+              updated_by: item?.updated_by,
             }))
 
             setWorkOrderHistory(workOrderHistoryData)
@@ -351,7 +324,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   }
 
   useEffect(() => {
-    workOrderStatusOption()
     getWorkOrderData()
     getTukang()
   }, [])
@@ -592,13 +564,48 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     }
   }
 
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
+
+    console.log('statusData', statusData)
+
+    const getStatusNameByCategory = (category: string) => {
+      switch (category) {
+        case 'SURVEYREQ':
+          return 'SURVEYSTART'
+        case 'SURVEYSTART':
+          return 'SURVEYDONE'
+        case 'SURVEYDONE':
+          return 'SURVEYDONE'
+        case 'WORKREQ':
+          return 'WORKSTART'
+        case 'WORKSTART':
+          return 'WIP'
+        case 'WIP':
+          return 'WORKEND'
+        default:
+          return null
+      }
+    }
+
+    const status = getStatusNameByCategory(workOrderDetail?.work_order_status[0]?.status?.category)
+    const desiredStatus =
+      statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
+
+    setWorkOrder({
+      ...workOrder,
+      work_order_status: desiredStatus,
+    })
+  }, [workOrderDetail?.work_order_status[0]?.status?.category, workOrder.work_order_status])
+
   // Update Work Order
   const handleUpdateWorkOrder = async () => {
     const formData = new FormData()
     setIsLoading(true)
 
     // Work Order Detail
-    formData.append('status_id', selectedWorkOrderStatus?.value?.toString() ?? '')
+    formData.append('status_id', String(workOrder?.work_order_status))
     formData.append('description', workOrder.description)
 
     if (workOrder.work_date_time !== '') {
@@ -708,72 +715,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           icon: 'error',
         })
       })
-  }
-
-  const workOrderStatusOption = () => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const paymentTypeMap = new Map<string, string[]>([
-      [
-        'gratis',
-        [
-          'WORKREQ',
-          'WORKSTART',
-          'WIP',
-          'WORKEND',
-          'REWORK',
-          'REWORKSTART',
-          'RIP',
-          'REWORKEND',
-          'RESCHEDULE',
-        ],
-      ],
-      [
-        'pemasangan_tanpa_survey',
-        [
-          'WORKREQ',
-          'WORKSTART',
-          'WIP',
-          'WORKEND',
-          'REWORK',
-          'REWORKSTART',
-          'RIP',
-          'REWORKEND',
-          'RESCHEDULE',
-        ],
-      ],
-      [
-        'survey',
-        [
-          'SURVEYREQ',
-          'SURVEYSTART',
-          'SURVEYDONE',
-          'WORKREQ',
-          'WORKSTART',
-          'WIP',
-          'WORKEND',
-          'REWORK',
-          'REWORKSTART',
-          'RIP',
-          'REWORKEND',
-          'RESCHEDULE',
-        ],
-      ],
-    ])
-
-    const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData
-      .filter((status) =>
-        paymentTypeMap
-          .get(workOrderDetail?.order?.payment_type ?? 'survey')
-          ?.includes(status.category)
-      )
-      .map(({description, value, category}) => ({
-        label: description,
-        category,
-        value,
-      }))
-
-    setWorkOrderStatus(desiredStatus)
   }
 
   // Work Order History
@@ -1066,6 +1007,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     </Form.Group>
 
                     {[
+                      'SURVEYSTART',
+                      'SURVEYDONE',
                       'WORKREQ',
                       'WIP',
                       'WORKEND',
@@ -1191,25 +1134,13 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
             <Col xxl={4} xl={4} md={4} sm={12}>
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6' className='fs-7 fw-semibold'>
+                <Form.Label className='pt-3 fs-5 fw-semibold'>
                   WORK ORDER STATUS :
+                  <span className='fw-bold'>
+                    {' '}
+                    {workOrderDetail?.work_order_status[0].status?.description}
+                  </span>
                 </Form.Label>
-
-                <Col sm='6'>
-                  <Select
-                    classNamePrefix='select'
-                    placeholder='Select Status'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={workOrderStatus}
-                    value={{
-                      value: selectedWorkOrderStatus?.value ?? null,
-                      label: selectedWorkOrderStatus?.label ?? '',
-                      category: selectedWorkOrderStatus?.category ?? '',
-                    }}
-                    onChange={(newValue) => setSelectedWorkOrderStatus(newValue)}
-                  />
-                </Col>
               </Form.Group>
 
               <Form.Group className='detail-info' as={Row} style={{visibility: 'hidden'}}>
@@ -1401,6 +1332,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                                 <td>
                                   <Form.Control
                                     id={`quantity-${index}`}
+                                    type='number'
                                     value={element.quantity?.toString()}
                                     onChange={(e) =>
                                       handleQuantityChange(element.index, e.target.value, 2)
@@ -1753,14 +1685,19 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           <Row>
             {workOrderDetail?.work_order_status?.length > 1 &&
             workOrderDetail?.work_order_status[0]?.status?.category === 'WORKEND' ? (
-              <div className='d-flex justify-content-center'>
-                <Button className='btn-done' type='submit' disabled>
+              <div className='d-flex justify-content-center align-items-center'>
+                <Button
+                  className='btn-done d-flex justify-content-center align-items-center'
+                  type='submit'
+                  disabled
+                >
                   Order Ini Telah Selesai
                 </Button>
               </div>
             ) : (
-              <div className='d-flex justify-content-center'>
+              <div className='d-flex justify-content-center align-items-center'>
                 <Button
+                  className='d-flex justify-content-center align-items-center'
                   variant='dark-primary'
                   type='submit'
                   disabled={isLoading}

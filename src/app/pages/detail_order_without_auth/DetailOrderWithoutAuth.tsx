@@ -85,7 +85,7 @@ const DetailOrderWithoutAuth = () => {
           }
         )
         .then((response) => {
-          const data = response.data.data as Orders
+          const data = response.data.data.data as Orders
           setOrder(data)
         })
     } catch (error: any) {
@@ -154,7 +154,7 @@ const DetailOrderWithoutAuth = () => {
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [

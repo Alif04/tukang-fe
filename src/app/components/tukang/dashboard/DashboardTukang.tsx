@@ -2,8 +2,6 @@ import React, {useState, useEffect, FC} from 'react'
 
 import './DashboardTukang.css'
 
-import {ChartBarPerformance} from './components/ChartBarPerformance'
-import {ChartBarOrder} from './components/ChartBarOrder'
 import {ChartBarSurvey} from './components/ChartBarSurvey'
 import {MoreInformation} from './components/MoreInformation'
 import {TableList} from './components/TableList'
@@ -13,16 +11,6 @@ import {DatePicker} from 'antd'
 import {Row, Col, Card, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
-
-interface StoreItem {
-  value: number | null
-  label: string
-}
-
-interface ProvinceItem {
-  value: number | null
-  label: string
-}
 
 const initialStatusState = {
   survey: 0,
@@ -57,13 +45,11 @@ const DashboardTukang: FC = () => {
   const tukangId = localStorage.getItem('tukang_id')
 
   const [loadingButton, setLoadingButton] = useState(false)
-
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
   const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
-
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
 
   const today = new Date()
@@ -73,21 +59,6 @@ const DashboardTukang: FC = () => {
 
   const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
-  const [store, setStore] = useState<StoreItem[]>([])
-  const [province, setProvince] = useState<ProvinceItem[]>([])
-  const [searchByStore, setSearchByStore] = useState<any>('')
-  const [searchByProvince, setSearchByProvince] = useState<any>('')
-
-  const handleChangeSelectStore = (element: any) => {
-    const updatedStoreId = element.value
-    setSearchByStore(updatedStoreId)
-  }
-
-  const handleChangeSelectProvince = (element: any) => {
-    const updatedProvinceId = element.value
-    setSearchByStore(updatedProvinceId)
-  }
 
   const getWorkOrderList = async (queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&tukang_id=${tukangId}${queryparams}`
@@ -128,7 +99,7 @@ const DashboardTukang: FC = () => {
         }
       )
 
-      const chartDatas = response.data.monthlyWorkOrders
+      const chartDatas = response.data.data.monthlyWorkOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -190,37 +161,6 @@ const DashboardTukang: FC = () => {
     reportWorkOrder()
   }, [])
 
-  useEffect(() => {
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            city_id: item.city_id,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    getStore()
-  }, [])
-
   // Catch Value From Response API by Status
   const [statusState, setStatusState] = useState(initialStatusState)
 
@@ -259,45 +199,6 @@ const DashboardTukang: FC = () => {
     waitingQuotation,
     waitingPayment,
   } = statusState
-
-  // Province Data
-  const provinces = [
-    {value: 'aceh', label: 'Aceh'},
-    {value: 'bali', label: 'Bali'},
-    {value: 'bangka_belitung', label: 'Bangka Belitung'},
-    {value: 'banten', label: 'Banten'},
-    {value: 'bengkulu', label: 'Bengkulu'},
-    {value: 'di_yogyakarta', label: 'DI Yogyakarta'},
-    {value: 'dki_jakarta', label: 'DKI Jakarta'},
-    {value: 'gorontalo', label: 'Gorontalo'},
-    {value: 'jambi', label: 'Jambi'},
-    {value: 'jawa_barat', label: 'Jawa Barat'},
-    {value: 'jawa_tengah', label: 'Jawa Tengah'},
-    {value: 'jawa_timur', label: 'Jawa Timur'},
-    {value: 'kalimantan_barat', label: 'Kalimantan Barat'},
-    {value: 'kalimantan_selatan', label: 'Kalimantan Selatan'},
-    {value: 'kalimantan_tengah', label: 'Kalimantan Tengah'},
-    {value: 'kalimantan_timur', label: 'Kalimantan Timur'},
-    {value: 'kalimantan_utara', label: 'Kalimantan Utara'},
-    {value: 'kepulauan_bangka_belitung', label: 'Kepulauan Bangka Belitung'},
-    {value: 'kepulauan_riau', label: 'Kepulauan Riau'},
-    {value: 'lampung', label: 'Lampung'},
-    {value: 'maluku', label: 'Maluku'},
-    {value: 'maluku_utara', label: 'Maluku Utara'},
-    {value: 'nusa_tenggara_barat', label: 'Nusa Tenggara Barat'},
-    {value: 'nusa_tenggara_timur', label: 'Nusa Tenggara Timur'},
-    {value: 'papua', label: 'Papua'},
-    {value: 'papua_barat', label: 'Papua Barat'},
-    {value: 'riau', label: 'Riau'},
-    {value: 'sulawesi_barat', label: 'Sulawesi Barat'},
-    {value: 'sulawesi_selatan', label: 'Sulawesi Selatan'},
-    {value: 'sulawesi_tengah', label: 'Sulawesi Tengah'},
-    {value: 'sulawesi_tenggara', label: 'Sulawesi Tenggara'},
-    {value: 'sulawesi_utara', label: 'Sulawesi Utara'},
-    {value: 'sumatera_barat', label: 'Sumatera Barat'},
-    {value: 'sumatera_selatan', label: 'Sumatera Selatan'},
-    {value: 'sumatera_utara', label: 'Sumatera Utara'},
-  ]
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
@@ -350,63 +251,9 @@ const DashboardTukang: FC = () => {
               </Button>
             </Col>
           </Row>
-
-          {/* <Row>
-            <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
-              <h3 className='title-header fs-5 fw-normal'>Lihat Store Dashboard</h3>
-            </Col>
-
-            <Col xxl={8} xl={8} lg={12}>
-              <div className='d-flex'>
-                <Select
-                  name='store_id'
-                  className='form-control p-0'
-                  classNamePrefix='select'
-                  placeholder='Pilih Toko'
-                  isSearchable={true}
-                  options={store}
-                  onChange={(element) => handleChangeSelectStore(element)}
-                />
-
-                <Select
-                  name='province_id'
-                  className='form-control p-0'
-                  classNamePrefix='select'
-                  placeholder='Pilih Zona'
-                  isSearchable={true}
-                  options={provinces}
-                  onChange={(element) => handleChangeSelectProvince(element)}
-                />
-              </div>
-            </Col>
-          </Row> */}
         </Col>
 
-        <Col xxl={6} xl={6} lg={12} className='mb-5'>
-          {/* <Row>
-            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
-            </Col>
-
-            <Col xxl={8} xl={8} lg={8}>
-              <RangePicker
-                className='date-range'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
-
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
-              />
-            </Col>
-          </Row> */}
-        </Col>
+        <Col xxl={6} xl={6} lg={12} className='mb-5'></Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
@@ -492,36 +339,6 @@ const DashboardTukang: FC = () => {
       </Row>
 
       <Row>
-        {/* <Col xxl={7}>
-          <Col>
-            <Row className='g-5 g-xl-8 mb-5'>
-              <Col xl={6}>
-                <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderData} />
-              </Col>
-
-              <Col xl={6}>
-                <ChartBarSurvey className='card-xl-stretch mb-xl-8' />
-              </Col>
-            </Row>
-          </Col>
-
-          <Col>
-            <Row className='g-5 g-xl-8 mb-5'>
-              <Col xl={6}>
-                <ChartBarOrder className='card-xl-stretch mb-xl-8' />
-              </Col>
-
-              <Col xl={6}>
-                <ChartBarPerformance className='card-xl-stretch mb-xl-8' />
-              </Col>
-            </Row>
-          </Col>
-        </Col>
-
-        <Col xxl={5}>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' orderData={orderData} />
-        </Col> */}
-
         <Col lg={5} md={12} className='mb-3'>
           <MoreInformation className='card-xl-stretch' orderData={orderData} />
         </Col>
@@ -529,10 +346,6 @@ const DashboardTukang: FC = () => {
         <Col lg={7} md={12} className='mb-3'>
           <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
-      </Row>
-
-      <Row className='g-5 g-xl-8 mb-5'>
-        <Col md={12}>{/* <ChartBarPerformance className='card-xl-stretch mb-xl-8' /> */}</Col>
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>

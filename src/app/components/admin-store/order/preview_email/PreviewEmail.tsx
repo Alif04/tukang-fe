@@ -28,7 +28,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
           },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data
           setOrderDetail(data)
           updatePageTitle(data)
           setIsLoadingPage(false)
@@ -63,7 +63,9 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
   return (
     <section id='preview-email'>
       <Card>
-        <Card.Header>
+        <Card.Header></Card.Header>
+
+        <Card.Body>
           <Row className='content-header'>
             <Col md={6} sm={12}>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
@@ -74,7 +76,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                     src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
                   />
 
-                  <h1 className='ps-1 fs-3 fw-bold text-white'>Instalasi & Service Mitra 10</h1>
+                  <h1 className='ps-1 fs-3 fw-bold'>Instalasi & Service Mitra 10</h1>
                 </div>
               </Skeleton>
             </Col>
@@ -82,9 +84,9 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
             <Col md={6} sm={12}>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
                 <div className='header-information'>
-                  <h1 className='fs-5 fw-bold mb-2 text-white'>
+                  <h1 className='fs-5 fw-bold mb-2'>
                     Tanggal Order :{' '}
-                    <span className='fw-normal text-white'>
+                    <span className='fw-normal'>
                       {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
                         day: 'numeric',
                         month: 'long',
@@ -93,7 +95,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                     </span>
                   </h1>
 
-                  <h1 className='fs-5 fw-bold mb-2 text-white'>
+                  <h1 className='fs-5 fw-bold mb-2'>
                     {(() => {
                       if (orderDetail?.payment_type === 'survey') {
                         return `Request Survey`
@@ -106,7 +108,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                       }
                     })()}{' '}
                     :{' '}
-                    <span className='fw-normal text-white'>
+                    <span className='fw-normal '>
                       {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
                         day: 'numeric',
                         month: 'long',
@@ -115,16 +117,14 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                     </span>
                   </h1>
 
-                  <h1 className='fs-5 fw-bold mb-2 text-white'>
-                    Order ID : <span className='fw-normal text-white'>{orderDetail?.id}</span>
+                  <h1 className='fs-5 fw-bold mb-2 '>
+                    Order ID : <span className='fw-normal'>{orderDetail?.id}</span>
                   </h1>
                 </div>
               </Skeleton>
             </Col>
           </Row>
-        </Card.Header>
 
-        <Card.Body>
           <Skeleton active loading={isLoadingPage}>
             <h3 className='fs-4 fw-normal mb-1'>Hi, {orderDetail?.members?.full_name}</h3>
 
@@ -378,6 +378,8 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
             </div>
           </Skeleton>
         </Card.Body>
+
+        <Card.Footer></Card.Footer>
       </Card>
     </section>
   )

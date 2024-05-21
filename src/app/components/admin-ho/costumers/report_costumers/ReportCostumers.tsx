@@ -64,13 +64,13 @@ const ReportCostumerHO: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      if (Array.isArray(response.data.data)) {
-        const tempMember = response.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data.data)) {
+        const tempMember = response.data.data.data.map((item: any) => ({
           value: item.id,
           label: item.full_name,
         }))
 
-        setMember(response.data.data)
+        setMember(response.data.data.data)
         setMemberOption(tempMember)
       } else {
         console.error('API response data is not an array:', response.data)
@@ -91,8 +91,26 @@ const ReportCostumerHO: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyOrders
+      const data = response.data.data.data
+      setOrderData(data)
+      return data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getReportOrder = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/reports/orders${memberId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const chartDatas = response.data.data.monthlyOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -104,10 +122,7 @@ const ReportCostumerHO: FC = () => {
       const endIndex = toMonth + 1
 
       const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setOrderData(data)
       setChartOrder(slicedData)
-      return data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -124,8 +139,8 @@ const ReportCostumerHO: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders
+      const data = response.data.data.data
+      const chartDatas = response.data.data.monthlyWorkOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -190,7 +205,7 @@ const ReportCostumerHO: FC = () => {
         },
       })
 
-      const data = response.data.data
+      const data = response.data.data.data
       setCsiData(data)
       return data
     } catch (error) {
@@ -201,6 +216,7 @@ const ReportCostumerHO: FC = () => {
   useEffect(() => {
     getMember()
     getOrder()
+    getReportOrder()
     getWorkOrder()
     getComplaint()
     getCSI()
@@ -210,6 +226,7 @@ const ReportCostumerHO: FC = () => {
     setLoadingButton(true)
 
     await getOrder()
+    await getReportOrder()
     await getWorkOrder()
     await getComplaint()
 
