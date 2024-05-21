@@ -731,15 +731,15 @@ const NewOrderStoreCS: FC = () => {
           },
         })
 
-        if (response.data.status === 201) {
+        if (response.data.data.status === 201) {
           setSelectedMember((selectedMember) => ({
             ...selectedMember,
-            value: response.data.data.member.id,
+            value: response.data.data.data.member.id,
           }))
 
           setOrderForm((prevOrderForm) => ({
             ...prevOrderForm,
-            member_id: response.data.data.member.id,
+            member_id: response.data.data.data.member.id,
           }))
 
           setIsSubmittingNewMember(true)
