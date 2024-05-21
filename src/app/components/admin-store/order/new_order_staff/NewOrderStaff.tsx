@@ -674,7 +674,7 @@ const NewOrderStoreStaff: FC = () => {
           },
         })
 
-        if (response.data.status === 201) {
+        if (response.data.data.status === 201) {
           setSelectedMember((selectedMember) => ({
             ...selectedMember,
             value: response.data.data.data.member.id,
