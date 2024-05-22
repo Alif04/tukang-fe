@@ -570,16 +570,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 ) {
                   return (
                     <div className='table-warranty-content'>
-                      {order?.is_overdistance === 1 && (
-                        <>
-                          <Form.Text className='fs-8 text-dark'>
-                            *Order ini lebih dari
-                            <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                            toko sehingga dikenakan biaya tambahan
-                          </Form.Text>
-                        </>
-                      )}
-
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
@@ -596,7 +586,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             </th>
 
                             <th className='text-center' style={{width: '250px'}}>
-                              Price
+                              Final Price
                             </th>
                           </tr>
                         </thead>
@@ -612,23 +602,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                                 </td>
                                 <td>{item?.quantity ?? 0}</td>
                                 <td>{item?.unit}</td>
-                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
                               </tr>
                             ))}
-
-                          <tr>
-                            <td colSpan={3} className='text-end fw-bolder'>
-                              Total
-                            </td>
-
-                            <td className='fw-bolder'>
-                              {`Rp. ${order?.quotation[0]?.quotation_details
-                                .filter((x: any) => x.item_type === 2)
-                                .map((item: any) => parseInt(item?.price ?? 0))
-                                .reduce((total: number, price: number) => total + price, 0)
-                                .toLocaleString('id')}`}
-                            </td>
-                          </tr>
                         </tbody>
                       </table>
 
@@ -650,7 +628,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               </th>
 
                               <th className='text-center' style={{width: '250px'}}>
-                                Price
+                                Final Price
                               </th>
                             </tr>
                           </thead>
@@ -668,11 +646,41 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                                   </td>
                                   <td>{item?.quantity ?? 0}</td>
                                   <td>{item?.unit ?? '-'}</td>
-                                  <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString(
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
                                     'id'
                                   )}`}</td>
                                 </tr>
                               ))}
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Total Jasa
+                              </td>
+                              <td className='fw-bolder'>{`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_details
+                                  .filter((x: any) => x.item_type === 2)
+                                  .reduce(
+                                    (total: any, item: any) =>
+                                      total + parseInt(item.final_price || 0),
+                                    0
+                                  )
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Total Material
+                              </td>
+                              <td className='fw-bolder'>{`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_details
+                                  .filter((x: any) => x.item_type === 1)
+                                  .reduce(
+                                    (total: any, item: any) =>
+                                      total + parseInt(item.final_price || 0),
+                                    0
+                                  )
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
 
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder'>
@@ -685,19 +693,14 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               </td>
                             </tr>
 
-                            {order?.is_overdistance === 1 && (
-                              <>
-                                <tr>
-                                  <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                    Biaya Tambahan
-                                  </td>
-
-                                  <td className=' fw-bolder'>{`Rp. ${Number(
-                                    order?.additional_fee
-                                  ).toLocaleString('id')}.`}</td>
-                                </tr>
-                              </>
-                            )}
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Additional Promosi
+                              </td>
+                              <td className=' fw-bolder'>{`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_promotion ?? 0
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
 
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder'>
