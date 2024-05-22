@@ -22,6 +22,7 @@ import {
   faTrash,
   faFileImage,
   faXmarkCircle,
+  faEnvelope,
 } from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
@@ -495,12 +496,13 @@ const ViewOrders: FC = () => {
           navigate(`/order/update-order/${id}`)
         }
 
-        const handleShowModal = (id: number) => {
+        const handleShowModal = (id: number, type: number) => {
           const selected = orderData.find((order) => order.order_id === id)
 
           if (selected) {
             fetchOrderData(selected.order_id)
             setShowModal(true)
+            setModalType(type)
           }
         }
 
@@ -533,9 +535,17 @@ const ViewOrders: FC = () => {
             ) : (
               <></>
             )}
+            {/* 
+            {['WORKEND', 'SURVEYDONE'].includes(record.order_status) ? (
+              <a className='button-edit' onClick={() => handleShowModal(id, 1)}>
+                <FontAwesomeIcon icon={faEnvelope} size='sm' />
+              </a>
+            ) : (
+              <></>
+            )} */}
 
             {['QUOTEOUT'].includes(record.order_status) && userRole === 'Store CS' ? (
-              <a className='button-verif' onClick={() => handleShowModal(id)}>
+              <a className='button-verif' onClick={() => handleShowModal(id, 2)}>
                 <FontAwesomeIcon icon={faCheckCircle} size='sm' />
               </a>
             ) : (
@@ -549,10 +559,11 @@ const ViewOrders: FC = () => {
     },
   ]
 
-  // Modal Verification Payment Quotation
+  // Modal
   const [loadingUpdate, setLoadingUpdate] = useState(false)
   const [loadingModal, setLoadingModal] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [modalType, setModalType] = useState<number | null>(null)
   const handleCloseModal = () => {
     setShowModal(false)
   }
@@ -985,6 +996,506 @@ const ViewOrders: FC = () => {
       })
   }
 
+  // CSI Modal
+  const CustomerIndexModal = ({orderDetail, loadingModal}: any) => {
+    return (
+      <>
+        <Modal.Header closeButton>
+          <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+            <Modal.Title>
+              Pengiriman Survey Kepada Customer - Order ID {orderDetail?.id}
+            </Modal.Title>
+          </Skeleton>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='mb-5'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-bold'>
+                  Nama Toko :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-bold'>
+                  Quotation ID :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>
+                    {orderDetail?.quotation?.length ? orderDetail?.quotation[0]?.id : ''}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-bold'>
+                  Receipt Number :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-bold'>
+                  Order Status :
+                  <span className='fs-6 ms-2 fw-bold text-success'>
+                    {orderDetail?.status?.description}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+          </Row>
+        </Modal.Body>
+      </>
+    )
+  }
+
+  // Quotation Modal
+  const QuotationModal = ({
+    orderDetail,
+    loadingModal,
+    handleReceiptClick,
+    handleReceiptChange,
+    handleUpdateQuotation,
+    loadingUpdate,
+    receiptQuotation,
+    quotationFiles,
+    handleFileReceipt,
+    handleRemoveReceipt,
+    handleImageClick,
+    handleFileChange,
+    handleFileClick,
+    handleRemoveFile,
+  }: any) => {
+    return (
+      <>
+        <Modal.Header closeButton>
+          <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+            <Modal.Title>Verifikasi Pembayaran Quotation - Order ID {orderDetail?.id}</Modal.Title>
+          </Skeleton>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='mb-5'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-bold'>
+                  Nama Toko :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-bold'>
+                  Quotation ID :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>
+                    {orderDetail?.quotation?.length ? orderDetail?.quotation[0]?.id : ''}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-bold'>
+                  Receipt Number :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-bold'>
+                  Order Status :
+                  <span className='fs-6 ms-2 fw-bold text-success'>
+                    {(() => {
+                      if (
+                        orderDetail?.status?.category === 'QUOTEIN' ||
+                        orderDetail?.status?.category === 'QUOTEOUT'
+                      ) {
+                        return orderDetail?.status?.description
+                      } else if (orderDetail?.work_orders?.work_order_status?.length > 0) {
+                        return orderDetail?.work_orders?.work_order_status[0]?.status?.description
+                      } else {
+                        return orderDetail?.status?.description
+                      }
+                    })()}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Row>
+            <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+              <div className='fs-4 fw-bold mb-1'>Informasi Pembeli</div>
+            </Skeleton>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 2}}>
+                <Form.Label className='fs-6 fw-semibold'>
+                  No Member :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.member_number}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Customer Name :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.full_name} </span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Alamat Pemasangan :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_address} </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Nomor Telp/WA :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_number}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Alamat Email :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.email} </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Skeleton active loading={loadingModal} paragraph={{rows: 3}}>
+            {orderDetail?.quotation?.length && (
+              <Row className='information-detail'>
+                <div className='table-warranty-content'>
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th className='text-center' style={{width: '355px'}}>
+                          Jenis Jasa
+                        </th>
+
+                        <th className='text-center' style={{width: '80px'}}>
+                          QTY
+                        </th>
+
+                        <th className='text-center' style={{width: '150px'}}>
+                          Satuan
+                        </th>
+
+                        <th className='text-center' style={{width: '250px'}}>
+                          Final Price
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {orderDetail?.quotation[0]?.quotation_details
+                        .filter((x: any) => x.item_type === 2)
+                        .map((item: any, index: any) => (
+                          <tr key={`${index}-quotation`}>
+                            <td>
+                              {item?.name ?? '-'}{' '}
+                              {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                            </td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{item?.unit}</td>
+                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th className='text-center' style={{width: '355px'}}>
+                          Material Yang Dibutuhkan
+                        </th>
+
+                        <th className='text-center' style={{width: '80px'}}>
+                          QTY
+                        </th>
+
+                        <th className='text-center' style={{width: '150px'}}>
+                          Satuan
+                        </th>
+
+                        <th className='text-center' style={{width: '250px'}}>
+                          Final Price
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {orderDetail?.quotation[0]?.quotation_details
+                        .filter((x: any) => x.item_type === 1)
+                        .map((item: any, index: any) => (
+                          <tr key={`${index}-quotation`}>
+                            <td>
+                              {item?.name ?? '-'}{' '}
+                              {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                            </td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{item?.unit ?? '-'}</td>
+                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                          </tr>
+                        ))}
+
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Total Jasa
+                        </td>
+                        <td className='fw-bolder'>{`Rp. ${parseInt(
+                          orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 2)
+                            .reduce(
+                              (total: any, item: any) => total + parseInt(item.final_price || 0),
+                              0
+                            )
+                        ).toLocaleString('id')}`}</td>
+                      </tr>
+
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Total Material
+                        </td>
+                        <td className='fw-bolder'>{`Rp. ${parseInt(
+                          orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .reduce(
+                              (total: any, item: any) => total + parseInt(item.final_price || 0),
+                              0
+                            )
+                        ).toLocaleString('id')}`}</td>
+                      </tr>
+
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Promosi ( Free Survey )
+                        </td>
+                        <td className=' fw-bolder'>
+                          {`Rp. ${parseInt(
+                            orderDetail?.quotation[0]?.quotation_disc ?? 0
+                          ).toLocaleString('id')}`}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Additional Promosi
+                        </td>
+                        <td className=' fw-bolder'>{`Rp. ${parseInt(
+                          orderDetail?.quotation[0]?.quotation_promotion ?? 0
+                        ).toLocaleString('id')}`}</td>
+                      </tr>
+
+                      <tr>
+                        <td colSpan={3} className='text-end fw-bolder'>
+                          Grand Total
+                        </td>
+
+                        <td className=' fw-bolder'>
+                          {`Rp. ${parseInt(
+                            orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                          ).toLocaleString('id')}`}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </Row>
+            )}
+          </Skeleton>
+
+          <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+            <Row>
+              <Col md={6}>
+                <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                  <Form.Group>
+                    <Form.Label>Upload Bukti Receipt Transaksi</Form.Label>
+
+                    <Form className='form-input-image' onClick={handleReceiptClick}>
+                      <Form.Control
+                        type='file'
+                        accept='image/jpeg, image/png'
+                        className='input-field-receipt'
+                        multiple
+                        hidden
+                        id='file-input'
+                        ref={evidenceRef}
+                        onChange={handleReceiptChange}
+                      />
+
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    </Form>
+
+                    <ListGroup className='pt-3'>
+                      {receiptQuotation.length ? (
+                        receiptQuotation.map((item: any, index: number) => (
+                          <ListGroup>
+                            <ListGroup.Item
+                              className='d-flex justify-content-between align-items-center'
+                              key={`${item?.name}-${index}-${item?.type}`}
+                            >
+                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                              <span
+                                className='upload-content'
+                                style={{cursor: 'pointer'}}
+                                onClick={() => handleFileReceipt(index)}
+                              >
+                                {item?.name}
+                              </span>
+
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size='sm'
+                                color='#ed2b2a'
+                                style={{cursor: 'pointer'}}
+                                onClick={(e) => handleRemoveReceipt(index)}
+                              />
+                            </ListGroup.Item>
+
+                            {selectedReceiptIndex === index && item && (
+                              <Image
+                                key={`${previewReceipt} - ${index}`}
+                                width={200}
+                                style={{display: 'none'}}
+                                src={
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/quotation/${previewReceipt}`
+                                }
+                                preview={{
+                                  visible: visibleReceipt,
+                                  src:
+                                    item instanceof File
+                                      ? URL.createObjectURL(item)
+                                      : `${apiUrl}/public/quotation/${previewReceipt}`,
+                                  onVisibleChange: (value) => {
+                                    setVisibleReceipt(value)
+                                  },
+                                }}
+                              />
+                            )}
+                          </ListGroup>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
+                  </Form.Group>
+                </Row>
+              </Col>
+
+              <Col md={6}>
+                <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                  <Form.Group>
+                    <Form.Label>Upload Bukti Transfer</Form.Label>
+
+                    <Form className='form-input-image' onClick={handleImageClick}>
+                      <Form.Control
+                        type='file'
+                        accept='image/jpeg, image/png'
+                        className='input-field-image'
+                        multiple
+                        hidden
+                        id='file-input'
+                        ref={evidenceRef}
+                        onChange={handleFileChange}
+                      />
+
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    </Form>
+
+                    <ListGroup className='pt-3'>
+                      {quotationFiles.length ? (
+                        quotationFiles.map((item: any, index: number) => (
+                          <ListGroup>
+                            <ListGroup.Item
+                              className='d-flex justify-content-between align-items-center'
+                              key={`${item?.name}-${index}-${item?.type}`}
+                            >
+                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                              <span
+                                className='upload-content'
+                                style={{cursor: 'pointer'}}
+                                onClick={() => handleFileClick(index)}
+                              >
+                                {item?.name}
+                              </span>
+
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size='sm'
+                                color='#ed2b2a'
+                                style={{cursor: 'pointer'}}
+                                onClick={(e) => handleRemoveFile(index)}
+                              />
+                            </ListGroup.Item>
+
+                            {selectedFileIndex === index && item && (
+                              <Image
+                                key={`${previewImage} - ${index}`}
+                                width={200}
+                                style={{display: 'none'}}
+                                src={
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/quotation/${previewImage}`
+                                }
+                                preview={{
+                                  visible: visible,
+                                  src:
+                                    item instanceof File
+                                      ? URL.createObjectURL(item)
+                                      : `${apiUrl}/public/quotation/${previewImage}`,
+                                  onVisibleChange: (value) => {
+                                    setVisible(value)
+                                  },
+                                }}
+                              />
+                            )}
+                          </ListGroup>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
+                  </Form.Group>
+                </Row>
+              </Col>
+            </Row>
+
+            <div className='button-submit d-flex justify-content-center align-items-center'>
+              <Button
+                className='d-flex justify-content-center align-items-center'
+                onClick={handleUpdateQuotation}
+                disabled={loadingUpdate}
+                variant='dark-primary'
+              >
+                {loadingUpdate ? 'Submitting..' : 'Submit'}
+              </Button>
+            </div>
+          </Skeleton>
+        </Modal.Body>
+      </>
+    )
+  }
+
   return (
     <section id='view-order'>
       <Card>
@@ -1092,7 +1603,32 @@ const ViewOrders: FC = () => {
           show={showModal}
           onHide={handleCloseModal}
         >
-          <Modal.Header closeButton>
+          {modalType === 1 && (
+            <CustomerIndexModal orderDetail={orderDetail} loadingModal={loadingModal} />
+          )}
+
+          {modalType === 2 && (
+            <QuotationModal
+              show={showModal}
+              handleClose={handleCloseModal}
+              orderDetail={orderDetail}
+              loadingModal={loadingModal}
+              handleReceiptClick={handleReceiptClick}
+              handleReceiptChange={handleReceiptChange}
+              handleUpdateQuotation={handleUpdateQuotation}
+              loadingUpdate={loadingUpdate}
+              receiptQuotation={receiptQuotation}
+              quotationFiles={quotationFiles}
+              handleFileReceipt={handleFileReceipt}
+              handleRemoveReceipt={handleRemoveReceipt}
+              handleImageClick={handleImageClick}
+              handleFileChange={handleFileChange}
+              handleFileClick={handleFileClick}
+              handleRemoveFile={handleRemoveFile}
+            />
+          )}
+
+          {/* <Modal.Header closeButton>
             <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
               <Modal.Title>
                 Verifikasi Pembayaran Quotation - Order ID {orderDetail?.id}
@@ -1522,7 +2058,7 @@ const ViewOrders: FC = () => {
                 </Button>
               </div>
             </Skeleton>
-          </Modal.Body>
+          </Modal.Body> */}
         </Modal>
       )}
     </section>
