@@ -922,8 +922,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <p className='fs-5 fw-bold'>Pekerjaan dilakukan pada:</p>
 
                     <div className='detail-info mb-3'>
-                      {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
-                        .length ? (
+                      {order?.work_orders?.work_start_date !== null ? (
                         <div>
                           <p className='fs-7'>
                             MULAI{' '}
