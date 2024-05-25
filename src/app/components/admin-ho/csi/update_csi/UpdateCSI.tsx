@@ -33,7 +33,7 @@ const UpdateCSIHO: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
 
           if (data) {
             setCsiForm((prev) => ({

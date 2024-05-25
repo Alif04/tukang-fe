@@ -130,7 +130,7 @@ const DashboardHO: FC = () => {
         },
       })
 
-      const data = response.data.data.data
+      const data = response.data.data
 
       setOrderData(data)
       setCurrentPage(response?.data?.data.page)
@@ -153,7 +153,7 @@ const DashboardHO: FC = () => {
         },
       })
 
-      const chartDatas = response.data.data.monthlyOrders
+      const chartDatas = response.data.monthlyOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -182,8 +182,9 @@ const DashboardHO: FC = () => {
         },
       })
 
-      const data = response.data.data.data
-      const chartDatas = response.data.data.monthlyWorkOrders
+      const data = response.data.data
+
+      const chartDatas = response.data.monthlyWorkOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -285,8 +286,8 @@ const DashboardHO: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             area_id: item.area_id,

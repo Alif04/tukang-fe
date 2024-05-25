@@ -36,7 +36,8 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setVendorDetail(data)
           updatePageTitle(data)
 

@@ -36,6 +36,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
         })
         .then((response) => {
           const data = response.data.data
+
           setWorkOrderDetail(data)
           updatePageTitle(data)
           setIsLoadingPage(false)

@@ -26,8 +26,6 @@ interface DataType {
   member_id: number
   member_name: string
   phone_number: number
-  item_name: string
-  service_name: string
   payment_status: string
   order_status: string
 }
@@ -119,24 +117,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
-      title: 'Item Name',
-      dataIndex: 'item_name',
-      key: 'item_name',
-      align: 'left',
-      width: 130,
-      onFilter: (value, record) => record.item_name.includes(String(value)),
-      sorter: (a, b) => a.item_name.length - b.item_name.length,
-    },
-    {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'center',
-      width: 180,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
-    },
-    {
       title: 'Payment Status',
       dataIndex: 'payment_status',
       key: 'payment_status',
@@ -225,11 +205,11 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
         },
       })
 
-      setCurrentPage(response.data.data.page)
-      setTotalData(response?.data?.data?.data.length ?? 0)
+      setCurrentPage(response.data.page)
+      setTotalData(response.data.total ?? 0)
       setLoadData(false)
 
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -273,11 +253,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
           member_id: item?.order?.members.member_number,
           member_name: item?.order?.members.full_name,
           phone_number: item?.order?.project_number,
-          item_name: item?.order?.m_order_details[0]?.item?.item_name ?? '-',
-          service_name:
-            item.order?.payment_type === 'survey'
-              ? item.order?.m_order_details[0]?.item_notes
-              : item.order?.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status: item?.order?.status?.description,
         }
@@ -399,7 +374,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
               dataSource={rescheduleData}
               rowKey={(record) => record.reschedule_id}
               pagination={false}
-              scroll={{x: 1800}}
             />
           </Spin>
 

@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
-import {useNavigate, useParams} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 
 import './NewOrder.css'
 
@@ -90,11 +90,7 @@ interface Order {
 const NewOrderHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
-  // Order Information Detail
-  const [orderDetail, setOrderDetail] = useState<any>()
 
   // Store
   const [store, setStore] = useState<StoreItemSelect[]>([])
@@ -224,6 +220,7 @@ const NewOrderHO: FC = () => {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line
     getItem('')
   }, [paymentTypeValue])
 
@@ -244,8 +241,8 @@ const NewOrderHO: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempMember = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item[labelKey],
             full_name: item.full_name,
@@ -293,8 +290,8 @@ const NewOrderHO: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             address: item.address,
@@ -853,15 +850,15 @@ const NewOrderHO: FC = () => {
           },
         })
 
-        if (response.data.data.status === 201) {
+        if (response.data.status === 201) {
           setSelectedMember((selectedMember) => ({
             ...selectedMember,
-            member_id: response.data.data.data.member.id,
+            member_id: response.data.data.id,
           }))
 
           setOrderForm((prevOrderForm) => ({
             ...prevOrderForm,
-            member_id: response.data.data.data.member.id,
+            member_id: response.data.data.id,
           }))
 
           setIsSubmittingNewMember(true)

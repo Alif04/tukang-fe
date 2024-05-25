@@ -177,7 +177,8 @@ const ReportVendorHO: FC = () => {
         },
       })
 
-      const data = response.data.data.data
+      const data = response.data.data
+
       setOrderData(data)
       return data
     } catch (error) {
@@ -187,7 +188,7 @@ const ReportVendorHO: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders${date}${vendorId}`, {
+      const response = await axios.get(`${apiUrl}/reports/orders${vendorId}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -196,7 +197,7 @@ const ReportVendorHO: FC = () => {
         },
       })
 
-      const chartDatas = response.data.data.monthlyOrders
+      const chartDatas = response.data.monthlyOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -225,8 +226,9 @@ const ReportVendorHO: FC = () => {
         },
       })
 
-      const data = response.data.data.data
-      const chartDatas = response.data.data.monthlyWorkOrders
+      const data = response.data.data
+
+      const chartDatas = response.data.monthlyWorkOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -259,6 +261,7 @@ const ReportVendorHO: FC = () => {
       })
 
       const data = response.data.data
+
       const chartDatas = response.data.monthlyComplaint
 
       const fromDate = new Date(dateFrom)

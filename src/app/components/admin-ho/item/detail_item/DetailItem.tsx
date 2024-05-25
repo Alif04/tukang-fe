@@ -26,6 +26,7 @@ const DetailItemHO: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+
           setItemDetail(data)
         })
     } catch (error) {

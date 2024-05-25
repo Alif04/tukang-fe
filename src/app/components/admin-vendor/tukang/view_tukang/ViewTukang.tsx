@@ -253,7 +253,7 @@ const ViewTukangVendor: FC = () => {
       })
 
       setCurrentPage(response?.data?.page ?? 1)
-      setTotalData(response?.data?.total ?? 0)
+      setTotalData(response?.data?.countTotal ?? 0)
       setLoadData(false)
 
       return response.data.data

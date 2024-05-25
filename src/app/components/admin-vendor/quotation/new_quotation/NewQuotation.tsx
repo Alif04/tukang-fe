@@ -128,8 +128,8 @@ const NewQuotationVendor: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempStore = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.store_name,
           address: item.address,
@@ -157,7 +157,8 @@ const NewQuotationVendor: FC = () => {
         },
       })
 
-      const data = response.data.data.data
+      const data = response.data.data
+
       setStoreDetail(data)
     } catch (err) {
       console.error(err)
@@ -214,6 +215,7 @@ const NewQuotationVendor: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+
           setWorkOrderDetail(data)
 
           if (data?.work_order_status) {

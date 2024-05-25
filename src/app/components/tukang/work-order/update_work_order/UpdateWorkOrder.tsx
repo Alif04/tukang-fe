@@ -153,6 +153,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         })
         .then((response) => {
           const data = response.data.data
+
           setWorkOrderDetail(data)
 
           if (data) {

@@ -108,7 +108,7 @@ const UpdateTukangVendor: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
 
           if (data) {
             const tukangServices = data.tukang_service.map((item: any) => ({
@@ -188,8 +188,8 @@ const UpdateTukangVendor: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempServiceType = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempServiceType = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.service_type,
         }))

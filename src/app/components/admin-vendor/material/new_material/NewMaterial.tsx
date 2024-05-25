@@ -158,7 +158,8 @@ const NewMaterialVendor: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setWorkOrderDetail(data)
 
           if (data?.work_order_status) {

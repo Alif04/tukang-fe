@@ -32,6 +32,7 @@ const DetailRefundHO: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+
           setRefundDetail(data)
         })
     } catch (error) {

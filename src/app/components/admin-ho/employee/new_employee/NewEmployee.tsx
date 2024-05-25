@@ -107,8 +107,8 @@ const NewEmployee: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
           }))
@@ -194,10 +194,10 @@ const NewEmployee: FC = () => {
         }
       )
 
-      setCurrentPage(response.data.data.page)
+      setCurrentPage(response.data.page)
       setTotalData(response.data.takeTotal)
 
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

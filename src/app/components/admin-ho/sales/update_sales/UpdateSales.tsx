@@ -170,8 +170,8 @@ const UpdateSales: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             address: item.address,
@@ -199,8 +199,8 @@ const UpdateSales: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempBank = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempBank = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.bank_name,
           }))
@@ -225,8 +225,8 @@ const UpdateSales: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempCategories = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempCategories = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.category_name,
           }))

@@ -23,9 +23,6 @@ interface DataType {
   phone_number: number
   email: string
   address: string
-  service_name: string
-  quantity: number
-  harga: number
   grand_total: number
 }
 
@@ -101,31 +98,6 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.address.length - b.address.length,
     },
     {
-      title: 'Nama Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      width: 170,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
-    },
-    {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      align: 'center',
-      width: 90,
-      sorter: (a, b) => a.quantity - b.quantity,
-    },
-    {
-      title: 'Harga',
-      dataIndex: 'harga',
-      key: 'harga',
-      align: 'center',
-      width: 135,
-      sorter: (a, b) => a.harga - b.harga,
-    },
-    {
       title: 'Grand Total',
       dataIndex: 'grand_total',
       key: 'grand_total',
@@ -148,11 +120,11 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
         },
       })
 
-      setCurrentPage(response.data.data.page)
+      setCurrentPage(response.data.page)
       setTotalOrder(response?.data?.total ?? 0)
       setLoadData(false)
 
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -176,11 +148,6 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
           year: 'numeric',
         })
 
-        const price = parseInt(item?.m_order_details[0]?.unit_price ?? 0, 10)
-        const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
-
-        const quantity = parseInt(item?.m_order_details[0]?.quantity ?? 0, 10)
-
         const grandTotalPrice = parseInt(item?.grand_total)
         const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
 
@@ -191,9 +158,6 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
           phone_number: item?.project_number,
           email: item?.members?.email,
           address: item?.project_address,
-          service_name: item?.m_order_details[0]?.item?.service_name ?? '-',
-          quantity: quantity,
-          harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,
         }
 

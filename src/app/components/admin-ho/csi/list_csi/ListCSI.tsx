@@ -159,22 +159,19 @@ const ListCSIHO: React.FC<Props> = ({className}) => {
 
   const getCSI = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/csi?search=${searchFilter}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(`${apiUrl}/csi?page=${page}&take=${pageSize}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      setCurrentPage(response.data.data.page)
-      setTotalData(response?.data?.data?.total ?? 0)
+      setCurrentPage(response.data?.page)
+      setTotalData(response?.data?.total ?? 0)
 
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

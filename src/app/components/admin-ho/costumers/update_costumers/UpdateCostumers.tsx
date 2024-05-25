@@ -6,7 +6,7 @@ import './UpdateCostumers.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Card, Row, Col, Form, Button} from 'react-bootstrap'
+import {Card, Row, Col, Form, Button, InputGroup} from 'react-bootstrap'
 
 interface Store {
   value: number | null
@@ -43,7 +43,7 @@ const UpdateCostumerHO: FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data.data
+            const data = response.data.data
 
             if (data) {
               setMemberInfo((prev) => ({
@@ -86,8 +86,8 @@ const UpdateCostumerHO: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
           }))
@@ -271,12 +271,14 @@ const UpdateCostumerHO: FC = () => {
                 <Form.Group>
                   <Form.Label>Whatsapp Number</Form.Label>
 
-                  <Form.Control
-                    name='whatsapp_number'
-                    type='text'
-                    value={memberInfo.whatsapp_number}
-                    onChange={(e) => memberInfoFormHandler(e)}
-                  />
+                  <InputGroup>
+                    <InputGroup.Text>+ 62</InputGroup.Text>
+                    <Form.Control
+                      name='whatsapp_number'
+                      value={memberInfo.whatsapp_number}
+                      onChange={(e) => memberInfoFormHandler(e)}
+                    />
+                  </InputGroup>
                 </Form.Group>
               </Col>
             </Row>

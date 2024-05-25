@@ -182,6 +182,7 @@ const NewQuotationHO: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+
           setQuotationData(data)
 
           if (data?.order_id) {

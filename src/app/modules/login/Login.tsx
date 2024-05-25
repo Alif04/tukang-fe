@@ -79,7 +79,7 @@ export function Login() {
         }
       )
       .then((res) => {
-        if (res.data.data.statusCode === 200) {
+        if (res.data.status === 200) {
           const user = res.data.data.user
           const isSales = user.roles.name === 'Sales'
           const isAdminHO = user.roles.name === 'Admin Ho'

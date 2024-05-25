@@ -52,7 +52,7 @@ const UpdateRefundCS: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
 
           if (data?.orders.id) {
             setOrderId(data.id)

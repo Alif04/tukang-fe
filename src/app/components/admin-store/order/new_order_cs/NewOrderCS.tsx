@@ -218,8 +218,8 @@ const NewOrderStoreCS: FC = () => {
           }
         )
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempMember = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item[labelKey],
             full_name: item.full_name,
@@ -731,15 +731,15 @@ const NewOrderStoreCS: FC = () => {
           },
         })
 
-        if (response.data.data.status === 201) {
+        if (response.data.status === 201) {
           setSelectedMember((selectedMember) => ({
             ...selectedMember,
-            value: response.data.data.data.member.id,
+            value: response.data.data.id,
           }))
 
           setOrderForm((prevOrderForm) => ({
             ...prevOrderForm,
-            member_id: response.data.data.data.member.id,
+            member_id: response.data.data.id,
           }))
 
           setIsSubmittingNewMember(true)

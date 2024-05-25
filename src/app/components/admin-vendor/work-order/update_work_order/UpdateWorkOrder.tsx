@@ -105,7 +105,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setOrderDetail(data)
 
           if (data?.work_orders?.id) {
@@ -1429,13 +1430,13 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               </Button> */}
 
               <Button
+                className='d-flex justify-content-center align-items-center'
                 variant='dark-primary'
                 type='submit'
-                // disabled={isLoading}
+                disabled={isLoading}
                 onClick={handleUpdateWorkOrder}
               >
-                {/* {isLoading ? 'Submitting Order...' : 'Save'} */}
-                Save
+                {isLoading ? 'Submitting Order...' : 'Save'}
               </Button>
             </div>
           )}

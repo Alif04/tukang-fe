@@ -31,7 +31,8 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setOrderDetail(data)
           updatePageTitle(data)
           setIsLoadingPage(false)

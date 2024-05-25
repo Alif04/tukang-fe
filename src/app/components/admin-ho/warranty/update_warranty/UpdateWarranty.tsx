@@ -27,7 +27,8 @@ const UpdateWarrantyHO: FC<{updatePageTitle: (warranty: any) => void}> = ({updat
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setOrderDetail(data)
           updatePageTitle(data)
 

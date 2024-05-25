@@ -55,7 +55,8 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setRescheduleDetail(data)
           updatePageTitle(data)
 
@@ -419,12 +420,12 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
             {/* New */}
             {(() => {
               if (
-                rescheduleDetail?.orders?.payment_type === 'survey' ||
-                rescheduleDetail?.orders?.work_orders?.work_order_status.length === 1
+                rescheduleDetail?.order?.payment_type === 'survey' ||
+                rescheduleDetail?.order?.work_orders?.work_order_status.length === 1
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                    {rescheduleDetail?.order?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari{' '}
@@ -445,7 +446,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                       </thead>
 
                       <tbody>
-                        {rescheduleDetail?.orders?.m_order_details.map((item: any, index: any) => (
+                        {rescheduleDetail?.order?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -464,7 +465,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
 
-                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                        {rescheduleDetail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder align-middle'>
@@ -472,7 +473,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                rescheduleDetail?.orders?.additional_fee
+                                rescheduleDetail?.order?.additional_fee
                               ).toLocaleString('id')}`}</td>
                             </tr>
 
@@ -482,7 +483,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                rescheduleDetail?.orders?.grand_total
+                                rescheduleDetail?.order?.grand_total
                               ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
@@ -492,14 +493,12 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(
-                  rescheduleDetail?.orders?.status?.category ?? ''
-                ) &&
-                rescheduleDetail?.orders?.payment_type === 'survey'
+                ['QUOTEIN', 'QUOTEOUT'].includes(rescheduleDetail?.order?.status?.category ?? '') &&
+                rescheduleDetail?.order?.payment_type === 'survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                    {rescheduleDetail?.order?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari{' '}
@@ -522,7 +521,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                       </thead>
 
                       <tbody>
-                        {rescheduleDetail?.orders?.quotation[0]?.quotation_details.map(
+                        {rescheduleDetail?.order?.quotation[0]?.quotation_details.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>{item?.name ?? '-'}</td>
@@ -543,12 +542,12 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              rescheduleDetail?.orders?.quotation[0]?.quotation_disc ?? 0
+                              rescheduleDetail?.order?.quotation[0]?.quotation_disc ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
 
-                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                        {rescheduleDetail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder align-middle'>
@@ -556,7 +555,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                rescheduleDetail?.orders?.additional_fee
+                                rescheduleDetail?.order?.additional_fee
                               ).toLocaleString('id')}.`}</td>
                             </tr>
                           </>
@@ -568,7 +567,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              rescheduleDetail?.orders?.quotation[0]?.quotation_grand_total ?? 0
+                              rescheduleDetail?.order?.quotation[0]?.quotation_grand_total ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -578,10 +577,10 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                 )
               } else if (
                 ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                  rescheduleDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
+                  rescheduleDetail?.order?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
-                rescheduleDetail?.orders?.work_orders?.work_order_status.length > 1 &&
-                rescheduleDetail?.orders?.payment_type === 'survey'
+                rescheduleDetail?.order?.work_orders?.work_order_status.length > 1 &&
+                rescheduleDetail?.order?.payment_type === 'survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -595,7 +594,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                       </thead>
 
                       <tbody>
-                        {rescheduleDetail?.orders?.work_orders?.work_order_status[0]?.work_order_items.map(
+                        {rescheduleDetail?.order?.work_orders?.work_order_status[0]?.work_order_items.map(
                           (item: any, index: any) => (
                             <tr key={`${index}-work_order_detail`}>
                               <td>{item?.name ?? '-'}</td>
@@ -609,12 +608,12 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   </div>
                 )
               } else if (
-                rescheduleDetail?.orders?.payment_type === 'gratis' ||
-                rescheduleDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                rescheduleDetail?.order?.payment_type === 'gratis' ||
+                rescheduleDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                    {rescheduleDetail?.order?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari{' '}
@@ -631,7 +630,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           <th>Item Name</th>
                           <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          {!(rescheduleDetail?.orders?.payment_type === 'gratis') && (
+                          {!(rescheduleDetail?.order?.payment_type === 'gratis') && (
                             <>
                               <th>Harga Jasa</th>
                               <th>Jumlah</th>
@@ -640,14 +639,14 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                         </tr>
                       </thead>
                       <tbody>
-                        {rescheduleDetail?.orders?.m_order_details.map((item: any, index: any) => (
+                        {rescheduleDetail?.order?.m_order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
                               <td>{item?.item_name}</td>
                               <td>{item?.item?.service_name}</td>
                               <td>{item?.quantity ?? 0}</td>
-                              {!(rescheduleDetail?.orders?.payment_type === 'gratis') && (
+                              {!(rescheduleDetail?.order?.payment_type === 'gratis') && (
                                 <>
                                   <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
                                     'id'
@@ -661,7 +660,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           </>
                         ))}
 
-                        {rescheduleDetail?.orders?.is_overdistance === 1 && (
+                        {rescheduleDetail?.order?.is_overdistance === 1 && (
                           <>
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder align-middle'>
@@ -669,7 +668,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                rescheduleDetail?.orders?.additional_fee
+                                rescheduleDetail?.order?.additional_fee
                               ).toLocaleString('id')}.`}</td>
                             </tr>
                           </>
@@ -677,7 +676,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
                         <tr>
                           <td
-                            colSpan={rescheduleDetail?.orders?.payment_type !== 'gratis' ? 5 : 3}
+                            colSpan={rescheduleDetail?.order?.payment_type !== 'gratis' ? 5 : 3}
                             className='text-end fw-bolder'
                           >
                             Grand Total
@@ -685,13 +684,13 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
                           <td className=' fw-bolder'>
                             {(() => {
-                              if (rescheduleDetail?.orders?.payment_type === 'gratis') {
+                              if (rescheduleDetail?.order?.payment_type === 'gratis') {
                                 return `Rp. ${(0).toLocaleString('id')}`
                               } else if (
-                                rescheduleDetail?.orders?.payment_type === 'pemasangan_tanpa_survey'
+                                rescheduleDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
                               ) {
                                 return `Rp. ${parseInt(
-                                  rescheduleDetail?.orders?.grand_total
+                                  rescheduleDetail?.order?.grand_total
                                 ).toLocaleString('id')}`
                               } else {
                                 return `Rp. ${(0).toLocaleString('id')}`
@@ -844,7 +843,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               disabled={isLoading}
               onClick={handleUpdateReschedule}
             >
-              {isLoading ? 'Updating..' : 'Update Reschedule'}
+              {isLoading ? 'Updating..' : 'Update'}
             </Button>
           </div>
         </Card.Body>

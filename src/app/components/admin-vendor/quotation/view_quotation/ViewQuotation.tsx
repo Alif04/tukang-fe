@@ -222,6 +222,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       })
 
       const data = response.data.data
+
       const filteredQuotation = data.filter(
         (detail: any) => detail?.order?.vendor_id === parseInt(vendorId)
       )
