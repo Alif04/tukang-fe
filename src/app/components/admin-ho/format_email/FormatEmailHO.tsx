@@ -32,7 +32,7 @@ interface emailLayout {
   trigger_id: number | null
   title: string
   cc: string
-  bcc: string
+  // bcc: string
   greetings: string
   footer: string
   welcome_header: string
@@ -166,7 +166,7 @@ const FormatEmailHO: FC = () => {
     trigger_id: null,
     title: '',
     cc: '',
-    bcc: '',
+    // bcc: '',
     greetings: '',
     footer: '',
     welcome_header: '',
@@ -425,7 +425,7 @@ const FormatEmailHO: FC = () => {
               />
             </Form.Group>
 
-            {/* <Form.Group className='header-template mb-4'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>CC :</Form.Label>
 
               <CreatableSelect
@@ -441,7 +441,7 @@ const FormatEmailHO: FC = () => {
                 placeholder='Tulis Email yang diinginkan lalu tekan enter'
                 value={value}
               />
-            </Form.Group> */}
+            </Form.Group>
 
             <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>Ucapan Sapaan :</Form.Label>
