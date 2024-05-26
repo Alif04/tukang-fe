@@ -32,7 +32,7 @@ interface emailLayout {
   trigger_id: number | null
   title: string
   cc: string
-  // bcc: string
+  bcc: string
   greetings: string
   footer: string
   welcome_header: string
@@ -166,7 +166,7 @@ const FormatEmailHO: FC = () => {
     trigger_id: null,
     title: '',
     cc: '',
-    // bcc: '',
+    bcc: '',
     greetings: '',
     footer: '',
     welcome_header: '',
