@@ -454,7 +454,7 @@ const ViewInvoiceHO: FC = () => {
               disabled={isLoading}
               onClick={() => handleApproveInvoice()}
             >
-              {isLoading ? 'Approve..' : 'Approve Invoice'}
+              {isLoading ? 'Approve..' : 'Approve'}
             </Button>
           </div>
         </div>

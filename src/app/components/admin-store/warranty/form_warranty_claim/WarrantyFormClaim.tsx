@@ -30,7 +30,8 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setOrderDetail(data)
           updatePageTitle(data)
 

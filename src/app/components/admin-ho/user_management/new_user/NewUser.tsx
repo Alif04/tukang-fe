@@ -74,8 +74,8 @@ const NewUserHO: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempStore = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.store_name,
         }))

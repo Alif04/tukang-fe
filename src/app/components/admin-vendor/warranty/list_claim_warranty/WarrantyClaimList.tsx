@@ -192,10 +192,10 @@ const WarrantyClaimListVendor: React.FC<Props> = ({className}) => {
           }
         )
 
-        setCurrentPage(response.data.data.page)
-        setTotalData(response?.data?.data?.total ?? 0)
+        setCurrentPage(response.data.page)
+        setTotalData(response?.data?.total ?? 0)
 
-        return response.data.data.data
+        return response.data.data
       } else {
         console.error('Desired status not found in statusData')
       }

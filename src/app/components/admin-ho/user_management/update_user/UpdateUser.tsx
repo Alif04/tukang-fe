@@ -48,7 +48,7 @@ const UpdateUserHO: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
 
           if (data) {
             setUserForm((prev) => ({
@@ -92,8 +92,8 @@ const UpdateUserHO: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data)) {
-        const tempRoles = response.data.data
+      if (Array.isArray(response.data.data.data)) {
+        const tempRoles = response.data.data.data
           .filter((item: any) => item.name !== 'Admin HO')
           .map((item: any) => ({
             value: item.id,
@@ -120,8 +120,8 @@ const UpdateUserHO: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempStore = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.store_name,
         }))

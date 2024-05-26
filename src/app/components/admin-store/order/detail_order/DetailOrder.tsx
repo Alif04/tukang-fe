@@ -78,7 +78,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           },
         })
         .then((response) => {
-          const data = response.data.data.data as Orders
+          const data = response.data.data as Orders
           setOrder(data)
           updatePageTitle(data)
           setIsLoadingPage(false)
@@ -147,6 +147,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+  const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
+  const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
 
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -922,8 +924,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <p className='fs-5 fw-bold'>Pekerjaan dilakukan pada:</p>
 
                     <div className='detail-info mb-3'>
-                      {order?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
-                        .length ? (
+                      {order?.work_orders !== null &&
+                      order?.work_orders?.work_start_date !== null ? (
                         <div>
                           <p className='fs-7'>
                             MULAI{' '}
@@ -1019,12 +1021,179 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 </Skeleton>
               </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                {order?.quotation[0]?.quotation_files.length && (
+                  <>
+                    <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
+                    <ListGroup>
+                      {order?.quotation[0].quotation_files
+                        .filter((x: any) => x.type === 2)
+                        .map((item: any) => (
+                          <ListGroup.Item
+                            key={item.id}
+                            action
+                            onClick={() => {
+                              setPreviewImage(item.path)
+                              setVisibleQuotationReceipt(true)
+                            }}
+                          >
+                            {item.path}
+                          </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+
+                    {previewImage && (
+                      <div>
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/quotation/${previewImage}`}
+                          preview={{
+                            visible: visibleQuotationReceipt,
+                            src: `${apiUrl}/public/quotation/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisibleQuotationReceipt(value)
+                            },
+                          }}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </Col>
+
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                {order?.quotation[0]?.quotation_files.length && (
+                  <>
+                    <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
+                    <ListGroup>
+                      {order?.quotation[0].quotation_files
+                        .filter((x: any) => x.type === 1)
+                        .map((item: any) => (
+                          <ListGroup.Item
+                            key={item.id}
+                            action
+                            onClick={() => {
+                              setPreviewImage(item.path)
+                              setVisibleQuotationFiles(true)
+                            }}
+                          >
+                            {item.path}
+                          </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+
+                    {previewImage && (
+                      <div>
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/quotation/${previewImage}`}
+                          preview={{
+                            visible: visibleQuotationFiles,
+                            src: `${apiUrl}/public/quotation/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisibleQuotationFiles(value)
+                            },
+                          }}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </Col>
             </Row>
           ) : (
             <></>
           )}
+
+          <Skeleton active loading={isLoadingPage}>
+            {order?.work_orders?.work_order_evidences?.length > 0 ? (
+              <Row>
+                <Col>
+                  <Form.Label className='mt-3'>Work Before :</Form.Label>
+                  <ListGroup>
+                    {order?.work_orders?.work_order_evidences
+                      .filter((x: any) => x.type === 2)
+                      .map((item: any) => (
+                        <ListGroup.Item
+                          key={item.id}
+                          action
+                          style={{cursor: 'pointer'}}
+                          onClick={() => {
+                            setPreviewImage(item.evidence_location)
+                            setVisible(true)
+                          }}
+                        >
+                          {item.evidence_location}
+                        </ListGroup.Item>
+                      ))}
+                  </ListGroup>
+
+                  {previewImage && (
+                    <div>
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/work-orders/${previewImage}`}
+                        preview={{
+                          visible,
+                          src: `${apiUrl}/public/work-orders/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisible(value)
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </Col>
+
+                <Col>
+                  <Form.Label className='mt-3'>Work After :</Form.Label>
+                  <ListGroup>
+                    {order?.work_orders?.work_order_evidences
+                      .filter((x: any) => x.type === 3)
+                      .map((item: any) => (
+                        <ListGroup.Item
+                          key={item.id}
+                          action
+                          style={{cursor: 'pointer'}}
+                          onClick={() => {
+                            setPreviewImage(item.evidence_location)
+                            setVisible(true)
+                          }}
+                        >
+                          {item.evidence_location}
+                        </ListGroup.Item>
+                      ))}
+                  </ListGroup>
+
+                  {previewImage && (
+                    <div>
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/work-orders/${previewImage}`}
+                        preview={{
+                          visible,
+                          src: `${apiUrl}/public/work-orders/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisible(value)
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </Col>
+              </Row>
+            ) : (
+              <></>
+            )}
+          </Skeleton>
 
           <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
             <div className='order-history mt-3 mb-3'>

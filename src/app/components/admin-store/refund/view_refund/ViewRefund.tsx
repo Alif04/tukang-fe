@@ -26,7 +26,6 @@ interface DataType {
   member_id: number
   member_name: string
   phone_number: number
-  service_name: string
   payment_status: string
   order_status: string
 }
@@ -121,15 +120,6 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 110,
       sorter: (a, b) => a.phone_number - b.phone_number,
-    },
-    {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'center',
-      width: 180,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
     {
       title: 'Payment Status',
@@ -260,12 +250,6 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           member_id: item?.orders?.members?.member_number,
           member_name: item?.orders?.members?.full_name,
           phone_number: item?.orders?.project_number,
-          service_name:
-            item?.orders?.payment_type === 'survey' && item?.orders?.quotation?.length === 0
-              ? item?.orders?.m_order_details[0]?.item_notes
-              : item?.orders?.payment_type === 'survey' && item?.orders?.quotation?.length >= 0
-              ? item?.orders?.quotation[0]?.quotation_details[0]?.name ?? '-'
-              : item?.orders?.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status:
             item?.orders?.work_orders?.work_order_status?.length > 0 &&

@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import './FormatEmailHO.css'
@@ -6,6 +6,7 @@ import './FormatEmailHO.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
@@ -15,9 +16,28 @@ interface templateOption {
   label: string
 }
 
+interface StatusStorage {
+  value: number | null
+  label: string
+}
+
+interface Option {
+  label: string
+  value: string
+}
+
+const createOption = (label: string) => ({
+  label,
+  value: label,
+})
+
 interface emailLayout {
+  csi_id: number | null
   email_type: number | null
+  trigger_id: number | null
   title: string
+  // cc: string
+  // bcc: string
   greetings: string
   footer: string
   welcome_header: string
@@ -37,6 +57,15 @@ const UpdateFormatEmailHO: FC = () => {
   const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  // Status
+  const [status, setStatus] = useState<StatusStorage[]>([])
+  const [selectedStatus, setSelectedStatus] = useState<SingleValue<StatusStorage>>({
+    value: null,
+    label: '',
+  })
+
+  console.log('selected Status', selectedStatus)
+
   // Email
   const [emailType, setEmailType] = useState<templateOption[]>([])
   const [selectedEmailType, setSelectedEmailType] = useState<SingleValue<templateOption>>({
@@ -44,11 +73,13 @@ const UpdateFormatEmailHO: FC = () => {
     label: '',
   })
 
-  console.log('selected emaill', selectedEmailType)
-
   const [emailForm, setEmailForm] = useState<emailLayout>({
+    csi_id: null,
     email_type: null,
+    trigger_id: null,
     title: '',
+    // cc: '',
+    // bcc: '',
     greetings: '',
     footer: '',
     welcome_header: '',
@@ -84,7 +115,12 @@ const UpdateFormatEmailHO: FC = () => {
           if (data) {
             setEmailForm((prev) => ({
               ...prev,
+              csi_id: data?.csi_id ?? null,
               email_type: data?.email_type,
+              trigger_id: data?.trigger_id,
+              title: data?.title,
+              cc: data?.cc,
+              bcc: data?.bcc,
               welcome_header: data?.welcome_header,
               greetings: data?.greetings,
               footer: data?.footer,
@@ -112,25 +148,48 @@ const UpdateFormatEmailHO: FC = () => {
           }
 
           if (data?.email_type) {
-            const emailTypes: any = {
-              1: 'ORDER',
-              2: 'CREDENTIAL',
-              3: 'QUOTATIONS',
-              4: 'REFUND',
-              5: 'COMPLAIN',
-              6: 'RESCHEDULE',
-              7: 'CSI',
-            }
-
             setSelectedEmailType((prev: any) => ({
               ...prev,
               value: data?.email_type,
               label: emailType.find((x: any) => x.value === data?.email_type)?.label,
             }))
           }
+
+          if (data?.trigger_id) {
+            setSelectedStatus((prev: any) => ({
+              ...prev,
+              value: data?.trigger_id,
+              label: status.find((x: any) => x.value === data?.trigger_id)?.label,
+            }))
+          }
         })
     } catch (error) {
       console.error(error)
+    }
+  }
+
+  const getStatus = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/status?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStatus = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.description,
+        }))
+
+        setStatus(tempStatus)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
     }
   }
 
@@ -157,9 +216,26 @@ const UpdateFormatEmailHO: FC = () => {
   }
 
   useEffect(() => {
+    getStatus()
     getEmailType()
     fetchEmailData()
   }, [])
+
+  // Change Select Status
+  useEffect(() => {
+    setEmailForm((prev) => ({
+      ...prev,
+      trigger_id: selectedStatus?.value ?? null,
+    }))
+  }, [selectedStatus])
+
+  // Change Select Email Type
+  useEffect(() => {
+    setEmailForm((prev) => ({
+      ...prev,
+      email_type: selectedEmailType?.value ?? null,
+    }))
+  }, [selectedEmailType])
 
   // Email Form Handler
   const emailFormHandler = (e: any) => {
@@ -239,13 +315,37 @@ const UpdateFormatEmailHO: FC = () => {
     })
   }
 
-  // Change Select Email Type
+  // Handler CC and BCC fields
+  const [inputValue, setInputValue] = useState<string>('')
+  const [ccValue, setCCValue] = useState<readonly Option[]>([])
+  const [bccValue, setBCCValue] = useState<readonly Option[]>([])
+
+  const handleKeyDown: KeyboardEventHandler = (e: any) => {
+    if (!inputValue) return
+
+    switch (e.key) {
+      case 'Enter':
+      case 'Tab':
+        if (e.target.name === 'cc') {
+          setCCValue((prev) => [...prev, createOption(inputValue)])
+        } else {
+          setBCCValue((prev) => [...prev, createOption(inputValue)])
+        }
+        setInputValue('')
+        e.preventDefault()
+        break
+      default:
+        break
+    }
+  }
+
   useEffect(() => {
     setEmailForm((prev) => ({
       ...prev,
-      email_type: selectedEmailType?.value ?? null,
+      cc: ccValue.map((x) => x.value).join(', '),
+      bcc: bccValue.map((x) => x.value).join(', '),
     }))
-  }, [selectedEmailType])
+  }, [ccValue, bccValue])
 
   // Handle Update Email
   const handleUpdateEmailMessages = async () => {
@@ -342,6 +442,23 @@ const UpdateFormatEmailHO: FC = () => {
               />
             </Form.Group>
 
+            <Form.Group className='header-template mb-4'>
+              <Form.Label className='fs-5'> Status :</Form.Label>
+              <Select
+                name='status'
+                className='form-control p-0'
+                classNamePrefix='select'
+                isSearchable={true}
+                placeholder='Pilih status yang ingin dikirimkan emailnya'
+                options={status}
+                value={{
+                  value: selectedStatus?.value ?? null,
+                  label: selectedStatus?.label ?? '',
+                }}
+                onChange={(newValue) => setSelectedStatus(newValue)}
+              />
+            </Form.Group>
+
             <Form.Group className='header-template mb-3'>
               <Form.Label className='fs-5'>Judul :</Form.Label>
 
@@ -351,6 +468,42 @@ const UpdateFormatEmailHO: FC = () => {
                 onChange={(e) => emailFormHandler(e)}
               />
             </Form.Group>
+
+            {/* <Form.Group className='header-template mb-4'>
+              <Form.Label className='fs-5'>CC :</Form.Label>
+
+              <CreatableSelect
+                name='cc'
+                components={{DropdownIndicator: null}}
+                inputValue={inputValue}
+                isClearable
+                isMulti
+                menuIsOpen={false}
+                onChange={(newValue) => setCCValue(newValue)}
+                onInputChange={(newValue) => setInputValue(newValue)}
+                onKeyDown={handleKeyDown}
+                placeholder='Tulis Email yang diinginkan lalu tekan enter'
+                value={ccValue}
+              />
+            </Form.Group>
+
+            <Form.Group className='header-template mb-4'>
+              <Form.Label className='fs-5'>BCC :</Form.Label>
+
+              <CreatableSelect
+                name='bcc'
+                components={{DropdownIndicator: null}}
+                inputValue={inputValue}
+                isClearable
+                isMulti
+                menuIsOpen={false}
+                onChange={(newValue) => setBCCValue(newValue)}
+                onInputChange={(newValue) => setInputValue(newValue)}
+                onKeyDown={handleKeyDown}
+                placeholder='Tulis Email yang diinginkan lalu tekan enter'
+                value={bccValue}
+              />
+            </Form.Group> */}
 
             <Form.Group className='header-template mb-3'>
               <Form.Label className='fs-5'>Ucapan Sapaan :</Form.Label>
@@ -478,6 +631,7 @@ const UpdateFormatEmailHO: FC = () => {
             </Button>
 
             <Button
+              className='d-flex justify-content-center align-items-center'
               variant='dark-primary'
               type='submit'
               onClick={() => handleUpdateEmailMessages()}

@@ -121,8 +121,8 @@ const NewTukangVendor: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempServiceType = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempServiceType = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.service_type,
         }))

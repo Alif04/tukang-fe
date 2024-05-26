@@ -52,7 +52,7 @@ const ViewCalendarHO: React.FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data.data
+            const data = response.data.data
 
             if (data) {
               const orderDetail = data.map((item: any) => {

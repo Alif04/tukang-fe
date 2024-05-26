@@ -81,7 +81,7 @@ const UpdateEmployee: FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data.data
+            const data = response.data.data
 
             if (data?.store_id) {
               setSelectedStore((prev) => ({
@@ -137,8 +137,8 @@ const UpdateEmployee: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             address: item.address,

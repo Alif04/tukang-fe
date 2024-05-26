@@ -237,10 +237,10 @@ const ListStoreHO: React.FC = () => {
       })
 
       setCurrentPage(response.data?.data?.page ?? 1)
-      setTotalData(response?.data?.data?.total ?? 0)
+      setTotalData(response?.data?.total ?? 0)
       setLoadData(false)
 
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

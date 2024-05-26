@@ -978,7 +978,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         },
       })
 
-      const orderData = response.data.data.data.map((item: any) => ({
+      const orderData = response.data.data.map((item: any) => ({
         ['Order ID']: item.id,
         ['Tanggal Order Dibuat']: new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
@@ -1353,8 +1353,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           },
         })
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
             city_id: item.city_id,

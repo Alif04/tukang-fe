@@ -54,6 +54,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
         })
         .then((response) => {
           const data = response.data.data
+
           setRescheduleDetail(data)
           updatePageTitle(data)
 

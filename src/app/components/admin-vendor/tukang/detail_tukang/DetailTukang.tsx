@@ -66,7 +66,8 @@ const DetailTukangVendor: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setTukangDetail(data)
           setTukangId(response.data.data.data.id)
 
@@ -116,6 +117,7 @@ const DetailTukangVendor: FC = () => {
       )
 
       const data = response.data.data
+
       setOrderData(data)
       return data
     } catch (error) {

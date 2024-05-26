@@ -26,6 +26,7 @@ const DetailQuotationVendor: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+
           setQuotationDetail(data)
         })
     } catch (error) {

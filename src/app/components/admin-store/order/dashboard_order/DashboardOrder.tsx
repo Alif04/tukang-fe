@@ -77,7 +77,8 @@ const DashboardOrderStore: FC = () => {
         },
       })
 
-      const data = response.data.data.data
+      const data = response.data.data
+
       setOrderList(data)
 
       return data
@@ -97,7 +98,7 @@ const DashboardOrderStore: FC = () => {
         },
       })
 
-      const chartDatas = response.data.data.monthlyOrders
+      const chartDatas = response.data.monthlyOrders
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
 

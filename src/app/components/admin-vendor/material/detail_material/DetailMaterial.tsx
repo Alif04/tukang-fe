@@ -25,7 +25,8 @@ const DetailMaterialVendor: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setMaterialDetail(data)
         })
     } catch (error) {

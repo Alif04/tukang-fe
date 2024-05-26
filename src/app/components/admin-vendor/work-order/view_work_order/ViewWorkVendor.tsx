@@ -255,7 +255,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     setTotalData(response?.data.data?.total ?? 0)
     setLoadData(false)
 
-    return response.data.data.data
+    return response.data.data
   }
 
   const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {

@@ -74,7 +74,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'left',
-      width: 110,
+      width: 130,
       sorter: (a: DataType, b: DataType) =>
         new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
@@ -121,31 +121,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       width: 150,
       onFilter: (value: string, record: DataType) => record.address.includes(value),
       sorter: (a: DataType, b: DataType) => a.address.localeCompare(b.address),
-    },
-    {
-      title: 'Nama Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      width: 170,
-      onFilter: (value: string, record: DataType) => record.service_name.includes(value),
-      sorter: (a: DataType, b: DataType) => a.service_name.localeCompare(b.service_name),
-    },
-    {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      align: 'center',
-      width: 90,
-      sorter: (a: DataType, b: DataType) => a.quantity - b.quantity,
-    },
-    {
-      title: 'Harga',
-      dataIndex: 'harga',
-      key: 'harga',
-      align: 'center',
-      width: 135,
-      sorter: (a: DataType, b: DataType) => a.harga - b.harga,
     },
     {
       title: 'Grand Total',
@@ -232,13 +207,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           costumer_name: item?.members?.full_name ?? '-',
           email: item?.members?.email ?? '-',
           address: item?.project_address,
-          service_name:
-            item?.payment_type === 'survey'
-              ? item.m_order_details[0]?.item_notes ?? '-'
-              : item.m_order_details[0]?.item?.service_name ?? '-',
           phone_number: item?.project_number ?? '-',
-          quantity: quantity,
-          harga: formattedUnitPrice,
           grand_total: formattedGrandTotal,
           sales_comission: formattedSalesComission,
         }
@@ -371,7 +340,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           </Row>
 
           <div className='total-order'>
-            <p className='fs-5'>Total order : {orderData.length}</p>
+            <p className='fs-5'>Total order : {totalOrder}</p>
           </div>
 
           <Spin

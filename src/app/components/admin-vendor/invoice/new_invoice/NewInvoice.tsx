@@ -249,7 +249,7 @@ const NewInvoiceVendor: FC = () => {
           },
         }
       )
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

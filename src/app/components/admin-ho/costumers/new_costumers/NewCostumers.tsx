@@ -50,9 +50,7 @@ const NewCostumerHO: FC = () => {
   const memberInfoFormHandler = (e: any) => {
     let newValue = e.target.value
 
-    if (e.target.name === 'whatsapp_number' && !newValue.startsWith('+62')) {
-      newValue = '+62' + newValue
-    } else if (e.target.name === 'phone_number' && !newValue.startsWith('08')) {
+    if (e.target.name === 'phone_number' && !newValue.startsWith('08')) {
       newValue = '08' + newValue
     }
 
@@ -82,8 +80,8 @@ const NewCostumerHO: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempStore = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.store_name,
         }))
@@ -177,7 +175,7 @@ const NewCostumerHO: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             text: 'Success Add New Customers',

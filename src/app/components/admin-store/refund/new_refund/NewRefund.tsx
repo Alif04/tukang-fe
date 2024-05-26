@@ -45,7 +45,8 @@ const NewRefundCS: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setOrderDetail(data)
         })
     } catch (err) {

@@ -32,7 +32,8 @@ const DetailRefundCS: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setRefundDetail(data)
         })
     } catch (error) {
@@ -43,11 +44,6 @@ const DetailRefundCS: FC = () => {
   useEffect(() => {
     fetchRefundData()
   }, [])
-
-  const phoneNumber =
-    refundDetail?.orders.members.phone_number !== null
-      ? refundDetail?.orders.members.phone_number
-      : refundDetail?.orders.members.whatsapp_number
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')

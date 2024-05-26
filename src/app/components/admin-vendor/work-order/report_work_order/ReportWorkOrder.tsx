@@ -37,8 +37,9 @@ const ReportWorkVendor: FC = () => {
         }
       )
 
-      const data = response.data.data.data
+      const data = response.data.data
       setOrderData(data)
+
       return data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -56,10 +57,10 @@ const ReportWorkVendor: FC = () => {
         },
       })
 
-      const data = response.data.data.data
-      const chartDatas = response.data.data.monthlyOrders.slice(1, 7)
-
+      const data = response.data.data
+      const chartDatas = response.data.monthlyOrders.slice(1, 7)
       setChartData(chartDatas)
+
       return data
     } catch (error) {
       console.error(error)
@@ -77,10 +78,8 @@ const ReportWorkVendor: FC = () => {
         },
       })
 
-      const data = response.data.data.data
-      const chartDatas = response.data.data.monthlyWorkOrders.slice(1, 7)
-
-      console.log(chartDatas)
+      const data = response.data.data
+      const chartDatas = response.data.monthlyWorkOrders.slice(1, 7)
 
       setWorkOrderData(data)
       setChartWorkOrder(chartDatas)

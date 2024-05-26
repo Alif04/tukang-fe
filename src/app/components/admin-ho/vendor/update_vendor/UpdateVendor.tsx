@@ -71,7 +71,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           updatePageTitle(data)
 
           if (data?.id) {
@@ -206,8 +207,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempStore = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.store_name,
         }))

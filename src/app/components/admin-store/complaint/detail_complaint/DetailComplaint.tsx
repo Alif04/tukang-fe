@@ -48,7 +48,8 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setComplaintDetail(data)
           updatePageTitle(data)
 

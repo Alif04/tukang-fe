@@ -150,8 +150,8 @@ const UpdateItemHO: FC = () => {
         },
       })
 
-      if (Array.isArray(response.data.data.data)) {
-        const tempStore = response.data.data.data.map((item: any) => ({
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
           store_id: item.id,
           store_group_id: item.area_id,
           label: item.store_name,

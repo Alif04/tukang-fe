@@ -218,8 +218,8 @@ const NewOrderStoreCS: FC = () => {
           }
         )
 
-        if (Array.isArray(response.data.data.data)) {
-          const tempMember = response.data.data.data.map((item: any) => ({
+        if (Array.isArray(response.data.data)) {
+          const tempMember = response.data.data.map((item: any) => ({
             value: item.id,
             label: item[labelKey],
             full_name: item.full_name,
@@ -731,15 +731,15 @@ const NewOrderStoreCS: FC = () => {
           },
         })
 
-        if (response.data.data.status === 201) {
+        if (response.data.status === 201) {
           setSelectedMember((selectedMember) => ({
             ...selectedMember,
-            value: response.data.data.data.member.id,
+            value: response.data.data.id,
           }))
 
           setOrderForm((prevOrderForm) => ({
             ...prevOrderForm,
-            member_id: response.data.data.data.member.id,
+            member_id: response.data.data.id,
           }))
 
           setIsSubmittingNewMember(true)
@@ -779,14 +779,17 @@ const NewOrderStoreCS: FC = () => {
 
   // Vendor Availbility
   const vendorAvailbility = (data: any) => {
-    const todayDate = new Date().toISOString().split('T')[0]
+    const requestSurvey = orderForm.request_survey
     const maxOrder = data.max_order
 
-    // Detect Survey Date Only
-    // const workOrderVendor = data.work_orders.filter((x: any) => {
-    //   const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
-    //   return surveyDate === todayDate
-    // })
+    // Today Date
+    // const todayDate = new Date().toISOString().split('T')[0]
+
+    // Detect Request Survey Date Only
+    const orderVendor = data.orders.filter((x: any) => {
+      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
+      return surveyDate === requestSurvey
+    })
 
     // Detect Survey Date and Work Date
     const workOrderVendor = data.work_orders.filter((x: any) => {
@@ -801,15 +804,15 @@ const NewOrderStoreCS: FC = () => {
         : null
 
       if (surveyDate && !workStartDate && !workEndDate) {
-        return surveyDate === todayDate
+        return surveyDate === requestSurvey
       } else if (surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= todayDate && todayDate <= workEndDate
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
       } else {
-        return surveyDate === todayDate
+        return surveyDate === requestSurvey
       }
     })
 
-    return workOrderVendor.length >= maxOrder ? 'FULL BOOKED' : 'AVAILABLE'
+    return orderVendor.length >= maxOrder ? 'FULL BOOKED' : 'AVAILABLE'
   }
 
   return (

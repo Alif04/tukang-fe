@@ -34,10 +34,10 @@ interface DataType {
   no_member: number
   costumer_name: string
   phone_number: number
-  service_name: string
   payment_status: string
   order_status: string
   order_status_label: string
+  work_order_status: string
 }
 
 interface StoreItem {
@@ -58,6 +58,11 @@ interface Order {
     total: string
     item_notes: string
   }>
+}
+
+interface CSI {
+  value: number | null
+  label: string
 }
 
 interface Quotation {
@@ -170,7 +175,8 @@ const ViewOrders: FC = () => {
           },
         })
         .then((response) => {
-          const data = response.data.data.data
+          const data = response.data.data
+
           setOrderDetail(data)
           setTimeout(() => {
             setLoadingModal(false)
@@ -290,8 +296,63 @@ const ViewOrders: FC = () => {
     }
   }
 
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.store_name,
+          city_id: item.city_id,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getCSI = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/csi?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempCSI = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setCsiData(tempCSI)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
   useEffect(() => {
     fetchOrderData(null)
+    getStore()
+    getCSI()
   }, [])
 
   const cancelOrderHandler = async (id: number) => {
@@ -367,13 +428,31 @@ const ViewOrders: FC = () => {
     })
   }
 
+  // Grand Total Order
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
+
+    let totalAmount = 0
+
+    if (payment_type === 'gratis') {
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
+    } else if (payment_type === 'pemasangan_tanpa_survey') {
+      totalAmount =
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
+    } else if (payment_type === 'survey') {
+      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
+    }
+
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'Order ID',
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 90,
+      width: 100,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -425,16 +504,6 @@ const ViewOrders: FC = () => {
       align: 'left',
       width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
-      responsive: ['md'],
-    },
-    {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      width: 120,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
       responsive: ['md'],
     },
     {
@@ -535,14 +604,14 @@ const ViewOrders: FC = () => {
             ) : (
               <></>
             )}
-            {/* 
-            {['WORKEND', 'SURVEYDONE'].includes(record.order_status) ? (
+
+            {['WORKEND', 'SURVEYDONE'].includes(record.work_order_status) ? (
               <a className='button-edit' onClick={() => handleShowModal(id, 1)}>
                 <FontAwesomeIcon icon={faEnvelope} size='sm' />
               </a>
             ) : (
               <></>
-            )} */}
+            )}
 
             {['QUOTEOUT'].includes(record.order_status) && userRole === 'Store CS' ? (
               <a className='button-verif' onClick={() => handleShowModal(id, 2)}>
@@ -567,6 +636,13 @@ const ViewOrders: FC = () => {
   const handleCloseModal = () => {
     setShowModal(false)
   }
+
+  // CSI
+  const [csiData, setCsiData] = useState<CSI[]>([])
+  const [selectedCSI, setSelectedCSI] = useState<SingleValue<CSI>>({
+    value: null,
+    label: '',
+  })
 
   // Quotation Detail
   const [quotation, setQuotation] = useState<Quotation>({
@@ -735,11 +811,11 @@ const ViewOrders: FC = () => {
         },
       })
 
-      setCurrentPage(response.data.data.page)
-      setTotalData(response?.data?.data?.total ?? 0)
+      setCurrentPage(response.data.page)
+      setTotalData(response.data?.total ?? 0)
       setLoadData(false)
 
-      return response.data.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -782,12 +858,12 @@ const ViewOrders: FC = () => {
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
           phone_number: item?.project_number,
-          service_name:
-            item.payment_type === 'survey' && item.quotation.length === 0
-              ? item.m_order_details[0]?.item_notes
-              : item.payment_type === 'survey' && item.quotation.length >= 0
-              ? item.quotation[0]?.quotation_details[0]?.name ?? '-'
-              : item.m_order_details[0]?.item?.service_name ?? '-',
+          // service_name:
+          //   item.payment_type === 'survey' && item.quotation.length === 0
+          //     ? item.m_order_details[0]?.item_notes
+          //     : item.payment_type === 'survey' && item.quotation.length >= 0
+          //     ? item.quotation[0]?.quotation_details[0]?.name ?? '-'
+          //     : item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
           order_status:
             item?.work_orders?.work_order_status.length > 0 && item?.status?.category !== 'QUOTEOUT'
@@ -797,13 +873,14 @@ const ViewOrders: FC = () => {
               ? item?.status?.category
               : item?.status?.category,
           order_status_label:
-            item?.work_orders?.work_order_status.length > 0 &&
-            !['QOUTEOUT', 'WORKREQ'].includes(item?.status?.category)
+            item?.work_orders?.work_order_status?.length > 0 &&
+            !['QOUTEOUT'].includes(item?.status?.category)
               ? item?.work_orders?.work_order_status[0]?.status?.description
               : item?.work_orders?.work_order_status.length > 0 &&
                 item?.status?.category === 'QUOTEOUT'
               ? item?.status?.description
               : item?.status?.description,
+          work_order_status: item?.work_orders?.work_order_status[0]?.status?.category,
         }
 
         return data
@@ -833,37 +910,6 @@ const ViewOrders: FC = () => {
 
   useEffect(() => {
     fetchData(1, 10, '')
-  }, [])
-
-  useEffect(() => {
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data.data)) {
-          const tempStore = response.data.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            city_id: item.city_id,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    getStore()
   }, [])
 
   const handleSubmitFilter = async () => {
@@ -996,6 +1042,65 @@ const ViewOrders: FC = () => {
       })
   }
 
+  const handleTriggerEmail = async () => {
+    Swal.fire({
+      title: 'Apakah anda yakin ingin mengirim email berisi formulir csi kepada customer?',
+      icon: 'question',
+      showConfirmButton: true,
+      confirmButtonColor: '#6b9230',
+      cancelButtonColor: '#d33',
+      showDenyButton: true,
+      confirmButtonText: 'Ya',
+      denyButtonText: 'Tidak',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.post(
+            `${apiUrl}/csi/${selectedCSI?.value}/send/${orderDetail?.id}`,
+            null,
+            {
+              headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                'Access-Control-Allow-Origin': '*',
+                'ngrok-skip-browser-warning': 'true',
+              },
+            }
+          )
+
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Send Email',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+
+            setLoadingUpdate(false)
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+
+            setLoadingUpdate(false)
+          }
+
+          window.location.reload()
+        } catch (error: any) {
+          setLoadingUpdate(false)
+          Swal.fire({
+            title: 'Error',
+            text: error.response.data.message,
+            icon: 'error',
+          })
+        }
+      }
+    })
+  }
+
   // CSI Modal
   const CustomerIndexModal = ({orderDetail, loadingModal}: any) => {
     return (
@@ -1003,7 +1108,7 @@ const ViewOrders: FC = () => {
         <Modal.Header closeButton>
           <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
             <Modal.Title>
-              Pengiriman Survey Kepada Customer - Order ID {orderDetail?.id}
+              Pengiriman Formulir Survey Kepuasan Pelanggan - Order ID {orderDetail?.id}
             </Modal.Title>
           </Skeleton>
         </Modal.Header>
@@ -1044,6 +1149,435 @@ const ViewOrders: FC = () => {
               </Skeleton>
             </Col>
           </Row>
+
+          <Row className='mb-5'>
+            <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+              <div className='fs-4 fw-bold mb-1'>Informasi Pembeli</div>
+            </Skeleton>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 2}}>
+                <Form.Label className='fs-6 fw-semibold'>
+                  No Member :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.member_number}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Customer Name :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.full_name} </span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Alamat Pemasangan :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_address} </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Nomor Telp/WA :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_number}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Alamat Email :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.email} </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Skeleton active loading={loadingModal} paragraph={{rows: 3}}>
+            {/* Newest */}
+            {(() => {
+              if (
+                (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
+                (orderDetail?.work_orders?.work_order_status.length === 1 &&
+                  orderDetail?.payment_type === 'survey')
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item_notes}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
+                          </>
+                        ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Biaya Survey
+                          </td>
+
+                          <td className=' fw-bolder'>Rp. 99.000</td>
+                        </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                            </tr>
+                          </>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              } else if (
+                ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
+                orderDetail?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Final Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 2)
+                          .map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+
+                    {orderDetail?.quotation[0]?.quotation_details.filter(
+                      (x: any) => x.item_type === 1
+                    ).length ? (
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Jasa
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Material
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 1)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Additional Promosi
+                            </td>
+                            <td className=' fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_promotion ?? 0
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                )
+              } else if (
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                ) &&
+                orderDetail?.payment_type === 'survey' &&
+                orderDetail?.work_orders?.work_order_status.length >= 1
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          <th>Satuan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                          orderDetail.work_orders.work_order_status[0].work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>
+                                  {item.name ?? ''}{' '}
+                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item.quantity ?? 0}</td>
+                                <td>{item.unit ?? ''}</td>
+                              </tr>
+                            )
+                          )
+                        ) : (
+                          <tr>
+                            <td>Item belum diset oleh Tukang/Vendor</td>
+                            <td>Quantity belum diset oleh Tukang/Vendor</td>
+                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              } else if (
+                orderDetail?.payment_type === 'gratis' ||
+                orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          {!(orderDetail?.payment_type === 'gratis') && (
+                            <>
+                              <th>Harga Jasa</th>
+                              <th>Jumlah</th>
+                            </>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orderDetail?.order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              {!(orderDetail?.payment_type === 'gratis') && (
+                                <>
+                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </>
+                              )}
+                            </tr>
+                          </>
+                        ))}
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td
+                                colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                                className='text-end fw-bolder align-middle'
+                              >
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
+
+                        <tr>
+                          <td
+                            colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                            className='text-end fw-bolder'
+                          >
+                            Grand Total
+                          </td>
+
+                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              }
+            })()}
+          </Skeleton>
+
+          <Row className='mt-5 mb-5'>
+            <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+              <Form.Group className='header-template mb-4'>
+                <Form.Label className='fs-5'>Pilih Format Formulir CSI :</Form.Label>
+                <Select
+                  name='template_option'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  isSearchable={true}
+                  placeholder='Pilih Judul Format'
+                  options={csiData}
+                  onChange={(newValue) => setSelectedCSI(newValue)}
+                />
+              </Form.Group>
+            </Skeleton>
+          </Row>
+
+          <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+            <div className='button-submit d-flex justify-content-center align-items-center'>
+              <Button
+                className='d-flex justify-content-center align-items-center'
+                onClick={handleTriggerEmail}
+                disabled={loadingUpdate}
+                variant='dark-primary'
+              >
+                {loadingUpdate ? 'Submitting..' : 'Submit'}
+              </Button>
+            </div>
+          </Skeleton>
         </Modal.Body>
       </>
     )

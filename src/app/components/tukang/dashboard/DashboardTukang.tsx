@@ -99,7 +99,7 @@ const DashboardTukang: FC = () => {
         }
       )
 
-      const chartDatas = response.data.data.monthlyWorkOrders
+      const chartDatas = response.data.monthlyWorkOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
