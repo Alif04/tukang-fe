@@ -8,10 +8,9 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import dayjs from 'dayjs'
-import {Table, Image, DatePicker} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
+import {Image, DatePicker} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Button, Card, Row, Col, ListGroup} from 'react-bootstrap'
+import {Form, Button, Card, Row, Col, ListGroup, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faFileArrowUp, faPlus} from '@fortawesome/free-solid-svg-icons'
 const {RangePicker} = DatePicker
@@ -57,6 +56,7 @@ interface WorkOrderHistory {
   work_order_id: number
   work_order_status: string
   work_order_status_label: string
+  time_range: string
   created_at: string
   updated_at: string
   work_date_time: string
@@ -198,8 +198,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             setWorkOrderAfter(initialWorkOrderFiles)
           }
 
-          // Newest
-          if (data?.work_order_status.length > 1) {
+          // GLOBAL
+          if (data?.work_order_status.length >= 3 && data?.order?.payment_type === 'survey') {
             const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
@@ -215,7 +215,59 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             )
 
             setWorkOrderItem(workOrderItem)
-          } else if (data?.work_order_status?.length === 1) {
+          } else if (
+            data?.work_order_status.length > 2 &&
+            ['gratis', 'pemasangan_tanpa_survey'].includes(data?.order?.payment_type)
+          ) {
+            const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
+              (item: any, index: number) => ({
+                id: item.id,
+                index: (Date.now() + index).toString(),
+                item_name: item?.name,
+                tukang_id: item?.tukang_id ?? null,
+                tukang_name: item?.tukang_name ?? null,
+                unit: item?.unit,
+                is_user: item?.is_customer === true ? 1 : 0,
+                type: item?.type,
+                quantity: item?.quantity,
+              })
+            )
+
+            setWorkOrderItem(workOrderItem)
+          } else if (
+            data?.work_order_status?.length >= 1 &&
+            data?.order?.payment_type === 'survey'
+          ) {
+            const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
+              id: item.id,
+              index: (Date.now() + index).toString(),
+              item_name: item.item_name ?? '',
+              unit: item?.unit ?? '',
+              is_user: item.is_customer ? 1 : 0,
+              type: 2,
+              quantity: item?.quantity ?? 0,
+            }))
+
+            const workOrderItemMaterial = [
+              {
+                id: null,
+                index: (Date.now() + workOrderItem.length).toString(),
+                item_name: '',
+                tukang_id: null,
+                tukang_name: '',
+                is_user: 0,
+                type: 1,
+                quantity: null,
+                unit: '',
+              },
+            ]
+
+            const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+            setWorkOrderItem(mergedWorkOrderItem)
+          } else if (
+            (data?.work_order_status?.length >= 1 || data?.work_order_status?.length <= 2) &&
+            ['gratis', 'pemasangan_tanpa_survey'].includes(data?.order?.payment_type)
+          ) {
             const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
               id: item.id,
               index: (Date.now() + index).toString(),
@@ -244,6 +296,98 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             setWorkOrderItem(mergedWorkOrderItem)
           }
 
+          // TANPA SURVEY
+          // if (data?.work_order_status.length > 2) {
+          //   const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
+          //     (item: any, index: number) => ({
+          //       id: item.id,
+          //       index: (Date.now() + index).toString(),
+          //       item_name: item?.name,
+          //       tukang_id: item?.tukang_id ?? null,
+          //       tukang_name: item?.tukang_name ?? null,
+          //       unit: item?.unit,
+          //       is_user: item?.is_customer === true ? 1 : 0,
+          //       type: item?.type,
+          //       quantity: item?.quantity,
+          //     })
+          //   )
+
+          //   setWorkOrderItem(workOrderItem)
+          // } else if (data?.work_order_status?.length >= 1 || data?.work_order_status?.length <= 2) {
+          //   const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
+          //     id: item.id,
+          //     index: (Date.now() + index).toString(),
+          //     item_name: item.item_name ?? '',
+          //     unit: item?.unit ?? '',
+          //     is_user: item.is_customer ? 1 : 0,
+          //     type: 2,
+          //     quantity: item?.quantity ?? 0,
+          //   }))
+
+          //   const workOrderItemMaterial = [
+          //     {
+          //       id: null,
+          //       index: (Date.now() + workOrderItem.length).toString(),
+          //       item_name: '',
+          //       tukang_id: null,
+          //       tukang_name: '',
+          //       is_user: 0,
+          //       type: 1,
+          //       quantity: null,
+          //       unit: '',
+          //     },
+          //   ]
+
+          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+          //   setWorkOrderItem(mergedWorkOrderItem)
+          // }
+
+          // SURVEY
+          // if (data?.work_order_status.length > 1) {
+          //   const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
+          //     (item: any, index: number) => ({
+          //       id: item.id,
+          //       index: (Date.now() + index).toString(),
+          //       item_name: item?.name,
+          //       tukang_id: item?.tukang_id ?? null,
+          //       tukang_name: item?.tukang_name ?? null,
+          //       unit: item?.unit,
+          //       is_user: item?.is_customer === true ? 1 : 0,
+          //       type: item?.type,
+          //       quantity: item?.quantity,
+          //     })
+          //   )
+
+          //   setWorkOrderItem(workOrderItem)
+          // } else if (data?.work_order_status?.length === 1) {
+          //   const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
+          //     id: item.id,
+          //     index: (Date.now() + index).toString(),
+          //     item_name: item.item_name ?? '',
+          //     unit: item?.unit ?? '',
+          //     is_user: item.is_customer ? 1 : 0,
+          //     type: 2,
+          //     quantity: item?.quantity ?? 0,
+          //   }))
+
+          //   const workOrderItemMaterial = [
+          //     {
+          //       id: null,
+          //       index: (Date.now() + workOrderItem.length).toString(),
+          //       item_name: '',
+          //       tukang_id: null,
+          //       tukang_name: '',
+          //       is_user: 0,
+          //       type: 1,
+          //       quantity: null,
+          //       unit: '',
+          //     },
+          //   ]
+
+          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+          //   setWorkOrderItem(mergedWorkOrderItem)
+          // }
+
           if (data?.work_order_status) {
             const workStartDate = new Date(data?.work_start_date).toLocaleDateString('id-ID', {
               day: 'numeric',
@@ -270,23 +414,57 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 })
               : 'Order ini tanpa survey'
 
-            const workOrderHistoryData = data.work_order_status.map((item: any) => ({
-              work_order_id: item?.work_order_id,
-              work_order_status: item?.status?.category,
-              work_order_status_label: item?.status?.description,
-              created_at: surveyDate,
-              updated_at: item?.created_at
-                ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })
-                : '-',
-              work_date_time: workDateTime,
-              updated_by: item?.updated_by,
-            }))
+            const workOrderHistoryData = data.work_order_status.map(
+              (item: any, index: number, array: any[]) => {
+                let workTime = '-'
+
+                if (index > 0) {
+                  const date_1 = new Date(array[index - 1].created_at).getTime()
+                  const date_2 = new Date(item.created_at).getTime()
+
+                  const timeDifferenceInMilliseconds = Math.abs(date_2 - date_1)
+
+                  const timeDifferenceInMinutes = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60)
+                  )
+
+                  const timeDifferenceInHours = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60 * 60)
+                  )
+
+                  const timeDifferenceInDays = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
+                  )
+
+                  if (timeDifferenceInDays >= 1) {
+                    workTime = `${timeDifferenceInDays} Hari`
+                  } else if (timeDifferenceInHours >= 1) {
+                    workTime = `${timeDifferenceInHours} Jam`
+                  } else {
+                    workTime = `${timeDifferenceInMinutes} Menit`
+                  }
+                }
+
+                return {
+                  work_order_id: item?.work_order_id,
+                  work_order_status: item?.status?.category,
+                  work_order_status_label: item?.status?.description,
+                  // created_at: surveyDate,
+                  time_range: workTime,
+                  updated_at: item?.created_at
+                    ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      })
+                    : '-',
+                  work_date_time: workDateTime,
+                  updated_by: item?.updated_by,
+                }
+              }
+            )
 
             setWorkOrderHistory(workOrderHistoryData)
           }
@@ -330,15 +508,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   }, [])
 
   // Format Date
-  const today = new Date().toISOString().split('T')[0]
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const formatDateTime = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -569,8 +738,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
-    console.log('statusData', statusData)
-
     const getStatusNameByCategory = (category: string) => {
       switch (category) {
         case 'SURVEYREQ':
@@ -600,8 +767,73 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     })
   }, [workOrderDetail?.work_order_status[0]?.status?.category, workOrder.work_order_status])
 
+  // Validasi Upload Foto Sebelum
+  const WorkOrderValidation = () => {
+    let valid = true
+
+    if (workOrderBefore.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Upload Foto Sebelum',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (
+      workOrderAfter.length === 0 &&
+      [
+        'SURVEYSTART',
+        'SURVEYDONE',
+        'WIP',
+        'WORKEND',
+        'REWORKSTART',
+        'RIP',
+        'REWORKEND',
+        'WORKDONE',
+        'DONE',
+      ].includes(workOrderDetail?.work_order_status[0]?.status?.category)
+    ) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Upload Foto Sesudah',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (
+      workOrderItem.filter((x) => x.type === 2).some((x) => x.item_name === '') &&
+      ['SURVEYSTART', 'SURVEYDONE'].includes(
+        workOrderDetail?.work_order_status[0]?.status?.category
+      )
+    ) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Item Jasa Pemasangan',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (
+      workOrderItem.filter((x) => x.type === 2).some((x) => x.quantity === null) &&
+      ['SURVEYSTART', 'SURVEYDONE'].includes(
+        workOrderDetail?.work_order_status[0]?.status?.category
+      )
+    ) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Quantity',
+        icon: 'warning',
+      })
+      valid = false
+    }
+
+    return valid
+  }
+
   // Update Work Order
   const handleUpdateWorkOrder = async () => {
+    if (!WorkOrderValidation()) {
+      setIsLoading(false)
+      return false
+    }
+
     const formData = new FormData()
     setIsLoading(true)
 
@@ -647,7 +879,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     // Work Order Item
     if (workOrderItem) {
       workOrderItem.forEach((order, index) => {
-        if (order.id) {
+        if (order.id && order.item_name !== '') {
           formData.append(`work_order_items[${index}][id]`, order.id.toString())
         }
 
@@ -669,7 +901,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           formData.append(`work_order_items[${index}][unit]`, order.unit)
         }
 
-        if (order.quantity) {
+        if (order.quantity && order.item_name !== '') {
           formData.append(`work_order_items[${index}][quantity]`, order.quantity.toString())
         }
       })
@@ -688,7 +920,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
-            text: response.data.message,
+            text: 'Work Order Updated',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -718,74 +950,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       })
   }
 
-  // Work Order History
-  const columns: ColumnsType<WorkOrderHistory> = [
-    {
-      title: 'Work Order ID',
-      dataIndex: 'work_order_id',
-      key: 'work_order_id',
-      align: 'center',
-      width: 100,
-      defaultSortOrder: 'descend',
-      sorter: (a, b) => a.work_order_id - b.work_order_id,
-    },
-    {
-      title: 'Work Order Status',
-      dataIndex: 'work_order_status_label',
-      key: 'work_order_status_label',
-      align: 'center',
-      width: 100,
-      onFilter: (value, record) => record.work_order_status_label.includes(String(value)),
-      sorter: (a, b) => a.work_order_status_label.length - b.work_order_status_label.length,
-    },
-    {
-      title: 'Tanggal Survey',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.created_at.includes(String(value)),
-      sorter: (a, b) => a.created_at.length - b.created_at.length,
-    },
-    {
-      title: 'Terakhir Update Survey/Pengerjaan',
-      dataIndex: 'updated_at',
-      key: 'updated_at',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.updated_at.includes(String(value)),
-      sorter: (a, b) => a.updated_at.length - b.updated_at.length,
-    },
-    {
-      title: 'Tanggal Pengerjaan',
-      dataIndex: 'work_date_time',
-      key: 'work_date_time',
-      align: 'center',
-      width: 120,
-      onFilter: (value, record) => record.work_date_time.includes(String(value)),
-      sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
-    },
-  ]
-
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount =
-        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
-    } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   return (
     <section id='update-work-order-tukang'>
       <Card className='mb-5'>
@@ -793,7 +957,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           <Row>
             <Col xxl={8} xl={8} md={8} sm={12}>
               <Row>
-                <Col>
+                <Col xxl={6} xl={6} md={6} sm={12}>
                   <Form.Group className='detail-info' as={Row}>
                     <Form.Label className='fs-7' column md='4'>
                       Nama Toko
@@ -807,7 +971,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </Form.Group>
                 </Col>
 
-                <Col>
+                <Col xxl={6} xl={6} md={6} sm={12}>
                   <Form.Group className='detail-info' as={Row}>
                     <Form.Label className='fs-7' column md='4'>
                       Nama Vendor
@@ -823,7 +987,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               </Row>
 
               <Row>
-                <Col>
+                <Col xxl={6} xl={6} md={6} sm={12}>
                   <Form.Group className='detail-info' as={Row}>
                     <Form.Label className='fs-7' column md='4'>
                       Order ID
@@ -854,7 +1018,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </Row>
                 </Col>
 
-                <Col>
+                <Col xxl={6} xl={6} md={6} sm={12}>
                   <Form.Group className='detail-info' as={Row}>
                     <Form.Label className='fs-7' column sm='4'>
                       Work Order ID
@@ -1010,7 +1174,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     {[
                       'SURVEYSTART',
                       'SURVEYDONE',
-                      'WORKREQ',
                       'WIP',
                       'WORKEND',
                       'REWORKSTART',
@@ -1144,14 +1307,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </Form.Label>
               </Form.Group>
 
-              <Form.Group className='detail-info' as={Row} style={{visibility: 'hidden'}}>
-                <Form.Label className='fs-7' column sm='4'></Form.Label>
-
-                <Col sm='8'>
-                  <Form.Control />
-                </Col>
-              </Form.Group>
-
               {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
                 workOrderDetail?.work_order_status[0]?.status?.category
               ) && (
@@ -1219,7 +1374,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         disabled={[true, true]}
                         allowClear={false}
                         className='date-range w-100'
-                        format='YYYY-MM-DD'
+                        format='DD-MM-YYYY'
                         onChange={(values) => {
                           if (values && values.length === 2) {
                             const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
@@ -1284,7 +1439,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           {(() => {
             if (
               workOrderDetail?.order?.payment_type === 'survey' &&
-              ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+              ['SURVEYSTART', 'SURVEYDONE'].includes(
                 workOrderDetail?.work_order_status[0]?.status?.category
               )
             ) {
@@ -1294,13 +1449,13 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     <Col>
                       <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
 
-                      <table className='table'>
+                      <Table responsive>
                         <thead className='table-item-head'>
                           <tr>
                             <th></th>
-                            <th>Jenis Jasa</th>
-                            <th>QTY</th>
-                            <th>Satuan</th>
+                            <th className='content'>Jenis Jasa</th>
+                            <th className='content'>QTY</th>
+                            <th className='content'>Satuan</th>
                             <th>Action</th>
                           </tr>
                         </thead>
@@ -1325,6 +1480,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                                 <td>
                                   <Form.Control
                                     id={`service-name-${index}`}
+                                    type='text'
                                     value={element.item_name}
                                     onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
                                   />
@@ -1362,20 +1518,20 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               </tr>
                             ))}
                         </tbody>
-                      </table>
+                      </Table>
                     </Col>
                   </Row>
 
                   <Row>
                     <Col>
-                      <table className='table'>
+                      <Table responsive>
                         <thead className='table-item-head'>
                           <tr>
                             <th></th>
                             <th>Disediakan Customer</th>
-                            <th>Material Yang Dibutuhkan</th>
-                            <th>QTY</th>
-                            <th>Satuan</th>
+                            <th className='content'>Material Yang Dibutuhkan</th>
+                            <th className='content'>QTY</th>
+                            <th className='content'>Satuan</th>
                             <th>Action</th>
                           </tr>
                         </thead>
@@ -1447,7 +1603,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               </tr>
                             ))}
                         </tbody>
-                      </table>
+                      </Table>
                     </Col>
                   </Row>
                 </>
@@ -1526,7 +1682,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </div>
               )
             } else if (
-              ['WORKREQ', 'WIP', 'WORKEND', 'DONE'].includes(
+              ['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
                 workOrderDetail?.work_order_status[0]?.status?.category
               ) &&
               workOrderDetail?.work_order_status.length >= 2 &&
@@ -1618,7 +1774,14 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         </Form.Label>
                         <Col>
                           <p className='fs-7 p-0'>
-                            {formatDate(new Date(workOrderDetail?.order?.request_survey))}
+                            {new Date(workOrderDetail?.order?.request_survey).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              }
+                            )}
                           </p>
                         </Col>
                       </Form.Group>
@@ -1692,7 +1855,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   type='submit'
                   disabled
                 >
-                  Order Ini Telah Selesai
+                  Order Ini Pengerjaannya Telah Selesai
                 </Button>
               </div>
             ) : (
@@ -1718,14 +1881,27 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             <div className='work-order-history'>
               <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
 
-              <Table
-                className='table-striped-rows'
-                bordered
-                columns={columns}
-                dataSource={workOrderHistory}
-                rowKey={(record) => record.work_order_id}
-                pagination={{position: ['bottomRight']}}
-              />
+              <Table responsive>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th className='content-history'>Work Order ID</th>
+                    <th className='content-history'>Work Order Status</th>
+                    <th className='content-history'>Terakhir Update Survey/Pengerjaan</th>
+                    <th className='content-history'>Tanggal Pengerjaan</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {workOrderHistory.map((item, index) => (
+                    <tr key={`${index}-history`} id={`${index}-history`}>
+                      <td>{item?.work_order_id}</td>
+                      <td>{item?.work_order_status_label}</td>
+                      <td>{item?.updated_at}</td>
+                      <td>{item?.work_date_time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
           </Card.Body>
         </Card>

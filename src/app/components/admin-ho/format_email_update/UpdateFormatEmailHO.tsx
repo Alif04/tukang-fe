@@ -16,6 +16,11 @@ interface templateOption {
   label: string
 }
 
+interface CSI {
+  value: number | null
+  label: string
+}
+
 interface StatusStorage {
   value: number | null
   label: string
@@ -36,8 +41,8 @@ interface emailLayout {
   email_type: number | null
   trigger_id: number | null
   title: string
-  // cc: string
-  // bcc: string
+  cc: string
+  bcc: string
   greetings: string
   footer: string
   welcome_header: string
@@ -57,14 +62,19 @@ const UpdateFormatEmailHO: FC = () => {
   const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  // List CSI
+  const [csiData, setCsiData] = useState<CSI[]>([])
+  const [selectedCSI, setSelectedCSI] = useState<SingleValue<CSI>>({
+    value: null,
+    label: '',
+  })
+
   // Status
   const [status, setStatus] = useState<StatusStorage[]>([])
   const [selectedStatus, setSelectedStatus] = useState<SingleValue<StatusStorage>>({
     value: null,
     label: '',
   })
-
-  console.log('selected Status', selectedStatus)
 
   // Email
   const [emailType, setEmailType] = useState<templateOption[]>([])
@@ -78,8 +88,8 @@ const UpdateFormatEmailHO: FC = () => {
     email_type: null,
     trigger_id: null,
     title: '',
-    // cc: '',
-    // bcc: '',
+    cc: '',
+    bcc: '',
     greetings: '',
     footer: '',
     welcome_header: '',
@@ -115,7 +125,7 @@ const UpdateFormatEmailHO: FC = () => {
           if (data) {
             setEmailForm((prev) => ({
               ...prev,
-              csi_id: data?.csi_id ?? null,
+              csi_id: data?.csi_template?.id ?? null,
               email_type: data?.email_type,
               trigger_id: data?.trigger_id,
               title: data?.title,
@@ -127,7 +137,20 @@ const UpdateFormatEmailHO: FC = () => {
             }))
           }
 
-          if (data?.terms_detail) {
+          if (data?.csi_template) {
+            setSelectedCSI((prev: any) => ({
+              ...prev,
+              value: data?.csi_template?.id ?? null,
+              label: data?.csi_template?.name ?? '',
+            }))
+          }
+
+          if (data?.cc || data?.bcc) {
+            setValueCC((prev) => [...prev, createOption(data?.cc)])
+            setValueBCC((prev) => [...prev, createOption(data?.bcc)])
+          }
+
+          if (data?.terms_detail?.length >= 1) {
             setEmailForm((prev: any) => ({
               ...prev,
               terms_detail: data.terms_detail.map((item: any) => ({
@@ -135,9 +158,18 @@ const UpdateFormatEmailHO: FC = () => {
                 term: item?.terms,
               })),
             }))
+          } else {
+            setEmailForm((prev: any) => ({
+              ...prev,
+              terms_detail: [
+                {
+                  term: '',
+                },
+              ],
+            }))
           }
 
-          if (data?.information_detail) {
+          if (data?.information_detail?.length >= 1) {
             setEmailForm((prev: any) => ({
               ...prev,
               information_detail: data.information_detail.map((item: any) => ({
@@ -145,21 +177,29 @@ const UpdateFormatEmailHO: FC = () => {
                 information: item?.information,
               })),
             }))
+          } else {
+            setEmailForm((prev: any) => ({
+              ...prev,
+              terms_detail: [
+                {
+                  term: '',
+                },
+              ],
+            }))
           }
 
           if (data?.email_type) {
             setSelectedEmailType((prev: any) => ({
               ...prev,
               value: data?.email_type,
-              label: emailType.find((x: any) => x.value === data?.email_type)?.label,
             }))
           }
 
           if (data?.trigger_id) {
             setSelectedStatus((prev: any) => ({
               ...prev,
-              value: data?.trigger_id,
-              label: status.find((x: any) => x.value === data?.trigger_id)?.label,
+              value: data?.trigger?.id,
+              label: data?.trigger?.description,
             }))
           }
         })
@@ -215,11 +255,41 @@ const UpdateFormatEmailHO: FC = () => {
     }
   }
 
+  const getCSI = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/csi?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempCSI = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setCsiData(tempCSI)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
   useEffect(() => {
+    getCSI()
     getStatus()
-    getEmailType()
     fetchEmailData()
   }, [])
+
+  useEffect(() => {
+    getEmailType()
+  }, [selectedEmailType])
 
   // Change Select Status
   useEffect(() => {
@@ -316,40 +386,59 @@ const UpdateFormatEmailHO: FC = () => {
   }
 
   // Handler CC and BCC fields
-  const [inputValue, setInputValue] = useState<string>('')
-  const [ccValue, setCCValue] = useState<readonly Option[]>([])
-  const [bccValue, setBCCValue] = useState<readonly Option[]>([])
+  const [inputCC, setInputCC] = React.useState('')
+  const [valueCC, setValueCC] = React.useState<readonly Option[]>([])
 
-  const handleKeyDown: KeyboardEventHandler = (e: any) => {
-    if (!inputValue) return
+  const [inputBCC, setInputBCC] = React.useState('')
+  const [valueBCC, setValueBCC] = React.useState<readonly Option[]>([])
 
-    switch (e.key) {
+  const handleChangeCC: KeyboardEventHandler = (event) => {
+    if (!inputCC) return
+    switch (event.key) {
       case 'Enter':
       case 'Tab':
-        if (e.target.name === 'cc') {
-          setCCValue((prev) => [...prev, createOption(inputValue)])
-        } else {
-          setBCCValue((prev) => [...prev, createOption(inputValue)])
-        }
-        setInputValue('')
-        e.preventDefault()
-        break
-      default:
-        break
+        setValueCC((prev) => [...prev, createOption(inputCC)])
+        setInputCC('')
+        event.preventDefault()
+    }
+  }
+
+  const handleChangeBCC: KeyboardEventHandler = (event) => {
+    if (!inputBCC) return
+    switch (event.key) {
+      case 'Enter':
+      case 'Tab':
+        setValueBCC((prev) => [...prev, createOption(inputBCC)])
+        setInputBCC('')
+        event.preventDefault()
     }
   }
 
   useEffect(() => {
     setEmailForm((prev) => ({
       ...prev,
-      cc: ccValue.map((x) => x.value).join(', '),
-      bcc: bccValue.map((x) => x.value).join(', '),
+      cc: valueCC.map((x) => x.value).join(', '),
+      bcc: valueBCC.map((x) => x.value).join(', '),
     }))
-  }, [ccValue, bccValue])
+  }, [valueCC, valueBCC])
+
+  // Desctructure Object if the value null or empty string
+  const objectValueCheck = (data: emailLayout) => {
+    let cleanedData: Partial<emailLayout> = {}
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        cleanedData[key as keyof emailLayout] = value
+      }
+    })
+
+    return cleanedData
+  }
 
   // Handle Update Email
   const handleUpdateEmailMessages = async () => {
     setIsLoading(true)
+    const emailBody = objectValueCheck(emailForm)
 
     const updatedTerms = emailForm.terms_detail.map((terms) => {
       if (terms.id === null) {
@@ -374,7 +463,7 @@ const UpdateFormatEmailHO: FC = () => {
     }
 
     await axios
-      .patch(`${apiUrl}/email-messages/${params.id}`, emailForms, {
+      .patch(`${apiUrl}/email-messages/${params.id}`, emailBody, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -436,11 +525,31 @@ const UpdateFormatEmailHO: FC = () => {
                 options={emailType}
                 value={{
                   value: selectedEmailType?.value ?? null,
-                  label: selectedEmailType?.label ?? '',
+                  label:
+                    emailType.find((x: any) => x.value === selectedEmailType?.value)?.label ?? '',
                 }}
                 onChange={(newValue) => setSelectedEmailType(newValue)}
               />
             </Form.Group>
+
+            {emailForm.csi_id !== null && (
+              <Form.Group className='header-template mb-4'>
+                <Form.Label className='fs-5'> Format Formulir CSI :</Form.Label>
+                <Select
+                  name='template_option'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  isSearchable={true}
+                  placeholder='Pilih Judul Format'
+                  options={csiData}
+                  onChange={(newValue) => setSelectedCSI(newValue)}
+                  value={{
+                    value: selectedCSI?.value ?? null,
+                    label: selectedCSI?.label ?? '',
+                  }}
+                />
+              </Form.Group>
+            )}
 
             <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'> Status :</Form.Label>
@@ -469,21 +578,21 @@ const UpdateFormatEmailHO: FC = () => {
               />
             </Form.Group>
 
-            {/* <Form.Group className='header-template mb-4'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>CC :</Form.Label>
 
               <CreatableSelect
                 name='cc'
                 components={{DropdownIndicator: null}}
-                inputValue={inputValue}
+                inputValue={inputCC}
                 isClearable
                 isMulti
                 menuIsOpen={false}
-                onChange={(newValue) => setCCValue(newValue)}
-                onInputChange={(newValue) => setInputValue(newValue)}
-                onKeyDown={handleKeyDown}
+                onChange={(newValue) => setValueCC(newValue)}
+                onInputChange={(newValue) => setInputCC(newValue)}
+                onKeyDown={handleChangeCC}
                 placeholder='Tulis Email yang diinginkan lalu tekan enter'
-                value={ccValue}
+                value={valueCC}
               />
             </Form.Group>
 
@@ -493,17 +602,17 @@ const UpdateFormatEmailHO: FC = () => {
               <CreatableSelect
                 name='bcc'
                 components={{DropdownIndicator: null}}
-                inputValue={inputValue}
+                inputValue={inputBCC}
                 isClearable
                 isMulti
                 menuIsOpen={false}
-                onChange={(newValue) => setBCCValue(newValue)}
-                onInputChange={(newValue) => setInputValue(newValue)}
-                onKeyDown={handleKeyDown}
+                onChange={(newValue) => setValueBCC(newValue)}
+                onInputChange={(newValue) => setInputBCC(newValue)}
+                onKeyDown={handleChangeBCC}
                 placeholder='Tulis Email yang diinginkan lalu tekan enter'
-                value={bccValue}
+                value={valueBCC}
               />
-            </Form.Group> */}
+            </Form.Group>
 
             <Form.Group className='header-template mb-3'>
               <Form.Label className='fs-5'>Ucapan Sapaan :</Form.Label>

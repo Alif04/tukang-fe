@@ -23,7 +23,6 @@ interface DataType {
   member_id: number
   member_name: string
   phone_number: number
-  service_name: string
   payment_status: string
   order_status: string
 }
@@ -184,15 +183,6 @@ const NewInvoiceVendor: FC = () => {
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      width: 160,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
-    },
-    {
       title: 'Payment Status',
       dataIndex: 'payment_status',
       key: 'payment_status',
@@ -209,6 +199,10 @@ const NewInvoiceVendor: FC = () => {
       width: 140,
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
+      filters: [
+        {text: 'WORKEND', value: 'WORKEND'},
+        {text: 'INVOICED', value: 'INVOICED'},
+      ],
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -225,16 +219,8 @@ const NewInvoiceVendor: FC = () => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [{text: 'DONE', value: 'DONE'}],
     },
   ]
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
 
   const getOrder = async () => {
     try {
@@ -274,7 +260,23 @@ const NewInvoiceVendor: FC = () => {
       const orderData = filteredOrders.map((item: any) => {
         let data
 
-        const paymentStatus = item?.receipt_number === null ? 'UNPAID' : 'PAID'
+        const paymentStatus = (() => {
+          if (item?.payment_type === 'survey') {
+            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.payment_type === 'gratis') {
+            return 'FREE'
+          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else {
+            return ''
+          }
+        })()
+
+        const orderDate = new Date(item?.request_survey).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         const workOrderItems = item?.work_orders?.work_order_status[0]?.work_order_items
           .map((service: any) => service.name ?? '-')
@@ -284,7 +286,7 @@ const NewInvoiceVendor: FC = () => {
           order_id: item?.id,
           quotation_id: item?.quotation[0]?.id ?? null,
           store_name: item?.store?.store_name,
-          date_order: formatDate(new Date(item?.request_survey)),
+          date_order: orderDate,
           member_id: item?.members?.member_number,
           member_name: item?.members?.full_name,
           phone_number: item?.project_number,
@@ -334,7 +336,7 @@ const NewInvoiceVendor: FC = () => {
     }
 
     fetchData()
-  }, [dateFrom, dateTo, searchFilter])
+  }, [])
 
   // Selected Row
   const rowSelection = {
@@ -425,7 +427,6 @@ const NewInvoiceVendor: FC = () => {
         }
       })
       .catch((error) => {
-        console.error(error)
         setIsLoading(false)
 
         Swal.fire({

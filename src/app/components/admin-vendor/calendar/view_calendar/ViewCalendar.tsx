@@ -63,7 +63,7 @@ const ViewCalendarVendor: React.FC = () => {
                     item.work_orders.work_start_date === null
                     ? item.work_orders.survey_date
                     : item?.work_orders &&
-                      item.work_orders.survey_date &&
+                      item.work_orders.survey_date === null &&
                       item.work_orders.work_start_date
                     ? item.work_orders.work_start_date
                     : null
@@ -75,7 +75,7 @@ const ViewCalendarVendor: React.FC = () => {
                     item.work_orders.work_end_date === null
                     ? item.work_orders.survey_date
                     : item?.work_orders &&
-                      item.work_orders.survey_date &&
+                      item.work_orders.survey_date === null &&
                       item.work_orders.work_end_date
                     ? item.work_orders.work_end_date
                     : null

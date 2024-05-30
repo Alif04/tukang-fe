@@ -502,7 +502,7 @@ const ViewOrders: FC = () => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
-      width: 140,
+      width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
       responsive: ['md'],
     },
@@ -511,7 +511,6 @@ const ViewOrders: FC = () => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      // width: 140,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
       filters: [
@@ -547,7 +546,6 @@ const ViewOrders: FC = () => {
       onFilter: (value, record) => record.order_status_label.includes(String(value)),
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
       align: 'left',
-      width: 140,
       responsive: ['md'],
     },
     {
@@ -851,6 +849,46 @@ const ViewOrders: FC = () => {
           }
         })()
 
+        const orderStatus = (() => {
+          if (item?.work_orders?.work_order_status?.length >= 0) {
+            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+              return item?.status?.category
+            } else if (
+              ['WORKREQ'].includes(item?.status?.category) &&
+              item?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                item?.work_orders?.work_order_status[0]?.status?.category
+              )
+            ) {
+              return item?.status?.category
+            } else {
+              return item?.work_orders?.work_order_status[0]?.status?.category
+            }
+          } else {
+            return item?.status?.category
+          }
+        })()
+
+        const orderStatusLabel = (() => {
+          if (item?.work_orders?.work_order_status?.length >= 0) {
+            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+              return item?.status?.description
+            } else if (
+              ['WORKREQ'].includes(item?.status?.category) &&
+              item?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                item?.work_orders?.work_order_status[0]?.status?.category
+              )
+            ) {
+              return item?.status?.description
+            } else {
+              return item?.work_orders?.work_order_status[0]?.status?.description
+            }
+          } else {
+            return item?.status?.description
+          }
+        })()
+
         data = {
           order_id: item.id,
           assign_from: item?.store?.store_name,
@@ -858,29 +896,9 @@ const ViewOrders: FC = () => {
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
           phone_number: item?.project_number,
-          // service_name:
-          //   item.payment_type === 'survey' && item.quotation.length === 0
-          //     ? item.m_order_details[0]?.item_notes
-          //     : item.payment_type === 'survey' && item.quotation.length >= 0
-          //     ? item.quotation[0]?.quotation_details[0]?.name ?? '-'
-          //     : item.m_order_details[0]?.item?.service_name ?? '-',
           payment_status: paymentStatus,
-          order_status:
-            item?.work_orders?.work_order_status.length > 0 && item?.status?.category !== 'QUOTEOUT'
-              ? item?.work_orders?.work_order_status[0]?.status?.category
-              : item?.work_orders?.work_order_status.length > 0 &&
-                item?.status?.category === 'QUOTEOUT'
-              ? item?.status?.category
-              : item?.status?.category,
-          order_status_label:
-            item?.work_orders?.work_order_status?.length > 0 &&
-            !['QOUTEOUT'].includes(item?.status?.category)
-              ? item?.work_orders?.work_order_status[0]?.status?.description
-              : item?.work_orders?.work_order_status.length > 0 &&
-                item?.status?.category === 'QUOTEOUT'
-              ? item?.status?.description
-              : item?.status?.description,
-          work_order_status: item?.work_orders?.work_order_status[0]?.status?.category,
+          order_status: orderStatus,
+          order_status_label: orderStatusLabel,
         }
 
         return data
@@ -934,6 +952,7 @@ const ViewOrders: FC = () => {
   }
 
   const handleUpdateQuotation = async () => {
+    setLoadingUpdate(true)
     const formData = new FormData()
     const appendIfNotDefault = (formData: any, key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -1012,7 +1031,7 @@ const ViewOrders: FC = () => {
         if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
-            text: response.data.message,
+            text: 'Berhasil Verifikasi Pembayaran',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,

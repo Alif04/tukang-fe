@@ -19,7 +19,7 @@ interface WorkOrderHistory {
   work_order_id: number
   work_order_status: string
   work_order_status_label: string
-  survey_date: string
+  // survey_date: string
   updated_at: string
   work_date_time: string
 }
@@ -145,8 +145,15 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     fetchOrderData()
   }, [])
 
+  // Order Receipt
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+
+  // Work Before & Work After
+  const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
+  const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
+
+  // Quotation Receipt
   const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
   const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
 
@@ -269,15 +276,15 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       onFilter: (value, record) => record.work_order_status_label.includes(String(value)),
       sorter: (a, b) => a.work_order_status_label.length - b.work_order_status_label.length,
     },
-    {
-      title: 'Tanggal Survey',
-      dataIndex: 'survey_date',
-      key: 'survey_date',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.survey_date.includes(String(value)),
-      sorter: (a, b) => a.survey_date.length - b.survey_date.length,
-    },
+    // {
+    //   title: 'Tanggal Survey',
+    //   dataIndex: 'survey_date',
+    //   key: 'survey_date',
+    //   align: 'center',
+    //   width: 110,
+    //   onFilter: (value, record) => record.survey_date.includes(String(value)),
+    //   sorter: (a, b) => a.survey_date.length - b.survey_date.length,
+    // },
     {
       title: 'Terakhir Update Survey/Pengerjaan',
       dataIndex: 'updated_at',
@@ -337,13 +344,20 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       Order Status :
                       <span className='fs-4 ms-2 fw-bold text-success'>
                         {(() => {
-                          if (
-                            order?.status?.category === 'QUOTEIN' ||
-                            order?.status?.category === 'QUOTEOUT'
-                          ) {
-                            return order?.status?.description
-                          } else if (order?.work_orders?.work_order_status?.length > 0) {
-                            return order?.work_orders?.work_order_status[0]?.status?.description
+                          if (order?.work_orders?.work_order_status?.length >= 0) {
+                            if (['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '')) {
+                              return order?.status?.description
+                            } else if (
+                              ['WORKREQ'].includes(order?.status?.category ?? '') &&
+                              order?.payment_type === 'survey' &&
+                              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                                order?.work_orders?.work_order_status[0]?.status?.category ?? ''
+                              )
+                            ) {
+                              return order?.status?.description
+                            } else {
+                              return order?.work_orders?.work_order_status[0]?.status?.description
+                            }
                           } else {
                             return order?.status?.description
                           }
@@ -991,6 +1005,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       <ListGroup.Item
                         key={item.id}
                         action
+                        style={{cursor: 'pointer'}}
                         onClick={() => {
                           setPreviewImage(item.path)
                           setVisible(true)
@@ -1022,26 +1037,27 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                {order?.quotation[0]?.quotation_files.length && (
-                  <>
-                    <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
-                    <ListGroup>
-                      {order?.quotation[0].quotation_files
-                        .filter((x: any) => x.type === 2)
-                        .map((item: any) => (
-                          <ListGroup.Item
-                            key={item.id}
-                            action
-                            onClick={() => {
-                              setPreviewImage(item.path)
-                              setVisibleQuotationReceipt(true)
-                            }}
-                          >
-                            {item.path}
-                          </ListGroup.Item>
-                        ))}
-                    </ListGroup>
+                <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
+                <ListGroup>
+                  {order?.quotation[0]?.quotation_files
+                    .filter((x: any) => x.type === 2)
+                    .map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setPreviewImage(item.path)
+                          setVisibleQuotationReceipt(true)
+                        }}
+                      >
+                        {item.path}
+                      </ListGroup.Item>
+                    ))}
+                </ListGroup>
 
+                {order?.quotation[0]?.quotation_files.length ? (
+                  <>
                     {previewImage && (
                       <div>
                         <Image
@@ -1060,30 +1076,35 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       </div>
                     )}
                   </>
+                ) : (
+                  <div className='d-flex justify-content-start align-items-center'>
+                    <p className='fs-7 text-danger'>Pembayaran belum diverifikasi oleh Toko</p>
+                  </div>
                 )}
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                {order?.quotation[0]?.quotation_files.length && (
-                  <>
-                    <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
-                    <ListGroup>
-                      {order?.quotation[0].quotation_files
-                        .filter((x: any) => x.type === 1)
-                        .map((item: any) => (
-                          <ListGroup.Item
-                            key={item.id}
-                            action
-                            onClick={() => {
-                              setPreviewImage(item.path)
-                              setVisibleQuotationFiles(true)
-                            }}
-                          >
-                            {item.path}
-                          </ListGroup.Item>
-                        ))}
-                    </ListGroup>
+                <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
+                <ListGroup>
+                  {order?.quotation[0]?.quotation_files
+                    .filter((x: any) => x.type === 1)
+                    .map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setPreviewImage(item.path)
+                          setVisibleQuotationFiles(true)
+                        }}
+                      >
+                        {item.path}
+                      </ListGroup.Item>
+                    ))}
+                </ListGroup>
 
+                {order?.quotation[0]?.quotation_files.length ? (
+                  <>
                     {previewImage && (
                       <div>
                         <Image
@@ -1102,6 +1123,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       </div>
                     )}
                   </>
+                ) : (
+                  <div className='d-flex justify-content-start align-items-center'>
+                    <p className='fs-7 text-danger'>Pembayaran belum diverifikasi oleh Toko</p>
+                  </div>
                 )}
               </Col>
             </Row>
@@ -1112,7 +1137,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           <Skeleton active loading={isLoadingPage}>
             {order?.work_orders?.work_order_evidences?.length > 0 ? (
               <Row>
-                <Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Label className='mt-3'>Work Before :</Form.Label>
                   <ListGroup>
                     {order?.work_orders?.work_order_evidences
@@ -1124,7 +1149,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           style={{cursor: 'pointer'}}
                           onClick={() => {
                             setPreviewImage(item.evidence_location)
-                            setVisible(true)
+                            setVisibleWorkBefore(true)
                           }}
                         >
                           {item.evidence_location}
@@ -1140,7 +1165,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         style={{display: 'none'}}
                         src={`${apiUrl}/public/work-orders/${previewImage}`}
                         preview={{
-                          visible,
+                          visible: visibleWorkBefore,
                           src: `${apiUrl}/public/work-orders/${previewImage}`,
                           onVisibleChange: (value) => {
                             setVisible(value)
@@ -1151,7 +1176,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   )}
                 </Col>
 
-                <Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Label className='mt-3'>Work After :</Form.Label>
                   <ListGroup>
                     {order?.work_orders?.work_order_evidences
@@ -1163,7 +1188,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           style={{cursor: 'pointer'}}
                           onClick={() => {
                             setPreviewImage(item.evidence_location)
-                            setVisible(true)
+                            setVisibleWorkAfter(true)
                           }}
                         >
                           {item.evidence_location}
@@ -1179,10 +1204,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         style={{display: 'none'}}
                         src={`${apiUrl}/public/work-orders/${previewImage}`}
                         preview={{
-                          visible,
+                          visible: visibleWorkAfter,
                           src: `${apiUrl}/public/work-orders/${previewImage}`,
                           onVisibleChange: (value) => {
-                            setVisible(value)
+                            setVisibleWorkBefore(value)
                           },
                         }}
                       />

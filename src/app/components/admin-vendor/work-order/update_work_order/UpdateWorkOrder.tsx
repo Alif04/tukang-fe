@@ -30,7 +30,8 @@ interface WorkOrderHistory {
   work_order_id: number
   work_order_status: string
   work_order_status_label: string
-  created_at: string
+  time_range: string
+  // created_at: string
   updated_at: string
   work_date_time: string
   updated_by: string
@@ -140,11 +141,45 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             workOrderHandler(formatInputDate(new Date(data.work_orders.survey_date)), 'survey_date')
           }
 
-          if (data?.work_orders?.work_order_status) {
-            workOrderHandler(data.work_orders.work_order_status[0].status_id, 'work_order_status')
+          if (
+            Array.isArray(data?.work_orders?.work_order_status) &&
+            data?.work_orders?.work_order_status.length > 1
+          ) {
+            if (
+              ['WORKREQ'].includes(data?.status?.category) &&
+              data?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                data?.work_orders?.work_order_status[0]?.status?.category
+              )
+            ) {
+              workOrderHandler(data?.status?.id, 'work_order_status')
+            } else {
+              workOrderHandler(
+                data?.work_orders?.work_order_status[0]?.status_id,
+                'work_order_status'
+              )
+            }
           } else {
-            workOrderHandler(data.status.id, 'work_order_status')
+            workOrderHandler(data?.status?.id, 'work_order_status')
           }
+
+          // if (data?.work_orders?.work_order_status) {
+          //   workOrderHandler(data.work_orders.work_order_status[0].status_id, 'work_order_status')
+          // } else {
+          //   workOrderHandler(data.status.id, 'work_order_status')
+          // }
+
+          // if (
+          //   ['WORKREQ'].includes(data?.status?.category) &&
+          //   data?.work_orders?.work_order_status[0]?.length > 1
+          // ) {
+          //   workOrderHandler(data.status.id, 'work_order_status')
+          // } else if (
+          //   data?.work_orders?.work_order_status?.length > 1 &&
+          //   data?.status?.category !== 'WORKREQ'
+          // ) {
+          //   workOrderHandler(data.work_orders.work_order_status[0].status_id, 'work_order_status')
+          // }
 
           if (data?.complaints[0]?.complaint_status) {
             workOrderHandler(data.complaints[0].complaint_status, 'complaint_status')
@@ -236,6 +271,26 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           //   ...prev,
           //   work_order_item: workOrderItem,
           // }))
+          // }
+
+          // if (
+          //   data?.work_orders?.work_order_status?.length >= 1 &&
+          //   data?.work_orders?.work_order_status?.length < 3
+          // ) {
+          //   const workOrderItem = data?.order_details.map((item: any, index: number) => ({
+          //     id: item.id,
+          //     index: (Date.now() + index).toString(),
+          //     item_name: item?.item_name,
+          //     unit: item?.unit ?? '',
+          //     is_user: item?.is_customer === true ? 1 : 0,
+          //     type: 2,
+          //     quantity: item?.quantity ?? 0,
+          //   }))
+
+          //   setWorkOrder((prev) => ({
+          //     ...prev,
+          //     work_order_item: workOrderItem,
+          //   }))
           // }
 
           if (data?.quotation) {
@@ -417,7 +472,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       ? `${apiUrl}/work-orders`
       : workOrder.id && workOrder.work_order_item.length === 0
       ? `${apiUrl}/work-orders/${workOrder.id}`
-      : workOrder.id && workOrder.work_order_item.length >= 1
+      : workOrder.id && workOrder.work_order_item.length >= 1 && workOrder.work_order_status === 13
+      ? `${apiUrl}/work-orders/${workOrder.id}`
+      : workOrder.id && workOrder.work_order_item.length >= 1 && workOrder.work_order_status !== 13
       ? `${apiUrl}/work-orders/${workOrder.id}/set-materials`
       : `${apiUrl}/work-orders/${workOrder.id}`
 
@@ -437,7 +494,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       {key: 'work_order_item', fieldName: 'Work Order Item'},
     ]
 
-    if (workOrder.id && workOrder.work_order_item.length >= 1) {
+    if (
+      workOrder.id &&
+      workOrder.work_order_item.length >= 1 &&
+      workOrder.work_order_status !== 13
+    ) {
       if (workOrder.work_order_item && workOrder.work_order_item.length > 0) {
         formData.append('status_id', String(workOrder.work_order_status))
         formData.append(`work_start_date`, workOrder.work_start_date)
@@ -533,7 +594,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: response.data.message,
+            text: 'Work Order Updated',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -582,15 +643,15 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       onFilter: (value, record) => record.work_order_status_label.includes(String(value)),
       sorter: (a, b) => a.work_order_status_label.length - b.work_order_status_label.length,
     },
-    {
-      title: 'Tanggal Survey',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.created_at.includes(String(value)),
-      sorter: (a, b) => a.created_at.length - b.created_at.length,
-    },
+    // {
+    //   title: 'Tanggal Survey',
+    //   dataIndex: 'created_at',
+    //   key: 'created_at',
+    //   align: 'center',
+    //   width: 110,
+    //   onFilter: (value, record) => record.created_at.includes(String(value)),
+    //   sorter: (a, b) => a.created_at.length - b.created_at.length,
+    // },
     {
       title: 'Terakhir Update Survey/Pengerjaan',
       dataIndex: 'updated_at',
@@ -600,6 +661,15 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       onFilter: (value, record) => record.updated_at.includes(String(value)),
       sorter: (a, b) => a.updated_at.length - b.updated_at.length,
     },
+    // {
+    //   title: 'Selisih Waktu Update Survey/Pengerjaan',
+    //   dataIndex: 'time_range',
+    //   key: 'time_range',
+    //   align: 'center',
+    //   width: 110,
+    //   onFilter: (value, record) => record.time_range.includes(String(value)),
+    //   sorter: (a, b) => a.time_range.length - b.time_range.length,
+    // },
     {
       title: 'Tanggal Pengerjaan',
       dataIndex: 'work_date_time',
@@ -902,8 +972,15 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       ? 'Tanggal request pemasangan'
                       : 'Tanggal request survey'}
                   </Form.Label>
+
                   <Col>
-                    <p className='fs-7 p-0'>{formatDate(new Date(orderDetail?.request_survey))}</p>
+                    <p className='fs-7 p-0'>
+                      {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </p>
                   </Col>
                 </Form.Group>
 
@@ -1149,9 +1226,16 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
+                [
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'WORKREQ',
+                  'WORKSTART',
+                  'WIP',
+                  'WORKEND',
+                  'DONE',
+                ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
                 orderDetail?.work_orders?.work_order_status.length >= 1 &&
                 orderDetail?.payment_type === 'survey'
               ) {
@@ -1192,7 +1276,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
                 )
               } else if (
-                ['WORKREQ', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 orderDetail?.work_orders?.work_order_status.length >= 1 &&
@@ -1419,8 +1503,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           {orderDetail?.work_orders?.work_order_status.length > 1 &&
           orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND' ? (
             <div className='d-flex justify-content-center'>
-              <Button className='btn-done' type='submit' disabled>
-                Order Ini Telah Selesai
+              <Button
+                className='btn-done d-flex justify-content-center align-items-center'
+                type='submit'
+                disabled
+              >
+                Order Ini Pengerjaannya Telah Selesai
               </Button>
             </div>
           ) : (

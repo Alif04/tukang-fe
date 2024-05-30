@@ -18,11 +18,6 @@ type Props = {
   className: string
 }
 
-interface Status {
-  value: number
-  category: string
-}
-
 interface DataType {
   order_id: number
   store_name: string
@@ -30,10 +25,9 @@ interface DataType {
   costumer_id: number
   costumer_name: string
   phone_number: number
-  item_name: string
-  service_name: string
   payment_status: string
   order_status: string
+  order_status_label: string
 }
 
 const ViewWorkVendor: React.FC<Props> = ({className}) => {
@@ -57,27 +51,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
-
-  const storedStatus = sessionStorage.getItem('statusData')
-  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) =>
-    [
-      'SURVEYREQ',
-      'SURVEYSTART',
-      'SURVEYDONE',
-      'WORKREQ',
-      'WORKSTART',
-      'WIP',
-      'WORKEND',
-      'REWORK',
-      'REWORKSTART',
-      'RIP',
-      'REWORKEND',
-      'RESCHEDULE',
-      'QUOTEIN',
-      'QUOTEOUT',
-    ].includes(status.category)
-  )
 
   const columns: ColumnsType<DataType> = [
     {
@@ -104,7 +77,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 80,
+      width: 110,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -113,7 +86,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
-      width: 80,
+      width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.costumer_id - b.costumer_id,
@@ -132,40 +105,22 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 100,
-      sorter: (a, b) => a.phone_number - b.phone_number,
-    },
-    {
-      title: 'Item Name',
-      dataIndex: 'item_name',
-      key: 'item_name',
-      align: 'left',
       width: 120,
-      onFilter: (value, record) => record.item_name.includes(String(value)),
-      sorter: (a, b) => a.item_name.length - b.item_name.length,
-    },
-    {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
+      sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
       title: 'Payment Status',
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      width: 100,
+      width: 110,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
     {
       title: 'Order Status',
-      dataIndex: 'order_status',
-      key: 'order_status',
+      dataIndex: 'order_status_label',
+      key: 'order_status_label',
       align: 'left',
       width: 120,
       render: (order_status) => {
@@ -204,8 +159,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         {text: 'SURVEYSTART', value: 'SURVEYSTART'},
         {text: 'SURVEYREQ', value: 'SURVEYREQ'},
       ],
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      onFilter: (value, record) => record.order_status_label.includes(String(value)),
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Action',
@@ -224,14 +179,18 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
             <a className='button-detail' onClick={handleDetailId}>
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            {!['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) ? (
+              <a className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon icon={faPen} size='sm' />
+              </a>
+            ) : (
+              <></>
+            )}
           </div>
         )
       },
@@ -239,8 +198,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   ]
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    const statuses = desiredStatus.map((x) => x.value)
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&status=${statuses}&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
 
     const response = await axios.get(apiUrlWithParams, {
       headers: {
@@ -251,8 +209,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       },
     })
 
-    setCurrentPage(response?.data.data?.page ?? 1)
-    setTotalData(response?.data.data?.total ?? 0)
+    setCurrentPage(response?.data?.page ?? 1)
+    setTotalData(response?.data?.total ?? 0)
     setLoadData(false)
 
     return response.data.data
@@ -278,35 +236,65 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         const paymentStatus = (() => {
           if (item?.payment_type === 'survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+            return item?.quotation?.length === 0
+              ? 'UNPAID'
+              : item?.quotation[0]?.quotation_files?.length === 0
+              ? 'UNPAID'
+              : 'PAID'
           } else if (item?.payment_type === 'gratis') {
             return 'FREE'
           } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
           } else {
             return ''
           }
         })()
 
-        let orderStatus =
-          item.work_orders === null
-            ? item?.status?.description
-            : item?.work_orders?.work_order_status[0]?.status?.description
+        const orderStatus = (() => {
+          if (item?.work_orders?.work_order_status?.length >= 0) {
+            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+              return item?.status?.category
+            } else if (
+              ['WORKREQ'].includes(item?.status?.category) &&
+              item?.payment_type === 'survey'
+            ) {
+              return item?.status?.category
+            } else {
+              return item?.work_orders?.work_order_status[0]?.status?.category
+            }
+          } else {
+            return item?.status?.category
+          }
+        })()
+
+        const orderStatusLabel = (() => {
+          if (item?.work_orders?.work_order_status?.length >= 0) {
+            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+              return item?.status?.description
+            } else if (
+              ['WORKREQ'].includes(item?.status?.category) &&
+              item?.payment_type === 'survey'
+            ) {
+              return item?.status?.description
+            } else {
+              return item?.work_orders?.work_order_status[0]?.status?.description
+            }
+          } else {
+            return item?.status?.description
+          }
+        })()
 
         data = {
-          order_id: item.id,
-          store_name: item.store.store_name,
+          order_id: item?.id,
+          store_name: item?.store?.store_name,
           date_order: orderDate,
-          costumer_id: item.members.member_number,
-          costumer_name: item.members.full_name,
-          phone_number: item.project_number,
-          item_name: item.m_order_details[0]?.item_name ?? '-',
-          service_name:
-            item.payment_type === 'survey'
-              ? item.m_order_details[0]?.item_notes ?? '-'
-              : item.m_order_details[0]?.item?.service_name ?? '-',
+          costumer_id: item?.members?.member_number,
+          costumer_name: item?.members?.full_name,
+          phone_number: item?.project_number,
+          item_name: item?.m_order_details[0]?.item_name ?? '-',
           payment_status: paymentStatus,
           order_status: orderStatus,
+          order_status_label: orderStatusLabel,
         }
 
         return data
@@ -425,7 +413,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               columns={columns}
               dataSource={orderData}
               rowKey={(record) => record.order_id}
-              scroll={{x: 1700}}
               pagination={false}
             />
           </Spin>

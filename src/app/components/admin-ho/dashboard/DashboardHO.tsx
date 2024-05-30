@@ -133,8 +133,8 @@ const DashboardHO: FC = () => {
       const data = response.data.data
 
       setOrderData(data)
-      setCurrentPage(response?.data?.data.page)
-      setTotalData(response?.data.data?.total ?? 0)
+      setCurrentPage(response?.data?.page)
+      setTotalData(response?.data?.total ?? 0)
 
       return data
     } catch (error) {

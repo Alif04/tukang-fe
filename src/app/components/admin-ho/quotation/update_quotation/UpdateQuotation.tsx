@@ -55,7 +55,7 @@ const UpdateQuotationHO: FC = () => {
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
   const [promosiDiscount, setPromosiDiscount] = useState<any>()
-  const [additionalPromosi, setAdditionalPromosi] = useState<number>(0)
+  const [additionalPromosi, setAdditionalPromosi] = useState<any>()
   const [grandTotal, setGrandTotal] = useState<any>(0)
   const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)
   const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
@@ -352,7 +352,8 @@ const UpdateQuotationHO: FC = () => {
 
   // Grand Total
   const calculatedGrandTotal = () => {
-    const grandTotal = Number(totalJasaMaterial) - Number(promosiDiscount)
+    const grandTotal =
+      Number(totalJasaMaterial) - Number(promosiDiscount) - Number(additionalPromosi)
     const roundedValue = Math.ceil(grandTotal / 100) * 100
     const formatter = new Intl.NumberFormat('id-ID', {
       style: 'currency',
