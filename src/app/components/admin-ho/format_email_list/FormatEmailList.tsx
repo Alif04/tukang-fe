@@ -21,6 +21,11 @@ interface DataType {
   is_active: string
 }
 
+interface templateOption {
+  value: number | null
+  label: string
+}
+
 const FormatEmailList: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -38,6 +43,9 @@ const FormatEmailList: FC = () => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  // Email
+  const [emailType, setEmailType] = useState<templateOption[]>([])
 
   const columns: ColumnsType<DataType> = [
     {
@@ -241,6 +249,28 @@ const FormatEmailList: FC = () => {
     }
   }
 
+  const getEmailType = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/mails/types`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      let emailTypes = Object.entries(response.data.data).map(([key, value]) => ({
+        label: key as string,
+        value: value as number,
+      }))
+
+      setEmailType(emailTypes)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const ViewFormatEmail = async (page: number, pageSize: number, queryparams: any) => {
     try {
       const apiData = await getFormatEmailList(page, pageSize, queryparams)
@@ -261,10 +291,10 @@ const FormatEmailList: FC = () => {
 
         const emailTypes: any = {
           1: 'ORDER',
-          2: 'CREDENTIAL',
-          3: 'QUOTATIONS',
-          4: 'REFUND',
-          5: 'COMPLAIN',
+          2: 'REFUND',
+          3: 'CREDENTIALS',
+          4: 'QUOTATIONS',
+          5: 'COMPLAINT',
           6: 'RESCHEDULE',
           7: 'CSI',
         }
@@ -296,6 +326,7 @@ const FormatEmailList: FC = () => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    getEmailType()
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {

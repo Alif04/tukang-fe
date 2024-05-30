@@ -283,16 +283,30 @@ const FormatEmailHO: FC = () => {
   }
 
   // Handler CC and BCC fields
-  const [inputValue, setInputValue] = React.useState('')
-  const [value, setValue] = React.useState<readonly Option[]>([])
+  const [inputCC, setInputCC] = React.useState('')
+  const [valueCC, setValueCC] = React.useState<readonly Option[]>([])
 
-  const handleKeyDown: KeyboardEventHandler = (event) => {
-    if (!inputValue) return
+  const [inputBCC, setInputBCC] = React.useState('')
+  const [valueBCC, setValueBCC] = React.useState<readonly Option[]>([])
+
+  const handleChangeCC: KeyboardEventHandler = (event) => {
+    if (!inputCC) return
     switch (event.key) {
       case 'Enter':
       case 'Tab':
-        setValue((prev) => [...prev, createOption(inputValue)])
-        setInputValue('')
+        setValueCC((prev) => [...prev, createOption(inputCC)])
+        setInputCC('')
+        event.preventDefault()
+    }
+  }
+
+  const handleChangeBCC: KeyboardEventHandler = (event) => {
+    if (!inputBCC) return
+    switch (event.key) {
+      case 'Enter':
+      case 'Tab':
+        setValueBCC((prev) => [...prev, createOption(inputBCC)])
+        setInputBCC('')
         event.preventDefault()
     }
   }
@@ -300,9 +314,10 @@ const FormatEmailHO: FC = () => {
   useEffect(() => {
     setEmailForm((prev) => ({
       ...prev,
-      cc: value.map((x) => x.value).join(', '),
+      cc: valueCC.map((x) => x.value).join(', '),
+      bcc: valueBCC.map((x) => x.value).join(', '),
     }))
-  }, [value])
+  }, [valueCC, valueBCC])
 
   // Desctructure Object if the value null or empty string
   const objectValueCheck = (data: emailLayout) => {
@@ -431,15 +446,33 @@ const FormatEmailHO: FC = () => {
               <CreatableSelect
                 name='cc'
                 components={{DropdownIndicator: null}}
-                inputValue={inputValue}
+                inputValue={inputCC}
                 isClearable
                 isMulti
                 menuIsOpen={false}
-                onChange={(newValue) => setValue(newValue)}
-                onInputChange={(newValue) => setInputValue(newValue)}
-                onKeyDown={handleKeyDown}
+                onChange={(newValue) => setValueCC(newValue)}
+                onInputChange={(newValue) => setInputCC(newValue)}
+                onKeyDown={handleChangeCC}
                 placeholder='Tulis Email yang diinginkan lalu tekan enter'
-                value={value}
+                value={valueCC}
+              />
+            </Form.Group>
+
+            <Form.Group className='header-template mb-4'>
+              <Form.Label className='fs-5'>BCC :</Form.Label>
+
+              <CreatableSelect
+                name='bcc'
+                components={{DropdownIndicator: null}}
+                inputValue={inputBCC}
+                isClearable
+                isMulti
+                menuIsOpen={false}
+                onChange={(newValue) => setValueBCC(newValue)}
+                onInputChange={(newValue) => setInputBCC(newValue)}
+                onKeyDown={handleChangeBCC}
+                placeholder='Tulis Email yang diinginkan lalu tekan enter'
+                value={valueBCC}
               />
             </Form.Group>
 
