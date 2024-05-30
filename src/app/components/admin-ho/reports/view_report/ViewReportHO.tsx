@@ -267,7 +267,7 @@ const ViewReportHO = () => {
                         height={50}
                       />
 
-                      {newTabs('complete-order', 'Laporan Order komplit')}
+                      {newTabs('complete-order', 'Laporan Order Selesai')}
                     </Card.Body>
                   </Card>
                 </Link>
@@ -276,7 +276,7 @@ const ViewReportHO = () => {
 
             <Row>
               <Col md={4}>
-                <Link to={`/reports/ho-report-uncomplete-order`}>
+                {/* <Link to={`/reports/ho-report-uncomplete-order`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex  justify-content-left align-items-center'>
                       <img
@@ -287,10 +287,10 @@ const ViewReportHO = () => {
                         height={50}
                       />
 
-                      {newTabs('uncomplete-order', 'Laporan Order tidak komplit')}
+                      {newTabs('uncomplete-order', 'Laporan Order Belum Selesai')}
                     </Card.Body>
                   </Card>
-                </Link>
+                </Link> */}
               </Col>
 
               <Col md={4}></Col>

@@ -151,7 +151,7 @@ const RefundPage: React.FC = () => {
         path='report-complete'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER COMPLETE</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER SELESAI</PageTitle>
             <TotalOrderReportStore className='' statusName='DONE' />
           </>
         }
@@ -704,19 +704,19 @@ const RefundPage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER KOMPLIT</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER SELESAI</PageTitle>
 
             <ReportHO
-              endpoint=''
-              statusName=''
+              endpoint='orders'
+              statusName='DONE'
               headerColor='success'
-              title='Laporan Order Komplit'
+              title='Laporan Order Selesai'
             />
           </>
         }
       />
 
-      <Route
+      {/* <Route
         path='ho-report-uncomplete-order'
         element={
           <>
@@ -738,7 +738,7 @@ const RefundPage: React.FC = () => {
             />
           </>
         }
-      />
+      /> */}
 
       <Route
         path='ho-report-insentive-paid'
