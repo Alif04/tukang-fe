@@ -1062,9 +1062,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           setTotalOrder(response?.data?.data?.total ?? 0)
         }
 
-        return ['orders', 'reschedule'].includes(endpoint)
-          ? response.data.data.data
-          : response.data.data
+        return ['reschedule'].includes(endpoint) ? response.data.data.data : response.data.data
       }
     } catch (error) {
       console.error('Error fetching data:', error)
