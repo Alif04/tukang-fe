@@ -281,7 +281,18 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                               {workOrderDetail?.order?.payment_type === 'survey' ? (
                                 <>
                                   {workOrderDetail?.work_order_status.length ? (
-                                    <>{formatDateTime(new Date(workOrderDetail?.survey_date))}</>
+                                    <>
+                                      {new Date(workOrderDetail?.survey_date).toLocaleDateString(
+                                        'id-ID',
+                                        {
+                                          day: 'numeric',
+                                          month: 'long',
+                                          year: 'numeric',
+                                          hour: 'numeric',
+                                          minute: 'numeric',
+                                        }
+                                      )}
+                                    </>
                                   ) : (
                                     'Jadwal belum ditentukan oleh vendor'
                                   )}
@@ -350,7 +361,16 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
                             <Col sm='9'>
                               <p className='fs-7'>
-                                {formatDateTime(new Date(workOrderDetail?.work_start_date))}
+                                {new Date(workOrderDetail?.work_start_date).toLocaleDateString(
+                                  'id-ID',
+                                  {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
+                                  }
+                                )}
                               </p>
                             </Col>
                           </Form.Group>
@@ -362,7 +382,16 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
                             <Col sm='9'>
                               <p className='fs-7'>
-                                {formatDateTime(new Date(workOrderDetail?.work_end_date))}
+                                {new Date(workOrderDetail?.work_end_date).toLocaleDateString(
+                                  'id-ID',
+                                  {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
+                                  }
+                                )}
                               </p>
                             </Col>
                           </Form.Group>
@@ -398,7 +427,14 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     <Form.Label column>Tanggal request pemasangan :</Form.Label>
                     <Col>
                       <p className='fs-7 p-0'>
-                        {formatDate(new Date(workOrderDetail?.order?.request_survey))}
+                        {new Date(workOrderDetail?.order?.request_survey).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          }
+                        )}
                       </p>
                     </Col>
                   </Skeleton>
@@ -548,9 +584,16 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     </div>
                   )
                 } else if (
-                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                    workOrderDetail?.work_order_status[0]?.status?.category
-                  ) &&
+                  [
+                    'SURVEYREQ',
+                    'SURVEYSTART',
+                    'SURVEYDONE',
+                    'WORKREQ',
+                    'WORKSTART',
+                    'WIP',
+                    'WORKEND',
+                    'DONE',
+                  ].includes(workOrderDetail?.work_order_status[0]?.status?.category) &&
                   workOrderDetail?.order?.payment_type === 'survey' &&
                   workOrderDetail?.work_order_status.length >= 2
                 ) {

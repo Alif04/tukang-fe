@@ -58,10 +58,6 @@
   padding: 0 10px 0 100px;
 }
 
-#detail-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
-  padding: 0 100px 0 10px;
-}
-
 /* Timeline */
 
 #detail-order .anticon svg {
@@ -364,11 +360,4 @@
     margin-top: 20px;
     padding: 0 10px 0 10px;
   }
-
-  #detail-order .upload-receipt.row .col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
-    padding: 0 10px 0 10px;
-  }
-}
-
-@media screen and (max-width: 576px) {
 }

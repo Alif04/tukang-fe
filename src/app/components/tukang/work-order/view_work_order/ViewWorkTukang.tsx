@@ -18,11 +18,6 @@ type Props = {
   className: string
 }
 
-interface Status {
-  value: number
-  category: string
-}
-
 interface DataType {
   work_order_id: number
   store_name: string
@@ -30,8 +25,8 @@ interface DataType {
   costumer_id: number
   costumer_name: string
   phone_number: number
-  payment_status: string
   order_status: string
+  order_status_label: string
 }
 
 const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
@@ -62,7 +57,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'work_order_id',
       key: 'work_order_id',
       align: 'center',
-      width: 100,
+      width: 80,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.work_order_id - b.work_order_id,
@@ -72,7 +67,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 120,
+      width: 110,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -81,7 +76,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 80,
+      width: 90,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -100,7 +95,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
-      width: 110,
+      width: 120,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -109,24 +104,15 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 100,
+      width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
-      title: 'Payment Status',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
+      title: 'Order Status',
+      dataIndex: 'order_status_label',
+      key: 'order_status_label',
       align: 'left',
       width: 100,
-      onFilter: (value, record) => record.payment_status.includes(String(value)),
-      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
-    },
-    {
-      title: 'Order Status',
-      dataIndex: 'order_status',
-      key: 'order_status',
-      align: 'left',
-      width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -163,8 +149,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         {text: 'SURVEYSTART', value: 'SURVEYSTART'},
         {text: 'SURVEYREQ', value: 'SURVEYREQ'},
       ],
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      onFilter: (value, record) => record.order_status_label.includes(String(value)),
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Action',
@@ -188,9 +174,18 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
 
+            {!['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) ? (
+              <a className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon icon={faPen} size='sm' />
+              </a>
+            ) : (
+              <></>
+            )}
+
+            {/* 
             <a className='button-edit' onClick={handleUpdateId}>
               <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            </a> */}
           </div>
         )
       },
@@ -238,22 +233,45 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           year: 'numeric',
         })
 
-        const paymentStatus = (() => {
-          if (item?.order?.payment_type === 'survey') {
-            return item?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
-          } else if (item?.order?.payment_type === 'gratis') {
-            return 'FREE'
-          } else if (item?.order?.payment_type === 'pemasangan_tanpa_survey') {
-            return item?.order?.receipt_number === null ? 'UNPAID' : 'PAID'
+        const orderStatus = (() => {
+          if (item?.work_order_status?.length >= 0) {
+            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
+              return item?.order?.status?.category
+            } else if (
+              ['WORKREQ'].includes(item?.order?.status?.category) &&
+              item?.order?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                item?.work_order_status[0]?.status?.category
+              )
+            ) {
+              return item?.order?.status?.category
+            } else {
+              return item?.work_order_status[0]?.status?.category
+            }
           } else {
-            return ''
+            return item?.order?.status?.category
           }
         })()
 
-        let orderStatus =
-          item?.work_order_status[0].length === 0
-            ? item?.order?.status?.description
-            : item?.work_order_status[0]?.status?.description
+        const orderStatusLabel = (() => {
+          if (item?.work_order_status?.length >= 0) {
+            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
+              return item?.order?.status?.description
+            } else if (
+              ['WORKREQ'].includes(item?.order?.status?.category) &&
+              item?.order?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                item?.work_order_status[0]?.status?.category
+              )
+            ) {
+              return item?.order?.status?.description
+            } else {
+              return item?.work_order_status[0]?.status?.description
+            }
+          } else {
+            return item?.order?.status?.description
+          }
+        })()
 
         data = {
           work_order_id: item.id,
@@ -262,8 +280,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           costumer_id: item?.order?.members.member_number,
           costumer_name: item?.order?.members.full_name,
           phone_number: item?.order?.project_number,
-          payment_status: paymentStatus,
           order_status: orderStatus,
+          order_status_label: orderStatusLabel,
         }
 
         return data
@@ -382,7 +400,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               columns={columns}
               dataSource={workOrderData}
               rowKey={(record) => record.work_order_id}
-              // scroll={{x: 1700}}
+              scroll={{x: 1700}}
               pagination={false}
             />
           </Spin>
