@@ -4,7 +4,6 @@ import './ReportHO.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import * as XLSX from 'xlsx'
 import Select from 'react-select'
 import {Table, PaginationProps, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -44,12 +43,12 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   const desiredStatus = statusData.filter((status: any) => status.category.includes(statusName))
 
   const [reportData, setReportData] = useState<any[]>([])
-  const [exportReportData, setExportReportData] = useState<any[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<any>()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadingExport, setLoadingExport] = useState<boolean>(false)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -88,12 +87,22 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Tanggal Order',
-          dataIndex: 'date_order',
-          key: 'date_order',
+          title: 'Nama Toko',
+          dataIndex: 'store_name',
+          key: 'store_name',
           align: 'left',
-          width: 110,
-          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+          width: 140,
+          onFilter: (value, record) => record.store_name.includes(String(value)),
+          sorter: (a, b) => a.store_name.length - b.store_name.length,
+        },
+        {
+          title: 'Nomor Member',
+          dataIndex: 'member_number',
+          key: 'member_number',
+          align: 'left',
+          width: 140,
+          onFilter: (value, record) => record.member_number.includes(String(value)),
+          sorter: (a, b) => a.member_number.length - b.member_number.length,
         },
         {
           title: 'Nama Costumer',
@@ -105,56 +114,23 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
         {
-          title: 'No Telepon',
+          title: 'WA/Phone Number',
           dataIndex: 'phone_number',
           key: 'phone_number',
           align: 'left',
-          width: 130,
-          sorter: (a, b) => a.phone_number - b.phone_number,
-        },
-        {
-          title: 'Email',
-          dataIndex: 'email',
-          key: 'email',
-          align: 'left',
           width: 170,
-          onFilter: (value, record) => record.email.includes(String(value)),
-          sorter: (a, b) => a.email.length - b.email.length,
+          onFilter: (value, record) => record.phone_number.includes(String(value)),
+          sorter: (a, b) => a.phone_number.length - b.phone_number.length,
         },
         {
-          title: 'Alamat',
-          dataIndex: 'address',
-          key: 'address',
+          title: 'Nama Vendor',
+          dataIndex: 'vendor_name',
+          key: 'vendor_name',
           align: 'left',
           width: 150,
-          onFilter: (value, record) => record.address.includes(String(value)),
-          sorter: (a, b) => a.address.length - b.address.length,
+          onFilter: (value, record) => record.vendor_name.includes(String(value)),
+          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
         },
-        {
-          title: 'Nama Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          align: 'left',
-          width: 170,
-          onFilter: (value, record) => record.service_name.includes(String(value)),
-          sorter: (a, b) => a.service_name.length - b.service_name.length,
-        },
-        {
-          title: 'Quantity',
-          dataIndex: 'quantity',
-          key: 'quantity',
-          align: 'center',
-          width: 90,
-          sorter: (a, b) => a.quantity - b.quantity,
-        },
-        // {
-        //   title: 'Harga',
-        //   dataIndex: 'harga',
-        //   key: 'harga',
-        //   align: 'center',
-        //   width: 135,
-        //   sorter: (a, b) => a.harga - b.harga,
-        // },
         {
           title: 'Grand Total',
           dataIndex: 'grand_total',
@@ -162,6 +138,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           align: 'center',
           width: 135,
           sorter: (a, b) => a.grand_total - b.grand_total,
+        },
+        {
+          title: 'Order Dibuat',
+          dataIndex: 'date_order',
+          key: 'date_order',
+          align: 'left',
+          width: 110,
+          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
         },
       ]
       break
@@ -965,44 +949,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       break
   }
 
-  const getExportData = async () => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&take=0`
-
-    try {
-      const response = await axios.get(apiUrlWithParams, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const orderData = response.data.data.map((item: any) => ({
-        ['Order ID']: item.id,
-        ['Tanggal Order Dibuat']: new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }),
-        ['Nama Toko']: item?.store?.store_name ?? '-',
-        ['Nomor Member']: item?.members?.member_number ?? '-',
-        ['Nama Konsumen']: item?.members?.full_name ?? '-',
-        ['WA/Phone Number']: item?.project_number ?? '-',
-        ['Nama Vendor']: item?.vendor?.company_name ?? '-',
-        ['Grand Total']: `Rp. ${parseInt(item?.grand_total).toLocaleString('id')}`,
-      }))
-
-      setExportReportData(orderData)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  useEffect(() => {
-    getExportData()
-  }, [])
-
   const fetchReportData = async (
     endpoint: string,
     page: number,
@@ -1034,17 +980,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               break
 
             case 'complaints':
-              setExportReportData(response.data)
               setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
               break
 
             case 'quotation':
-              setExportReportData(response.data)
               setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
               break
 
             default:
-              setExportReportData(response.data)
               setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
               break
           }
@@ -1092,25 +1035,15 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               year: 'numeric',
             })
 
-            const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
-            const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
-
-            const quantity = parseInt(item.m_order_details[0]?.quantity ?? 0, 10)
-
-            const grandTotalPrice = parseInt(item.grand_total)
-            const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
-
             data = {
               order_id: item.id,
+              store_name: item?.store?.store_name,
+              member_number: item?.members?.whatsapp_number,
+              costumer_name: item?.members?.full_name,
+              phone_number: item?.project_number,
+              vendor_name: item?.vendor?.company_name ?? '-',
+              grand_total: `Rp. ${parseInt(item?.grand_total ?? 0).toLocaleString('id')}`,
               date_order: orderDate,
-              costumer_name: item.members.full_name,
-              phone_number: item.project_number,
-              email: item.members.email,
-              address: item.project_address,
-              service_name: item.m_order_details[0]?.item?.service_name ?? '-',
-              quantity: quantity,
-              harga: formattedUnitPrice,
-              grand_total: formattedGrandTotal,
             }
 
             return data
@@ -1408,16 +1341,37 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   }
 
   // Export To Excel
-  const exportToExcel = () => {
-    if (exportReportData.length === 0) {
-      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
-      return
-    }
+  // const exportToExcel = () => {
+  //   if (exportReportData.length === 0) {
+  //     Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+  //     return
+  //   }
 
-    const worksheet = XLSX.utils.json_to_sheet(exportReportData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-    XLSX.writeFile(workbook, `Report ${title}.xlsx`)
+  //   const worksheet = XLSX.utils.json_to_sheet(exportReportData)
+  //   const workbook = XLSX.utils.book_new()
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+  //   XLSX.writeFile(workbook, `Report ${title}.xlsx`)
+  // }
+
+  const exportToExcel = () => {
+    setLoadingExport(true)
+
+    axios
+      .get(`${apiUrl}/orders/export-excel?take=0`, {
+        method: 'GET',
+        responseType: 'blob',
+        // Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Report ${title}.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingExport(false)
+      })
   }
 
   // Submit Filter
@@ -1537,7 +1491,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
                 <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
 
                 <button className='button-export' onClick={exportToExcel}>
-                  <h3 className='fs-5 fw-semibold'>Export To Excel</h3>
+                  <h3 className='fs-5 fw-semibold'>
+                    {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                  </h3>
                 </button>
               </div>
 
