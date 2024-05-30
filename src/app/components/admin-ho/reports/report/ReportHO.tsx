@@ -1015,8 +1015,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
         const url =
           statusName === '' && selectedStore.value === null
-            ? `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
-            : `${apiUrl}/${endpoint}?order_by=desc&store=${selectedStore.value}&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
+            ? `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+            : `${apiUrl}/reports/${endpoint}?order_by=desc&store=${selectedStore.value}&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
 
         const response = await axios.get(url, {
           headers: {
@@ -1030,16 +1030,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         if (response?.data) {
           switch (endpoint) {
             case 'orders':
-              // setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
-
-              let totalGrandTotal = 0
-              response.data.data.data.forEach((item: any) => {
-                if (item?.grand_total) {
-                  totalGrandTotal += parseFloat(item?.grand_total)
-                }
-              })
-
-              setReportGrandTotal(totalGrandTotal)
+              setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
               break
 
             case 'complaints':
