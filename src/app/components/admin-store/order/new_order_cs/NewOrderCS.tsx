@@ -657,7 +657,7 @@ const NewOrderStoreCS: FC = () => {
         if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: response.data.message,
+            text: 'Order Created',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -992,12 +992,7 @@ const NewOrderStoreCS: FC = () => {
 
                     <FormGroup>
                       <Form.Control
-                        className={
-                          isWhatsapp === true &&
-                          (selectedMember.value === null || selectedMember.value === undefined)
-                            ? 'form-project-number-wa'
-                            : ''
-                        }
+                        className={isWhatsapp === true ? 'form-project-number-wa' : ''}
                         name='project_number'
                         value={orderForm.project_number}
                         onChange={(event) => {
@@ -1010,12 +1005,11 @@ const NewOrderStoreCS: FC = () => {
                         }}
                       />
 
-                      {(selectedMember.value === null || selectedMember.value === undefined) &&
-                        isWhatsapp === true && (
-                          <span className='project-number'>
-                            <div className='prefix-number text-black'>+62</div>
-                          </span>
-                        )}
+                      {isWhatsapp === true && (
+                        <span className='project-number'>
+                          <div className='prefix-number text-black'>+62</div>
+                        </span>
+                      )}
                     </FormGroup>
                   </Form.Group>
                 </Col>

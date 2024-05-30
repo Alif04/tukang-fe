@@ -788,7 +788,7 @@ const NewOrderHO: FC = () => {
         } else {
           Swal.fire({
             title: 'Error',
-            text: response.data.message,
+            text: 'Order Created',
             icon: 'error',
           })
 
@@ -1122,12 +1122,7 @@ const NewOrderHO: FC = () => {
 
                     <FormGroup>
                       <Form.Control
-                        className={
-                          isWhatsapp === true &&
-                          (selectedMember.value === null || selectedMember.value === undefined)
-                            ? 'form-project-number-wa'
-                            : ''
-                        }
+                        className={isWhatsapp === true ? 'form-project-number-wa' : ''}
                         name='project_number'
                         value={orderForm.project_number}
                         onChange={(event) => {
@@ -1140,12 +1135,11 @@ const NewOrderHO: FC = () => {
                         }}
                       />
 
-                      {(selectedMember.value === null || selectedMember.value === undefined) &&
-                        isWhatsapp === true && (
-                          <span className='project-number'>
-                            <div className='prefix-number text-black'>+62</div>
-                          </span>
-                        )}
+                      {isWhatsapp === true && (
+                        <span className='project-number'>
+                          <div className='prefix-number text-black'>+62</div>
+                        </span>
+                      )}
                     </FormGroup>
                   </Form.Group>
                 </Col>
