@@ -8,7 +8,7 @@ import axios from 'axios'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, FormGroup, Stack, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -156,6 +156,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
+      align: 'center',
       width: 50,
       render: (record) => {
         const handleDetailId = () => {
@@ -169,7 +170,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
+          <div className='button-wrapper d-flex justify-content-center align-items-center gap-3'>
             <a className='button-detail' onClick={handleDetailId}>
               <FontAwesomeIcon icon={faBook} size='sm' />
             </a>
@@ -334,13 +335,13 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   }
 
   return (
-    <section id='view-work-order-vendor'>
+    <section id='view-work-order-tukang'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+            <Col xs={12} sm={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-4'>
               <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-3 fw-normal'>Date : </h3>
+                <h3 className='fs-5 fw-normal'>Date</h3>
               </div>
 
               <RangePicker
@@ -348,8 +349,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                 className='date-range ms-3'
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                    const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
+                    const dateToFormatted = values[1]?.format('DD-MM-YYYY')
 
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
@@ -361,23 +362,23 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               />
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+            <Col xs={12} sm={12} md={12} lg={4} xl={4} xxl={4} className='mb-4'>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
+
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
               </div>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+            <Col xs={12} sm={12} md={12} lg={4} xl={4} xxl={4} className='mb-4'>
               <Button
                 className='btn-dark-primary button-submit'
                 disabled={loadingButton}
