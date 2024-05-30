@@ -626,113 +626,106 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </tbody>
                       </table>
 
-                      {order?.quotation[0]?.quotation_details.filter((x: any) => x.item_type === 1)
-                        .length ? (
-                        <table className='table hover responsive'>
-                          <thead className='table-warranty-head'>
-                            <tr>
-                              <th className='text-center' style={{width: '355px'}}>
-                                Material Yang Dibutuhkan
-                              </th>
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
 
-                              <th className='text-center' style={{width: '100px'}}>
-                                QTY
-                              </th>
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
 
-                              <th className='text-center' style={{width: '250px'}}>
-                                Satuan
-                              </th>
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
 
-                              <th className='text-center' style={{width: '250px'}}>
-                                Final Price
-                              </th>
-                            </tr>
-                          </thead>
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
+                          </tr>
+                        </thead>
 
-                          <tbody>
-                            {order?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 1)
-                              .map((item: any, index: any) => (
-                                <tr key={`${index}-quotation`}>
-                                  <td>
-                                    {item?.name ?? '-'}{' '}
-                                    {item?.is_customer === true
-                                      ? '( Disediakan oleh customer )'
-                                      : ''}
-                                  </td>
-                                  <td>{item?.quantity ?? 0}</td>
-                                  <td>{item?.unit ?? '-'}</td>
-                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </tr>
-                              ))}
+                        <tbody>
+                          {order?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
 
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Total Jasa
-                              </td>
-                              <td className='fw-bolder'>{`Rp. ${parseInt(
-                                order?.quotation[0]?.quotation_details
-                                  .filter((x: any) => x.item_type === 2)
-                                  .reduce(
-                                    (total: any, item: any) =>
-                                      total + parseInt(item.final_price || 0),
-                                    0
-                                  )
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Jasa
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
 
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Total Material
-                              </td>
-                              <td className='fw-bolder'>{`Rp. ${parseInt(
-                                order?.quotation[0]?.quotation_details
-                                  .filter((x: any) => x.item_type === 1)
-                                  .reduce(
-                                    (total: any, item: any) =>
-                                      total + parseInt(item.final_price || 0),
-                                    0
-                                  )
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Material
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 1)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
 
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Promosi ( Free Survey )
-                              </td>
-                              <td className=' fw-bolder'>
-                                {`Rp. ${parseInt(
-                                  order?.quotation[0]?.quotation_disc ?? 0
-                                ).toLocaleString('id')}`}
-                              </td>
-                            </tr>
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
 
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Additional Promosi
-                              </td>
-                              <td className=' fw-bolder'>{`Rp. ${parseInt(
-                                order?.quotation[0]?.quotation_promotion ?? 0
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Additional Promosi
+                            </td>
+                            <td className=' fw-bolder'>{`Rp. ${parseInt(
+                              order?.quotation[0]?.quotation_promotion ?? 0
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
 
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Grand Total
-                              </td>
-                              <td className=' fw-bolder'>
-                                {`Rp. ${parseInt(
-                                  order?.quotation[0]?.quotation_grand_total ?? 0
-                                ).toLocaleString('id')}`}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      ) : (
-                        <></>
-                      )}
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   )
                 } else if (
