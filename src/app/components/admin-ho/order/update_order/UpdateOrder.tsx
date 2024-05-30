@@ -336,7 +336,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               setSelectedSales((prev) => ({
                 ...prev,
                 value: data.sales.id,
-                label: data.sales.id,
+                label: data.sales.full_name,
                 full_name: data.sales.full_name,
               }))
 
@@ -531,7 +531,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         if (Array.isArray(response.data.data)) {
           const tempSales = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.id,
+            label: item.full_name,
             full_name: item.full_name,
           }))
 
@@ -1364,14 +1364,20 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 lg={4}
                 xl={4}
                 xxl={4}
-                className='text-end order-status order-1 order-md-2'
+                className='text-start order-status order-1 order-md-2'
               >
                 <h1 className='fs-3 fw-bold'>
                   ORDER STATUS :{' '}
                   {orderDetail?.quotation[0].quotation_files.length ? (
-                    <span className='fw-bold text-success'>{`${orderDetail?.status?.category} ( PAID )`}</span>
+                    <span className='fw-bold text-success'>
+                      {`${orderDetail?.status?.description}`}{' '}
+                      <span className='text-dark'>( Sudah dibayar )</span>
+                    </span>
                   ) : (
-                    <span className='fw-bold text-success'>{`${orderDetail?.status?.category} ( UNPAID )`}</span>
+                    <span className='fw-bold text-success'>
+                      {`${orderDetail?.status?.description}`}{' '}
+                      <span className='text-dark'>( Belum dibayar )</span>
+                    </span>
                   )}
                 </h1>
               </Col>
@@ -1627,26 +1633,26 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     </Col>
 
                     <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                      {orderDetail?.quotation[0]?.quotation_files.length && (
-                        <>
-                          <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
-                          <ListGroup>
-                            {orderDetail?.quotation[0].quotation_files
-                              .filter((x: any) => x.type === 2)
-                              .map((item: any) => (
-                                <ListGroup.Item
-                                  key={item.id}
-                                  action
-                                  onClick={() => {
-                                    setPreviewImage(item.path)
-                                    setVisibleQuotationReceipt(true)
-                                  }}
-                                >
-                                  {item.path}
-                                </ListGroup.Item>
-                              ))}
-                          </ListGroup>
+                      <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
+                      <ListGroup>
+                        {orderDetail?.quotation[0]?.quotation_files
+                          .filter((x: any) => x.type === 2)
+                          .map((item: any) => (
+                            <ListGroup.Item
+                              key={item.id}
+                              action
+                              onClick={() => {
+                                setPreviewImage(item.path)
+                                setVisibleQuotationReceipt(true)
+                              }}
+                            >
+                              {item.path}
+                            </ListGroup.Item>
+                          ))}
+                      </ListGroup>
 
+                      {orderDetail?.quotation[0]?.quotation_files.length ? (
+                        <>
                           {previewImage && (
                             <div>
                               <Image
@@ -1665,30 +1671,36 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                             </div>
                           )}
                         </>
+                      ) : (
+                        <div className='d-flex justify-content-start align-items-center'>
+                          <p className='fs-7 text-danger'>
+                            Pembayaran belum diverifikasi oleh Toko
+                          </p>
+                        </div>
                       )}
                     </Col>
 
                     <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                      {orderDetail?.quotation[0]?.quotation_files.length && (
-                        <>
-                          <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
-                          <ListGroup>
-                            {orderDetail?.quotation[0].quotation_files
-                              .filter((x: any) => x.type === 1)
-                              .map((item: any) => (
-                                <ListGroup.Item
-                                  key={item.id}
-                                  action
-                                  onClick={() => {
-                                    setPreviewImage(item.path)
-                                    setVisibleQuotationFiles(true)
-                                  }}
-                                >
-                                  {item.path}
-                                </ListGroup.Item>
-                              ))}
-                          </ListGroup>
+                      <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
+                      <ListGroup>
+                        {orderDetail?.quotation[0].quotation_files
+                          .filter((x: any) => x.type === 1)
+                          .map((item: any) => (
+                            <ListGroup.Item
+                              key={item.id}
+                              action
+                              onClick={() => {
+                                setPreviewImage(item.path)
+                                setVisibleQuotationFiles(true)
+                              }}
+                            >
+                              {item.path}
+                            </ListGroup.Item>
+                          ))}
+                      </ListGroup>
 
+                      {orderDetail?.quotation[0]?.quotation_files.length ? (
+                        <>
                           {previewImage && (
                             <div>
                               <Image
@@ -1707,6 +1719,12 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                             </div>
                           )}
                         </>
+                      ) : (
+                        <div className='d-flex justify-content-start align-items-center'>
+                          <p className='fs-7 text-danger'>
+                            Pembayaran belum diverifikasi oleh Toko
+                          </p>
+                        </div>
                       )}
                     </Col>
                   </Row>
