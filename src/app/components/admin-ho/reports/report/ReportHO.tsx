@@ -3,7 +3,6 @@ import React, {useState, useEffect} from 'react'
 import './ReportHO.css'
 
 import axios from 'axios'
-import Swal from 'sweetalert2'
 import Select from 'react-select'
 import {Table, PaginationProps, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -1340,19 +1339,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     return `${day}/${month}/${year}`
   }
 
-  // Export To Excel
-  // const exportToExcel = () => {
-  //   if (exportReportData.length === 0) {
-  //     Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
-  //     return
-  //   }
-
-  //   const worksheet = XLSX.utils.json_to_sheet(exportReportData)
-  //   const workbook = XLSX.utils.book_new()
-  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-  //   XLSX.writeFile(workbook, `Report ${title}.xlsx`)
-  // }
-
   const exportToExcel = () => {
     setLoadingExport(true)
 
@@ -1360,7 +1346,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       .get(`${apiUrl}/orders/export-excel?take=0`, {
         method: 'GET',
         responseType: 'blob',
-        // Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
       })
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
