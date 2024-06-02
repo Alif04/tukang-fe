@@ -9,13 +9,17 @@ import interactionPlugin from '@fullcalendar/interaction'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import {Steps} from 'antd'
-import {Row, Col, Modal, Form, Table} from 'react-bootstrap'
+import {Row, Col, Modal, Form, Table, Accordion} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 
 interface Order {
   id: any
   title: string
   start: string
   end: string
+  status_order: string
+  className: string
   order_detail?: any
 }
 
@@ -33,6 +37,8 @@ const ViewCalendarHO: React.FC = () => {
       title: '',
       start: '',
       end: '',
+      status_order: '',
+      className: '',
     },
   ])
 
@@ -80,6 +86,39 @@ const ViewCalendarHO: React.FC = () => {
                     : null
                   : item?.request_survey
 
+                const orderStatus = (() => {
+                  if (item?.work_orders?.work_order_status?.length >= 0) {
+                    if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+                      return item?.status?.category
+                    } else if (
+                      ['WORKREQ'].includes(item?.status?.category) &&
+                      item?.payment_type === 'survey' &&
+                      !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                        item?.work_orders?.work_order_status[0]?.status?.category
+                      )
+                    ) {
+                      return item?.status?.category
+                    } else {
+                      return item?.work_orders?.work_order_status[0]?.status?.category
+                    }
+                  } else {
+                    return item?.status?.category
+                  }
+                })()
+
+                const contextualColor = (() => {
+                  switch (orderStatus) {
+                    case 'WORKEND':
+                      return 'bg-calendar-order-done'
+                    case 'RESCHEDULE':
+                      return 'bg-calendar-order-reschedule'
+                    case 'INVESTIGATED':
+                      return 'bg-calendar-order-complaint'
+                    default:
+                      return 'bg-primary'
+                  }
+                })()
+
                 return {
                   id: item?.id.toString(),
                   title: `#${item?.id ?? ''} ${
@@ -87,6 +126,8 @@ const ViewCalendarHO: React.FC = () => {
                   } - ${item?.members?.full_name ?? ''} `,
                   start: dayjs(startDate).format('YYYY-MM-DD'),
                   end: dayjs(endDate).format('YYYY-MM-DD'),
+                  order_status: orderStatus,
+                  className: contextualColor,
                   order_detail: item,
                 }
               })
@@ -193,6 +234,63 @@ const ViewCalendarHO: React.FC = () => {
 
   return (
     <section id='view-calendar'>
+      <Accordion className='mb-5'>
+        <Accordion.Item eventKey='0'>
+          <Accordion.Header>
+            <FontAwesomeIcon icon={faCircleInfo} size='lg' className='me-2' />
+            <p className='fs-7 fw-bold'>Panduan Warna Kalendar</p>
+          </Accordion.Header>
+
+          <Accordion.Body>
+            <div className='description fs-7 mb-5'>
+              Informasi mengenai keterangan warna didalam kalendar
+            </div>
+
+            <div className='vendor-avail'>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Status Order</th>
+                    <th>Warna</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Order sedang dalam pengerjaan</td>
+
+                    <td>
+                      <div className='box-primary'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order Selesai</td>
+                    <td>
+                      <div className='box-success'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order yang dijadwalkan ulang</td>
+                    <td>
+                      <div className='box-warning'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order yang dikomplain</td>
+                    <td>
+                      <div className='box-danger'></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         headerToolbar={{
