@@ -123,7 +123,7 @@ const ViewCalendarCS: React.FC = () => {
                 return {
                   id: item?.id.toString(),
                   title: `#${item?.id ?? ''} ${
-                    item.vendor ? `- ${item.vendor.company_name}` : ''
+                    item.vendor ? `- ${item.vendor.company_name}` : '- Vendor Belum Ditugaskan'
                   } - ${item?.members?.full_name ?? ''} `,
                   start: dayjs(startDate).format('YYYY-MM-DD'),
                   end: dayjs(endDate).format('YYYY-MM-DD'),
