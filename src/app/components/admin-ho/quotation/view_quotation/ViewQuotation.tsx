@@ -9,7 +9,7 @@ import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -64,6 +64,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   }
 
   const storeOptions = [{value: null, label: 'All Store'}, ...store]
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -199,14 +201,26 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
-            <a className='button-detail' onClick={handleDetail}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Quotation')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetail}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-edit' onClick={handleEdit}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Quotation')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleEdit}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },

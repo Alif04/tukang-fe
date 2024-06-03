@@ -10,7 +10,7 @@ import Swal from 'sweetalert2'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -47,8 +47,10 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [vendorData, setVendorData] = useState<DataType[]>([])
+
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
+  const [pageSize, setPageSize] = useState<number>(10)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -66,6 +68,8 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
   const storeOptions = [{value: null, label: 'All Vendor'}, ...store]
 
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'No. ',
@@ -74,6 +78,9 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 90,
       className: 'col_order_id',
+      render: (text: any, record: any, index: number) => {
+        return (currentPage - 1) * pageSize + index + 1
+      },
     },
     {
       title: 'Vendor ID',
@@ -151,7 +158,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-      width: 80,
+      width: 110,
       render: (record) => {
         const handleDetailId = () => {
           const id = record.vendor_id
@@ -213,18 +220,36 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
-            <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Vendor')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Vendor')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-delete' onClick={handleDeleteId}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Hapus Vendor')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },
@@ -473,6 +498,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
             showSizeChanger
             pageSizeOptions={[5, 10, 20, 50, 100]}
             itemRender={itemRender}
+            onShowSizeChange={(current, size) => setPageSize(size)}
             onChange={(page, pageSize) => {
               fetchData(page, pageSize, '')
             }}
