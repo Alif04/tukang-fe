@@ -10,7 +10,7 @@ import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -58,6 +58,8 @@ const ViewItemHO: React.FC = () => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -174,17 +176,35 @@ const ViewItemHO: React.FC = () => {
 
         return (
           <div className='button-wrapper'>
-            <a className='button-detail' onClick={handleDetail}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Item')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetail}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-detail' onClick={handleUpdate}>
-              <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Item')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdate}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-delete' onClick={handleDeleteId}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Hapus Item')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },

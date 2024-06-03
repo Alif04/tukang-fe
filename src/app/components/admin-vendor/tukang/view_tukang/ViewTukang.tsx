@@ -11,7 +11,7 @@ import type {ColumnsType} from 'antd/es/table'
 import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps, Pagination, Spin} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faFileExcel, faSearch, faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -74,6 +74,8 @@ const ViewTukangVendor: FC = () => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -214,23 +216,41 @@ const ViewTukangVendor: FC = () => {
           <div
             className={
               userRole === 'Admin HO'
-                ? 'button-wrapper justify-content-center'
-                : 'button-wrapper justify-content-between'
+                ? 'button-wrapper justify-content-center gap-3'
+                : 'button-wrapper justify-content-between gap-3'
             }
           >
-            <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Tukang')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
             {userRole !== 'Admin HO' && (
               <>
-                <a className='button-edit' onClick={handleUpdateId}>
-                  <FontAwesomeIcon icon={faPen} size='sm' />
-                </a>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Edit Tukang')}
+                >
+                  <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                    <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
 
-                <a className='button-delete' onClick={handleDeleteId}>
-                  <FontAwesomeIcon icon={faTrash} size='sm' />
-                </a>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Delete Tukang')}
+                >
+                  <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                    <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
               </>
             )}
           </div>

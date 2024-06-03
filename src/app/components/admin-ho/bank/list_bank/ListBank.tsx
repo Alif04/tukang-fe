@@ -9,7 +9,7 @@ import Swal from 'sweetalert2'
 import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -37,6 +37,8 @@ const ListBankHO: React.FC = () => {
     bank_name: string
     join_date: string
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -77,11 +79,6 @@ const ListBankHO: React.FC = () => {
           const id = record.bank_id
           navigate(`/bank/update-bank/${id}`)
         }
-
-        // const handleDetail = () => {
-        //   const id = record.bank_id
-        //   navigate(`/bank/detail-bank/${id}`)
-        // }
 
         const handleDeleteId = () => {
           const id = record.bank_id
@@ -133,18 +130,26 @@ const ListBankHO: React.FC = () => {
         }
 
         return (
-          <div className='button-wrapper'>
-            {/* <a className='button-detail' onClick={handleDetail}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a> */}
+          <div className='button-wrapper d-flex  justify-content-center gap-4'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Bank')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdate}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-detail' onClick={handleUpdate}>
-              <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
-            </a>
-
-            <a className='button-delete' onClick={handleDeleteId}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Hapus Bank')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },

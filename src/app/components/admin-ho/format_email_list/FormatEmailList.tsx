@@ -9,7 +9,7 @@ import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Spin, Pagination} from 'antd'
-import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch, faCheck} from '@fortawesome/free-solid-svg-icons'
 
@@ -46,6 +46,8 @@ const FormatEmailList: FC = () => {
 
   // Email
   const [emailType, setEmailType] = useState<templateOption[]>([])
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -204,20 +206,38 @@ const FormatEmailList: FC = () => {
         }
 
         return (
-          <div className='button-wrapper'>
-            <a className='button-detail' onClick={handleUpdate}>
-              <FontAwesomeIcon icon={faPen} className='text-black' size='sm' />
-            </a>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Format Email')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdate}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
             {record.is_active !== 'Active' && (
-              <a className='button-detail' onClick={handleActive}>
-                <FontAwesomeIcon icon={faCheck} className='text-black' size='sm' />
-              </a>
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Aktifkan Format Email')}
+              >
+                <Button variant='success' className='button-active' onClick={handleActive}>
+                  <FontAwesomeIcon className='text-white' icon={faCheck} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
             )}
 
-            <a className='button-delete' onClick={handleNonActive}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Non Aktifkan Format Email')}
+            >
+              <Button variant='danger' className='button-disable' onClick={handleNonActive}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },
