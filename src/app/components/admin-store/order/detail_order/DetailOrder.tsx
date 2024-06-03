@@ -1150,21 +1150,30 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       ))}
                   </ListGroup>
 
-                  {previewImage && (
-                    <div>
-                      <Image
-                        key={previewImage}
-                        width={200}
-                        style={{display: 'none'}}
-                        src={`${apiUrl}/public/work-orders/${previewImage}`}
-                        preview={{
-                          visible: visibleWorkBefore,
-                          src: `${apiUrl}/public/work-orders/${previewImage}`,
-                          onVisibleChange: (value) => {
-                            setVisible(value)
-                          },
-                        }}
-                      />
+                  {order?.work_orders?.work_order_evidences?.filter((x: any) => x.type === 2)
+                    .length ? (
+                    <>
+                      {previewImage && (
+                        <div>
+                          <Image
+                            key={previewImage}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={`${apiUrl}/public/work-orders/${previewImage}`}
+                            preview={{
+                              visible: visibleWorkBefore,
+                              src: `${apiUrl}/public/work-orders/${previewImage}`,
+                              onVisibleChange: (value) => {
+                                setVisible(value)
+                              },
+                            }}
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className='d-flex justify-content-start align-items-center'>
+                      <p className='fs-7 text-danger'>Foto belum diupload oleh Tukang</p>
                     </div>
                   )}
                 </Col>
@@ -1189,21 +1198,30 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       ))}
                   </ListGroup>
 
-                  {previewImage && (
-                    <div>
-                      <Image
-                        key={previewImage}
-                        width={200}
-                        style={{display: 'none'}}
-                        src={`${apiUrl}/public/work-orders/${previewImage}`}
-                        preview={{
-                          visible: visibleWorkAfter,
-                          src: `${apiUrl}/public/work-orders/${previewImage}`,
-                          onVisibleChange: (value) => {
-                            setVisibleWorkBefore(value)
-                          },
-                        }}
-                      />
+                  {order?.work_orders?.work_order_evidences?.filter((x: any) => x.type === 3)
+                    .length ? (
+                    <>
+                      {previewImage && (
+                        <div>
+                          <Image
+                            key={previewImage}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={`${apiUrl}/public/work-orders/${previewImage}`}
+                            preview={{
+                              visible: visibleWorkAfter,
+                              src: `${apiUrl}/public/work-orders/${previewImage}`,
+                              onVisibleChange: (value) => {
+                                setVisibleWorkBefore(value)
+                              },
+                            }}
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className='d-flex justify-content-start align-items-center'>
+                      <p className='fs-7 text-danger'>Foto belum diupload oleh Tukang</p>
                     </div>
                   )}
                 </Col>

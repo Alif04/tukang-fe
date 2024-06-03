@@ -234,7 +234,10 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                               return orderDetail?.status?.description
                             } else if (
                               ['WORKREQ'].includes(orderDetail?.status?.category) &&
-                              orderDetail?.payment_type === 'survey'
+                              orderDetail?.payment_type === 'survey' &&
+                              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                                orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                              )
                             ) {
                               return orderDetail?.status?.description
                             } else {
