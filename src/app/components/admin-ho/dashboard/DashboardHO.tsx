@@ -21,6 +21,7 @@ interface DataType {
   store_name: string
   costumer_name: string
   service_name: string
+  order_date: Date
   total: string
 }
 
@@ -35,27 +36,54 @@ interface AreaItem {
   label: string
 }
 
-const initialStatusState = {
-  survey: 0,
-  onProgress: 0,
-  complete: 0,
-  waitingSurvey: 0,
-  waitingQuotation: 0,
-  waitingPayment: 0,
-}
-
-type StatusToStateMap = {
-  [statusName: string]: keyof typeof initialStatusState
-}
-
-const statusToStateMap: StatusToStateMap = {
-  SURVEYSTART: 'survey',
-  WIP: 'onProgress',
-  DONE: 'complete',
-  SURVEYREQ: 'waitingSurvey',
-  QUOTEIN: 'waitingQuotation',
-  WORKRELATED: 'waitingPayment',
-}
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'Order ID',
+    dataIndex: 'order_id',
+    key: 'order_id',
+    align: 'center',
+    sorter: (a, b) => a.order_id - b.order_id,
+  },
+  {
+    title: 'Nama Toko',
+    dataIndex: 'store_name',
+    key: 'store_name',
+    align: 'left',
+    className: 'col_order_id',
+    onFilter: (value, record) => record.store_name.includes(String(value)),
+    sorter: (a, b) => a.store_name.length - b.store_name.length,
+  },
+  {
+    title: 'Nama Konsumen',
+    dataIndex: 'costumer_name',
+    key: 'costumer_name',
+    align: 'left',
+    onFilter: (value, record) => record.costumer_name.includes(String(value)),
+    sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+  },
+  {
+    title: 'Nama Pemasangan',
+    dataIndex: 'service_name',
+    key: 'service_name',
+    align: 'left',
+    onFilter: (value, record) => record.service_name.includes(String(value)),
+    sorter: (a, b) => a.service_name.length - b.service_name.length,
+  },
+  {
+    title: 'Order Dibuat',
+    dataIndex: 'order_date',
+    key: 'order_date',
+    align: 'left',
+    sorter: (a: DataType, b: DataType) =>
+      new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
+  },
+  {
+    title: 'Grand Total',
+    dataIndex: 'total',
+    key: 'total',
+    align: 'center',
+  },
+]
 
 const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
   if (type === 'prev') {
@@ -76,7 +104,6 @@ const DashboardHO: FC = () => {
 
   const [orderList, setOrderList] = useState<DataType[]>([])
   const [orderData, setOrderData] = useState<any[]>([])
-  const [workOrderData, setWorkOrderData] = useState<any[]>([])
 
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
@@ -154,7 +181,6 @@ const DashboardHO: FC = () => {
       })
 
       const chartDatas = response.data.monthlyOrders
-
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
 
@@ -196,9 +222,7 @@ const DashboardHO: FC = () => {
       const endIndex = toMonth + 1
 
       const slicedData = chartDatas.slice(startIndex, endIndex)
-
       setChartWorkOrder(slicedData)
-      setWorkOrderData(data)
       return data
     } catch (error) {
       console.error(error)
@@ -248,7 +272,12 @@ const DashboardHO: FC = () => {
             item?.payment_type === 'survey'
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
-          total: `Rp. ${totalAmount.toLocaleString('id')}`,
+          order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }),
+          total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
 
         return data
@@ -332,75 +361,6 @@ const DashboardHO: FC = () => {
     getArea()
   }, [selectedZone])
 
-  // Catch Value From Response API by Status
-  const [statusState, setStatusState] = useState(initialStatusState)
-
-  useEffect(() => {
-    if (orderData) {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      for (const statusName in statusToStateMap) {
-        const stateKey = statusToStateMap[statusName]
-        const desiredStatus = statusData.find((status: any) => status.category === statusName)
-
-        if (desiredStatus) {
-          const statusValue = desiredStatus.value
-          const orderCount = orderData.filter((item: any) => item.status.id === statusValue).length
-
-          setStatusState((prevState) => ({
-            ...prevState,
-            [stateKey]: orderCount,
-          }))
-        }
-      }
-    }
-  }, [orderData])
-
-  const {survey, onProgress, complete, waitingSurvey, waitingQuotation, waitingPayment} =
-    statusState
-
-  const columns: ColumnsType<DataType> = [
-    {
-      title: 'Order ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
-      align: 'center',
-      sorter: (a, b) => a.order_id - b.order_id,
-    },
-    {
-      title: 'Nama Toko',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'left',
-      className: 'col_order_id',
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-    },
-    {
-      title: 'Nama Konsumen',
-      dataIndex: 'costumer_name',
-      key: 'costumer_name',
-      align: 'left',
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
-    },
-    {
-      title: 'Nama Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
-    },
-    {
-      title: 'Grand Total',
-      dataIndex: 'total',
-      key: 'total',
-      align: 'center',
-    },
-  ]
-
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
@@ -414,6 +374,26 @@ const DashboardHO: FC = () => {
 
     setLoadingButton(false)
   }
+
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key]).reduce((a: number, b: number) => a + b, 0)
+
+  const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const surveyOrder = sumTotal(chartWorkOrder, 'totalOrder')
+  const workInProgress = sumTotal(chartWorkOrder, 'totalWIPOrder')
+  const orderDone = sumTotal(chartDataOrder, 'totalCompleteOrder')
+  const waitingSurvey = sumTotal(chartDataOrder, 'totalSurveyReqOrder')
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalCompleteOrder')
+  const unpaidOrder = sumTotal(chartWorkOrder, 'totalUnpaidOrder')
+
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <Col className='mb-5'>
+      <div className='d-flex flex-column align-items-center gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p className={`fs-6 ${className}`}>{label}</p>
+      </div>
+    </Col>
+  )
 
   return (
     <section id='dashboard-ho'>
@@ -509,60 +489,17 @@ const DashboardHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Order</div>
 
               <Row className='justify-content-md-center'>
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{totalData}</h1>
-                    <p className='fs-6 text-center'>Total Order</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{survey}</h1>
-                    <p className='fs-6 text-center'>Order Survey</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{onProgress}</h1>
-                    <p className='fs-6 text-center'>Order sedang dalam pengerjaan</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{complete}</h1>
-                    <p className='fs-6 text-center'>Order Selesai</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingSurvey}</h1>
-                    <p className='fs-6 text-brown  fw-bold  text-center'>
-                      Menunggu <br></br> Survey
-                    </p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingQuotation}</h1>
-                    <p className='fs-6 text-brown  fw-bold  text-center'>
-                      Menunggu <br></br> Quotation
-                    </p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingPayment}</h1>
-                    <p className='fs-6 text-brown fw-bold text-center'>
-                      Menunggu <br></br> Bayar
-                    </p>
-                  </div>
-                </Col>
+                {renderStat(totalOrders, 'Total Order')}
+                {renderStat(surveyOrder, 'Order Survey')}
+                {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
+                {renderStat(orderDone, 'Order Selesai')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-brown fw-bold text-center')}
+                {renderStat(
+                  waitingQuotations,
+                  'Menunggu Quotation',
+                  'text-brown fw-bold text-center'
+                )}
+                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
               </Row>
             </Card.Body>
           </Card>
