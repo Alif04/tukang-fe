@@ -773,16 +773,16 @@ const UpdateQuotationVendor: FC = () => {
           </div>
 
           <div className='detail-table-jasa'>
-            <Table hover>
+            <Table responsive hover>
               <thead>
                 <tr>
-                  <th className='text-center'>Jenis Jasa</th>
-                  <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Total</th>
-                  <th className='text-center'>Margin</th>
-                  <th className='text-center'>Final Price</th>
+                  <th className='content text-center'>Jenis Jasa</th>
+                  <th className='content text-center'>QTY</th>
+                  <th className='content text-center'>Satuan</th>
+                  <th className='content text-center'>Price</th>
+                  <th className='content text-center'>Total</th>
+                  <th className='content text-center'>Margin</th>
+                  <th className='content text-center'>Final Price</th>
                   <th className='text-center'>Action</th>
                 </tr>
               </thead>
@@ -917,19 +917,19 @@ const UpdateQuotationVendor: FC = () => {
               </Button>
             </div>
 
-            <Table hover>
+            <Table responsive hover>
               <thead>
                 <tr>
                   <th></th>
                   <th className='text-center' style={{minWidth: '230px'}}>
                     Material Yang Dibutuhkan
                   </th>
-                  <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Total</th>
-                  <th className='text-center'>Margin</th>
-                  <th className='text-center' style={{minWidth: '100px'}}>
+                  <th className='content text-center'>QTY</th>
+                  <th className='content text-center'>Satuan</th>
+                  <th className='content text-center'>Price</th>
+                  <th className='content text-center'>Total</th>
+                  <th className='content text-center'>Margin</th>
+                  <th className='content text-center' style={{minWidth: '100px'}}>
                     Final Price
                   </th>
                   <th className='text-center'>Action</th>

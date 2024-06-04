@@ -180,3 +180,19 @@
   background-color: #a16d00 !important;
   transition: 0.3s ease-in-out;
 }
+
+/* Responsive Table */
+
+@media screen and (max-width: 991px) {
+  #new-quotation .table-responsive {
+    margin-bottom: 30px;
+  }
+
+  #new-quotation .detail-table-jasa table tr th.content {
+    min-width: 300px;
+  }
+
+  #new-quotation .detail-table-material table tr th.content {
+    min-width: 300px;
+  }
+}

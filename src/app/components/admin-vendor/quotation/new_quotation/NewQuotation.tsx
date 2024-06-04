@@ -10,11 +10,6 @@ import {Form, Table, Button, Row, Col} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
-interface SelectedStoreItem {
-  value: number | null
-  label: string
-}
-
 interface Status {
   value: number | null
   category: string
@@ -57,17 +52,13 @@ const NewQuotationVendor: FC = () => {
   const [quotationDescription, setQuotationDescription] = useState<string>('')
   const [quotationDate, setQuotationDate] = useState<string>('')
   const [quotationValidity, setQuotationValidity] = useState<any>()
-  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
   const [totalJasa, setTotalJasa] = useState<number>(0)
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
-  const [promosiDiscount, setPromosiDiscount] = useState<number>(0)
   const [grandTotal, setGrandTotal] = useState<any>(0)
   const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)
   const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
-
-  const evidenceRef = useRef<HTMLInputElement>(null)
 
   // Quotation Detail
   const [quotationDetail, setQuotationDetail] = useState<QuotationDetail[]>([
@@ -111,60 +102,6 @@ const NewQuotationVendor: FC = () => {
     },
   ])
 
-  // Store
-  const [store, setStore] = useState<SelectedStoreItem[]>([])
-  const [storeId, setStoreId] = useState<string>('')
-  const [storeName, setStoreName] = useState<string>('')
-  const [storeDetail, setStoreDetail] = useState<any>()
-
-  const getStore = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/stores?take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempStore = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.store_name,
-          address: item.address,
-          city_id: item.city_id,
-          zip_code: item.zip_code,
-        }))
-
-        setStore(tempStore)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  const getStoreDetail = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/stores/${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-
-      setStoreDetail(data)
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   const getWorkOrder = async () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -191,9 +128,12 @@ const NewQuotationVendor: FC = () => {
         const tempWorkOrder = response.data.data.map((item: any) => ({
           value: item.id,
           label: item.order_id,
+          quotation: item?.order?.quotation,
         }))
 
-        setWorkOrder(tempWorkOrder)
+        const filteredWorkOrder = tempWorkOrder.filter((x: any) => x.quotation.length === 0)
+
+        setWorkOrder(filteredWorkOrder)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -225,7 +165,7 @@ const NewQuotationVendor: FC = () => {
                 index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
                 type: item?.type,
                 item_id: null,
-                work_order_item_id: item.item_id,
+                work_order_item_id: item.id,
                 category_id: null,
                 item_name: item?.name,
                 quantity: item?.quantity,
@@ -239,10 +179,6 @@ const NewQuotationVendor: FC = () => {
             )
 
             setQuotationDetail(workOrderItem)
-          }
-
-          if (data?.order?.store) {
-            setStoreId(data.order.store.id)
           }
         })
     } catch (err) {
@@ -272,7 +208,6 @@ const NewQuotationVendor: FC = () => {
 
   useEffect(() => {
     getWorkOrder()
-    getStore()
     getCode()
   }, [])
 
@@ -280,11 +215,7 @@ const NewQuotationVendor: FC = () => {
     if (workOrderId) {
       getWorkOrderDetail()
     }
-
-    if (storeId) {
-      getStoreDetail()
-    }
-  }, [workOrderId, storeId])
+  }, [workOrderId])
 
   // Format Date
   const formatDate = (date: any) => {
@@ -510,15 +441,9 @@ const NewQuotationVendor: FC = () => {
     setTotalJasaMaterial(total)
   }
 
-  // Promosi & Discount
-  // let handlePromosiChange = (value: any) => {
-  //   const updatedPromosiValue = value
-  //   setPromosiDiscount(updatedPromosiValue)
-  // }
-
   // Grand Total
   const calculatedGrandTotal = () => {
-    const grandTotal = Number(totalJasaMaterial) - Number(promosiDiscount)
+    const grandTotal = Number(totalJasaMaterial)
     const roundedValue = Math.ceil(grandTotal / 100) * 100
     const formatter = new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -536,7 +461,7 @@ const NewQuotationVendor: FC = () => {
     calculateTotalMaterial()
     calculateTotalJasaMaterial()
     calculatedGrandTotal()
-  }, [quotationDetail, totalJasaMaterial, promosiDiscount])
+  }, [quotationDetail, totalJasaMaterial])
 
   // Quotation Validation
   const QuotationValidation = () => {
@@ -546,13 +471,6 @@ const NewQuotationVendor: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please select order Id',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!storeId) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please select store',
         icon: 'error',
       })
       valid = false
@@ -574,13 +492,12 @@ const NewQuotationVendor: FC = () => {
       const formData = new FormData()
 
       formData.append('order_id', workOrderDetail.order.id)
-      formData.append('store_id', storeId)
+      formData.append('store_id', workOrderDetail.order.store.id)
       formData.append('quotation_status', quotationStatus)
       formData.append('description', quotationDescription)
       formData.append('quotation_number', quotationNumber.toString())
       formData.append('quotation_date', quotationDate)
       formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
-      // formData.append('quotation_disc', promosiDiscount.toString())
 
       const appendIfNotDefault = (formData: any, key: any, value: any) => {
         if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -831,16 +748,16 @@ const NewQuotationVendor: FC = () => {
           </div>
 
           <div className='detail-table-jasa'>
-            <Table hover>
+            <Table responsive hover>
               <thead>
                 <tr>
-                  <th className='text-center'>Jenis Jasa</th>
-                  <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Total</th>
-                  <th className='text-center'>Margin</th>
-                  <th className='text-center'>Final Price</th>
+                  <th className='content text-center'>Jenis Jasa</th>
+                  <th className='content text-center'>QTY</th>
+                  <th className='content text-center'>Satuan</th>
+                  <th className='content text-center'>Price</th>
+                  <th className='content text-center'>Total</th>
+                  <th className='content text-center'>Margin</th>
+                  <th className='content text-center'>Final Price</th>
                   <th className='text-center'>Action</th>
                 </tr>
               </thead>
@@ -976,19 +893,19 @@ const NewQuotationVendor: FC = () => {
               </Button>
             </div>
 
-            <Table hover>
+            <Table responsive hover>
               <thead>
                 <tr>
                   <th></th>
-                  <th className='text-center' style={{minWidth: '230px'}}>
+                  <th className='content text-center' style={{minWidth: '230px'}}>
                     Material Yang Dibutuhkan
                   </th>
-                  <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Total</th>
-                  <th className='text-center'>Margin</th>
-                  <th className='text-center' style={{minWidth: '100px'}}>
+                  <th className='content text-center'>QTY</th>
+                  <th className='content text-center'>Satuan</th>
+                  <th className='content text-center'>Price</th>
+                  <th className='content text-center'>Total</th>
+                  <th className='content text-center'>Margin</th>
+                  <th className='content text-center' style={{minWidth: '100px'}}>
                     Final Price
                   </th>
                   <th className='text-center'>Action</th>
@@ -1133,21 +1050,6 @@ const NewQuotationVendor: FC = () => {
                   <td className=' fw-bolder'>{`Rp. ${totalJasaMaterial.toLocaleString('id')}`}</td>
                 </tr>
 
-                {/* <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
-                    Promosi / Discount
-                  </td>
-
-                  <td>
-                    <Form.Control
-                      id='promosi'
-                      type='number'
-                      value={promosiDiscount}
-                      onChange={(e) => handlePromosiChange(e.target.value)}
-                    />
-                  </td>
-                </tr> */}
-
                 <tr>
                   <td colSpan={8} className='text-end fw-bolder'>
                     Grand Total
@@ -1177,6 +1079,7 @@ const NewQuotationVendor: FC = () => {
               variant='dark-danger'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleCancelQuotation}
             >
               Cancel
