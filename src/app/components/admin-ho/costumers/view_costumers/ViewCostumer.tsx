@@ -10,9 +10,9 @@ import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPrint, faFileExcel, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faFileExcel, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -41,6 +41,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadingExport, setLoadingExport] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [memberData, setMemberData] = useState<DataType[]>([])
@@ -55,6 +56,8 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -140,14 +143,26 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='d-flex justify-content-center'>
-            <a className='button-detail me-2' onClick={handleDetail}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+          <div className='d-flex justify-content-center gap-4'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Member')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetail}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-update ms-2 text-dark' onClick={handleUpdate}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Member')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdate}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },
@@ -245,19 +260,6 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
-  // Export To Excel
-  const exportToExcel = () => {
-    if (memberData.length === 0) {
-      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
-      return
-    }
-
-    const worksheet = XLSX.utils.json_to_sheet(memberData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-    XLSX.writeFile(workbook, `List Member.xlsx`)
-  }
-
   // Filter
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
@@ -279,10 +281,49 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     setLoadingButton(false)
   }
 
+  // Export To Excel
+  const exportToExcel = () => {
+    if (memberData.length === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
+    setLoadingExport(true)
+
+    axios
+      .get(`${apiUrl}/members/export-excel?take=0`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Data Member.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingExport(false)
+      })
+  }
+
   return (
     <section id='view-costumer'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
+          <Row>
+            <div className='d-flex justify-content-end'>
+              <button className='button-export' onClick={exportToExcel}>
+                <h3 className='fs-5 fw-semibold'>
+                  {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                </h3>
+              </button>
+            </div>
+          </Row>
+
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
@@ -332,22 +373,6 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
                 >
                   {loadingButton ? 'Filtering..' : 'Submit'}
                 </Button>
-
-                <div className='export'>
-                  <button className='button-export'>
-                    <FontAwesomeIcon
-                      icon={faFileExcel}
-                      size='2xl'
-                      className='excel-icon'
-                      onClick={exportToExcel}
-                    />
-                  </button>
-
-                  {/* 
-                  <button className='button-print'>
-                    <FontAwesomeIcon icon={faPrint} size='2xl' className='print-icon' />
-                  </button> */}
-                </div>
               </div>
             </Col>
           </Row>

@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -28,12 +28,17 @@ const ListUserHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const userRole = localStorage.getItem('userRole')
+  const vendorId = localStorage.getItem('vendor_id') as any
+
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [userData, setUserData] = useState<DataType[]>([])
+
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
+  const [pageSize, setPageSize] = useState<number>(10)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -44,6 +49,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -54,6 +60,9 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       width: 90,
       className: 'col_order_id',
       sorter: (a, b) => a.index - b.index,
+      render: (text: any, record: any, index: number) => {
+        return (currentPage - 1) * pageSize + index + 1
+      },
     },
     {
       title: 'Username',
@@ -135,16 +144,28 @@ const ListUserHO: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper d-flex justify-content-center'>
-            {!['Admin HO', 'Tukang', 'Employee', 'Member'].includes(role) && (
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            {!['Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(role) && (
               <>
-                <a className='button-edit' onClick={handleUpdateId}>
-                  <FontAwesomeIcon className='me-2' icon={faPen} size='sm' />
-                </a>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Edit User')}
+                >
+                  <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                    <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
 
-                <a className='button-delete ms-2' onClick={handleDeleteId}>
-                  <FontAwesomeIcon icon={faTrash} size='sm' />
-                </a>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Hapus User')}
+                >
+                  <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                    <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
               </>
             )}
           </div>
@@ -323,6 +344,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
             showSizeChanger
             pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
             itemRender={itemRender}
+            onShowSizeChange={(current, size) => setPageSize(size)}
             onChange={(page, pageSize) => {
               fetchData(page, pageSize, '')
             }}

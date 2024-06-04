@@ -7,7 +7,7 @@ import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import {Table, Tag, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTicket, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -52,6 +52,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     status_order: string
     tanggal_aktif_garansi: string
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -150,10 +152,16 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper d-flex justify-content-center'>
-            <a className='button-new-claim-garansi-form' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faTicket} size='sm' />
-            </a>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Claim Garansi')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                <FontAwesomeIcon className='text-white' icon={faTicket} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },

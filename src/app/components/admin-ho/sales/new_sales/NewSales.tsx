@@ -11,7 +11,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
-import {Row, Col, Form, InputGroup, Button, Card} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, Card, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -401,6 +401,8 @@ const NewSales: FC = () => {
     is_active: string
   }
 
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'No.',
@@ -543,14 +545,26 @@ const NewSales: FC = () => {
         }
 
         return (
-          <div className='button-wrapper'>
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Sales')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            <a className='button-delete' onClick={handleDeleteId}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Delete Sales')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },

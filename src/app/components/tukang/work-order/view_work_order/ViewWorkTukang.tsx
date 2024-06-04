@@ -8,7 +8,7 @@ import axios from 'axios'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Row, Col, Form, FormGroup, Stack, Button} from 'react-bootstrap'
+import {Row, Col, Form, FormGroup, OverlayTrigger, Tooltip, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -50,6 +50,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -171,22 +173,29 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
         return (
           <div className='button-wrapper d-flex justify-content-center align-items-center gap-3'>
-            <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Work Order')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
             {!['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) ? (
-              <a className='button-edit' onClick={handleUpdateId}>
-                <FontAwesomeIcon icon={faPen} size='sm' />
-              </a>
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Update Work Order')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
             ) : (
               <></>
             )}
-
-            {/* 
-            <a className='button-edit' onClick={handleUpdateId}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a> */}
           </div>
         )
       },

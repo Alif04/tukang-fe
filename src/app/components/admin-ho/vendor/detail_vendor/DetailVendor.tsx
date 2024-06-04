@@ -152,7 +152,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
                     <Col sm='6'>
                       <p className='fw-normal mt-3'>
-                        {vendorDetail ? formatDate(new Date(vendorDetail.created_at)) : ''}
+                        {vendorDetail ? formatDate(new Date(vendorDetail?.created_at)) : ''}
                       </p>
                     </Col>
                   </Form.Group>
@@ -394,7 +394,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Form.Label>
                     <Col sm='10'>
                       <Form.Label className='fw-normal mt-3'>
-                        {vendorDetail?.vendor_bank[0].bank.bank_name}
+                        {vendorDetail?.vendor_bank[0]?.bank?.bank_name}
                       </Form.Label>
                     </Col>
                   </Form.Group>
@@ -405,7 +405,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Form.Label>
                     <Col sm='10'>
                       <Form.Label className='fw-normal mt-3'>
-                        {vendorDetail?.vendor_bank[0].account_number}
+                        {vendorDetail?.vendor_bank[0]?.account_number}
                       </Form.Label>
                     </Col>
                   </Form.Group>
@@ -416,7 +416,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Form.Label>
                     <Col sm='10'>
                       <Form.Label className='fw-normal mt-3'>
-                        {vendorDetail?.vendor_bank[0].account_name}
+                        {vendorDetail?.vendor_bank[0]?.account_name}
                       </Form.Label>
                     </Col>
                   </Form.Group>

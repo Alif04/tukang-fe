@@ -8,7 +8,7 @@ import axios from 'axios'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -51,6 +51,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -180,14 +182,26 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
-            <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Work Order')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
             {!['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) ? (
-              <a className='button-edit' onClick={handleUpdateId}>
-                <FontAwesomeIcon icon={faPen} size='sm' />
-              </a>
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Update Work Order')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
             ) : (
               <></>
             )}
@@ -256,7 +270,10 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               return item?.status?.category
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey'
+              item?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                item?.work_orders?.work_order_status[0]?.status?.category
+              )
             ) {
               return item?.status?.category
             } else {
@@ -273,7 +290,10 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               return item?.status?.description
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey'
+              item?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                item?.work_orders?.work_order_status[0]?.status?.category
+              )
             ) {
               return item?.status?.description
             } else {

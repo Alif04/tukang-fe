@@ -11,7 +11,19 @@ import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Image, Skeleton} from 'antd'
 import Swal from 'sweetalert2'
-import {Row, Col, Form, Button, Stack, FormGroup, Modal, Card, ListGroup} from 'react-bootstrap'
+import {
+  Row,
+  Col,
+  Form,
+  Button,
+  Stack,
+  FormGroup,
+  Modal,
+  Card,
+  ListGroup,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
@@ -29,8 +41,9 @@ const {RangePicker} = DatePicker
 
 interface DataType {
   order_id: number
-  assign_from: string
   date_order: Date
+  assign_from: string
+  vendor_name: string
   no_member: number
   costumer_name: string
   phone_number: number
@@ -41,6 +54,11 @@ interface DataType {
 }
 
 interface StoreItem {
+  value: number | null
+  label: string
+}
+
+interface VendorItem {
   value: number | null
   label: string
 }
@@ -126,6 +144,13 @@ const ViewOrders: FC = () => {
   const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
     value: null,
     label: 'All Store',
+  })
+
+  const [vendor, setVendor] = useState<VendorItem[]>([])
+  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
+  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
+    value: null,
+    label: 'All Vendor',
   })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -323,6 +348,32 @@ const ViewOrders: FC = () => {
     }
   }
 
+  const getVendor = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/vendor?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempVendor = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.company_name,
+        }))
+
+        setVendor(tempVendor)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const getCSI = async () => {
     try {
       const response = await axios.get(`${apiUrl}/csi?take=0`, {
@@ -352,6 +403,7 @@ const ViewOrders: FC = () => {
   useEffect(() => {
     fetchOrderData(null)
     getStore()
+    getVendor()
     getCSI()
   }, [])
 
@@ -445,186 +497,6 @@ const ViewOrders: FC = () => {
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
   }
-
-  const columns: ColumnsType<DataType> = [
-    {
-      title: 'Order ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
-      align: 'center',
-      width: 100,
-      className: 'col_order_id',
-      defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
-      responsive: ['md'],
-    },
-    {
-      title: 'Nama Toko',
-      dataIndex: 'assign_from',
-      key: 'assign_from',
-      align: 'center',
-      width: 110,
-      className: 'col_order_id',
-      onFilter: (value, record) => record.assign_from.includes(String(value)),
-      sorter: (a, b) => a.assign_from.length - b.assign_from.length,
-      responsive: ['md'],
-    },
-    {
-      title: 'Order Dibuat',
-      dataIndex: 'date_order',
-      key: 'date_order',
-      align: 'center',
-      width: 120,
-      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
-      responsive: ['md'],
-    },
-    {
-      title: 'No Member',
-      dataIndex: 'no_member',
-      key: 'no_member',
-      align: 'center',
-      width: 110,
-      sorter: (a, b) => a.no_member - b.no_member,
-      responsive: ['md'],
-    },
-    {
-      title: 'Nama Customer',
-      dataIndex: 'costumer_name',
-      key: 'costumer_name',
-      align: 'left',
-      width: 130,
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
-      responsive: ['md'],
-    },
-    {
-      title: 'No. Telp / WA',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
-      align: 'left',
-      width: 120,
-      sorter: (a, b) => a.phone_number - b.phone_number,
-      responsive: ['md'],
-    },
-    {
-      title: 'Status Pembayaran',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
-      align: 'left',
-      onFilter: (value, record) => record.payment_status.includes(String(value)),
-      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
-      filters: [
-        {text: 'FREE', value: 'FREE'},
-        {text: 'UNPAID', value: 'UNPAID'},
-        {text: 'PAID', value: 'PAID'},
-      ],
-      responsive: ['md'],
-    },
-    {
-      title: 'Status Order',
-      dataIndex: 'order_status_label',
-      key: 'order_status_label',
-      filters: statusFilters,
-      render: (order_status_label) => {
-        const orderStatus = order_status_label
-        let color = ''
-
-        switch (orderStatus) {
-          case 'UNPAID':
-            color = 'red'
-            break
-          case 'PAID':
-            color = 'green'
-            break
-          default:
-            color = 'blue'
-            break
-        }
-
-        return <Tag color={color}>{orderStatus}</Tag>
-      },
-      onFilter: (value, record) => record.order_status_label.includes(String(value)),
-      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
-      align: 'left',
-      responsive: ['md'],
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      responsive: ['md'],
-      render: (record) => {
-        const id = record.order_id
-
-        const handleDetailId = () => {
-          navigate(`/order/detail-order/${id}`)
-        }
-
-        const handleUpdateId = () => {
-          navigate(`/order/update-order/${id}`)
-        }
-
-        const handleShowModal = (id: number, type: number) => {
-          const selected = orderData.find((order) => order.order_id === id)
-
-          if (selected) {
-            fetchOrderData(selected.order_id)
-            setShowModal(true)
-            setModalType(type)
-          }
-        }
-
-        return (
-          <div className='d-flex justify-content-center gap-4'>
-            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
-              record.order_status
-            ) && (
-              <a className='button-edit' onClick={() => cancelOrderHandler(record.order_id)}>
-                <FontAwesomeIcon className='text-danger' icon={faXmarkCircle} size='sm' />
-              </a>
-            )}
-
-            <a className='button-detail' onClick={handleDetailId}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
-
-            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
-              record.order_status
-            ) && (
-              <a className='button-edit' onClick={handleUpdateId}>
-                <FontAwesomeIcon icon={faPen} size='sm' />
-              </a>
-            )}
-
-            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Admin HO' ? (
-              <a className='button-edit' onClick={handleUpdateId}>
-                <FontAwesomeIcon icon={faPen} size='sm' />
-              </a>
-            ) : (
-              <></>
-            )}
-
-            {['WORKEND', 'SURVEYDONE'].includes(record.work_order_status) ? (
-              <a className='button-edit' onClick={() => handleShowModal(id, 1)}>
-                <FontAwesomeIcon icon={faEnvelope} size='sm' />
-              </a>
-            ) : (
-              <></>
-            )}
-
-            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Store CS' ? (
-              <a className='button-verif' onClick={() => handleShowModal(id, 2)}>
-                <FontAwesomeIcon icon={faCheckCircle} size='sm' />
-              </a>
-            ) : (
-              <></>
-            )}
-          </div>
-        )
-      },
-      fixed: 'right',
-      width: 50,
-    },
-  ]
 
   // Modal
   const [loadingUpdate, setLoadingUpdate] = useState(false)
@@ -893,6 +765,7 @@ const ViewOrders: FC = () => {
           order_id: item.id,
           assign_from: item?.store?.store_name,
           date_order: orderDate,
+          vendor_name: item?.vendor?.company_name ?? 'Vendor Belum Ditugaskan',
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
           phone_number: item?.project_number,
@@ -944,6 +817,7 @@ const ViewOrders: FC = () => {
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&store_id=`, selectedStore?.value)
+    valueCheck(`&vendor_id=`, selectedVendor?.value)
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)
@@ -1062,6 +936,19 @@ const ViewOrders: FC = () => {
   }
 
   const handleTriggerEmail = async () => {
+    if (orderDetail?.members?.email === '') {
+      Swal.fire({
+        title: 'Member ini tidak mempunyai email sehingga tidak dapat mengirimkan email',
+        icon: 'warning',
+        showConfirmButton: true,
+        showDenyButton: false,
+        confirmButtonColor: '#6b9230',
+        confirmButtonText: 'Ok',
+      })
+
+      return false
+    }
+
     Swal.fire({
       title: 'Apakah anda yakin ingin mengirim email berisi formulir csi kepada customer?',
       icon: 'question',
@@ -2049,6 +1936,245 @@ const ViewOrders: FC = () => {
     )
   }
 
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      width: 100,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Order Dibuat',
+      dataIndex: 'date_order',
+      key: 'date_order',
+      align: 'left',
+      width: 120,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+    },
+    {
+      title: 'Nama Toko',
+      dataIndex: 'assign_from',
+      key: 'assign_from',
+      align: 'center',
+      width: 110,
+      className: 'col_order_id',
+      onFilter: (value, record) => record.assign_from.includes(String(value)),
+      sorter: (a, b) => a.assign_from.length - b.assign_from.length,
+      responsive: ['md'],
+    },
+    {
+      title: 'Nama Vendor',
+      dataIndex: 'vendor_name',
+      key: 'vendor_name',
+      align: 'center',
+      width: 120,
+      className: 'col_order_id',
+      onFilter: (value, record) => record.vendor_name.includes(String(value)),
+      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+      responsive: ['md'],
+    },
+    // {
+    //   title: 'No Member',
+    //   dataIndex: 'no_member',
+    //   key: 'no_member',
+    //   align: 'center',
+    //   width: 110,
+    //   sorter: (a, b) => a.no_member - b.no_member,
+    //   responsive: ['md'],
+    // },
+    {
+      title: 'Nama Customer',
+      dataIndex: 'costumer_name',
+      key: 'costumer_name',
+      align: 'left',
+      width: 130,
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+      responsive: ['md'],
+    },
+    {
+      title: 'No. Telp / WA',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
+      align: 'left',
+      width: 120,
+      sorter: (a, b) => a.phone_number - b.phone_number,
+      responsive: ['md'],
+    },
+    {
+      title: 'Status Pembayaran',
+      dataIndex: 'payment_status',
+      key: 'payment_status',
+      align: 'left',
+      onFilter: (value, record) => record.payment_status.includes(String(value)),
+      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+      filters: [
+        {text: 'FREE', value: 'FREE'},
+        {text: 'UNPAID', value: 'UNPAID'},
+        {text: 'PAID', value: 'PAID'},
+      ],
+      responsive: ['md'],
+    },
+    {
+      title: 'Status Order',
+      dataIndex: 'order_status_label',
+      key: 'order_status_label',
+      filters: statusFilters,
+      render: (order_status_label) => {
+        const orderStatus = order_status_label
+        let color = ''
+
+        switch (orderStatus) {
+          case 'UNPAID':
+            color = 'red'
+            break
+          case 'PAID':
+            color = 'green'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{orderStatus}</Tag>
+      },
+      onFilter: (value, record) => record.order_status_label.includes(String(value)),
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
+      align: 'left',
+      responsive: ['md'],
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      align: 'center',
+      render: (record) => {
+        const id = record.order_id
+
+        const handleDetailId = () => {
+          navigate(`/order/detail-order/${id}`)
+        }
+
+        const handleUpdateId = () => {
+          navigate(`/order/update-order/${id}`)
+        }
+
+        const handleShowModal = (id: number, type: number) => {
+          const selected = orderData.find((order) => order.order_id === id)
+
+          if (selected) {
+            fetchOrderData(selected.order_id)
+            setShowModal(true)
+            setModalType(type)
+          }
+        }
+
+        return (
+          <div className='d-flex justify-content-center gap-4'>
+            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
+              record.order_status
+            ) && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Cancel Order')}
+              >
+                <Button
+                  className='button-cancel'
+                  variant='danger'
+                  onClick={() => cancelOrderHandler(record.order_id)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            )}
+
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Order')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+
+            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
+              record.order_status
+            ) && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Update Order')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            )}
+
+            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Admin HO' ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Update Order')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {['WORKEND', 'SURVEYDONE'].includes(record.order_status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Email CSI')}
+              >
+                <Button
+                  variant='success'
+                  className='button-email'
+                  onClick={() => handleShowModal(id, 1)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faEnvelope} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Store CS' ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Verifikasi Pembayaran Quotation')}
+              >
+                <Button
+                  variant='primary'
+                  className='button-verif'
+                  onClick={() => handleShowModal(id, 2)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+          </div>
+        )
+      },
+      fixed: 'right',
+      width: 50,
+    },
+  ]
+
   return (
     <section id='view-order'>
       <Card>
@@ -2093,13 +2219,26 @@ const ViewOrders: FC = () => {
               {userRole === 'Admin HO' && (
                 <Select
                   name='store_id'
-                  className='form-control p-0 w-50'
+                  className='form-control p-0 w-25'
                   classNamePrefix='select'
                   placeholder='Pilih Toko'
                   isSearchable={true}
                   options={storeOptions}
                   value={selectedStore}
                   onChange={(newValue) => setSelectedStore(newValue)}
+                />
+              )}
+
+              {userRole === 'Admin HO' && (
+                <Select
+                  name='store_id'
+                  className='form-control p-0 w-25'
+                  classNamePrefix='select'
+                  placeholder='Pilih Vendor'
+                  isSearchable={true}
+                  options={vendorOptions}
+                  value={selectedVendor}
+                  onChange={(newValue) => setSelectedVendor(newValue)}
                 />
               )}
 
@@ -2180,438 +2319,6 @@ const ViewOrders: FC = () => {
               handleRemoveFile={handleRemoveFile}
             />
           )}
-
-          {/* <Modal.Header closeButton>
-            <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
-              <Modal.Title>
-                Verifikasi Pembayaran Quotation - Order ID {orderDetail?.id}
-              </Modal.Title>
-            </Skeleton>
-          </Modal.Header>
-
-          <Modal.Body>
-            <Row className='mb-5'>
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
-                  <Form.Label className='fs-6 fw-bold'>
-                    Nama Toko :{' '}
-                    <span className='fs-6 ms-2 fw-normal'>
-                      {orderDetail?.store?.store_name ?? ''}
-                    </span>
-                  </Form.Label>
-                  <br></br>
-                  <Form.Label className='fs-6 fw-bold'>
-                    Quotation ID :{' '}
-                    <span className='fs-6 ms-2 fw-normal'>
-                      {orderDetail?.quotation?.length ? orderDetail?.quotation[0]?.id : ''}
-                    </span>
-                  </Form.Label>
-                </Skeleton>
-              </Col>
-
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
-                  <Form.Label className='fs-6 fw-bold'>
-                    Receipt Number :
-                    <span className='fs-6 ms-2 fw-normal'>
-                      {orderDetail?.receipt_number ?? '-'}
-                    </span>
-                  </Form.Label>
-                  <br></br>
-                  <Form.Label className='fs-6 fw-bold'>
-                    Order Status :
-                    <span className='fs-6 ms-2 fw-bold text-success'>
-                      {(() => {
-                        if (
-                          orderDetail?.status?.category === 'QUOTEIN' ||
-                          orderDetail?.status?.category === 'QUOTEOUT'
-                        ) {
-                          return orderDetail?.status?.description
-                        } else if (orderDetail?.work_orders?.work_order_status?.length > 0) {
-                          return orderDetail?.work_orders?.work_order_status[0]?.status?.description
-                        } else {
-                          return orderDetail?.status?.description
-                        }
-                      })()}
-                    </span>
-                  </Form.Label>
-                </Skeleton>
-              </Col>
-            </Row>
-
-            <Row>
-              <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
-                <div className='fs-4 fw-bold mb-1'>Informasi Pembeli</div>
-              </Skeleton>
-
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                <Skeleton active loading={loadingModal} paragraph={{rows: 2}}>
-                  <Form.Label className='fs-6 fw-semibold'>
-                    No Member :{' '}
-                    <span className='fs-6 ms-2 fw-normal'>
-                      {orderDetail?.members?.member_number}
-                    </span>
-                  </Form.Label>
-                  <br></br>
-                  <Form.Label className='fs-6 fw-semibold'>
-                    Customer Name :
-                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.full_name} </span>
-                  </Form.Label>
-                  <br></br>
-                  <Form.Label className='fs-6 fw-semibold'>
-                    Alamat Pemasangan :
-                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_address} </span>
-                  </Form.Label>
-                </Skeleton>
-              </Col>
-
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
-                  <Form.Label className='fs-6 fw-semibold'>
-                    Nomor Telp/WA :
-                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_number}</span>
-                  </Form.Label>
-                  <br></br>
-                  <Form.Label className='fs-6 fw-semibold'>
-                    Alamat Email :
-                    <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.email} </span>
-                  </Form.Label>
-                </Skeleton>
-              </Col>
-            </Row>
-
-            <Skeleton active loading={loadingModal} paragraph={{rows: 3}}>
-              {orderDetail?.quotation?.length && (
-                <Row className='information-detail'>
-                  <div className='table-warranty-content'>
-                    {orderDetail?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
-                    <table className='table hover responsive'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Jenis Jasa
-                          </th>
-
-                          <th className='text-center' style={{width: '80px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '150px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 2)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Total
-                          </td>
-
-                          <td className='fw-bolder'>
-                            {`Rp. ${orderDetail?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 2)
-                              .map((item: any) => parseInt(item?.price ?? 0))
-                              .reduce((total: number, price: number) => total + price, 0)
-                              .toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-
-                    {orderDetail?.quotation[0]?.quotation_details.filter(
-                      (x: any) => x.item_type === 1
-                    ).length ? (
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center' style={{width: '355px'}}>
-                              Material Yang Dibutuhkan
-                            </th>
-
-                            <th className='text-center' style={{width: '80px'}}>
-                              QTY
-                            </th>
-
-                            <th className='text-center' style={{width: '150px'}}>
-                              Satuan
-                            </th>
-
-                            <th className='text-center' style={{width: '250px'}}>
-                              Price
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {orderDetail?.quotation[0]?.quotation_details
-                            .filter((x: any) => x.item_type === 1)
-                            .map((item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>
-                                  {item?.name ?? '-'}{' '}
-                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit ?? '-'}</td>
-                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                              </tr>
-                            ))}
-
-                          <tr>
-                            <td colSpan={3} className='text-end fw-bolder'>
-                              Promosi ( Free Survey )
-                            </td>
-                            <td className=' fw-bolder'>
-                              {`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_disc ?? 0
-                              ).toLocaleString('id')}`}
-                            </td>
-                          </tr>
-
-                          {orderDetail?.is_overdistance === 1 && (
-                            <>
-                              <tr>
-                                <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                  Biaya Tambahan
-                                </td>
-
-                                <td className=' fw-bolder'>{`Rp. ${Number(
-                                  orderDetail?.additional_fee
-                                ).toLocaleString('id')}.`}</td>
-                              </tr>
-                            </>
-                          )}
-
-                          <tr>
-                            <td colSpan={3} className='text-end fw-bolder'>
-                              Grand Total
-                            </td>
-                            <td className=' fw-bolder'>
-                              {`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
-                              ).toLocaleString('id')}`}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    ) : (
-                      <></>
-                    )}
-                  </div>
-                </Row>
-              )}
-            </Skeleton>
-
-            <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
-              <Row>
-                <Col md={6}>
-                  <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-                    <Form.Group>
-                      <Form.Label>Upload Bukti Receipt Transaksi</Form.Label>
-
-                      <Form className='form-input-image' onClick={handleReceiptClick}>
-                        <Form.Control
-                          type='file'
-                          accept='image/jpeg, image/png'
-                          className='input-field-receipt'
-                          multiple
-                          hidden
-                          id='file-input'
-                          ref={evidenceRef}
-                          onChange={handleReceiptChange}
-                        />
-
-                        <div className='input-image-text'>
-                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                          <p>Add File</p>
-                        </div>
-                      </Form>
-
-                      <ListGroup className='pt-3'>
-                        {receiptQuotation.length ? (
-                          receiptQuotation.map((item, index) => (
-                            <ListGroup>
-                              <ListGroup.Item
-                                className='d-flex justify-content-between align-items-center'
-                                key={`${item?.name}-${index}-${item?.type}`}
-                              >
-                                <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                                <span
-                                  className='upload-content'
-                                  style={{cursor: 'pointer'}}
-                                  onClick={() => handleFileReceipt(index)}
-                                >
-                                  {item?.name}
-                                </span>
-
-                                <FontAwesomeIcon
-                                  icon={faTrash}
-                                  size='sm'
-                                  color='#ed2b2a'
-                                  style={{cursor: 'pointer'}}
-                                  onClick={(e) => handleRemoveReceipt(index)}
-                                />
-                              </ListGroup.Item>
-
-                              {selectedReceiptIndex === index && item && (
-                                <Image
-                                  key={`${previewReceipt} - ${index}`}
-                                  width={200}
-                                  style={{display: 'none'}}
-                                  src={
-                                    item instanceof File
-                                      ? URL.createObjectURL(item)
-                                      : `${apiUrl}/public/quotation/${previewReceipt}`
-                                  }
-                                  preview={{
-                                    visible: visibleReceipt,
-                                    src:
-                                      item instanceof File
-                                        ? URL.createObjectURL(item)
-                                        : `${apiUrl}/public/quotation/${previewReceipt}`,
-                                    onVisibleChange: (value) => {
-                                      setVisibleReceipt(value)
-                                    },
-                                  }}
-                                />
-                              )}
-                            </ListGroup>
-                          ))
-                        ) : (
-                          <ListGroup.Item className='d-flex justify-content-center'>
-                            Tidak ada file yang dipilih
-                          </ListGroup.Item>
-                        )}
-                      </ListGroup>
-                    </Form.Group>
-                  </Row>
-                </Col>
-
-                <Col md={6}>
-                  <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-                    <Form.Group>
-                      <Form.Label>Upload Bukti Transfer</Form.Label>
-
-                      <Form className='form-input-image' onClick={handleImageClick}>
-                        <Form.Control
-                          type='file'
-                          accept='image/jpeg, image/png'
-                          className='input-field-image'
-                          multiple
-                          hidden
-                          id='file-input'
-                          ref={evidenceRef}
-                          onChange={handleFileChange}
-                        />
-
-                        <div className='input-image-text'>
-                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                          <p>Add File</p>
-                        </div>
-                      </Form>
-
-                      <ListGroup className='pt-3'>
-                        {quotationFiles.length ? (
-                          quotationFiles.map((item, index) => (
-                            <ListGroup>
-                              <ListGroup.Item
-                                className='d-flex justify-content-between align-items-center'
-                                key={`${item?.name}-${index}-${item?.type}`}
-                              >
-                                <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                                <span
-                                  className='upload-content'
-                                  style={{cursor: 'pointer'}}
-                                  onClick={() => handleFileClick(index)}
-                                >
-                                  {item?.name}
-                                </span>
-
-                                <FontAwesomeIcon
-                                  icon={faTrash}
-                                  size='sm'
-                                  color='#ed2b2a'
-                                  style={{cursor: 'pointer'}}
-                                  onClick={(e) => handleRemoveFile(index)}
-                                />
-                              </ListGroup.Item>
-
-                              {selectedFileIndex === index && item && (
-                                <Image
-                                  key={`${previewImage} - ${index}`}
-                                  width={200}
-                                  style={{display: 'none'}}
-                                  src={
-                                    item instanceof File
-                                      ? URL.createObjectURL(item)
-                                      : `${apiUrl}/public/quotation/${previewImage}`
-                                  }
-                                  preview={{
-                                    visible: visible,
-                                    src:
-                                      item instanceof File
-                                        ? URL.createObjectURL(item)
-                                        : `${apiUrl}/public/quotation/${previewImage}`,
-                                    onVisibleChange: (value) => {
-                                      setVisible(value)
-                                    },
-                                  }}
-                                />
-                              )}
-                            </ListGroup>
-                          ))
-                        ) : (
-                          <ListGroup.Item className='d-flex justify-content-center'>
-                            Tidak ada file yang dipilih
-                          </ListGroup.Item>
-                        )}
-                      </ListGroup>
-                    </Form.Group>
-                  </Row>
-                </Col>
-              </Row>
-
-              <div className='button-submit d-flex justify-content-center align-items-center'>
-                <Button
-                  onClick={handleUpdateQuotation}
-                  disabled={loadingUpdate}
-                  variant='dark-primary'
-                >
-                  {loadingUpdate ? 'Submitting..' : 'Submit'}
-                </Button>
-              </div>
-            </Skeleton>
-          </Modal.Body> */}
         </Modal>
       )}
     </section>

@@ -8,7 +8,7 @@ import axios from 'axios'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -53,6 +53,8 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
     {
@@ -183,9 +185,15 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
 
         return (
           <div className='button-wrapper d-flex justify-content-center align-items-center'>
-            <a className='button-edit' onClick={handleEdit}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Update Reschedule')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleEdit}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },

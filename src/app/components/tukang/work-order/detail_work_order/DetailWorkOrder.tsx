@@ -50,30 +50,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
     getWorkOrderData()
   }, [])
 
-  const formatDate = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return ''
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  const formatDateTime = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return ''
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    const hours = date.getHours().toString().padStart(2, '0')
-    const minutes = date.getMinutes().toString().padStart(2, '0')
-    return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
-  }
-
   // Statuses for Order Timeline
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -122,24 +98,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
       value: complaintDoneStatuses,
     },
   ]
-
-  // Grand Total Order
-  const calculateTotal = (workOrderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = workOrderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount =
-        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
 
   return (
     <section id='detail-work-order'>
@@ -191,9 +149,31 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     <Form.Label className='fs-4 fw-bold'>
                       Order Status :
                       <span className='fs-4 ms-2 fw-bold text-success'>
-                        {workOrderDetail?.work_order_status[0].length === 0
-                          ? workOrderDetail?.status?.description
-                          : workOrderDetail?.work_order_status[0]?.status?.description ?? ''}
+                        {(() => {
+                          if (workOrderDetail?.work_order_status?.length >= 0) {
+                            if (
+                              ['QUOTEIN', 'QUOTEOUT'].includes(
+                                workOrderDetail?.order?.status?.category ?? ''
+                              )
+                            ) {
+                              return workOrderDetail?.order?.status?.description
+                            } else if (
+                              ['WORKREQ'].includes(
+                                workOrderDetail?.order?.status?.category ?? ''
+                              ) &&
+                              workOrderDetail?.order?.payment_type === 'survey' &&
+                              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                                workOrderDetail?.work_order_status[0]?.status?.category ?? ''
+                              )
+                            ) {
+                              return workOrderDetail?.order?.status?.description
+                            } else {
+                              return workOrderDetail?.work_order_status[0]?.status?.description
+                            }
+                          } else {
+                            return workOrderDetail?.order?.status?.description
+                          }
+                        })()}
                       </span>
                     </Form.Label>
                   </Col>

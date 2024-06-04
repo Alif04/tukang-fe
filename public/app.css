@@ -34,6 +34,52 @@ h6 {
   background-color: #484747 !important;
 }
 
+/* Flagging Color Calendar */
+.bg-calendar-order-reschedule {
+  background-color: #a06d00;
+}
+
+.bg-calendar-order-complaint {
+  background-color: #a30014;
+}
+
+.bg-calendar-order-done {
+  background-color: #6b9230;
+}
+
+/* Box Color */
+.box-primary {
+  width: 20px;
+  height: 20px;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #0f4cff;
+}
+
+.box-success {
+  width: 20px;
+  height: 20px;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #6b9230;
+}
+
+.box-warning {
+  width: 20px;
+  height: 20px;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #a06d00;
+}
+
+.box-danger {
+  width: 20px;
+  height: 20px;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #a30014;
+}
+
 /* Line */
 
 hr.line-1 {
@@ -263,6 +309,97 @@ iframe.csi-frame {
 }
 
 /* Button Action */
+button.button-cancel.btn.btn-danger {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+button.button-delete.btn.btn-danger {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+button.button-disable.btn.btn-danger {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+button.button-detail.btn.btn-primary {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+button.button-edit.btn.btn-primary {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+button.button-email.btn.btn-success {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  background-color: #548a03 !important;
+  border: transparent !important;
+}
+
+button.button-email.btn.btn-success:hover:not(.btn-active) {
+  background-color: #6d9631 !important;
+}
+
+button.button-active.btn.btn-success {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  background-color: #548a03 !important;
+  border: transparent !important;
+}
+
+button.button-active.btn.btn-success:hover:not(.btn-active) {
+  background-color: #6d9631 !important;
+}
+
+button.button-verif.btn.btn-primary {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
 
 button.btn-dark-primary.button-submit.btn.btn-primary {
   height: 44px;
@@ -402,7 +539,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 }
 
 .btn.btn-dark-success:hover:not(.btn-active) {
-  background-color: #7cb920 !important;
+  background-color: #6d9631 !important;
 }
 
 button.btn-done.btn.btn-primary {
