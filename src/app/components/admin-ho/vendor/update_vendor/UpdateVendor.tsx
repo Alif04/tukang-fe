@@ -89,7 +89,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           }
 
           if (data?.pic_vendor) {
-            setUsername(data.pic_vendor[0].users.username)
+            setUsername(data?.pic_vendor[0]?.users?.username ?? '')
           }
 
           if (data?.vendor_bank) {
