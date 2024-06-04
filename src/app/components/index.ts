@@ -125,8 +125,6 @@ export * from './admin-store/reports/total_order_report/TotalOrderReport'
 export * from './admin-ho/calendar/view_calendar/ViewCalendar'
 
 // ORDER
-// Dashboard Order
-export * from './admin-ho/order/dashboard_order/DashboardOrder'
 
 // View Order
 export * from './admin-ho/order/view_order/ViewOrder'
@@ -136,9 +134,6 @@ export * from './admin-ho/order/new_order/NewOrder'
 
 // Update Order
 export * from './admin-ho/order/update_order/UpdateOrder'
-
-// Report Order
-export * from './admin-ho/order/report_order/ReportOrder'
 
 // COMPLAINT
 // View Complaint
@@ -460,9 +455,6 @@ export * from './admin-ho/sales/new_sales/NewSales'
 // Update Sales
 export * from './admin-ho/sales/update_sales/UpdateSales'
 
-// View Sales
-export * from './admin-ho/sales/view_sales/ViewSales'
-
 // STAFF
 // New Employee
 export * from './admin-ho/employee/new_employee/NewEmployee'
@@ -472,3 +464,7 @@ export * from './admin-ho/employee/update_employee/UpdateEmployee'
 
 // View Employee
 export * from './admin-ho/employee/view_employee/ViewEmployee'
+
+// INCENTIVE SALES
+// Create Incentive Sales
+export * from './admin-ho/incentive_sales/create_incentive_sales/CreateIncentiveSales'
