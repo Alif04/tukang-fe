@@ -88,8 +88,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setMaxOrder(data.max_order)
           }
 
-          if (data?.users) {
-            setUsername(data.users.username)
+          if (data?.pic_vendor) {
+            setUsername(data.pic_vendor[0].users.username)
           }
 
           if (data?.vendor_bank) {
@@ -101,6 +101,9 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           }
 
           if (data?.vendor_area) {
+            const vendorAreaId = data.vendor_area.map((item: any) => item?.area_id)
+
+            setserviceAreaId(vendorAreaId)
             setMarkup(data?.vendor_area[0]?.default_markup ?? '')
             setDiscount(data?.vendor_area[0]?.default_discount ?? '')
           }
@@ -123,9 +126,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               label: item?.store?.area?.area,
             }))
 
-            const vendorAreaId = data.vendor_area.map((item: any) => item?.store?.area?.id)
-
-            setserviceAreaId(vendorAreaId)
             setServiceAreaValues(vendorArea)
           }
 
@@ -324,12 +324,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
 
-  const [serviceAreaId, setserviceAreaId] = useState<any>([])
-
   const [storeId, setStoreId] = useState<any>([])
   const [store, setStore] = useState<StoreSelect[]>([])
   const [storeValues, setStoreValues] = useState<StoreSelect[]>([])
 
+  const [serviceAreaId, setserviceAreaId] = useState<any>([])
   const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
   const [serviceAreaValues, setServiceAreaValues] = useState<ServiceAreaValues[]>([])
 
@@ -970,7 +969,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       if (serviceAreaId?.length) {
         serviceAreaId.forEach((item: any, index: number) => {
           if (item) {
-            formData.append(`vendor_area[${index}][city_id]`, item)
+            formData.append(`vendor_area[${index}][area_id]`, item)
             formData.append(`vendor_area[${index}][default_markup]`, markup)
             // formData.append(`vendor_area[${index}][default_discount]`, discount)
           }

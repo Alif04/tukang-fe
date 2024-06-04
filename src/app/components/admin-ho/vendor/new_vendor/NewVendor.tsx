@@ -764,7 +764,7 @@ const NewVendorHO: FC = () => {
       if (serviceAreaId?.length) {
         serviceAreaId.forEach((item: any) => {
           if (item) {
-            formData.append(`city_id[]`, item)
+            formData.append(`area_id[]`, item)
           }
         })
       }
