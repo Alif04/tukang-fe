@@ -96,16 +96,14 @@ const DashboardOrderStore: FC = () => {
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
 
   const today = new Date()
-
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}-${month}-${year}`
   }
-
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}&date_from=${dateFrom}&date_to=${dateTo}${queryparams}`
@@ -137,14 +135,17 @@ const DashboardOrderStore: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const chartDatas = response.data.monthlyOrders
       const fromDate = new Date(dateFrom)
@@ -165,14 +166,17 @@ const DashboardOrderStore: FC = () => {
 
   const getReportWorkOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/work-orders?date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
 
@@ -279,7 +283,7 @@ const DashboardOrderStore: FC = () => {
   }
 
   const sumTotal = (data: any, key: string) =>
-    data.map((item: any) => item[key]).reduce((a: number, b: number) => a + b, 0)
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
   const surveyOrder = sumTotal(chartWorkOrder, 'totalSurveyOrder')

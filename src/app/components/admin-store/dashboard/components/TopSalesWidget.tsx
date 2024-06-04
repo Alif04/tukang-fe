@@ -6,10 +6,11 @@ import {Skeleton} from 'antd'
 type Props = {
   className: string
   salesData: any[]
+  totalSales: number
   loadingPage: boolean
 }
 
-const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage}) => {
+const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage, totalSales}) => {
   const topFive = salesData?.slice(0, 5)
 
   return (
@@ -50,7 +51,7 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage}) =>
       </div>
 
       <div className='card-footer pt-1 pb-1'>
-        <p className='text-muted'>Total Sales : {salesData?.length} person</p>
+        <p className='text-muted'>Total Sales : {totalSales} person</p>
       </div>
     </div>
   )

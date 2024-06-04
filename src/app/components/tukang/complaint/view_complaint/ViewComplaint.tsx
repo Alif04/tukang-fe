@@ -332,7 +332,7 @@ const ViewComplaintTukang: React.FC<Props> = ({className}) => {
         )
       },
       fixed: 'right',
-      width: 80,
+      width: 100,
     },
   ]
 

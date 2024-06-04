@@ -182,6 +182,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
+        let totalAmount = 0
 
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
@@ -189,13 +190,22 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           year: 'numeric',
         })
 
-        const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
-        const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
-
-        const quantity = parseInt(item.m_order_details[0]?.quantity ?? 0, 10)
-
-        const grandTotalPrice = parseInt(item.grand_total)
-        const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
+        if (item?.payment_type === 'gratis') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 0
+        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : item?.grand_total ?? 0
+        } else if (item?.payment_type === 'survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 99000 ?? 0
+        }
 
         const salesComission = parseInt(item.grand_total_comission)
         const formattedSalesComission = `Rp. ${salesComission.toLocaleString('id')}`
@@ -206,9 +216,9 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           sales_name: item?.sales?.full_name ?? '-',
           costumer_name: item?.members?.full_name ?? '-',
           email: item?.members?.email ?? '-',
-          address: item?.project_address,
+          address: item?.project_address ?? '-',
           phone_number: item?.project_number ?? '-',
-          grand_total: formattedGrandTotal,
+          grand_total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
           sales_comission: formattedSalesComission,
         }
 
@@ -373,24 +383,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
               }}
             />
           </Spin>
-
-          {/* <Pagination
-            className='mt-5'
-            style={{textAlign: 'right', position: 'relative'}}
-            current={currentPage}
-            total={totalOrder}
-            showSizeChanger
-            pageSizeOptions={[5, 10, 20, 50, 100]}
-            itemRender={itemRender}
-            onChange={(page, pageSize) => {
-              fetchData(page, pageSize, '')
-            }}
-            showTotal={(total, range) => (
-              <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Order
-              </span>
-            )}
-          /> */}
         </div>
       </div>
     </section>

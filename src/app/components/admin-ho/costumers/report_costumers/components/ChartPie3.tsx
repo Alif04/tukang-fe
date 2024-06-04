@@ -47,7 +47,7 @@ const ChartPie3: React.FC<Props> = ({className, chartHeight, complaintData}) => 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>Complaint</div>
             <div className='fs-1 '>{complaintData.length}</div>
-            <div className='fs-5 text-muted'>Complaint bulan ini</div>
+            <div className='fs-5 text-muted'>Complaint</div>
           </div>
         </div>
       </div>

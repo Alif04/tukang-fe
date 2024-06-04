@@ -160,6 +160,7 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
+        let totalAmount = 0
 
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
@@ -167,17 +168,31 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
           year: 'numeric',
         })
 
-        const grandTotalPrice = parseInt(item.grand_total)
-        const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
+        if (item?.payment_type === 'gratis') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 0
+        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : item?.grand_total ?? 0
+        } else if (item?.payment_type === 'survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 99000 ?? 0
+        }
 
         data = {
           order_id: item.id,
           date_order: orderDate,
-          costumer_name: item?.members?.full_name,
-          phone_number: item?.project_number,
-          email: item?.members?.email,
-          address: item?.project_address,
-          grand_total: formattedGrandTotal,
+          costumer_name: item?.members?.full_name ?? '-',
+          phone_number: item?.project_number ?? '-',
+          email: item?.members?.email ?? '-',
+          address: item?.project_address ?? '-',
+          grand_total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
 
         return data
@@ -309,24 +324,6 @@ const TotalOrderReportStore: React.FC<Props> = ({className, statusName}) => {
               </span>
             )}
           />
-
-          {/* <div className='d-flex justify-content-center align-items-center mt-5'>
-            <Button
-              variant='dark-gray'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-            >
-              Print Report
-            </Button>
-
-            <Button
-              variant='dark-success'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-            >
-              Email Report
-            </Button>
-          </div> */}
         </div>
       </div>
     </section>

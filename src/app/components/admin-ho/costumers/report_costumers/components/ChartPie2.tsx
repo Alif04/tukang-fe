@@ -47,7 +47,7 @@ const ChartPie2: React.FC<Props> = ({className, chartHeight, csiData}) => {
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>CSI</div>
             <div className='fs-1 '>{csiData.length}</div>
-            <div className='fs-5 text-muted'>CSI bulan ini</div>
+            <div className='fs-5 text-muted'>CSI</div>
           </div>
         </div>
       </div>

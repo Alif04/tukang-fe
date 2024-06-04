@@ -57,8 +57,8 @@ const ReportWorkVendor: FC = () => {
         },
       })
 
-      const data = response.data.data
-      const chartDatas = response.data.monthlyOrders.slice(1, 7)
+      const data = response.data.monthlyOrders
+      const chartDatas = response.data.data.slice(1, 7)
       setChartData(chartDatas)
 
       return data
