@@ -74,6 +74,9 @@ const ListBankHO: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
+      width: 40,
+      fixed: 'right',
       render: (record) => {
         const handleUpdate = () => {
           const id = record.bank_id
@@ -153,8 +156,6 @@ const ListBankHO: React.FC = () => {
           </div>
         )
       },
-      fixed: 'right',
-      width: 20,
     },
   ]
 

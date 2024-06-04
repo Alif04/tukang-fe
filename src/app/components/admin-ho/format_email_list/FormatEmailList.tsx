@@ -89,6 +89,9 @@ const FormatEmailList: FC = () => {
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
+      fixed: 'right',
+      width: 30,
       render: (record) => {
         const handleUpdate = () => {
           const id = record.id
@@ -241,8 +244,6 @@ const FormatEmailList: FC = () => {
           </div>
         )
       },
-      fixed: 'right',
-      width: 30,
     },
   ]
 

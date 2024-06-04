@@ -95,7 +95,6 @@ const ViewItemHO: React.FC = () => {
       align: 'center',
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
-      width: 280,
     },
     {
       title: 'Price',
@@ -114,6 +113,9 @@ const ViewItemHO: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
+      fixed: 'right',
+      width: 120,
       render: (record) => {
         const handleUpdate = () => {
           const id = record.material_id
@@ -208,8 +210,6 @@ const ViewItemHO: React.FC = () => {
           </div>
         )
       },
-      fixed: 'right',
-      width: 90,
     },
   ]
 
