@@ -101,8 +101,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           }
 
           if (data?.vendor_area) {
-            setMarkup(data?.vendor_area[0]?.default_markup)
-            setDiscount(data?.vendor_area[0]?.default_discount)
+            setMarkup(data?.vendor_area[0]?.default_markup ?? '')
+            setDiscount(data?.vendor_area[0]?.default_discount ?? '')
           }
 
           if (data?.vendor_store) {
@@ -972,7 +972,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           if (item) {
             formData.append(`vendor_area[${index}][city_id]`, item)
             formData.append(`vendor_area[${index}][default_markup]`, markup)
-            formData.append(`vendor_area[${index}][default_discount]`, discount)
+            // formData.append(`vendor_area[${index}][default_discount]`, discount)
           }
         })
       }
@@ -1570,6 +1570,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
           <div className='d-flex justify-content-center mt-5'>
             <Button
+              className='d-flex justify-content-center align-items-center'
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
