@@ -5,7 +5,6 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 
 import {RegisterSales} from './components/NewSales'
-import {ViewSales} from './components/ViewSales'
 import {EditSales} from './components/UpdateSales'
 
 const orderBreadCrumbs: Array<PageLink> = [
@@ -58,25 +57,6 @@ const SalesPage: React.FC = () => {
             )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE SALES</PageTitle>
             <EditSales />
-          </>
-        }
-      />
-
-      <Route
-        path='view-sales'
-        element={
-          <>
-            {userRole === 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>
-              DAFTAR SALES INSTALASI & SERVICE MITRA10
-            </PageTitle>
-            <ViewSales />
           </>
         }
       />
