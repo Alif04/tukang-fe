@@ -8,6 +8,7 @@ import {ChartDonut2} from './components/ChartDonut2'
 import {TopVendorWidget} from './components/TopVendor'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Select from 'react-select'
 import {Card, Row, Col, Button} from 'react-bootstrap'
 
@@ -19,58 +20,21 @@ interface VendorItem {
   label: string
 }
 
-const reportWorkOrder = {
-  survey: 0,
-  cancel: 0,
-}
-
-const reportInvoice = {
-  waitingPayment: 0,
-  paid: 0,
-}
-
-const reportComplaint = {
-  complaintReject: 0,
-  complaintDone: 0,
-}
-
-type StatusWorkOrderMap = {
-  [statusName: string]: keyof typeof reportWorkOrder
-}
-
-type StatusInvoiceMap = {
-  [statusName: string]: keyof typeof reportInvoice
-}
-
-type StatusComplaintMap = {
-  [statusName: string]: keyof typeof reportComplaint
-}
-
-const StatusWorkOrderMap: StatusWorkOrderMap = {
-  SURVEYREQ: 'survey',
-  CANCEL: 'cancel',
-}
-
-const StatusInvoiceMap: StatusInvoiceMap = {
-  UNPAID: 'waitingPayment',
-  PAID: 'paid',
-}
-
-const StatusComplaintMap: StatusComplaintMap = {
-  COMPLAINTREJECTEDBYVENDOR: 'complaintReject',
-  DONE: 'complaintDone',
-}
-
 const ReportVendorHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const today = new Date()
-  const todays = new Date().toISOString().split('T')[0]
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const [loadingButton, setLoadingButton] = useState(false)
+
   const [orderData, setOrderData] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [invoiceData, setInvoiceData] = useState<any[]>([])
@@ -88,56 +52,7 @@ const ReportVendorHO: FC = () => {
     label: 'All Vendor',
   })
 
-  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
-  const date =
-    dateFrom && dateTo
-      ? `&date_from=${dateFrom}&date_to=${dateTo}`
-      : `&date_from=${firstDayOfMonth}&date_to=${todays}`
-
   const vendorId = selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
-
-  // Catch Value From Response API by Status
-  const [workOrderStatus, setWorkOrderStatus] = useState(reportWorkOrder)
-  const [invoiceStatus, setInvoiceStatus] = useState(reportInvoice)
-  const [complaintStatus, setComplaintStatus] = useState(reportComplaint)
-
-  const storedStatus = sessionStorage.getItem('statusData')
-  const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-  const updateStatus = (statusMap: any, data: any, setStatus: any) => {
-    for (const statusName in statusMap) {
-      const stateKey = statusMap[statusName]
-      const desiredStatus = statusData.find((status: any) => status.category === statusName)
-
-      if (desiredStatus) {
-        const statusValue = desiredStatus.value
-        const count = data.filter((item: any) => item?.status?.id === statusValue).length
-
-        setStatus((prevState: any) => ({
-          ...prevState,
-          [stateKey]: count,
-        }))
-      }
-    }
-  }
-
-  useEffect(() => {
-    updateStatus(StatusWorkOrderMap, workOrderData, setWorkOrderStatus)
-  }, [workOrderData])
-
-  useEffect(() => {
-    updateStatus(StatusInvoiceMap, invoiceData, setInvoiceStatus)
-  }, [invoiceData])
-
-  useEffect(() => {
-    updateStatus(StatusComplaintMap, complaintData, setComplaintStatus)
-  }, [complaintData])
-
-  const {survey, cancel} = workOrderStatus
-  const {waitingPayment, paid} = invoiceStatus
-  const {complaintReject, complaintDone} = complaintStatus
 
   const getVendor = async () => {
     try {
@@ -168,14 +83,17 @@ const ReportVendorHO: FC = () => {
 
   const getOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0${date}${vendorId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/orders?order_by=desc&take=0&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
 
@@ -188,16 +106,19 @@ const ReportVendorHO: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders${vendorId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
-      const chartDatas = response.data.monthlyOrders
+      const chartDatas = response.data.data
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -217,14 +138,17 @@ const ReportVendorHO: FC = () => {
 
   const getWorkOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders?take=0${date}${vendorId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/work-orders?take=0&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
 
@@ -251,14 +175,17 @@ const ReportVendorHO: FC = () => {
 
   const getComplaint = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/complaints?order_by=desc${date}${vendorId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
 
@@ -285,14 +212,17 @@ const ReportVendorHO: FC = () => {
 
   const getInvoices = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/invoices?order_by=desc${date}${vendorId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/invoices?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
 
@@ -322,6 +252,24 @@ const ReportVendorHO: FC = () => {
 
     setLoadingButton(false)
   }
+
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+  const totalOrder = sumTotal(chartOrder, 'totalOrder')
+  const surveyOrder = sumTotal(chartWorkOrder, 'totalSurveyOrder')
+  const rejectedOrder = sumTotal(chartComplaint, 'totalRejectByVendor')
+  const totalInvoices = sumTotal(chartComplaint, 'totalApprovedByVendor')
+  const totalComplaint = sumTotal(chartComplaint, 'totalOrder')
+
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <Col className='mb-2'>
+      <div className='d-flex flex-column align-items-center gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p className={`fs-6 ${className}`}>{label}</p>
+      </div>
+    </Col>
+  )
 
   return (
     <>
@@ -360,6 +308,10 @@ const ReportVendorHO: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -368,8 +320,8 @@ const ReportVendorHO: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
@@ -397,26 +349,9 @@ const ReportVendorHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Pekerjaan bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                <div className='order-in'>
-                  <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal'>{workOrderData.length}</h1>
-                    <p>MASUK</p>
-                  </div>
-                </div>
-
-                <div className='order-pending'>
-                  <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>{survey}</h1>
-                    <p>SURVEY</p>
-                  </div>
-                </div>
-
-                <div className='order-cancel'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>{cancel}</h1>
-                    <p className='text-danger'>DITOLAK</p>
-                  </div>
-                </div>
+                {renderStat(totalOrder, 'MASUK')}
+                {renderStat(surveyOrder, 'SURVEY')}
+                {renderStat(rejectedOrder, 'DITOLAK')}
               </div>
             </Card.Body>
           </Card>
@@ -428,26 +363,9 @@ const ReportVendorHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Invoice bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                <div className='order-in'>
-                  <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal'>{invoiceData.length}</h1>
-                    <p>MASUK</p>
-                  </div>
-                </div>
-
-                <div className='order-pending'>
-                  <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>{paid}</h1>
-                    <p>DIBAYAR</p>
-                  </div>
-                </div>
-
-                <div className='order-cancel'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>{waitingPayment}</h1>
-                    <p className='text-danger'>BELUM DIBAYAR</p>
-                  </div>
-                </div>
+                {renderStat(totalInvoices, 'MASUK')}
+                {renderStat(surveyOrder, 'DIBAYAR')}
+                {renderStat(rejectedOrder, 'BELUM DIBAYAR')}
               </div>
             </Card.Body>
           </Card>
@@ -459,26 +377,9 @@ const ReportVendorHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                <div className='order-in'>
-                  <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal'>{complaintData.length}</h1>
-                    <p className=' text-danger'>MASUK</p>
-                  </div>
-                </div>
-
-                <div className='order-pending'>
-                  <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>{complaintReject}</h1>
-                    <p>DITOLAK</p>
-                  </div>
-                </div>
-
-                <div className='order-cancel'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>{complaintDone}</h1>
-                    <p className='text-success'>SELESAI</p>
-                  </div>
-                </div>
+                {renderStat(totalComplaint, 'MASUK')}
+                {renderStat(surveyOrder, 'DITOLAK')}
+                {renderStat(rejectedOrder, 'SELESAI')}
               </div>
             </Card.Body>
           </Card>

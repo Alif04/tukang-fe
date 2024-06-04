@@ -8,6 +8,7 @@ import {ChartBarSurvey} from './components/ChartBarSurvey'
 import {MoreInformation} from './components/MoreInformation'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Select from 'react-select'
 import {DatePicker} from 'antd'
 import {Row, Col, Card, Button} from 'react-bootstrap'
@@ -109,9 +110,15 @@ const DashboardHO: FC = () => {
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
 
   const today = new Date()
-  const [dateFrom, setDateFrom] = useState<any>(
-    new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
-  )
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
+
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [store, setStore] = useState<StoreItem[]>([])
@@ -145,7 +152,7 @@ const DashboardHO: FC = () => {
   }, [selectedStore])
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}${store_id}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}${store_id}&date_from=${dateFrom}&date_to=${dateTo}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -171,14 +178,17 @@ const DashboardHO: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders${store_id}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/orders${store_id}?date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const chartDatas = response.data.monthlyOrders
       const fromDate = new Date(dateFrom)
@@ -199,14 +209,17 @@ const DashboardHO: FC = () => {
 
   const getWorkOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders${store_id}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/work-orders${store_id}?date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
 
@@ -376,7 +389,7 @@ const DashboardHO: FC = () => {
   }
 
   const sumTotal = (data: any, key: string) =>
-    data.map((item: any) => item[key]).reduce((a: number, b: number) => a + b, 0)
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
   const surveyOrder = sumTotal(chartWorkOrder, 'totalOrder')
@@ -454,6 +467,10 @@ const DashboardHO: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -462,8 +479,8 @@ const DashboardHO: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
-                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />

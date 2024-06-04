@@ -9,7 +9,8 @@ import {TotalComplaint} from './components/TotalComplaint'
 import {TotalReschedule} from './components/TotalReschedule'
 
 import axios from 'axios'
-import {DatePicker, Skeleton} from 'antd'
+import dayjs from 'dayjs'
+import {DatePicker} from 'antd'
 import {Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
@@ -21,8 +22,19 @@ const DashboardStore: FC = () => {
   const userStore = localStorage.getItem('storeId')
 
   const today = new Date()
-  const [dateFrom, setDateFrom] = useState<any>(new Date(today.getFullYear(), 0, 1))
-  const [dateTo, setDateTo] = useState<any>(new Date(today.getFullYear(), 11, 31))
+  const [dateFrom, setDateFrom] = useState<any>(
+    dayjs(new Date(today.getFullYear(), 0, 1)).format('YYYY-MM-DD')
+  )
+  const [dateTo, setDateTo] = useState<any>(
+    dayjs(new Date(today.getFullYear(), 11, 31)).format('YYYY-MM-DD')
+  )
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const [loadingButton, setLoadingButton] = useState(false)
   const [isLoadingPage, setIsLoadingPage] = useState(true)
@@ -31,9 +43,10 @@ const DashboardStore: FC = () => {
   const [chartData, setChartData] = useState<any[]>([])
 
   const [sales, setSales] = useState<any[]>([])
+  const [totalSales, setTotalSales] = useState<number>(0)
 
   const getOrder = async (queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&store_id=${userStore}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&store_id=${userStore}${queryparams}&date_from=${dateFrom}&date_to=${dateTo}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -55,14 +68,17 @@ const DashboardStore: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders?store_id=${userStore}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/orders?store_id=${userStore}&date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const chartDatas = response.data.monthlyOrders
 
@@ -98,8 +114,10 @@ const DashboardStore: FC = () => {
       )
 
       const data = response.data.data
+      const totalSales = response.data.total
 
       setSales(data)
+      setTotalSales(totalSales)
       setIsLoadingPage(false)
     } catch (err) {
       console.error(err)
@@ -118,15 +136,6 @@ const DashboardStore: FC = () => {
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
-
-    const valueCheck = (key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        queryparams += `${key}${value}`
-      }
-    }
-
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
 
     const data = await getOrder(queryparams)
     setOrderData(data)
@@ -149,6 +158,7 @@ const DashboardStore: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
+                defaultValue={[dayjs(dateFrom, 'YYYY-MM-DD'), dayjs(dateTo, 'YYYY-MM-DD')]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -197,6 +207,7 @@ const DashboardStore: FC = () => {
           <TopSalesWidget
             className='card-xl-stretch mb-xl-8'
             salesData={sales}
+            totalSales={totalSales}
             loadingPage={isLoadingPage}
           />
         </Col>

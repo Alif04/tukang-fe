@@ -318,7 +318,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
         }
 
         return (
-          <div className='button-wrapper'>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
@@ -342,7 +342,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
         )
       },
       fixed: 'right',
-      width: 80,
+      width: 100,
     },
   ]
 

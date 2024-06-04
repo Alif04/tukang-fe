@@ -11,8 +11,9 @@ import {ChartDonut2} from './components/ChartDonut2'
 import {BestCostumers} from './components/BestCostumers'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Select from 'react-select'
-import {Card, Row, Col, Button} from 'react-bootstrap'
+import {Row, Col, Button} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -21,13 +22,16 @@ const ReportCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const today = new Date()
-  const todays = new Date().toISOString().split('T')[0]
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const [loadingButton, setLoadingButton] = useState(false)
-  const [orderData, setOrderData] = useState<any[]>([])
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<any[]>([])
   const [csiData, setCsiData] = useState<any[]>([])
@@ -44,19 +48,11 @@ const ReportCostumerHO: FC = () => {
     label: 'All Member',
   })
 
-  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
-  const date =
-    dateFrom && dateTo
-      ? `&date_from=${dateFrom}&date_to=${dateTo}`
-      : `&date_from=${firstDayOfMonth}&date_to=${todays}`
-
   const memberId = selectedMember.value ? `&member_id=${selectedMember.value}` : ''
 
   const getMember = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/member`, {
+      const response = await axios.get(`${apiUrl}/member?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -80,38 +76,21 @@ const ReportCostumerHO: FC = () => {
     }
   }
 
-  const getOrder = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/orders?order_by=desc&take=0${date}${memberId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-
-      setOrderData(data)
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders${memberId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
-      const chartDatas = response.data.data
+      const chartDatas = response.data.monthlyOrders
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -131,14 +110,17 @@ const ReportCostumerHO: FC = () => {
 
   const getWorkOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders?take=0${memberId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/work-orders?take=0&date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
       const chartDatas = response.data.monthlyWorkOrders
@@ -164,14 +146,17 @@ const ReportCostumerHO: FC = () => {
 
   const getComplaint = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/complaints?order_by=desc${memberId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
       const chartDatas = response.data.monthlyComplaint
@@ -217,7 +202,6 @@ const ReportCostumerHO: FC = () => {
 
   useEffect(() => {
     getMember()
-    getOrder()
     getReportOrder()
     getWorkOrder()
     getComplaint()
@@ -227,7 +211,6 @@ const ReportCostumerHO: FC = () => {
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
-    await getOrder()
     await getReportOrder()
     await getWorkOrder()
     await getComplaint()
@@ -272,6 +255,10 @@ const ReportCostumerHO: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -280,8 +267,8 @@ const ReportCostumerHO: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />

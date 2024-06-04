@@ -8,48 +8,19 @@ import {ChartDonut2} from './components/ChartDonut2'
 import {TableList} from './components/TableList'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
 import {Card, Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
-const initialStatusState = {
-  newComplaint: 0,
-  rejectComplaint: 0,
-  acceptedComplaint: 0,
-  resurveyComplaint: 0,
-  reworkComplaint: 0,
-  rescheduleComplaint: 0,
-  refundComplaint: 0,
-  nonWorkRelated: 0,
-  workRelated: 0,
-  notResolved: 0,
-  resolved: 0,
-}
-
-type StatusToStateMap = {
-  [statusName: string]: keyof typeof initialStatusState
-}
-
-const statusToStateMap: StatusToStateMap = {
-  INVESTIGATE: 'newComplaint',
-  REJECT: 'rejectComplaint',
-  ACCEPTED: 'acceptedComplaint',
-  RESURVEY: 'resurveyComplaint',
-  REWORK: 'reworkComplaint',
-  RESCHEDULE: 'rescheduleComplaint',
-  REFUND: 'refundComplaint',
-  NONWORKRELATED: 'nonWorkRelated',
-  WORKRELATED: 'workRelated',
-  NOTRESOLVED: 'notResolved',
-  RESOLVED: 'resolved',
-}
-
 const ReportComplaintStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
   const vendorId = localStorage.getItem('vendor_id')
+
   const [loadingButton, setLoadingButton] = useState(false)
 
   const [orderData, setOrderData] = useState<any[]>([])
@@ -62,20 +33,24 @@ const ReportComplaintStore: FC = () => {
   const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
 
   const today = new Date()
-  const [dateFrom, setDateFrom] = useState<any>(
-    new Date(today.getFullYear(), today.getMonth(), 2).toISOString().split('T')[0]
-  )
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const fetchOrder = async () => {
     const url = (() => {
       switch (userRole) {
         case 'Store CS':
-          return `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0`
+          return `${apiUrl}/orders?order_by=desc&store_id=${userStore}&date_from=${dateFrom}&date_to=${dateTo}&take=0`
         case 'Admin Vendor':
-          return `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&take=0`
+          return `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&take=0`
         default:
-          return `${apiUrl}/orders?order_by=desc&take=0`
+          return `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`
       }
     })()
 
@@ -98,8 +73,8 @@ const ReportComplaintStore: FC = () => {
     }
   }
 
-  const fetchComplaintList = async (queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&take=0${queryparams}`
+  const fetchComplaintList = async () => {
+    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&take=0&date_from=${dateFrom}&date_to=${dateTo}`
 
     const url = (() => {
       switch (userRole) {
@@ -166,11 +141,11 @@ const ReportComplaintStore: FC = () => {
     const url = (() => {
       switch (userRole) {
         case 'Store CS':
-          return `${apiUrl}/reports/orders?store_id=${userStore}&take=0`
+          return `${apiUrl}/reports/orders?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         case 'Admin Vendor':
-          return `${apiUrl}/reports/orders?vendor_id=${vendorId}&take=0`
+          return `${apiUrl}/reports/orders?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         default:
-          return `${apiUrl}/reports/orders?take=0`
+          return `${apiUrl}/reports/orders?take=0&date_from=${dateFrom}&date_to=${dateTo}`
       }
     })()
 
@@ -205,11 +180,11 @@ const ReportComplaintStore: FC = () => {
     const url = (() => {
       switch (userRole) {
         case 'Store CS':
-          return `${apiUrl}/reports/complaints?store_id=${userStore}&take=0`
+          return `${apiUrl}/reports/complaints?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         case 'Admin Vendor':
-          return `${apiUrl}/reports/complaints?vendor_id=${vendorId}&take=0`
+          return `${apiUrl}/reports/complaints?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         default:
-          return `${apiUrl}/reports/complaints?take=0`
+          return `${apiUrl}/reports/complaints?take=0&date_from=${dateFrom}&date_to=${dateTo}`
       }
     })()
 
@@ -250,11 +225,11 @@ const ReportComplaintStore: FC = () => {
     const url = (() => {
       switch (userRole) {
         case 'Store CS':
-          return `${apiUrl}/reports/work-orders?store_id=${userStore}&take=0`
+          return `${apiUrl}/reports/work-orders?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         case 'Admin Vendor':
-          return `${apiUrl}/reports/work-orders?vendor_id=${vendorId}&take=0`
+          return `${apiUrl}/reports/work-orders?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         default:
-          return `${apiUrl}/reports/work-orders?take=0`
+          return `${apiUrl}/reports/work-orders?take=0&date_from=${dateFrom}&date_to=${dateTo}`
       }
     })()
 
@@ -296,7 +271,7 @@ const ReportComplaintStore: FC = () => {
   }
 
   useEffect(() => {
-    fetchComplaintList('')
+    fetchComplaintList()
     getReportOrder()
     getReportWorkOrder()
     getReportComplaint()
@@ -307,67 +282,43 @@ const ReportComplaintStore: FC = () => {
     fetchOrder()
   }, [complaintList])
 
-  // Catch Value From Response API by Status
-  const [statusState, setStatusState] = useState(initialStatusState)
-
-  useEffect(() => {
-    if (complaintList) {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      for (const statusName in statusToStateMap) {
-        const stateKey = statusToStateMap[statusName]
-        const desiredStatus = statusData.find((status: any) => status.category === statusName)
-
-        if (desiredStatus) {
-          const statusValue = desiredStatus.value
-          const complaintsCount = complaintList.filter(
-            (item: any) => item.complaint_status === statusValue
-          ).length
-
-          setStatusState((prevState) => ({
-            ...prevState,
-            [stateKey]: complaintsCount,
-          }))
-        }
-      }
-    }
-  }, [complaintList])
-
-  const {
-    newComplaint,
-    rejectComplaint,
-    acceptedComplaint,
-    resurveyComplaint,
-    reworkComplaint,
-    rescheduleComplaint,
-    refundComplaint,
-    nonWorkRelated,
-    workRelated,
-    notResolved,
-    resolved,
-  } = statusState
-
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
 
-    const valueCheck = (key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        queryparams += `${key}${value}`
-      }
-    }
-
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
-
-    await fetchComplaintList(queryparams)
+    await fetchComplaintList()
     await getReportOrder()
     await getReportWorkOrder()
     await getReportComplaint()
 
     setLoadingButton(false)
   }
+
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+  const totalComplaint = sumTotal(chartDataComplaint, 'totalOrder')
+  const rejectComplaint = sumTotal(chartDataComplaint, 'totalRejectByHo')
+  const acceptedComplaint = sumTotal(chartDataComplaint, 'totalApprovedByHO')
+
+  const resurvey = sumTotal(chartDataComplaint, 'totalReworkStart')
+  const rework = sumTotal(chartDataComplaint, 'totalReworkStart')
+  const reschedule = sumTotal(chartDataOrder, 'totalRescheduleOrder')
+  const refund = sumTotal(chartDataOrder, 'totalRefundOrder')
+
+  const nonWorkRelated = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
+  const workRelated = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
+  const notResolved = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
+  const resolved = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
+
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <div className={`${label} ${className}`}>
+      <div className='d-flex flex-column align-items-center ms-5 gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p>{label}</p>
+      </div>
+    </div>
+  )
 
   return (
     <>
@@ -385,6 +336,10 @@ const ReportComplaintStore: FC = () => {
           <RangePicker
             format={'DD-MM-YYYY'}
             className='date-range ms-3 w-100'
+            defaultValue={[
+              dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+              dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+            ]}
             onChange={(values) => {
               if (values && values.length === 2) {
                 const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -427,26 +382,9 @@ const ReportComplaintStore: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                <div className='order-in'>
-                  <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal'>{newComplaint}</h1>
-                    <p>BARU</p>
-                  </div>
-                </div>
-
-                <div className='order-pending'>
-                  <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>{rejectComplaint}</h1>
-                    <p>DITOLAK</p>
-                  </div>
-                </div>
-
-                <div className='order-cancel'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>{acceptedComplaint}</h1>
-                    <p className='text-danger'>DITERIMA</p>
-                  </div>
-                </div>
+                {renderStat(totalComplaint, 'BARU')}
+                {renderStat(rejectComplaint, 'DITOLAK')}
+                {renderStat(acceptedComplaint, 'DITERIMA')}
               </div>
             </Card.Body>
           </Card>
@@ -458,33 +396,10 @@ const ReportComplaintStore: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Pekerjaan Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                <div className='survey'>
-                  <div className='d-flex flex-column align-items-center ms-5 gap-2'>
-                    <h1 className='fw-normal text-center'>{resurveyComplaint}</h1>
-                    <p className='text-center'>SURVEY ULANG</p>
-                  </div>
-                </div>
-
-                <div className='wip'>
-                  <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal text-center'>{reworkComplaint}</h1>
-                    <p className='text-center'>PENGERJAAN ULANG</p>
-                  </div>
-                </div>
-
-                <div className='done'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>{rescheduleComplaint}</h1>
-                    <p className='text-success text-center'>RESCHEDULE</p>
-                  </div>
-                </div>
-
-                <div className='complaint'>
-                  <div className='d-flex flex-column align-items-center me-5 gap-2'>
-                    <h1 className='fw-normal'>{refundComplaint}</h1>
-                    <p className='text-danger text-center'>REFUND</p>
-                  </div>
-                </div>
+                {renderStat(resurvey, 'SURVEY ULANG')}
+                {renderStat(rework, 'PENGERJAAN ULANG')}
+                {renderStat(reschedule, 'RESCHEDULE')}
+                {renderStat(refund, 'REFUND')}
               </div>
             </Card.Body>
           </Card>
@@ -496,33 +411,10 @@ const ReportComplaintStore: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Result Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                <div className='reschedule'>
-                  <div className='d-flex flex-column align-items-center pe-1 gap-2'>
-                    <h1 className='fw-normal'>{nonWorkRelated}</h1>
-                    <p className='text-center'>NON WORK RELATED</p>
-                  </div>
-                </div>
-
-                <div className='refund'>
-                  <div className='d-flex flex-column align-items-center ps-1 pe-1 gap-2'>
-                    <h1 className='fw-normal'>{workRelated}</h1>
-                    <p className='text-center'>WORK RELATED</p>
-                  </div>
-                </div>
-
-                <div className='resolve'>
-                  <div className='d-flex flex-column align-items-center  ps-1 pe-1 gap-2'>
-                    <h1 className='fw-normal'>{notResolved}</h1>
-                    <p className='text-danger text-center'>NOT RESOLVED</p>
-                  </div>
-                </div>
-
-                <div className='resolve'>
-                  <div className='d-flex flex-column align-items-center ps-1 gap-2'>
-                    <h1 className='fw-normal'>{resolved}</h1>
-                    <p className='text-success  text-center'>RESOLVED</p>
-                  </div>
-                </div>
+                {renderStat(nonWorkRelated, 'NON WORK RELATED')}
+                {renderStat(workRelated, 'WORK RELATED')}
+                {renderStat(notResolved, 'NOT RESOLVED')}
+                {renderStat(resolved, 'RESOLVED')}
               </div>
             </Card.Body>
           </Card>

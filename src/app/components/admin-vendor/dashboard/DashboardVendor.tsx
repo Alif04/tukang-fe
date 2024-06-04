@@ -6,32 +6,81 @@ import {ChartBarPerformance} from './components/ChartBarPerformance'
 import {ChartBarOrder} from './components/ChartBarOrder'
 import {ChartBarSurvey} from './components/ChartBarSurvey'
 import {MoreInformation} from './components/MoreInformation'
-import {TableList} from './components/TableList'
 
 import axios from 'axios'
 import {DatePicker} from 'antd'
 import {Row, Col, Card, Button} from 'react-bootstrap'
+import {Table, PaginationProps} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
 
 const {RangePicker} = DatePicker
 
-const initialStatusState = {
-  survey: 0,
-  onProgress: 0,
-  complete: 0,
-  reschedule: 0,
-  waitingPayment: 0,
+interface DataType {
+  order_id: number
+  store_name: string
+  costumer_name: string
+  service_name: string
+  request_survey: Date
+  total: string
 }
 
-type StatusToStateMap = {
-  [statusName: string]: keyof typeof initialStatusState
-}
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'Order ID',
+    dataIndex: 'order_id',
+    key: 'order_id',
+    align: 'center',
+    sorter: (a, b) => a.order_id - b.order_id,
+  },
+  {
+    title: 'Nama Toko',
+    dataIndex: 'store_name',
+    key: 'store_name',
+    align: 'left',
+    className: 'col_order_id',
+    onFilter: (value, record) => record.store_name.includes(String(value)),
+    sorter: (a, b) => a.store_name.length - b.store_name.length,
+  },
+  {
+    title: 'Nama Konsumen',
+    dataIndex: 'costumer_name',
+    key: 'costumer_name',
+    align: 'left',
+    onFilter: (value, record) => record.costumer_name.includes(String(value)),
+    sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+  },
+  {
+    title: 'Nama Pemasangan',
+    dataIndex: 'service_name',
+    key: 'service_name',
+    align: 'left',
+    onFilter: (value, record) => record.service_name.includes(String(value)),
+    sorter: (a, b) => a.service_name.length - b.service_name.length,
+  },
+  {
+    title: 'Tanggal Request Survey',
+    dataIndex: 'request_survey',
+    key: 'request_survey',
+    align: 'left',
+    sorter: (a: DataType, b: DataType) =>
+      new Date(a.request_survey).getTime() - new Date(b.request_survey).getTime(),
+  },
+  {
+    title: 'Grand Total',
+    dataIndex: 'total',
+    key: 'total',
+    align: 'center',
+  },
+]
 
-const statusToStateMap: StatusToStateMap = {
-  SURVEYREQ: 'survey',
-  WIP: 'onProgress',
-  WORKEND: 'complete',
-  RESCHEDULE: 'reschedule',
-  UNPAID: 'waitingPayment',
+const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+  if (type === 'prev') {
+    return <a>Prev</a>
+  }
+  if (type === 'next') {
+    return <a>Next</a>
+  }
+  return originalElement
 }
 
 const DashboardVendor: FC = () => {
@@ -149,6 +198,11 @@ const DashboardVendor: FC = () => {
             item?.payment_type === 'survey'
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
+          request_survey: new Date(item?.request_survey).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }),
           total: `Rp. ${totalAmount.toLocaleString('id')}`,
         }
 
@@ -231,35 +285,6 @@ const DashboardVendor: FC = () => {
     getReportTukang()
   }, [orderList])
 
-  // Catch Value From Response API by Status
-  const [statusState, setStatusState] = useState(initialStatusState)
-
-  useEffect(() => {
-    if (orderList) {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      for (const statusName in statusToStateMap) {
-        const stateKey = statusToStateMap[statusName]
-        const desiredStatus = statusData.find((status: any) => status.category === statusName)
-
-        if (desiredStatus) {
-          const statusValue = desiredStatus.value
-          const orderCount = orderList.filter(
-            (item: any) => item?.status?.id === statusValue
-          ).length
-
-          setStatusState((prevState) => ({
-            ...prevState,
-            [stateKey]: orderCount,
-          }))
-        }
-      }
-    }
-  }, [orderList])
-
-  const {survey, onProgress, complete, reschedule, waitingPayment} = statusState
-
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
@@ -274,6 +299,24 @@ const DashboardVendor: FC = () => {
 
     setLoadingButton(false)
   }
+
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+  const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const surveyOrder = sumTotal(chartWorkOrder, 'totalOrder')
+  const workInProgress = sumTotal(chartWorkOrder, 'totalWIPOrder')
+  const orderDone = sumTotal(chartDataOrder, 'totalCompleteOrder')
+  const unpaidOrder = sumTotal(chartWorkOrder, 'totalUnpaidOrder')
+
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <Col className='mb-5'>
+      <div className='d-flex flex-column align-items-center gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p className={`fs-6 ${className}`}>{label}</p>
+      </div>
+    </Col>
+  )
 
   return (
     <section id='dashboard-vendor'>
@@ -325,42 +368,11 @@ const DashboardVendor: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Order</div>
 
               <Row className='justify-content-md-center'>
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{totalData}</h1>
-                    <p className='fs-6 text-center'>Total Order</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{survey}</h1>
-                    <p className='fs-6 text-center'>Order Survey</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{onProgress}</h1>
-                    <p className='fs-6 text-center'>Order sedang dalam pengerjaan</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{complete}</h1>
-                    <p className='fs-6 text-center'>Order Selesai</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingPayment}</h1>
-                    <p className='fs-6 text-brown fw-bold text-center'>
-                      Menunggu <br></br> Bayar
-                    </p>
-                  </div>
-                </Col>
+                {renderStat(totalOrders, 'Total Order')}
+                {renderStat(surveyOrder, 'Order Survey')}
+                {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
+                {renderStat(orderDone, 'Order Selesai')}
+                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
               </Row>
             </Card.Body>
           </Card>
@@ -389,7 +401,37 @@ const DashboardVendor: FC = () => {
 
       <Row className='mb-5'>
         <Col md={12}>
-          <TableList className='card-xl-stretch' orderData={orderList} currentPage={currentPage} />
+          <div className={`card`}>
+            <div className='card-body p-5'>
+              <div className='d-flex flex-column'>
+                <h1 className='fs-1 text-black mb-3'>List Order</h1>
+
+                <Table
+                  bordered
+                  columns={columns}
+                  dataSource={orderList}
+                  rowKey={(record) => record.order_id}
+                  pagination={{
+                    position: ['bottomRight'],
+                    current: currentPage,
+                    total: totalData,
+                    showSizeChanger: true,
+                    pageSizeOptions: [5, 10, 20, 50, 100],
+                    defaultPageSize: 5,
+                    onChange: (page, pageSize) => {
+                      fetchData(page, pageSize, '')
+                    },
+                    itemRender: itemRender,
+                    showTotal: (total, range) => (
+                      <span style={{left: 0, position: 'absolute'}}>
+                        Showing {range[0]} - {range[1]} of {total} List Order
+                      </span>
+                    ),
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </Col>
       </Row>
     </section>
