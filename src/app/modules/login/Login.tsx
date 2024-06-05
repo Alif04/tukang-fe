@@ -106,7 +106,7 @@ export function Login() {
 
             localStorage.setItem(
               'storeName',
-              user.employee ? user?.employee?.store?.id : user?.store[0]?.store_name
+              user.employee ? user?.employee?.store?.store_name : user?.store[0]?.store_name
             )
           } else if (isEmployee) {
             localStorage.setItem('storeId', user?.employee?.store?.id)

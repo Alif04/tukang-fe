@@ -16,6 +16,7 @@ const AsideDefault: FC = () => {
   const vendorName = localStorage.getItem('vendorName')
   const tukangName = localStorage.getItem('tukangName')
   const salesName = localStorage.getItem('salesName')
+  const storeName = localStorage.getItem('storeName')
   const role = localStorage.getItem('userRole')
 
   const minimize = () => {
@@ -84,6 +85,8 @@ const AsideDefault: FC = () => {
               ? username
               : role === 'Tukang'
               ? tukangName
+              : role === 'Store CS'
+              ? storeName
               : fullName}
             <br />({role}){' '}
           </h6>
