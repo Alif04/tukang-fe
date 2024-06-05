@@ -82,10 +82,11 @@ export function Login() {
         if (res.data.status === 200) {
           const user = res.data.data.user
           const isSales = user.roles.name === 'Sales'
+          const isStore = user.roles.name === 'Store CS'
           const isAdminHO = user.roles.name === 'Admin Ho'
           const isVendor = user.roles.name === 'Admin Vendor'
           const isTukang = user.roles.name === 'Tukang'
-          const isEmployee = user.employee !== null && !isSales && !isVendor
+          const isEmployee = user.employee !== null && !isStore && !isSales && !isVendor
 
           localStorage.setItem('user_id', res.data.data.user.id)
           localStorage.setItem('username', res.data.data.user.username)
@@ -97,6 +98,16 @@ export function Login() {
             localStorage.setItem('salesName', user?.sales[0]?.full_name)
             localStorage.setItem('storeId', user?.sales[0]?.store?.id)
             localStorage.setItem('storeName', user?.sales[0]?.store?.store_name)
+          } else if (isStore) {
+            localStorage.setItem(
+              'storeId',
+              user.employee ? user?.employee?.store?.id : user?.store[0]?.id
+            )
+
+            localStorage.setItem(
+              'storeName',
+              user.employee ? user?.employee?.store?.id : user?.store[0]?.store_name
+            )
           } else if (isEmployee) {
             localStorage.setItem('storeId', user?.employee?.store?.id)
             localStorage.setItem('employeeName', user?.employee?.full_name)
