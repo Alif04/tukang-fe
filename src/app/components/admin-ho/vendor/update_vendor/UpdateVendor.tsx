@@ -88,8 +88,12 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setMaxOrder(data.max_order)
           }
 
-          if (data?.pic_vendor) {
-            setUsername(data?.pic_vendor[0]?.users?.username ?? '')
+          // if (data?.pic_vendor) {
+          //   setUsername(data?.pic_vendor[0]?.users?.username ?? '')
+          // }
+
+          if (data?.users) {
+            setUsername(data?.users?.username)
           }
 
           if (data?.vendor_bank) {
