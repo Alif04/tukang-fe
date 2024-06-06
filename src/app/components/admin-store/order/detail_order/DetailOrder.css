@@ -1,3 +1,12 @@
+/* Modal PDF */
+.modal-show-pdf {
+  width: 1300px;
+}
+
+.modal-dialog.modal-show-pdf.modal-dialog-centered .modal-content {
+  height: 645px;
+}
+
 /* Form Layout */
 
 #detail-order p {
