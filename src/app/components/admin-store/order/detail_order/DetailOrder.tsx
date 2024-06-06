@@ -8,7 +8,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import {Image, Steps, Skeleton, Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, ListGroup, Button, Card} from 'react-bootstrap'
+import {Row, Col, Form, ListGroup, Button, Card, Modal} from 'react-bootstrap'
 
 interface Status {
   value: number | null
@@ -148,6 +148,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   // Order Receipt
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+  const handleClose = () => setVisible(false)
+
+  console.log('visible', visible)
 
   // Work Before & Work After
   const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
@@ -1011,19 +1014,44 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                   {previewImage && (
                     <div>
-                      <Image
-                        key={previewImage}
-                        width={200}
-                        style={{display: 'none'}}
-                        src={`${apiUrl}/public/receipt/${previewImage}`}
-                        preview={{
-                          visible,
-                          src: `${apiUrl}/public/receipt/${previewImage}`,
-                          onVisibleChange: (value) => {
-                            setVisible(value)
-                          },
-                        }}
-                      />
+                      {previewImage.endsWith('.pdf') ? (
+                        <>
+                          <Modal
+                            dialogClassName='modal-show-pdf'
+                            centered
+                            show={visible}
+                            onHide={handleClose}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>File - {previewImage}</Modal.Title>
+                            </Modal.Header>
+
+                            <Modal.Body>
+                              <iframe
+                                key={previewImage}
+                                width='100%'
+                                height='100%'
+                                src={`${apiUrl}/public/receipt/${previewImage}`}
+                                style={{border: 'none'}}
+                              />
+                            </Modal.Body>
+                          </Modal>
+                        </>
+                      ) : (
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/receipt/${previewImage}`}
+                          preview={{
+                            visible,
+                            src: `${apiUrl}/public/receipt/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisible(value)
+                            },
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </Skeleton>
