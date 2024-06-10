@@ -309,6 +309,13 @@ iframe.csi-frame {
 }
 
 /* Button Action */
+button.button-transparent.text-danger.btn.btn-primary {
+  margin: 10px !important;
+  padding: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
 button.button-cancel.btn.btn-danger {
   margin: 0 !important;
   padding: 0 !important;
