@@ -1,55 +1,30 @@
 /* Header */
-#detail-invoice {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#detail-invoice .card {
-  width: 900px;
-}
-
 #detail-invoice .card .card-body {
-  min-height: 100vh;
   padding: 3rem 3rem !important;
 }
 
-#detail-invoice .card .card-body .invoice-detail {
-  margin: 0 0 30px 0;
+#detail-invoice .card .card-body .vendor-information {
+  padding: 0 150px 0 9.75px;
 }
 
-#detail-invoice .card .card-body .vendor-information .vendor-detail h1 {
+#detail-invoice .card .card-body .receiver-information {
+  padding: 0 150px 0 9.75px;
+}
+
+#detail-invoice .card .card-body .invoice-information {
+  padding: 0 0 0 200px;
+}
+
+#detail-invoice .card .card-body .vendor-information h1 {
   color: #007eb4;
-  font-size: 41px;
+  font-size: 30px;
   padding: 0 0 10px 0;
 }
 
-#detail-invoice .receiver-information .receiver-detail {
-  padding: 0 0 10px 0;
-}
-
-#detail-invoice .receiver-information .receiver-detail h1 {
-  font-size: 18px;
-}
-
-#detail-invoice .address h3 {
-  font-size: 16px;
-  padding: 0 0 10px 0;
-}
-
-#detail-invoice .payment-request {
-  width: 300px;
-}
-
-#detail-invoice .payment-request h1 {
+#detail-invoice .invoice-information h1 {
   color: #484747;
-  font-size: 41px;
+  font-size: 30px;
   padding: 0 0 10px 0;
-}
-
-#detail-invoice .payment-request h3 {
-  padding: 0 0 10px 0;
-  font-size: 16px;
 }
 
 /* Table */
@@ -83,30 +58,10 @@
 
 /* Footer */
 
-#detail-invoice .payment-detail .payment-method {
+#detail-invoice .payment-information .payment-method {
   margin: 10px 0;
 }
 
-#detail-invoice .payment-detail .payment-method {
+#detail-invoice .payment-information .payment-evidence {
   margin: 10px 0;
-}
-
-#detail-invoice .payment-detail h1 {
-  padding: 10px 0;
-  font-size: 16px;
-}
-
-#detail-invoice .payment-detail .payment-method h1 {
-  padding: 0 0 10px 0;
-  font-size: 16px;
-}
-
-#detail-invoice .payment-detail .payment-evidence h1 {
-  padding: 0 0 10px 0;
-  font-size: 16px;
-}
-
-#detail-invoice .payment-detail .payment-method h3 {
-  padding: 0 0 10px 0;
-  font-size: 14px;
 }

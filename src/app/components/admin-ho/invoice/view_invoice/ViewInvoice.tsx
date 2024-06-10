@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useState, useEffect, FC} from 'react'
+import React, {useState, useEffect, FC, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewInvoice.css'
@@ -7,13 +7,32 @@ import './ViewInvoice.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
-import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
-import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination, Upload, Image} from 'antd'
+import {InboxOutlined} from '@ant-design/icons'
+import {
+  Form,
+  InputGroup,
+  Row,
+  Col,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+  Modal,
+  ListGroup,
+} from 'react-bootstrap'
 import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {
+  faBook,
+  faSearch,
+  faXmarkCircle,
+  faImage,
+  faFileImage,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
+const {Dragger} = Upload
 
 interface DataType {
   invoice_id: number
@@ -40,6 +59,9 @@ const ViewInvoiceHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
+  const [loadingUploadExcel, setLoadingUploadExcel] = useState<boolean>(false)
+  const [loadingExport, setLoadingExport] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -55,9 +77,11 @@ const ViewInvoiceHO: FC = () => {
   // Status
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) => ['UNPAID'].includes(status.category))
+  const statusInvoice = statusData.find((status: any) => status?.category === 'INVOICESEND')
 
   // Update Invoice
+  const [invoiceId, setInvoiceId] = useState<any>()
+  const [invoiceNotes, setInvoiceNotes] = useState<any>()
   const [invoices, setInvoices] = useState<InvoiceData>({
     status_id: null,
     payment_request: [
@@ -69,11 +93,8 @@ const ViewInvoiceHO: FC = () => {
 
   // Update Status Invoice
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-    const desiredStatus = statusData.find((status: any) => status.category === 'PAID')
-    const statusId = desiredStatus?.value
+    const updatedStatusId = statusData.find((status: any) => status?.category === 'UNPAID')
+    const statusId = updatedStatusId?.value
 
     setInvoices((prev) => ({
       ...prev,
@@ -87,6 +108,7 @@ const ViewInvoiceHO: FC = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
   const columns: ColumnsType<DataType> = [
     {
       title: 'Invoice ID',
@@ -165,26 +187,46 @@ const ViewInvoiceHO: FC = () => {
       width: 70,
       align: 'center',
       render: (record) => {
-        // const handleUpdateInvoice = () => {
-        //   const id = record.invoice_id
-        //   navigate(`/invoice/update-invoice/${id}`)
-        // }
+        const id = record.invoice_id
 
         const handleDetailInvoice = () => {
-          const id = record.invoice_id
           navigate(`/invoice/detail-invoice/${id}`)
         }
 
-        return (
-          <div className='button-wrapper d-flex justify-content-center'>
-            <a className='button-detail ' onClick={handleDetailInvoice}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+        const handleShowModal = (id: number) => {
+          const selected = invoiceData.find((invoice) => invoice.invoice_id === id)
 
-            {/* 
-            <a className='button-edit' onClick={handleUpdateInvoice}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a> */}
+          if (selected) {
+            setInvoiceId(selected)
+            setModalInvoice(true)
+          }
+        }
+
+        return (
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Invoice')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailInvoice}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Tolak Invoice')}
+            >
+              <Button
+                className='button-cancel'
+                variant='danger'
+                onClick={() => handleShowModal(id)}
+              >
+                <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
           </div>
         )
       },
@@ -192,21 +234,21 @@ const ViewInvoiceHO: FC = () => {
   ]
 
   const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
-    const statuses = desiredStatus.map((x) => x.value)
-    let apiUrlWithParams = `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
+    const response = await axios.get(
+      `${apiUrl}/invoices?order_by=desc&status=${statusInvoice?.value}&page=${page}&take=${pageSize}${queryparams}`,
+      {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      }
+    )
 
-    const response = await axios.get(apiUrlWithParams, {
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        'Access-Control-Allow-Origin': '*',
-        'ngrok-skip-browser-warning': 'true',
-      },
-    })
-
+    setLoadData(false)
     setCurrentPage(response?.data?.page ?? 1)
     setTotalData(response?.data?.total ?? 0)
-    setLoadData(false)
 
     return response.data.data
   }
@@ -229,12 +271,25 @@ const ViewInvoiceHO: FC = () => {
           year: 'numeric',
         })
 
+        const invoiceStatus = (status: number) => {
+          switch (status) {
+            case 1:
+              return 'Waiting for Payment'
+            case 2:
+              return 'Paid'
+            case 3:
+              return 'Invoice Declined'
+            default:
+              return ''
+          }
+        }
+
         data = {
           invoice_id: item?.id,
           invoice_date: invoiceDate,
           vendor_name: item?.vendor?.company_name ?? '-',
           amount: `-`,
-          invoice_status: item?.status?.category ?? '-',
+          invoice_status: invoiceStatus(item?.status),
         }
 
         return data
@@ -288,7 +343,7 @@ const ViewInvoiceHO: FC = () => {
     invoices.payment_request.forEach((invoice) => {
       if (invoice.invoice_id !== null) {
         formData.append('status_id', String(invoices.status_id))
-        formData.append(`invoice_id[]`, String(invoice.invoice_id))
+        formData.append(`invoice_id`, String(invoice.invoice_id))
       }
     })
 
@@ -336,6 +391,7 @@ const ViewInvoiceHO: FC = () => {
       })
   }
 
+  // Filter
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -356,10 +412,260 @@ const ViewInvoiceHO: FC = () => {
     setLoadingButton(false)
   }
 
+  // Decline Invoice
+  const [invoiceEvidence, setInvoiceEvidence] = useState<Array<File | null>>([])
+  const [selectedInvoiceIndex, setSelectedInvoiceIndex] = useState<number | null>(null)
+  const [previewInvoice, setPreviewInvoice] = useState<any>()
+  const [visibleInvoice, setVisibleInvoice] = useState(false)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [showModalInvoice, setModalInvoice] = useState(false)
+  const handleCloseModalInvoice = () => {
+    setModalInvoice(false)
+  }
+
+  // Upload Order File Handler
+  const handleInvoiceEvidenceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...invoiceEvidence]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setInvoiceEvidence(mergedFiles)
+    }
+  }
+
+  // Click Image
+  const handleInvoiceClick = () => {
+    const inputField = document.querySelector('.input-field-invoice') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Remove File
+  const handleRemoveFiles = (index: number) => {
+    const newEvidances = [...invoiceEvidence]
+    newEvidances.splice(index, 1)
+    setInvoiceEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // File Click
+  const handleFileInvoice = (index: number) => {
+    setPreviewInvoice(invoiceEvidence[index]?.name)
+    setVisibleInvoice(true)
+    setSelectedInvoiceIndex(index)
+  }
+
+  // Upload Excel
+  const [excel, setExcel] = useState<FileList | []>()
+  const [showModalUpload, setModalUpload] = useState(false)
+  const handleCloseModalUpload = () => {
+    setModalUpload(false)
+  }
+
+  const handleFileChange = (event: any) => {
+    const files = event.fileList
+    if (files && files[0]) {
+      setExcel(files[0])
+    }
+  }
+
+  const handleFileRemove = () => {
+    setExcel([])
+  }
+
+  const handleDeclineInvoice = async () => {
+    const formData = new FormData()
+
+    formData.append(`invoice_id`, invoiceId)
+    formData.append(`notes`, invoiceNotes)
+    formData.append(`status`, String(3))
+
+    if (invoiceEvidence?.length) {
+      invoiceEvidence.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`invoice_files`, item, item.name)
+        }
+      })
+    }
+
+    await axios
+      .post(`${apiUrl}/invoices/${invoiceId}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201 || response.data.status === 200) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil Verifikasi Pembayaran',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+
+        window.location.reload()
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  const handleUpload = async () => {
+    setLoadingUploadExcel(true)
+
+    const formData = new FormData()
+
+    if (excel?.length) {
+      formData.append('excel_file', excel[0])
+    }
+
+    await axios
+      .post(`${apiUrl}/invoices/upload-excel-invoice`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201 || response.data.status === 200) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil Upload Excel',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+
+          setLoadingUploadExcel(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setLoadingUploadExcel(false)
+        }
+
+        window.location.reload()
+      })
+      .catch((error) => {
+        setLoadingUploadExcel(false)
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  const handleUploadExcel = () => {
+    setModalUpload(true)
+  }
+
+  // Export Template Excel
+  const exportTemplate = () => {
+    setLoadingTemplate(true)
+
+    axios
+      .get(`${apiUrl}/invoices/export-excel-template`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Template Invoice.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingTemplate(false)
+      })
+  }
+
+  // Export To Excel
+  const exportToExcel = () => {
+    setLoadingExport(true)
+
+    axios
+      .get(`${apiUrl}/invoices/export-excel?take=0`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Report Invoice ${dateFrom} - ${dateTo}.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingExport(false)
+      })
+  }
+
   return (
     <section id='view-invoice'>
       <div className='card'>
         <div className='card-body table-view-order'>
+          <div className='d-flex justify-content-end align-items-center gap-3 mb-5'>
+            <button className='button-export' onClick={handleUploadExcel}>
+              <h3 className='fs-5 fw-semibold'>
+                {loadingUploadExcel ? 'Uploading..' : 'Upload Excel'}
+              </h3>
+            </button>
+
+            <button className='button-export' onClick={exportTemplate}>
+              <h3 className='fs-5 fw-semibold'>
+                {loadingTemplate ? 'Exporting..' : 'Export Template Excel'}
+              </h3>
+            </button>
+
+            <button className='button-export' onClick={exportToExcel}>
+              <h3 className='fs-5 fw-semibold'>
+                {loadingExport ? 'Exporting..' : 'Export To Excel'}
+              </h3>
+            </button>
+          </div>
+
           <Row className='table-head-wrapper'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
@@ -459,6 +765,161 @@ const ViewInvoiceHO: FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Upload Excel */}
+      <Modal
+        dialogClassName='modal-upload-excel'
+        centered
+        show={showModalUpload}
+        onHide={handleCloseModalUpload}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Upload Template Invoice</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Dragger
+            className='input-excel'
+            multiple={false}
+            maxCount={1}
+            beforeUpload={() => false}
+            onChange={(e) => handleFileChange(e)}
+            onRemove={handleFileRemove}
+          >
+            <p className='ant-upload-drag-icon'>
+              <InboxOutlined style={{fontSize: 32}} rev />
+            </p>
+
+            <p className='ant-upload-text'>Klik atau seret file ke area ini untuk mengunggah</p>
+            <p className='ant-upload-hint text-danger'>Maksimal upload file excel adalah satu</p>
+          </Dragger>
+
+          <Button
+            className='d-flex justify-content-center align-items-center w-100 mt-5'
+            disabled={excel?.length === 0}
+            onClick={handleUpload}
+            variant='primary'
+          >
+            {loadingUploadExcel ? 'Uploading..' : 'Upload Excel'}
+          </Button>
+        </Modal.Body>
+      </Modal>
+
+      {/* Modal Tolak Invoice */}
+      <Modal
+        dialogClassName='modal-upload-excel'
+        centered
+        show={showModalInvoice}
+        onHide={handleCloseModalInvoice}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Formulir Alasan Penolakan Invoice</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='notes mb-5'>
+            <Form.Group>
+              <Form.Label className='fs-5 fw-bold'>Alasan Ditolak :</Form.Label>
+              <Form.Control
+                style={{minHeight: '140px'}}
+                as='textarea'
+                onChange={(e) => setInvoiceNotes(e.target.value)}
+                value={invoiceNotes}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+            <Form.Group>
+              <Form.Label>Upload Bukti Receipt Transaksi</Form.Label>
+
+              <Form className='form-input-image' onClick={handleInvoiceClick}>
+                <Form.Control
+                  type='file'
+                  accept='image/jpeg, image/png'
+                  className='input-field-invoice'
+                  multiple
+                  hidden
+                  id='file-input'
+                  ref={evidenceRef}
+                  onChange={handleInvoiceEvidenceChange}
+                />
+
+                <div className='input-image-text'>
+                  <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                  <p>Add File</p>
+                </div>
+              </Form>
+
+              <ListGroup className='pt-3'>
+                {invoiceEvidence.length ? (
+                  invoiceEvidence.map((item: any, index: number) => (
+                    <ListGroup>
+                      <ListGroup.Item
+                        className='d-flex justify-content-between align-items-center'
+                        key={`${item?.name}-${index}-${item?.type}`}
+                      >
+                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                        <span
+                          className='upload-content'
+                          style={{cursor: 'pointer'}}
+                          onClick={() => handleFileInvoice(index)}
+                        >
+                          {item?.name}
+                        </span>
+
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size='sm'
+                          color='#ed2b2a'
+                          style={{cursor: 'pointer'}}
+                          onClick={(e) => handleRemoveFiles(index)}
+                        />
+                      </ListGroup.Item>
+
+                      {selectedInvoiceIndex === index && item && (
+                        <Image
+                          key={`${previewInvoice} - ${index}`}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={
+                            item instanceof File
+                              ? URL.createObjectURL(item)
+                              : `${apiUrl}/public/invoices/${previewInvoice}`
+                          }
+                          preview={{
+                            visible: visibleInvoice,
+                            src:
+                              item instanceof File
+                                ? URL.createObjectURL(item)
+                                : `${apiUrl}/public/invoices/${previewInvoice}`,
+                            onVisibleChange: (value) => {
+                              setVisibleInvoice(value)
+                            },
+                          }}
+                        />
+                      )}
+                    </ListGroup>
+                  ))
+                ) : (
+                  <ListGroup.Item className='d-flex justify-content-center'>
+                    Tidak ada file yang dipilih
+                  </ListGroup.Item>
+                )}
+              </ListGroup>
+            </Form.Group>
+          </Row>
+
+          <Button
+            className='d-flex justify-content-center align-items-center w-100 mt-5'
+            onClick={handleDeclineInvoice}
+            variant='primary'
+          >
+            Submit
+          </Button>
+        </Modal.Body>
+      </Modal>
     </section>
   )
 }

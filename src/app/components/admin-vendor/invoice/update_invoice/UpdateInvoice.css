@@ -1,88 +1,122 @@
-#update-invoice .survey-information .form-header {
-  display: flex;
-  justify-content: space-between;
-  min-height: 45px;
+/* Header */
+#update-invoice .card .card-body {
+  padding: 3rem 3rem !important;
 }
 
-#update-invoice button.btn.btn-dark-success {
-  margin: 0;
-  width: 250px;
+#update-invoice .card .card-body .vendor-information {
+  padding: 0 150px 0 9.75px;
 }
 
-#update-invoice .table-item .table tr,
-.table th,
-.table td {
-  border: 1px solid gray;
+#update-invoice .card .card-body .receiver-information {
+  padding: 0 150px 0 9.75px;
 }
 
-#update-invoice .table-item th {
-  background-color: #183383;
+#update-invoice .card .card-body .invoice-information {
+  padding: 0 9.75px 0 200px;
+}
+
+#update-invoice .card .card-body .notes {
+  padding: 0 9.75px 0 200px;
+}
+
+#update-invoice .card .card-body .vendor-information h1 {
+  color: #007eb4;
+  font-size: 30px;
+  padding: 0 0 10px 0;
+}
+
+#update-invoice .invoice-information h1 {
+  color: #484747;
+  font-size: 30px;
+  padding: 0 0 10px 0;
+}
+
+/* Table */
+#update-invoice .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
-  font-weight: 400;
-  text-align: center;
+  font-weight: 500;
+  background-color: #398318;
 }
 
-/* Form Input Image */
-
-#update-invoice .invoice-evidence {
-  margin-bottom: 160px;
+#update-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
 }
 
-#update-invoice form.form-input-image {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid #858585;
-  width: 100%;
-  min-height: 285px;
-  cursor: pointer;
-  border-radius: 5px;
+#update-invoice
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
 }
 
-#update-invoice .input-image-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 10px;
+#update-invoice .table-head-wrapper {
+  margin-bottom: 20px;
 }
 
-#update-invoice .input-image-text p {
-  margin: 10px 10px;
-  padding: 5px 10px !important;
-  border: 1px solid;
-  border-radius: 5px;
-  color: #858585;
+#update-invoice .ant-table-fixed {
+  table-layout: fixed;
 }
 
-#update-invoice .uploaded-row {
+#update-invoice .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#update-invoice .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#update-invoice .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#update-invoice .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+#update-invoice .ant-table-thead > tr > th.col-work-status {
+  background-color: #a30014 !important;
+}
+
+#update-invoice .ant-table-thead > tr > th.col-complaint-date {
+  background-color: #a30014 !important;
+}
+
+#update-invoice .ant-table-thead > tr > th.col-complaint-status {
+  background-color: #a30014 !important;
+}
+
+/* Button */
+
+#update-invoice .btn.btn-dark-success {
+  width: fit-content;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-invoice .btn.btn-dark-success:hover:not(.btn-active) {
+  background-color: #7cb920 !important;
+}
+
+/* Footer */
+
+#update-invoice .payment-information .payment-method {
   margin: 10px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-radius: 5px;
-  background-color: #f4f7fe;
 }
 
-#update-invoice .upload-content {
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-#update-invoice .image-preview {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-#update-invoice svg.svg-inline--fa.fa-file-image.fa-sm {
-  margin: 0 10px 0 0;
-}
-
-#update-invoice svg.svg-inline--fa.fa-trash.fa-sm {
-  margin: 0 0 0 10px;
+#update-invoice .payment-information .payment-evidence {
+  margin: 10px 0;
 }

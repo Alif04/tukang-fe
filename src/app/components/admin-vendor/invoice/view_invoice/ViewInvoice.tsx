@@ -5,31 +5,39 @@ import {useNavigate} from 'react-router-dom'
 import './ViewInvoice.css'
 
 import axios from 'axios'
-import type {ColumnsType} from 'antd/es/table'
 import Swal from 'sweetalert2'
-import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
-import {LoadingOutlined} from '@ant-design/icons'
-import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
+import type {ColumnsType} from 'antd/es/table'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
+import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
 interface DataType {
   invoice_id: number
   order_id: number
-  date_order: string
-  quotation_id: number
-  member_id: number
-  vendor_name: string
-  order_status: string
+  invoice_date: string
+  store_name: string
+  invoice_status: string
+}
+
+interface Store {
+  store_id: number
+  store_name: string
 }
 
 const ViewInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const vendorId = localStorage.getItem('vendor_id')
 
+  const userVendor = localStorage.getItem('vendor_id') as any
+
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
+  const [store, setStore] = useState<Store[]>([])
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -37,14 +45,13 @@ const ViewInvoiceVendor: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
-  const [loadingButton, setLoadingButton] = useState(false)
-  const [loadData, setLoadData] = useState<boolean>(true)
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
 
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
   const columns: ColumnsType<DataType> = [
     {
       title: 'Invoice ID',
@@ -67,67 +74,57 @@ const ViewInvoiceVendor: FC = () => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Date Order',
-      dataIndex: 'date_order',
-      key: 'date_order',
+      title: 'Nama Store',
+      dataIndex: 'store_name',
+      key: 'store_name',
       align: 'center',
+      width: 150,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Tanggal Invoice',
+      dataIndex: 'invoice_date',
+      key: 'invoice_date',
+      align: 'left',
       width: 110,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      onFilter: (value, record) => record.invoice_date.includes(String(value)),
+      sorter: (a, b) => a.invoice_date.length - b.invoice_date.length,
     },
     {
-      title: 'Quotation ID',
-      dataIndex: 'quotation_id',
-      key: 'quotation_id',
-      align: 'center',
-      width: 110,
-      sorter: (a, b) => a.quotation_id - b.quotation_id,
-    },
-    {
-      title: 'Member ID',
-      dataIndex: 'member_id',
-      key: 'member_id',
+      title: 'Invoice Status',
+      dataIndex: 'invoice_status',
+      key: 'invoice_status',
       align: 'center',
       width: 140,
-      sorter: (a, b) => a.member_id - b.member_id,
-    },
-    {
-      title: 'Vendor Name',
-      dataIndex: 'vendor_name',
-      key: 'vendor_name',
-      align: 'center',
-      width: 140,
-      onFilter: (value, record) => record.vendor_name.includes(String(value)),
-      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-    },
-    {
-      title: 'Order Status',
-      dataIndex: 'order_status',
-      key: 'order_status',
-      align: 'center',
-      width: 140,
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
-      render: (order_status) => {
-        const orderStatus = order_status
+      onFilter: (value, record) => record.invoice_status.includes(String(value)),
+      sorter: (a, b) => a.invoice_status.length - b.invoice_status.length,
+      filters: [
+        {text: 'Waiting for Payment', value: 'Waiting for Payment'},
+        {text: 'Approve', value: 'Approve'},
+        {text: 'Decline', value: 'Decline'},
+      ],
+      render: (invoice_status) => {
+        const orderStatus = invoice_status
         let color = ''
 
         switch (orderStatus) {
-          case 'WORKEND':
+          case 'Waiting for Payment':
             color = 'green'
             break
-          case 'INVOICED':
-          default:
+          case 'Paid':
             color = 'blue'
+            break
+          case 'Invoice Declined':
+            color = 'red'
+            break
+          default:
+            color = 'gray'
             break
         }
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'WORKEND', value: 'WORKEND'},
-        {text: 'INVOICED', value: 'INVOICED'},
-      ],
     },
     {
       title: 'Action',
@@ -196,36 +193,72 @@ const ViewInvoiceVendor: FC = () => {
         }
 
         return (
-          <div className='button-wrapper d-flex justify-content-center'>
-            <a className='button-detail ' onClick={handleDetailInvoice}>
-              <FontAwesomeIcon icon={faBook} size='sm' />
-            </a>
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Invoice')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailInvoice}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            {/* 
-            <a className='button-edit' onClick={handleUpdateInvoice}>
-              <FontAwesomeIcon icon={faPen} size='sm' />
-            </a> */}
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Invoice')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdateInvoice}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
-            {/* <a className='button-delete' onClick={handleDelete}>
-              <FontAwesomeIcon icon={faTrash} size='sm' />
-            </a> */}
+            {/* <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Hapus Invoice')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDelete}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger> */}
           </div>
         )
       },
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
+          store_id: item.id,
+          store_name: item.store_name,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}&vendor_id=${vendorId}${queryparams}`,
+        `${apiUrl}/invoices?order_by=desc&page=${page}&vendor_id=${userVendor}&take=${pageSize}${queryparams}`,
         {
           headers: {
             Accept: 'application/json',
@@ -258,29 +291,40 @@ const ViewInvoiceVendor: FC = () => {
       const invoiceData = apiData.map((item: any) => {
         let data
 
+        const orderIds = item?.invoice_details?.map((item: any) => `#${item?.order_id}`).join(', ')
+        const storesId = item?.invoice_details?.map((detail: any) => detail?.order?.store_id)
+        const uniqueStoreIds = Array.from(new Set(storesId))
+        const storeName = uniqueStoreIds
+          .map((storeId: any) => {
+            return store.find((x: Store) => x.store_id === storeId)?.store_name
+          })
+          .join(', ')
+
+        const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
+        const invoiceStatus = (status: number) => {
+          switch (status) {
+            case 1:
+              return 'Waiting for Payment'
+            case 2:
+              return 'Paid'
+            case 3:
+              return 'Invoice Declined'
+            default:
+              return ''
+          }
+        }
+
         data = {
-          invoice_id: item?.invoice_details.length ? item.invoice_details[0].invoice_id : item.id,
-
-          order_id: item?.invoice_details.length
-            ? item.invoice_details[0]?.quotation?.order_id
-            : item.invoice_orders[0]?.orders?.id,
-
-          date_order: formatDate(
-            new Date(
-              item?.invoice_details.length
-                ? item?.invoice_details[0]?.quotation?.order?.request_survey
-                : item?.invoice_orders[0]?.orders?.request_survey
-            )
-          ),
-
-          quotation_id: item?.invoice_details[0]?.quotation_id ?? '-',
-
-          member_id: item?.invoice_details.length
-            ? item?.invoice_details[0]?.quotation?.order?.members?.member_number
-            : item?.invoice_orders[0]?.orders?.members?.member_number,
-
-          vendor_name: item?.vendor?.company_name,
-          order_status: item?.status?.category,
+          invoice_id: item?.id,
+          order_id: orderIds,
+          invoice_date: invoiceDate,
+          store_name: storeName,
+          invoice_status: invoiceStatus(item?.status),
         }
 
         return data
@@ -300,6 +344,10 @@ const ViewInvoiceVendor: FC = () => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+  }, [store])
+
+  useEffect(() => {
+    getStore()
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -312,6 +360,7 @@ const ViewInvoiceVendor: FC = () => {
     return originalElement
   }
 
+  // Filter
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
