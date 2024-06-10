@@ -1,35 +1,78 @@
-import React, {FC, useState, useEffect, ChangeEvent} from 'react'
-import {useNavigate} from 'react-router-dom'
+import React, {FC, useState, useEffect} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
+import {DatePicker} from 'antd'
 import makeAnimated from 'react-select/animated'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 
+const {RangePicker} = DatePicker
+
 interface StoreSelect {
+  id?: number | null
   all_store: number | null
   store_group_id: number | null
   store_id: number
   store_name: string
 }
 
-interface IncentiveSales {
+interface Promotion {
   name: string
+  start_date: string
+  end_date: string
   min_order: number
-  incentive: number
-  type: number
-  stores: any[]
+  promotion: number
+  promotion_type: number
+  promotion_store: any[]
 }
 
-const CreateIncentiveSales: FC = () => {
+const UpdatePromotionQuotation: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const animatedComponents = makeAnimated()
+  const params = useParams()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch Data
+  const fetchPromotionData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/promotion/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+
+          if (data) {
+            const promotionStores = data.promotion_stores.map((item: any) => ({
+              id: item.id,
+              store_id: item.store.id,
+            }))
+
+            setPromo((prev) => ({
+              ...prev,
+              name: data?.name,
+              start_date: dayjs(data?.periodic_start).toISOString(),
+              end_date: dayjs(data?.periodic_end).toISOString(),
+              min_order: data?.min_order,
+              promotion: data?.promotion,
+              promotion_type: data?.promotion_type,
+              promotion_store: promotionStores,
+            }))
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const getStore = async () => {
     try {
       const response = await axios.get(`${apiUrl}/stores?take=0`, {
@@ -44,7 +87,6 @@ const CreateIncentiveSales: FC = () => {
       if (Array.isArray(response.data.data)) {
         const tempStore = response.data.data.map((item: any) => ({
           store_id: item.id,
-          store_group_id: item.area_id,
           store_name: item.store_name,
         }))
 
@@ -84,6 +126,7 @@ const CreateIncentiveSales: FC = () => {
   }
 
   useEffect(() => {
+    fetchPromotionData()
     getStore()
     getStoreGroup()
   }, [])
@@ -92,44 +135,50 @@ const CreateIncentiveSales: FC = () => {
   const [store, setStore] = useState<StoreSelect[]>([])
   const [storeGroup, setStoreGroup] = useState<any[]>([])
 
-  // Incentive
-  const [incentive, setIncentive] = useState<IncentiveSales>({
+  // Promotion
+  const [promo, setPromo] = useState<Promotion>({
     name: '',
+    start_date: '',
+    end_date: '',
     min_order: 0,
-    incentive: 0,
-    type: 1,
-    stores: [],
+    promotion: 0,
+    promotion_type: 1,
+    promotion_store: [],
   })
 
-  console.log('incentive', incentive)
+  console.log('promo', promo)
 
-  // Incentive Form Handler
-  const incentiveFormHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target
-
-    setIncentive({
-      ...incentive,
-      [name]: name === 'min_order' || name === 'incentive' ? Number(value) : value,
+  // Promotion Form Handler
+  const promoFormHandler = (e: any) => {
+    setPromo({
+      ...promo,
+      [e.target.name]: e.target.value,
     })
   }
 
   // Store Handler
   const storeHandler = (selectedOptions: any) => {
-    setIncentive((prev) => ({
+    const updatedStore = selectedOptions.map((option: any) => ({
+      id: option?.id ?? null,
+      store_id: option.store_id,
+    }))
+
+    setPromo((prev) => ({
       ...prev,
-      stores: selectedOptions.map((option: any) => option.id),
+      promotion_store: updatedStore,
     }))
   }
 
   const handleAssignToStoreByAllStore = (store_id: any, isChecked: boolean) => {
-    setIncentive((prev) => {
+    setPromo((prev) => {
       const cache = {...prev}
 
       // Jika checkbox "All Store" dicentang
       if (store_id === 0 && isChecked) {
-        cache.stores = store.map((storeItem) => storeItem.store_id)
+        const allStoreIds = store.map((storeItem) => storeItem.store_id)
+        cache.promotion_store = allStoreIds.map((storeId) => ({store_id: storeId}))
       } else if (!isChecked) {
-        cache.stores = []
+        cache.promotion_store = []
       }
 
       return cache
@@ -137,21 +186,29 @@ const CreateIncentiveSales: FC = () => {
   }
 
   const handleAssignToStoreByStoreGroup = (store_group_id: any, isChecked: boolean) => {
-    setIncentive((prev) => {
+    setPromo((prev) => {
       const cache = {...prev}
 
       if (store_group_id && isChecked) {
+        // Mengambil store dari store_group yang dicentang
         const storesInGroup = store.filter(
           (storeItem) => storeItem.store_group_id === store_group_id
         )
+
+        // Mengambil store_id dari storesInGroup
         const storeIds = storesInGroup.map((storeItem) => storeItem.store_id)
-        cache.stores.push(...storeIds)
+
+        // Menggabungkan store_id ke price_store
+        cache.promotion_store.push(...storeIds.map((storeId) => ({store_id: storeId})))
       } else if (!isChecked) {
+        // Mengambil store dari store_group yang dicentang
         const storesInGroup = store.filter(
           (storeItem) => storeItem.store_group_id === store_group_id
         )
-        cache.stores = cache.stores.filter(
-          (store_id: any) => !storesInGroup.some((storeItem) => storeItem.store_id === store_id)
+
+        // Mengecek jika tidak ada store_group yang dicentang maka diuncheck
+        cache.promotion_store = cache.promotion_store.filter(
+          (store: any) => !storesInGroup.some((storeItem) => storeItem.store_id === store.store_id)
         )
       }
 
@@ -160,19 +217,21 @@ const CreateIncentiveSales: FC = () => {
   }
 
   const handleAssignToStore = (store_id: any, isChecked: boolean) => {
-    setIncentive((prev) => {
+    setPromo((prev) => {
       const cache = {...prev}
 
       if (store_id !== null) {
-        const storeIndex = cache.stores.indexOf(store_id)
+        const storeIndex = cache.promotion_store.findIndex((store) => store.store_id === store_id)
 
         if (isChecked) {
+          // Jika checkbox di-check, tambahkan store_id ke price_store
           if (storeIndex === -1) {
-            cache.stores.push(store_id)
+            cache.promotion_store.push({store_id})
           }
         } else {
+          // Jika checkbox di-uncheck, hapus store_id dari price_store
           if (storeIndex !== -1) {
-            cache.stores.splice(storeIndex, 1)
+            cache.promotion_store.splice(storeIndex, 1)
           }
         }
       }
@@ -182,14 +241,14 @@ const CreateIncentiveSales: FC = () => {
   }
 
   const isStoreChecked = (store_id: any) => {
-    return incentive.stores.includes(store_id)
+    return promo.promotion_store.some((store: any) => store.store_id === store_id)
   }
 
   // Checbox Handler
   const handleCheckboxChange = (isChecked: boolean) => {
-    setIncentive({
-      ...incentive,
-      type: isChecked ? 1 : 2,
+    setPromo({
+      ...promo,
+      promotion_type: isChecked ? 1 : 2,
     })
   }
 
@@ -197,28 +256,21 @@ const CreateIncentiveSales: FC = () => {
   const IncentiveValidation = () => {
     let valid = true
 
-    if (!incentive.name) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill Name form',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (!incentive.min_order) {
+    if (!promo.min_order) {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Min Order form',
         icon: 'warning',
       })
       valid = false
-    } else if (!incentive.incentive) {
+    } else if (!promo.promotion) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill Incentive Sales form',
+        text: 'Please fill Promotion form',
         icon: 'warning',
       })
       valid = false
-    } else if (incentive.stores.length === 0) {
+    } else if (promo.promotion_store.length === 0) {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Assign To Store form',
@@ -231,12 +283,12 @@ const CreateIncentiveSales: FC = () => {
   }
 
   // Desctructure Object if the value null or empty string
-  const objectValueCheck = (data: IncentiveSales) => {
-    let cleanedData: Partial<IncentiveSales> = {}
+  const objectValueCheck = (data: Promotion) => {
+    let cleanedData: Partial<Promotion> = {}
 
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        cleanedData[key as keyof IncentiveSales] = value
+        cleanedData[key as keyof Promotion] = value
       }
     })
 
@@ -244,16 +296,16 @@ const CreateIncentiveSales: FC = () => {
   }
 
   // Handle Create
-  const handleSubmit = async () => {
+  const handleUpdate = async () => {
     if (!IncentiveValidation()) {
       setIsLoading(false)
       return false
     }
 
     setIsLoading(true)
-    const incentiveData = objectValueCheck(incentive)
+    const promoData = objectValueCheck(promo)
     await axios
-      .post(`${apiUrl}/incentive`, incentiveData, {
+      .post(`${apiUrl}/promotion/${params.id}`, promoData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -266,7 +318,7 @@ const CreateIncentiveSales: FC = () => {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: 'Success Create Incentive Sales',
+            text: 'Success Update Promotion',
             showConfirmButton: false,
             timer: 1500,
           })
@@ -282,7 +334,7 @@ const CreateIncentiveSales: FC = () => {
           })
         }
 
-        navigate('/incentive-sales/view-incentive')
+        navigate('/promotion-quotation/view-promotion')
       })
       .catch((error) => {
         setIsLoading(false)
@@ -300,73 +352,93 @@ const CreateIncentiveSales: FC = () => {
       <Card className='mb-5'>
         <Card.Body>
           <Row className='mb-5'>
-            <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Nama Insentif :</Form.Label>
+            <Col xxl={6} xl={6} md={6} sm={12}>
+              <Form.Group className='form-template'>
+                <Form.Label className='fs-5'>Nama Promosi :</Form.Label>
 
-              <Form.Control
-                name='name'
-                type='text'
-                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
-              />
-            </Form.Group>
+                <Form.Control
+                  name='name'
+                  type='text'
+                  value={promo.name}
+                  onChange={(e) => promoFormHandler(e)}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col xxl={6} xl={6} md={6} sm={12}>
+              <Form.Group className='form-template'>
+                <Form.Label className='fs-5'>Periode Promosi :</Form.Label>
+
+                <RangePicker
+                  className='date-range w-100'
+                  format={'DD-MM-YYYY'}
+                  allowClear={false}
+                  value={[
+                    dayjs(promo.start_date, 'YYYY-MM-DD') ?? null,
+                    dayjs(promo.end_date, 'YYYY-MM-DD') ?? null,
+                  ]}
+                  onChange={(values) => {
+                    if (values && values.length === 2) {
+                      const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                      const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                      setPromo((prev) => ({
+                        ...prev,
+                        start_date: dateFromFormatted ?? '',
+                        end_date: dateToFormatted ?? '',
+                      }))
+                    } else {
+                      setPromo((prev) => ({
+                        ...prev,
+                        start_date: '',
+                        end_date: '',
+                      }))
+                    }
+                  }}
+                />
+              </Form.Group>
+            </Col>
           </Row>
 
           <Row className='mb-5'>
-            <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Intensif Sales :</Form.Label>
+            <Col xxl={6} xl={6} md={6} sm={12}>
+              <Form.Group className='form-template'>
+                <Form.Label className='fs-5'>Harga Promosi :</Form.Label>
 
-              <Form.Control
-                name='incentive'
-                type='number'
-                defaultValue={0}
-                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
-              />
+                <Form.Control
+                  name='promotion'
+                  type='number'
+                  value={promo.promotion}
+                  onChange={(e) => promoFormHandler(e)}
+                />
 
-              <Form.Check
-                inline
-                label='Persen'
-                name='type'
-                type='checkbox'
-                checked={incentive.type === 1}
-                className='mt-2'
-                onChange={(e) => handleCheckboxChange(e.target.checked)}
-              />
-            </Form.Group>
+                <Form.Check
+                  inline
+                  label='Persen'
+                  name='type'
+                  type='checkbox'
+                  checked={promo.promotion_type === 1}
+                  className='mt-2'
+                  onChange={(e) => handleCheckboxChange(e.target.checked)}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col xxl={6} xl={6} md={6} sm={12}>
+              <Form.Group className='form-template'>
+                <Form.Label className='fs-5'>Minimal Belanja ( Rupiah ) :</Form.Label>
+
+                <Form.Control
+                  name='min_order'
+                  type='number'
+                  value={promo.min_order}
+                  onChange={(e) => promoFormHandler(e)}
+                />
+              </Form.Group>
+            </Col>
           </Row>
 
           <Row className='mb-5'>
-            <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Minimal Order ( Rupiah ) :</Form.Label>
-
-              <Form.Control
-                name='min_order'
-                type='number'
-                defaultValue={0}
-                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
-              />
-            </Form.Group>
-          </Row>
-
-          <Row className='mb-5'>
-            {/* <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Assign To Store :</Form.Label>
-
-              <Select
-                name='stores'
-                classNamePrefix='select'
-                placeholder='Pilih Toko'
-                closeMenuOnSelect={false}
-                components={animatedComponents}
-                isMulti
-                options={store}
-                onChange={storeHandler}
-                getOptionLabel={(option: StoreSelect) =>
-                  store.find((storeItem) => storeItem.id === option.id)?.store_name ?? ''
-                }
-                getOptionValue={(option) => `${option.id}`}
-              />
-            </Form.Group> */}
-
             <Form.Group className='mb-5'>
               <Form.Label className='fs-5'>Assign To Store : </Form.Label>
 
@@ -435,9 +507,9 @@ const CreateIncentiveSales: FC = () => {
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
-              onClick={() => handleSubmit()}
+              onClick={() => handleUpdate()}
             >
-              {isLoading ? 'Saving...' : 'Save'}
+              {isLoading ? 'Updating...' : 'Update'}
             </Button>
           </div>
         </Card.Body>
@@ -446,4 +518,4 @@ const CreateIncentiveSales: FC = () => {
   )
 }
 
-export {CreateIncentiveSales}
+export {UpdatePromotionQuotation}

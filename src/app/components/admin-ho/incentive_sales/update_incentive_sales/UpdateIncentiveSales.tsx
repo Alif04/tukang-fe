@@ -1,5 +1,5 @@
 import React, {FC, useState, useEffect, ChangeEvent} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -22,14 +22,47 @@ interface IncentiveSales {
   stores: any[]
 }
 
-const CreateIncentiveSales: FC = () => {
+const UpdateIncentiveSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const params = useParams()
   const animatedComponents = makeAnimated()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch Data
+  const fetchIncentiveData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/incentive/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+
+          if (data) {
+            const promotionStores = data.stores.map((item: any) => item)
+
+            setIncentive((prev) => ({
+              ...prev,
+              name: data?.name,
+              min_order: data?.min_order,
+              incentive: parseInt(data?.incentive),
+              type: data?.type,
+              stores: promotionStores,
+            }))
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const getStore = async () => {
     try {
       const response = await axios.get(`${apiUrl}/stores?take=0`, {
@@ -84,6 +117,7 @@ const CreateIncentiveSales: FC = () => {
   }
 
   useEffect(() => {
+    fetchIncentiveData()
     getStore()
     getStoreGroup()
   }, [])
@@ -104,20 +138,24 @@ const CreateIncentiveSales: FC = () => {
   console.log('incentive', incentive)
 
   // Incentive Form Handler
-  const incentiveFormHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const incentiveFormHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {name, value} = e.target
 
-    setIncentive({
-      ...incentive,
-      [name]: name === 'min_order' || name === 'incentive' ? Number(value) : value,
-    })
+    setIncentive((prevIncentive) => ({
+      ...prevIncentive,
+      [name]: name === 'min_order' || name === 'incentive' ? parseInt(value) : value,
+    }))
   }
 
   // Store Handler
   const storeHandler = (selectedOptions: any) => {
+    const updatedStore = selectedOptions.map((option: any) => ({
+      id: option.store_id,
+    }))
+
     setIncentive((prev) => ({
       ...prev,
-      stores: selectedOptions.map((option: any) => option.id),
+      stores: updatedStore,
     }))
   }
 
@@ -243,17 +281,18 @@ const CreateIncentiveSales: FC = () => {
     return cleanedData
   }
 
-  // Handle Create
-  const handleSubmit = async () => {
+  // Handle Update
+  const handleUpdate = async () => {
     if (!IncentiveValidation()) {
       setIsLoading(false)
       return false
     }
 
     setIsLoading(true)
+
     const incentiveData = objectValueCheck(incentive)
     await axios
-      .post(`${apiUrl}/incentive`, incentiveData, {
+      .patch(`${apiUrl}/incentive/${params.id}`, incentiveData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -262,11 +301,11 @@ const CreateIncentiveSales: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.status === 201) {
+        if (response.data.status === 200) {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: 'Success Create Incentive Sales',
+            text: 'Success Update Incentive Sales',
             showConfirmButton: false,
             timer: 1500,
           })
@@ -306,6 +345,7 @@ const CreateIncentiveSales: FC = () => {
               <Form.Control
                 name='name'
                 type='text'
+                value={incentive.name}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
@@ -318,7 +358,7 @@ const CreateIncentiveSales: FC = () => {
               <Form.Control
                 name='incentive'
                 type='number'
-                defaultValue={0}
+                value={incentive.incentive}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
 
@@ -341,7 +381,7 @@ const CreateIncentiveSales: FC = () => {
               <Form.Control
                 name='min_order'
                 type='number'
-                defaultValue={0}
+                value={incentive.min_order}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
@@ -364,6 +404,7 @@ const CreateIncentiveSales: FC = () => {
                   store.find((storeItem) => storeItem.id === option.id)?.store_name ?? ''
                 }
                 getOptionValue={(option) => `${option.id}`}
+                value={incentive.stores}
               />
             </Form.Group> */}
 
@@ -435,7 +476,7 @@ const CreateIncentiveSales: FC = () => {
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
-              onClick={() => handleSubmit()}
+              onClick={() => handleUpdate()}
             >
               {isLoading ? 'Saving...' : 'Save'}
             </Button>
@@ -446,4 +487,4 @@ const CreateIncentiveSales: FC = () => {
   )
 }
 
-export {CreateIncentiveSales}
+export {UpdateIncentiveSales}
