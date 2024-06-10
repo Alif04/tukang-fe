@@ -16,8 +16,10 @@ import {faTrash, faPen, faSearch, faCheck} from '@fortawesome/free-solid-svg-ico
 interface DataType {
   numbering: number
   id: number
+  name: string
   email_type: string
   created_at: string
+  status_email_sent: string
   is_active: string
 }
 
@@ -59,6 +61,16 @@ const FormatEmailList: FC = () => {
       width: 50,
     },
     {
+      title: 'Judul Email',
+      dataIndex: 'name',
+      key: 'name',
+      align: 'center',
+      className: 'text-start',
+      onFilter: (value, record) => record.name.includes(String(value)),
+      sorter: (a, b) => a.name.length - b.name.length,
+      width: 120,
+    },
+    {
       title: 'Email Type',
       dataIndex: 'email_type',
       key: 'email_type',
@@ -69,7 +81,7 @@ const FormatEmailList: FC = () => {
       width: 120,
     },
     {
-      title: 'Created At',
+      title: 'Email Dibuat',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
@@ -78,7 +90,16 @@ const FormatEmailList: FC = () => {
       width: 120,
     },
     {
-      title: 'Status',
+      title: 'Status Email Dikirimkan',
+      dataIndex: 'status_email_sent',
+      key: 'status_email_sent',
+      align: 'center',
+      onFilter: (value, record) => record.status_email_sent.includes(String(value)),
+      sorter: (a, b) => a.status_email_sent.length - b.status_email_sent.length,
+      width: 120,
+    },
+    {
+      title: 'Status Email',
       dataIndex: 'is_active',
       key: 'is_active',
       align: 'center',
@@ -113,9 +134,9 @@ const FormatEmailList: FC = () => {
               if (willDelete.value) {
                 axios
                   .patch(
-                    `${apiUrl}/email-messages/${id}`,
+                    `${apiUrl}/mails/${id}`,
                     {
-                      is_active: true,
+                      is_active: 1,
                     },
                     {
                       headers: {
@@ -157,7 +178,7 @@ const FormatEmailList: FC = () => {
           const id = record.id
 
           Swal.fire({
-            title: `Apakah anda yakin akan mengaktifkan template email ini ?`,
+            title: `Apakah anda yakin akan menonaktifkan template email ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -168,9 +189,9 @@ const FormatEmailList: FC = () => {
               if (willDelete.value) {
                 axios
                   .patch(
-                    `${apiUrl}/email-messages/${id}`,
+                    `${apiUrl}/mails/${id}`,
                     {
-                      is_active: false,
+                      is_active: 0,
                     },
                     {
                       headers: {
@@ -325,8 +346,10 @@ const FormatEmailList: FC = () => {
         data = {
           numbering: index + 1,
           id: item?.id,
+          name: item?.title,
           email_type: EmailType,
           created_at: CreatedAt,
+          status_email_sent: item?.trigger?.description ?? 'Status Trigger Belum Ditentukan',
           is_active: item?.is_active === true ? 'Active' : 'Non Active',
         }
 

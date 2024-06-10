@@ -83,8 +83,8 @@ export function Login() {
           const user = res.data.data.user
           const isSales = user.roles.name === 'Sales'
           const isStore = user.roles.name === 'Store CS'
-          const isAdminHO = user.roles.name === 'Admin Ho'
-          const isVendor = user.roles.name === 'Admin Vendor'
+          const isAdminHO = ['Admin Ho', 'Super User'].includes(res.data.data.user.roles.name)
+          const isVendor = ['Owner Vendor', 'Admin Vendor'].includes(res.data.data.user.roles.name)
           const isTukang = user.roles.name === 'Tukang'
           const isEmployee = user.employee !== null && !isStore && !isSales && !isVendor
 
@@ -113,8 +113,8 @@ export function Login() {
             localStorage.setItem('employeeName', user?.employee?.full_name)
             localStorage.setItem('storeName', user?.employee?.store?.store_name)
           } else if (isVendor) {
-            localStorage.setItem('vendor_id', user?.vendor?.id)
-            localStorage.setItem('vendorName', user?.vendor?.company_name)
+            localStorage.setItem('vendor_id', user?.pic_vendor[0]?.vendor_id)
+            localStorage.setItem('vendorName', user?.pic_vendor[0]?.vendor?.company_name)
           } else if (isTukang) {
             localStorage.setItem('tukang_id', user?.tukang[0]?.id)
             localStorage.setItem('tukangName', user?.tukang[0]?.full_name)

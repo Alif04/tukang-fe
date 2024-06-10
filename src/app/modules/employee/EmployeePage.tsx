@@ -26,13 +26,14 @@ const SalesPage: React.FC = () => {
         path='new-employee'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PENDAFTARAN STAFF</PageTitle>
             <RegisterEmployee />
           </>
@@ -43,13 +44,14 @@ const SalesPage: React.FC = () => {
         path='update-employee/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE DATA STAFF</PageTitle>
             <EditEmployee />
           </>
@@ -60,7 +62,7 @@ const SalesPage: React.FC = () => {
         path='view-employee'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>

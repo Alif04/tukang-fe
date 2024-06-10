@@ -62,13 +62,13 @@ const DashboardWrapper: FC = () => {
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />
         </>
-      ) : userRole === 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <HeaderWrapper className='bg-header-ho' />
           <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>
           <DashboardHO />
         </>
-      ) : userRole === 'Admin Vendor' ? (
+      ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
         <>
           <HeaderWrapper className='bg-header-vendor' />
           <PageTitle>VENDOR DASHBOARD</PageTitle>

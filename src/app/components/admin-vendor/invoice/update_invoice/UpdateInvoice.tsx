@@ -1,227 +1,584 @@
-import React, {useState, FC} from 'react'
+import React, {FC, useState, useEffect} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateInvoice.css'
 
-import {Table, Row, Col, Form, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import type {ColumnsType} from 'antd/es/table'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, PaginationProps, Spin, Pagination} from 'antd'
+import {Form, Row, Col, Button, Card} from 'react-bootstrap'
+
+interface Store {
+  store_id: number
+  store_name: string
+  address: string
+  phone_number_1: string
+  phone_number_2: string
+}
+
+interface DataType {
+  id: number
+  order_id: number
+  quotation_id: number
+  quotation_id_label: string
+  store_name: string
+  date_order: string
+  member_name: string
+  payment_status: string
+  order_status: string
+  order_status_label: string
+}
+
+interface InvoiceData {
+  vendor_id: number | null
+  status: number | null
+  invoice_evidences: Array<any>
+  invoice_details: Array<{
+    id?: number | null
+    order_id: number | null
+    quotation_id?: number | null
+  }>
+}
+
+// Table Column
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'Order ID',
+    dataIndex: 'order_id',
+    key: 'order_id',
+    align: 'center',
+    width: 110,
+    className: 'col_order_id',
+    sorter: (a, b) => a.order_id - b.order_id,
+  },
+  {
+    title: 'Quotation ID',
+    dataIndex: 'quotation_id_label',
+    key: 'quotation_id_label',
+    align: 'center',
+    width: 110,
+    className: 'col_order_id',
+    onFilter: (value, record) => record.quotation_id_label.includes(String(value)),
+    sorter: (a, b) => a.quotation_id_label.length - b.quotation_id_label.length,
+  },
+  {
+    title: 'Nama Store',
+    dataIndex: 'store_name',
+    key: 'store_name',
+    align: 'center',
+    width: 150,
+    onFilter: (value, record) => record.store_name.includes(String(value)),
+    sorter: (a, b) => a.store_name.length - b.store_name.length,
+  },
+  {
+    title: 'Date Order',
+    dataIndex: 'date_order',
+    key: 'date_order',
+    align: 'center',
+    width: 130,
+    onFilter: (value, record) => record.date_order.includes(String(value)),
+    sorter: (a, b) => a.date_order.length - b.date_order.length,
+  },
+  {
+    title: 'Member Name',
+    dataIndex: 'member_name',
+    key: 'member_name',
+    align: 'center',
+    width: 150,
+    onFilter: (value, record) => record.member_name.includes(String(value)),
+    sorter: (a, b) => a.member_name.length - b.member_name.length,
+  },
+  {
+    title: 'Payment Status',
+    dataIndex: 'payment_status',
+    key: 'payment_status',
+    align: 'left',
+    width: 140,
+    onFilter: (value, record) => record.payment_status.includes(String(value)),
+    sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+  },
+  {
+    title: 'Order Status',
+    dataIndex: 'order_status',
+    key: 'order_status',
+    align: 'left',
+    width: 140,
+    onFilter: (value, record) => record.order_status.includes(String(value)),
+    sorter: (a, b) => a.order_status.length - b.order_status.length,
+    render: (order_status) => {
+      const orderStatus = order_status
+      return <Tag color='green'>{orderStatus}</Tag>
+    },
+  },
+]
 
 const UpdateInvoiceVendor: FC = () => {
-  const [fileName, setFileName] = useState<string>('No selected file')
-  const [image, setImage] = useState<string | null>(null)
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+  const params = useParams()
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files[0]) {
-      setFileName(files[0].name)
-      setImage(URL.createObjectURL(files[0]))
+  const vendorId = localStorage.getItem('vendor_id')
+
+  const [store, setStore] = useState<Store[]>([])
+
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
+
+  // Status
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+  const invoiceSend = statusData.find((status: any) => status?.category === 'INVOICESEND')
+  const workEnd = statusData.find((status: any) => status?.category === 'WORKEND')
+
+  const invoiceStatusId = invoiceSend?.value
+  const workStatusId = workEnd?.value
+
+  // Update Invoice
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [invoiceStore, setInvoiceStore] = useState<any>()
+  const [invoiceDetail, setInvoiceDetail] = useState<DataType[]>([])
+  const [invoices, setInvoices] = useState<InvoiceData>({
+    vendor_id: Number(vendorId),
+    status: null,
+    invoice_evidences: [],
+    invoice_details: [
+      {
+        id: null,
+        order_id: null,
+      },
+    ],
+  })
+
+  console.log('invoices', invoices)
+
+  // Fetch Invoice
+  const getOrders = async (page: number, pageSize: number, queryparams: any) => {
+    const response = await axios.get(
+      `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&work_order_status=${workStatusId}&page=${page}&take=${pageSize}${queryparams}`,
+      {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      }
+    )
+
+    const data = response.data.data
+    const filteredData = data.filter((x: any) => x.payment_type !== 'gratis')
+
+    setCurrentPage(response.data.page)
+    setTotalData(filteredData.length ?? 0)
+    setLoadData(false)
+
+    return filteredData
+  }
+
+  const getInvoiceById = async () => {
+    const response = await axios.get(`${apiUrl}/invoices/${params.id}`, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+
+    const data = response.data.data
+
+    setInvoiceStore(data)
+    setSelectedRowKeys(data?.invoice_details.map((item: any) => item.order_id))
+    setInvoices((prevInvoices) => ({
+      ...prevInvoices,
+      status: data?.status,
+      invoice_details: data?.invoice_details.map((item: any) => ({
+        id: item.id,
+        order_id: item.order_id,
+      })),
+    }))
+
+    return response.data.data
+  }
+
+  useEffect(() => {
+    getInvoiceById()
+  }, [])
+
+  const ViewInvoice = async (page: number, pageSize: number, queryparams: any) => {
+    try {
+      const apiData = await getOrders(page, pageSize, queryparams)
+
+      if (!apiData) {
+        console.error('No data received from getOrders')
+        return []
+      }
+
+      const invoiceDetails = apiData.map((item: any) => {
+        let data
+
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+
+        const paymentStatus = (() => {
+          if (item?.payment_type === 'survey') {
+            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.payment_type === 'gratis') {
+            return 'FREE'
+          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else {
+            return ''
+          }
+        })()
+
+        const orderStatus = (() => {
+          if (item?.work_order_status?.length >= 0) {
+            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+              return item?.status?.description
+            } else if (
+              ['WORKREQ'].includes(item?.status?.category) &&
+              item?.payment_type === 'survey' &&
+              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                item?.work_order_status[0]?.status?.description
+              )
+            ) {
+              return item?.status?.description
+            } else {
+              return item?.work_order_status[0]?.status?.description
+            }
+          } else {
+            return item?.status?.description
+          }
+        })()
+
+        data = {
+          id: item?.id,
+          order_id: item?.id,
+          quotation_id: item?.quotation[0]?.id ?? null,
+          quotation_id_label: item?.quotation[0]?.id ?? 'Tidak Rilis Quotation',
+          store_name: item?.store?.store_name,
+          date_order: orderDate,
+          member_name: item?.members?.full_name,
+          payment_status: paymentStatus,
+          order_status: item?.work_orders?.work_order_status[0]?.status?.description,
+        }
+
+        return data
+      })
+
+      return invoiceDetails
+    } catch (error) {
+      console.error('Error getting work order list data:', error)
+      return []
     }
   }
 
-  const handleImageClick = () => {
-    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
-    inputField.click()
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
+          store_id: item.id,
+          store_name: item.store_name,
+          address: item.address,
+          phone_number_1: item.phone_number_1,
+          phone_number_2: item.phone_number_2,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  const handleRemoveFile = () => {
-    setFileName('No selected file')
-    setImage(null)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewInvoice(page, pageSize, queryparams)
+    setInvoiceDetail(data)
+  }
+
+  useEffect(() => {
+    fetchData(1, 10, '')
+  }, [store])
+
+  useEffect(() => {
+    getStore()
+  }, [])
+
+  // Selected Row
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+      setSelectedRowKeys(selectedRowKeys)
+
+      // setInvoices((prevInvoices) => ({
+      //   ...prevInvoices,
+      //   invoice_details: selectedRows.map((row) => ({
+      //     order_id: row.order_id,
+      //   })),
+      // }))
+
+      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+    },
+  }
+
+  // Invoice Validation
+  const InvoiceValidation = () => {
+    let valid = true
+
+    if (!invoices.invoice_details.some((item: any) => item.order_id !== null)) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Pilih Order yang ingin diberi Invoice ',
+        icon: 'warning',
+      })
+      valid = false
+    }
+
+    return valid
+  }
+
+  // Store Data
+  const storeIds = invoiceStore?.invoice_details?.map((item: any) => item?.order?.store_id) || []
+
+  const storeData = (
+    ids: number[]
+  ): {storeName: string; storeAddress: string; storePhoneNumber: string} => {
+    const uniqueStoreIds = Array.from(new Set(ids))
+
+    const storeName = uniqueStoreIds
+      .map((storeId: number) => {
+        return store.find((x: Store) => x.store_id === storeId)?.store_name
+      })
+      .filter(Boolean)
+      .join(', ')
+
+    const storeAddress = uniqueStoreIds
+      .map((storeId: number) => {
+        return store.find((x: Store) => x.store_id === storeId)?.address
+      })
+      .filter(Boolean)
+      .join(', ')
+
+    const storePhoneNumber = uniqueStoreIds
+      .map(
+        (storeId: number) =>
+          store.find((x: Store) => x.store_id === storeId)?.phone_number_1 ||
+          store.find((x: Store) => x.store_id === storeId)?.phone_number_2
+      )
+      .join(', ')
+
+    return {storeName, storeAddress, storePhoneNumber}
+  }
+  const {storeName, storeAddress, storePhoneNumber} = storeData(storeIds)
+
+  // Handle Update
+  const handleUpdateInvoice = async () => {
+    if (!InvoiceValidation()) {
+      setIsLoading(false)
+      return false
+    }
+
+    setIsLoading(true)
+    const formData = new FormData()
+
+    formData.append('vendor_id', String(invoices.vendor_id))
+    formData.append('status', String(1))
+    invoices.invoice_details.forEach((invoice, index) => {
+      if (invoice.order_id !== null) {
+        formData.append(`invoice_details[${index}][id]`, String(invoice.id))
+        formData.append(`invoice_details[${index}][order_id]`, String(invoice.order_id))
+      }
+    })
+
+    try {
+      const response = await axios.post(`${apiUrl}/invoices/${params.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (response.data.status === 201) {
+        Swal.fire({
+          title: 'Success',
+          text: 'Success Update Invoice',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        }).then(() => {
+          navigate(`/invoice/view-invoice`)
+        })
+
+        setIsLoading(false)
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: response.data.message,
+          icon: 'error',
+        })
+
+        setIsLoading(false)
+      }
+    } catch (error: any) {
+      console.error(error)
+      setIsLoading(false)
+
+      Swal.fire({
+        title: 'Error',
+        text: error.response.data.message,
+        icon: 'error',
+      })
+    }
+  }
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
   }
 
   return (
     <section id='update-invoice'>
-      <div className='card'>
-        <div className='card-body'>
-          <Row>
-            <Col lg={8}>
-              <Row>
-                <Col>
-                  <Form>
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Order ID</Form.Label>
-                      <Form.Control type='text' />
-                    </Form.Group>
-
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Nama Jasa Pemasangan</Form.Label>
-                      <Form.Control type='text' readOnly />
-                    </Form.Group>
-                  </Form>
-                </Col>
-
-                <Col>
-                  <Form>
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Qoutation ID</Form.Label>
-                      <Form.Control type='text' />
-                    </Form.Group>
-
-                    <Form.Group className='mb-3' controlId='exampleForm.ControlInput1'>
-                      <Form.Label>Nama Lengkap Barang</Form.Label>
-                      <Form.Control type='text' readOnly />
-                    </Form.Group>
-                  </Form>
-                </Col>
-              </Row>
-
-              <Row className='mt-5 mb-5'>
-                <div className='table-item'>
-                  <Table striped hover>
-                    <thead className='table-item-head'>
-                      <tr>
-                        <th>Nama Barang</th>
-                        <th>Harga Satuan</th>
-                        <th>Jumlah</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Atas Pekerjaan</td>
-                        <td>500.000</td>
-                        <td>1</td>
-                        <td>500.000</td>
-                      </tr>
-
-                      <tr>
-                        <td>Pipa Air Panas</td>
-                        <td>3.000</td>
-                        <td>10</td>
-                        <td>30.000</td>
-                      </tr>
-
-                      <tr>
-                        <td>Paku</td>
-                        <td>50</td>
-                        <td>10</td>
-                        <td>500</td>
-                      </tr>
-
-                      <tr>
-                        <td>Pipa Paralon</td>
-                        <td>16.000</td>
-                        <td>10</td>
-                        <td>160.000</td>
-                      </tr>
-
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Total
-                        </td>
-                        <td className=' fw-bolder'>690.500</td>
-                      </tr>
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Pajak
-                        </td>
-                        <td className=' fw-bolder'>69.050</td>
-                      </tr>
-                      <tr>
-                        <td colSpan={3} className='text-end fw-bolder'>
-                          Grand Total
-                        </td>
-                        <td className=' fw-bolder'>759.550</td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </div>
-              </Row>
-
-              <Row className='mb-5'>
-                <div className='costumer-information'>
-                  <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Customer Name : MItra10 BSD
-                  </h3>
-                  <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    WA/Phone Number : 0812.867.6367
-                  </h3>
-                  <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Email Address : alia.rosana@gmail.com
-                  </h3>
-                  <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Address : Jl. Semangka IV/32 Jakarta Utara, DKI JAKARTA
-                  </h3>
-                  <h3 className='fs-5 fw-bolder text-start mt-4 mb-4'>
-                    Tanggal Request Survey: 10/2/2023
-                  </h3>
-                </div>
-              </Row>
-
-              <div className='d-flex justify-content-start'>
-                <Button variant='dark-danger m-0' type='submit'>
-                  Cancel
-                </Button>
-
-                <Button variant='dark-primary' type='submit'>
-                  Save
-                </Button>
-              </div>
+      <Card>
+        <Card.Body>
+          <Row className='invoice-detail mb-4'>
+            <Col xxl={6} xl={6} md={6} sm={12} className='vendor-information'>
+              <h1 className='fw-bolder'>{invoiceStore?.vendor?.company_name}</h1>
+              <div className='fs-3 fw-normal'>{invoiceStore?.vendor?.address}</div>
             </Col>
 
-            <Col lg={4}>
-              <div className='survey-information'>
-                <div className='form-header'>
-                  <h1 className='fw-bold'>WORK STATUS: </h1>
-                  <h1 className='fw-bold text-success'>INVOICED</h1>
-                </div>
+            <Col xxl={6} xl={6} md={6} sm={12} className='invoice-information'>
+              <h1 className='fw-bolder'>INVOICE</h1>
 
-                <div className='form-body'>
-                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>Tanggal Survey : 12/2/2023</h3>
-                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>
-                    Tanggal Pengerjaan : 12/2/2023
-                  </h3>
-                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>Lama Pengerjaan : 10 hari</h3>
-                  <h3 className='fs-5 fw-bolder text-end mt-4 mb-4'>Tanggal Selesai : 12/2/2023</h3>
-                </div>
+              <div className='fs-3 fw-semibold'>
+                Tanggal Dibuat :{' '}
+                <span className='fw-normal'>
+                  {new Date(invoiceStore?.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
               </div>
 
-              <div className='invoice-evidence'>
-                <Form.Group controlId='formFile'>
-                  <Form.Label>UPLOAD DOCUMENT</Form.Label>
-                  <Form className='form-input-image' onClick={handleImageClick}>
-                    <Form.Control
-                      type='file'
-                      accept='image/*'
-                      className='input-field-image'
-                      hidden
-                      onChange={handleFileChange}
-                    />
-
-                    {image ? (
-                      <img src={image} alt={fileName} className='image-preview' />
-                    ) : (
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    )}
-                  </Form>
-
-                  <div className='uploaded-row'>
-                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                    <span className='upload-content'>{fileName}</span>
-
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      size='sm'
-                      color='#ed2b2a'
-                      style={{cursor: 'pointer'}}
-                      onClick={handleRemoveFile}
-                    />
-                  </div>
-                </Form.Group>
-              </div>
-
-              <div className='d-flex justify-content-end'>
-                <Button variant='dark-success' type='submit'>
-                  Save & Email Quotation
-                </Button>
+              <div className='fs-3 fw-semibold'>
+                Invoice ID : <span className='fw-normal'>{invoiceStore?.id}</span>
               </div>
             </Col>
           </Row>
-        </div>
-      </div>
+
+          <Row className='invoice-detail mb-4'>
+            <Col xxl={6} xl={6} md={6} sm={12} className='receiver-information'>
+              <div className='fs-2 fw-semibold'>Ditunjukkan kepada :</div>
+              <div className='fs-4 mb-2 fw-bold'>{storeName}</div>
+              <h3 className='fs-4 mb-2 fw-normal'>{storeAddress}</h3>
+              <h3 className='fs-4 mb-2 fw-normal'>
+                {invoiceStore?.invoice_details.length
+                  ? `Telp : ${storePhoneNumber}`
+                  : 'Nomor telepon belum tersedia'}
+              </h3>
+            </Col>
+
+            <Col xxl={6} xl={6} md={6} sm={12} className='notes'>
+              {invoiceStore?.status === 3 && (
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold text-danger'>Alasan Ditolak :</Form.Label>
+                  <Form.Control
+                    style={{minHeight: '80px'}}
+                    as='textarea'
+                    readOnly
+                    value={invoiceStore?.description ?? ''}
+                  />
+                </Form.Group>
+              )}
+            </Col>
+          </Row>
+
+          <Form.Text className='fs-7 text-danger fw-semibold'>
+            *Hapus centang daftar order jika ingin mengeluarkan order tersebut dari invoice ini.
+          </Form.Text>
+
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={invoiceDetail}
+              rowSelection={{
+                selectedRowKeys: selectedRowKeys,
+                preserveSelectedRowKeys: true,
+                ...rowSelection,
+              }}
+              rowKey={(record) => record.order_id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
+            }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} Total Invoice
+              </span>
+            )}
+          />
+
+          <div className='d-flex justify-content-center align-items-center mt-5 gap-3'>
+            <Button
+              className='d-flex justify-content-center align-items-center'
+              variant='dark-success'
+              type='submit'
+              onClick={() => handleUpdateInvoice()}
+            >
+              {invoiceStore?.status === 1
+                ? 'Update Invoice'
+                : isLoading
+                ? 'Updating..'
+                : 'Kirim Kembali Invoice'}
+            </Button>
+          </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

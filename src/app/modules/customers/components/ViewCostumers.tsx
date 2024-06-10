@@ -13,7 +13,7 @@ const ViewCostumer: React.FC = () => {
         <>
           <ViewCostumerStore className='' />
         </>
-      ) : userRole === 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <ViewCostumerHO className='' />
         </>

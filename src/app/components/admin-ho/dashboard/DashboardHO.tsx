@@ -223,7 +223,7 @@ const DashboardHO: FC = () => {
 
       const data = response.data.data
 
-      const chartDatas = response.data.monthlyWorkOrders
+      const chartDatas = response.data.data
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -376,8 +376,7 @@ const DashboardHO: FC = () => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
-
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}${store_id}`
+    let queryparams = ''
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderList(data)
@@ -392,11 +391,11 @@ const DashboardHO: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartWorkOrder, 'totalOrder')
+  const surveyOrder = sumTotal(chartWorkOrder, 'totalSurveyOrder')
   const workInProgress = sumTotal(chartWorkOrder, 'totalWIPOrder')
   const orderDone = sumTotal(chartDataOrder, 'totalCompleteOrder')
   const waitingSurvey = sumTotal(chartDataOrder, 'totalSurveyReqOrder')
-  const waitingQuotations = sumTotal(chartDataOrder, 'totalCompleteOrder')
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalQuotation')
   const unpaidOrder = sumTotal(chartWorkOrder, 'totalUnpaidOrder')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (

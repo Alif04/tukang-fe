@@ -26,11 +26,11 @@ const VendorPage: React.FC = () => {
         path='view-quotation'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -47,11 +47,11 @@ const VendorPage: React.FC = () => {
         path='new-quotation'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -68,11 +68,11 @@ const VendorPage: React.FC = () => {
         path='update-quotation/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -89,11 +89,11 @@ const VendorPage: React.FC = () => {
         path='detail-quotation/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>

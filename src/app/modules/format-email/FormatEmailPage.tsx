@@ -15,12 +15,6 @@ const orderBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const FormatEmailPage: React.FC = () => {
@@ -32,7 +26,7 @@ const FormatEmailPage: React.FC = () => {
         path='format-email'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -49,7 +43,7 @@ const FormatEmailPage: React.FC = () => {
         path='update-format-email/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -66,7 +60,7 @@ const FormatEmailPage: React.FC = () => {
         path='view-format-email'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>

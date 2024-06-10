@@ -9,11 +9,11 @@ const ViewQuotation: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Admin HO' ? (
+      {userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <ViewQuotationHO className='' />
         </>
-      ) : userRole === 'Admin Vendor' || userRole == 'Tukang' ? (
+      ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
         <>
           <ViewQuotationVendor className='' />
         </>

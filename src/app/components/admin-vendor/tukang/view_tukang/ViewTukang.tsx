@@ -13,7 +13,15 @@ import {Table, PaginationProps, Pagination, Spin} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faFileExcel, faSearch, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {
+  faBook,
+  faPen,
+  faFileExcel,
+  faSearch,
+  faTrash,
+  faCircleXmark,
+  faCircleCheck,
+} from '@fortawesome/free-solid-svg-icons'
 
 interface TukangService {
   value: number | null
@@ -27,10 +35,11 @@ interface DataType {
   email: string
   phone_number: number
   address: string
-  birth_day: string
+  // birth_day: string
+  // ktp: number
   keahlian: string
-  ktp: number
   status: string
+  is_active: boolean
 }
 
 const ViewTukangVendor: FC = () => {
@@ -75,190 +84,7 @@ const ViewTukangVendor: FC = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
-
-  const columns: ColumnsType<DataType> = [
-    {
-      title: 'No. ',
-      dataIndex: 'no',
-      key: 'no',
-      align: 'center',
-      sorter: (a, b) => a.no - b.no,
-    },
-    {
-      title: 'Nama Tukang',
-      dataIndex: 'full_name',
-      key: 'full_name',
-      align: 'left',
-      onFilter: (value, record) => record.full_name.includes(String(value)),
-      sorter: (a, b) => a.full_name.length - b.full_name.length,
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      align: 'left',
-      onFilter: (value, record) => record.email.includes(String(value)),
-      sorter: (a, b) => a.email.length - b.email.length,
-    },
-    {
-      title: 'No. Handphone',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
-      align: 'left',
-      sorter: (a, b) => a.phone_number - b.phone_number,
-    },
-    {
-      title: 'Alamat',
-      dataIndex: 'address',
-      key: 'address',
-      align: 'left',
-      onFilter: (value, record) => record.address.includes(String(value)),
-      sorter: (a, b) => a.address.length - b.address.length,
-    },
-    {
-      title: 'Tanggal Lahir ',
-      dataIndex: 'birth_day',
-      key: 'birth_day',
-      align: 'center',
-      onFilter: (value, record) => record.birth_day.includes(String(value)),
-      sorter: (a, b) => a.birth_day.length - b.birth_day.length,
-    },
-    {
-      title: 'No. KTP',
-      dataIndex: 'ktp',
-      key: 'ktp',
-      align: 'center',
-      sorter: (a, b) => a.ktp - b.ktp,
-    },
-    {
-      title: 'Keahlian',
-      dataIndex: 'keahlian',
-      key: 'keahlian',
-      align: 'left',
-      onFilter: (value, record) => record.keahlian.includes(String(value)),
-      sorter: (a, b) => a.keahlian.length - b.keahlian.length,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      align: 'left',
-      onFilter: (value, record) => record.status.includes(String(value)),
-      sorter: (a, b) => a.status.length - b.status.length,
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      fixed: 'right',
-      align: 'center',
-      render: (record) => {
-        const handleDetailId = () => {
-          const id = record.tukang_id
-          navigate(`/tukang/detail-tukang/${id}`)
-        }
-
-        const handleUpdateId = () => {
-          const id = record.tukang_id
-          navigate(`/tukang/update-tukang/${id}`)
-        }
-
-        const handleDeleteId = () => {
-          const id = record.tukang_id
-
-          Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Tukang ini ?`,
-            icon: 'warning',
-            showConfirmButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Ya',
-            denyButtonText: 'Cancel',
-          })
-            .then((willDelete) => {
-              if (willDelete.value) {
-                axios
-                  .delete(`${apiUrl}/tukang/${id}`, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
-                    },
-                  })
-                  .then((response) => {
-                    Swal.fire({
-                      title: 'Success',
-                      text: response.data.message,
-                      icon: 'success',
-                    }).then(() => {
-                      window.location.reload()
-                    })
-                  })
-                  .catch((error) => {
-                    Swal.fire({
-                      title: 'Error',
-                      text: error.response.data.message,
-                      icon: 'error',
-                    })
-                  })
-              }
-            })
-            .catch((error) => {
-              Swal.fire({
-                title: 'Error',
-                text: error.response.data.message,
-                icon: 'error',
-              })
-            })
-        }
-
-        return (
-          <div
-            className={
-              userRole === 'Admin HO'
-                ? 'button-wrapper justify-content-center gap-3'
-                : 'button-wrapper justify-content-between gap-3'
-            }
-          >
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Detail Tukang')}
-            >
-              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
-                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
-
-            {userRole !== 'Admin HO' && (
-              <>
-                <OverlayTrigger
-                  placement='bottom'
-                  delay={{show: 250, hide: 400}}
-                  overlay={renderTooltip('Edit Tukang')}
-                >
-                  <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
-                    <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                  </Button>
-                </OverlayTrigger>
-
-                <OverlayTrigger
-                  placement='bottom'
-                  delay={{show: 250, hide: 400}}
-                  overlay={renderTooltip('Delete Tukang')}
-                >
-                  <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
-                    <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
-                  </Button>
-                </OverlayTrigger>
-              </>
-            )}
-          </div>
-        )
-      },
-    },
-  ]
-
+  // Fetch Data
   const fetchTukangList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/tukang?order_by=desc&page=${page}&take=${pageSize}&vendor_id=${vendorId}${queryparams}`
 
@@ -315,6 +141,7 @@ const ViewTukangVendor: FC = () => {
           ktp: item?.ktp_number ?? '-',
           keahlian: tukangService ?? '-',
           status: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
+          is_active: item.is_active,
         }
 
         return data
@@ -335,6 +162,321 @@ const ViewTukangVendor: FC = () => {
   useEffect(() => {
     fetchData(1, 10, '')
   }, [])
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'No. ',
+      dataIndex: 'no',
+      key: 'no',
+      align: 'center',
+      sorter: (a, b) => a.no - b.no,
+    },
+    {
+      title: 'Nama Tukang',
+      dataIndex: 'full_name',
+      key: 'full_name',
+      align: 'left',
+      onFilter: (value, record) => record.full_name.includes(String(value)),
+      sorter: (a, b) => a.full_name.length - b.full_name.length,
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      align: 'left',
+      onFilter: (value, record) => record.email.includes(String(value)),
+      sorter: (a, b) => a.email.length - b.email.length,
+    },
+    {
+      title: 'No. Handphone',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
+      align: 'left',
+      sorter: (a, b) => a.phone_number - b.phone_number,
+    },
+    {
+      title: 'Alamat',
+      dataIndex: 'address',
+      key: 'address',
+      align: 'left',
+      onFilter: (value, record) => record.address.includes(String(value)),
+      sorter: (a, b) => a.address.length - b.address.length,
+    },
+    // {
+    //   title: 'Tanggal Lahir ',
+    //   dataIndex: 'birth_day',
+    //   key: 'birth_day',
+    //   align: 'center',
+    //   onFilter: (value, record) => record.birth_day.includes(String(value)),
+    //   sorter: (a, b) => a.birth_day.length - b.birth_day.length,
+    // },
+    // {
+    //   title: 'No. KTP',
+    //   dataIndex: 'ktp',
+    //   key: 'ktp',
+    //   align: 'center',
+    //   sorter: (a, b) => a.ktp - b.ktp,
+    // },
+    {
+      title: 'Keahlian',
+      dataIndex: 'keahlian',
+      key: 'keahlian',
+      align: 'left',
+      onFilter: (value, record) => record.keahlian.includes(String(value)),
+      sorter: (a, b) => a.keahlian.length - b.keahlian.length,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'left',
+      onFilter: (value, record) => record.status.includes(String(value)),
+      sorter: (a, b) => a.status.length - b.status.length,
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      fixed: 'right',
+      align: 'center',
+      render: (record) => {
+        const id = record.tukang_id
+        const isActive = record.is_active
+
+        const handleDetailId = () => {
+          navigate(`/tukang/detail-tukang/${id}`)
+        }
+
+        const handleUpdateId = () => {
+          navigate(`/tukang/update-tukang/${id}`)
+        }
+
+        const handleActive = () => {
+          Swal.fire({
+            title: `Apakah anda yakin akan mengaktifkan tukang ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Tidak',
+          })
+            .then((willActive) => {
+              const formData = new FormData()
+              formData.append('is_active', String(1))
+
+              if (willActive.value) {
+                axios
+                  .post(`${apiUrl}/tukang/${id}`, formData, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: response.data.message,
+                      icon: 'success',
+                    }).then(() => {
+                      ViewTukang(1, 10, '')
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+
+        const handleNonActive = () => {
+          Swal.fire({
+            title: `Apakah anda yakin akan menonaktifkan tukang ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Tidak',
+          })
+            .then((willNonActive) => {
+              const formData = new FormData()
+              formData.append('is_active', String(0))
+
+              if (willNonActive.value) {
+                axios
+                  .post(`${apiUrl}/tukang/${id}`, formData, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: response.data.message,
+                      icon: 'success',
+                    }).then(() => {
+                      ViewTukang(1, 10, '')
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+
+        const handleDeleteId = () => {
+          Swal.fire({
+            title: `Apakah anda yakin akan menghapus data Tukang ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Cancel',
+          })
+            .then((willDelete) => {
+              if (willDelete.value) {
+                axios
+                  .post(`${apiUrl}/tukang/${id}`, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: response.data.message,
+                      icon: 'success',
+                    }).then(() => {
+                      ViewTukang(1, 10, '')
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+
+        return (
+          <div
+            className={
+              userRole === 'Admin HO' || userRole === 'Super User'
+                ? 'button-wrapper justify-content-center gap-1'
+                : 'button-wrapper justify-content-between gap-1'
+            }
+          >
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Detail Tukang')}
+            >
+              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+
+            {!['Super User', 'Admin HO'].includes(userRole ?? '') && (
+              <>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Edit Tukang')}
+                >
+                  <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                    <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+
+                {isActive === false && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Aktifkan Tukang')}
+                  >
+                    <Button className='button-active' variant='success' onClick={handleActive}>
+                      <FontAwesomeIcon
+                        className='text-white'
+                        icon={faCircleCheck}
+                        fontSize={'13px'}
+                      />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+
+                {isActive === true && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Non Aktif Tukang')}
+                  >
+                    <Button className='button-disable' variant='danger' onClick={handleNonActive}>
+                      <FontAwesomeIcon
+                        className='text-white'
+                        icon={faCircleXmark}
+                        fontSize={'13px'}
+                      />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Delete Tukang')}
+                >
+                  <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                    <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+              </>
+            )}
+          </div>
+        )
+      },
+    },
+  ]
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {

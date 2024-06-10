@@ -4,12 +4,14 @@ import './ReportHO.css'
 
 import axios from 'axios'
 import Select from 'react-select'
-import {Table, PaginationProps, Tag} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Card, Row, Col, Button} from 'react-bootstrap'
+import {InboxOutlined} from '@ant-design/icons'
+import {Table, PaginationProps, Tag, Upload, DatePicker} from 'antd'
+import {Card, Row, Col, Button, Modal} from 'react-bootstrap'
+import Swal from 'sweetalert2'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
+const {Dragger} = Upload
 
 type Props = {
   endpoint: string
@@ -39,7 +41,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) => status.category.includes(statusName))
+  const desiredStatus = statusData.filter((status: any) => status.category === statusName)
+  const statuses = desiredStatus.map((x) => x.value)
 
   const [reportData, setReportData] = useState<any[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<any>()
@@ -48,6 +51,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
+  const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
+  const [loadingUploadExcel, setLoadingUploadExcel] = useState<boolean>(false)
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -856,6 +861,79 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       ]
       break
 
+    case 'sales-comission':
+      columns = [
+        {
+          title: 'Order ID',
+          dataIndex: 'order_id',
+          key: 'order_id',
+          align: 'center',
+          width: 110,
+          className: 'col_order_id',
+          defaultSortOrder: 'descend',
+          sorter: (a, b) => a.order_id - b.order_id,
+        },
+        {
+          title: 'Tanggal Order',
+          dataIndex: 'date_order',
+          key: 'date_order',
+          align: 'left',
+          width: 110,
+          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+        },
+        {
+          title: 'Nama Costumer',
+          dataIndex: 'costumer_name',
+          key: 'costumer_name',
+          align: 'left',
+          width: 140,
+          onFilter: (value, record) => record.costumer_name.includes(String(value)),
+          sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+        },
+        {
+          title: 'No Telepon',
+          dataIndex: 'phone_number',
+          key: 'phone_number',
+          align: 'center',
+          width: 130,
+          sorter: (a, b) => a.phone_number - b.phone_number,
+        },
+        {
+          title: 'Email',
+          dataIndex: 'email',
+          key: 'email',
+          align: 'left',
+          width: 170,
+          onFilter: (value, record) => record.email.includes(String(value)),
+          sorter: (a, b) => a.email.length - b.email.length,
+        },
+        {
+          title: 'Alamat',
+          dataIndex: 'address',
+          key: 'address',
+          align: 'left',
+          width: 150,
+          onFilter: (value, record) => record.address.includes(String(value)),
+          sorter: (a, b) => a.address.length - b.address.length,
+        },
+        {
+          title: 'Grand Total',
+          dataIndex: 'grand_total',
+          key: 'grand_total',
+          align: 'center',
+          width: 135,
+          sorter: (a, b) => a.grand_total - b.grand_total,
+        },
+        {
+          title: 'Sales Comission',
+          dataIndex: 'sales_comission',
+          key: 'sales_comission',
+          align: 'center',
+          width: 135,
+          sorter: (a, b) => a.sales_comission - b.sales_comission,
+        },
+      ]
+      break
     default:
       columns = [
         {
@@ -956,12 +1034,10 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   ) => {
     try {
       if (desiredStatus && endpoint) {
-        const statuses = desiredStatus.map((x) => x.value)
-
         const url =
           statusName === '' && selectedStore.value === null
             ? `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
-            : `${apiUrl}/reports/${endpoint}?order_by=desc&store=${selectedStore.value}&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
+            : `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
 
         const response = await axios.get(url, {
           headers: {
@@ -991,8 +1067,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               break
           }
 
-          setCurrentPage(response?.data?.data?.page ?? 1)
-          setTotalOrder(response?.data?.data?.total ?? 0)
+          setCurrentPage(response?.data?.page ?? 1)
+          setTotalOrder(response?.data?.total ?? 0)
         }
 
         return ['reschedule'].includes(endpoint) ? response.data.data.data : response.data.data
@@ -1022,6 +1098,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       let refundData
       let rescheduleData
       let csiData
+      let salesComissionData
 
       switch (endpoint) {
         case 'orders':
@@ -1053,7 +1130,12 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           complaintData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item.orders.created_at)
+            const orderDate = new Date(item.orders.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
             const complaintDate = new Date(item.complaint_date)
             const currentDate = new Date()
 
@@ -1105,7 +1187,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           quotationData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.order?.request_survey ?? '-')
+            const orderDate = new Date(item?.order?.request_survey).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
 
             const workOrderItems = item?.quotation_details
               .map((service: any) => service.name ?? '-')
@@ -1134,7 +1220,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           refundData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item.orders.created_at)
+            const orderDate = new Date(item?.orders?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
 
             let phoneNumber =
               item.orders.members.phone_number !== 'null'
@@ -1147,7 +1237,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               refund_id: item.id,
               order_id: item.order_id,
               store_name: item.orders.store.store_name,
-              date_order: formatDate(orderDate),
+              date_order: orderDate,
               member_id: item.orders.members.id,
               member_name: item.orders.members.full_name,
               phone_number: phoneNumber,
@@ -1165,7 +1255,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           rescheduleData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item.order.created_at)
+            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
 
             let phoneNumber =
               item.order.members.phone_number !== 'null'
@@ -1178,7 +1272,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               refund_id: item?.id,
               order_id: item?.order_id,
               store_name: item?.order?.store.store_name,
-              date_order: formatDate(orderDate),
+              date_order: orderDate,
               member_id: item?.order?.members.member_number,
               member_name: item?.order?.members.full_name,
               phone_number: phoneNumber,
@@ -1215,6 +1309,33 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           })
           break
 
+        case 'sales-comission':
+          salesComissionData = apiData.map((item: any) => {
+            let data
+
+            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            data = {
+              order_id: item.id,
+              date_order: orderDate,
+              costumer_name: item?.members?.full_name,
+              phone_number: item?.project_number,
+              email: item?.members?.email ?? '-',
+              address: item?.project_address,
+              grand_total: `Rp. ${parseInt(item?.grand_total ?? 0).toLocaleString('id')}`,
+              sales_comission: `Rp. ${parseInt(item?.grand_total_comission ?? 0).toLocaleString(
+                'id'
+              )}`,
+            }
+
+            return data
+          })
+          break
+
         default:
           break
       }
@@ -1231,6 +1352,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         ? rescheduleData
         : endpoint === 'csi'
         ? csiData
+        : endpoint === 'sales-comission'
+        ? salesComissionData
         : []
     } catch (error) {
       console.error('Error getting report list data:', error)
@@ -1339,11 +1462,78 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     return `${day}/${month}/${year}`
   }
 
+  // Upload Excel
+  const [excel, setExcel] = useState<FileList | []>()
+  const [showModal, setShowModal] = useState(false)
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
+
+  const handleFileChange = (event: any) => {
+    const files = event.fileList
+    if (files && files[0]) {
+      setExcel(files[0])
+    }
+  }
+
+  const handleFileRemove = () => {
+    setExcel([])
+  }
+
+  const handleUpload = async () => {
+    const formData = new FormData()
+
+    if (excel?.length) {
+      formData.append('excel_file', excel[0])
+    }
+
+    await axios
+      .post(`${apiUrl}/sales-comission/upload-excel-sales-comission`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201 || response.data.status === 200) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil Upload Excel',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+
+        window.location.reload()
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  const handleUploadExcel = () => {
+    setShowModal(true)
+  }
+
+  // Export Excel
   const exportToExcel = () => {
     setLoadingExport(true)
 
     axios
-      .get(`${apiUrl}/orders/export-excel?take=0`, {
+      .get(`${apiUrl}/${endpoint}/export-excel?take=0`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -1359,6 +1549,30 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         link.click()
 
         setLoadingExport(false)
+      })
+  }
+
+  // Export Template Excel
+  const exportTemplate = () => {
+    setLoadingTemplate(true)
+
+    axios
+      .get(`${apiUrl}/${endpoint}/export-excel-template`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Template ${title}.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingTemplate(false)
       })
   }
 
@@ -1478,11 +1692,29 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               <div className='d-flex justify-content-between align-items-center'>
                 <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
 
-                <button className='button-export' onClick={exportToExcel}>
-                  <h3 className='fs-5 fw-semibold'>
-                    {loadingExport ? 'Exporting..' : 'Export To Excel'}
-                  </h3>
-                </button>
+                <div className='d-flex justify-content-between gap-3'>
+                  {['sales-comission'].includes(endpoint) && statusName === 'PAID' && (
+                    <>
+                      <button className='button-export' onClick={handleUploadExcel}>
+                        <h3 className='fs-5 fw-semibold'>
+                          {loadingUploadExcel ? 'Uploading..' : 'Upload Excel'}
+                        </h3>
+                      </button>
+
+                      <button className='button-export' onClick={exportTemplate}>
+                        <h3 className='fs-5 fw-semibold'>
+                          {loadingTemplate ? 'Exporting..' : 'Export Template Excel'}
+                        </h3>
+                      </button>
+                    </>
+                  )}
+
+                  <button className='button-export' onClick={exportToExcel}>
+                    <h3 className='fs-5 fw-semibold'>
+                      {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                    </h3>
+                  </button>
+                </div>
               </div>
 
               {!['csi', 'complaints', 'reschedule'].includes(endpoint) ? (
@@ -1551,6 +1783,45 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           )}
         </Col>
       </Row>
+
+      {/* Modal Upload Excel */}
+      <Modal
+        dialogClassName='modal-upload-excel'
+        centered
+        show={showModal}
+        onHide={handleCloseModal}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Upload Template Insentif Sales</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Dragger
+            className='input-excel'
+            multiple={false}
+            maxCount={1}
+            beforeUpload={() => false}
+            onChange={(e) => handleFileChange(e)}
+            onRemove={handleFileRemove}
+          >
+            <p className='ant-upload-drag-icon'>
+              <InboxOutlined style={{fontSize: 32}} rev />
+            </p>
+
+            <p className='ant-upload-text'>Klik atau seret file ke area ini untuk mengunggah</p>
+            <p className='ant-upload-hint text-danger'>Maksimal upload file excel adalah satu</p>
+          </Dragger>
+
+          <Button
+            className='d-flex justify-content-center align-items-center w-100 mt-5'
+            disabled={excel?.length === 0}
+            onClick={handleUpload}
+            variant='primary'
+          >
+            {loadingUploadExcel ? 'Uploading..' : 'Upload Excel'}
+          </Button>
+        </Modal.Body>
+      </Modal>
     </section>
   )
 }

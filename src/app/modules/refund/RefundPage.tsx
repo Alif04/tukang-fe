@@ -16,12 +16,6 @@ const orderBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const RefundPage: React.FC = () => {
@@ -33,7 +27,7 @@ const RefundPage: React.FC = () => {
         path='view-refund'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -50,7 +44,7 @@ const RefundPage: React.FC = () => {
         path='new-refund/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -67,7 +61,7 @@ const RefundPage: React.FC = () => {
         path='update-refund/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -84,7 +78,7 @@ const RefundPage: React.FC = () => {
         path='detail-refund/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>

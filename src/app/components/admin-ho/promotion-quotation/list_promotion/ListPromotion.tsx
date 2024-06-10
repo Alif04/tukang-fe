@@ -1,0 +1,346 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
+
+import axios from 'axios'
+import type {ColumnsType} from 'antd/es/table'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
+
+const {RangePicker} = DatePicker
+
+type Props = {
+  className: string
+}
+
+interface DataType {
+  index: number
+  id: number
+  name: string
+  min_order: string
+  promotion: string
+  promotion_type: string
+  promotion_stores: string
+}
+
+const ListPromotionHO: React.FC<Props> = ({className}) => {
+  const apiUrl = process.env.REACT_APP_API_URL
+  const navigate = useNavigate()
+
+  const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
+  const [userData, setUserData] = useState<DataType[]>([])
+
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
+  const [pageSize, setPageSize] = useState<number>(10)
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
+
+  // Handle Change Search Filter
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
+  }
+
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'No.',
+      dataIndex: 'index',
+      key: 'index',
+      align: 'center',
+      width: 90,
+      className: 'col_order_id',
+      sorter: (a, b) => a.index - b.index,
+      render: (text: any, record: any, index: number) => {
+        return (currentPage - 1) * pageSize + index + 1
+      },
+    },
+    {
+      title: 'Nama Promosi',
+      dataIndex: 'name',
+      key: 'name',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.name.includes(String(value)),
+      sorter: (a, b) => a.name.length - b.name.length,
+    },
+    {
+      title: 'Minimal Belanja',
+      dataIndex: 'min_order',
+      key: 'min_order',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.min_order.includes(String(value)),
+      sorter: (a, b) => a.min_order.length - b.min_order.length,
+    },
+    {
+      title: 'Promosi',
+      dataIndex: 'promotion',
+      key: 'promotion',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.promotion.includes(String(value)),
+      sorter: (a, b) => a.promotion.length - b.promotion.length,
+    },
+    {
+      title: 'Tipe Promosi',
+      dataIndex: 'promotion_type',
+      key: 'promotion_type',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.promotion_type.includes(String(value)),
+      sorter: (a, b) => a.promotion_type.length - b.promotion_type.length,
+    },
+    {
+      title: 'Assign To Store',
+      dataIndex: 'promotion_stores',
+      key: 'promotion_stores',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.promotion_stores.includes(String(value)),
+      sorter: (a, b) => a.promotion_stores.length - b.promotion_stores.length,
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      fixed: 'right',
+      align: 'center',
+      width: 80,
+      render: (record) => {
+        const id = record.id
+
+        const handleUpdateId = () => {
+          navigate(`/promotion-quotation/update-promotion/${id}`)
+        }
+
+        return (
+          <div className='button-wrapper d-flex justify-content-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Edit Promosi')}
+            >
+              <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+          </div>
+        )
+      },
+    },
+  ]
+
+  const getPromotion = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/promotion?page=${page}&take=${pageSize}${queryparams}`
+
+    try {
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      setCurrentPage(response?.data?.data?.page ?? 1)
+      setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
+
+      return response.data.data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const ViewPromotion = async (page: number, pageSize: number, queryparams: any) => {
+    try {
+      const apiData = await getPromotion(page, pageSize, queryparams)
+
+      if (!apiData) {
+        console.error('No data received from promotion data')
+        return []
+      }
+
+      const promotionData = apiData.map((item: any, index: number) => {
+        let data
+
+        const formattedPrice = (price: number) => {
+          return new Intl.NumberFormat('id', {
+            style: 'currency',
+            currency: 'IDR',
+            maximumFractionDigits: 0,
+          }).format(price)
+        }
+
+        const promotionStores = item.promotion_stores
+          .map((item: any) => item.store.store_name)
+          .join(', ')
+
+        data = {
+          index: index + 1,
+          id: item.id,
+          name: item.name,
+          min_order: formattedPrice(parseInt(item.min_order)),
+          promotion:
+            item.promotion_type === 1
+              ? `${item.promotion} %`
+              : `${formattedPrice(parseInt(item.promotion))}`,
+          promotion_type: item.promotion_type === 1 ? 'Persen' : 'Nominal',
+          promotion_stores: promotionStores,
+        }
+
+        return data
+      })
+
+      return promotionData
+    } catch (error) {
+      console.error('Error getting promotion list data:', error)
+      return []
+    }
+  }
+
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewPromotion(page, pageSize, queryparams)
+    setUserData(data)
+  }
+
+  useEffect(() => {
+    fetchData(1, 10, '')
+  }, [])
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    let queryparams = ``
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    const data = await ViewPromotion(1, 10, queryparams)
+    setUserData(data)
+
+    setLoadingButton(false)
+  }
+
+  return (
+    <section id='view-item'>
+      <div className={`card ${className}`}>
+        <div className='card-body table-view-order'>
+          <Row className='table-head-wrapper'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex mb-2'>
+              {/* <div className='d-flex align-items-center me-3'>
+                <h3 className='fs-3 fw-normal'>Date : </h3>
+              </div>
+
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range ms-3'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              /> */}
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <div className='filter-search'>
+                <InputGroup>
+                  <InputGroup.Text className='filter-ltr'>
+                    <FontAwesomeIcon icon={faSearch} size='sm' />
+                  </InputGroup.Text>
+
+                  <Form.Control
+                    placeholder='Search'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
+                </InputGroup>
+              </div>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Button
+                className='btn-dark-primary button-submit'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </Col>
+          </Row>
+
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={userData}
+              rowKey={(record) => record.id}
+              pagination={false}
+            />
+          </Spin>
+
+          <Pagination
+            className='mt-5'
+            style={{textAlign: 'right', position: 'relative'}}
+            current={currentPage}
+            total={totalData}
+            showSizeChanger
+            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+            itemRender={itemRender}
+            onShowSizeChange={(current, size) => setPageSize(size)}
+            onChange={(page, pageSize) => {
+              fetchData(page, pageSize, '')
+            }}
+            showTotal={(total, range) => (
+              <span style={{left: 0, position: 'absolute'}}>
+                Showing {range[0]} - {range[1]} of {total} List Promosi Quotation
+              </span>
+            )}
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export {ListPromotionHO}

@@ -684,6 +684,13 @@ const NewVendorHO: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (storeId?.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Assign To Store form',
+        icon: 'warning',
+      })
+      valid = false
     }
 
     return valid

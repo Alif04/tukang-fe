@@ -15,12 +15,6 @@ const orderBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const StorePage: React.FC = () => {
@@ -32,7 +26,7 @@ const StorePage: React.FC = () => {
         path='new-store'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -49,7 +43,7 @@ const StorePage: React.FC = () => {
         path='update-store/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -66,7 +60,7 @@ const StorePage: React.FC = () => {
         path='view-store'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>

@@ -30,6 +30,7 @@ interface emailLayout {
   csi_id: number | null
   email_type: number | null
   trigger_id: number | null
+  is_active: number | null
   title: string
   cc: string
   bcc: string
@@ -164,6 +165,7 @@ const FormatEmailHO: FC = () => {
     csi_id: null,
     email_type: null,
     trigger_id: null,
+    is_active: 1,
     title: '',
     cc: '',
     bcc: '',
@@ -350,7 +352,7 @@ const FormatEmailHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Template',
+            text: 'Success Create Template',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,

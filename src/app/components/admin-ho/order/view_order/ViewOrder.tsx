@@ -124,7 +124,9 @@ const ViewOrders: FC = () => {
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
 
-  const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+  const storeId = !['Super User', 'Admin HO'].includes(userRole ?? '')
+    ? `&store_id=${userStore}`
+    : ''
   const userSales = userRole === 'Sales' ? `&sales_id=${salesId}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
@@ -134,6 +136,7 @@ const ViewOrders: FC = () => {
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
+  const [queryParams, setQueryParams] = useState('')
 
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
@@ -800,8 +803,8 @@ const ViewOrders: FC = () => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
-  }, [])
+    fetchData(1, 10, queryParams)
+  }, [queryParams])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
@@ -819,6 +822,7 @@ const ViewOrders: FC = () => {
     valueCheck(`&store_id=`, selectedStore?.value)
     valueCheck(`&vendor_id=`, selectedVendor?.value)
 
+    setQueryParams(queryparams)
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)
 
@@ -887,7 +891,7 @@ const ViewOrders: FC = () => {
     if (quotationFiles?.length) {
       quotationFiles.forEach((item: any, index: number) => {
         if (item.id) {
-          formData.append(`preserve_files[${index}`, item.id)
+          formData.append(`preserve_files[${index}]`, item.id)
         }
       })
     }
@@ -1477,10 +1481,14 @@ const ViewOrders: FC = () => {
               <Button
                 className='d-flex justify-content-center align-items-center'
                 onClick={handleTriggerEmail}
-                disabled={loadingUpdate}
+                disabled={orderDetail?.members?.email === '' ? true : loadingUpdate ? true : false}
                 variant='dark-primary'
               >
-                {loadingUpdate ? 'Submitting..' : 'Submit'}
+                {orderDetail?.members?.email === ''
+                  ? 'Tidak dapat mengirim email karena user tidak mempunyai email'
+                  : loadingUpdate
+                  ? 'Submitting..'
+                  : 'Submit'}
               </Button>
             </div>
           </Skeleton>
@@ -2118,7 +2126,8 @@ const ViewOrders: FC = () => {
               </OverlayTrigger>
             )}
 
-            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Admin HO' ? (
+            {['QUOTEOUT'].includes(record.order_status) &&
+            ['Super User', 'Admin HO'].includes(userRole ?? '') ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -2216,7 +2225,7 @@ const ViewOrders: FC = () => {
                 </FormGroup>
               </div>
 
-              {userRole === 'Admin HO' && (
+              {['Super User', 'Admin HO'].includes(userRole ?? '') && (
                 <Select
                   name='store_id'
                   className='form-control p-0 w-25'
@@ -2229,7 +2238,7 @@ const ViewOrders: FC = () => {
                 />
               )}
 
-              {userRole === 'Admin HO' && (
+              {['Super User', 'Admin HO'].includes(userRole ?? '') && (
                 <Select
                   name='store_id'
                   className='form-control p-0 w-25'
@@ -2277,7 +2286,7 @@ const ViewOrders: FC = () => {
             pageSizeOptions={[5, 10, 20, 50, 100]}
             itemRender={itemRender}
             onChange={(page, pageSize) => {
-              fetchData(page, pageSize, '')
+              fetchData(page, pageSize, queryParams)
             }}
             showTotal={(total, range) => (
               <span style={{left: 0, position: 'absolute'}}>

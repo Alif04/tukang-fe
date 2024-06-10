@@ -69,7 +69,7 @@ const DetailTukangVendor: FC = () => {
           const data = response.data.data
 
           setTukangDetail(data)
-          setTukangId(response.data.data.data.id)
+          setTukangId(response.data.data.id)
 
           if (data?.tukang_document) {
             const documentTypes = ['npwp_file', 'ktp_file', 'compro_file', 'surat_permohonan_file']

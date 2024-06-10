@@ -13,19 +13,19 @@ const ViewReport: React.FC = () => {
 
   return (
     <>
-      {userRole == 'Store CS' || userRole === 'Store Staff' ? (
+      {userRole === 'Store CS' || userRole === 'Store Staff' ? (
         <>
           <ViewReportStore />
         </>
-      ) : userRole == 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <ViewReportHO />
         </>
-      ) : userRole == 'Admin Vendor' ? (
+      ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
         <>
           <ViewReportVendor />
         </>
-      ) : userRole == 'Tukang' ? (
+      ) : userRole === 'Tukang' ? (
         <>
           <ViewReportTukang />
         </>

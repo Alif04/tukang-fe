@@ -30,15 +30,15 @@ const RefundPage: React.FC = () => {
         path='view-report'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole == 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
-            ) : userRole == 'Tukang' ? (
+            ) : userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -55,7 +55,7 @@ const RefundPage: React.FC = () => {
         path='report-insentif'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -72,7 +72,7 @@ const RefundPage: React.FC = () => {
         path='report-performance'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -192,7 +192,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-transaksi-all'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -216,7 +216,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-survey'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -240,7 +240,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-quotation'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -264,7 +264,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-pending-payment'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -288,7 +288,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-on-progress'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -312,7 +312,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-reschedule'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -336,7 +336,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-complaint'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -360,7 +360,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-claim-garansi'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -384,7 +384,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-expense-promosi'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -408,7 +408,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-refund'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -432,7 +432,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-other-income'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -456,7 +456,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-total-penalty'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -480,7 +480,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-claim-voucher'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -504,7 +504,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-tagihan-bulanan'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -528,7 +528,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-pending-payment'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -552,7 +552,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-paid'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -576,7 +576,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-unpaid'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -600,7 +600,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-csi'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -624,7 +624,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-unsent-csi'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -648,7 +648,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-csi-responded'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -672,7 +672,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-csi-unrespon'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -696,7 +696,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-complete-order'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -720,7 +720,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-uncomplete-order'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -744,7 +744,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-insentive-paid'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -755,7 +755,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN INSENTIVE DIBAYAR</PageTitle>
 
             <ReportHO
-              endpoint='orders'
+              endpoint='sales-comission'
               statusName='PAID'
               headerColor='success'
               title='Laporan Insentive Dibayar  '
@@ -768,7 +768,7 @@ const RefundPage: React.FC = () => {
         path='ho-report-insentive-unpaid'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -779,7 +779,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN INSENTIVE BELUM DIBAYAR</PageTitle>
 
             <ReportHO
-              endpoint='orders'
+              endpoint='sales-comission'
               statusName='UNPAID'
               headerColor='danger'
               title='Laporan Insentive Belum Dibayar'
@@ -793,7 +793,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-expense-promosi'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -817,7 +817,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-other-income'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -841,7 +841,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-refund'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -865,7 +865,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-pending-payment'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -889,7 +889,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-tagihan-bulanan'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -913,7 +913,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-paid'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -937,7 +937,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-unpaid'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -961,7 +961,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-quotation'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -985,7 +985,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-survey'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1009,7 +1009,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-transaksi-all'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1033,7 +1033,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-pending-payment'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1057,7 +1057,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-claim-garansi'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1081,7 +1081,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-complaint'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1105,7 +1105,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-on-progress'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1129,7 +1129,7 @@ const RefundPage: React.FC = () => {
         path='vendor-report-reschedule'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1154,7 +1154,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-expense-promosi'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1178,7 +1178,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-other-income'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1202,7 +1202,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-refund'
         element={
           <>
-            {userRole == ' Tukang' ? (
+            {userRole === ' Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1226,7 +1226,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-pending-payment'
         element={
           <>
-            {userRole == ' Tukang' ? (
+            {userRole === ' Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1250,7 +1250,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-tagihan-bulanan'
         element={
           <>
-            {userRole == ' Tukang' ? (
+            {userRole === ' Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1274,7 +1274,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-paid'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -1298,7 +1298,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-unpaid'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1322,7 +1322,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-quotation'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1346,7 +1346,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-survey'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1370,7 +1370,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-transaksi-all'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1394,7 +1394,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-pending-payment'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1418,7 +1418,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-claim-garansi'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1442,7 +1442,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-complaint'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1466,7 +1466,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-on-progress'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -1490,7 +1490,7 @@ const RefundPage: React.FC = () => {
         path='tukang-report-reschedule'
         element={
           <>
-            {userRole == 'Tukang' ? (
+            {userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>

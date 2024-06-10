@@ -15,30 +15,16 @@ const orderBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const PaymentPage: React.FC = () => {
-  const userRole = localStorage.getItem('userRole')
-
   return (
     <Routes>
       <Route
         path='view-payment'
         element={
           <>
-            {userRole == 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
+            <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>LIST PAYMENT REQUEST</PageTitle>
             <ViewPayment />
           </>
@@ -49,13 +35,7 @@ const PaymentPage: React.FC = () => {
         path='new-payment'
         element={
           <>
-            {userRole == 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
+            <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>NEW PAYMENT</PageTitle>
             <NewPayment />
           </>
@@ -66,13 +46,7 @@ const PaymentPage: React.FC = () => {
         path='detail-payment'
         element={
           <>
-            {userRole == 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
+            <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>PAYMENT REQUEST</PageTitle>
             <DetailPayment />
           </>

@@ -29,7 +29,7 @@ const CSIpage: React.FC = () => {
         path='list-csi'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -47,7 +47,7 @@ const CSIpage: React.FC = () => {
         path='view-csi/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -65,7 +65,7 @@ const CSIpage: React.FC = () => {
         path='format-pertanyaan-csi'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -83,7 +83,7 @@ const CSIpage: React.FC = () => {
         path='new-csi'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -103,7 +103,7 @@ const CSIpage: React.FC = () => {
         path='update-csi/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>

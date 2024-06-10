@@ -32,7 +32,7 @@ const BankPage: React.FC = () => {
         path='new-bank'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -49,7 +49,7 @@ const BankPage: React.FC = () => {
         path='update-bank/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -66,7 +66,7 @@ const BankPage: React.FC = () => {
         path='view-bank'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>

@@ -29,7 +29,8 @@ const ListUserHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const userRole = localStorage.getItem('userRole')
-  const vendorId = localStorage.getItem('vendor_id') as any
+  const userVendor = localStorage.getItem('vendor_id') as any
+  const vendorId = userRole === 'Owner Vendor' ? `&vendor_id=${userVendor}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -145,7 +146,8 @@ const ListUserHO: React.FC<Props> = ({className}) => {
 
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
-            {!['Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(role) && (
+            {!['Owner Vendor', 'Tukang', 'Employee', 'Member'].includes(role) &&
+            userRole === 'Owner Vendor' ? (
               <>
                 <OverlayTrigger
                   placement='bottom'
@@ -167,6 +169,31 @@ const ListUserHO: React.FC<Props> = ({className}) => {
                   </Button>
                 </OverlayTrigger>
               </>
+            ) : !['Owner Vendor', 'Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(role) &&
+              userRole === 'Super User' ? (
+              <>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Edit User')}
+                >
+                  <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                    <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Hapus User')}
+                >
+                  <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                    <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+              </>
+            ) : (
+              <></>
             )}
           </div>
         )
@@ -175,7 +202,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
   ]
 
   const getUser = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/auth/get?page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/auth/get?page=${page}&take=${pageSize}${queryparams}${vendorId}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {

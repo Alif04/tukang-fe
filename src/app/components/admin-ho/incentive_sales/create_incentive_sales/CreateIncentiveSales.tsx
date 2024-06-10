@@ -1,32 +1,31 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, ChangeEvent} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select, {SingleValue} from 'react-select'
-import {Form, Button, Row, Card} from 'react-bootstrap'
+import Select from 'react-select'
+import makeAnimated from 'react-select/animated'
+import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 
 interface StoreSelect {
-  value: number | null
-  label: string
+  all_store: number | null
+  store_group_id: number | null
+  store_id: number
+  store_name: string
 }
 
 interface IncentiveSales {
-  role_id: number | null
-  store_id: number | null
-  vendor_id: number | null
-  pic_name: string
-  email: string
-  username: string
-  password: string
+  name: string
+  min_order: number
+  incentive: number
+  type: number
+  stores: any[]
 }
 
 const CreateIncentiveSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-
-  const userRole = localStorage.getItem('userRole')
-  const vendorId = localStorage.getItem('vendor_id') as any
+  const animatedComponents = makeAnimated()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -44,8 +43,9 @@ const CreateIncentiveSales: FC = () => {
 
       if (Array.isArray(response.data.data)) {
         const tempStore = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.store_name,
+          store_id: item.id,
+          store_group_id: item.area_id,
+          store_name: item.store_name,
         }))
 
         setStore(tempStore)
@@ -57,66 +57,171 @@ const CreateIncentiveSales: FC = () => {
     }
   }
 
+  const getStoreGroup = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/area`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStoreGroup = response.data.data.map((item: any) => ({
+          store_group_id: item.id,
+          label: item.area,
+        }))
+
+        setStoreGroup(tempStoreGroup)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getStore()
+    getStoreGroup()
   }, [])
 
   // Store
   const [store, setStore] = useState<StoreSelect[]>([])
-  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreSelect>>({
-    value: null,
-    label: '',
+  const [storeGroup, setStoreGroup] = useState<any[]>([])
+
+  // Incentive
+  const [incentive, setIncentive] = useState<IncentiveSales>({
+    name: '',
+    min_order: 0,
+    incentive: 0,
+    type: 1,
+    stores: [],
   })
 
-  // User
-  const [userForm, setUserForm] = useState<IncentiveSales>({
-    role_id: null,
-    store_id: null,
-    vendor_id: userRole === 'Admin Vendor' ? Number.parseInt(vendorId) ?? null : null,
-    pic_name: '',
-    email: '',
-    username: '',
-    password: '',
-  })
+  console.log('incentive', incentive)
 
-  // User Form Handler
-  const userFormHandler = (e: any) => {
-    setUserForm({
-      ...userForm,
-      [e.target.name]: e.target.value,
+  // Incentive Form Handler
+  const incentiveFormHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = e.target
+
+    setIncentive({
+      ...incentive,
+      [name]: name === 'min_order' || name === 'incentive' ? Number(value) : value,
     })
   }
 
-  // User Store Handler
-  useEffect(() => {
-    setUserForm((prev) => ({
+  // Store Handler
+  const storeHandler = (selectedOptions: any) => {
+    setIncentive((prev) => ({
       ...prev,
-      store_id: selectedStore?.value ?? null,
+      stores: selectedOptions.map((option: any) => option.id),
     }))
-  }, [selectedStore])
+  }
 
-  // User Validation
-  const UserValidation = () => {
+  const handleAssignToStoreByAllStore = (store_id: any, isChecked: boolean) => {
+    setIncentive((prev) => {
+      const cache = {...prev}
+
+      // Jika checkbox "All Store" dicentang
+      if (store_id === 0 && isChecked) {
+        cache.stores = store.map((storeItem) => storeItem.store_id)
+      } else if (!isChecked) {
+        cache.stores = []
+      }
+
+      return cache
+    })
+  }
+
+  const handleAssignToStoreByStoreGroup = (store_group_id: any, isChecked: boolean) => {
+    setIncentive((prev) => {
+      const cache = {...prev}
+
+      if (store_group_id && isChecked) {
+        const storesInGroup = store.filter(
+          (storeItem) => storeItem.store_group_id === store_group_id
+        )
+        const storeIds = storesInGroup.map((storeItem) => storeItem.store_id)
+        cache.stores.push(...storeIds)
+      } else if (!isChecked) {
+        const storesInGroup = store.filter(
+          (storeItem) => storeItem.store_group_id === store_group_id
+        )
+        cache.stores = cache.stores.filter(
+          (store_id: any) => !storesInGroup.some((storeItem) => storeItem.store_id === store_id)
+        )
+      }
+
+      return cache
+    })
+  }
+
+  const handleAssignToStore = (store_id: any, isChecked: boolean) => {
+    setIncentive((prev) => {
+      const cache = {...prev}
+
+      if (store_id !== null) {
+        const storeIndex = cache.stores.indexOf(store_id)
+
+        if (isChecked) {
+          if (storeIndex === -1) {
+            cache.stores.push(store_id)
+          }
+        } else {
+          if (storeIndex !== -1) {
+            cache.stores.splice(storeIndex, 1)
+          }
+        }
+      }
+
+      return cache
+    })
+  }
+
+  const isStoreChecked = (store_id: any) => {
+    return incentive.stores.includes(store_id)
+  }
+
+  // Checbox Handler
+  const handleCheckboxChange = (isChecked: boolean) => {
+    setIncentive({
+      ...incentive,
+      type: isChecked ? 1 : 2,
+    })
+  }
+
+  // Incentive Validation
+  const IncentiveValidation = () => {
     let valid = true
 
-    if (!userForm.username) {
+    if (!incentive.name) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill Username form',
+        text: 'Please fill Name form',
         icon: 'warning',
       })
       valid = false
-    } else if (!userForm.password) {
+    } else if (!incentive.min_order) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill Password form',
+        text: 'Please fill Min Order form',
         icon: 'warning',
       })
       valid = false
-    } else if (!userForm.pic_name) {
+    } else if (!incentive.incentive) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill PIC Name form',
+        text: 'Please fill Incentive Sales form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (incentive.stores.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Assign To Store form',
         icon: 'warning',
       })
       valid = false
@@ -138,17 +243,17 @@ const CreateIncentiveSales: FC = () => {
     return cleanedData
   }
 
-  // Handle Create User
-  const handleCreateUser = async () => {
-    if (!UserValidation()) {
-      setIsLoading(true)
+  // Handle Create
+  const handleSubmit = async () => {
+    if (!IncentiveValidation()) {
+      setIsLoading(false)
       return false
     }
 
-    const userData = objectValueCheck(userForm)
-
+    setIsLoading(true)
+    const incentiveData = objectValueCheck(incentive)
     await axios
-      .post(`${apiUrl}/auth/register`, userData, {
+      .post(`${apiUrl}/incentive`, incentiveData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -157,11 +262,11 @@ const CreateIncentiveSales: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.statusCode === 201 || response.data.statusCode === 200) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: 'Success Create User',
+            text: 'Success Create Incentive Sales',
             showConfirmButton: false,
             timer: 1500,
           })
@@ -177,7 +282,7 @@ const CreateIncentiveSales: FC = () => {
           })
         }
 
-        navigate('/user/view-user')
+        navigate('/incentive-sales/view-incentive')
       })
       .catch((error) => {
         setIsLoading(false)
@@ -196,49 +301,131 @@ const CreateIncentiveSales: FC = () => {
         <Card.Body>
           <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Nama PIC :</Form.Label>
+              <Form.Label className='fs-5'>Nama Insentif :</Form.Label>
 
               <Form.Control
-                name='pic_name'
-                value={userForm.pic_name}
-                onChange={(e) => userFormHandler(e)}
+                name='name'
+                type='text'
+                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
           </Row>
 
           <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Email PIC :</Form.Label>
+              <Form.Label className='fs-5'>Intensif Sales :</Form.Label>
 
               <Form.Control
-                name='email'
-                value={userForm.email}
-                onChange={(e) => userFormHandler(e)}
+                name='incentive'
+                type='number'
+                defaultValue={0}
+                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
+              />
+
+              <Form.Check
+                inline
+                label='Persen'
+                name='type'
+                type='checkbox'
+                checked={incentive.type === 1}
+                className='mt-2'
+                onChange={(e) => handleCheckboxChange(e.target.checked)}
               />
             </Form.Group>
           </Row>
 
           <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Username :</Form.Label>
+              <Form.Label className='fs-5'>Minimal Order ( Rupiah ) :</Form.Label>
 
               <Form.Control
-                name='username'
-                value={userForm.username}
-                onChange={(e) => userFormHandler(e)}
+                name='min_order'
+                type='number'
+                defaultValue={0}
+                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
           </Row>
 
           <Row className='mb-5'>
-            <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Password :</Form.Label>
+            {/* <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Assign To Store :</Form.Label>
 
-              <Form.Control
-                name='password'
-                value={userForm.password}
-                onChange={(e) => userFormHandler(e)}
+              <Select
+                name='stores'
+                classNamePrefix='select'
+                placeholder='Pilih Toko'
+                closeMenuOnSelect={false}
+                components={animatedComponents}
+                isMulti
+                options={store}
+                onChange={storeHandler}
+                getOptionLabel={(option: StoreSelect) =>
+                  store.find((storeItem) => storeItem.id === option.id)?.store_name ?? ''
+                }
+                getOptionValue={(option) => `${option.id}`}
               />
+            </Form.Group> */}
+
+            <Form.Group className='mb-5'>
+              <Form.Label className='fs-5'>Assign To Store : </Form.Label>
+
+              <Row>
+                <Form.Label className='fs-5'>Shortcut</Form.Label>
+
+                <Col xxl={3} xl={3} md={3} sm={12} className='all-store'>
+                  <Form.Check
+                    label='All Store'
+                    name='all-store'
+                    value={0}
+                    type='checkbox'
+                    onChange={(e) => handleAssignToStoreByAllStore(0, e.target.checked)}
+                  />
+                </Col>
+
+                <Col xxl={9} xl={9} md={9} sm={12}>
+                  <Row>
+                    {storeGroup.map((item) => (
+                      <Col key={item.store_group_id} xs={12} sm={6} md={3} lg={3} className='mb-3'>
+                        <Form.Check
+                          className='mb-3'
+                          key={item.store_group_id}
+                          inline
+                          name='store-group'
+                          type='checkbox'
+                          value={item.store_group_id}
+                          label={item.label}
+                          onChange={(e) =>
+                            handleAssignToStoreByStoreGroup(item.store_group_id, e.target.checked)
+                          }
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                </Col>
+              </Row>
+            </Form.Group>
+
+            <Form.Group>
+              <Row>
+                <Form.Label className='fs-5'>List Store</Form.Label>
+              </Row>
+
+              <Row>
+                {store.map((item) => (
+                  <Col key={item.store_id} xs={12} sm={6} md={4} lg={4} className='mb-3'>
+                    <Form.Check
+                      inline
+                      name='store'
+                      type='checkbox'
+                      value={item.store_id}
+                      label={item.store_name}
+                      checked={isStoreChecked(item.store_id)}
+                      onChange={(e) => handleAssignToStore(item.store_id, e.target.checked)}
+                    />
+                  </Col>
+                ))}
+              </Row>
             </Form.Group>
           </Row>
 
@@ -248,7 +435,7 @@ const CreateIncentiveSales: FC = () => {
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
-              onClick={() => handleCreateUser()}
+              onClick={() => handleSubmit()}
             >
               {isLoading ? 'Saving...' : 'Save'}
             </Button>

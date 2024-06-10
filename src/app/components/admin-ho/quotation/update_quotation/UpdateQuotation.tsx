@@ -9,6 +9,13 @@ import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Table, Button, Row, Col} from 'react-bootstrap'
 
+interface Promotion {
+  name: string
+  min_order: number
+  promotion: number
+  promotion_type: number
+}
+
 interface CategorySelect {
   value: number | null
   label: string
@@ -54,8 +61,12 @@ const UpdateQuotationHO: FC = () => {
 
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
+
+  const [promotionName, setPromotionName] = useState<string>('')
   const [promosiDiscount, setPromosiDiscount] = useState<any>()
   const [additionalPromosi, setAdditionalPromosi] = useState<any>()
+
+  const [grandTotalBeforePromotion, setGrandTotalBeforePromotion] = useState<any>(0)
   const [grandTotal, setGrandTotal] = useState<any>(0)
   const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)
   const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
@@ -110,6 +121,9 @@ const UpdateQuotationHO: FC = () => {
   // Category
   const [categories, setCategories] = useState<CategorySelect[]>([])
 
+  // Promotion
+  const [promotion, setPromotion] = useState<Promotion[]>([])
+
   const getQuotationData = async () => {
     try {
       await axios
@@ -163,6 +177,7 @@ const UpdateQuotationHO: FC = () => {
           }
 
           if (data?.quotation_grand_total) {
+            setGrandTotalBeforePromotion(data?.quotation_grand_total)
             setGrandTotal(data.quotation_grand_total)
           }
 
@@ -219,10 +234,42 @@ const UpdateQuotationHO: FC = () => {
     }
   }
 
+  const getPromotion = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/promotion?store_id=${storeId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempPromotion = response.data.data.map((item: any) => ({
+          name: item.name,
+          min_order: item.min_order,
+          promotion: item.promotion,
+          promotion_type: item.promotion_type,
+        }))
+
+        setPromotion(tempPromotion)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getQuotationData()
     getCategories()
   }, [])
+
+  useEffect(() => {
+    getPromotion()
+  }, [storeId])
 
   // Format Date
   const formatDate = (date: any) => {
@@ -350,11 +397,45 @@ const UpdateQuotationHO: FC = () => {
     setAdditionalPromosi(updatedPromosiValue)
   }
 
+  useEffect(() => {
+    let promotionSurvey = 0
+    const minimalGrandTotal = 500000
+
+    if (grandTotalBeforePromotion >= minimalGrandTotal) {
+      promotionSurvey = 99000
+    }
+
+    setPromosiDiscount(promotionSurvey)
+  }, [grandTotalBeforePromotion])
+
+  useEffect(() => {
+    let totalQuotation = grandTotalBeforePromotion
+    let totalPromotion = 0
+    let promotionName = ''
+
+    promotion.forEach((promo) => {
+      if (totalQuotation >= promo.min_order) {
+        if (promo.promotion_type === 2) {
+          promotionName = promo.name
+          totalPromotion = promo.promotion
+        } else if (promo.promotion_type === 1) {
+          promotionName = promo.name
+          totalPromotion = (totalQuotation * promo.promotion) / 100
+        }
+      }
+    })
+
+    setPromotionName(promotionName)
+    setAdditionalPromosi(totalPromotion)
+  }, [promotion, grandTotalBeforePromotion])
+
   // Grand Total
   const calculatedGrandTotal = () => {
     const grandTotal =
       Number(totalJasaMaterial) - Number(promosiDiscount) - Number(additionalPromosi)
+
     const roundedValue = Math.ceil(grandTotal / 100) * 100
+
     const formatter = new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
@@ -707,7 +788,7 @@ const UpdateQuotationHO: FC = () => {
           </Row>
 
           <div className='detail-table'>
-            <Table hover className='table-jasa'>
+            <Table responsive hover className='table-jasa'>
               <thead>
                 <tr>
                   <th></th>
@@ -1005,9 +1086,16 @@ const UpdateQuotationHO: FC = () => {
 
                 <tr>
                   <td colSpan={6} className='text-end fw-bolder'>
-                    Additional Promosi
+                    {promotionName !== ''
+                      ? `Additional Promosi ( ${promotionName} )`
+                      : 'Additional Promosi'}
                   </td>
 
+                  <td className=' fw-bolder'>{`Rp. ${parseInt(additionalPromosi).toLocaleString(
+                    'id'
+                  )}`}</td>
+
+                  {/* 
                   <td>
                     <Form.Control
                       id='additional-promosi'
@@ -1015,7 +1103,7 @@ const UpdateQuotationHO: FC = () => {
                       value={additionalPromosi}
                       onChange={(e) => handleAddtionalPromosiChange(e.target.value)}
                     />
-                  </td>
+                  </td> */}
                 </tr>
 
                 <tr>

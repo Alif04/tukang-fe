@@ -12,7 +12,7 @@ const ReportCostumer: FC = () => {
         <>
           <ReportCostumerStore />
         </>
-      ) : userRole === 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <ReportCostumerHO />
         </>

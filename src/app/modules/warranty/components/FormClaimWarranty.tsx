@@ -24,12 +24,12 @@ const ClaimWarrantyForm: React.FC = () => {
           <PageTitle>{pageTitle}</PageTitle>
           <WarrantyFormClaim updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole === 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <WarrantyFormClaimHO updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole === 'Admin Vendor' ? (
+      ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <WarrantyFormClaimVendor updatePageTitle={updatePageTitle} />

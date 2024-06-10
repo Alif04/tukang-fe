@@ -26,7 +26,7 @@ const WorkOrderPage: React.FC = () => {
         path='view-work-order'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -48,7 +48,7 @@ const WorkOrderPage: React.FC = () => {
         path='report-work-order'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -68,7 +68,7 @@ const WorkOrderPage: React.FC = () => {
         path='update-work-order/:id'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -88,7 +88,7 @@ const WorkOrderPage: React.FC = () => {
         path='detail-work-order/:id'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>

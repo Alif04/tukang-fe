@@ -19,12 +19,6 @@ const orderBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const OrderPage: React.FC = () => {
@@ -36,13 +30,13 @@ const OrderPage: React.FC = () => {
         path='dashboard-order'
         element={
           <>
-            {userRole == 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales' ? (
+            {userRole === 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   INSTALASI & SERVICE MITRA10 DASHBOARD
                 </PageTitle>
               </>
-            ) : userRole == 'Admin HO' ? (
+            ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>ORDER DASHBOARD</PageTitle>
@@ -50,6 +44,7 @@ const OrderPage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <DashboardOrder />
           </>
         }
@@ -59,13 +54,13 @@ const OrderPage: React.FC = () => {
         path='view-order'
         element={
           <>
-            {userRole == 'Store CS' || userRole == 'Store Staff' || userRole === 'Sales' ? (
+            {userRole === 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales' ? (
               <>
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   LIST ORDER INSTALASI & SERVICE MITRA10
                 </PageTitle>
               </>
-            ) : userRole == 'Admin HO' ? (
+            ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
@@ -75,6 +70,7 @@ const OrderPage: React.FC = () => {
             ) : (
               <></>
             )}
+
             <ViewOrder />
           </>
         }
@@ -84,13 +80,14 @@ const OrderPage: React.FC = () => {
         path='new-order'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PESANAN BARU</PageTitle>
             <NewOrder />
           </>
@@ -101,13 +98,14 @@ const OrderPage: React.FC = () => {
         path='update-order/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
+
             <UpdateOrder />
           </>
         }
@@ -117,13 +115,14 @@ const OrderPage: React.FC = () => {
         path='detail-order/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
             ) : (
               <></>
             )}
+
             <DetailOrder />
           </>
         }
@@ -133,7 +132,7 @@ const OrderPage: React.FC = () => {
         path='printout-order/:id'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -141,7 +140,7 @@ const OrderPage: React.FC = () => {
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
-            ) : userRole === 'Admin HO' ? (
+            ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -158,7 +157,7 @@ const OrderPage: React.FC = () => {
         path='preview-email/:id'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
@@ -166,7 +165,7 @@ const OrderPage: React.FC = () => {
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
-            ) : userRole === 'Admin HO' ? (
+            ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
