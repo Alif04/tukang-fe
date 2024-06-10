@@ -190,7 +190,7 @@ const DashboardHO: FC = () => {
         }
       )
 
-      const chartDatas = response.data.monthlyOrders
+      const chartDatas = response.data.data
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
 
