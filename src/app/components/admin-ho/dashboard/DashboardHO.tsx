@@ -651,7 +651,7 @@ const DashboardHO: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalData, 'Total Order')}
-                {renderStat(orderCounts.totalSurvey, 'Order Survey')}
+                {renderStat(orderCounts.totalSurvey, 'Order sedang dalam survey')}
                 {renderStat(orderCounts.totalWork, 'Order sedang dalam pengerjaan')}
                 {renderStat(orderCounts.totalDone, 'Order Selesai')}
                 {renderStat(
