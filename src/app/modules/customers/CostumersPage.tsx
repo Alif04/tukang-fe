@@ -28,17 +28,14 @@ const CostumersPage: React.FC = () => {
         path='view-costumers'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={costumersBreadCrumbs}>
               Daftar Customer Installasi & Service Mitra10
             </PageTitle>
@@ -51,17 +48,14 @@ const CostumersPage: React.FC = () => {
         path='new-costumers'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={costumersBreadCrumbs}>NEW COSTUMER FORM</PageTitle>
             <NewCostumers />
           </>
@@ -72,17 +66,14 @@ const CostumersPage: React.FC = () => {
         path='update-costumers/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={costumersBreadCrumbs}>UPDATE COSTUMER</PageTitle>
             <UpdateCostumers />
           </>
@@ -93,17 +84,14 @@ const CostumersPage: React.FC = () => {
         path='detail-costumers/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={costumersBreadCrumbs}>PROFILE COSTUMER</PageTitle>
             <DetailCostumer />
           </>
@@ -114,22 +102,20 @@ const CostumersPage: React.FC = () => {
         path='report-costumers'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={costumersBreadCrumbs}>COSTUMERS DASHBOARD</PageTitle>
             <ReportCostumer />
           </>
         }
       />
+
       <Route index element={<Navigate to='/costumers/view-costumers' />} />
     </Routes>
   )

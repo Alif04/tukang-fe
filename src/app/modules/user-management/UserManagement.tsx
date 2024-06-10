@@ -26,13 +26,18 @@ const UserManagementPage: React.FC = () => {
         path='new-user'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>FORMULIR PENDAFTARAN USER</PageTitle>
             <NewUser />
           </>
@@ -43,13 +48,18 @@ const UserManagementPage: React.FC = () => {
         path='update-user/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE DATA USER</PageTitle>
             <UpdateUser />
           </>
@@ -60,13 +70,18 @@ const UserManagementPage: React.FC = () => {
         path='view-user'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>DAFTAR USER</PageTitle>
             <ListUser />
           </>

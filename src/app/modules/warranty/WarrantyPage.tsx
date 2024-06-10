@@ -26,11 +26,11 @@ const WarrantyPage: React.FC = () => {
         path='claim-warranty-list'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
-            ) : userRole == 'Admin HO' ? (
+            ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -48,11 +48,11 @@ const WarrantyPage: React.FC = () => {
         path='claim-warranty-form/:id'
         element={
           <>
-            {userRole == 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
-            ) : userRole == 'Admin HO' ? (
+            ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -69,7 +69,7 @@ const WarrantyPage: React.FC = () => {
         path='update-warranty-form/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>

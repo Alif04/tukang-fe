@@ -15,12 +15,6 @@ const orderBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const TukangPage: React.FC = () => {
@@ -32,14 +26,14 @@ const TukangPage: React.FC = () => {
         path='view-tukang'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>
                   DAFTAR TUKANG INSTALASI & SERVICE MITRA10
                 </PageTitle>
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>LIST TUKANG</PageTitle>
@@ -57,7 +51,7 @@ const TukangPage: React.FC = () => {
         path='new-tukang'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>NEW TUKANG FORM</PageTitle>
@@ -75,7 +69,7 @@ const TukangPage: React.FC = () => {
         path='update-tukang/:id'
         element={
           <>
-            {userRole === 'Admin Vendor' ? (
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
                 <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE TUKANG FORM</PageTitle>
@@ -93,11 +87,11 @@ const TukangPage: React.FC = () => {
         path='detail-tukang/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>

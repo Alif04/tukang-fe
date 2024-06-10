@@ -17,9 +17,13 @@ const ViewCalendar: React.FC = () => {
         <>
           <ViewCalendarCS />
         </>
-      ) : userRole === 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <ViewCalendarHO />
+        </>
+      ) : userRole === 'Owner Vendor' ? (
+        <>
+          <ViewCalendarVendor />
         </>
       ) : userRole === 'Admin Vendor' ? (
         <>

@@ -3,8 +3,10 @@ import {Navigate, Route, Routes} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
+
 import {ViewInvoice} from './components/ViewInvoice'
 import {NewInvoice} from './components/NewInvoice'
+import {UpdateInvoice} from './components/UpdateInvoice'
 import {DetailInvoice} from './components/DetailInvoice'
 
 const orderBreadCrumbs: Array<PageLink> = [
@@ -12,12 +14,6 @@ const orderBreadCrumbs: Array<PageLink> = [
     title: 'Invoice',
     path: '/invoice/view-invoice',
     isSeparator: false,
-    isActive: false,
-  },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
     isActive: false,
   },
 ]
@@ -31,17 +27,18 @@ const InvoicePage: React.FC = () => {
         path='view-invoice'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>INVOICE LIST</PageTitle>
             <ViewInvoice />
           </>
@@ -52,19 +49,42 @@ const InvoicePage: React.FC = () => {
         path='new-invoice'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>NEW INVOICE</PageTitle>
             <NewInvoice />
+          </>
+        }
+      />
+
+      <Route
+        path='update-invoice/:id'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE INVOICE</PageTitle>
+            <UpdateInvoice />
           </>
         }
       />
@@ -73,17 +93,18 @@ const InvoicePage: React.FC = () => {
         path='detail-invoice/:id'
         element={
           <>
-            {userRole === 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole === 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
             ) : (
               <></>
             )}
+
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL INVOICE</PageTitle>
             <DetailInvoice />
           </>

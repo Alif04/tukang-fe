@@ -19,22 +19,27 @@ const DetailComplaint: FC = () => {
 
   return (
     <>
-      {userRole == 'Store CS' || userRole === 'Store Staff' ? (
+      {userRole === 'Store CS' || userRole === 'Store Staff' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintStore updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole == 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintHO updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole == 'Admin Vendor' ? (
+      ) : userRole === 'Owner Vendor' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintVendor updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole == 'Tukang' ? (
+      ) : userRole === 'Admin Vendor' ? (
+        <>
+          <PageTitle>{pageTitle}</PageTitle>
+          <DetailComplaintVendor updatePageTitle={updatePageTitle} />
+        </>
+      ) : userRole === 'Tukang' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintTukang updatePageTitle={updatePageTitle} />

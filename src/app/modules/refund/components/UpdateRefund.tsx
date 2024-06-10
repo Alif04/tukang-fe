@@ -9,11 +9,11 @@ const UpdateRefund: React.FC = () => {
 
   return (
     <>
-      {userRole == 'Store CS' ? (
+      {userRole === 'Store CS' ? (
         <>
           <UpdateRefundCS />
         </>
-      ) : userRole == 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <UpdateRefundHO />
         </>

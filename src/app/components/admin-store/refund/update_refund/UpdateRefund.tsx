@@ -921,14 +921,14 @@ const UpdateRefundCS: FC = () => {
                               src={
                                 item instanceof File
                                   ? URL.createObjectURL(item)
-                                  : `${apiUrl}/public/refund/${previewImage}`
+                                  : `${apiUrl}/public/refunds/${previewImage}`
                               }
                               preview={{
                                 visible,
                                 src:
                                   item instanceof File
                                     ? URL.createObjectURL(item)
-                                    : `${apiUrl}/public/refund/${previewImage}`,
+                                    : `${apiUrl}/public/refunds/${previewImage}`,
                                 onVisibleChange: (value) => {
                                   setVisible(value)
                                 },

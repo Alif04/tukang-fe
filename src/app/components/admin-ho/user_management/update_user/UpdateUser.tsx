@@ -11,28 +11,29 @@ interface StoreSelect {
   label: string
 }
 
-interface VendorSelect {
-  value: number | null
-  label: string
-}
-
 interface Roles {
   value: number | null
   label: string
 }
 
 interface User {
-  username: string
-  password: string
   role_id: number | null
   store_id: number | null
   vendor_id: number | null
+  pic_name: string
+  email: string
+  username: string
+  password: string
 }
 
 const UpdateUserHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+
+  const userRole = localStorage.getItem('userRole')
+  const vendorId = localStorage.getItem('vendor_id') as any
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch Data User
@@ -51,28 +52,52 @@ const UpdateUserHO: FC = () => {
           const data = response.data.data
 
           if (data) {
-            setUserForm((prev) => ({
-              ...prev,
-              username: data?.username,
-            }))
+            if (data?.username) {
+              setUserForm((prev) => ({
+                ...prev,
+                username: data?.username,
+              }))
+            }
 
-            setSelectedRole((prev) => ({
-              ...prev,
-              value: data?.roles?.id,
-              label: data?.roles?.role_name,
-            }))
+            if (['Store Staff', 'Store CS'].includes(data?.roles?.name)) {
+              setUserForm((prev) => ({
+                ...prev,
+                pic_name: data?.store[0]?.name,
+                email: data?.store[0]?.email,
+              }))
+            } else if (['Sales'].includes(data?.roles?.name)) {
+              setUserForm((prev) => ({
+                ...prev,
+                pic_name: data?.sales[0]?.name,
+                email: data?.sales[0]?.email,
+              }))
+            } else if (['Tukang'].includes(data?.roles?.name)) {
+              setUserForm((prev) => ({
+                ...prev,
+                pic_name: data?.tukang[0]?.name,
+                email: data?.tukang[0]?.email,
+              }))
+            } else if (['Admin Vendor'].includes(data?.roles?.name)) {
+              setUserForm((prev) => ({
+                ...prev,
+                pic_name: data?.pic_vendor[0]?.pic_name,
+                email: data?.pic_vendor[0]?.email_address,
+              }))
+            }
 
-            setSelectedStore((prev) => ({
-              ...prev,
-              value: data?.store?.id,
-              label: data?.store?.store_name,
-            }))
+            if (userRole === 'Super User') {
+              setSelectedRole((prev) => ({
+                ...prev,
+                value: data?.roles?.id,
+                label: data?.roles?.name,
+              }))
 
-            setSelectedVendor((prev) => ({
-              ...prev,
-              value: data?.vendor?.id,
-              label: data?.vendor?.company_name,
-            }))
+              setSelectedStore((prev) => ({
+                ...prev,
+                value: data?.store?.id,
+                label: data?.store?.store_name,
+              }))
+            }
           }
         })
     } catch (error) {
@@ -94,7 +119,9 @@ const UpdateUserHO: FC = () => {
 
       if (Array.isArray(response.data.data.data)) {
         const tempRoles = response.data.data.data
-          .filter((item: any) => item.name !== 'Admin HO')
+          .filter(
+            (item: any) => !['Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(item.name)
+          )
           .map((item: any) => ({
             value: item.id,
             label: item.name,
@@ -135,37 +162,10 @@ const UpdateUserHO: FC = () => {
     }
   }
 
-  const getVendor = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/vendor`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempVendor = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.company_name,
-        }))
-
-        setVendor(tempVendor)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   useEffect(() => {
     fetchUserData()
     getRoles()
     getStore()
-    getVendor()
   }, [])
 
   // Role
@@ -182,20 +182,15 @@ const UpdateUserHO: FC = () => {
     label: '',
   })
 
-  // Vendor
-  const [vendor, setVendor] = useState<VendorSelect[]>([])
-  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorSelect>>({
-    value: null,
-    label: '',
-  })
-
   // User
   const [userForm, setUserForm] = useState<User>({
+    role_id: userRole === 'Owner Vendor' ? Number(5) : null,
+    store_id: null,
+    vendor_id: userRole === 'Admin Vendor' ? Number.parseInt(vendorId) ?? null : null,
+    pic_name: '',
+    email: '',
     username: '',
     password: '',
-    role_id: null,
-    store_id: null,
-    vendor_id: null,
   })
 
   // User Form Handler
@@ -206,12 +201,14 @@ const UpdateUserHO: FC = () => {
     })
   }
 
-  // Change Select Role
+  // User Role Handler
   useEffect(() => {
-    setUserForm((prev) => ({
-      ...prev,
-      role_id: selectedRole?.value ?? null,
-    }))
+    if (userRole === 'Super User') {
+      setUserForm((prev) => ({
+        ...prev,
+        role_id: selectedRole?.value ?? null,
+      }))
+    }
   }, [selectedRole])
 
   // User Store Handler
@@ -222,60 +219,43 @@ const UpdateUserHO: FC = () => {
     }))
   }, [selectedStore])
 
-  // User Vendor Handler
-  useEffect(() => {
-    setUserForm((prev) => ({
-      ...prev,
-      vendor_id: selectedVendor?.value ?? null,
-    }))
-  }, [selectedVendor])
-
   // User Validation
   const UserValidation = () => {
     let valid = true
 
     if (!userForm.username) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Username form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!userForm.password) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill Password form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }
-
     return valid
   }
 
-  // Destructure object if element null
-  const updatedUser = (userForm: User) => {
-    let userData: Partial<User> = {...userForm}
+  // Desctructure Object if the value null or empty string
+  const objectValueCheck = (data: User) => {
+    let cleanedData: Partial<User> = {}
 
-    if (userForm.store_id === null) {
-      const {store_id, ...newUserForm} = userData
-      userData = newUserForm
-    } else if (userForm.vendor_id === null) {
-      const {vendor_id, ...newUserForm} = userData
-      userData = newUserForm
-    }
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        cleanedData[key as keyof User] = value
+      }
+    })
 
-    return userData
+    return cleanedData
   }
 
   // Handle Update User
   const handleUpdate = async () => {
     if (!UserValidation()) {
-      setIsLoading(true)
+      setIsLoading(false)
       return false
     }
 
-    const userData = updatedUser(userForm)
+    setIsLoading(true)
+    const userData = objectValueCheck(userForm)
 
     await axios
       .post(`${apiUrl}/auth/update/${params.id}`, userData, {
@@ -327,8 +307,6 @@ const UpdateUserHO: FC = () => {
     switch (role) {
       case 'Store Staff':
       case 'Store CS':
-      case 'Employee':
-      case 'Member':
       case 'Sales':
         return (
           <>
@@ -356,31 +334,6 @@ const UpdateUserHO: FC = () => {
           </>
         )
 
-      case 'Tukang':
-        return (
-          <Row className='mb-5'>
-            <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Assign To Vendor :</Form.Label>
-
-              <Select
-                name='vendor_id'
-                id='vendor_id'
-                className='form-control p-0 form-item-name'
-                classNamePrefix='select'
-                placeholder='Pilih/Ketik Role'
-                isSearchable={true}
-                isClearable={true}
-                options={vendor}
-                value={{
-                  value: selectedVendor?.value ?? null,
-                  label: selectedVendor?.label ?? '',
-                }}
-                onChange={(newValue) => setSelectedVendor(newValue)}
-              />
-            </Form.Group>
-          </Row>
-        )
-
       default:
         return null
     }
@@ -390,29 +343,61 @@ const UpdateUserHO: FC = () => {
     <section id='update-user'>
       <Card className='mb-5'>
         <Card.Body>
-          <Row className='mb-5'>
-            <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Roles :</Form.Label>
+          {userRole === 'Super User' && (
+            <>
+              <Row className='mb-5'>
+                <Form.Group className='form-template'>
+                  <Form.Label className='fs-5'>Roles :</Form.Label>
 
-              <Select
-                name='role_id'
-                id='role_id'
-                className='form-control p-0 form-item-name'
-                classNamePrefix='select'
-                placeholder='Pilih/Ketik Role'
-                isSearchable={true}
-                isClearable={true}
-                options={roles}
-                value={{
-                  value: selectedRole?.value ?? null,
-                  label: selectedRole?.label ?? '',
-                }}
-                onChange={(newValue) => setSelectedRole(newValue)}
-              />
-            </Form.Group>
-          </Row>
+                  <Select
+                    name='role_id'
+                    id='role_id'
+                    className='form-control p-0 form-item-name'
+                    classNamePrefix='select'
+                    placeholder='Pilih/Ketik Role'
+                    isSearchable={true}
+                    isClearable={true}
+                    options={roles}
+                    value={{
+                      value: selectedRole?.value ?? null,
+                      label: selectedRole?.label ?? '',
+                    }}
+                    onChange={(newValue) => setSelectedRole(newValue)}
+                  />
+                </Form.Group>
+              </Row>
 
-          {dynamicOptions()}
+              {dynamicOptions()}
+            </>
+          )}
+
+          {userRole === 'Owner Vendor' && (
+            <>
+              <Row className='mb-5'>
+                <Form.Group className='form-template'>
+                  <Form.Label className='fs-5'>Nama :</Form.Label>
+
+                  <Form.Control
+                    name='pic_name'
+                    value={userForm.pic_name}
+                    onChange={(e) => userFormHandler(e)}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Row className='mb-5'>
+                <Form.Group className='form-template'>
+                  <Form.Label className='fs-5'>Email :</Form.Label>
+
+                  <Form.Control
+                    name='email'
+                    value={userForm.email}
+                    onChange={(e) => userFormHandler(e)}
+                  />
+                </Form.Group>
+              </Row>
+            </>
+          )}
 
           <Row className='mb-5'>
             <Form.Group className='form-template'>
@@ -440,6 +425,7 @@ const UpdateUserHO: FC = () => {
 
           <div className='d-flex justify-content-center'>
             <Button
+              className='d-flex justify-content-center align-items-center'
               variant='dark-primary'
               type='submit'
               disabled={isLoading}

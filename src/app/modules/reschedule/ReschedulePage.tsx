@@ -15,12 +15,6 @@ const rescheduleBreadCrumbs: Array<PageLink> = [
     isSeparator: false,
     isActive: false,
   },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
 ]
 
 const RefundPage: React.FC = () => {
@@ -32,15 +26,15 @@ const RefundPage: React.FC = () => {
         path='view-reschedule'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole == 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
-            ) : userRole == 'Tukang' ? (
+            ) : userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -58,15 +52,15 @@ const RefundPage: React.FC = () => {
         path='new-reschedule'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole == 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
-            ) : userRole == 'Tukang' ? (
+            ) : userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>
@@ -84,15 +78,15 @@ const RefundPage: React.FC = () => {
         path='update-reschedule/:id'
         element={
           <>
-            {userRole == 'Admin HO' ? (
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
-            ) : userRole == 'Admin Vendor' ? (
+            ) : userRole === 'Admin Vendor' ? (
               <>
                 <HeaderWrapper className='bg-header-vendor' />
               </>
-            ) : userRole == 'Tukang' ? (
+            ) : userRole === 'Tukang' ? (
               <>
                 <HeaderWrapper className='bg-header-tukang' />
               </>

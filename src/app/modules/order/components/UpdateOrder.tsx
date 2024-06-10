@@ -29,7 +29,7 @@ const UpdateOrder: FC = () => {
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateOrderStoreCS updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole === 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateOrderHO updatePageTitle={updatePageTitle} />

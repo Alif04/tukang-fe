@@ -7,15 +7,15 @@ const NewOrder: FC = () => {
 
   return (
     <>
-      {userRole == 'Sales' || userRole == 'Store Staff' ? (
+      {userRole === 'Sales' || userRole === 'Store Staff' ? (
         <>
           <NewOrderStoreStaff />
         </>
-      ) : userRole == 'Store CS' ? (
+      ) : userRole === 'Store CS' ? (
         <>
           <NewOrderStoreCS />
         </>
-      ) : userRole == 'Admin HO' ? (
+      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <NewOrderHO />
         </>

@@ -77,11 +77,13 @@ const AsideDefault: FC = () => {
           />
 
           <h6 className='text-center text-secondary-emphasis'>
-            {role === 'Admin Vendor'
+            {role === 'Owner Vendor'
               ? vendorName
+              : role === 'Admin Vendor'
+              ? username
               : role === 'Sales'
               ? salesName
-              : role === 'Admin HO'
+              : role === 'Admin HO' || role === 'Super User'
               ? username
               : role === 'Tukang'
               ? tukangName

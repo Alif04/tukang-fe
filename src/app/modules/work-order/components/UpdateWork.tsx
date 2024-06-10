@@ -12,14 +12,14 @@ const UpdateWork: FC = () => {
 
   const updatePageTitle = (work_order: WorkOrder) => {
     const workOrderId =
-      userRole === 'Admin Vendor'
+      userRole === 'Admin Vendor' || userRole === 'Owner Vendor'
         ? work_order?.work_orders === null
           ? work_order?.id
           : work_order?.work_orders?.id
         : work_order?.id
 
     const customerName =
-      userRole === 'Admin Vendor'
+      userRole === 'Admin Vendor' || userRole === 'Owner Vendor'
         ? work_order?.members?.full_name ?? '-'
         : work_order?.order?.members?.full_name ?? '-'
 
@@ -32,7 +32,7 @@ const UpdateWork: FC = () => {
 
   return (
     <>
-      {userRole == 'Admin Vendor' ? (
+      {userRole == 'Admin Vendor' || userRole === 'Owner Vendor' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateWorkVendor updatePageTitle={updatePageTitle} />

@@ -9,7 +9,7 @@ const ReportInsentifList: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Admin HO' ? (
+      {userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <ReportInsentifHO className='' />
         </>

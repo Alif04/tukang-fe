@@ -17,7 +17,7 @@ const UpdateWarrantyForm: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Admin HO' ? (
+      {userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateWarrantyHO updatePageTitle={updatePageTitle} />
