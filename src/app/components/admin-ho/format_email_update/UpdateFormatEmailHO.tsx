@@ -40,6 +40,7 @@ interface emailLayout {
   csi_id: number | null
   email_type: number | null
   trigger_id: number | null
+  is_active: number | null
   title: string
   cc: string
   bcc: string
@@ -87,6 +88,7 @@ const UpdateFormatEmailHO: FC = () => {
     csi_id: null,
     email_type: null,
     trigger_id: null,
+    is_active: 1,
     title: '',
     cc: '',
     bcc: '',
@@ -128,6 +130,7 @@ const UpdateFormatEmailHO: FC = () => {
               csi_id: data?.csi_template?.id ?? null,
               email_type: data?.email_type,
               trigger_id: data?.trigger_id,
+              is_active: data?.is_active === true ? 1 : 0,
               title: data?.title,
               cc: data?.cc,
               bcc: data?.bcc,
@@ -422,23 +425,9 @@ const UpdateFormatEmailHO: FC = () => {
     }))
   }, [valueCC, valueBCC])
 
-  // Desctructure Object if the value null or empty string
-  const objectValueCheck = (data: emailLayout) => {
-    let cleanedData: Partial<emailLayout> = {}
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        cleanedData[key as keyof emailLayout] = value
-      }
-    })
-
-    return cleanedData
-  }
-
   // Handle Update Email
   const handleUpdateEmailMessages = async () => {
     setIsLoading(true)
-    const emailBody = objectValueCheck(emailForm)
 
     const updatedTerms = emailForm.terms_detail.map((terms) => {
       if (terms.id === null) {
@@ -463,7 +452,7 @@ const UpdateFormatEmailHO: FC = () => {
     }
 
     await axios
-      .patch(`${apiUrl}/email-messages/${params.id}`, emailBody, {
+      .patch(`${apiUrl}/mails/${params.id}`, emailForms, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
