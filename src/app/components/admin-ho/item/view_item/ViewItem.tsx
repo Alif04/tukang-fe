@@ -248,16 +248,20 @@ const ViewItemHO: React.FC = () => {
       const itemData = apiData.map((item: any, index: number) => {
         let data
 
-        const priceStoresLength = item.prices.reduce(
-          (total: any, price: any) => total + price.price_stores.length,
-          0
+        const storeIds = item.prices.flatMap((detail: any) =>
+          detail.price_stores.map((priceStore: any) => priceStore.store.id)
         )
+        const uniqueStoreIds = Array.from(new Set(storeIds))
+
+        // const priceStoresLength = item.prices.reduce(
+        //   (total: any, price: any) => total + price.price_stores.length,
+        //   0
+        // )
 
         data = {
           no: index + 1,
           material_id: item?.id,
-          // store_name: `${priceStoresLength.length} Toko`,
-          store_name: `${item?.prices[0]?.price_stores.length ?? 0} Toko`,
+          store_name: `${uniqueStoreIds.length} Toko`,
           product_name: item?.item_name ?? '-',
           service_name: item?.service_name ?? '-',
           default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
