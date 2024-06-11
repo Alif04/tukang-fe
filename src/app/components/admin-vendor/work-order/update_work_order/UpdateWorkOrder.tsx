@@ -468,11 +468,17 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
+    // TODO: Fix conditional url
     const url = !workOrder.id
       ? `${apiUrl}/work-orders`
       : workOrder.id && workOrder.work_order_item.length === 0
       ? `${apiUrl}/work-orders/${workOrder.id}`
-      : workOrder.id && workOrder.work_order_item.length >= 1 && workOrder.work_order_status === 13
+      : (workOrder.id &&
+          workOrder.work_order_item.length >= 1 &&
+          workOrder.work_order_status === 13) ||
+        workOrder.work_order_status === 5 ||
+        workOrder.work_order_status === 6 ||
+        workOrder.work_order_status === 7
       ? `${apiUrl}/work-orders/${workOrder.id}`
       : workOrder.id && workOrder.work_order_item.length >= 1 && workOrder.work_order_status !== 13
       ? `${apiUrl}/work-orders/${workOrder.id}/set-materials`
@@ -497,7 +503,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     if (
       workOrder.id &&
       workOrder.work_order_item.length >= 1 &&
-      workOrder.work_order_status !== 13
+      workOrder.work_order_status !== 13 &&
+      workOrder.work_order_status !== 5 &&
+      workOrder.work_order_status !== 6 &&
+      workOrder.work_order_status !== 7
     ) {
       if (workOrder.work_order_item && workOrder.work_order_item.length > 0) {
         formData.append('status_id', String(workOrder.work_order_status))
