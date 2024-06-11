@@ -788,7 +788,7 @@ const UpdateQuotationHO: FC = () => {
           </Row>
 
           <div className='detail-table'>
-            <Table responsive hover className='table-jasa'>
+            <Table hover className='table-jasa'>
               <thead>
                 <tr>
                   <th></th>
@@ -799,7 +799,7 @@ const UpdateQuotationHO: FC = () => {
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
-                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Profit</th>
                   <th className='text-center'>Total</th>
                   {/* <th className='text-center'>Keterangan</th> */}
                 </tr>
@@ -942,7 +942,7 @@ const UpdateQuotationHO: FC = () => {
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
-                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Profit</th>
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Total
                   </th>
