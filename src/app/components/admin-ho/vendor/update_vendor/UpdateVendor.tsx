@@ -224,7 +224,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   const getArea = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/area`, {
+      const response = await axios.get(`${apiUrl}/area?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -276,7 +276,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   const getBank = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/bank`, {
+      const response = await axios.get(`${apiUrl}/bank?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
