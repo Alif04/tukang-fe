@@ -705,11 +705,20 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder'>
-                                Additional Promosi
+                                {`${
+                                  orderDetail?.quotation[0]?.promotion
+                                    ? `Additional Promotion (${orderDetail?.quotation[0]?.promotion?.name})`
+                                    : `Additional Promotion`
+                                }`}
                               </td>
-                              <td className=' fw-bolder'>{`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_promotion ?? 0
-                              ).toLocaleString('id')}`}</td>
+
+                              <td className=' fw-bolder'>
+                                {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
+                                  ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
+                                  : `Rp. ${parseInt(
+                                      orderDetail?.quotation[0]?.promotion?.promotion
+                                    ).toLocaleString('id')}`}
+                              </td>
                             </tr>
 
                             <tr>

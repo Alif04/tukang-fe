@@ -66,7 +66,7 @@ const UpdateQuotationHO: FC = () => {
   const [promotionId, setPromotionId] = useState<any>(null)
   const [promotionName, setPromotionName] = useState<string>('')
   const [promosiDiscount, setPromosiDiscount] = useState<any>()
-  const [additionalPromosi, setAdditionalPromosi] = useState<any>()
+  const [additionalPromosi, setAdditionalPromosi] = useState<any>(0)
 
   const [grandTotalBeforePromotion, setGrandTotalBeforePromotion] = useState<any>(0)
   const [grandTotal, setGrandTotal] = useState<any>(0)
@@ -174,8 +174,10 @@ const UpdateQuotationHO: FC = () => {
             setPromosiDiscount(data.quotation_disc)
           }
 
-          if (data?.quotation_promotion) {
-            setAdditionalPromosi(data.quotation_promotion)
+          if (data?.promotion) {
+            setPromotionId(data?.promotion?.id)
+            setPromotionName(data?.promotion?.name)
+            setAdditionalPromosi(data?.promotion?.promotion)
           }
 
           if (data?.quotation_grand_total) {
@@ -401,45 +403,49 @@ const UpdateQuotationHO: FC = () => {
   }
 
   useEffect(() => {
-    let promotionSurvey = 0
-    const minimalGrandTotal = 500000
+    if (quotationData?.readiness === 1) {
+      let promotionSurvey = 0
+      const minimalGrandTotal = 500000
 
-    if (grandTotalBeforePromotion >= minimalGrandTotal) {
-      promotionSurvey = 99000
+      if (grandTotalBeforePromotion >= minimalGrandTotal) {
+        promotionSurvey = 99000
+      }
+
+      setPromosiDiscount(promotionSurvey)
     }
-
-    setPromosiDiscount(promotionSurvey)
   }, [grandTotalBeforePromotion])
 
   useEffect(() => {
-    let totalQuotation = grandTotalBeforePromotion
-    let totalPromotion = 0
-    let promotionId = null
-    let promotionName = ''
+    if (quotationData?.readiness === 1) {
+      let totalQuotation = grandTotalBeforePromotion
+      let totalPromotion = 0
+      let promotionId = null
+      let promotionName = ''
 
-    promotion.forEach((promo) => {
-      if (totalQuotation >= promo.min_order) {
-        if (promo.promotion_type === 2) {
-          promotionId = promo.id
-          promotionName = promo.name
-          totalPromotion = promo.promotion
-        } else if (promo.promotion_type === 1) {
-          promotionId = promo.id
-          promotionName = promo.name
-          totalPromotion = (totalQuotation * promo.promotion) / 100
+      promotion.forEach((promo) => {
+        if (totalQuotation >= promo.min_order) {
+          if (promo.promotion_type === 2) {
+            promotionId = promo.id
+            promotionName = promo.name
+            totalPromotion = promo.promotion
+          } else if (promo.promotion_type === 1) {
+            promotionId = promo.id
+            promotionName = promo.name
+            totalPromotion = (totalQuotation * promo.promotion) / 100
+          }
         }
-      }
-    })
+      })
 
-    setPromotionId(promotionId)
-    setPromotionName(promotionName)
-    setAdditionalPromosi(totalPromotion)
+      setPromotionId(promotionId)
+      setPromotionName(promotionName)
+      setAdditionalPromosi(totalPromotion)
+    }
   }, [promotion, grandTotalBeforePromotion])
 
   // Grand Total
   const calculatedGrandTotal = () => {
     const grandTotal =
-      Number(totalJasaMaterial) - Number(promosiDiscount) - Number(additionalPromosi)
+      Number(totalJasaMaterial) - Number(promosiDiscount) - Number(additionalPromosi ?? 0)
 
     const roundedValue = Math.ceil(grandTotal / 100) * 100
 
@@ -510,8 +516,10 @@ const UpdateQuotationHO: FC = () => {
     formData.append('quotation_date', quotationDate)
     formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
     formData.append('quotation_disc', promosiDiscount.toString())
-    // formData.append('quotation_promotion', additionalPromosi.toString())
-    formData.append('promotion_id', promotionId.toString())
+
+    if (promotionId !== null) {
+      formData.append('promotion_id', String(promotionId))
+    }
 
     quotationDetail.forEach((quotation, index) => {
       appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)

@@ -242,12 +242,16 @@ const DetailQuotationHO: FC = () => {
 
                 <tr>
                   <td colSpan={3} className='text-end fw-bolder'>
-                    Additional Promosi
+                    {`${
+                      quotationDetail?.promotion
+                        ? `Additional Promotion (${quotationDetail?.promotion?.name})`
+                        : `Additional Promotion`
+                    }`}
                   </td>
                   <td className=' fw-bolder'>
                     {quotationDetail?.promotion?.promotion_type === 1
                       ? `${quotationDetail?.promotion?.promotion} %`
-                      : `Rp. ${parseInt(quotationDetail?.quotation_promotion).toLocaleString(
+                      : `Rp. ${parseInt(quotationDetail?.promotion?.promotion).toLocaleString(
                           'id'
                         )}`}
                   </td>
@@ -267,7 +271,7 @@ const DetailQuotationHO: FC = () => {
 
           <div className='payment-detail'>
             <div className='payment-method'>
-              <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
+              <h1 className='fw-bold'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
 
               <h3 className='fw-normal'>{quotationDetail?.store?.bank_account}</h3>
               <h3 className='fw-normal'>{quotationDetail?.store?.bank_name}</h3>
@@ -275,21 +279,21 @@ const DetailQuotationHO: FC = () => {
             </div>
 
             <div className='payment-evidence'>
-              <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>
+              <h1 className='fw-bold'>Silahkan kirim bukti bayar anda melalui:</h1>
+              <h3 className='fw-normal'>
                 {`Telp : ${
                   quotationDetail?.store?.phone_number_1 ??
                   quotationDetail?.store?.phone_number_2 ??
                   'Nomor telepon belum tersedia'
                 }`}
-              </h1>
-              <h1 className='fw-bolder'>
+              </h3>
+              <h3 className='fw-normal'>
                 {`Email : ${
                   quotationDetail?.store?.email ??
                   quotationDetail?.store?.email ??
                   'Email belum tersedia'
                 }`}
-              </h1>
+              </h3>
             </div>
 
             <h1 className='fw-bolder'>
