@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
@@ -215,11 +216,25 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         },
       })
 
-      setCurrentPage(response?.data?.page ?? 1)
-      setTotalData(response?.data?.total ?? 0)
-      setLoadData(false)
+      if (response.data.status === 200) {
+        setCurrentPage(response?.data?.page ?? 1)
+        setTotalData(response?.data?.total ?? 0)
+        setLoadData(false)
 
-      return response.data.data
+        return response.data.data
+      } else if (response.data.status === 401) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Sesi Login Anda Telah Habis, Silahkan Login Ulang Kembali',
+          icon: 'warning',
+        })
+      } else {
+        Swal.fire({
+          title: 'Warning',
+          text: response.data.message,
+          icon: 'warning',
+        })
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
