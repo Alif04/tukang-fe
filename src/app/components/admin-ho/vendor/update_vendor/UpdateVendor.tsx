@@ -92,19 +92,25 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setUsername(data?.pic_vendor[0]?.users?.username ?? '')
           }
 
-          if (data?.vendor_bank) {
-            setBankIds(data.vendor_bank[0].id)
-            setBankId(data.vendor_bank[0].bank_id)
-            setBankName(data.vendor_bank[0].bank.bank_name)
-            setAccountName(data.vendor_bank[0].account_name)
-            setAccountNumber(data.vendor_bank[0].account_number)
+          if (data?.bank) {
+            setBankIds(data?.bank?.id ?? null)
+            setBankId(data?.bank?.id ?? null)
+            setBankName(data?.bank?.bank_name ?? '')
+          }
+
+          if (data?.account_name) {
+            setAccountName(data.account_name)
+          }
+
+          if (data?.account_number) {
+            setAccountNumber(data.account_number)
           }
 
           if (data?.vendor_area) {
             const vendorAreaId = data.vendor_area.map((item: any) => item?.area_id)
 
             setserviceAreaId(vendorAreaId)
-            setMarkup(data?.vendor_area[0]?.default_markup ?? '')
+            setMarkup(data?.vendor_area[0]?.default_markup)
             setDiscount(data?.vendor_area[0]?.default_discount ?? '')
           }
 
@@ -908,14 +914,12 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
       formData.append('max_order', maxOrder)
-
-      formData.append('vendor_bank[id]', bankIds)
-      formData.append('vendor_bank[bank_id]', bankId)
-      formData.append('vendor_bank[account_number]', accountNumber)
-      formData.append('vendor_bank[account_name]', accountName)
+      formData.append('bank_id', bankId)
+      formData.append('account_number', accountNumber)
+      formData.append('account_name', accountName)
 
       if (username) {
-        formData.append('username', username)
+        formData.append('default_username', username)
       }
 
       if (ktpNumber) {
