@@ -478,13 +478,6 @@ const UpdateQuotationHO: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (!promosiDiscount) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill promotion (fill in 0 if not available)',
-        icon: 'warning',
-      })
-      valid = false
     }
     return valid
   }
@@ -619,7 +612,7 @@ const UpdateQuotationHO: FC = () => {
   }
 
   return (
-    <section id='quotation-ho'>
+    <section id='update-quotation'>
       <Card className='card-quotation'>
         <Card.Body className='content-quotation'>
           <Row className='mb-4'>
