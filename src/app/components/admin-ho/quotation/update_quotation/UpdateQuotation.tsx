@@ -10,6 +10,7 @@ import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Table, Button, Row, Col, Card} from 'react-bootstrap'
 
 interface Promotion {
+  id: number
   name: string
   min_order: number
   promotion: number
@@ -62,6 +63,7 @@ const UpdateQuotationHO: FC = () => {
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
 
+  const [promotionId, setPromotionId] = useState<any>(null)
   const [promotionName, setPromotionName] = useState<string>('')
   const [promosiDiscount, setPromosiDiscount] = useState<any>()
   const [additionalPromosi, setAdditionalPromosi] = useState<any>()
@@ -247,6 +249,7 @@ const UpdateQuotationHO: FC = () => {
 
       if (Array.isArray(response.data.data)) {
         const tempPromotion = response.data.data.map((item: any) => ({
+          id: item.id,
           name: item.name,
           min_order: item.min_order,
           promotion: item.promotion,
@@ -411,20 +414,24 @@ const UpdateQuotationHO: FC = () => {
   useEffect(() => {
     let totalQuotation = grandTotalBeforePromotion
     let totalPromotion = 0
+    let promotionId = null
     let promotionName = ''
 
     promotion.forEach((promo) => {
       if (totalQuotation >= promo.min_order) {
         if (promo.promotion_type === 2) {
+          promotionId = promo.id
           promotionName = promo.name
           totalPromotion = promo.promotion
         } else if (promo.promotion_type === 1) {
+          promotionId = promo.id
           promotionName = promo.name
           totalPromotion = (totalQuotation * promo.promotion) / 100
         }
       }
     })
 
+    setPromotionId(promotionId)
     setPromotionName(promotionName)
     setAdditionalPromosi(totalPromotion)
   }, [promotion, grandTotalBeforePromotion])
@@ -503,7 +510,8 @@ const UpdateQuotationHO: FC = () => {
     formData.append('quotation_date', quotationDate)
     formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
     formData.append('quotation_disc', promosiDiscount.toString())
-    formData.append('quotation_promotion', additionalPromosi.toString())
+    // formData.append('quotation_promotion', additionalPromosi.toString())
+    formData.append('promotion_id', promotionId.toString())
 
     quotationDetail.forEach((quotation, index) => {
       appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
@@ -576,7 +584,6 @@ const UpdateQuotationHO: FC = () => {
               'ngrok-skip-browser-warning': 'true',
             },
           })
-
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
@@ -585,7 +592,6 @@ const UpdateQuotationHO: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             })
-
             setIsLoading(false)
             navigate('/quotation/view-quotation')
           } else {
@@ -594,13 +600,11 @@ const UpdateQuotationHO: FC = () => {
               text: response.data.message,
               icon: 'error',
             })
-
             setIsLoading(false)
           }
         } catch (error: any) {
           console.error(error)
           setIsLoading(false)
-
           Swal.fire({
             title: 'Error',
             text: error.response.data.message,

@@ -297,13 +297,15 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
           year: 'numeric',
         })
 
-        const vendorService = item.vendor_service
-          .map((vendor_service: any) => vendor_service?.service_type?.service_type)
-          .join(', ')
+        const vendorServiceIds = item?.vendor_service?.map(
+          (item: any) => item?.service_type?.service_type
+        )
+        const uniqueService = Array.from(new Set(vendorServiceIds)).join(', ')
 
-        const vendorArea = item.vendor_store
-          .map((vendor_store: any) => vendor_store?.store?.area?.area)
-          .join(', ')
+        const vendorAreaIds = item.vendor_store.map(
+          (vendor_store: any) => vendor_store.store.store_name
+        )
+        const uniqueArea = Array.from(new Set(vendorAreaIds)).join(', ')
 
         data = {
           no: index + 1,
@@ -313,8 +315,8 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
           email_address: item.email_address,
           phone_number: item.phone_number,
           date_join: joinDate,
-          service_type: vendorService,
-          serving_area: vendorArea || '',
+          service_type: uniqueService,
+          serving_area: uniqueArea,
           rating: '-',
           vendor_status: item.is_active ? 'ACTIVE' : 'NON ACTIVE',
         }

@@ -244,9 +244,13 @@ const DetailQuotationHO: FC = () => {
                   <td colSpan={3} className='text-end fw-bolder'>
                     Additional Promosi
                   </td>
-                  <td className=' fw-bolder'>{`Rp. ${parseInt(
-                    quotationDetail?.quotation_promotion
-                  ).toLocaleString('id')}`}</td>
+                  <td className=' fw-bolder'>
+                    {quotationDetail?.promotion?.promotion_type === 1
+                      ? `${quotationDetail?.promotion?.promotion} %`
+                      : `Rp. ${parseInt(quotationDetail?.quotation_promotion).toLocaleString(
+                          'id'
+                        )}`}
+                  </td>
                 </tr>
 
                 <tr>
