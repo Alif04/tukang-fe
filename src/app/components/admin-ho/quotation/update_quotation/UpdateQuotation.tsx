@@ -7,7 +7,7 @@ import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Table, Button, Row, Col} from 'react-bootstrap'
+import {Form, Table, Button, Row, Col, Card} from 'react-bootstrap'
 
 interface Promotion {
   name: string
@@ -478,20 +478,6 @@ const UpdateQuotationHO: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (!promosiDiscount) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill promotion (fill in 0 if not available)',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (!additionalPromosi) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill additional promotion (fill in 0 if not available)',
-        icon: 'warning',
-      })
-      valid = false
     }
     return valid
   }
@@ -627,10 +613,14 @@ const UpdateQuotationHO: FC = () => {
 
   return (
     <section id='update-quotation'>
-      <div className='card'>
-        <div className='card-body'>
+      <Card className='card-quotation'>
+        <Card.Body className='content-quotation'>
           <Row className='mb-4'>
-            <Col xxl={6} className='vendor-information'>
+            <Col
+              xs={{order: 'last'}}
+              xxl={6}
+              className='vendor-information order-1 order-xxl-1 order-xl-2 order-lg-2 order-md-2 order-sm-2 mb-3'
+            >
               <div className='vendor-detail'>
                 <img
                   alt='Logo'
@@ -639,30 +629,36 @@ const UpdateQuotationHO: FC = () => {
                 />
 
                 <Form.Group>
-                  <Form.Label>Nama Toko :</Form.Label>
+                  <Form.Label className='fs-5 fw-semibold'>Nama Toko :</Form.Label>
 
                   <Col>
-                    <Form.Label className='fs-3 fw-bold'>
+                    <Form.Label className='fs-5 fw-bold'>
                       {quotationData?.store?.store_name}
                     </Form.Label>
                   </Col>
                 </Form.Group>
 
-                <Form.Label className='fs-5 fw-bold'>
-                  {quotationData?.store?.address ?? ''}
-                </Form.Label>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>
+                    {quotationData?.store?.address ?? ''}
+                  </Form.Label>
 
-                <Form.Label className='fs-5 fw-bold'>
-                  {`Telp : ${
-                    quotationData?.store?.phone_number_1 ??
-                    quotationData?.store?.phone_number_2 ??
-                    'Nomor telepon belum tersedia'
-                  }`}
-                </Form.Label>
+                  <Form.Label className='fs-5 fw-bold'>
+                    {`Telp : ${
+                      quotationData?.store?.phone_number_1 ??
+                      quotationData?.store?.phone_number_2 ??
+                      'Nomor telepon belum tersedia'
+                    }`}
+                  </Form.Label>
+                </Form.Group>
               </div>
             </Col>
 
-            <Col xxl={6} className='payment-request'>
+            <Col
+              xs={{order: 'first'}}
+              xxl={6}
+              className='payment-request order-2 order-xxl-2 order-xl-1 order-lg-1 order-md-1 order-sm-1 mb-3'
+            >
               <h1 className='fw-bolder'>QUOTATION</h1>
 
               <Form.Group as={Row} className='mb-4'>
@@ -753,12 +749,14 @@ const UpdateQuotationHO: FC = () => {
             </Col>
           </Row>
 
-          <Row className='mb-4'>
+          <Row className='mb-5'>
             <Col xxl={6}>
-              <div className='receiver-information'>
+              <div className='receiver-information mb-3'>
                 <div className='receiver-detail'>
-                  <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                  <h1 className='fw-bolder mt-2'>{quotationData?.order?.members?.full_name}</h1>
+                  <h1 className='fs-5 fw-semibold'>Ditunjukkan kepada :</h1>
+                  <h1 className='fs-3 fw-semibold mt-2'>
+                    {quotationData?.order?.members?.full_name}
+                  </h1>
                 </div>
 
                 <div className='address'>
@@ -801,7 +799,6 @@ const UpdateQuotationHO: FC = () => {
                   <th className='text-center'>Price</th>
                   <th className='text-center'>Profit</th>
                   <th className='text-center'>Total</th>
-                  {/* <th className='text-center'>Keterangan</th> */}
                 </tr>
               </thead>
 
@@ -820,14 +817,6 @@ const UpdateQuotationHO: FC = () => {
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`item-name-${index}`}
-                            value={element.item_name}
-                            plaintext
-                            disabled
-                            readOnly
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                          /> */}
                         <p>{element?.item_name ?? '-'}</p>
                       </td>
 
@@ -845,62 +834,21 @@ const UpdateQuotationHO: FC = () => {
                           }}
                           onChange={(newValue) => handleCategoryChange(element.index, newValue)}
                         />
-
-                        {/* <p>{element?.category_name ?? '-'}</p> */}
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity}
-                            plaintext
-                            disabled
-                            readOnly
-                            onChange={(e) => handleQuantityChange(index, e.target.value, 2)}
-                          /> */}
-
                         <p>{element?.quantity ?? 0}</p>
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`unit-price-${index}`}
-                            type='number'
-                            plaintext
-                            disabled
-                            readOnly
-                            value={element.unit_price}
-                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
-                          /> */}
-
                         <p>{element?.unit ?? '-'}</p>
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`unit-price-${index}`}
-                            type='number'
-                            plaintext
-                            disabled
-                            readOnly
-                            value={element.unit_price}
-                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
-                          /> */}
-
                         <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`unit-price-${index}`}
-                            type='number'
-                            plaintext
-                            disabled
-                            readOnly
-                            value={element.unit_price}
-                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 2)}
-                          /> */}
-
                         <p>
                           {element.margin_type === 1
                             ? `${element.margin}%`
@@ -909,24 +857,8 @@ const UpdateQuotationHO: FC = () => {
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            readOnly
-                            disabled
-                            plaintext
-                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                          /> */}
                         <p>{`Rp. ${element?.final_price?.toLocaleString('id')}`}</p>
                       </td>
-
-                      {/* <td>
-                        <Form.Control
-                            readOnly
-                            disabled
-                            plaintext
-                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                          />
-                        <p>{element?.description ?? '-'}</p>
-                      </td> */}
                     </tr>
                   ))}
               </tbody>
@@ -946,9 +878,6 @@ const UpdateQuotationHO: FC = () => {
                   <th className='text-center' style={{minWidth: '100px'}}>
                     Total
                   </th>
-                  {/* <th className='text-center' style={{minWidth: '100px'}}>
-                    Keterangan
-                  </th> */}
                 </tr>
               </thead>
               <tbody>
@@ -967,64 +896,22 @@ const UpdateQuotationHO: FC = () => {
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`item-name-${index}`}
-                            value={element.item_name}
-                            disabled
-                            readOnly
-                            plaintext
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                          /> */}
                         <p>{element?.item_name ?? '-'}</p>
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity}
-                            disabled
-                            readOnly
-                            plaintext
-                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
-                          /> */}
                         <p>{element?.quantity ?? 0}</p>
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity}
-                            disabled
-                            readOnly
-                            plaintext
-                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
-                          /> */}
                         <p>{element?.unit ?? 0}</p>
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`unit-price-${index}`}
-                            type='number'
-                            value={element.unit_price}
-                            disabled
-                            readOnly
-                            plaintext
-                            onChange={(e) => handleUnitPriceChange(index, e.target.value, 1)}
-                          /> */}
                         <p>{`Rp. ${element?.unit_price?.toLocaleString('id')}`}</p>
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            id={`margin-${index}`}
-                            type='number'
-                            value={element.margin}
-                            disabled
-                            readOnly
-                            plaintext
-                            onChange={(e) => handleMarginChange(index, e.target.value, 1)}
-                          /> */}
                         <p>
                           {element.margin_type === 1
                             ? `${element.margin}%`
@@ -1033,25 +920,8 @@ const UpdateQuotationHO: FC = () => {
                       </td>
 
                       <td>
-                        {/* <Form.Control
-                            disabled
-                            readOnly
-                            plaintext
-                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                          /> */}
-
                         <p>{`Rp. ${element.final_price?.toLocaleString('id')}`}</p>
                       </td>
-                      {/* 
-                      <td>
-                        <Form.Control
-                            readOnly
-                            disabled
-                            plaintext
-                            value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                          /> 
-                         <p>{element?.description ?? '-'}</p> 
-                      </td> */}
                     </tr>
                   ))}
 
@@ -1094,16 +964,6 @@ const UpdateQuotationHO: FC = () => {
                   <td className=' fw-bolder'>{`Rp. ${parseInt(additionalPromosi).toLocaleString(
                     'id'
                   )}`}</td>
-
-                  {/* 
-                  <td>
-                    <Form.Control
-                      id='additional-promosi'
-                      type='number'
-                      value={additionalPromosi}
-                      onChange={(e) => handleAddtionalPromosiChange(e.target.value)}
-                    />
-                  </td> */}
                 </tr>
 
                 <tr>
@@ -1125,25 +985,344 @@ const UpdateQuotationHO: FC = () => {
             </Table>
           </div>
 
-          <div className='payment-detail'>
-            <div className='payment-method'>
-              <h1 className='fw-bolder'>Silahkan melakukan pembayaran di account di bawah ini :</h1>
+          {/* 
+          
+          <hr />
 
-              <h3 className='fw-normal'>{quotationData?.store?.bank_account}</h3>
-              <h3 className='fw-normal'>{quotationData?.store?.bank_name}</h3>
-              <h3 className='fw-normal'>{quotationData?.store?.bank_number}</h3>
+          <div className='item-jasa'>
+            <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan</h4>
+
+            {quotationDetail
+              .filter((x) => x.type === 2)
+              .map((element, index) => (
+                <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                  <div className='d-flex border-rounded-3'>
+                    <Card.Body>
+                      <Row>
+                        <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                            <Form.Control readOnly value={element?.item_name ?? '-'} />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                            <Form.Control readOnly value={element?.quantity ?? 0} />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+                            <Form.Control
+                              readOnly
+                              value={
+                                element.margin_type === 1
+                                  ? `${element.margin}%`
+                                  : `Rp. ${element?.margin?.toLocaleString('id')}`
+                              }
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                            <Form.Control
+                              readOnly
+                              value={`Rp. ${element?.unit_price?.toLocaleString('id')}`}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+
+                      <Row>
+                        <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+                            <Form.Control readOnly value={element?.unit ?? '-'} />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Category</Form.Label>
+                            <Select
+                              name='category_id'
+                              className='form-control p-0'
+                              classNamePrefix='select'
+                              placeholder='Pilih Kategori'
+                              isSearchable={true}
+                              options={categories}
+                              value={{
+                                value: element.category_id ?? null,
+                                label: element.category_name ?? 'Pilih Category',
+                              }}
+                              onChange={(newValue) => handleCategoryChange(element.index, newValue)}
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                            <Form.Control
+                              readOnly
+                              value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </div>
+                </Card>
+              ))}
+          </div>
+
+          <hr />
+
+          <div className='item-material'>
+            <h4 className='fs-4 fw-semibold mb-5'>Item Material</h4>
+
+            {quotationDetail.filter((x) => x.type === 1).length ? (
+              <>
+                {quotationDetail
+                  .filter((x) => x.type === 1)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-material`} className='card-item-material mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <div className='d-flex flex-column align-items-center justify-content-between border-end p-2'>
+                          <Form.Check
+                            id={`is-user-${index}`}
+                            type='checkbox'
+                            className='mt-2'
+                            checked={element.is_user === 1}
+                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                          />
+                        </div>
+
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>
+                                  Material Yang Dibutuhkan
+                                </Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  value={element?.item_name ?? '-'}
+                                  disabled={element.is_user === 1 ? true : false}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control
+                                  id={`quantity-${index}`}
+                                  name='quantity'
+                                  readOnly
+                                  value={element?.quantity ?? 0}
+                                  disabled={element.is_user === 1 ? true : false}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={element.unit_price}
+                                  disabled={element.is_user === 1 ? true : false}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element?.unit_price?.toLocaleString('id')}`}
+                                  disabled={element.is_user === 1 ? true : false}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+
+                                <Form.Control
+                                  id={`satuan-${index}`}
+                                  name='unit'
+                                  value={element?.unit ?? '-'}
+                                  disabled={element.is_user === 1 ? true : false}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Margin</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  value={
+                                    element.margin_type === 1
+                                      ? `${element.margin}%`
+                                      : `Rp. ${element?.margin?.toLocaleString('id')}`
+                                  }
+                                  disabled={element.is_user === 1 ? true : false}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                  disabled={element.is_user === 1 ? true : false}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </div>
+                    </Card>
+                  ))}
+              </>
+            ) : (
+              <Card className='mb-3'>
+                <Card.Body>
+                  <div className='fs-5'>Tidak ada material yang dibutuhkan</div>
+                </Card.Body>
+              </Card>
+            )}
+
+            <h4 className='fs-8 fw-normal text-danger'>
+              *Jika <span className='fw-bolder text-decoration-underline'>Material</span> diceklis,
+              maka material tersebut disediakan oleh customer
+            </h4>
+          </div>
+
+          <hr />
+
+          <div className='item-total'>
+            <table className='table table-borderless'>
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Promosi ( Free Survey ) :</div>
+                </td>
+
+                <Form.Control
+                  id='promosi'
+                  type='number'
+                  value={promosiDiscount}
+                  onChange={(e) => handlePromosiChange(e.target.value)}
+                />
+              </tr>
+
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>
+                    {promotionName !== ''
+                      ? `Additional Promosi ( ${promotionName} ) :`
+                      : 'Additional Promosi :'}
+                  </div>
+                </td>
+
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>
+                    {`Rp. ${parseInt(additionalPromosi).toLocaleString('id')}`}
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Total Material :</div>
+                </td>
+
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${totalMaterial.toLocaleString(
+                    'id'
+                  )}`}</div>
+                </td>
+              </tr>
+
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Total Jasa & Material :</div>
+                </td>
+
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${totalJasaMaterial.toLocaleString(
+                    'id'
+                  )}`}</div>
+                </td>
+              </tr>
+
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Grand Total :</div>
+                </td>
+
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${grandTotal.toLocaleString('id')}`}</div>
+                </td>
+              </tr>
+
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>
+                    Grand Total{' '}
+                    <span className='dark-success'>{`+ Rp. ${grandTotalDiff} (Pembulatan) :`}</span>
+                  </div>
+                </td>
+
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{grandTotalRounded}</div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          
+          
+          */}
+
+          <div className='payment-detail'>
+            <div className='payment-method mb-2'>
+              <h1 className='fs-3 fw-bold'>
+                Silahkan melakukan pembayaran di account di bawah ini :
+              </h1>
+
+              <h3 className='fs-5 fw-normal'>{quotationData?.store?.bank_account}</h3>
+              <h3 className='fs-5 fw-normal'>{quotationData?.store?.bank_name}</h3>
+              <h3 className='fs-5 fw-normal'>{quotationData?.store?.bank_number}</h3>
             </div>
 
             <div className='payment-evidence'>
-              <h1 className='fw-bolder'>Silahkan kirim bukti bayar anda melalui:</h1>
-              <h1 className='fw-bolder'>
+              <h1 className='fs-3 fw-bold'>Silahkan kirim bukti bayar anda melalui:</h1>
+              <h1 className='fs-5 fw-normal'>
                 {`Telp : ${
                   quotationData?.store?.phone_number_1 ??
                   quotationData?.store?.phone_number_2 ??
                   'Nomor telepon belum tersedia'
                 }`}
               </h1>
-              <h1 className='fw-bolder'>
+              <h1 className='fs-5 fw-normal'>
                 {`Email : ${
                   quotationData?.store?.email ??
                   quotationData?.store?.email ??
@@ -1152,16 +1331,16 @@ const UpdateQuotationHO: FC = () => {
               </h1>
             </div>
 
-            <h1 className='fw-bolder'>
+            <h1 className='fs-5 fw-normal'>
               Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
               kembali.
             </h1>
           </div>
 
-          <div className='d-flex justify-content-center align-items-center mt-5'>
+          <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
             <Button
               variant='dark-primary'
-              className='d-flex justify-content-center align-items-center'
+              className='d-flex justify-content-center align-items-center mb-2'
               type='submit'
               onClick={() => handleUpdateQuotation(1)}
             >
@@ -1172,7 +1351,7 @@ const UpdateQuotationHO: FC = () => {
               <>
                 <Button
                   variant='dark-success'
-                  className='d-flex justify-content-center align-items-center'
+                  className='d-flex justify-content-center align-items-center mb-2'
                   type='submit'
                   onClick={() => handleUpdateQuotation(2)}
                 >
@@ -1181,7 +1360,7 @@ const UpdateQuotationHO: FC = () => {
 
                 <Button
                   variant='dark-danger'
-                  className='d-flex justify-content-center align-items-center'
+                  className='d-flex justify-content-center align-items-center mb-2'
                   type='submit'
                   onClick={() => handleUpdateQuotation(3)}
                 >
@@ -1193,7 +1372,7 @@ const UpdateQuotationHO: FC = () => {
             {quotationData?.readiness === 2 && (
               <Button
                 variant='dark-warning'
-                className='d-flex justify-content-center align-items-center'
+                className='d-flex justify-content-center align-items-center mb-2'
                 type='submit'
                 onClick={() => handleUpdateQuotation(4)}
               >
@@ -1201,8 +1380,8 @@ const UpdateQuotationHO: FC = () => {
               </Button>
             )}
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }
