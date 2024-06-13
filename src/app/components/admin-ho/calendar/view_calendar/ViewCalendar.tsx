@@ -31,6 +31,8 @@ interface Status {
 const ViewCalendarHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [order, setOrder] = useState<Order[]>([
     {
       id: '',
@@ -45,103 +47,113 @@ const ViewCalendarHO: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   // Fetch Data
-  useEffect(() => {
-    const getOrder = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/orders?take=0`, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          .then((response) => {
-            const data = response.data.data
+  const getOrder = async (start: any, end: any) => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders?order_by=desc&take=0&date_from=${start}&date_to=${end}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
 
-            if (data) {
-              const orderDetail = data.map((item: any) => {
-                const startDate = item?.work_orders
-                  ? item?.work_orders &&
-                    item.work_orders.survey_date !== null &&
-                    item.work_orders.work_start_date === null
-                    ? item.work_orders.survey_date
-                    : item?.work_orders &&
-                      item.work_orders.survey_date === null &&
-                      item.work_orders.work_start_date
-                    ? item.work_orders.work_start_date
-                    : null
-                  : item?.request_survey
+          if (data) {
+            const orderDetail = data.map((item: any) => {
+              const startDate = item?.work_orders
+                ? item?.work_orders &&
+                  item.work_orders.survey_date !== null &&
+                  item.work_orders.work_start_date === null
+                  ? item.work_orders.survey_date
+                  : item?.work_orders &&
+                    item.work_orders.survey_date === null &&
+                    item.work_orders.work_start_date
+                  ? item.work_orders.work_start_date
+                  : null
+                : item?.request_survey
 
-                const endDate = item?.work_orders
-                  ? item?.work_orders &&
-                    item.work_orders.survey_date !== null &&
-                    item.work_orders.work_end_date === null
-                    ? item.work_orders.survey_date
-                    : item?.work_orders &&
-                      item.work_orders.survey_date === null &&
-                      item.work_orders.work_end_date
-                    ? item.work_orders.work_end_date
-                    : null
-                  : item?.request_survey
+              const endDate = item?.work_orders
+                ? item?.work_orders &&
+                  item.work_orders.survey_date !== null &&
+                  item.work_orders.work_end_date === null
+                  ? item.work_orders.survey_date
+                  : item?.work_orders &&
+                    item.work_orders.survey_date === null &&
+                    item.work_orders.work_end_date
+                  ? item.work_orders.work_end_date
+                  : null
+                : item?.request_survey
 
-                const orderStatus = (() => {
-                  if (item?.work_orders?.work_order_status?.length >= 0) {
-                    if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
-                      return item?.status?.category
-                    } else if (
-                      ['WORKREQ'].includes(item?.status?.category) &&
-                      item?.payment_type === 'survey' &&
-                      !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                        item?.work_orders?.work_order_status[0]?.status?.category
-                      )
-                    ) {
-                      return item?.status?.category
-                    } else {
-                      return item?.work_orders?.work_order_status[0]?.status?.category
-                    }
-                  } else {
+              const orderStatus = (() => {
+                if (item?.work_orders?.work_order_status?.length >= 0) {
+                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
                     return item?.status?.category
+                  } else if (
+                    ['WORKREQ'].includes(item?.status?.category) &&
+                    item?.payment_type === 'survey' &&
+                    !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                      item?.work_orders?.work_order_status[0]?.status?.category
+                    )
+                  ) {
+                    return item?.status?.category
+                  } else {
+                    return item?.work_orders?.work_order_status[0]?.status?.category
                   }
-                })()
-
-                const contextualColor = (() => {
-                  switch (orderStatus) {
-                    case 'WORKEND':
-                      return 'bg-calendar-order-done'
-                    case 'RESCHEDULE':
-                      return 'bg-calendar-order-reschedule'
-                    case 'INVESTIGATED':
-                      return 'bg-calendar-order-complaint'
-                    default:
-                      return 'bg-primary'
-                  }
-                })()
-
-                return {
-                  id: item?.id.toString(),
-                  title: `#${item?.id ?? ''} ${
-                    item.vendor ? `- ${item.vendor.company_name}` : '- Vendor Belum Ditugaskan'
-                  } - ${item?.members?.full_name ?? ''} `,
-                  start: dayjs(startDate).format('YYYY-MM-DD'),
-                  end: dayjs(endDate).format('YYYY-MM-DD'),
-                  order_status: orderStatus,
-                  className: contextualColor,
-                  order_detail: item,
+                } else {
+                  return item?.status?.category
                 }
-              })
+              })()
 
-              setOrder(orderDetail)
-            }
-          })
-      } catch (error) {
-        console.error(error)
-      }
+              const contextualColor = (() => {
+                switch (orderStatus) {
+                  case 'WORKEND':
+                    return 'bg-calendar-order-done'
+                  case 'RESCHEDULE':
+                    return 'bg-calendar-order-reschedule'
+                  case 'INVESTIGATED':
+                    return 'bg-calendar-order-complaint'
+                  default:
+                    return 'bg-primary'
+                }
+              })()
+
+              return {
+                id: item?.id.toString(),
+                title: `#${item?.id ?? ''} ${
+                  item.vendor ? `- ${item.vendor.company_name}` : '- Vendor Belum Ditugaskan'
+                } - ${item?.members?.full_name ?? ''} `,
+                start: dayjs(startDate).format('YYYY-MM-DD'),
+                end: dayjs(endDate).format('YYYY-MM-DD'),
+                order_status: orderStatus,
+                className: contextualColor,
+                order_detail: item,
+              }
+            })
+
+            setOrder(orderDetail)
+          }
+        })
+    } catch (error) {
+      console.error(error)
     }
+  }
 
-    getOrder()
-  }, [])
+  useEffect(() => {
+    if (dateFrom && dateTo) {
+      getOrder(dateFrom, dateTo)
+    }
+  }, [dateFrom, dateTo])
+
+  const handleDatesSet = (arg: any) => {
+    const start = dayjs(arg.startStr).format('YYYY-MM-DD')
+    const end = dayjs(arg.endStr).format('YYYY-MM-DD')
+
+    setDateFrom(start)
+    setDateTo(end)
+  }
 
   // MODAL
   const [showModal, setShowModal] = useState(false)
@@ -301,6 +313,7 @@ const ViewCalendarHO: React.FC = () => {
         initialView='dayGridMonth'
         weekends={true}
         events={order}
+        datesSet={handleDatesSet}
         eventClick={(info) => handleShowModal(info.event.id)}
       />
 
@@ -693,6 +706,25 @@ const ViewCalendarHO: React.FC = () => {
                             {`Rp. ${parseInt(
                               selectedOrder?.order_detail?.quotation[0]?.quotation_disc ?? 0
                             ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            {`${
+                              selectedOrder?.order_detail?.quotation[0]?.promotion
+                                ? `Additional Promotion (${selectedOrder?.order_detail?.quotation[0]?.promotion?.name})`
+                                : `Additional Promotion`
+                            }`}
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {selectedOrder?.order_detail?.quotation[0]?.promotion
+                              ?.promotion_type === 1
+                              ? `${selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion} %`
+                              : `Rp. ${parseInt(
+                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion
+                                ).toLocaleString('id')}`}
                           </td>
                         </tr>
 

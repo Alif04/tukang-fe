@@ -26,6 +26,8 @@ const ViewCalendarTukang: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const tukangId = localStorage.getItem('tukang_id')
 
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [workOrder, setWorkOrder] = useState<WorkOrder[]>([
     {
       id: '',
@@ -40,103 +42,116 @@ const ViewCalendarTukang: React.FC = () => {
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null)
 
   // Fetch Data
-  useEffect(() => {
-    const getWorkOrder = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/work-orders?tukang_id=${tukangId}`, {
+  const getWorkOrder = async (start: any, end: any) => {
+    try {
+      await axios
+        .get(
+          `${apiUrl}/work-orders?tukang_id=${tukangId}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
+          {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
               'Access-Control-Allow-Origin': '*',
               'ngrok-skip-browser-warning': 'true',
             },
-          })
-          .then((response) => {
-            const data = response.data.data
+          }
+        )
+        .then((response) => {
+          const data = response.data.data
 
-            if (data) {
-              const workOrderDetail = data.map((item: any) => {
-                const workOrderItems = item?.work_order_status[0]?.work_order_items
-                  .map((service: any) => service.name ?? '')
-                  .join(', ')
+          if (data) {
+            const workOrderDetail = data.map((item: any) => {
+              const workOrderItems = item?.work_order_status[0]?.work_order_items
+                .map((service: any) => service.name ?? '')
+                .join(', ')
 
-                const workOrderTukang = item?.work_order_tukang
-                  .map((item: any) => item.tukang.full_name ?? '')
-                  .join(', ')
+              const workOrderTukang = item?.work_order_tukang
+                .map((item: any) => item.tukang.full_name ?? '')
+                .join(', ')
 
-                const startDate =
-                  item.survey_date !== null && item.work_start_date === null
-                    ? item.survey_date
-                    : item.survey_date && item.work_start_date
-                    ? item.work_start_date
-                    : null
+              const startDate =
+                item.survey_date !== null && item.work_start_date === null
+                  ? item.survey_date
+                  : item.survey_date && item.work_start_date
+                  ? item.work_start_date
+                  : null
 
-                const endDate =
-                  item.survey_date !== null && item.work_end_date === null
-                    ? item.survey_date
-                    : item.survey_date && item.work_end_date
-                    ? item.work_end_date
-                    : null
+              const endDate =
+                item.survey_date !== null && item.work_end_date === null
+                  ? item.survey_date
+                  : item.survey_date && item.work_end_date
+                  ? item.work_end_date
+                  : null
 
-                const orderStatus = (() => {
-                  if (item?.work_orders?.work_order_status?.length >= 0) {
-                    if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
-                      return item?.status?.category
-                    } else if (
-                      ['WORKREQ'].includes(item?.status?.category) &&
-                      item?.payment_type === 'survey' &&
-                      !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                        item?.work_orders?.work_order_status[0]?.status?.category
-                      )
-                    ) {
-                      return item?.status?.category
-                    } else {
-                      return item?.work_orders?.work_order_status[0]?.status?.category
-                    }
-                  } else {
+              const orderStatus = (() => {
+                if (item?.work_orders?.work_order_status?.length >= 0) {
+                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
                     return item?.status?.category
+                  } else if (
+                    ['WORKREQ'].includes(item?.status?.category) &&
+                    item?.payment_type === 'survey' &&
+                    !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                      item?.work_orders?.work_order_status[0]?.status?.category
+                    )
+                  ) {
+                    return item?.status?.category
+                  } else {
+                    return item?.work_orders?.work_order_status[0]?.status?.category
                   }
-                })()
-
-                const contextualColor = (() => {
-                  switch (orderStatus) {
-                    case 'WORKEND':
-                      return 'bg-calendar-order-done'
-                    case 'RESCHEDULE':
-                      return 'bg-calendar-order-reschedule'
-                    case 'INVESTIGATED':
-                      return 'bg-calendar-order-complaint'
-                    default:
-                      return 'bg-primary'
-                  }
-                })()
-
-                return {
-                  id: item?.id.toString(),
-                  order_id: item?.order_id.toString(),
-                  title: `WORK ORDER - ${item.id}`,
-                  work_order_status: item?.work_order_status[0]?.status.category,
-                  service: workOrderItems ?? '',
-                  tukang: workOrderTukang ?? '',
-                  start: dayjs(startDate).format('YYYY-MM-DD'),
-                  end: dayjs(endDate).format('YYYY-MM-DD'),
-                  order_status: orderStatus,
-                  className: contextualColor,
-                  work_order_detail: item,
+                } else {
+                  return item?.status?.category
                 }
-              })
+              })()
 
-              setWorkOrder(workOrderDetail)
-            }
-          })
-      } catch (error) {
-        console.error(error)
-      }
+              const contextualColor = (() => {
+                switch (orderStatus) {
+                  case 'WORKEND':
+                    return 'bg-calendar-order-done'
+                  case 'RESCHEDULE':
+                    return 'bg-calendar-order-reschedule'
+                  case 'INVESTIGATED':
+                    return 'bg-calendar-order-complaint'
+                  default:
+                    return 'bg-primary'
+                }
+              })()
+
+              return {
+                id: item?.id.toString(),
+                order_id: item?.order_id.toString(),
+                title: `WORK ORDER - ${item.id}`,
+                work_order_status: item?.work_order_status[0]?.status.category,
+                service: workOrderItems ?? '',
+                tukang: workOrderTukang ?? '',
+                start: dayjs(startDate).format('YYYY-MM-DD'),
+                end: dayjs(endDate).format('YYYY-MM-DD'),
+                order_status: orderStatus,
+                className: contextualColor,
+                work_order_detail: item,
+              }
+            })
+
+            setWorkOrder(workOrderDetail)
+          }
+        })
+    } catch (error) {
+      console.error(error)
     }
+  }
 
-    getWorkOrder()
-  }, [])
+  useEffect(() => {
+    if (dateFrom && dateTo) {
+      getWorkOrder(dateFrom, dateTo)
+    }
+  }, [dateFrom, dateTo])
+
+  const handleDatesSet = (arg: any) => {
+    const start = dayjs(arg.startStr).format('YYYY-MM-DD')
+    const end = dayjs(arg.endStr).format('YYYY-MM-DD')
+
+    setDateFrom(start)
+    setDateTo(end)
+  }
 
   // MODAL
   const [showModal, setShowModal] = useState(false)
@@ -266,6 +281,7 @@ const ViewCalendarTukang: React.FC = () => {
         initialView='dayGridMonth'
         weekends={true}
         events={workOrder}
+        datesSet={handleDatesSet}
         eventClick={(info) => handleShowModal(info.event.id)}
       />
 

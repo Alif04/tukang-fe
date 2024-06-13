@@ -511,7 +511,7 @@ const UpdateQuotationHO: FC = () => {
 
     formData.append('order_id', orderId)
     formData.append('store_id', storeId)
-    formData.append('description', quotationDescription)
+    appendIfNotDefault(formData, 'description', quotationDescription)
     formData.append('quotation_number', quotationNumber.toString())
     formData.append('quotation_date', quotationDate)
     formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
@@ -526,9 +526,10 @@ const UpdateQuotationHO: FC = () => {
       appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
       appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
       appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
-      appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
       appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
       appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+
+      formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
       formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
       formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
       formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
