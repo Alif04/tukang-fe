@@ -32,6 +32,8 @@ const ViewCalendarVendor: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const vendorId = localStorage.getItem('vendor_id')
 
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [order, setOrder] = useState<Order[]>([
     {
       id: '',
@@ -46,103 +48,116 @@ const ViewCalendarVendor: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   // Fetch Data
-  useEffect(() => {
-    const getOrder = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/orders?vendor_id=${vendorId}&take=0`, {
+  const getOrder = async (start: any, end: any) => {
+    try {
+      await axios
+        .get(
+          `${apiUrl}/orders?vendor_id=${vendorId}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
+          {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
               'Access-Control-Allow-Origin': '*',
               'ngrok-skip-browser-warning': 'true',
             },
-          })
-          .then((response) => {
-            const data = response.data.data
+          }
+        )
+        .then((response) => {
+          const data = response.data.data
 
-            if (data) {
-              const orderDetail = data.map((item: any) => {
-                const startDate = item?.work_orders
-                  ? item?.work_orders &&
-                    item.work_orders.survey_date !== null &&
-                    item.work_orders.work_start_date === null
-                    ? item.work_orders.survey_date
-                    : item?.work_orders &&
-                      item.work_orders.survey_date === null &&
-                      item.work_orders.work_start_date
-                    ? item.work_orders.work_start_date
-                    : null
-                  : item?.request_survey
+          if (data) {
+            const orderDetail = data.map((item: any) => {
+              const startDate = item?.work_orders
+                ? item?.work_orders &&
+                  item.work_orders.survey_date !== null &&
+                  item.work_orders.work_start_date === null
+                  ? item.work_orders.survey_date
+                  : item?.work_orders &&
+                    item.work_orders.survey_date === null &&
+                    item.work_orders.work_start_date
+                  ? item.work_orders.work_start_date
+                  : null
+                : item?.request_survey
 
-                const endDate = item?.work_orders
-                  ? item?.work_orders &&
-                    item.work_orders.survey_date !== null &&
-                    item.work_orders.work_end_date === null
-                    ? item.work_orders.survey_date
-                    : item?.work_orders &&
-                      item.work_orders.survey_date === null &&
-                      item.work_orders.work_end_date
-                    ? item.work_orders.work_end_date
-                    : null
-                  : item?.request_survey
+              const endDate = item?.work_orders
+                ? item?.work_orders &&
+                  item.work_orders.survey_date !== null &&
+                  item.work_orders.work_end_date === null
+                  ? item.work_orders.survey_date
+                  : item?.work_orders &&
+                    item.work_orders.survey_date === null &&
+                    item.work_orders.work_end_date
+                  ? item.work_orders.work_end_date
+                  : null
+                : item?.request_survey
 
-                const orderStatus = (() => {
-                  if (item?.work_orders?.work_order_status?.length >= 0) {
-                    if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
-                      return item?.status?.category
-                    } else if (
-                      ['WORKREQ'].includes(item?.status?.category) &&
-                      item?.payment_type === 'survey' &&
-                      !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                        item?.work_orders?.work_order_status[0]?.status?.category
-                      )
-                    ) {
-                      return item?.status?.category
-                    } else {
-                      return item?.work_orders?.work_order_status[0]?.status?.category
-                    }
-                  } else {
+              const orderStatus = (() => {
+                if (item?.work_orders?.work_order_status?.length >= 0) {
+                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
                     return item?.status?.category
+                  } else if (
+                    ['WORKREQ'].includes(item?.status?.category) &&
+                    item?.payment_type === 'survey' &&
+                    !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                      item?.work_orders?.work_order_status[0]?.status?.category
+                    )
+                  ) {
+                    return item?.status?.category
+                  } else {
+                    return item?.work_orders?.work_order_status[0]?.status?.category
                   }
-                })()
-
-                const contextualColor = (() => {
-                  switch (orderStatus) {
-                    case 'WORKEND':
-                      return 'bg-calendar-order-done'
-                    case 'RESCHEDULE':
-                      return 'bg-calendar-order-reschedule'
-                    case 'INVESTIGATED':
-                      return 'bg-calendar-order-complaint'
-                    default:
-                      return 'bg-primary'
-                  }
-                })()
-
-                return {
-                  id: item?.id.toString(),
-                  title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
-                    item?.members?.full_name ?? ''
-                  } `,
-                  start: dayjs(startDate).format('YYYY-MM-DD'),
-                  end: dayjs(endDate).format('YYYY-MM-DD'),
-                  order_status: orderStatus,
-                  className: contextualColor,
-                  order_detail: item,
+                } else {
+                  return item?.status?.category
                 }
-              })
+              })()
 
-              setOrder(orderDetail)
-            }
-          })
-      } catch (error) {
-        console.error(error)
-      }
+              const contextualColor = (() => {
+                switch (orderStatus) {
+                  case 'WORKEND':
+                    return 'bg-calendar-order-done'
+                  case 'RESCHEDULE':
+                    return 'bg-calendar-order-reschedule'
+                  case 'INVESTIGATED':
+                    return 'bg-calendar-order-complaint'
+                  default:
+                    return 'bg-primary'
+                }
+              })()
+
+              return {
+                id: item?.id.toString(),
+                title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
+                  item?.members?.full_name ?? ''
+                } `,
+                start: dayjs(startDate).format('YYYY-MM-DD'),
+                end: dayjs(endDate).format('YYYY-MM-DD'),
+                order_status: orderStatus,
+                className: contextualColor,
+                order_detail: item,
+              }
+            })
+
+            setOrder(orderDetail)
+          }
+        })
+    } catch (error) {
+      console.error(error)
     }
+  }
 
-    getOrder()
-  }, [])
+  useEffect(() => {
+    if (dateFrom && dateTo) {
+      getOrder(dateFrom, dateTo)
+    }
+  }, [dateFrom, dateTo])
+
+  const handleDatesSet = (arg: any) => {
+    const start = dayjs(arg.startStr).format('YYYY-MM-DD')
+    const end = dayjs(arg.endStr).format('YYYY-MM-DD')
+
+    setDateFrom(start)
+    setDateTo(end)
+  }
 
   // MODAL
   const [showModal, setShowModal] = useState(false)
@@ -301,6 +316,7 @@ const ViewCalendarVendor: React.FC = () => {
         initialView='dayGridMonth'
         weekends={true}
         events={order}
+        datesSet={handleDatesSet}
         eventClick={(info) => handleShowModal(info.event.id)}
       />
 
