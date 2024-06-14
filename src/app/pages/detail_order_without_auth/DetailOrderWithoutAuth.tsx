@@ -33,6 +33,7 @@ const DetailOrderWithoutAuth = () => {
   const {config, classes, attributes} = useLayout()
   const {header, aside} = config
   const [order, setOrder] = useState<Orders>({
+    id: null,
     member_id: null,
     seles_id: null,
     store_id: null,
@@ -85,7 +86,7 @@ const DetailOrderWithoutAuth = () => {
           }
         )
         .then((response) => {
-          const data = response.data.data.data as Orders
+          const data = response.data.data as Orders
           setOrder(data)
         })
     } catch (error: any) {
@@ -274,7 +275,7 @@ const DetailOrderWithoutAuth = () => {
                   >
                     <div id='kt_page_title' className={clsx('page-title d-flex')}>
                       <h1 className='d-flex align-items-center  text-light-md-black fw-bolder my-1 fs-1'>
-                        {`DETAIL ORDER ${order.id} - ${order.members?.full_name}`}
+                        {`DETAIL ORDER ${order?.id} - ${order?.members?.full_name}`}
                       </h1>
                     </div>
                   </div>
@@ -534,19 +535,6 @@ const DetailOrderWithoutAuth = () => {
                   ) {
                     return (
                       <div className='table-warranty-content'>
-                        {order?.is_overdistance === 1 && (
-                          <>
-                            <Form.Text className='fs-8 text-dark'>
-                              *Order ini lebih dari
-                              <span className='fw-bolder text-decoration-underline'>
-                                {' '}
-                                10 KM
-                              </span>{' '}
-                              dari toko sehingga dikenakan biaya tambahan
-                            </Form.Text>
-                          </>
-                        )}
-
                         <Table hover responsive='md'>
                           <thead className='table-warranty-head'>
                             <tr>
@@ -563,7 +551,7 @@ const DetailOrderWithoutAuth = () => {
                               </th>
 
                               <th className='text-center' style={{width: '250px'}}>
-                                Price
+                                Final Price
                               </th>
                             </tr>
                           </thead>
@@ -581,7 +569,49 @@ const DetailOrderWithoutAuth = () => {
                                   </td>
                                   <td>{item?.quantity ?? 0}</td>
                                   <td>{item?.unit}</td>
-                                  <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString(
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </Table>
+
+                        <Table hover responsive='md'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th className='text-center' style={{width: '355px'}}>
+                                Material Yang Dibutuhkan
+                              </th>
+
+                              <th className='text-center' style={{width: '100px'}}>
+                                QTY
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Satuan
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Final Price
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {order?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 1)
+                              .map((item: any, index: any) => (
+                                <tr key={`${index}-quotation`}>
+                                  <td>
+                                    {item?.name ?? '-'}{' '}
+                                    {item?.is_customer === true
+                                      ? '( Disediakan oleh customer )'
+                                      : ''}
+                                  </td>
+                                  <td>{item?.quantity ?? 0}</td>
+                                  <td>{item?.unit ?? '-'}</td>
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
                                     'id'
                                   )}`}</td>
                                 </tr>
@@ -589,103 +619,75 @@ const DetailOrderWithoutAuth = () => {
 
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder'>
-                                Total
+                                Total Jasa
+                              </td>
+                              <td className='fw-bolder'>{`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_details
+                                  .filter((x: any) => x.item_type === 2)
+                                  .reduce(
+                                    (total: any, item: any) =>
+                                      total + parseInt(item.final_price || 0),
+                                    0
+                                  )
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Total Material
+                              </td>
+                              <td className='fw-bolder'>{`Rp. ${parseInt(
+                                order?.quotation[0]?.quotation_details
+                                  .filter((x: any) => x.item_type === 1)
+                                  .reduce(
+                                    (total: any, item: any) =>
+                                      total + parseInt(item.final_price || 0),
+                                    0
+                                  )
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Promosi ( Free Survey )
+                              </td>
+                              <td className=' fw-bolder'>
+                                {`Rp. ${parseInt(
+                                  order?.quotation[0]?.quotation_disc ?? 0
+                                ).toLocaleString('id')}`}
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                {`${
+                                  order?.quotation[0]?.promotion
+                                    ? `Additional Promotion (${order?.quotation[0]?.promotion?.name})`
+                                    : `Additional Promotion`
+                                }`}
                               </td>
 
-                              <td className='fw-bolder'>
-                                {`Rp. ${order?.quotation[0]?.quotation_details
-                                  .filter((x: any) => x.item_type === 2)
-                                  .map((item: any) => parseInt(item?.price ?? 0))
-                                  .reduce((total: number, price: number) => total + price, 0)
-                                  .toLocaleString('id')}`}
+                              <td className=' fw-bolder'>
+                                {order?.quotation[0]?.promotion?.promotion_type === 1
+                                  ? `${order?.quotation[0]?.promotion?.promotion} %`
+                                  : `Rp. ${parseInt(
+                                      order?.quotation[0]?.promotion?.promotion
+                                    ).toLocaleString('id')}`}
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+                              <td className=' fw-bolder'>
+                                {`Rp. ${parseInt(
+                                  order?.quotation[0]?.quotation_grand_total ?? 0
+                                ).toLocaleString('id')}`}
                               </td>
                             </tr>
                           </tbody>
                         </Table>
-
-                        {order?.quotation[0]?.quotation_details.filter(
-                          (x: any) => x.item_type === 1
-                        ).length ? (
-                          <Table hover responsive='md'>
-                            <thead className='table-warranty-head'>
-                              <tr>
-                                <th className='text-center' style={{width: '355px'}}>
-                                  Material Yang Dibutuhkan
-                                </th>
-
-                                <th className='text-center' style={{width: '100px'}}>
-                                  QTY
-                                </th>
-
-                                <th className='text-center' style={{width: '250px'}}>
-                                  Satuan
-                                </th>
-
-                                <th className='text-center' style={{width: '250px'}}>
-                                  Price
-                                </th>
-                              </tr>
-                            </thead>
-
-                            <tbody>
-                              {order?.quotation[0]?.quotation_details
-                                .filter((x: any) => x.item_type === 1)
-                                .map((item: any, index: any) => (
-                                  <tr key={`${index}-quotation`}>
-                                    <td>
-                                      {item?.name ?? '-'}{' '}
-                                      {item?.is_customer === true
-                                        ? '( Disediakan oleh customer )'
-                                        : ''}
-                                    </td>
-                                    <td>{item?.quantity ?? 0}</td>
-                                    <td>{item?.unit ?? '-'}</td>
-                                    <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                  </tr>
-                                ))}
-
-                              <tr>
-                                <td colSpan={3} className='text-end fw-bolder'>
-                                  Promosi ( Free Survey )
-                                </td>
-                                <td className=' fw-bolder'>
-                                  {`Rp. ${parseInt(
-                                    order?.quotation[0]?.quotation_disc ?? 0
-                                  ).toLocaleString('id')}`}
-                                </td>
-                              </tr>
-
-                              {order?.is_overdistance === 1 && (
-                                <>
-                                  <tr>
-                                    <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                      Biaya Tambahan
-                                    </td>
-
-                                    <td className=' fw-bolder'>{`Rp. ${Number(
-                                      order?.additional_fee
-                                    ).toLocaleString('id')}.`}</td>
-                                  </tr>
-                                </>
-                              )}
-
-                              <tr>
-                                <td colSpan={3} className='text-end fw-bolder'>
-                                  Grand Total
-                                </td>
-                                <td className=' fw-bolder'>
-                                  {`Rp. ${parseInt(
-                                    order?.quotation[0]?.quotation_grand_total ?? 0
-                                  ).toLocaleString('id')}`}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </Table>
-                        ) : (
-                          <></>
-                        )}
                       </div>
                     )
                   } else if (
