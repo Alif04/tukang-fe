@@ -4,40 +4,160 @@ import {useParams} from 'react-router-dom'
 import './DetailTukang.css'
 
 import axios from 'axios'
-import {Table, Rate} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, Row, Col, Tabs, Tab} from 'react-bootstrap'
+import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, PaginationProps, Spin, Pagination, Image, Rate} from 'antd'
+import {Form, Row, Col, Tabs, Tab, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleUser, faUser} from '@fortawesome/free-solid-svg-icons'
 
 interface DataTypeOrder {
   number: number
-  order_id: number
+  work_order_id: number
   store_name: string
-  receipt_number: string
+  costumer_name: string
   date_order: string
-  total: string
   status: string
 }
 
 interface DataTypeComplaint {
   number: number
   complaint_id: number
+  store_name: string
+  costumer_name: string
   complaint_date: string
 }
+
+const columnsOrder: ColumnsType<DataTypeOrder> = [
+  {
+    title: 'No.',
+    dataIndex: 'number',
+    key: 'number',
+    align: 'center',
+    width: 90,
+    sorter: (a, b) => a.number - b.number,
+  },
+  {
+    title: 'Work Order ID',
+    dataIndex: 'work_order_id',
+    key: 'work_order_id',
+    align: 'center',
+    width: 130,
+    sorter: (a, b) => a.work_order_id - b.work_order_id,
+  },
+  {
+    title: 'Nama Toko',
+    dataIndex: 'store_name',
+    key: 'store_name',
+    align: 'center',
+    width: 180,
+    onFilter: (value, record) => record.store_name.includes(String(value)),
+    sorter: (a, b) => a.store_name.length - b.store_name.length,
+  },
+  {
+    title: 'Nama Konsumen',
+    dataIndex: 'costumer_name',
+    key: 'costumer_name',
+    align: 'center',
+    width: 180,
+    onFilter: (value, record) => record.costumer_name.includes(String(value)),
+    sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+  },
+  {
+    title: 'Tanggal Pengerjaan',
+    dataIndex: 'date_order',
+    key: 'date_order',
+    width: 150,
+    sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    render: (status) => {
+      const orderStatus = status
+      let color = ''
+
+      switch (orderStatus) {
+        case 'UNPAID':
+          color = 'red'
+          break
+        case 'PAID':
+          color = 'green'
+          break
+        default:
+          color = 'blue'
+          break
+      }
+
+      return <Tag color={color}>{orderStatus}</Tag>
+    },
+  },
+]
+
+const columnsComplaint: ColumnsType<DataTypeComplaint> = [
+  {
+    title: 'No',
+    dataIndex: 'number',
+    key: 'number',
+    align: 'center',
+    width: 90,
+    sorter: (a, b) => a.number - b.number,
+  },
+  {
+    title: 'Complaint ID',
+    dataIndex: 'complaint_id',
+    key: 'complaint_id',
+    align: 'center',
+    width: 90,
+    sorter: (a, b) => a.complaint_id - b.complaint_id,
+  },
+  {
+    title: 'Nama Toko',
+    dataIndex: 'store_name',
+    key: 'store_name',
+    align: 'center',
+    width: 180,
+    onFilter: (value, record) => record.store_name.includes(String(value)),
+    sorter: (a, b) => a.store_name.length - b.store_name.length,
+  },
+  {
+    title: 'Nama Konsumen',
+    dataIndex: 'costumer_name',
+    key: 'costumer_name',
+    align: 'center',
+    width: 180,
+    onFilter: (value, record) => record.costumer_name.includes(String(value)),
+    sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+  },
+  {
+    title: 'Tanggal Komplain',
+    dataIndex: 'complaint_date',
+    key: 'complaint_date',
+    width: 120,
+    sorter: (a, b) => new Date(a.complaint_date).getTime() - new Date(b.complaint_date).getTime(),
+  },
+]
 
 const DetailTukangVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
 
   const [tukangId, setTukangId] = useState<any>('')
-  const [orderData, setOrderData] = useState<any[]>([])
-  const [orderList, setOrderList] = useState<any[]>([])
-  const [order, setOrder] = useState<any[]>([])
-  const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
   const [tukangDetail, setTukangDetail] = useState<any>()
 
+  const [workOrderData, setWorkOrderData] = useState<any[]>([])
+  const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
+
+  const [loadData, setLoadData] = useState<boolean>(true)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
+
   // Tukang Evidence
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visibleKTP, setVisibleKTP] = useState<boolean>(false)
+  const [visibelNPWP, setVisibleNPWP] = useState<boolean>(false)
+
   const [imageKTP, setimageKTP] = useState<{
     blob: string
     fileName: string
@@ -102,10 +222,10 @@ const DetailTukangVendor: FC = () => {
     }
   }
 
-  const fetchOrderList = async () => {
+  const getWorkOrder = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&take=0&tukang_id=${tukangId}`,
+        `${apiUrl}/work-orders?order_by=desc&page=${page}&take=${pageSize}&tukang_id=${tukangId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -116,131 +236,76 @@ const DetailTukangVendor: FC = () => {
         }
       )
 
-      const data = response.data.data
+      setCurrentPage(response?.data?.page ?? 1)
+      setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
-      setOrderData(data)
-      return data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewOrder = async () => {
+  const ViewWorkOrder = async (page: number, pageSize: number) => {
     try {
-      const apiData = await fetchOrderList()
+      const apiData = await getWorkOrder(page, pageSize)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from getWorkOrder')
         return []
       }
 
-      const orderData = apiData.map((item: any, index: number) => {
+      const workOrderData = apiData.map((item: any, index: number) => {
         let data
 
-        const orderDate = new Date(item?.request_survey)
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         data = {
           number: index + 1,
-          order_id: item.id,
-          date_order: formatDate(orderDate),
-          store_name: item?.store?.store_name ?? '-',
-          costumer_name: item?.members?.full_name ?? '-',
-          receipt_number: item?.receipt_number ?? '',
-          total: `Rp. ${parseInt(item.grand_total).toLocaleString('id')}`,
-          status: item?.status?.category,
+          work_order_id: item.id,
+          date_order: orderDate,
+          store_name: item?.order?.store?.store_name ?? '-',
+          costumer_name: item?.order?.members?.full_name ?? '-',
+          status: item?.work_order_status[0]?.status?.description ?? '-',
         }
 
         return data
       })
 
-      return orderData
+      return workOrderData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
     }
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await ViewOrder()
-        setOrderList(data)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
+  const fetchWorkOrder = async (page: number, pageSize: number) => {
+    const data = await ViewWorkOrder(page, pageSize)
+    setWorkOrderData(data)
+  }
 
-    fetchData()
-  }, [tukangId])
+  useEffect(() => {
+    fetchWorkOrder(1, 10)
+  }, [])
 
   useEffect(() => {
     fetchTukangDetail()
   }, [])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  // Item Render
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
   }
-
-  const phoneNumber =
-    tukangDetail?.phone_number !== null ? tukangDetail?.phone_number : tukangDetail?.whatsapp_number
-
-  const columnsOrder: ColumnsType<DataTypeOrder> = [
-    {
-      title: 'Nomor Urut',
-      dataIndex: 'number',
-      key: 'number',
-      align: 'center',
-      width: 10,
-    },
-    {
-      title: 'Nama Toko',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      width: 150,
-    },
-    {
-      title: 'Tanggal Pengerjaan',
-      dataIndex: 'date_order',
-      key: 'date_order',
-      width: 150,
-    },
-    {
-      title: 'Grand Total',
-      dataIndex: 'total',
-      key: 'total',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-    },
-  ]
-
-  const columnsComplaint: ColumnsType<DataTypeComplaint> = [
-    {
-      title: 'No',
-      dataIndex: 'number',
-      key: 'number',
-      align: 'center',
-      width: 10,
-    },
-    {
-      title: 'Complaint ID',
-      dataIndex: 'complaint_id',
-      key: 'complaint_id',
-      align: 'center',
-      width: 250,
-    },
-    {
-      title: 'Tanggal',
-      dataIndex: 'complaint_date',
-      key: 'complaint_date',
-    },
-  ]
 
   return (
     <section id='detail-tukang'>
@@ -272,32 +337,32 @@ const DetailTukangVendor: FC = () => {
 
             <div className='data'>
               <Form.Group as={Row}>
+                <Form.Group as={Row}>
+                  <Form.Label column sm='4'>
+                    Email :
+                  </Form.Label>
+
+                  <Col sm='8'>
+                    <Form.Control plaintext readOnly value={tukangDetail?.email} />
+                  </Col>
+                </Form.Group>
+
+                <Form.Label column sm='4'>
+                  No. Telp :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control plaintext readOnly value={tukangDetail?.phone_number} />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row}>
                 <Form.Label column sm='4'>
                   Address :
                 </Form.Label>
 
                 <Col sm='8'>
                   <Form.Control plaintext readOnly as='textarea' value={tukangDetail?.address} />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row}>
-                <Form.Label column sm='4'>
-                  No. Telp :
-                </Form.Label>
-
-                <Col sm='8'>
-                  <Form.Control plaintext readOnly value={phoneNumber} />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row}>
-                <Form.Label column sm='4'>
-                  Email :
-                </Form.Label>
-
-                <Col sm='8'>
-                  <Form.Control plaintext readOnly value={tukangDetail?.email} />
                 </Col>
               </Form.Group>
             </div>
@@ -326,20 +391,18 @@ const DetailTukangVendor: FC = () => {
                         plaintext
                         readOnly
                         type='text'
-                        value={tukangDetail ? formatDate(new Date(tukangDetail?.bod)) : ''}
+                        value={
+                          tukangDetail
+                            ? new Date(tukangDetail?.bod).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })
+                            : ''
+                        }
                       />
                     </Col>
                   </Form.Group>
-
-                  {/* <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
-                      Kontak Emergency :
-                    </Form.Label>
-
-                    <Col sm='8'>
-                      <Form.Control plaintext readOnly defaultValue='Sapardi' />
-                    </Col>
-                  </Form.Group> */}
 
                   <Form.Group as={Row}>
                     <Form.Label column md='7'>
@@ -350,16 +413,6 @@ const DetailTukangVendor: FC = () => {
                       <Form.Control plaintext readOnly value={tukangDetail?.phone_number ?? ''} />
                     </Col>
                   </Form.Group>
-
-                  {/* <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
-                      Hubungan :
-                    </Form.Label>
-
-                    <Col sm='8'>
-                      <Form.Control plaintext readOnly defaultValue='Ayah' />
-                    </Col>
-                  </Form.Group> */}
                 </Col>
 
                 <Col md={5}>
@@ -377,16 +430,6 @@ const DetailTukangVendor: FC = () => {
                       />
                     </Col>
                   </Form.Group>
-
-                  {/* <Form.Group as={Row}>
-                    <Form.Label column sm='6'>
-                      Total Value Pekerjaan :
-                    </Form.Label>
-
-                    <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='Rp. 1.000.000' />
-                    </Col>
-                  </Form.Group> */}
 
                   <Form.Group as={Row}>
                     <Form.Label column sm='6'>
@@ -434,51 +477,92 @@ const DetailTukangVendor: FC = () => {
 
             <div className='data-diri'>
               <Row>
-                <Col>
+                <Col xxl={6} xl={6} lg={6} md={6} sm={12}>
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto KTP</Form.Label>
-                    <Form className='form-input-image'>
-                      <Form.Control
-                        type='file'
-                        accept='image/*'
-                        className='input-field-image'
-                        hidden
-                      />
+                    <ListGroup>
+                      <ListGroup.Item
+                        action
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setPreviewImage(imageKTP.fileName)
+                          setVisibleKTP(true)
+                        }}
+                      >
+                        {imageKTP.fileName}
+                      </ListGroup.Item>
+                    </ListGroup>
 
-                      {imageKTP?.fileName ? (
-                        <img
-                          src={`${apiUrl}/public/tukang/${imageKTP.fileName}`}
-                          alt={imageKTP.fileName}
-                          className='image-preview'
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </Form>
+                    {imageKTP ? (
+                      <>
+                        {previewImage && (
+                          <div>
+                            <Image
+                              key={previewImage}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={`${apiUrl}/public/tukang/${imageKTP.fileName}`}
+                              preview={{
+                                visible: visibleKTP,
+                                src: `${apiUrl}/public/tukang/${imageKTP.fileName}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleKTP(value)
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className='d-flex justify-content-start align-items-center'>
+                        <p className='fs-7 text-danger'>Foto KTP belum diupload</p>
+                      </div>
+                    )}
                   </Form.Group>
                 </Col>
 
-                <Col>
+                <Col xxl={6} xl={6} lg={6} md={6} sm={12}>
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto NPWP</Form.Label>
-                    <Form className='form-input-image'>
-                      <Form.Control
-                        type='file'
-                        accept='image/*'
-                        className='input-field-image'
-                        hidden
-                      />
 
-                      {imageNPWP?.fileName ? (
-                        <img
-                          src={`${apiUrl}/public/tukang/${imageNPWP.fileName}`}
-                          alt={imageNPWP.fileName}
-                          className='image-preview'
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </Form>
+                    <ListGroup>
+                      <ListGroup.Item
+                        action
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setPreviewImage(imageNPWP.fileName)
+                          setVisibleKTP(true)
+                        }}
+                      >
+                        {imageNPWP.fileName}
+                      </ListGroup.Item>
+                    </ListGroup>
+
+                    {imageNPWP ? (
+                      <>
+                        {previewImage && (
+                          <div>
+                            <Image
+                              key={previewImage}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={`${apiUrl}/public/tukang/${imageNPWP.fileName}`}
+                              preview={{
+                                visible: visibelNPWP,
+                                src: `${apiUrl}/public/tukang/${imageNPWP.fileName}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleNPWP(value)
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className='d-flex justify-content-start align-items-center'>
+                        <p className='fs-7 text-danger'>Foto NPWP belum diupload</p>
+                      </div>
+                    )}
                   </Form.Group>
                 </Col>
               </Row>
@@ -495,13 +579,39 @@ const DetailTukangVendor: FC = () => {
 
           <Tabs fill defaultActiveKey={1} className='navtab-detail-costumer'>
             <Tab eventKey={1} title='Historical Pemesanan' className='tab-1'>
-              <Table
-                className='table-striped-rows mt-3'
-                bordered
-                columns={columnsOrder}
-                dataSource={order}
-                rowKey={(record) => record.order_id}
-                pagination={{position: ['bottomRight']}}
+              <Spin
+                tip='Loading...'
+                spinning={loadData}
+                size='large'
+                indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+              >
+                <Table
+                  className='table-striped-rows'
+                  bordered
+                  columns={columnsOrder}
+                  dataSource={workOrderData}
+                  rowKey={(record) => record.work_order_id}
+                  scroll={{x: 800}}
+                  pagination={false}
+                />
+              </Spin>
+
+              <Pagination
+                className='mt-5'
+                style={{textAlign: 'right', position: 'relative'}}
+                current={currentPage}
+                total={totalData}
+                showSizeChanger
+                pageSizeOptions={[5, 10, 20, 50, 100]}
+                itemRender={itemRender}
+                onChange={(page, pageSize) => {
+                  fetchWorkOrder(page, pageSize)
+                }}
+                showTotal={(total, range) => (
+                  <span style={{left: 0, position: 'absolute'}}>
+                    Showing {range[0]} - {range[1]} of {total} Work Order
+                  </span>
+                )}
               />
             </Tab>
 
@@ -513,6 +623,7 @@ const DetailTukangVendor: FC = () => {
                 dataSource={complaintData}
                 rowKey={(record) => record.complaint_id}
                 pagination={{position: ['bottomRight']}}
+                scroll={{x: 400}}
               />
             </Tab>
           </Tabs>
