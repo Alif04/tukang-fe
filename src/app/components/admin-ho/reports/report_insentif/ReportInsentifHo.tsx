@@ -29,13 +29,9 @@ interface DataType {
   order_id: number
   date_order: Date
   costumer_name: string
-  phone_number: number
-  email: string
-  address: string
-  service_name: string
-  quantity: number
-  harga: number
-  grand_total: number
+  sales_name: string
+  incentive_name: string
+  status: string
   sales_comission: number
 }
 
@@ -85,7 +81,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
-      title: 'Nama Costumer',
+      title: 'Nama Konsumen',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -94,66 +90,25 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'No Telepon',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
-      align: 'center',
-      width: 130,
-      sorter: (a, b) => a.phone_number - b.phone_number,
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: 'Jenis Insentif',
+      dataIndex: 'incentive_name',
+      key: 'incentive_name',
       align: 'left',
-      width: 170,
-      onFilter: (value, record) => record.email.includes(String(value)),
-      sorter: (a, b) => a.email.length - b.email.length,
+      width: 140,
+      onFilter: (value, record) => record.incentive_name.includes(String(value)),
+      sorter: (a, b) => a.incentive_name.length - b.incentive_name.length,
     },
     {
-      title: 'Alamat',
-      dataIndex: 'address',
-      key: 'address',
+      title: 'Nama Sales',
+      dataIndex: 'sales_name',
+      key: 'sales_name',
       align: 'left',
-      width: 150,
-      onFilter: (value, record) => record.address.includes(String(value)),
-      sorter: (a, b) => a.address.length - b.address.length,
+      width: 140,
+      onFilter: (value, record) => record.sales_name.includes(String(value)),
+      sorter: (a, b) => a.sales_name.length - b.sales_name.length,
     },
     {
-      title: 'Nama Pemasangan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      width: 170,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
-    },
-    {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      align: 'center',
-      width: 90,
-      sorter: (a, b) => a.quantity - b.quantity,
-    },
-    {
-      title: 'Harga',
-      dataIndex: 'harga',
-      key: 'harga',
-      align: 'center',
-      width: 135,
-      sorter: (a, b) => a.harga - b.harga,
-    },
-    {
-      title: 'Grand Total',
-      dataIndex: 'grand_total',
-      key: 'grand_total',
-      align: 'center',
-      width: 135,
-      sorter: (a, b) => a.grand_total - b.grand_total,
-    },
-    {
-      title: 'Sales Comission',
+      title: 'Komisi Sales',
       dataIndex: 'sales_comission',
       key: 'sales_comission',
       align: 'center',
@@ -197,35 +152,35 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.request_survey).toLocaleDateString('id-ID', {
+        const orderDate = new Date(item?.quotation?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
 
-        const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
-        const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
-
-        const quantity = parseInt(item.m_order_details[0]?.quantity ?? 0, 10)
-
-        const grandTotalPrice = parseInt(item.grand_total)
-        const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
-
-        const salesComission = parseInt(item.grand_total_comission)
-        const formattedSalesComission = `Rp. ${salesComission.toLocaleString('id')}`
+        const statusIncentive = (status: number) => {
+          switch (status) {
+            case 1:
+              return 'Draft'
+            case 2:
+              return 'Waiting For Payment'
+            case 3:
+              return 'Paid'
+            case 4:
+              return 'Decline'
+            default:
+              return ''
+          }
+        }
 
         data = {
-          order_id: item.id,
+          order_id: item?.quotation?.order_id,
           date_order: orderDate,
-          costumer_name: item.members.full_name,
-          phone_number: item.project_number,
-          email: item.members.email,
-          address: item.project_address,
-          service_name: item.m_order_details[0]?.item_notes ?? '-',
-          quantity: quantity,
-          harga: formattedUnitPrice,
-          grand_total: formattedGrandTotal,
-          sales_comission: formattedSalesComission,
+          costumer_name: item?.quotation?.order?.members?.full_name,
+          sales_name: item?.sales?.full_name,
+          incentive_name: item?.incentive?.name,
+          status: statusIncentive(item?.status),
+          sales_comission: `Rp. ${parseInt(item?.nominal ?? 0).toLocaleString('id')}`,
         }
 
         return data
@@ -289,15 +244,22 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
 
   // Export To Excel
   const exportToExcel = () => {
-    if (orderData.length === 0) {
-      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
-      return
-    }
-
-    const worksheet = XLSX.utils.json_to_sheet(orderData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-    XLSX.writeFile(workbook, 'report_intensif_data.xlsx')
+    axios
+      .get(`${apiUrl}/sales/export-excel?take=0`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Report Insentif Sales.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+      })
   }
 
   const handleSubmitFilter = async () => {
@@ -366,7 +328,11 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
             </Col>
 
             <Col>
-              <Button className='btn-dark-primary button-submit' disabled={loadingButton}>
+              <Button
+                className='btn-dark-primary button-submit'
+                onClick={handleSubmitFilter}
+                disabled={loadingButton}
+              >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
             </Col>
