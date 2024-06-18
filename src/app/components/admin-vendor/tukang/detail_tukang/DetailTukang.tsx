@@ -146,8 +146,6 @@ const DetailTukangVendor: FC = () => {
   const [tukangId, setTukangId] = useState<any>('')
   const [tukangDetail, setTukangDetail] = useState<any>()
 
-  console.log('tukang id', tukangId)
-
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
 
@@ -175,6 +173,8 @@ const DetailTukangVendor: FC = () => {
     blob: '',
     fileName: '',
   })
+
+  console.log('image Ktp', imageKTP)
 
   const fetchTukangDetail = async () => {
     try {
@@ -482,21 +482,22 @@ const DetailTukangVendor: FC = () => {
                 <Col xxl={6} xl={6} lg={6} md={6} sm={12}>
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto KTP</Form.Label>
-                    <ListGroup>
-                      <ListGroup.Item
-                        action
-                        style={{cursor: 'pointer'}}
-                        onClick={() => {
-                          setPreviewImage(imageKTP.fileName)
-                          setVisibleKTP(true)
-                        }}
-                      >
-                        {imageKTP.fileName}
-                      </ListGroup.Item>
-                    </ListGroup>
 
-                    {imageKTP ? (
+                    {imageKTP.fileName !== '' && imageKTP.blob !== '' ? (
                       <>
+                        <ListGroup>
+                          <ListGroup.Item
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(imageKTP.fileName)
+                              setVisibleKTP(true)
+                            }}
+                          >
+                            {imageKTP.fileName}
+                          </ListGroup.Item>
+                        </ListGroup>
+
                         {previewImage && (
                           <div>
                             <Image
@@ -527,21 +528,21 @@ const DetailTukangVendor: FC = () => {
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto NPWP</Form.Label>
 
-                    <ListGroup>
-                      <ListGroup.Item
-                        action
-                        style={{cursor: 'pointer'}}
-                        onClick={() => {
-                          setPreviewImage(imageNPWP.fileName)
-                          setVisibleKTP(true)
-                        }}
-                      >
-                        {imageNPWP.fileName}
-                      </ListGroup.Item>
-                    </ListGroup>
-
-                    {imageNPWP ? (
+                    {imageNPWP.fileName !== '' && imageNPWP.blob !== '' ? (
                       <>
+                        <ListGroup>
+                          <ListGroup.Item
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(imageNPWP.fileName)
+                              setVisibleKTP(true)
+                            }}
+                          >
+                            {imageNPWP.fileName}
+                          </ListGroup.Item>
+                        </ListGroup>
+
                         {previewImage && (
                           <div>
                             <Image
