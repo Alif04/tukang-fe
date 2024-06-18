@@ -150,8 +150,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const [visible, setVisible] = useState(false)
   const handleClose = () => setVisible(false)
 
-  console.log('visible', visible)
-
   // Work Before & Work After
   const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
   const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
@@ -1201,7 +1199,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               visible: visibleWorkBefore,
                               src: `${apiUrl}/public/work-orders/${previewImage}`,
                               onVisibleChange: (value) => {
-                                setVisible(value)
+                                setVisibleWorkBefore(value)
                               },
                             }}
                           />
@@ -1249,7 +1247,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               visible: visibleWorkAfter,
                               src: `${apiUrl}/public/work-orders/${previewImage}`,
                               onVisibleChange: (value) => {
-                                setVisibleWorkBefore(value)
+                                setVisibleWorkAfter(value)
                               },
                             }}
                           />
