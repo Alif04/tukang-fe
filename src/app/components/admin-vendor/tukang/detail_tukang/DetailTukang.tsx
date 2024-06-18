@@ -146,6 +146,8 @@ const DetailTukangVendor: FC = () => {
   const [tukangId, setTukangId] = useState<any>('')
   const [tukangDetail, setTukangDetail] = useState<any>()
 
+  console.log('tukang id', tukangId)
+
   const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<DataTypeComplaint[]>([])
 
@@ -225,7 +227,7 @@ const DetailTukangVendor: FC = () => {
   const getWorkOrder = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/work-orders?order_by=desc&page=${page}&take=${pageSize}&tukang_id=${tukangId}`,
+        `${apiUrl}/work-orders?order_by=desc&page=${page}&take=${pageSize}&tukang_id=${params.id}`,
         {
           headers: {
             Accept: 'application/json',
@@ -459,7 +461,7 @@ const DetailTukangVendor: FC = () => {
                     </Form.Label>
 
                     <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='0' />
+                      <Form.Control plaintext readOnly value={totalData} />
                     </Col>
                   </Form.Group>
                 </Col>
@@ -578,7 +580,7 @@ const DetailTukangVendor: FC = () => {
           <hr />
 
           <Tabs fill defaultActiveKey={1} className='navtab-detail-costumer'>
-            <Tab eventKey={1} title='Historical Pemesanan' className='tab-1'>
+            <Tab eventKey={1} title='Historical Pengerjaan' className='tab-1'>
               <Spin
                 tip='Loading...'
                 spinning={loadData}
