@@ -29,6 +29,10 @@
 
 /* Table */
 
+#detail-invoice .table-responsive {
+  padding: 0 !important;
+}
+
 #detail-invoice .detail-table {
   margin: 0 0 30px 0;
 }

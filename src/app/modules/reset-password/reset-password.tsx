@@ -18,8 +18,6 @@ export function ResetPassword() {
 
   // User Info
   const [username, setUsername] = useState()
-  console.log(username)
-
   const userInfoData = async (username: string | null) => {
     try {
       await axios

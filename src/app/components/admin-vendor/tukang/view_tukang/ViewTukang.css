@@ -128,17 +128,3 @@
   height: 42px;
   border-radius: 5px;
 }
-
-/* Button Action */
-
-#view-tukang .button-detail svg.svg-inline--fa.fa-book.fa-sm {
-  color: black;
-}
-
-#view-tukang .button-export {
-  padding: 0;
-  width: 100%;
-  height: 45px;
-  background-color: transparent;
-  color: #04844b;
-}

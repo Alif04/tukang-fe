@@ -4,29 +4,23 @@ import {useNavigate} from 'react-router-dom'
 
 import './ViewTukang.css'
 
-import * as XLSX from 'xlsx'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
-import Select, {SingleValue} from 'react-select'
-import {Table, PaginationProps, Pagination, Spin} from 'antd'
+import {Table, PaginationProps, Pagination, Spin, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
   faPen,
-  faFileExcel,
   faSearch,
   faTrash,
   faCircleXmark,
   faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons'
 
-interface TukangService {
-  value: number | null
-  label: string
-}
+const {RangePicker} = DatePicker
 
 interface DataType {
   no: number
@@ -34,10 +28,8 @@ interface DataType {
   full_name: string
   email: string
   phone_number: number
-  address: string
-  // birth_day: string
-  // ktp: number
   keahlian: string
+  area: string
   status: string
   is_active: boolean
 }
@@ -51,6 +43,7 @@ const ViewTukangVendor: FC = () => {
 
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
+  const [loadingExport, setLoadingExport] = useState<boolean>(false)
 
   const [tukangData, setTukangData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -59,24 +52,6 @@ const ViewTukangVendor: FC = () => {
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [dateFrom, setDateFrom] = useState<any>('')
   const [dateTo, setDateTo] = useState<any>('')
-
-  const [tukangService, setTukangService] = useState<TukangService[]>([])
-  const [selectedTukangService, setSelectedTukangService] = useState<SingleValue<TukangService>>({
-    value: null,
-    label: '',
-  })
-
-  // Handle Change Join Date
-  const handleChangeJoinDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchJoinDate = event.target.value
-    setDateFrom(updatedSearchJoinDate)
-  }
-
-  // Handle Change End Date
-  const handleChangeEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchEndDate = event.target.value
-    setDateTo(updatedSearchEndDate)
-  }
 
   // Handle Change Search Filter
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,9 +101,23 @@ const ViewTukangVendor: FC = () => {
           year: 'numeric',
         })
 
-        const tukangService = item?.tukang_service
-          .map((tukang_service: any) => tukang_service?.service_type?.service_type ?? '-')
-          .join(', ')
+        const tukangService =
+          item?.tukang_service && item.tukang_service.length > 0
+            ? Array.from(
+                new Set(
+                  item.tukang_service.map(
+                    (tukang_service: any) => tukang_service?.service_type?.service_type
+                  )
+                )
+              ).join(', ')
+            : 'Keahlian belum didaftarkan'
+
+        const tukangArea =
+          item?.tukang_area && item.tukang_area.length > 0
+            ? Array.from(
+                new Set(item.tukang_area.map((tukang_area: any) => tukang_area?.area?.area))
+              ).join(', ')
+            : 'Area belum didaftarkan'
 
         data = {
           no: index + 1,
@@ -139,7 +128,8 @@ const ViewTukangVendor: FC = () => {
           address: item?.address ?? '-',
           birth_day: BirthOfDay,
           ktp: item?.ktp_number ?? '-',
-          keahlian: tukangService ?? '-',
+          keahlian: tukangService,
+          area: tukangArea,
           status: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
           is_active: item.is_active,
         }
@@ -172,6 +162,7 @@ const ViewTukangVendor: FC = () => {
       key: 'no',
       align: 'center',
       sorter: (a, b) => a.no - b.no,
+      width: 90,
     },
     {
       title: 'Nama Tukang',
@@ -180,6 +171,7 @@ const ViewTukangVendor: FC = () => {
       align: 'left',
       onFilter: (value, record) => record.full_name.includes(String(value)),
       sorter: (a, b) => a.full_name.length - b.full_name.length,
+      width: 120,
     },
     {
       title: 'Email',
@@ -188,6 +180,7 @@ const ViewTukangVendor: FC = () => {
       align: 'left',
       onFilter: (value, record) => record.email.includes(String(value)),
       sorter: (a, b) => a.email.length - b.email.length,
+      width: 120,
     },
     {
       title: 'No. Handphone',
@@ -195,51 +188,35 @@ const ViewTukangVendor: FC = () => {
       key: 'phone_number',
       align: 'left',
       sorter: (a, b) => a.phone_number - b.phone_number,
+      width: 120,
     },
-    {
-      title: 'Alamat',
-      dataIndex: 'address',
-      key: 'address',
-      align: 'left',
-      onFilter: (value, record) => record.address.includes(String(value)),
-      sorter: (a, b) => a.address.length - b.address.length,
-    },
-    // {
-    //   title: 'Tanggal Lahir ',
-    //   dataIndex: 'birth_day',
-    //   key: 'birth_day',
-    //   align: 'center',
-    //   onFilter: (value, record) => record.birth_day.includes(String(value)),
-    //   sorter: (a, b) => a.birth_day.length - b.birth_day.length,
-    // },
-    // {
-    //   title: 'No. KTP',
-    //   dataIndex: 'ktp',
-    //   key: 'ktp',
-    //   align: 'center',
-    //   sorter: (a, b) => a.ktp - b.ktp,
-    // },
     {
       title: 'Keahlian',
       dataIndex: 'keahlian',
       key: 'keahlian',
       align: 'left',
-      onFilter: (value, record) => record.keahlian.includes(String(value)),
-      sorter: (a, b) => a.keahlian.length - b.keahlian.length,
+      width: 120,
+    },
+    {
+      title: 'Area',
+      dataIndex: 'area',
+      key: 'area',
+      align: 'left',
+      width: 120,
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       align: 'left',
-      onFilter: (value, record) => record.status.includes(String(value)),
-      sorter: (a, b) => a.status.length - b.status.length,
+      width: 120,
     },
     {
       title: 'Action',
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 120,
       render: (record) => {
         const id = record.tukang_id
         const isActive = record.is_active
@@ -281,7 +258,7 @@ const ViewTukangVendor: FC = () => {
                       text: response.data.message,
                       icon: 'success',
                     }).then(() => {
-                      ViewTukang(1, 10, '')
+                      window.location.reload()
                     })
                   })
                   .catch((error) => {
@@ -331,7 +308,7 @@ const ViewTukangVendor: FC = () => {
                       text: response.data.message,
                       icon: 'success',
                     }).then(() => {
-                      ViewTukang(1, 10, '')
+                      window.location.reload()
                     })
                   })
                   .catch((error) => {
@@ -488,47 +465,27 @@ const ViewTukangVendor: FC = () => {
     return originalElement
   }
 
-  useEffect(() => {
-    const getTukangService = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/service-type`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempTukangService = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.service_type,
-          }))
-
-          setTukangService(tempTukangService)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    getTukangService()
-  }, [])
-
   // Export To Excel
   const exportToExcel = () => {
-    if (tukangData.length === 0) {
-      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
-      return
-    }
+    setLoadingExport(true)
 
-    const worksheet = XLSX.utils.json_to_sheet(tukangData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-    XLSX.writeFile(workbook, `List Tukang.xlsx`)
+    axios
+      .get(`${apiUrl}/tukang/export-excel?take=0`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Data Tukang.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+        setLoadingExport(false)
+      })
   }
 
   const handleSubmitFilter = async () => {
@@ -544,7 +501,6 @@ const ViewTukangVendor: FC = () => {
     valueCheck(`&date_from=`, dateFrom)
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
-    valueCheck(`&service_type=`, selectedTukangService?.value)
 
     const data = await ViewTukang(1, 10, queryparams)
     setTukangData(data)
@@ -554,58 +510,59 @@ const ViewTukangVendor: FC = () => {
 
   return (
     <section id='view-tukang'>
-      <div className='card'>
-        <div className='card-body table-view-order'>
-          <div className='filter-search'>
-            <InputGroup>
-              <Form.Control
-                placeholder='Filter'
-                className='filter-rtl'
-                onChange={handleChangeSearchFilter}
-              />
-
-              <InputGroup.Text className='filter-rtl'>
-                <FontAwesomeIcon icon={faSearch} size='sm' />
-              </InputGroup.Text>
-            </InputGroup>
+      <Card>
+        <Card.Body className='table-view-order'>
+          <div className='d-flex justify-content-end'>
+            <button className='button-export' onClick={exportToExcel}>
+              <h3 className='fs-5 fw-semibold'>{loadingExport ? 'Exporting..' : 'Export Excel'}</h3>
+            </button>
           </div>
 
-          <div className='table-head-wrapper'>
-            <div className='left'>
-              <h3>Filter By :</h3>
-            </div>
-
-            <div className='middle'>
-              <div className='date-filter'>
-                <div className='start-date'>
-                  <h3>Start Date : </h3>
-                  <Form.Control type='date' onChange={handleChangeJoinDate} />
-                </div>
-
-                <div className='end-date'>
-                  <h3>End Date : </h3>
-                  <Form.Control type='date' onChange={handleChangeEndDate} />
-                </div>
-              </div>
-
+          <Row className='table-head-wrapper'>
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <Form.Group as={Row}>
-                <Form.Label className='d-flex align-items-center' column sm='4'>
-                  Keahlian
+                <Form.Label className='fs-6' column sm='3'>
+                  Join Date :
                 </Form.Label>
 
-                <Col sm='8'>
-                  <Select
-                    name='tukang_service'
-                    className='form-control p-0'
-                    classNamePrefix='select'
-                    placeholder='Keahlian'
-                    isSearchable={true}
-                    options={tukangService}
-                    onChange={(newValue) => setSelectedTukangService(newValue)}
+                <Col sm='9'>
+                  <RangePicker
+                    format={'DD-MM-YYYY'}
+                    className='date-range ms-3'
+                    onChange={(values) => {
+                      if (values && values.length === 2) {
+                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                        setDateFrom(dateFromFormatted)
+                        setDateTo(dateToFormatted)
+                      } else {
+                        setDateFrom('')
+                        setDateTo('')
+                      }
+                    }}
                   />
                 </Col>
               </Form.Group>
+            </Col>
 
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+              <div className='filter-search w-100'>
+                <InputGroup>
+                  <InputGroup.Text className='filter-ltr'>
+                    <FontAwesomeIcon icon={faSearch} size='sm' />
+                  </InputGroup.Text>
+
+                  <Form.Control
+                    placeholder='Cari Nama Tukang atau Email'
+                    className='filter-ltr'
+                    onChange={handleChangeSearchFilter}
+                  />
+                </InputGroup>
+              </div>
+            </Col>
+
+            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <Button
                 className='btn-dark-primary button-submit'
                 disabled={loadingButton}
@@ -613,19 +570,8 @@ const ViewTukangVendor: FC = () => {
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </div>
-
-            <div className='right'>
-              <button className='button-export'>
-                <FontAwesomeIcon
-                  icon={faFileExcel}
-                  size='2xl'
-                  className='excel-icon'
-                  onClick={exportToExcel}
-                />
-              </button>
-            </div>
-          </div>
+            </Col>
+          </Row>
 
           <Spin
             tip='Loading...'
@@ -640,6 +586,7 @@ const ViewTukangVendor: FC = () => {
               dataSource={tukangData}
               rowKey={(record) => record.tukang_id}
               pagination={false}
+              scroll={{x: 900}}
             />
           </Spin>
 
@@ -660,8 +607,8 @@ const ViewTukangVendor: FC = () => {
               </span>
             )}
           />
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

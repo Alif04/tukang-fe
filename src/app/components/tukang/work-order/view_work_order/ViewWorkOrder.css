@@ -80,6 +80,38 @@
   position: relative;
 }
 
+/* Button Approve */
+
+#view-work-order-tukang button.button-approve.btn.btn-success {
+  width: 100% !important;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #6b9230 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#view-work-order-tukang button.button-approve.btn.btn-success:hover:not(.btn-active) {
+  background-color: #6d9631 !important;
+}
+
+/* Button Decline */
+
+#view-work-order-tukang button.button-decline.btn.btn-danger {
+  width: 100% !important;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#view-work-order-tukang button.button-decline.btn.btn-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
 @media screen and (max-width: 1200px) {
   #view-work-order-tukang .filter-search {
     width: 100%;

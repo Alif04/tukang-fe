@@ -253,11 +253,6 @@ const ViewItemHO: React.FC = () => {
         )
         const uniqueStoreIds = Array.from(new Set(storeIds))
 
-        // const priceStoresLength = item.prices.reduce(
-        //   (total: any, price: any) => total + price.price_stores.length,
-        //   0
-        // )
-
         data = {
           no: index + 1,
           material_id: item?.id,

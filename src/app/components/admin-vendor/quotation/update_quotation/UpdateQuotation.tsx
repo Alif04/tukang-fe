@@ -6,7 +6,7 @@ import './UpdateQuotation.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Table, Button, Row, Col} from 'react-bootstrap'
+import {Form, Table, Button, Row, Col, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -603,14 +603,18 @@ const UpdateQuotationVendor: FC = () => {
   }
 
   return (
-    <section id='new-quotation'>
-      <div className='card'>
-        <div className='card-body'>
+    <section id='quotation-vendor'>
+      <Card className='card-quotation'>
+        <Card.Body className='content-quotatation'>
           <Row className='mb-4'>
-            <Col xxl={6} className='vendor-information'>
+            <Col
+              xs={{order: 'last'}}
+              xxl={6}
+              className='vendor-information  order-1 order-xxl-1 order-xl-2 order-lg-2 order-md-2 order-sm-2 mb-3'
+            >
               <div className='vendor-detail'>
                 <Form.Group>
-                  <Form.Label className='fs-5'>Nama Toko :</Form.Label>
+                  <Form.Label className='fs-5 fw-semibold'>Nama Toko :</Form.Label>
 
                   <Col>
                     <Form.Label className='fs-3 fw-bold'>
@@ -637,7 +641,11 @@ const UpdateQuotationVendor: FC = () => {
               </div>
             </Col>
 
-            <Col xxl={6} className='payment-request'>
+            <Col
+              xs={{order: 'first'}}
+              xxl={6}
+              className='payment-request order-2 order-xxl-2 order-xl-1 order-lg-1 order-md-1 order-sm-1 mb-3'
+            >
               <h1 className='fw-bolder'>QUOTATION</h1>
 
               <Form.Group as={Row} className='mb-4'>
@@ -728,12 +736,12 @@ const UpdateQuotationVendor: FC = () => {
             </Col>
           </Row>
 
-          <Row className='mb-4'>
+          <Row className='mb-5'>
             <Col xxl={6}>
-              <div className='receiver-information'>
+              <div className='receiver-information mb-3'>
                 <div className='receiver-detail'>
-                  <h1 className='fw-bolder'>Ditunjukkan kepada :</h1>
-                  <h1 className='fw-bolder mt-2'>{quotationData?.order?.members?.full_name}</h1>
+                  <h1 className='fs-5 fw-semibold'>Ditunjukkan kepada :</h1>
+                  <h1 className='fs-3 fw-bold mt-2'>{quotationData?.order?.members?.full_name}</h1>
                 </div>
 
                 <div className='address'>
@@ -762,354 +770,415 @@ const UpdateQuotationVendor: FC = () => {
             </Col>
           </Row>
 
-          <div className='d-flex justify-content-end'>
+          <hr />
+
+          <div className='item-jasa'>
+            <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan</h4>
+
+            {quotationDetail
+              .filter((x) => x.type === 2)
+              .map((element, index) => (
+                <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                  <div className='d-flex border-rounded-3'>
+                    <Card.Body>
+                      <Row>
+                        <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                            <Form.Control
+                              id={`item-name-${index}`}
+                              name='item_name'
+                              type='text'
+                              value={element.item_name}
+                              onChange={(e) =>
+                                handleChangeQuotationDetail(e, index, e.target.value, 2)
+                              }
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                            <Form.Control
+                              id={`quantity-${index}`}
+                              name='quantity'
+                              type='number'
+                              value={element.quantity}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 2)
+                                calcEachDetails(element.margin_type, element.index)
+                              }}
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
+                            <Form.Control
+                              id={`unit-price-${index}`}
+                              type='number'
+                              name='unit_price'
+                              value={element.unit_price}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 2)
+                                calcEachDetails(element.margin_type, element.index)
+                              }}
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                            <Form.Control
+                              readOnly
+                              plaintext
+                              value={`Rp. ${(
+                                Number(element.quantity) * Number(element.unit_price)
+                              ).toLocaleString()}`}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+
+                      <Row>
+                        <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+
+                            <Form.Control
+                              id={`satuan-${index}`}
+                              name='unit'
+                              value={element.unit}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 2)
+                              }}
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Margin</Form.Label>
+
+                            <Form.Control
+                              id={`margin-${index}`}
+                              type='number'
+                              name='margin'
+                              value={element.margin}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 2)
+                                calcEachDetails(element.margin_type, element.index)
+                              }}
+                            />
+
+                            <div className='d-flex flex-inline mt-2'>
+                              <div className='me-1'>
+                                <Form.Check
+                                  id={`margin-type-${index}`}
+                                  type='checkbox'
+                                  checked={element.margin_type === 2}
+                                  onChange={(e) => {
+                                    handleMarginTypeChange(element.index, e.target.checked)
+                                    calcEachDetails(element.margin_type, element.index)
+                                  }}
+                                />
+                              </div>
+
+                              <div className='ms-1'>
+                                {element.margin_type === 1 ? 'Persen' : 'Nominal'}
+                              </div>
+                            </div>
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                            <Form.Control
+                              readOnly
+                              plaintext
+                              value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+
+                    <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                      <Button
+                        className='button-transparent text-danger'
+                        variant='primary'
+                        onClick={() => handleRemoveForm(element.index)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+
             <Button
               className='add-jasa'
               variant='button-dark-success'
               onClick={() => handleAddForm(2)}
             >
-              Tambah Jasa Pemasangan
+              Tambah Jasa
             </Button>
           </div>
 
-          <div className='detail-table-jasa'>
-            <Table responsive hover>
-              <thead>
-                <tr>
-                  <th className='content text-center'>Jenis Jasa</th>
-                  <th className='content text-center'>QTY</th>
-                  <th className='content text-center'>Satuan</th>
-                  <th className='content text-center'>Price</th>
-                  <th className='content text-center'>Total</th>
-                  <th className='content text-center'>Margin</th>
-                  <th className='content text-center'>Final Price</th>
-                  <th className='text-center'>Action</th>
-                </tr>
-              </thead>
+          <hr />
 
-              <tbody>
-                {quotationDetail
-                  .filter((x) => x.type === 2)
-                  .map((element, index) => (
-                    <tr key={`${element.index}-service`}>
-                      <td>
-                        <Form.Control
-                          id={`item-name-${index}`}
-                          name='item_name'
-                          value={element.item_name}
-                          onChange={(e) => handleChangeQuotationDetail(e, index, e.target.value, 2)}
-                        />
-                      </td>
+          <div className='item-material'>
+            <h4 className='fs-4 fw-semibold mb-5'>Item Material</h4>
 
-                      <td>
-                        <Form.Control
-                          id={`quantity-${index}`}
-                          name='quantity'
-                          value={element.quantity}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 2)
-                            calcEachDetails(element.margin_type, element.index)
-                          }}
-                        />
-                      </td>
+            {quotationDetail
+              .filter((x) => x.type === 1)
+              .map((element, index) => (
+                <Card key={`${element.index}-material`} className='card-item-material mb-5'>
+                  <div className='d-flex border-rounded-3'>
+                    <div className='d-flex flex-column align-items-center justify-content-between border-end p-2'>
+                      <Form.Check
+                        id={`is-user-${index}`}
+                        type='checkbox'
+                        className='mt-2'
+                        checked={element.is_user === 1}
+                        onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                      />
+                    </div>
 
-                      <td>
-                        <Form.Control
-                          id={`satuan-${index}`}
-                          name='unit'
-                          value={element.unit}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 2)
-                          }}
-                        />
-                      </td>
+                    <Card.Body>
+                      <Row>
+                        <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>
+                              Material Yang Dibutuhkan
+                            </Form.Label>
 
-                      <td>
-                        <Form.Control
-                          id={`unit-price-${index}`}
-                          name='unit_price'
-                          type='number'
-                          value={element.unit_price}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 2)
-                            calcEachDetails(element.margin_type, element.index)
-                          }}
-                        />
-                      </td>
-
-                      <td>
-                        <Form.Control
-                          readOnly
-                          plaintext
-                          value={`Rp. ${(
-                            Number(element.quantity) * Number(element.unit_price)
-                          ).toLocaleString()}`}
-                        />
-                      </td>
-
-                      <td>
-                        <Form.Control
-                          id={`margin-${index}`}
-                          type='number'
-                          value={element.margin}
-                          name='margin'
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 2)
-                            calcEachDetails(element.margin_type, element.index)
-                          }}
-                        />
-
-                        <br></br>
-
-                        <div className='d-flex flex-inline'>
-                          <div className='me-1'>
-                            <Form.Check
-                              id={`margin-type-${index}`}
-                              type='checkbox'
-                              checked={element.margin_type === 2}
+                            <Form.Control
+                              id={`item-name-${index}`}
+                              name='item_name'
+                              value={element.item_name}
+                              disabled={element.is_user === 1 ? true : false}
                               onChange={(e) => {
-                                handleMarginTypeChange(element.index, e.target.checked)
+                                handleChangeQuotationDetail(e, index, e.target.value, 1)
+                              }}
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                            <Form.Control
+                              id={`quantity-${index}`}
+                              name='quantity'
+                              value={element.quantity}
+                              disabled={element.is_user === 1 ? true : false}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 1)
                                 calcEachDetails(element.margin_type, element.index)
                               }}
                             />
-                          </div>
+                          </Form.Group>
+                        </Col>
 
-                          <div className='ms-1'>
-                            {element.margin_type === 1 ? 'Persen' : 'Nominal'}
-                          </div>
-                        </div>
-                      </td>
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
+                            <Form.Control
+                              id={`unit-price-${index}`}
+                              type='number'
+                              name='unit_price'
+                              value={element.unit_price}
+                              disabled={element.is_user === 1 ? true : false}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 1)
+                                calcEachDetails(element.margin_type, element.index)
+                              }}
+                            />
+                          </Form.Group>
+                        </Col>
 
-                      <td>
-                        <Form.Control
-                          readOnly
-                          plaintext
-                          value={`Rp. ${element.final_price.toLocaleString('id')}`}
-                        />
-                      </td>
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                            <Form.Control
+                              readOnly
+                              plaintext
+                              value={`Rp. ${(
+                                Number(element.quantity) * Number(element.unit_price)
+                              ).toLocaleString()}`}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
 
-                      <td>
-                        <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                          <FontAwesomeIcon icon={faTrash} />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                      <Row>
+                        <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
 
-                <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
-                    Total Jasa
-                  </td>
-                  <td className=' fw-bolder'>{`Rp. ${totalJasa.toLocaleString('id')}`}</td>
-                </tr>
-              </tbody>
-            </Table>
+                            <Form.Control
+                              id={`satuan-${index}`}
+                              name='unit'
+                              value={element.unit}
+                              disabled={element.is_user === 1 ? true : false}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 1)
+                              }}
+                            />
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Margin</Form.Label>
+
+                            <Form.Control
+                              id={`margin-${index}`}
+                              type='number'
+                              name='margin'
+                              value={element.margin}
+                              disabled={element.is_user === 1 ? true : false}
+                              onChange={(e) => {
+                                handleChangeQuotationDetail(e, index, e.target.value, 1)
+                                calcEachDetails(element.margin_type, element.index)
+                              }}
+                            />
+
+                            <div className='d-flex flex-inline mt-2'>
+                              <div className='me-1'>
+                                <Form.Check
+                                  id={`margin-type-${index}`}
+                                  type='checkbox'
+                                  checked={element.margin_type === 2}
+                                  disabled={element.is_user === 1 ? true : false}
+                                  onChange={(e) => {
+                                    handleMarginTypeChange(element.index, e.target.checked)
+                                    calcEachDetails(element.margin_type, element.index)
+                                  }}
+                                />
+                              </div>
+
+                              <div className='ms-1'>
+                                {element.margin_type === 1 ? 'Persen' : 'Nominal'}
+                              </div>
+                            </div>
+                          </Form.Group>
+                        </Col>
+
+                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                            <Form.Control
+                              readOnly
+                              plaintext
+                              value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+
+                    <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                      <Button
+                        className='button-transparent text-danger'
+                        variant='primary'
+                        onClick={() => handleRemoveForm(element.index)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+
+            <h4 className='fs-8 fw-normal text-danger'>
+              *Jika <span className='fw-bolder text-decoration-underline'>Material</span> diceklis,
+              maka material tersebut disediakan oleh customer
+            </h4>
+
+            <Button
+              className='add-material'
+              variant='button-warning'
+              onClick={() => handleAddForm(1)}
+            >
+              Tambah Material
+            </Button>
           </div>
 
-          <div className='detail-table-material'>
-            <div className='d-flex justify-content-end'>
-              <Button
-                className='add-material'
-                variant='button-warning'
-                onClick={() => handleAddForm(1)}
-              >
-                Tambah Material
-              </Button>
-            </div>
+          <hr />
 
-            <Table responsive hover>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th className='text-center' style={{minWidth: '230px'}}>
-                    Material Yang Dibutuhkan
-                  </th>
-                  <th className='content text-center'>QTY</th>
-                  <th className='content text-center'>Satuan</th>
-                  <th className='content text-center'>Price</th>
-                  <th className='content text-center'>Total</th>
-                  <th className='content text-center'>Margin</th>
-                  <th className='content text-center' style={{minWidth: '100px'}}>
-                    Final Price
-                  </th>
-                  <th className='text-center'>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quotationDetail
-                  .filter((x) => x.type === 1)
-                  .map((element, index) => (
-                    <tr key={`${element.index}-material`}>
-                      <td>
-                        <Form.Check
-                          id={`is-user-${index}`}
-                          type='checkbox'
-                          checked={element.is_user === 1}
-                          onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
-                        />
-                      </td>
+          <div className='item-total'>
+            <table className='table table-borderless '>
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Total Jasa :</div>
+                </td>
 
-                      <td>
-                        <Form.Control
-                          id={`item-name-${index}`}
-                          name='item_name'
-                          value={element.item_name}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 1)
-                          }}
-                        />
-                      </td>
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${totalJasa.toLocaleString('id')}`}</div>
+                </td>
+              </tr>
 
-                      <td>
-                        <Form.Control
-                          id={`quantity-${index}`}
-                          name='quantity'
-                          value={element.quantity}
-                          disabled={element.is_user === 1 ? true : false}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 1)
-                            calcEachDetails(element.margin_type, element.index)
-                          }}
-                        />
-                      </td>
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Total Material :</div>
+                </td>
 
-                      <td>
-                        <Form.Control
-                          id={`satuan-${index}`}
-                          name='unit'
-                          value={element.unit}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 1)
-                          }}
-                        />
-                      </td>
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${totalMaterial.toLocaleString(
+                    'id'
+                  )}`}</div>
+                </td>
+              </tr>
 
-                      <td>
-                        <Form.Control
-                          id={`unit-price-${index}`}
-                          type='number'
-                          name='unit_price'
-                          value={element.unit_price}
-                          disabled={element.is_user === 1 ? true : false}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 1)
-                            calcEachDetails(element.margin_type, element.index)
-                          }}
-                        />
-                      </td>
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Total Jasa & Material :</div>
+                </td>
 
-                      <td>
-                        <Form.Control
-                          readOnly
-                          plaintext
-                          value={`Rp. ${(
-                            Number(element.quantity) * Number(element.unit_price)
-                          ).toLocaleString()}`}
-                        />
-                      </td>
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${totalJasaMaterial.toLocaleString(
+                    'id'
+                  )}`}</div>
+                </td>
+              </tr>
 
-                      <td>
-                        <Form.Control
-                          id={`margin-${index}`}
-                          type='number'
-                          name='margin'
-                          value={element.margin}
-                          disabled={element.is_user === 1 ? true : false}
-                          onChange={(e) => {
-                            handleChangeQuotationDetail(e, index, e.target.value, 1)
-                            calcEachDetails(element.margin_type, element.index)
-                          }}
-                        />
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Grand Total :</div>
+                </td>
 
-                        <br></br>
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${grandTotal.toLocaleString('id')}`}</div>
+                </td>
+              </tr>
 
-                        <div className='d-flex flex-inline'>
-                          <div className='me-1'>
-                            <Form.Check
-                              id={`margin-type-${index}`}
-                              type='checkbox'
-                              checked={element.margin_type === 2}
-                              onChange={(e) => {
-                                handleMarginTypeChange(element.index, e.target.checked)
-                                calcEachDetails(element.margin_type, element.index)
-                              }}
-                            />
-                          </div>
-
-                          <div className='ms-1'>
-                            {element.margin_type === 1 ? 'Persen' : 'Nominal'}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td>
-                        <Form.Control
-                          readOnly
-                          plaintext
-                          value={`Rp. ${element.final_price?.toLocaleString('id')}`}
-                        />
-                      </td>
-
-                      <td align='center'>
-                        <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                          <FontAwesomeIcon icon={faTrash} />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-
-                <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
-                    Total Material
-                  </td>
-                  <td className=' fw-bolder'>{`Rp. ${totalMaterial.toLocaleString('id')}`}</td>
-                </tr>
-
-                <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
-                    Total Jasa & Material
-                  </td>
-                  <td className=' fw-bolder'>{`Rp. ${totalJasaMaterial.toLocaleString('id')}`}</td>
-                </tr>
-                {/* 
-                <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
-                    Promosi / Discount
-                  </td>
-
-                  <td>
-                    <Form.Control
-                      id='promosi'
-                      type='number'
-                      value={promosiDiscount}
-                      onChange={(e) => handlePromosiChange(e.target.value)}
-                    />
-                  </td>
-                </tr> */}
-
-                <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
-                    Grand Total
-                  </td>
-                  <td className=' fw-bolder'>{`Rp. ${grandTotal.toLocaleString('id')}`}</td>
-                </tr>
-
-                <tr>
-                  <td colSpan={8} className='text-end fw-bolder'>
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>
                     Grand Total{' '}
-                    <span className='text-success'>{`+ Rp. ${grandTotalDiff} ( Pembulatan )`}</span>
-                  </td>
+                    <span className='dark-success'>{`+ Rp. ${grandTotalDiff} (Pembulatan) :`}</span>
+                  </div>
+                </td>
 
-                  <td className=' fw-bolder'>{grandTotalRounded}</td>
-                </tr>
-              </tbody>
-            </Table>
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{grandTotalRounded}</div>
+                </td>
+              </tr>
+            </table>
           </div>
 
-          <div className='d-flex justify-content-center align-items-center mt-5'>
+          <div className='button-wrapper d-flex justify-content-center align-items-center mt-5'>
             <Button
               variant='dark-danger'
-              className='d-flex justify-content-center align-items-center'
+              className='d-flex justify-content-center align-items-center mb-2'
               type='submit'
               onClick={handleCancelQuotation}
             >
@@ -1118,7 +1187,7 @@ const UpdateQuotationVendor: FC = () => {
 
             <Button
               variant='dark-primary'
-              className='d-flex justify-content-center align-items-center'
+              className='d-flex justify-content-center align-items-center mb-2'
               type='submit'
               disabled={isLoading}
               onClick={handleUpdateQuotation}
@@ -1126,8 +1195,8 @@ const UpdateQuotationVendor: FC = () => {
               {isLoading ? 'Saving..' : 'Save'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

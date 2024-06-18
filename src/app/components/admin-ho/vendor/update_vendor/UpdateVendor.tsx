@@ -86,6 +86,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setKtpNumber(data.ktp_number)
             setNpwpNumber(data.npwp_number)
             setMaxOrder(data.max_order)
+            setNominalSurvey(data.nominal_survey)
           }
 
           if (data?.pic_vendor) {
@@ -326,6 +327,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [username, setUsername] = useState<any>('')
   const [password, setPassword] = useState<any>('')
   const [maxOrder, setMaxOrder] = useState<string>('')
+  const [nominalSurvey, setNominalSurvey] = useState<any>()
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
@@ -467,6 +469,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const handleChangeMaxOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedMaxOrder = event.target.value
     setMaxOrder(updatedMaxOrder)
+  }
+
+  const handleChangeNominalSurvey = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedNominalSurvey = event.target.value
+    setNominalSurvey(updatedNominalSurvey)
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
@@ -817,6 +824,27 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         icon: 'warning',
       })
       valid = false
+    } else if (!ktpNumber) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nomor KTP form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!npwpNumber) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nomor NPWP form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!picName) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nama PIC form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (!vendorName) {
       Swal.fire({
         title: 'Warning',
@@ -880,6 +908,13 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         icon: 'warning',
       })
       valid = false
+    } else if (!nominalSurvey) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nominal Survey form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (maxOrder === '') {
       Swal.fire({
         title: 'Warning',
@@ -917,6 +952,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       formData.append('bank_id', bankId)
       formData.append('account_number', accountNumber)
       formData.append('account_name', accountName)
+      formData.append('nominal_survey', nominalSurvey)
 
       if (username) {
         formData.append('default_username', username)
@@ -1254,7 +1290,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   </div>
 
                   <Form.Control
-                    type='texnumber'
+                    type='number'
                     onChange={handleChangeNPWPNumber}
                     value={npwpNumber}
                   />
@@ -1520,13 +1556,17 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                 </Form.Group>
               </Row>
 
-              {/* <Row className='form-body'>
+              <Row className='form-body'>
                 <Form.Group>
-                  <Form.Label>Discount</Form.Label>
+                  <Form.Label>Nominal Survey</Form.Label>
 
-                  <Form.Control type='number' onChange={handleChangeDiscount} value={discount} />
+                  <Form.Control
+                    type='number'
+                    onChange={handleChangeNominalSurvey}
+                    value={nominalSurvey}
+                  />
                 </Form.Group>
-              </Row> */}
+              </Row>
             </Col>
           </Row>
         </Card.Body>

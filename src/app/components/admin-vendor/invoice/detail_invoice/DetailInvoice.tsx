@@ -178,16 +178,14 @@ const DetailInvoiceVendor: FC = () => {
           </Row>
 
           <Row className='detail-table mb-2'>
-            <Table hover>
+            <Table responsive hover>
               <thead>
                 <tr>
                   <th className='text-center'>Order ID</th>
                   <th className='text-center'>Nama Toko</th>
                   <th className='text-center'>Tanggal Order</th>
-                  {/* <th className='text-center'>Nama Jasa Pemasangan</th>
-                  <th className='text-center'>Jumlah</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Margin</th> */}
+                  <th className='text-center'>Jenis Pekerjaan</th>
+                  <th className='text-center'>Nomor Receipt</th>
                   <th className='text-center'>Total Harga</th>
                 </tr>
               </thead>
@@ -206,12 +204,18 @@ const DetailInvoiceVendor: FC = () => {
                         year: 'numeric',
                       })}
                     </td>
+                    <td>
+                      {item?.order?.payment_type === 'survey'
+                        ? 'Survey'
+                        : 'Pemasangan Tanpa Survey'}
+                    </td>
+                    <td>{item?.order?.receipt_number}</td>
                     <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
                   </tr>
                 ))}
 
                 <tr>
-                  <td colSpan={3} className='text-end fw-bolder'>
+                  <td colSpan={5} className='text-end fw-bolder'>
                     Grand Total
                   </td>
 
@@ -229,9 +233,12 @@ const DetailInvoiceVendor: FC = () => {
                 Silahkan melakukan pembayaran di account di bawah ini :
               </div>
 
-              <div className='fs-4 fw-normal'>{invoiceDetail?.vendor?.company_name}</div>
-              <div className='fs-4 fw-normal'>{invoiceDetail?.vendor?.company_name}</div>
-              <div className='fs-4 fw-normal'>{invoiceDetail?.vendor?.company_name}</div>
+              <div className='fs-4 fw-normal'>
+                Nama Akun : {invoiceDetail?.vendor?.account_name}
+              </div>
+              <div className='fs-4 fw-normal'>
+                Nomor Akun : {invoiceDetail?.vendor?.account_number}
+              </div>
             </div>
 
             <div className='payment-evidence'>

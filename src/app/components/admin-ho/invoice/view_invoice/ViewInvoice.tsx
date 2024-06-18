@@ -288,7 +288,7 @@ const ViewInvoiceHO: FC = () => {
           invoice_id: item?.id,
           invoice_date: invoiceDate,
           vendor_name: item?.vendor?.company_name ?? '-',
-          amount: `-`,
+          amount: `Rp. ${parseInt(item?.total_amount).toLocaleString('id')}`,
           invoice_status: invoiceStatus(item?.status),
         }
 
@@ -470,7 +470,7 @@ const ViewInvoiceHO: FC = () => {
   }
 
   // Upload Excel
-  const [excel, setExcel] = useState<FileList | []>()
+  const [excel, setExcel] = useState<File | null>(null)
   const [showModalUpload, setModalUpload] = useState(false)
   const handleCloseModalUpload = () => {
     setModalUpload(false)
@@ -479,12 +479,12 @@ const ViewInvoiceHO: FC = () => {
   const handleFileChange = (event: any) => {
     const files = event.fileList
     if (files && files[0]) {
-      setExcel(files[0])
+      setExcel(files[0].originFileObj)
     }
   }
 
   const handleFileRemove = () => {
-    setExcel([])
+    setExcel(null)
   }
 
   const handleDeclineInvoice = async () => {
@@ -543,9 +543,8 @@ const ViewInvoiceHO: FC = () => {
     setLoadingUploadExcel(true)
 
     const formData = new FormData()
-
-    if (excel?.length) {
-      formData.append('excel_file', excel[0])
+    if (excel !== null) {
+      formData.append('excel_file', excel)
     }
 
     await axios
@@ -558,7 +557,7 @@ const ViewInvoiceHO: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.status === 201 || response.data.status === 200) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             text: 'Berhasil Upload Excel',
@@ -599,7 +598,7 @@ const ViewInvoiceHO: FC = () => {
     setLoadingTemplate(true)
 
     axios
-      .get(`${apiUrl}/invoices/export-excel-template`, {
+      .get(`${apiUrl}/invoices/export-excel`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -610,35 +609,11 @@ const ViewInvoiceHO: FC = () => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `Template Invoice.xlsx`)
+        link.setAttribute('download', `Invoice.xlsx`)
         document.body.appendChild(link)
         link.click()
 
         setLoadingTemplate(false)
-      })
-  }
-
-  // Export To Excel
-  const exportToExcel = () => {
-    setLoadingExport(true)
-
-    axios
-      .get(`${apiUrl}/invoices/export-excel?take=0`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
-      .then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `Report Invoice ${dateFrom} - ${dateTo}.xlsx`)
-        document.body.appendChild(link)
-        link.click()
-
-        setLoadingExport(false)
       })
   }
 
@@ -649,19 +624,13 @@ const ViewInvoiceHO: FC = () => {
           <div className='d-flex justify-content-end align-items-center gap-3 mb-5'>
             <button className='button-export' onClick={handleUploadExcel}>
               <h3 className='fs-5 fw-semibold'>
-                {loadingUploadExcel ? 'Uploading..' : 'Upload Excel'}
+                {loadingUploadExcel ? 'Uploading..' : 'Import Excel'}
               </h3>
             </button>
 
             <button className='button-export' onClick={exportTemplate}>
               <h3 className='fs-5 fw-semibold'>
-                {loadingTemplate ? 'Exporting..' : 'Export Template Excel'}
-              </h3>
-            </button>
-
-            <button className='button-export' onClick={exportToExcel}>
-              <h3 className='fs-5 fw-semibold'>
-                {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                {loadingTemplate ? 'Exporting..' : 'Export Excel'}
               </h3>
             </button>
           </div>
@@ -774,12 +743,13 @@ const ViewInvoiceHO: FC = () => {
         onHide={handleCloseModalUpload}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Upload Template Invoice</Modal.Title>
+          <Modal.Title>Import Excel Invoice</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <Dragger
             className='input-excel'
+            accept='.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
             multiple={false}
             maxCount={1}
             beforeUpload={() => false}
@@ -796,7 +766,7 @@ const ViewInvoiceHO: FC = () => {
 
           <Button
             className='d-flex justify-content-center align-items-center w-100 mt-5'
-            disabled={excel?.length === 0}
+            disabled={excel === null}
             onClick={handleUpload}
             variant='primary'
           >
@@ -831,7 +801,7 @@ const ViewInvoiceHO: FC = () => {
 
           <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
             <Form.Group>
-              <Form.Label>Upload Bukti Receipt Transaksi</Form.Label>
+              <Form.Label>Upload File</Form.Label>
 
               <Form className='form-input-image' onClick={handleInvoiceClick}>
                 <Form.Control

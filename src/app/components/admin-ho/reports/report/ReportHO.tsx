@@ -3,12 +3,12 @@ import React, {useState, useEffect} from 'react'
 import './ReportHO.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import Select from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {InboxOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Tag, Upload, DatePicker} from 'antd'
 import {Card, Row, Col, Button, Modal} from 'react-bootstrap'
-import Swal from 'sweetalert2'
 
 const {RangePicker} = DatePicker
 const {Dragger} = Upload
@@ -882,50 +882,61 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
         },
         {
-          title: 'Nama Costumer',
+          title: 'Nama Toko',
+          dataIndex: 'store_name',
+          key: 'store_name',
+          align: 'left',
+          width: 110,
+          onFilter: (value, record) => record.store_name.includes(String(value)),
+          sorter: (a, b) => a.store_name.length - b.store_name.length,
+        },
+        {
+          title: 'Nama Konsumen',
           dataIndex: 'costumer_name',
           key: 'costumer_name',
           align: 'left',
-          width: 140,
+          width: 110,
           onFilter: (value, record) => record.costumer_name.includes(String(value)),
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
         {
-          title: 'No Telepon',
-          dataIndex: 'phone_number',
-          key: 'phone_number',
-          align: 'center',
-          width: 130,
-          sorter: (a, b) => a.phone_number - b.phone_number,
-        },
-        {
-          title: 'Email',
-          dataIndex: 'email',
-          key: 'email',
+          title: 'Jenis Insentif',
+          dataIndex: 'incentive_name',
+          key: 'incentive_name',
           align: 'left',
-          width: 170,
-          onFilter: (value, record) => record.email.includes(String(value)),
-          sorter: (a, b) => a.email.length - b.email.length,
+          width: 140,
+          onFilter: (value, record) => record.incentive_name.includes(String(value)),
+          sorter: (a, b) => a.incentive_name.length - b.incentive_name.length,
         },
         {
-          title: 'Alamat',
-          dataIndex: 'address',
-          key: 'address',
+          title: 'Nama Sales',
+          dataIndex: 'sales_name',
+          key: 'sales_name',
           align: 'left',
-          width: 150,
-          onFilter: (value, record) => record.address.includes(String(value)),
-          sorter: (a, b) => a.address.length - b.address.length,
+          width: 140,
+          onFilter: (value, record) => record.sales_name.includes(String(value)),
+          sorter: (a, b) => a.sales_name.length - b.sales_name.length,
         },
         {
-          title: 'Grand Total',
-          dataIndex: 'grand_total',
-          key: 'grand_total',
-          align: 'center',
-          width: 135,
-          sorter: (a, b) => a.grand_total - b.grand_total,
+          title: 'Nama Akun Bank',
+          dataIndex: 'account_name',
+          key: 'account_name',
+          align: 'left',
+          width: 140,
+          onFilter: (value, record) => record.account_name.includes(String(value)),
+          sorter: (a, b) => a.account_name.length - b.account_name.length,
         },
         {
-          title: 'Sales Comission',
+          title: 'Nomor Akun Bank',
+          dataIndex: 'account_number',
+          key: 'account_number',
+          align: 'left',
+          width: 140,
+          onFilter: (value, record) => record.account_number.includes(String(value)),
+          sorter: (a, b) => a.account_number.length - b.account_number.length,
+        },
+        {
+          title: 'Komisi Sales',
           dataIndex: 'sales_comission',
           key: 'sales_comission',
           align: 'center',
@@ -1033,46 +1044,53 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     queryparams: any
   ) => {
     try {
-      if (desiredStatus && endpoint) {
-        const url =
-          statusName === '' && selectedStore.value === null
-            ? `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
-            : `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
+      let url = ''
 
-        const response = await axios.get(url, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+      if (endpoint === 'sales-comission' && statusName === 'UNPAID') {
+        url = `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=1`
+      } else if (endpoint === 'sales-comission' && statusName === 'PAID') {
+        url = `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=3`
+      } else {
+        url = `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
+      }
 
-        if (response?.data) {
-          switch (endpoint) {
-            case 'orders':
-              setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
-              break
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-            case 'complaints':
-              setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
-              break
+      if (response?.data) {
+        switch (endpoint) {
+          case 'orders':
+            setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
+            break
 
-            case 'quotation':
-              setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
-              break
+          case 'complaints':
+            setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
+            break
 
-            default:
-              setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
-              break
-          }
+          case 'quotation':
+            setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
+            break
 
-          setCurrentPage(response?.data?.page ?? 1)
-          setTotalOrder(response?.data?.total ?? 0)
+          case 'sales-comission':
+            setReportGrandTotal(response?.data?.totalIncentive?._sum?.nominal ?? 0)
+            break
+
+          default:
+            setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
+            break
         }
 
-        return ['reschedule'].includes(endpoint) ? response.data.data.data : response.data.data
+        setCurrentPage(response?.data?.page ?? 1)
+        setTotalOrder(response?.data?.total ?? 0)
       }
+
+      return ['reschedule'].includes(endpoint) ? response.data.data.data : response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -1313,23 +1331,22 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           salesComissionData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+            const orderDate = new Date(item?.quotation?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
             })
 
             data = {
-              order_id: item.id,
+              order_id: item?.quotation?.order_id,
               date_order: orderDate,
-              costumer_name: item?.members?.full_name,
-              phone_number: item?.project_number,
-              email: item?.members?.email ?? '-',
-              address: item?.project_address,
-              grand_total: `Rp. ${parseInt(item?.grand_total ?? 0).toLocaleString('id')}`,
-              sales_comission: `Rp. ${parseInt(item?.grand_total_comission ?? 0).toLocaleString(
-                'id'
-              )}`,
+              store_name: item?.quotation?.order?.store?.store_name ?? '-',
+              costumer_name: item?.quotation?.order?.members?.full_name,
+              incentive_name: item?.incentive?.name,
+              sales_name: item?.sales?.full_name,
+              account_name: item?.sales?.account_name ?? '-',
+              account_number: item?.sales?.account_number ?? '-',
+              sales_comission: `Rp. ${parseInt(item?.nominal ?? 0).toLocaleString('id')}`,
             }
 
             return data
@@ -1463,7 +1480,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   }
 
   // Upload Excel
-  const [excel, setExcel] = useState<FileList | []>()
+  const [excel, setExcel] = useState<File | null>(null)
   const [showModal, setShowModal] = useState(false)
   const handleCloseModal = () => {
     setShowModal(false)
@@ -1472,23 +1489,24 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   const handleFileChange = (event: any) => {
     const files = event.fileList
     if (files && files[0]) {
-      setExcel(files[0])
+      setExcel(files[0].originFileObj)
     }
   }
 
   const handleFileRemove = () => {
-    setExcel([])
+    setExcel(null)
   }
 
   const handleUpload = async () => {
-    const formData = new FormData()
+    setLoadingUploadExcel(true)
 
-    if (excel?.length) {
-      formData.append('excel_file', excel[0])
+    const formData = new FormData()
+    if (excel !== null) {
+      formData.append('file', excel)
     }
 
     await axios
-      .post(`${apiUrl}/sales-comission/upload-excel-sales-comission`, formData, {
+      .post(`${apiUrl}/sales/upload-excel`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -1497,7 +1515,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         },
       })
       .then((response) => {
-        if (response.data.status === 201 || response.data.status === 200) {
+        if (response.data.statusCode === 200) {
           Swal.fire({
             title: 'Success',
             text: 'Berhasil Upload Excel',
@@ -1505,12 +1523,16 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setLoadingUploadExcel(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setLoadingUploadExcel(false)
         }
 
         window.location.reload()
@@ -1521,6 +1543,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           text: error.response.data.message,
           icon: 'error',
         })
+
+        setLoadingUploadExcel(false)
       })
   }
 
@@ -1553,11 +1577,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   }
 
   // Export Template Excel
-  const exportTemplate = () => {
+  const exportTemplate = (status: number) => {
     setLoadingTemplate(true)
 
     axios
-      .get(`${apiUrl}/${endpoint}/export-excel-template`, {
+      .get(`${apiUrl}/sales/export-excel-template?status=${status}`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -1568,7 +1592,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `Template ${title}.xlsx`)
+        link.setAttribute('download', `${title}.xlsx`)
         document.body.appendChild(link)
         link.click()
 
@@ -1701,19 +1725,33 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
                         </h3>
                       </button>
 
-                      <button className='button-export' onClick={exportTemplate}>
+                      <button className='button-export' onClick={() => exportTemplate(3)}>
                         <h3 className='fs-5 fw-semibold'>
-                          {loadingTemplate ? 'Exporting..' : 'Export Template Excel'}
+                          {loadingTemplate ? 'Exporting..' : 'Export Excel'}
                         </h3>
                       </button>
                     </>
                   )}
 
-                  <button className='button-export' onClick={exportToExcel}>
-                    <h3 className='fs-5 fw-semibold'>
-                      {loadingExport ? 'Exporting..' : 'Export To Excel'}
-                    </h3>
-                  </button>
+                  {['sales-comission'].includes(endpoint) && statusName === 'UNPAID' && (
+                    <>
+                      <button className='button-export' onClick={() => exportTemplate(1)}>
+                        <h3 className='fs-5 fw-semibold'>
+                          {loadingTemplate ? 'Exporting..' : 'Export Excel'}
+                        </h3>
+                      </button>
+                    </>
+                  )}
+
+                  {!['sales-comission'].includes(endpoint) && (
+                    <>
+                      <button className='button-export' onClick={exportToExcel}>
+                        <h3 className='fs-5 fw-semibold'>
+                          {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                        </h3>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1792,12 +1830,13 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         onHide={handleCloseModal}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Upload Template Insentif Sales</Modal.Title>
+          <Modal.Title>Upload Insentif Sales yang sudah dibayar</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <Dragger
             className='input-excel'
+            accept='.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
             multiple={false}
             maxCount={1}
             beforeUpload={() => false}
@@ -1814,7 +1853,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
           <Button
             className='d-flex justify-content-center align-items-center w-100 mt-5'
-            disabled={excel?.length === 0}
+            disabled={excel === null}
             onClick={handleUpload}
             variant='primary'
           >
