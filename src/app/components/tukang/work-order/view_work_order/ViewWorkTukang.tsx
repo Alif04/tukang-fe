@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewWorkOrder.css'
@@ -8,10 +8,29 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Row, Col, Form, FormGroup, OverlayTrigger, Tooltip, Button} from 'react-bootstrap'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, Image} from 'antd'
+import {
+  Row,
+  Col,
+  Form,
+  FormGroup,
+  OverlayTrigger,
+  Tooltip,
+  Button,
+  Modal,
+  ListGroup,
+} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {
+  faBook,
+  faPen,
+  faSearch,
+  faImage,
+  faFileImage,
+  faTrash,
+  faUserXmark,
+  faPeopleArrowsLeftRight,
+} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -160,16 +179,32 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-      width: 50,
+      width: 80,
       render: (record) => {
+        const id = record.work_order_id
+
         const handleDetailId = () => {
-          const id = record.work_order_id
           navigate(`/work-order/detail-work-order/${id}`)
         }
 
         const handleUpdateId = () => {
-          const id = record.work_order_id
           navigate(`/work-order/update-work-order/${id}`)
+        }
+
+        const handleModalRequest = (id: number) => {
+          const selected = workOrderData.find((item) => item.work_order_id === id)
+
+          if (selected) {
+            setModalRequest(true)
+          }
+        }
+
+        const handleModalNotification = (id: number) => {
+          const selected = workOrderData.find((item) => item.work_order_id === id)
+
+          if (selected) {
+            setModalNotification(true)
+          }
         }
 
         return (
@@ -197,6 +232,38 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             ) : (
               <></>
             )}
+
+            {/* <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Request Ganti Tukang')}
+            >
+              <Button
+                variant='warning'
+                className='button-request'
+                onClick={() => handleModalRequest(id)}
+              >
+                <FontAwesomeIcon className='text-white' icon={faUserXmark} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Notifikasi Pergantian Tukang')}
+            >
+              <Button
+                variant='danger'
+                className='button-cancel'
+                onClick={() => handleModalNotification(id)}
+              >
+                <FontAwesomeIcon
+                  className='text-white'
+                  icon={faPeopleArrowsLeftRight}
+                  fontSize={'13px'}
+                />
+              </Button>
+            </OverlayTrigger> */}
           </div>
         )
       },
@@ -216,27 +283,22 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         },
       })
 
-      if (response.data.status === 200) {
-        setCurrentPage(response?.data?.page ?? 1)
-        setTotalData(response?.data?.total ?? 0)
-        setLoadData(false)
+      setCurrentPage(response?.data?.page ?? 1)
+      setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
-        return response.data.data
-      } else if (response.data.status === 401) {
+      return response.data.data
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
         Swal.fire({
-          title: 'Warning',
-          text: 'Sesi Login Anda Telah Habis, Silahkan Login Ulang Kembali',
+          title: 'Sesi Anda Telah Berakhir',
+          text: 'Silahkan Logout dan Login Ulang Kembali',
           icon: 'warning',
+          confirmButtonText: 'Ok',
         })
       } else {
-        Swal.fire({
-          title: 'Warning',
-          text: response.data.message,
-          icon: 'warning',
-        })
+        console.log('error when fetching data', error)
       }
-    } catch (error) {
-      console.error('Error fetching data:', error)
     }
   }
 
@@ -358,6 +420,125 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     setLoadingButton(false)
   }
 
+  // Modal Tukang Request Change
+  const [modalRequest, setModalRequest] = useState(false)
+  const handleModalRequest = () => {
+    setModalRequest(false)
+  }
+
+  const [tukangRequest, setTukangRequest] = useState<any>({
+    work_order_id: null,
+    notes: '',
+  })
+
+  // File
+  const [files, setFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const [previewFile, setPreviewFile] = useState<any>()
+  const [visibleFile, setVisibleFile] = useState(false)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...files]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setFiles(mergedFiles)
+    }
+  }
+
+  // Click Image
+  const handleFileClick = () => {
+    const inputField = document.querySelector('.input-field-file') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Remove File
+  const handleRemoveFiles = (index: number) => {
+    const newEvidances = [...files]
+    newEvidances.splice(index, 1)
+    setFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // File Click
+  const handleFileIndex = (index: number) => {
+    setPreviewFile(files[index]?.name)
+    setVisibleFile(true)
+    setSelectedFileIndex(index)
+  }
+
+  const handleTukangChanges = async () => {
+    const formData = new FormData()
+
+    formData.append(`work_order_id`, tukangRequest.work_order_id)
+    formData.append(`notes`, tukangRequest.notes)
+
+    if (files?.length) {
+      files.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`files`, item, item.name)
+        }
+      })
+    }
+
+    await axios
+      .post(`${apiUrl}/tukang/${tukangRequest.work_order_id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil Melakukan Permintaan Pergantian Tukang',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+
+        window.location.reload()
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  // Modal Notification Tukang Change
+  const [modalNotification, setModalNotification] = useState(false)
+  const handleCloseNotification = () => {
+    setModalNotification(false)
+  }
+
   return (
     <section id='view-work-order-tukang'>
       <div className={`card ${className}`}>
@@ -449,6 +630,164 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           />
         </div>
       </div>
+
+      <Modal
+        dialogClassName='modal-tukang-request'
+        centered
+        show={modalRequest}
+        onHide={handleModalRequest}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Formulir Alasan Pergantian Tukang</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='notes mb-5'>
+            <Form.Group>
+              <Form.Label className='fs-5 fw-bold'>Alasan :</Form.Label>
+              <Form.Control
+                style={{minHeight: '140px'}}
+                as='textarea'
+                onChange={(e) =>
+                  setTukangRequest((prev: any) => ({
+                    ...prev,
+                    notes: e.target.value,
+                  }))
+                }
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+            <Form.Group>
+              <Form.Label>Upload File</Form.Label>
+
+              <Form className='form-input-image' onClick={handleFileClick}>
+                <Form.Control
+                  type='file'
+                  accept='image/jpeg, image/png'
+                  className='input-field-file'
+                  multiple
+                  hidden
+                  id='file-input'
+                  ref={evidenceRef}
+                  onChange={handleFileChange}
+                />
+
+                <div className='input-image-text'>
+                  <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                  <p>Add File</p>
+                </div>
+              </Form>
+
+              <ListGroup className='pt-3'>
+                {files.length ? (
+                  files.map((item: any, index: number) => (
+                    <ListGroup>
+                      <ListGroup.Item
+                        className='d-flex justify-content-between align-items-center'
+                        key={`${item?.name}-${index}-${item?.type}`}
+                      >
+                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                        <span
+                          className='upload-content'
+                          style={{cursor: 'pointer'}}
+                          onClick={() => handleFileIndex(index)}
+                        >
+                          {item?.name}
+                        </span>
+
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size='sm'
+                          color='#ed2b2a'
+                          style={{cursor: 'pointer'}}
+                          onClick={(e) => handleRemoveFiles(index)}
+                        />
+                      </ListGroup.Item>
+
+                      {selectedFileIndex === index && item && (
+                        <Image
+                          key={`${previewFile} - ${index}`}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={
+                            item instanceof File
+                              ? URL.createObjectURL(item)
+                              : `${apiUrl}/public/invoices/${previewFile}`
+                          }
+                          preview={{
+                            visible: visibleFile,
+                            src:
+                              item instanceof File
+                                ? URL.createObjectURL(item)
+                                : `${apiUrl}/public/invoices/${previewFile}`,
+                            onVisibleChange: (value) => {
+                              setVisibleFile(value)
+                            },
+                          }}
+                        />
+                      )}
+                    </ListGroup>
+                  ))
+                ) : (
+                  <ListGroup.Item className='d-flex justify-content-center'>
+                    Tidak ada file yang dipilih
+                  </ListGroup.Item>
+                )}
+              </ListGroup>
+            </Form.Group>
+          </Row>
+
+          <Button
+            className='d-flex justify-content-center align-items-center w-100 mt-5'
+            onClick={handleTukangChanges}
+            variant='primary'
+          >
+            Submit
+          </Button>
+        </Modal.Body>
+      </Modal>
+
+      <Modal
+        dialogClassName='modal-tukang-change'
+        centered
+        show={modalNotification}
+        onHide={handleCloseNotification}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Pemberitahuan Pergantian Tukang dari Vendor</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='notes mb-5'>
+            <Form.Group>
+              <Form.Label className='fs-5 fw-bold'>Alasan dari Vendor :</Form.Label>
+              <Form.Control
+                readOnly
+                style={{minHeight: '140px'}}
+                as='textarea'
+                value={'Karena tukang sakit'}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='button-wrapper d-flex justify-content-center'>
+            <Col xxl={6} xl={6} lg={6} md={6} sm={12} xs={12}>
+              <Button type='submit' variant='success' className='button-approve w-100'>
+                Setujui
+              </Button>
+            </Col>
+
+            <Col xxl={6} xl={6} lg={6} md={6} sm={12} xs={12}>
+              <Button type='submit' variant='danger' className='button-decline w-100'>
+                Tolak
+              </Button>
+            </Col>
+          </Row>
+        </Modal.Body>
+      </Modal>
     </section>
   )
 }
