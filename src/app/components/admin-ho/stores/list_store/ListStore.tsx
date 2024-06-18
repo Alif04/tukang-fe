@@ -21,7 +21,6 @@ interface DataType {
   phone_number: number
   email: string
   address: string
-  // city: string
   bank_name: string
   account_number: number
   account_name: string
@@ -56,7 +55,7 @@ const ListStoreHO: React.FC = () => {
       align: 'center',
       width: 50,
       sorter: (a, b) => a.number_id - b.number_id,
-      render: (text: any, record: any, index: number) => {
+      render: (index: number) => {
         return (currentPage - 1) * pageSize + index + 1
       },
     },
@@ -106,15 +105,6 @@ const ListStoreHO: React.FC = () => {
       sorter: (a, b) => a.address.length - b.address.length,
       width: 130,
     },
-    // {
-    //   title: 'Kota',
-    //   dataIndex: 'city',
-    //   key: 'city',
-    //   align: 'center',
-    //   onFilter: (value, record) => record.city.includes(String(value)),
-    //   sorter: (a, b) => a.city.length - b.city.length,
-    //   width: 130,
-    // },
     {
       title: 'Nama Bank',
       dataIndex: 'bank_name',
@@ -241,7 +231,7 @@ const ListStoreHO: React.FC = () => {
         },
       })
 
-      setCurrentPage(response.data?.data?.page ?? 1)
+      setCurrentPage(response.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
       setLoadData(false)
 
@@ -274,7 +264,6 @@ const ListStoreHO: React.FC = () => {
           phone_number: phoneNumber,
           email: item?.email ?? '',
           address: item?.address ?? '',
-          // city: item?.city?.city_name ?? '',
           bank_name: item?.bank_name ?? '-',
           account_number: item?.bank_number ?? '-',
           account_name: item?.bank_account ?? '-',
@@ -297,6 +286,7 @@ const ListStoreHO: React.FC = () => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
