@@ -197,6 +197,7 @@ const NewVendorHO: FC = () => {
   const [username, setUsername] = useState<any>('')
   const [password, setPassword] = useState<any>('')
   const [maxOrder, setMaxOrder] = useState<string>('')
+  const [nominalSurvey, setNominalSurvey] = useState<any>()
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
@@ -324,6 +325,11 @@ const NewVendorHO: FC = () => {
   const handleChangeMaxOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedMaxOrder = event.target.value
     setMaxOrder(updatedMaxOrder)
+  }
+
+  const handleChangeNominalSurvey = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedNominalSurvey = event.target.value
+    setNominalSurvey(updatedNominalSurvey)
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
@@ -586,6 +592,13 @@ const NewVendorHO: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (!picName) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nama PIC form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (!vendorName) {
       Swal.fire({
         title: 'Warning',
@@ -677,6 +690,13 @@ const NewVendorHO: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (!nominalSurvey) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nominal Survey form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (!password) {
       Swal.fire({
         title: 'Warning',
@@ -709,6 +729,7 @@ const NewVendorHO: FC = () => {
       formData.append('email_address', emailVendor)
       formData.append('join_date', joinDate)
       formData.append('max_order', maxOrder)
+      formData.append('nominal_survey', nominalSurvey)
 
       formData.append('pic_name', picName)
       formData.append('markup', markup)
@@ -1305,15 +1326,15 @@ const NewVendorHO: FC = () => {
               </Row>
 
               <Row className='form-body'>
-                {/* <Form.Group>
-                      <Form.Label>Discount</Form.Label>
+                <Form.Group>
+                  <Form.Label>Nominal Survey</Form.Label>
 
-                      <Form.Control
-                        type='number'
-                        onChange={handleChangeDiscount}
-                        value={discount}
-                      />
-                    </Form.Group> */}
+                  <Form.Control
+                    type='number'
+                    onChange={handleChangeNominalSurvey}
+                    value={nominalSurvey}
+                  />
+                </Form.Group>
               </Row>
             </Col>
           </Row>
