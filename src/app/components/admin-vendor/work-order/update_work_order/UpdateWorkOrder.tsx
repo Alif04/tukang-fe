@@ -8,10 +8,10 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import dayjs from 'dayjs'
-import {Table, DatePicker} from 'antd'
+import {DatePicker} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Button, Row, Col, Card} from 'react-bootstrap'
+import {Form, Button, Row, Col, Card, Table} from 'react-bootstrap'
 const {RangePicker} = DatePicker
 
 interface StatusStorage {
@@ -697,13 +697,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
       totalAmount =
-        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
+      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -788,10 +787,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             </Row>
 
             <Row className='information-detail'>
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
+              <Col xxl={6} xl={6} lg={6} md={12} sm={12} xs={12} className='costumer-info mb-5'>
                 <div className='fs-4 fw-bold'>Informasi Pembeli</div>
+
                 <Row>
-                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Col xxl={6} xl={6} lg={6} md={6} sm={12} xs={12}>
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='6'>
                         No Member :
@@ -820,7 +820,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     </Form.Group>
                   </Col>
 
-                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <Col xxl={6} xl={6} lg={6} md={6} sm={12} xs={12}>
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='4'>
                         Nomor Telp/WA
@@ -844,7 +844,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </Row>
               </Col>
 
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+              <Col xxl={6} xl={6} lg={6} md={12} sm={12} xs={12} className='sales-info mb-5'>
                 <Row>
                   {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
                     workOrderStatus.find((option) => option.value === workOrder.work_order_status)
@@ -975,49 +975,55 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
               <Row>
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>
-                    {orderDetail?.payment_type !== 'survey'
-                      ? 'Tanggal request pemasangan'
-                      : 'Tanggal request survey'}
-                  </Form.Label>
+                <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>
+                      {orderDetail?.payment_type !== 'survey'
+                        ? 'Tanggal request pemasangan'
+                        : 'Tanggal request survey'}
+                    </Form.Label>
 
-                  <Col>
-                    <p className='fs-7 p-0'>
-                      {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </p>
-                  </Col>
-                </Form.Group>
+                    <Col>
+                      <p className='fs-7 p-0'>
+                        {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </p>
+                    </Col>
+                  </Form.Group>
+                </Col>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
-                  </Col>
-                </Form.Group>
+                <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
+                    </Col>
+                  </Form.Group>
+                </Col>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Payment Type:</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>
-                      {(() => {
-                        if (orderDetail?.payment_type === 'survey') {
-                          return `Berbayar & Survey`
-                        } else if (orderDetail?.payment_type === 'gratis') {
-                          return `Gratis`
-                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                          return `Berbayar & Pemasangan Tanpa Survey`
-                        } else {
-                          return ``
-                        }
-                      })()}
-                    </p>
-                  </Col>
-                </Form.Group>
+                <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>Payment Type:</Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'survey') {
+                            return `Berbayar & Survey`
+                          } else if (orderDetail?.payment_type === 'gratis') {
+                            return `Gratis`
+                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                            return `Berbayar & Pemasangan Tanpa Survey`
+                          } else {
+                            return ``
+                          }
+                        })()}
+                      </p>
+                    </Col>
+                  </Form.Group>
+                </Col>
               </Row>
             </div>
 
@@ -1036,7 +1042,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       sehingga dikenakan biaya tambahan
                     </Form.Text>
 
-                    <table className='table hover responsive'>
+                    <Table responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -1088,7 +1094,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </>
                         )}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               } else if (
@@ -1107,7 +1113,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </>
                     )}
 
-                    <table className='table hover responsive'>
+                    <Table responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th className='text-center' style={{width: '355px'}}>
@@ -1157,9 +1163,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </td>
                         </tr>
                       </tbody>
-                    </table>
+                    </Table>
 
-                    <table className='table hover responsive'>
+                    <Table responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th className='text-center' style={{width: '355px'}}>
@@ -1238,7 +1244,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </td>
                         </tr>
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               } else if (
@@ -1257,7 +1263,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    <table className='table hover responsive'>
+                    <Table responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item / Nama Pemasangan</th>
@@ -1288,7 +1294,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </tr>
                         )}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               } else if (
@@ -1310,7 +1316,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </>
                     )}
 
-                    <table className='table hover responsive'>
+                    <Table responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th className='text-center' style={{width: '355px'}}>
@@ -1360,7 +1366,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </td>
                         </tr>
                       </tbody>
-                    </table>
+                    </Table>
 
                     <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
@@ -1443,7 +1449,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    <table className='table hover responsive'>
+                    <Table responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -1509,7 +1515,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
                         </tr>
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               }
@@ -1553,14 +1559,27 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             <div className='work-order-history'>
               <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
 
-              <Table
-                className='table-striped-rows'
-                bordered
-                columns={columns}
-                dataSource={workOrderHistory}
-                rowKey={(record) => record.work_order_id}
-                pagination={{position: ['bottomRight']}}
-              />
+              <Table responsive>
+                <thead className='table-item-head'>
+                  <tr>
+                    <th className='content-history'>Work Order ID</th>
+                    <th className='content-history'>Work Order Status</th>
+                    <th className='content-history'>Terakhir Update Survey/Pengerjaan</th>
+                    <th className='content-history'>Tanggal Pengerjaan</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {workOrderHistory.map((item, index) => (
+                    <tr key={`${index}-history`} id={`${index}-history`}>
+                      <td>{item?.work_order_id}</td>
+                      <td>{item?.work_order_status_label}</td>
+                      <td>{item?.updated_at}</td>
+                      <td>{item?.work_date_time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
           </Card.Body>
         </Card>
