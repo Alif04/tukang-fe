@@ -592,6 +592,20 @@ const NewVendorHO: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (!ktpNumber) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nomor KTP form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!npwpNumber) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nomor NPWP form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (!picName) {
       Swal.fire({
         title: 'Warning',

@@ -824,6 +824,20 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         icon: 'warning',
       })
       valid = false
+    } else if (!ktpNumber) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nomor KTP form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!npwpNumber) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Nomor NPWP form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (!picName) {
       Swal.fire({
         title: 'Warning',
@@ -1276,7 +1290,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   </div>
 
                   <Form.Control
-                    type='texnumber'
+                    type='number'
                     onChange={handleChangeNPWPNumber}
                     value={npwpNumber}
                   />
