@@ -20,6 +20,16 @@ type Props = {
   className: string
 }
 
+interface DataType {
+  order_id: number
+  date_order: Date
+  costumer_name: string
+  sales_name: string
+  incentive_name: string
+  status: string
+  sales_comission: number
+}
+
 const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
@@ -43,21 +53,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  interface DataType {
-    order_id: number
-    date_order: Date
-    sales_name: string
-    costumer_name: string
-    phone_number: number
-    email: string
-    address: string
-    service_name: string
-    quantity: number
-    harga: number
-    grand_total: number
-    sales_comission: number
-  }
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'Order ID',
@@ -78,6 +73,22 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       sorter: (a: DataType, b: DataType) =>
         new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
+    {
+      title: 'Nama Konsumen',
+      dataIndex: 'costumer_name',
+      key: 'costumer_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value: string, record: DataType) => record.costumer_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.costumer_name.localeCompare(b.costumer_name),
+    },
+    {
+      title: 'Jenis Insentif',
+      dataIndex: 'incentive_name',
+      key: 'incentive_name',
+      align: 'left',
+      width: 140,
+    },
     (userRole === 'Store Staff' || userRole === 'Store CS') && {
       title: 'Nama Sales',
       dataIndex: 'sales_name',
@@ -88,50 +99,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       sorter: (a: DataType, b: DataType) => a.sales_name.length - b.sales_name.length,
     },
     {
-      title: 'Nama Costumer',
-      dataIndex: 'costumer_name',
-      key: 'costumer_name',
-      align: 'left',
-      width: 140,
-      onFilter: (value: string, record: DataType) => record.costumer_name.includes(value),
-      sorter: (a: DataType, b: DataType) => a.costumer_name.localeCompare(b.costumer_name),
-    },
-    {
-      title: 'No Telepon',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
-      align: 'center',
-      width: 130,
-      sorter: (a: DataType, b: DataType) => a.phone_number - b.phone_number,
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      align: 'left',
-      width: 170,
-      onFilter: (value: string, record: DataType) => record.email.includes(value),
-      sorter: (a: DataType, b: DataType) => a.email.localeCompare(b.email),
-    },
-    {
-      title: 'Alamat',
-      dataIndex: 'address',
-      key: 'address',
-      align: 'left',
-      width: 150,
-      onFilter: (value: string, record: DataType) => record.address.includes(value),
-      sorter: (a: DataType, b: DataType) => a.address.localeCompare(b.address),
-    },
-    {
-      title: 'Grand Total',
-      dataIndex: 'grand_total',
-      key: 'grand_total',
-      align: 'center',
-      width: 135,
-      sorter: (a: DataType, b: DataType) => a.grand_total - b.grand_total,
-    },
-    {
-      title: 'Sales Comission',
+      title: 'Komisi Sales',
       dataIndex: 'sales_comission',
       key: 'sales_comission',
       align: 'center',
@@ -182,44 +150,36 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
-        let totalAmount = 0
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+        const orderDate = new Date(item?.quotation?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
 
-        if (item?.payment_type === 'gratis') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : 0
-        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : item?.grand_total ?? 0
-        } else if (item?.payment_type === 'survey') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : 99000 ?? 0
+        const statusIncentive = (status: number) => {
+          switch (status) {
+            case 1:
+              return 'Draft'
+            case 2:
+              return 'Waiting For Payment'
+            case 3:
+              return 'Paid'
+            case 4:
+              return 'Decline'
+            default:
+              return ''
+          }
         }
 
-        const salesComission = parseInt(item.grand_total_comission)
-        const formattedSalesComission = `Rp. ${salesComission.toLocaleString('id')}`
-
         data = {
-          order_id: item.id,
+          order_id: item?.quotation?.order_id,
           date_order: orderDate,
-          sales_name: item?.sales?.full_name ?? '-',
-          costumer_name: item?.members?.full_name ?? '-',
-          email: item?.members?.email ?? '-',
-          address: item?.project_address ?? '-',
-          phone_number: item?.project_number ?? '-',
-          grand_total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
-          sales_comission: formattedSalesComission,
+          costumer_name: item?.quotation?.order?.members?.full_name,
+          sales_name: item?.sales?.full_name,
+          incentive_name: item?.incentive?.name,
+          status: statusIncentive(item?.status),
+          sales_comission: `Rp. ${parseInt(item?.nominal ?? 0).toLocaleString('id')}`,
         }
 
         return data
@@ -253,15 +213,22 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   // Export To Excel
   const exportToExcel = () => {
-    if (orderData.length === 0) {
-      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
-      return
-    }
-
-    const worksheet = XLSX.utils.json_to_sheet(orderData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-    XLSX.writeFile(workbook, 'report_intensif_data.xlsx')
+    axios
+      .get(`${apiUrl}/sales/export-excel?take=0`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Report Insentif Sales.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+      })
   }
 
   const handleSubmitFilter = async () => {
