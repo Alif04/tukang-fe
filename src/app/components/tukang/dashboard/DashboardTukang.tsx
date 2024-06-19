@@ -4,40 +4,66 @@ import './DashboardTukang.css'
 
 import {ChartBarSurvey} from './components/ChartBarSurvey'
 import {MoreInformation} from './components/MoreInformation'
-import {TableList} from './components/TableList'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
 import {Row, Col, Card, Button} from 'react-bootstrap'
+import {Table, PaginationProps} from 'antd'
+import type {ColumnsType} from 'antd/es/table'
 
 const {RangePicker} = DatePicker
 
-const initialStatusState = {
-  survey: 0,
-  onProgress: 0,
-  complete: 0,
-  reschedule: 0,
-  cancel: 0,
-  refund: 0,
-  waitingSurvey: 0,
-  waitingQuotation: 0,
-  waitingPayment: 0,
+interface DataType {
+  order_id: number
+  store_name: string
+  costumer_name: string
+  service_name: string
 }
 
-type StatusToStateMap = {
-  [statusName: string]: keyof typeof initialStatusState
-}
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'Order ID',
+    dataIndex: 'order_id',
+    key: 'order_id',
+    align: 'center',
+    sorter: (a, b) => a.order_id - b.order_id,
+  },
+  {
+    title: 'Nama Toko',
+    dataIndex: 'store_name',
+    key: 'store_name',
+    align: 'left',
+    className: 'col_order_id',
+    onFilter: (value, record) => record.store_name.includes(String(value)),
+    sorter: (a, b) => a.store_name.length - b.store_name.length,
+  },
+  {
+    title: 'Nama Konsumen',
+    dataIndex: 'costumer_name',
+    key: 'costumer_name',
+    align: 'left',
+    onFilter: (value, record) => record.costumer_name.includes(String(value)),
+    sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+  },
+  {
+    title: 'Nama Pemasangan',
+    dataIndex: 'service_name',
+    key: 'service_name',
+    align: 'left',
+    onFilter: (value, record) => record.service_name.includes(String(value)),
+    sorter: (a, b) => a.service_name.length - b.service_name.length,
+  },
+]
 
-const statusToStateMap: StatusToStateMap = {
-  SURVEYREQ: 'survey',
-  WIP: 'onProgress',
-  WORKEND: 'complete',
-  RESCHEDULE: 'reschedule',
-  CANCELED: 'cancel',
-  REFUND: 'refund',
-  WORKREQ: 'waitingSurvey',
-  QUOTEIN: 'waitingQuotation',
-  WORKRELATED: 'waitingPayment',
+const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+  if (type === 'prev') {
+    return <a>Prev</a>
+  }
+  if (type === 'next') {
+    return <a>Next</a>
+  }
+  return originalElement
 }
 
 const DashboardTukang: FC = () => {
@@ -48,20 +74,23 @@ const DashboardTukang: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [orderData, setOrderData] = useState<any[]>([])
+  const [orderData, setOrderData] = useState<any>([])
   const [orderList, setOrderList] = useState<any[]>([])
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
 
   const today = new Date()
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
-  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
-  const getWorkOrderList = async (queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&tukang_id=${tukangId}${queryparams}`
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&tukang_id=${tukangId}&page${page}&take${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -73,22 +102,21 @@ const DashboardTukang: FC = () => {
         },
       })
 
-      const data = response.data.data
-
-      setOrderList(data)
+      setOrderData(response.data.data)
+      setOrderList(response.data.data)
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
 
-      return data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const reportWorkOrder = async () => {
+  const getReportOrder = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/reports/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0&tukang_id=${tukangId}`,
+        `${apiUrl}/reports/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&tukang_id=${tukangId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -99,7 +127,7 @@ const DashboardTukang: FC = () => {
         }
       )
 
-      const chartDatas = response.data.monthlyWorkOrders
+      const chartDatas = response.data.data
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -117,115 +145,121 @@ const DashboardTukang: FC = () => {
     }
   }
 
-  const ViewOrder = async (queryparams: any) => {
-    const apiData = await getWorkOrderList(queryparams)
-
-    if (!apiData) {
-      console.error('No data received from getWorkOrderList')
-      return []
-    }
-
+  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const workOrderData = apiData.map((item: any) => {
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const orderData = apiData.map((item: any) => {
         let data
+        let totalAmount = 0
+
+        if (item?.payment_type === 'gratis') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 0
+        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : item?.grand_total ?? 0
+        } else if (item?.payment_type === 'survey') {
+          totalAmount =
+            item?.is_overdistance === 1
+              ? Number(item?.grand_total) + Number(item?.additional_fee)
+              : 99000 ?? 0
+        }
 
         data = {
           order_id: item.id,
-          costumer_name: item?.order?.members?.full_name ?? '-',
+          store_name: item?.store?.store_name ?? '-',
+          costumer_name: item?.members?.full_name ?? '-',
           service_name:
-            item.order?.payment_type === 'survey'
-              ? item.order?.m_order_details[0]?.item_notes ?? '-'
-              : item.order?.m_order_details[0]?.item?.service_name ?? '-',
+            item?.payment_type === 'survey'
+              ? item?.m_order_details[0]?.item_notes ?? '-'
+              : item?.m_order_details[0]?.item?.service_name ?? '-',
         }
 
         return data
       })
 
-      return workOrderData
+      return orderData
     } catch (error) {
       console.error('Error getting order list data:', error)
       return []
     }
   }
 
-  const fetchData = async (queryparams: any) => {
-    const data = await ViewOrder(queryparams)
-    setOrderData(data)
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewOrder(page, pageSize, queryparams)
+    setOrderList(data)
   }
 
   useEffect(() => {
-    fetchData('')
+    fetchData(1, 10, '')
   }, [])
 
   useEffect(() => {
-    reportWorkOrder()
-  }, [])
-
-  // Catch Value From Response API by Status
-  const [statusState, setStatusState] = useState(initialStatusState)
-
-  useEffect(() => {
-    if (orderList) {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-      for (const statusName in statusToStateMap) {
-        const stateKey = statusToStateMap[statusName]
-        const desiredStatus = statusData?.find((status: any) => status?.category === statusName)
-
-        if (desiredStatus) {
-          const statusValue = desiredStatus.value
-          const orderCount = orderList.filter(
-            (item: any) => item?.status?.id === statusValue
-          )?.length
-
-          setStatusState((prevState) => ({
-            ...prevState,
-            [stateKey]: orderCount,
-          }))
-        }
-      }
-    }
+    getReportOrder()
   }, [orderList])
-
-  const {
-    survey,
-    onProgress,
-    complete,
-    reschedule,
-    cancel,
-    refund,
-    waitingSurvey,
-    waitingQuotation,
-    waitingPayment,
-  } = statusState
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ''
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}`
-
-    const data = await ViewOrder(queryparams)
+    const data = await ViewOrder(1, 10, queryparams)
     setOrderList(data)
 
-    await reportWorkOrder()
+    await getReportOrder()
 
     setLoadingButton(false)
   }
 
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+  const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const surveyOrder = sumTotal(chartDataOrder, 'totalOrderSurvey')
+  const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
+  const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
+  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaid')
+  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotation')
+  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
+  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
+  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
+
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <Col className='mb-5'>
+      <div className='d-flex flex-column align-items-center gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p className={`fs-6 ${className}`}>{label}</p>
+      </div>
+    </Col>
+  )
+
   return (
-    <section id='dashboard-ho'>
+    <section id='dashboard-tukang'>
       <Row>
         <Col xxl={6} xl={6} lg={12} className='mb-5'>
           <Row>
-            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
+            <Col xxl={3} xl={3} lg={3} className='d-flex align-items-center'>
+              <h3 className='title-header fs-5 fw-normal'>Rentang Waktu</h3>
             </Col>
 
-            <Col xxl={4} xl={4} lg={4}>
+            <Col xxl={5} xl={5} lg={5}>
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
@@ -234,8 +268,8 @@ const DashboardTukang: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
@@ -263,75 +297,20 @@ const DashboardTukang: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Order</div>
 
               <Row className='justify-content-md-center'>
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{totalData}</h1>
-                    <p className='fs-6 text-center'>Total Order</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{survey}</h1>
-                    <p className='fs-6 text-center'>Survey</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{onProgress}</h1>
-                    <p className='fs-6 text-center'>On Progress</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{complete}</h1>
-                    <p className='fs-6 text-center'>Complete</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{reschedule}</h1>
-                    <p className='fs-6 text-danger text-center'>Reschedule</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{cancel}</h1>
-                    <p className='fs-6 text-danger text-center'>Cancel</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{refund}</h1>
-                    <p className='fs-6 text-danger text-center'>Refund</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingSurvey}</h1>
-                    <p className='fs-6 text-brown text-center'>Menunggu Survey</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingQuotation}</h1>
-                    <p className='fs-6 text-brown text-center'>Menunggu Quotation</p>
-                  </div>
-                </Col>
-
-                <Col className='mb-5'>
-                  <div className='d-flex flex-column align-items-center gap-2'>
-                    <h1 className='fw-normal'>{waitingPayment}</h1>
-                    <p className='fs-6 text-brown fw-bold text-center'>Menunggu Bayar</p>
-                  </div>
-                </Col>
+                {renderStat(totalOrders, 'Total Order')}
+                {renderStat(surveyOrder, 'Survey')}
+                {renderStat(workInProgress, 'On Progress')}
+                {renderStat(orderDone, 'Complete')}
+                {renderStat(totalReschedule, 'Reschedule', 'text-danger')}
+                {renderStat(totalCancel, 'Cancel', 'text-danger')}
+                {renderStat(totalRefund, 'Refund', 'text-danger')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-brown fw-bold text-center')}
+                {renderStat(
+                  waitingQuotations,
+                  'Menunggu Quotation',
+                  'text-brown fw-bold text-center'
+                )}
+                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
               </Row>
             </Card.Body>
           </Card>
@@ -350,11 +329,37 @@ const DashboardTukang: FC = () => {
 
       <Row className='g-5 g-xl-8 mb-5'>
         <Col md={12}>
-          <TableList
-            className='card-xl-stretch mb-5 mb-xl-8'
-            orderData={orderData}
-            currentPage={currentPage}
-          />
+          <div className={`card`}>
+            <div className='card-body p-5'>
+              <div className='d-flex flex-column'>
+                <h1 className='fs-1 text-black mb-3'>List Order</h1>
+
+                <Table
+                  bordered
+                  columns={columns}
+                  dataSource={orderList}
+                  rowKey={(record) => record.order_id}
+                  pagination={{
+                    position: ['bottomRight'],
+                    current: currentPage,
+                    total: totalData,
+                    showSizeChanger: true,
+                    pageSizeOptions: [5, 10, 20, 50, 100],
+                    defaultPageSize: 5,
+                    onChange: (page, pageSize) => {
+                      fetchData(page, pageSize, '')
+                    },
+                    itemRender: itemRender,
+                    showTotal: (total, range) => (
+                      <span style={{left: 0, position: 'absolute'}}>
+                        Showing {range[0]} - {range[1]} of {total} List Order
+                      </span>
+                    ),
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </Col>
       </Row>
     </section>

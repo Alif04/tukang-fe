@@ -7,10 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  workOrderData: any[]
+  orderData: any[]
 }
 
-const ChartBarSurvey: React.FC<Props> = ({className, workOrderData}) => {
+const ChartBarSurvey: React.FC<Props> = ({className, orderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -22,7 +22,8 @@ const ChartBarSurvey: React.FC<Props> = ({className, workOrderData}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, workOrderData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chartRef, mode, orderData])
 
   const refreshChart = () => {
     if (!chartRef.current) {
@@ -31,7 +32,7 @@ const ChartBarSurvey: React.FC<Props> = ({className, workOrderData}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, workOrderData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, orderData))
     if (chart) {
       chart.render()
     }
@@ -50,7 +51,7 @@ const ChartBarSurvey: React.FC<Props> = ({className, workOrderData}) => {
 
 export {ChartBarSurvey}
 
-function getChartOptions(height: number, workOrderData: any): ApexOptions {
+function getChartOptions(height: number, orderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -58,11 +59,11 @@ function getChartOptions(height: number, workOrderData: any): ApexOptions {
     series: [
       {
         name: 'Order Survey',
-        data: workOrderData.map((item: any) => item.totalSurveyOrder),
+        data: orderData.map((item: any) => item.totalOrderSurvey),
       },
       {
         name: 'Pengerjaan Selesai',
-        data: workOrderData.map((item: any) => item.totalWorkEndOrder),
+        data: orderData.map((item: any) => item.totalOrderDone),
       },
     ],
     chart: {
@@ -93,7 +94,7 @@ function getChartOptions(height: number, workOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: workOrderData.map((item: any) => item.month),
+      categories: orderData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },
