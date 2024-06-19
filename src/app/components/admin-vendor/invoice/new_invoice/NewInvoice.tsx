@@ -184,7 +184,9 @@ const NewInvoiceVendor: FC = () => {
       })
 
       const data = response.data.data
-      const filteredData = data.filter((x: any) => x.payment_type !== 'gratis')
+      const filteredData = data.filter(
+        (x: any) => x.payment_type !== 'gratis' && x.invoice_details.length === 0
+      )
 
       setCurrentPage(response.data.page)
       setTotalData(filteredData.length)

@@ -174,6 +174,8 @@ const DetailTukangVendor: FC = () => {
     fileName: '',
   })
 
+  console.log('image Ktp', imageKTP)
+
   const fetchTukangDetail = async () => {
     try {
       await axios
@@ -225,7 +227,7 @@ const DetailTukangVendor: FC = () => {
   const getWorkOrder = async (page: number, pageSize: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/work-orders?order_by=desc&page=${page}&take=${pageSize}&tukang_id=${tukangId}`,
+        `${apiUrl}/work-orders?order_by=desc&page=${page}&take=${pageSize}&tukang_id=${params.id}`,
         {
           headers: {
             Accept: 'application/json',
@@ -459,7 +461,7 @@ const DetailTukangVendor: FC = () => {
                     </Form.Label>
 
                     <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='0' />
+                      <Form.Control plaintext readOnly value={totalData} />
                     </Col>
                   </Form.Group>
                 </Col>
@@ -480,21 +482,22 @@ const DetailTukangVendor: FC = () => {
                 <Col xxl={6} xl={6} lg={6} md={6} sm={12}>
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto KTP</Form.Label>
-                    <ListGroup>
-                      <ListGroup.Item
-                        action
-                        style={{cursor: 'pointer'}}
-                        onClick={() => {
-                          setPreviewImage(imageKTP.fileName)
-                          setVisibleKTP(true)
-                        }}
-                      >
-                        {imageKTP.fileName}
-                      </ListGroup.Item>
-                    </ListGroup>
 
-                    {imageKTP ? (
+                    {imageKTP.fileName !== '' && imageKTP.blob !== '' ? (
                       <>
+                        <ListGroup>
+                          <ListGroup.Item
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(imageKTP.fileName)
+                              setVisibleKTP(true)
+                            }}
+                          >
+                            {imageKTP.fileName}
+                          </ListGroup.Item>
+                        </ListGroup>
+
                         {previewImage && (
                           <div>
                             <Image
@@ -525,21 +528,21 @@ const DetailTukangVendor: FC = () => {
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto NPWP</Form.Label>
 
-                    <ListGroup>
-                      <ListGroup.Item
-                        action
-                        style={{cursor: 'pointer'}}
-                        onClick={() => {
-                          setPreviewImage(imageNPWP.fileName)
-                          setVisibleKTP(true)
-                        }}
-                      >
-                        {imageNPWP.fileName}
-                      </ListGroup.Item>
-                    </ListGroup>
-
-                    {imageNPWP ? (
+                    {imageNPWP.fileName !== '' && imageNPWP.blob !== '' ? (
                       <>
+                        <ListGroup>
+                          <ListGroup.Item
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(imageNPWP.fileName)
+                              setVisibleKTP(true)
+                            }}
+                          >
+                            {imageNPWP.fileName}
+                          </ListGroup.Item>
+                        </ListGroup>
+
                         {previewImage && (
                           <div>
                             <Image
@@ -578,7 +581,7 @@ const DetailTukangVendor: FC = () => {
           <hr />
 
           <Tabs fill defaultActiveKey={1} className='navtab-detail-costumer'>
-            <Tab eventKey={1} title='Historical Pemesanan' className='tab-1'>
+            <Tab eventKey={1} title='Historical Pengerjaan' className='tab-1'>
               <Spin
                 tip='Loading...'
                 spinning={loadData}

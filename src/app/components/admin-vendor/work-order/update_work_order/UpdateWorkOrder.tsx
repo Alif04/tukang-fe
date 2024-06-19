@@ -334,9 +334,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         const tempTukang = response.data.data.map((item: any) => ({
           tukang_id: item.id ?? 0,
           tukang_name: item.full_name,
+          is_active: item.is_active,
         }))
-
-        setTukang(tempTukang)
+        const filteredTukang = tempTukang.filter((x: any) => x.is_active !== false)
+        setTukang(filteredTukang)
       } else {
         console.error('API response data is not an array:', response.data)
       }

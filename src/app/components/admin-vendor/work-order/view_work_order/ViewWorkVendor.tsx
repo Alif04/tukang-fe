@@ -135,7 +135,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      width: 110,
+      width: 90,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
@@ -144,7 +144,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
-      width: 120,
+      width: 150,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -187,8 +187,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
       fixed: 'right',
-      width: 50,
+      width: 80,
       render: (record) => {
         const id = record.order_id
 
@@ -636,6 +637,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               dataSource={orderData}
               rowKey={(record) => record.order_id}
               pagination={false}
+              scroll={{x: 1100}}
             />
           </Spin>
 
