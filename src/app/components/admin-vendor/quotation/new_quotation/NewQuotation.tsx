@@ -507,18 +507,11 @@ const NewQuotationVendor: FC = () => {
 
       quotationDetail.forEach((quotation, index) => {
         appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
-
         appendIfNotDefault(
           formData,
           `quotation_details[${index}][work_order_item_id]`,
           quotation.work_order_item_id
         )
-
-        // appendIfNotDefault(
-        //   formData,
-        //   `quotation_details[${index}][category_id]`,
-        //   quotation.category_id
-        // )
 
         appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
         appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
@@ -839,7 +832,7 @@ const NewQuotationVendor: FC = () => {
 
                         <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
                           <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Margin</Form.Label>
+                            <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
 
                             <Form.Control
                               id={`margin-${index}`}
@@ -1012,7 +1005,7 @@ const NewQuotationVendor: FC = () => {
 
                         <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
                           <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Margin</Form.Label>
+                            <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
 
                             <Form.Control
                               id={`margin-${index}`}
