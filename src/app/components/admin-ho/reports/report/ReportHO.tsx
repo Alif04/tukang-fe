@@ -1340,7 +1340,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
             data = {
               order_id: item?.quotation?.order_id,
               date_order: orderDate,
-              store_name: item?.quotation?.order?.store?.store_name ?? '-',
+              store_name: item?.sales?.store?.store_name ?? '-',
               costumer_name: item?.quotation?.order?.members?.full_name,
               incentive_name: item?.incentive?.name,
               sales_name: item?.sales?.full_name,
