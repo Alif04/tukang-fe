@@ -38,9 +38,13 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  const userRole = localStorage.getItem('userRole')
-  const userStore = localStorage.getItem('storeId')
-  const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+  const userStore = localStorage.getItem('storeId') as number | null
+  const userVendor = localStorage.getItem('vendor_id') as number | null
+  const userTukang = localStorage.getItem('tukang_id') as number | null
+
+  const storeId = userStore !== null ? `&store_id=${userStore}` : ''
+  const vendorId = userVendor !== null ? `&vendor_id=${userVendor}` : ''
+  const tukangId = userTukang !== null ? `&tukang_id=${userTukang}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -347,7 +351,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   ]
 
   const fetchComplaintList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&page=${page}${storeId}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&page=${page}&take=${pageSize}${storeId}${vendorId}${tukangId}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
