@@ -671,7 +671,7 @@ const DetailOrderWithoutAuth = () => {
                                 {order?.quotation[0]?.promotion?.promotion_type === 1
                                   ? `${order?.quotation[0]?.promotion?.promotion} %`
                                   : `Rp. ${parseInt(
-                                      order?.quotation[0]?.promotion?.promotion
+                                      order?.quotation[0]?.promotion?.promotion ?? 0
                                     ).toLocaleString('id')}`}
                               </td>
                             </tr>

@@ -722,7 +722,8 @@ const ViewCalendarHO: React.FC = () => {
                               ?.promotion_type === 1
                               ? `${selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion} %`
                               : `Rp. ${parseInt(
-                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion
+                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion ??
+                                    0
                                 ).toLocaleString('id')}`}
                           </td>
                         </tr>

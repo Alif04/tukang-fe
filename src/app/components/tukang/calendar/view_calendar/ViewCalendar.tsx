@@ -568,16 +568,6 @@ const ViewCalendarTukang: React.FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -601,38 +591,6 @@ const ViewCalendarTukang: React.FC = () => {
                             </>
                           )
                         )}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Biaya Survey
-                          </td>
-
-                          <td className=' fw-bolder'>Rp. 99.000</td>
-                        </tr>
-
-                        {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                selectedWorkOrder?.work_order_detail?.order?.additional_fee
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
-
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Grand Total
-                              </td>
-
-                              <td className=' fw-bolder'>
-                                {calculateTotal(selectedWorkOrder?.work_order_detail?.order)}
-                              </td>
-                            </tr>
-                          </>
-                        )}
                       </tbody>
                     </Table>
                   </div>
@@ -646,16 +604,6 @@ const ViewCalendarTukang: React.FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -669,10 +617,6 @@ const ViewCalendarTukang: React.FC = () => {
 
                           <th className='text-center' style={{width: '250px'}}>
                             Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
                           </th>
                         </tr>
                       </thead>
@@ -688,23 +632,8 @@ const ViewCalendarTukang: React.FC = () => {
                               </td>
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                             </tr>
                           ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Total
-                          </td>
-
-                          <td className='fw-bolder'>
-                            {`Rp. ${selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details
-                              ?.filter((x: any) => x.item_type === 2)
-                              ?.map((item: any) => parseInt(item?.price ?? 0))
-                              ?.reduce((total: number, price: number) => total + price, 0)
-                              .toLocaleString('id')}`}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
 
@@ -722,10 +651,6 @@ const ViewCalendarTukang: React.FC = () => {
                           <th className='text-center' style={{width: '250px'}}>
                             Satuan
                           </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
                         </tr>
                       </thead>
 
@@ -740,47 +665,8 @@ const ViewCalendarTukang: React.FC = () => {
                               </td>
                               <td>{item?.quantity ?? 0}</td>
                               <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                             </tr>
                           ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Promosi ( Free Survey )
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              selectedWorkOrder?.work_order_detail?.order?.quotation[0]
-                                ?.quotation_disc ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-
-                        {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                selectedWorkOrder?.work_order_detail?.order?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              selectedWorkOrder?.work_order_detail?.order?.quotation[0]
-                                ?.quotation_grand_total ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
                   </div>
@@ -825,16 +711,6 @@ const ViewCalendarTukang: React.FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
                     <Table hover responsive='md'>
                       <thead className='table-warranty-head'>
                         <tr>
@@ -842,14 +718,6 @@ const ViewCalendarTukang: React.FC = () => {
                           <th>Item Name</th>
                           <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          {!(
-                            selectedWorkOrder?.work_order_detail?.order?.payment_type === 'gratis'
-                          ) && (
-                            <>
-                              <th>Harga Jasa</th>
-                              <th>Jumlah</th>
-                            </>
-                          )}
                         </tr>
                       </thead>
                       <tbody>
@@ -861,62 +729,10 @@ const ViewCalendarTukang: React.FC = () => {
                                 <td>{item?.item_name}</td>
                                 <td>{item?.item?.service_name}</td>
                                 <td>{item?.quantity ?? 0}</td>
-                                {!(
-                                  selectedWorkOrder?.work_order_detail?.order?.payment_type ===
-                                  'gratis'
-                                ) && (
-                                  <>
-                                    <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                    <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                  </>
-                                )}
                               </tr>
                             </>
                           )
                         )}
-
-                        {selectedWorkOrder?.work_order_detail?.order?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td
-                                colSpan={
-                                  selectedWorkOrder?.work_order_detail?.order?.payment_type !==
-                                  'gratis'
-                                    ? 5
-                                    : 3
-                                }
-                                className='text-end fw-bolder align-middle'
-                              >
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                selectedWorkOrder?.work_order_detail?.order?.additional_fee
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td
-                            colSpan={
-                              selectedWorkOrder?.work_order_detail?.order?.payment_type !== 'gratis'
-                                ? 5
-                                : 3
-                            }
-                            className='text-end fw-bolder'
-                          >
-                            Grand Total
-                          </td>
-
-                          <td className=' fw-bolder'>
-                            {calculateTotal(selectedWorkOrder?.work_order_detail?.order)}
-                          </td>
-                        </tr>
                       </tbody>
                     </Table>
                   </div>

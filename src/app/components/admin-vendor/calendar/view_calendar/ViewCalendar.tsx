@@ -711,6 +711,26 @@ const ViewCalendarVendor: React.FC = () => {
                           </td>
                         </tr>
 
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            {`${
+                              selectedOrder?.order_detail?.quotation[0]?.promotion
+                                ? `Additional Promotion (${selectedOrder?.order_detail?.quotation[0]?.promotion?.name})`
+                                : `Additional Promotion`
+                            }`}
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {selectedOrder?.order_detail?.quotation[0]?.promotion
+                              ?.promotion_type === 1
+                              ? `${selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion} %`
+                              : `Rp. ${parseInt(
+                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion ??
+                                    0
+                                ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
                         {selectedOrder?.order_detail?.is_overdistance === 1 && (
                           <>
                             <tr>
