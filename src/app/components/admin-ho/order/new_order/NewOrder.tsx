@@ -155,6 +155,7 @@ const NewOrderHO: FC = () => {
 
   // Sales
   const [sales, setSales] = useState<SalesSelect[]>([])
+  const [searchSales, setSearchSales] = useState('')
   const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
     label: '',
@@ -308,33 +309,6 @@ const NewOrderHO: FC = () => {
       }
     }
 
-    const getSales = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/sales?${storeId}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempSales = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.full_name,
-            full_name: item.full_name,
-          }))
-
-          setSales(tempSales)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     const getVendor = async () => {
       try {
         const response = await axios.get(`${apiUrl}/vendor?${storeId}`, {
@@ -383,10 +357,43 @@ const NewOrderHO: FC = () => {
     }
 
     getStore()
-    getSales()
     getVendor()
     getVendorByMaxOrder()
   }, [selectedStore?.value])
+
+  const getSales = async () => {
+    const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
+    const search = searchSales ? `&search=${searchSales}` : ''
+
+    try {
+      const response = await axios.get(`${apiUrl}/sales?${storeId}${search}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempSales = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+          full_name: item.full_name,
+        }))
+
+        setSales(tempSales)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getSales()
+  }, [selectedStore?.value, searchSales])
 
   // Order Form Handler
   const orderFormHandler = (e: any) => {
@@ -1231,6 +1238,7 @@ const NewOrderHO: FC = () => {
                     isClearable={true}
                     options={sales}
                     onChange={(newValue) => setSelectedSales(newValue)}
+                    onInputChange={(newValue) => setSearchSales(newValue)}
                   />
                 </Col>
               </Form.Group>
