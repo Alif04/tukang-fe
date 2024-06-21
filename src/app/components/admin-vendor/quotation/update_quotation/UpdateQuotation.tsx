@@ -1,19 +1,12 @@
-import React, {FC, useState, useEffect, useRef} from 'react'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
-
+import React, {FC, useState, useEffect} from 'react'
 import './UpdateQuotation.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Table, Button, Row, Col, Card} from 'react-bootstrap'
+import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
-
-interface CategorySelect {
-  value: number | null
-  label: string
-}
 
 interface QuotationDetail {
   id: number | null
@@ -51,7 +44,6 @@ const UpdateQuotationVendor: FC = () => {
   const [quotationDescription, setQuotationDescription] = useState<string>('')
   const [quotationDate, setQuotationDate] = useState<string>('')
   const [quotationValidity, setQuotationValidity] = useState<any>()
-  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
   const [totalJasa, setTotalJasa] = useState<number>(0)
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
@@ -60,8 +52,6 @@ const UpdateQuotationVendor: FC = () => {
   const [grandTotal, setGrandTotal] = useState<any>(0)
   const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)
   const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
-
-  const evidenceRef = useRef<HTMLInputElement>(null)
 
   // Quotation Detail
   const [quotationDetail, setQuotationDetail] = useState<QuotationDetail[]>([
@@ -107,9 +97,6 @@ const UpdateQuotationVendor: FC = () => {
 
   // Store
   const [storeId, setStoreId] = useState<string>('')
-
-  // Category
-  const [categories, setCategories] = useState<CategorySelect[]>([])
 
   const getQuotationData = async () => {
     try {
@@ -190,35 +177,8 @@ const UpdateQuotationVendor: FC = () => {
     }
   }
 
-  const getCategories = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/categories`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempCategories = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.category_name,
-        }))
-
-        setCategories(tempCategories)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   useEffect(() => {
     getQuotationData()
-    getCategories()
   }, [])
 
   // Format Date
@@ -348,7 +308,7 @@ const UpdateQuotationVendor: FC = () => {
     const elementIndex = updatedDetailValues.findIndex((item) => item.index === index)
 
     if (elementIndex !== -1) {
-      updatedDetailValues[elementIndex].margin_type = isChecked ? 2 : 1
+      updatedDetailValues[elementIndex].margin_type = isChecked ? 1 : 2
     }
 
     setQuotationDetail(updatedDetailValues)
@@ -439,12 +399,6 @@ const UpdateQuotationVendor: FC = () => {
     setTotalJasaMaterial(total)
   }
 
-  // Promosi & Discount
-  // let handlePromosiChange = (value: any) => {
-  //   const updatedPromosiValue = value
-  //   setPromosiDiscount(updatedPromosiValue)
-  // }
-
   // Grand Total
   const calculatedGrandTotal = () => {
     const grandTotal = Number(totalJasaMaterial) - Number(promosiDiscount)
@@ -498,104 +452,87 @@ const UpdateQuotationVendor: FC = () => {
 
   // Handle Submit Quotation
   const handleUpdateQuotation = async () => {
-    if (QuotationValidation()) {
-      setIsLoading(true)
-      const formData = new FormData()
-
-      formData.append('order_id', orderId)
-      formData.append('store_id', storeId)
-      formData.append('quotation_status', quotationStatus)
-      formData.append('description', quotationDescription)
-      formData.append('quotation_number', quotationNumber.toString())
-      formData.append('quotation_date', quotationDate)
-      formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
-      // formData.append('quotation_disc', promosiDiscount.toString())
-
-      // New
-      const appendIfNotDefault = (formData: any, key: any, value: any) => {
-        if (value !== null && value !== undefined && value !== '' && value !== 0) {
-          formData.append(key, String(value))
-        }
+    if (!QuotationValidation()) {
+      return false
+    }
+    setIsLoading(true)
+    const formData = new FormData()
+    const appendIfNotDefault = (formData: any, key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
       }
+    }
 
-      quotationDetail.forEach((quotation, index) => {
-        appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
-        appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
+    formData.append('order_id', orderId)
+    formData.append('store_id', storeId)
+    formData.append('quotation_status', quotationStatus)
+    formData.append('quotation_number', quotationNumber.toString())
+    formData.append('quotation_date', quotationDate)
+    formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
+    appendIfNotDefault(formData, 'description', quotationDescription)
 
-        appendIfNotDefault(
-          formData,
-          `quotation_details[${index}][work_order_item_id]`,
-          quotation.work_order_item_id
-        )
+    // New
+    quotationDetail.forEach((quotation, index) => {
+      appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
+      appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
+      appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
+      appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
+      appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
+      appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
 
-        // appendIfNotDefault(
-        //   formData,
-        //   `quotation_details[${index}][category_id]`,
-        //   quotation.category_id
-        // )
+      formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
+      formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
+      formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
+      formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+      appendIfNotDefault(
+        formData,
+        `quotation_details[${index}][work_order_item_id]`,
+        quotation.work_order_item_id
+      )
+    })
 
-        appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
-        appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
-        appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
-        appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
-        // appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
-        formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
-        formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
-        appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
-        formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
+    await axios
+      .post(`${apiUrl}/quotation/${params.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
       })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Update Quotation',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
 
-      // if (quotationFiles?.length) {
-      //   quotationFiles.forEach((item) => {
-      //     if (item) {
-      //       formData.append(`quotation_files`, item, item?.name)
-      //     }
-      //   })
-      // }
-
-      await axios
-        .post(`${apiUrl}/quotation/${params.id}`, formData, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          if (response.data.status === 200 || response.data.status === 201) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Success Update Quotation',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500,
-            })
-
-            setIsLoading(false)
-          } else {
-            Swal.fire({
-              title: 'Error',
-              text: response.data.message,
-              icon: 'error',
-            })
-
-            setIsLoading(false)
-          }
-
-          navigate('/quotation/view-quotation')
-        })
-        .catch((error) => {
-          console.error(error)
           setIsLoading(false)
-
+        } else {
           Swal.fire({
             title: 'Error',
-            text: error.response.data.message,
+            text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
+        }
+
+        navigate('/quotation/view-quotation')
+      })
+      .catch((error) => {
+        console.error(error)
+        setIsLoading(false)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
         })
-    }
+      })
   }
 
   const handleCancelQuotation = () => {
@@ -861,7 +798,7 @@ const UpdateQuotationVendor: FC = () => {
 
                         <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
                           <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Margin</Form.Label>
+                            <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
 
                             <Form.Control
                               id={`margin-${index}`}
@@ -879,7 +816,7 @@ const UpdateQuotationVendor: FC = () => {
                                 <Form.Check
                                   id={`margin-type-${index}`}
                                   type='checkbox'
-                                  checked={element.margin_type === 2}
+                                  checked={element.margin_type === 1}
                                   onChange={(e) => {
                                     handleMarginTypeChange(element.index, e.target.checked)
                                     calcEachDetails(element.margin_type, element.index)
@@ -887,9 +824,7 @@ const UpdateQuotationVendor: FC = () => {
                                 />
                               </div>
 
-                              <div className='ms-1'>
-                                {element.margin_type === 1 ? 'Persen' : 'Nominal'}
-                              </div>
+                              <div className='ms-1'>Persen</div>
                             </div>
                           </Form.Group>
                         </Col>
@@ -1036,7 +971,7 @@ const UpdateQuotationVendor: FC = () => {
 
                         <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
                           <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Margin</Form.Label>
+                            <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
 
                             <Form.Control
                               id={`margin-${index}`}
@@ -1055,7 +990,7 @@ const UpdateQuotationVendor: FC = () => {
                                 <Form.Check
                                   id={`margin-type-${index}`}
                                   type='checkbox'
-                                  checked={element.margin_type === 2}
+                                  checked={element.margin_type === 1}
                                   disabled={element.is_user === 1 ? true : false}
                                   onChange={(e) => {
                                     handleMarginTypeChange(element.index, e.target.checked)
@@ -1064,9 +999,7 @@ const UpdateQuotationVendor: FC = () => {
                                 />
                               </div>
 
-                              <div className='ms-1'>
-                                {element.margin_type === 1 ? 'Persen' : 'Nominal'}
-                              </div>
+                              <div className='ms-1'>Persen</div>
                             </div>
                           </Form.Group>
                         </Col>

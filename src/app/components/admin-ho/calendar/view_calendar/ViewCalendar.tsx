@@ -232,10 +232,9 @@ const ViewCalendarHO: React.FC = () => {
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total) + Number(additional_fee)
+      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total)
     } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount =
-        is_overdistance === 0 ? Number(grand_total) : Number(grand_total) + Number(additional_fee)
+      totalAmount = is_overdistance === 0 ? Number(grand_total) : Number(grand_total)
     } else if (payment_type === 'survey') {
       totalAmount =
         is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
@@ -723,7 +722,8 @@ const ViewCalendarHO: React.FC = () => {
                               ?.promotion_type === 1
                               ? `${selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion} %`
                               : `Rp. ${parseInt(
-                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion
+                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion ??
+                                    0
                                 ).toLocaleString('id')}`}
                           </td>
                         </tr>

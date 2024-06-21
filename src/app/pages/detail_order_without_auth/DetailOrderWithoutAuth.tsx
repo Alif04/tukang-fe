@@ -202,12 +202,12 @@ const DetailOrderWithoutAuth = () => {
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
+      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount =
-        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
+      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
     } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
+      totalAmount =
+        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 99000 ?? 0
     }
 
     return `Rp. ${Number(totalAmount).toLocaleString('id')}`
@@ -671,7 +671,7 @@ const DetailOrderWithoutAuth = () => {
                                 {order?.quotation[0]?.promotion?.promotion_type === 1
                                   ? `${order?.quotation[0]?.promotion?.promotion} %`
                                   : `Rp. ${parseInt(
-                                      order?.quotation[0]?.promotion?.promotion
+                                      order?.quotation[0]?.promotion?.promotion ?? 0
                                     ).toLocaleString('id')}`}
                               </td>
                             </tr>

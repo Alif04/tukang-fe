@@ -554,8 +554,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                 className='date-range ms-3'
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                    const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)

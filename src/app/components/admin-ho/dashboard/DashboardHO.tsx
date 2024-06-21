@@ -105,22 +105,8 @@ const DashboardHO: FC = () => {
 
   const [orderList, setOrderList] = useState<DataType[]>([])
   const [orderData, setOrderData] = useState<any[]>([])
-  const [orderCounts, setOrderCounts] = useState({
-    totalSurvey: 0,
-    totalWork: 0,
-    totalDone: 0,
-    totalWaitingSurvey: 0,
-    totalWaitingQuotation: 0,
-    totalWaitingPayment: 0,
-    totalComplaint: 0,
-    totalReschedule: 0,
-    totalCancel: 0,
-    totalRefund: 0,
-    totalRework: 0,
-  })
 
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
-  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
 
   const today = new Date()
 
@@ -164,29 +150,7 @@ const DashboardHO: FC = () => {
     }
   }, [selectedStore])
 
-  const getOrder = async () => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${store_id}&take=0`
-
-    try {
-      const response = await axios.get(apiUrlWithParams, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-      setOrderData(data)
-
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const getOrderList = async (page: number, pageSize: number, queryparams: any) => {
+  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}${store_id}&date_from=${dateFrom}&date_to=${dateTo}`
 
     try {
@@ -201,6 +165,7 @@ const DashboardHO: FC = () => {
 
       const data = response.data.data
 
+      setOrderData(data)
       setCurrentPage(response?.data?.page)
       setTotalData(response?.data?.total ?? 0)
 
@@ -241,50 +206,13 @@ const DashboardHO: FC = () => {
     }
   }
 
-  const getWorkOrder = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/reports/work-orders${store_id}?date_from=${dateFrom}&date_to=${dateTo}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      const data = response.data.data
-
-      const chartDatas = response.data.monthlyWorkOrders
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-      setChartWorkOrder(slicedData)
-      return data
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   useEffect(() => {
-    getOrder()
     getReportOrder()
-    getWorkOrder()
   }, [])
 
   const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await getOrderList(page, pageSize, queryparams)
+      const apiData = await fetchOrderList(page, pageSize, queryparams)
 
       if (!apiData) {
         console.error('No data received from fetchOrderList')
@@ -409,7 +337,6 @@ const DashboardHO: FC = () => {
     getArea()
   }, [selectedZone])
 
-  // Filter Order
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ''
@@ -417,131 +344,27 @@ const DashboardHO: FC = () => {
     const data = await ViewOrder(1, 10, queryparams)
     setOrderList(data)
 
-    await getOrder()
     await getReportOrder()
-    await getWorkOrder()
 
     setLoadingButton(false)
   }
 
-  // Count Status
-  useEffect(() => {
-    const orderSurvey = ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE']
-    const totalWIP = ['WORKSTART', 'WIP']
-    const totalOrderDone = ['WORKEND']
-    const totalWaitingSurvey = ['SURVEYREQ']
-    const totalWaitingQuotation = ['QUOTEIN', 'QUOTEOUT']
-    const totalComplaint = ['INVESTIGATED']
-    const totalReschedule = ['RESCHEDULE']
-    const totalCancel = ['CANCEL']
-    const totalRefund = ['REFUND']
-    const totalRework = ['REWORKREQ', 'REWORKSTART', 'REWORKEND']
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
-    let orderSurveyCount = 0
-    let totalWIPCount = 0
-    let totalOrderDoneCount = 0
-    let totalWaitingSurveyCount = 0
-    let totalWaitingQuotationCount = 0
-    let totalWaitingPaymentCount = 0
-    let totalComplaintCount = 0
-    let totalRescheduleCount = 0
-    let totalCancelCount = 0
-    let totalRefundCount = 0
-    let totalReworkCount = 0
+  const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const surveyOrder = sumTotal(chartDataOrder, 'totalOrderSurvey')
+  const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
+  const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
+  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotation')
+  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaid')
 
-    const orderStatuses = (item: any) => {
-      if (item?.work_orders?.work_order_status?.length >= 0) {
-        if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
-          return item?.status?.category
-        } else if (
-          ['WORKREQ'].includes(item?.status?.category) &&
-          item?.payment_type === 'survey' &&
-          !['WORKSTART', 'WIP', 'WORKEND'].includes(
-            item?.work_orders?.work_order_status[0]?.status?.category
-          )
-        ) {
-          return item?.status?.category
-        } else {
-          return item?.work_orders?.work_order_status[0]?.status?.category
-        }
-      } else {
-        return item?.status?.category
-      }
-    }
-
-    const paymentStatuses = (item: any) => {
-      if (item?.payment_type === 'survey') {
-        return item.receipt_number === null ? 'UNPAID' : 'PAID'
-      } else if (item?.payment_type === 'gratis') {
-        return 'FREE'
-      } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-        return item.receipt_number === null ? 'UNPAID' : 'PAID'
-      } else {
-        return ''
-      }
-    }
-
-    orderData.forEach((order) => {
-      const orderStatus = orderStatuses(order)
-      const paymentStatus = paymentStatuses(order)
-
-      switch (true) {
-        case orderSurvey.includes(orderStatus):
-          orderSurveyCount++
-          break
-        case totalWIP.includes(orderStatus):
-          totalWIPCount++
-          break
-        case totalOrderDone.includes(orderStatus):
-          totalOrderDoneCount++
-          break
-        case totalWaitingQuotation.includes(orderStatus):
-          totalWaitingQuotationCount++
-          break
-        case totalComplaint.includes(orderStatus):
-          totalComplaintCount++
-          break
-        case totalReschedule.includes(orderStatus):
-          totalRescheduleCount++
-          break
-        case totalCancel.includes(orderStatus):
-          totalCancelCount++
-          break
-        case totalRefund.includes(orderStatus):
-          totalRefundCount++
-          break
-        default:
-          break
-      }
-
-      if (totalWaitingSurvey.includes(orderStatus)) {
-        totalWaitingSurveyCount++
-      }
-
-      if (totalRework.includes(orderStatus)) {
-        totalReworkCount++
-      }
-
-      if (paymentStatus === 'UNPAID') {
-        totalWaitingPaymentCount++
-      }
-    })
-
-    // Set the counts
-    setOrderCounts({
-      totalSurvey: orderSurveyCount,
-      totalWork: totalWIPCount,
-      totalDone: totalOrderDoneCount,
-      totalWaitingSurvey: totalWaitingSurveyCount,
-      totalWaitingQuotation: totalWaitingQuotationCount,
-      totalWaitingPayment: totalWaitingPaymentCount,
-      totalComplaint: totalComplaintCount,
-      totalReschedule: totalRescheduleCount,
-      totalCancel: totalCancelCount,
-      totalRefund: totalRefundCount,
-      totalRework: totalReworkCount,
-    })
-  }, [orderData])
+  const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
+  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
+  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
+  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
+  const totalRework = sumTotal(chartDataOrder, 'totalRework')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-5'>
@@ -650,25 +473,17 @@ const DashboardHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Order</div>
 
               <Row className='justify-content-md-center'>
-                {renderStat(totalData, 'Total Order')}
-                {renderStat(orderCounts.totalSurvey, 'Order sedang dalam survey')}
-                {renderStat(orderCounts.totalWork, 'Order sedang dalam pengerjaan')}
-                {renderStat(orderCounts.totalDone, 'Order Selesai')}
+                {renderStat(totalOrders, 'Total Order')}
+                {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
+                {renderStat(orderDone, 'Order Selesai')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-brown fw-bold text-center')}
                 {renderStat(
-                  orderCounts.totalWaitingSurvey,
-                  'Menunggu Survey',
-                  'text-brown fw-bold text-center'
-                )}
-                {renderStat(
-                  orderCounts.totalWaitingQuotation,
+                  waitingQuotations,
                   'Menunggu Quotation',
                   'text-brown fw-bold text-center'
                 )}
-                {renderStat(
-                  orderCounts.totalWaitingPayment,
-                  'Menunggu Bayar',
-                  'text-brown fw-bold text-center'
-                )}
+                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
               </Row>
             </Card.Body>
           </Card>
@@ -679,16 +494,16 @@ const DashboardHO: FC = () => {
         <Col lg={4} md={12} className='mb-5'>
           <MoreInformation
             className='card-xl-stretch'
-            totalComplaint={orderCounts.totalComplaint}
-            totalReschedule={orderCounts.totalRefund}
-            totalCancel={orderCounts.totalCancel}
-            totalRefund={orderCounts.totalRefund}
-            totalRework={orderCounts.totalRework}
+            totalComplaint={totalComplaint}
+            totalCancel={totalCancel}
+            totalRefund={totalRefund}
+            totalReschedule={totalReschedule}
+            totalRework={totalRework}
           />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarSurvey className='card-xl-stretch' workOrderData={chartWorkOrder} />
+          <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>

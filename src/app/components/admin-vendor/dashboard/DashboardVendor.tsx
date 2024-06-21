@@ -8,6 +8,7 @@ import {ChartBarSurvey} from './components/ChartBarSurvey'
 import {MoreInformation} from './components/MoreInformation'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
 import {Row, Col, Card, Button} from 'react-bootstrap'
 import {Table, PaginationProps} from 'antd'
@@ -91,24 +92,24 @@ const DashboardVendor: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [orderData, setOrderData] = useState<any[]>([])
   const [orderList, setOrderList] = useState<any[]>([])
-  const [workOrderData, setWorkOrderData] = useState<any[]>([])
 
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
-  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
   const [chartReportTukang, setChartReportTukang] = useState<any[]>([])
 
   const today = new Date()
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-    .toISOString()
-    .split('T')[0]
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
-  const [dateFrom, setDateFrom] = useState<any>(firstDayOfMonth)
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -120,7 +121,6 @@ const DashboardVendor: FC = () => {
         },
       })
 
-      setOrderData(response.data.data)
       setOrderList(response.data.data)
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
@@ -133,16 +133,19 @@ const DashboardVendor: FC = () => {
 
   const getReportOrder = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/orders`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/orders?vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
-      const chartDatas = response.data.monthlyOrders
+      const chartDatas = response.data.data
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -216,50 +219,19 @@ const DashboardVendor: FC = () => {
     }
   }
 
-  const getReportWorkOrder = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/reports/work-orders?vendor_id=${vendorId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-
-      const chartDatas = response.data.monthlyWorkOrders
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setChartWorkOrder(slicedData)
-      setWorkOrderData(data)
-      return data
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const getReportTukang = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/reports/tukang?vendor_id=${vendorId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/reports/tukang?vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const data = response.data.data
 
@@ -281,20 +253,17 @@ const DashboardVendor: FC = () => {
 
   useEffect(() => {
     getReportOrder()
-    getReportWorkOrder()
     getReportTukang()
   }, [orderList])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
-
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}`
+    let queryparams = ''
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderList(data)
 
     await getReportOrder()
-    await getReportWorkOrder()
     await getReportTukang()
 
     setLoadingButton(false)
@@ -304,10 +273,16 @@ const DashboardVendor: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartWorkOrder, 'totalOrder')
-  const workInProgress = sumTotal(chartWorkOrder, 'totalWIPOrder')
-  const orderDone = sumTotal(chartDataOrder, 'totalCompleteOrder')
-  const unpaidOrder = sumTotal(chartWorkOrder, 'totalUnpaidOrder')
+  const surveyOrder = sumTotal(chartDataOrder, 'totalOrderSurvey')
+  const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
+  const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
+  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaid')
+
+  const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
+  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
+  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
+  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
+  const totalRework = sumTotal(chartDataOrder, 'totalRework')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-5'>
@@ -331,16 +306,20 @@ const DashboardVendor: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('DD-MM-YYYY')
-                    const dateToFormatted = values[1]?.format('DD-MM-YYYY')
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
-                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
@@ -381,15 +360,22 @@ const DashboardVendor: FC = () => {
 
       <Row>
         <Col lg={4} md={12} className='mb-5'>
-          <MoreInformation className='card-xl-stretch' orderData={orderData} />
+          <MoreInformation
+            className='card-xl-stretch'
+            totalComplaint={totalComplaint}
+            totalReschedule={totalReschedule}
+            totalCancel={totalCancel}
+            totalRefund={totalRefund}
+            totalRework={totalRework}
+          />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarSurvey className='card-xl-stretch' workOrderData={chartWorkOrder} />
+          <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
 
         <Col lg={4} md={12} className='mb-5'>
-          <ChartBarOrder className='card-xl-stretch' orderData={chartWorkOrder} />
+          <ChartBarOrder className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
       </Row>
 

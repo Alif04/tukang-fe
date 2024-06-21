@@ -251,7 +251,7 @@ const DetailQuotationHO: FC = () => {
                   <td className=' fw-bolder'>
                     {quotationDetail?.promotion?.promotion_type === 1
                       ? `${quotationDetail?.promotion?.promotion} %`
-                      : `Rp. ${parseInt(quotationDetail?.promotion?.promotion).toLocaleString(
+                      : `Rp. ${parseInt(quotationDetail?.promotion?.promotion ?? 0).toLocaleString(
                           'id'
                         )}`}
                   </td>

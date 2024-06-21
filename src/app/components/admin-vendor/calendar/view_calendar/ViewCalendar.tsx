@@ -236,10 +236,9 @@ const ViewCalendarVendor: React.FC = () => {
     let totalAmount = 0
 
     if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 0
+      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
     } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount =
-        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : grand_total ?? 0
+      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
     } else if (payment_type === 'survey') {
       totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
     }
@@ -709,6 +708,26 @@ const ViewCalendarVendor: React.FC = () => {
                             {`Rp. ${parseInt(
                               selectedOrder?.order_detail?.quotation[0]?.quotation_disc ?? 0
                             ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            {`${
+                              selectedOrder?.order_detail?.quotation[0]?.promotion
+                                ? `Additional Promotion (${selectedOrder?.order_detail?.quotation[0]?.promotion?.name})`
+                                : `Additional Promotion`
+                            }`}
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {selectedOrder?.order_detail?.quotation[0]?.promotion
+                              ?.promotion_type === 1
+                              ? `${selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion} %`
+                              : `Rp. ${parseInt(
+                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion ??
+                                    0
+                                ).toLocaleString('id')}`}
                           </td>
                         </tr>
 
