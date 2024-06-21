@@ -83,6 +83,7 @@ const NewOrderStoreStaff: FC = () => {
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
   const staffStoreName = localStorage.getItem('storeName') as string
+  // const storeArea = localStorage.getItem('areaId') as number | null
 
   // Order
   const [orderForm, setOrderForm] = useState<Order>({
@@ -129,6 +130,7 @@ const NewOrderStoreStaff: FC = () => {
 
   // Sales
   const [sales, setSales] = useState<SalesSelect[]>([])
+  const [searchSales, setSearchSales] = useState('')
   const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
     label: '',
@@ -242,54 +244,62 @@ const NewOrderStoreStaff: FC = () => {
     getMember()
   }, [searchByPhoneNumber])
 
-  useEffect(() => {
-    const getSales = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}`, {
+  const getSales = async () => {
+    const search = searchSales ? `&search=${searchSales}` : ''
+
+    try {
+      const response = await axios.get(
+        `${apiUrl}/sales?take=0&store_id=${staffStoreId}${searchSales}`,
+        {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempSales = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.full_name,
-            full_name: item.full_name,
-          }))
-
-          setSales(tempSales)
-        } else {
-          console.error('API response data is not an array:', response.data)
         }
-      } catch (err) {
-        console.error(err)
+      )
+
+      if (Array.isArray(response.data.data)) {
+        const tempSales = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+          full_name: item.full_name,
+        }))
+
+        setSales(tempSales)
+      } else {
+        console.error('API response data is not an array:', response.data)
       }
+    } catch (err) {
+      console.error(err)
     }
+  }
 
-    const getVendor = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/vendor?store_id=${staffStoreId}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+  const getVendor = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/vendor?store_id=${staffStoreId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-        setVendor(response.data.data)
-      } catch (err) {
-        console.error(err)
-      }
+      setVendor(response.data.data)
+    } catch (err) {
+      console.error(err)
     }
+  }
 
-    getSales()
+  useEffect(() => {
     getVendor()
   }, [])
+
+  useEffect(() => {
+    getSales()
+  }, [searchSales])
 
   // Order Form Handler
   const orderFormHandler = (e: any) => {
@@ -725,15 +735,25 @@ const NewOrderStoreStaff: FC = () => {
   const vendorAvailbility = (data: any) => {
     const requestSurvey = orderForm.request_survey
     const maxOrder = data.max_order
+    // const tukangActiveAvailbility = data.tukang.filter((x: any) => x.is_active === true).length
+    // const tukangAreaAvailbilty = data.tukang.flatMap((detail: any) =>
+    //   detail.tukang_area
+    //     .map((areaDetail: any) => {
+    //       return {area_id: areaDetail.area.id}
+    //     })
+    //     .filter((x: any) => x.area_id === Number(storeArea))
+    // ).length
+
+    // console.log('store area', storeArea)
+    // console.log(`tukang[${data.company_name}]`, data.tukang)
+    // console.log(`tukang_area_same as storeArea[${data.company_name}]`, tukangAreaAvailbilty)
+    // console.log(
+    //   `tukang_area_id[${data.company_name}]`,
+    //   data.tukang.flatMap((detail: any) => detail.tukang_area.map((detail: any) => detail.area.id))
+    // )
 
     // Today Date
     // const todayDate = new Date().toISOString().split('T')[0]
-
-    // Detect Request Survey Date Only
-    const orderVendor = data.orders.filter((x: any) => {
-      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
-      return surveyDate === requestSurvey
-    })
 
     // Detect Survey Date and Work Date
     const workOrderVendor = data.work_orders.filter((x: any) => {
@@ -755,6 +775,23 @@ const NewOrderStoreStaff: FC = () => {
         return surveyDate === requestSurvey
       }
     })
+
+    // Detect Request Survey Date Only
+    const orderVendor = data.orders.filter((x: any) => {
+      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
+      return surveyDate === requestSurvey
+    })
+
+    // if (tukangActiveAvailbility === 0) {
+    //   return 'UNAVAILABLE'
+    // } else if (
+    //   tukangActiveAvailbility >= 1 &&
+    //   (orderVendor.length >= maxOrder || orderVendor.length >= tukangActiveAvailbility)
+    // ) {
+    //   return 'FULL BOOKED'
+    // } else {
+    //   return 'AVAILABLE'
+    // }
 
     return orderVendor.length >= maxOrder ? 'FULL BOOKED' : 'AVAILABLE'
   }
@@ -1063,6 +1100,7 @@ const NewOrderStoreStaff: FC = () => {
                       isClearable={true}
                       options={sales}
                       onChange={(newValue) => setSelectedSales(newValue)}
+                      onInputChange={(newValue) => setSearchSales(newValue)}
                     />
                   )}
                 </Col>
