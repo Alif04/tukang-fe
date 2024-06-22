@@ -18,8 +18,11 @@ const {RangePicker} = DatePicker
 const DashboardStore: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
-  const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
+  const userSales = localStorage.getItem('sales_id')
+
+  const salesId = userSales ? `&sales_id=${userSales}` : ''
+  const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(
@@ -28,13 +31,6 @@ const DashboardStore: FC = () => {
   const [dateTo, setDateTo] = useState<any>(
     dayjs(new Date(today.getFullYear(), 11, 31)).format('YYYY-MM-DD')
   )
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
 
   const [loadingButton, setLoadingButton] = useState(false)
   const [isLoadingPage, setIsLoadingPage] = useState(true)
@@ -46,7 +42,7 @@ const DashboardStore: FC = () => {
   const [totalSales, setTotalSales] = useState<number>(0)
 
   const getOrder = async (queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&store_id=${userStore}${queryparams}&date_from=${dateFrom}&date_to=${dateTo}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc${queryparams}&date_from=${dateFrom}&date_to=${dateTo}${salesId}${storeId}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -69,7 +65,7 @@ const DashboardStore: FC = () => {
   const getReportOrder = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/reports/orders?store_id=${userStore}&date_from=${dateFrom}&date_to=${dateTo}`,
+        `${apiUrl}/reports/orders?store_id=${userStore}&date_from=${dateFrom}&date_to=${dateTo}${salesId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -102,7 +98,7 @@ const DashboardStore: FC = () => {
   const getSales = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/sales?take=0&top_best=true&order_by=desc&store_id=${userStore}`,
+        `${apiUrl}/sales?take=0&top_best=1&order_by=desc&store_id=${userStore}`,
         {
           headers: {
             Accept: 'application/json',
@@ -147,50 +143,42 @@ const DashboardStore: FC = () => {
 
   return (
     <>
-      <Row>
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
-          <Row>
-            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='d-flex align-items-center fs-3 fw-normal mb-3'>Pilih Periode :</h3>
-            </Col>
+      <Row className='mb-5'>
+        <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
+          <h3 className='d-flex align-items-center fs-3 fw-normal'>Pilih Periode :</h3>
 
-            <Col xxl={8} xl={8} lg={12}>
-              <RangePicker
-                format={'DD-MM-YYYY'}
-                className='date-range w-100'
-                defaultValue={[dayjs(dateFrom, 'YYYY-MM-DD'), dayjs(dateTo, 'YYYY-MM-DD')]}
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+          <RangePicker
+            format={'DD-MM-YYYY'}
+            className='date-range'
+            defaultValue={[dayjs(dateFrom, 'YYYY-MM-DD'), dayjs(dateTo, 'YYYY-MM-DD')]}
+            onChange={(values) => {
+              if (values && values.length === 2) {
+                const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
-                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
-                  }
-                }}
-              />
-            </Col>
-          </Row>
-        </Col>
+                setDateFrom(dateFromFormatted)
+                setDateTo(dateToFormatted)
+              } else {
+                setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
+                setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
+              }
+            }}
+          />
 
-        <Col xxl={4} xl={4} lg={12} className='mb-5'>
           <Button
-            className='btn-dark-primary button-submit'
+            className='btn-dark-primary button-submit m-0'
             disabled={loadingButton}
             onClick={handleSubmitFilter}
           >
             {loadingButton ? 'Filtering..' : 'Submit'}
           </Button>
-        </Col>
+        </div>
       </Row>
 
-      <Row className='gy-5 g-xl-8'>
+      <Row>
         <Col>
           <SalesReportWidget
-            className='card-xl-stretch mb-xl-8'
+            className='card-xl-stretch mb-5'
             backGroundColor='white'
             chartHeight='250px'
             chartOrderData={chartData}
@@ -198,14 +186,18 @@ const DashboardStore: FC = () => {
         </Col>
       </Row>
 
-      <Row className='gy-5 g-xl-8'>
+      <Row>
         <Col xxl={4} xl={4} lg={12}>
-          <TransactionWidget orderData={orderData} loadingPage={isLoadingPage} />
+          <TransactionWidget
+            className='card-xl-stretch mb-xl-8 mb-5'
+            orderData={orderData}
+            loadingPage={isLoadingPage}
+          />
         </Col>
 
         <Col xxl={4} xl={4} lg={12}>
           <TopSalesWidget
-            className='card-xl-stretch mb-xl-8'
+            className='card-xl-stretch mb-xl-8 mb-5'
             salesData={sales}
             totalSales={totalSales}
             loadingPage={isLoadingPage}
@@ -217,7 +209,7 @@ const DashboardStore: FC = () => {
             <Col xxl={6} xl={6} lg={12}>
               <TotalComplaint
                 orderData={orderData}
-                className='card-xxl-stretch-50  mb-xl-8'
+                className='card-xxl-stretch-50  mb-xl-8 mb-5'
                 loadingPage={isLoadingPage}
               />
             </Col>
@@ -225,7 +217,7 @@ const DashboardStore: FC = () => {
             <Col xxl={6} xl={6} lg={12}>
               <TotalReschedule
                 orderData={orderData}
-                className='card-xxl-stretch-50  mb-xl-8'
+                className='card-xxl-stretch-50  mb-xl-8 mb-5'
                 loadingPage={isLoadingPage}
               />
             </Col>

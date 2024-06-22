@@ -4,15 +4,16 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 
 type Props = {
+  className: string
   orderData: any[]
   loadingPage: boolean
 }
 
-const TransactionWidget: React.FC<Props> = ({orderData, loadingPage}) => {
+const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage}) => {
   const filteredOrderData = orderData?.slice(0, 4)
 
   return (
-    <div className='card card-xl-stretch mb-5 mb-xl-8'>
+    <div className={`card ${className}`}>
       <div className='card-header border-0'>
         <h3 className='card-title fw-bold text-dark'>Transactions</h3>
       </div>
@@ -27,10 +28,10 @@ const TransactionWidget: React.FC<Props> = ({orderData, loadingPage}) => {
         <Skeleton active loading={loadingPage}>
           <div className='transaction-wrapper'>
             {filteredOrderData?.length === 0 ? (
-              <div className='text-center'>Tidak ada order dibulan ini</div>
+              <div className='text-center'>Tidak ada order pada periode ini</div>
             ) : (
               filteredOrderData?.map((item: any) => (
-                <div className='d-flex align-items-center mb-7' key={item.id}>
+                <div className='d-flex align-items-center mb-5' key={item.id}>
                   <div className='flex-grow-1 me-2'>
                     <div className='fw-bolder text-gray-800 fs-5'>
                       {item?.members?.full_name ?? ''}
@@ -57,7 +58,7 @@ const TransactionWidget: React.FC<Props> = ({orderData, loadingPage}) => {
                     <span className='fw-bold text-success'>{`Rp. ${
                       parseInt(item?.grand_total).toLocaleString('id') ?? 0
                     }`}</span>
-                    <span className='fw-bold text-dark'>{item?.status?.category ?? ''}</span>
+                    <span className='fw-bold text-dark'>{item?.status?.description ?? ''}</span>
                   </div>
                 </div>
               ))
