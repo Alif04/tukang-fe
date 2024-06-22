@@ -17,7 +17,6 @@ import {
   Col,
   Form,
   Button,
-  Stack,
   FormGroup,
   Modal,
   Card,
@@ -2072,7 +2071,6 @@ const ViewOrders: FC = () => {
       className: 'col_order_id',
       onFilter: (value, record) => record.assign_from.includes(String(value)),
       sorter: (a, b) => a.assign_from.length - b.assign_from.length,
-      responsive: ['md'],
     },
     {
       title: 'Nama Vendor',
@@ -2083,7 +2081,6 @@ const ViewOrders: FC = () => {
       className: 'col_order_id',
       onFilter: (value, record) => record.vendor_name.includes(String(value)),
       sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-      responsive: ['md'],
     },
     // {
     //   title: 'No Member',
@@ -2102,7 +2099,6 @@ const ViewOrders: FC = () => {
       width: 130,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
-      responsive: ['md'],
     },
     {
       title: 'No. Telp / WA',
@@ -2111,12 +2107,12 @@ const ViewOrders: FC = () => {
       align: 'left',
       width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
-      responsive: ['md'],
     },
     {
       title: 'Status Pembayaran',
       dataIndex: 'payment_status',
       key: 'payment_status',
+      width: 120,
       align: 'left',
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
@@ -2125,7 +2121,6 @@ const ViewOrders: FC = () => {
         {text: 'UNPAID', value: 'UNPAID'},
         {text: 'PAID', value: 'PAID'},
       ],
-      responsive: ['md'],
     },
     {
       title: 'Status Order',
@@ -2153,7 +2148,6 @@ const ViewOrders: FC = () => {
       onFilter: (value, record) => record.order_status_label.includes(String(value)),
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
       align: 'left',
-      responsive: ['md'],
     },
     {
       title: 'Action',
@@ -2278,7 +2272,7 @@ const ViewOrders: FC = () => {
         )
       },
       fixed: 'right',
-      width: 50,
+      width: 110,
     },
   ]
 
@@ -2370,6 +2364,7 @@ const ViewOrders: FC = () => {
               dataSource={orderData}
               rowKey={(record) => record.order_id}
               pagination={false}
+              scroll={{x: 1200}}
             />
           </Spin>
 
