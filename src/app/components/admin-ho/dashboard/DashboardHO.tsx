@@ -104,8 +104,6 @@ const DashboardHO: FC = () => {
   const [totalData, setTotalData] = useState<number>(0)
 
   const [orderList, setOrderList] = useState<DataType[]>([])
-  const [orderData, setOrderData] = useState<any[]>([])
-
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
 
   const today = new Date()
@@ -165,7 +163,6 @@ const DashboardHO: FC = () => {
 
       const data = response.data.data
 
-      setOrderData(data)
       setCurrentPage(response?.data?.page)
       setTotalData(response?.data?.total ?? 0)
 
@@ -190,6 +187,7 @@ const DashboardHO: FC = () => {
       )
 
       const chartDatas = response.data.data
+
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
 
