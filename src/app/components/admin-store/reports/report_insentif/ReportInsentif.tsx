@@ -256,14 +256,12 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       <div className={`card ${className}`}>
         <div className='card-body table-view-report'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-5 fw-normal'>Date : </h3>
-              </div>
+            <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range'
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -277,9 +275,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
                   }
                 }}
               />
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -293,27 +289,23 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
                   />
                 </InputGroup>
               </div>
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
-              <div className='d-flex justify-content-between'>
-                <Button
-                  className='btn-dark-primary button-submit'
-                  disabled={loadingButton}
-                  onClick={handleSubmitFilter}
-                >
-                  {loadingButton ? 'Filtering..' : 'Submit'}
-                </Button>
+              <Button
+                className='btn-dark-primary button-submit m-0'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
 
-                <Button
-                  variant='outline-primary'
-                  className='d-flex justify-content-center align-items-center'
-                  onClick={exportToExcel}
-                >
-                  Download Report
-                </Button>
-              </div>
-            </Col>
+              <Button
+                variant='success m-0'
+                className='d-flex justify-content-center align-items-center'
+                onClick={exportToExcel}
+              >
+                Export Report
+              </Button>
+            </div>
           </Row>
 
           <div className='total-order'>
@@ -331,6 +323,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
               bordered
               columns={columns}
               dataSource={orderData}
+              scroll={{x: 950}}
               rowKey={(record) => record.order_id}
               pagination={{
                 position: ['bottomRight'],
