@@ -240,7 +240,6 @@ iframe.csi-frame {
 .ant-picker.ant-picker-range.date-range {
   display: flex;
   align-items: center;
-  /* width: 200px; */
   height: 45px !important;
 }
 
@@ -364,6 +363,17 @@ button.button-edit.btn.btn-primary {
   align-items: center;
   width: 25px;
   height: 25px;
+}
+
+button.button-request.btn.btn-warning {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  border: transparent !important;
 }
 
 button.button-email.btn.btn-success {
@@ -712,5 +722,15 @@ span.anticon.anticon-filter svg {
 @media screen and (max-width: 768px) {
   .text-light-md-black {
     color: #484747 !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .ant-picker.ant-picker-range.date-range {
+    width: 100% !important;
+  }
+
+  button.btn-dark-primary.button-submit.btn.btn-primary {
+    width: 100% !important;
   }
 }
