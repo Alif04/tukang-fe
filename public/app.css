@@ -713,6 +713,19 @@ span.anticon.anticon-filter svg {
   color: white !important;
 }
 
+/* Pagination Table */
+.pagination-container {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100% !important;
+}
+
+.pagination {
+  display: flex;
+  justify-content: end;
+}
+
 @media screen and (max-width: 1200px) {
   .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
     top: 25px !important;
@@ -726,11 +739,44 @@ span.anticon.anticon-filter svg {
 }
 
 @media screen and (max-width: 576px) {
+  /* Date Range */
   .ant-picker.ant-picker-range.date-range {
     width: 100% !important;
   }
 
+  .ant-picker-panels {
+    flex-direction: column;
+  }
+
+  /* Pagination */
+  .pagination-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    width: 100%;
+    text-align: right;
+  }
+
+  .total-text {
+    margin-bottom: 10px;
+  }
+
+  .ant-pagination .ant-pagination-options {
+    display: block;
+  }
+
+  ul.ant-pagination.pagination {
+    justify-content: start;
+  }
+
+  /* Button */
   button.btn-dark-primary.button-submit.btn.btn-primary {
+    width: 100% !important;
+  }
+
+  .btn.btn-dark-primary {
     width: 100% !important;
   }
 }

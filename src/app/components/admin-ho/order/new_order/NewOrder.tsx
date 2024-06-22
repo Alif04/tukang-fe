@@ -172,12 +172,13 @@ const NewOrderHO: FC = () => {
 
   // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
+  const [searchItem, setSearchItem] = useState('')
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Fetch API Data
-  const getItem = async (itemNameSearch: string) => {
+  const getItem = async () => {
     const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
-    const search = itemNameSearch ? `&search=${itemNameSearch}` : ''
+    const search = searchItem ? `&search=${searchItem}` : ''
 
     try {
       const response = await axios.get(`${apiUrl}/items?take=0${search}${itemFree}`, {
@@ -222,8 +223,8 @@ const NewOrderHO: FC = () => {
 
   useEffect(() => {
     // eslint-disable-next-line
-    getItem('')
-  }, [paymentTypeValue])
+    getItem()
+  }, [paymentTypeValue, searchItem])
 
   useEffect(() => {
     const getMember = async () => {
@@ -622,7 +623,7 @@ const NewOrderHO: FC = () => {
       return cache
     })
 
-    getItem('')
+    getItem()
   }
 
   const handleRemoveForm = (index: any) => {
@@ -632,7 +633,7 @@ const NewOrderHO: FC = () => {
       return cache
     })
 
-    getItem('')
+    getItem()
   }
 
   // Calculate Grand Total Order Amount
@@ -1349,14 +1350,14 @@ const NewOrderHO: FC = () => {
               <thead className='table-order-head'>
                 <tr>
                   {orderForm.order_details.length >= 2 && <th>Action</th>}
-                  <th>Item Code</th>
-                  <th>Item Name</th>
-                  <th>Nama Pemasangan</th>
-                  <th>QTY Pemasangan</th>
+                  <th className='content'>Item Code</th>
+                  <th className='content'>Item Name</th>
+                  <th className='content'>Nama Pemasangan</th>
+                  <th className='content'>QTY Pemasangan</th>
                   {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                     <>
-                      <th>Harga Jasa</th>
-                      <th>Total</th>
+                      <th className='content'>Harga Jasa</th>
+                      <th className='content'>Total</th>
                     </>
                   )}
                 </tr>
@@ -1369,7 +1370,10 @@ const NewOrderHO: FC = () => {
                         <Button
                           className='btn-remove'
                           variant='danger'
-                          onClick={() => handleRemoveForm(index)}
+                          onClick={() => {
+                            handleRemoveForm(index)
+                            calcEachDetails()
+                          }}
                         >
                           <FontAwesomeIcon icon={faTrash} />
                         </Button>
@@ -1396,7 +1400,7 @@ const NewOrderHO: FC = () => {
                         value={element?.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
-                          getItem(e.target.value)
+                          setSearchItem(e.target.value)
                         }}
                       />
                     </td>
@@ -1418,9 +1422,11 @@ const NewOrderHO: FC = () => {
                           classNamePrefix='select'
                           placeholder='Pilih/Ketik Nama Pemasangan'
                           isSearchable={true}
+                          isClearable={true}
                           options={item}
                           name={`item_id`}
                           value={orderForm.order_details[index]?.item ?? null}
+                          onInputChange={(newValue) => setSearchItem(newValue)}
                           onChange={(newValue) => {
                             setOrderForm((prev) => {
                               const cache = {...prev}

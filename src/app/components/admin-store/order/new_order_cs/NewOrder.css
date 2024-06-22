@@ -197,10 +197,6 @@
     width: 100%;
   }
 
-  /* #pre-order .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  } */
-
   #pre-order .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     padding: 0 10px 0 10px;
   }
@@ -218,9 +214,6 @@
   #pre-order .form-sales .form-header h1 {
     text-align: start !important;
   }
-}
-
-@media screen and (max-width: 991px) {
 }
 
 @media screen and (max-width: 768px) {
@@ -253,18 +246,16 @@
   #pre-order button.btn-remove.btn.btn-danger span.icon {
     display: block;
   }
+
+  /* Table Responsive */
+  #pre-order .table .table-order-head tr th.content {
+    min-width: 300px;
+  }
 }
 
 @media screen and (max-width: 576px) {
   /* Button */
-
   #pre-order .button-add button {
     width: 100%;
-  }
-
-  #pre-order .btn.btn-dark-primary {
-    width: 100%;
-    margin: 0;
-    height: 40px;
   }
 }
