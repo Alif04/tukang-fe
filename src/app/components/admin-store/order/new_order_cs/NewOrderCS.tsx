@@ -716,7 +716,16 @@ const NewOrderStoreCS: FC = () => {
         newMember.phone_number = selectedMember.phone_number
       }
 
-      if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
+      if (!selectedMember.email) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please enter member email address.',
+          icon: 'warning',
+        })
+
+        setIsSubmittingNewMember(false)
+        return
+      } else if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
         Swal.fire({
           title: 'Invalid Email',
           text: 'Please enter a valid email address.',
@@ -725,7 +734,7 @@ const NewOrderStoreCS: FC = () => {
 
         setIsSubmittingNewMember(false)
         return
-      } else {
+      } else if (selectedMember.email && emailPattern.test(selectedMember.email)) {
         newMember.email = selectedMember.email
       }
 
