@@ -13,7 +13,7 @@ import axios from 'axios'
 import clsx from 'clsx'
 import {useLocation, Link, useNavigate} from 'react-router-dom'
 import {Image, Steps} from 'antd'
-import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
+import {Row, Col, Form, ListGroup, Table, Modal} from 'react-bootstrap'
 
 interface Status {
   value: number | null
@@ -134,6 +134,15 @@ const DetailOrderWithoutAuth = () => {
 
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+  const handleClose = () => setVisible(false)
+
+  // Work Before & Work After
+  const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
+  const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
+
+  // Quotation Receipt
+  const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
+  const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -842,25 +851,243 @@ const DetailOrderWithoutAuth = () => {
 
                     {previewImage && (
                       <div>
-                        <Image
-                          key={previewImage}
-                          width={200}
-                          style={{display: 'none'}}
-                          src={`${apiUrl}/public/receipt/${previewImage}`}
-                          preview={{
-                            visible,
-                            src: `${apiUrl}/public/receipt/${previewImage}`,
-                            onVisibleChange: (value) => {
-                              setVisible(value)
-                            },
-                          }}
-                        />
+                        {previewImage.endsWith('.pdf') ? (
+                          <>
+                            <Modal
+                              dialogClassName='modal-show-pdf'
+                              centered
+                              show={visible}
+                              onHide={handleClose}
+                            >
+                              <Modal.Header closeButton>
+                                <Modal.Title>File - {previewImage}</Modal.Title>
+                              </Modal.Header>
+
+                              <Modal.Body>
+                                <iframe
+                                  key={previewImage}
+                                  width='100%'
+                                  height='100%'
+                                  src={`${apiUrl}/public/receipt/${previewImage}`}
+                                  style={{border: 'none'}}
+                                />
+                              </Modal.Body>
+                            </Modal>
+                          </>
+                        ) : (
+                          <Image
+                            key={previewImage}
+                            width={200}
+                            style={{display: 'none'}}
+                            src={`${apiUrl}/public/receipt/${previewImage}`}
+                            preview={{
+                              visible,
+                              src: `${apiUrl}/public/receipt/${previewImage}`,
+                              onVisibleChange: (value) => {
+                                setVisible(value)
+                              },
+                            }}
+                          />
+                        )}
                       </div>
                     )}
                   </Col>
 
-                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
+                    <ListGroup>
+                      {order?.quotation[0]?.quotation_files
+                        ?.filter((x: any) => x.type === 2)
+                        ?.map((item: any) => (
+                          <ListGroup.Item
+                            key={item.id}
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(item.path)
+                              setVisibleQuotationReceipt(true)
+                            }}
+                          >
+                            {item.path}
+                          </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+
+                    {order?.quotation[0]?.quotation_files?.length ? (
+                      <>
+                        {previewImage && (
+                          <div>
+                            <Image
+                              key={previewImage}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={`${apiUrl}/public/quotation/${previewImage}`}
+                              preview={{
+                                visible: visibleQuotationReceipt,
+                                src: `${apiUrl}/public/quotation/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleQuotationReceipt(value)
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className='d-flex justify-content-start align-items-center'>
+                        <p className='fs-7 text-danger'>Pembayaran belum diverifikasi oleh Toko</p>
+                      </div>
+                    )}
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
+                    <ListGroup>
+                      {order?.quotation[0]?.quotation_files
+                        ?.filter((x: any) => x.type === 1)
+                        ?.map((item: any) => (
+                          <ListGroup.Item
+                            key={item.id}
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(item.path)
+                              setVisibleQuotationFiles(true)
+                            }}
+                          >
+                            {item.path}
+                          </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+
+                    {order?.quotation[0]?.quotation_files?.length ? (
+                      <>
+                        {previewImage && (
+                          <div>
+                            <Image
+                              key={previewImage}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={`${apiUrl}/public/quotation/${previewImage}`}
+                              preview={{
+                                visible: visibleQuotationFiles,
+                                src: `${apiUrl}/public/quotation/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleQuotationFiles(value)
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className='d-flex justify-content-start align-items-center'>
+                        <p className='fs-7 text-danger'>Pembayaran belum diverifikasi oleh Toko</p>
+                      </div>
+                    )}
+                  </Col>
+                </Row>
+              ) : (
+                <></>
+              )}
+
+              {order?.work_orders?.work_order_evidences?.length > 0 ? (
+                <Row>
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Work Before :</Form.Label>
+                    <ListGroup>
+                      {order?.work_orders?.work_order_evidences
+                        .filter((x: any) => x.type === 2)
+                        .map((item: any) => (
+                          <ListGroup.Item
+                            key={item.id}
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(item.evidence_location)
+                              setVisibleWorkBefore(true)
+                            }}
+                          >
+                            {item.evidence_location}
+                          </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+
+                    {order?.work_orders?.work_order_evidences?.filter((x: any) => x.type === 2)
+                      .length ? (
+                      <>
+                        {previewImage && (
+                          <div>
+                            <Image
+                              key={previewImage}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={`${apiUrl}/public/work-orders/${previewImage}`}
+                              preview={{
+                                visible: visibleWorkBefore,
+                                src: `${apiUrl}/public/work-orders/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleWorkBefore(value)
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className='d-flex justify-content-start align-items-center'>
+                        <p className='fs-7 text-danger'>Foto belum diupload oleh Tukang</p>
+                      </div>
+                    )}
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Work After :</Form.Label>
+                    <ListGroup>
+                      {order?.work_orders?.work_order_evidences
+                        .filter((x: any) => x.type === 3)
+                        .map((item: any) => (
+                          <ListGroup.Item
+                            key={item.id}
+                            action
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              setPreviewImage(item.evidence_location)
+                              setVisibleWorkAfter(true)
+                            }}
+                          >
+                            {item.evidence_location}
+                          </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+
+                    {order?.work_orders?.work_order_evidences?.filter((x: any) => x.type === 3)
+                      .length ? (
+                      <>
+                        {previewImage && (
+                          <div>
+                            <Image
+                              key={previewImage}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={`${apiUrl}/public/work-orders/${previewImage}`}
+                              preview={{
+                                visible: visibleWorkAfter,
+                                src: `${apiUrl}/public/work-orders/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleWorkAfter(value)
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className='d-flex justify-content-start align-items-center'>
+                        <p className='fs-7 text-danger'>Foto belum diupload oleh Tukang</p>
+                      </div>
+                    )}
+                  </Col>
                 </Row>
               ) : (
                 <></>
