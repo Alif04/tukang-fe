@@ -109,6 +109,17 @@ const ViewCalendarHO: React.FC = () => {
 
               const contextualColor = (() => {
                 switch (orderStatus) {
+                  case 'PICKLIST':
+                    return 'bg-primary'
+                  case 'BOOKED':
+                    return 'bg-calendar-order-booked'
+                  case 'SURVEYREQ':
+                  case 'SURVEYSTART':
+                  case 'SURVEYDONE':
+                  case 'WORKREQ':
+                  case 'WORKSTART':
+                  case 'WIP':
+                    return 'bg-calendar-order-wip'
                   case 'WORKEND':
                     return 'bg-calendar-order-done'
                   case 'RESCHEDULE':
@@ -268,7 +279,7 @@ const ViewCalendarHO: React.FC = () => {
 
                 <tbody>
                   <tr>
-                    <td>Order sedang dalam pengerjaan</td>
+                    <td>Order baru</td>
 
                     <td>
                       <div className='box-primary'></div>
@@ -276,12 +287,28 @@ const ViewCalendarHO: React.FC = () => {
                   </tr>
 
                   <tr>
+                    <td>Order diterima HO</td>
+
+                    <td>
+                      <div className='box-light-primary'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order diterima Vendor</td>
+
+                    <td>
+                      <div className='box-brown'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
                     <td>Order Selesai</td>
+
                     <td>
                       <div className='box-success'></div>
                     </td>
                   </tr>
-
                   <tr>
                     <td>Order yang dijadwalkan ulang</td>
                     <td>

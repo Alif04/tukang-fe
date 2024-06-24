@@ -113,6 +113,14 @@ const ViewCalendarVendor: React.FC = () => {
 
               const contextualColor = (() => {
                 switch (orderStatus) {
+                  case 'SURVEYREQ':
+                  case 'WORKREQ':
+                    return 'bg-primary'
+                  case 'SURVEYSTART':
+                  case 'SURVEYDONE':
+                  case 'WORKSTART':
+                  case 'WIP':
+                    return 'bg-calendar-order-wip'
                   case 'WORKEND':
                     return 'bg-calendar-order-done'
                   case 'RESCHEDULE':
@@ -271,10 +279,18 @@ const ViewCalendarVendor: React.FC = () => {
 
                 <tbody>
                   <tr>
-                    <td>Order sedang dalam pengerjaan</td>
+                    <td>Order permintaan survey/pengerjaan</td>
 
                     <td>
                       <div className='box-primary'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order sedang survey/pengerjaan</td>
+
+                    <td>
+                      <div className='box-brown'></div>
                     </td>
                   </tr>
 
