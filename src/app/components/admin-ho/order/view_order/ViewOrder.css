@@ -82,3 +82,9 @@
     width: 100%;
   }
 }
+
+@media screen and (max-width: 576px) {
+  #view-order .form-control.p-0.css-b62m3t-container {
+    width: 100% !important;
+  }
+}

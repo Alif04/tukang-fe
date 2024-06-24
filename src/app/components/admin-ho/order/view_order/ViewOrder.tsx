@@ -2272,7 +2272,7 @@ const ViewOrders: FC = () => {
         )
       },
       fixed: 'right',
-      width: 110,
+      width: 130,
     },
   ]
 
