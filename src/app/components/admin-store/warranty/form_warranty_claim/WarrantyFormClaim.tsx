@@ -122,7 +122,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
       formData.append('complaint_date', date)
       formData.append('complaint_channel', complantChannel.toString())
       formData.append('complaint_status', complaintStatus)
-      formData.append('type', String(1))
+      formData.append('type', String(2))
 
       await axios
         .post(`${apiUrl}/complaints`, formData, {
@@ -165,23 +165,6 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
           })
         })
     }
-  }
-
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
   }
 
   return (
@@ -419,7 +402,9 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
                         )}
@@ -691,7 +676,9 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                          <td className=' fw-bolder'>{`Rp. ${Number(
+                            orderDetail?.grand_total
+                          ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
                     </Table>

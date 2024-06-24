@@ -35,6 +35,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const userStore = localStorage.getItem('storeId')
+  const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -204,7 +205,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
   ]
 
   const fetchRefundList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/refund?order_by=desc&store_id=${userStore}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/refund?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {

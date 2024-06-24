@@ -213,22 +213,6 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
     }
   }
 
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   return (
     <section id='warranty-form'>
       <div className='card mb-5'>
@@ -509,7 +493,9 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
                         )}
@@ -781,7 +767,9 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                          <td className=' fw-bolder'>{`Rp. ${Number(
+                            orderDetail?.grand_total
+                          ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
                     </Table>

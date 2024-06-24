@@ -437,7 +437,6 @@ const UpdateRefundHO: FC = () => {
             </div>
 
             {/* New */}
-
             {(() => {
               if (
                 refundDetail?.orders?.payment_type === 'survey' ||

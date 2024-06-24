@@ -90,24 +90,6 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     navigate(`/order/update-order/${params.id}`)
   }
 
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   return (
     <section id='printout-order'>
       <Card>
@@ -251,7 +233,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             <hr className='line-4' />
 
             <Row className='mt-2 d-flex justify-content-end align-items-end'>
-              <h4>Total : {calculateTotal(orderDetail)}</h4>
+              <h4>Total : {`Rp. ${Number(orderDetail?.grand_total).toLocaleString('id')}`}</h4>
             </Row>
 
             <Row className='receipt-id mb-5'>

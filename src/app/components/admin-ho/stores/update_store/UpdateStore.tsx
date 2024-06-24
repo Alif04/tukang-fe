@@ -64,12 +64,8 @@ const UpdateStores: FC = () => {
     label: '',
   })
 
-  // Bank
-  // const [bank, setBank] = useState<Bank[]>([])
-  // const [selectedBank, setSelectedBank] = useState<SingleValue<Bank>>({
-  //   value: null,
-  //   label: '',
-  // })
+  console.log('store info', storeInfo)
+  console.log('selected area', selectedArea)
 
   // Fetch API Data
   useEffect(() => {
@@ -125,19 +121,6 @@ const UpdateStores: FC = () => {
                 label: data?.area?.area,
               }))
             }
-
-            // if (data) {
-            //   setStoreInfo((prev) => ({
-            //     ...prev,
-            //     bank_id: data?.bank_id,
-            //   }))
-
-            //   setSelectedBank((prev) => ({
-            //     ...prev,
-            //     value: data?.id,
-            //     label: data?.bank_name,
-            //   }))
-            // }
 
             if (data) {
               setStoreInfo((prev) => ({

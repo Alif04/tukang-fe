@@ -204,24 +204,6 @@ const DetailOrderWithoutAuth = () => {
     },
   ]
 
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   return (
     <div className='wrapper d-flex flex-column flex-row-fluid' id='page_without_order'>
       <div
@@ -530,7 +512,9 @@ const DetailOrderWithoutAuth = () => {
                                     Grand Total
                                   </td>
 
-                                  <td className=' fw-bolder'>{calculateTotal(order)}</td>
+                                  <td className=' fw-bolder'>{`Rp. ${Number(
+                                    order?.grand_total
+                                  ).toLocaleString('id')}`}</td>
                                 </tr>
                               </>
                             )}
@@ -820,7 +804,9 @@ const DetailOrderWithoutAuth = () => {
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{calculateTotal(order)}</td>
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                order?.grand_total
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </tbody>
                         </Table>
