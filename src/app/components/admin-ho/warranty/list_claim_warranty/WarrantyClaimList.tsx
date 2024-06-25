@@ -36,7 +36,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const vendorId = userVendor ? `&vendor_id=${userVendor}` : ''
   const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
 
-  const [claimWarrantyData, setclaimWarrantyData] = useState<DataType[]>([])
+  const [claimWarrantyData, setClaimWarrantyData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -249,7 +249,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
   const fetchData = async (page: number, pageSize: number, queryparams: any) => {
     const data = await ViewWorkOrder(page, pageSize, queryparams)
-    setclaimWarrantyData(data)
+    setClaimWarrantyData(data)
   }
 
   useEffect(() => {
@@ -268,9 +268,20 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ''
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
-    await fetchWorkOrderList(1, 10, queryparams)
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    const data = await ViewWorkOrder(1, 10, queryparams)
+    setClaimWarrantyData(data)
 
     setLoadingButton(false)
   }

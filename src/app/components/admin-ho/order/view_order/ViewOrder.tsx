@@ -97,6 +97,7 @@ interface Quotation {
   quotation_promotion: number
   quotation_grand_total: number
   readiness: number
+  receipt_quotation: string
   quotation_details: Array<{
     id: number | null
     index: string
@@ -301,6 +302,7 @@ const ViewOrders: FC = () => {
               quotation_promotion: data?.quotation[0]?.quotation_promotion,
               quotation_grand_total: data?.quotation[0]?.quotation_grand_total,
               readiness: data?.quotation[0]?.readiness,
+              receipt_quotation: data?.quotation[0]?.receipt_quotation,
               quotation_details: quotationDetails,
             }))
           }
@@ -415,96 +417,6 @@ const ViewOrders: FC = () => {
     getCSI()
   }, [])
 
-  const cancelOrderHandler = async (id: number) => {
-    await fetchOrderData(id)
-
-    const formData = new FormData()
-    const appendIfNotDefault = (formData: any, key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        formData.append(key, String(value))
-      }
-    }
-
-    formData.append('order_id', String(orderForm?.id))
-    formData.append('project_status_id', cancelOrder?.value)
-
-    orderForm.order_details.forEach((item, index) => {
-      if (item) {
-        appendIfNotDefault(formData, `order_details[${index}][id]`, item.id)
-        appendIfNotDefault(formData, `order_details[${index}][item_id]`, item.item_id)
-        appendIfNotDefault(formData, `order_details[${index}][item_code]`, item.item_code)
-        appendIfNotDefault(formData, `order_details[${index}][item_name]`, item.item_name)
-        appendIfNotDefault(formData, `order_details[${index}][item_notes]`, item.item_notes)
-        appendIfNotDefault(formData, `order_details[${index}][quantity]`, item.quantity)
-      }
-    })
-
-    Swal.fire({
-      title: 'Apakah anda yakin akan membatalkan orderan ini dan melakukan refund?',
-      icon: 'warning',
-      showConfirmButton: true,
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Ya',
-      cancelButtonText: 'Tidak',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          setLoadingButton(true)
-          const response = await axios.post(`${apiUrl}/orders/${orderForm?.id}`, formData, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-
-          setLoadingButton(false)
-          setLoadData(true)
-
-          if (response.status === 200) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Orderan berhasil dibatalkan.',
-              showConfirmButton: false,
-              timer: 1500,
-            }).then(() => {
-              navigate(`/refund/new-refund/${id}`)
-            })
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: response.data.message,
-              showConfirmButton: false,
-              timer: 1500,
-            })
-          }
-        } catch (error) {
-          console.error(error)
-        }
-      }
-    })
-  }
-
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   // Modal
   const [loadingUpdate, setLoadingUpdate] = useState(false)
   const [loadingModal, setLoadingModal] = useState(true)
@@ -535,6 +447,7 @@ const ViewOrders: FC = () => {
     quotation_promotion: 0,
     quotation_grand_total: 0,
     readiness: 1,
+    receipt_quotation: '',
     quotation_details: [
       {
         id: null,
@@ -590,6 +503,14 @@ const ViewOrders: FC = () => {
   const [visible, setVisible] = useState(false)
 
   // Upload Order File Handler
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [quotation.receipt_quotation])
+
   const handleReceiptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
 
@@ -744,7 +665,7 @@ const ViewOrders: FC = () => {
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
               item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+              !['WORKSTART', 'WORKEND'].includes(
                 item?.work_orders?.work_order_status[0]?.status?.category
               )
             ) {
@@ -764,7 +685,7 @@ const ViewOrders: FC = () => {
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
               item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+              !['WORKSTART', 'WORKEND'].includes(
                 item?.work_orders?.work_order_status[0]?.status?.category
               )
             ) {
@@ -842,6 +763,69 @@ const ViewOrders: FC = () => {
     setLoadingButton(false)
   }
 
+  // Modal Handler
+  const handleCancelRefund = async (type: number) => {
+    setLoadingButton(true)
+    const formData = new FormData()
+
+    const appendIfNotDefault = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
+      }
+    }
+
+    formData.append('order_id', String(orderForm?.id))
+    formData.append('project_status_id', cancelOrder?.value)
+
+    orderForm.order_details.forEach((item, index) => {
+      if (item) {
+        appendIfNotDefault(`order_details[${index}][id]`, item.id)
+        appendIfNotDefault(`order_details[${index}][item_id]`, item.item_id)
+        appendIfNotDefault(`order_details[${index}][item_code]`, item.item_code)
+        appendIfNotDefault(`order_details[${index}][item_name]`, item.item_name)
+        appendIfNotDefault(`order_details[${index}][item_notes]`, item.item_notes)
+        appendIfNotDefault(`order_details[${index}][quantity]`, item.quantity)
+      }
+    })
+
+    try {
+      const response = await axios.post(`${apiUrl}/orders/${orderForm?.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Orderan berhasil dibatalkan.',
+          showConfirmButton: false,
+          timer: 1500,
+        }).then(() => {
+          setLoadingButton(false)
+          if (type === 1) {
+            navigate(`/refund/new-refund/${orderForm?.id}`)
+          } else if (type === 2) {
+            window.location.reload()
+          }
+        })
+      } else {
+        setLoadingButton(false)
+        Swal.fire({
+          icon: 'error',
+          title: response.data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        })
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const handleUpdateQuotation = async () => {
     setLoadingUpdate(true)
     const formData = new FormData()
@@ -861,6 +845,7 @@ const ViewOrders: FC = () => {
     formData.append('quotation_disc', String(quotation.quotation_disc))
     formData.append('quotation_promotion', String(quotation.quotation_promotion))
     formData.append('readiness', String(4))
+    formData.append('receipt_quotation', quotation.receipt_quotation)
 
     quotation.quotation_details.forEach((quotation, index) => {
       appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)
@@ -1235,7 +1220,9 @@ const ViewOrders: FC = () => {
                                       Grand Total
                                     </td>
 
-                                    <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                                    <td className=' fw-bolder'>{`Rp. ${Number(
+                                      orderDetail?.grand_total
+                                    ).toLocaleString('id')}`}</td>
                                   </tr>
                                 </>
                               )}
@@ -1411,7 +1398,7 @@ const ViewOrders: FC = () => {
                         </div>
                       )
                     } else if (
-                      ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                      ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                         orderDetail?.work_orders?.work_order_status[0]?.status?.category
                       ) &&
                       orderDetail?.payment_type === 'survey' &&
@@ -1532,7 +1519,9 @@ const ViewOrders: FC = () => {
                                   Grand Total
                                 </td>
 
-                                <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  orderDetail?.grand_total
+                                ).toLocaleString('id')}`}</td>
                               </tr>
                             </tbody>
                           </table>
@@ -1856,6 +1845,24 @@ const ViewOrders: FC = () => {
 
           <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
             <Row>
+              <Form.Group className='mb-5'>
+                <Form.Label className='title'>Receipt Transaksi</Form.Label>
+                <Form.Control
+                  ref={inputRef}
+                  type='text'
+                  placeholder='Isi nomor receipt transaksi..'
+                  value={quotation.receipt_quotation}
+                  onChange={(e) =>
+                    setQuotation((prev) => ({
+                      ...prev,
+                      receipt_quotation: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Group>
+            </Row>
+
+            <Row>
               <Col md={6}>
                 <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
                   <Form.Group>
@@ -2041,6 +2048,488 @@ const ViewOrders: FC = () => {
     )
   }
 
+  // Refund Modal
+  const RefundModal = ({orderDetail, loadingModal}: any) => {
+    return (
+      <>
+        <Modal.Header closeButton>
+          <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+            <Modal.Title>Permintaan Refund - Order ID {orderDetail?.id}</Modal.Title>
+          </Skeleton>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='mb-5'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-bold'>
+                  Nama Toko :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-bold'>
+                  Quotation ID :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>
+                    {orderDetail?.quotation?.length ? orderDetail?.quotation[0]?.id : ''}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-bold'>
+                  Receipt Number :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-bold'>
+                  Order Status :
+                  <span className='fs-6 ms-2 fw-bold text-success'>
+                    {orderDetail?.status?.description}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Row className='mb-5'>
+            <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+              <div className='fs-4 fw-bold mb-1'>Informasi Pembeli</div>
+            </Skeleton>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 2}}>
+                <Form.Label className='fs-6 fw-semibold'>
+                  No Member :{' '}
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.member_number}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Customer Name :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.full_name} </span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Alamat Pemasangan :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_address} </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Nomor Telp/WA :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.project_number}</span>
+                </Form.Label>
+                <br></br>
+                <Form.Label className='fs-6 fw-semibold'>
+                  Alamat Email :
+                  <span className='fs-6 ms-2 fw-normal'>{orderDetail?.members?.email} </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Skeleton active loading={loadingModal} paragraph={{rows: 3}}>
+            {(() => {
+              if (
+                (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
+                (orderDetail?.work_orders?.work_order_status.length === 1 &&
+                  orderDetail?.payment_type === 'survey')
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item_notes}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
+                          </>
+                        ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Biaya Survey
+                          </td>
+
+                          <td className=' fw-bolder'>Rp. 99.000</td>
+                        </tr>
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Grand Total
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              } else if (
+                ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
+                orderDetail?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Final Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 2)
+                          .map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+
+                    {orderDetail?.quotation[0]?.quotation_details.filter(
+                      (x: any) => x.item_type === 1
+                    ).length ? (
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Jasa
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Material
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 1)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              {`${
+                                orderDetail?.quotation[0]?.promotion
+                                  ? `Additional Promotion (${orderDetail?.quotation[0]?.promotion?.name})`
+                                  : `Additional Promotion`
+                              }`}
+                            </td>
+
+                            <td className=' fw-bolder'>
+                              {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
+                                ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
+                                : `Rp. ${parseInt(
+                                    orderDetail?.quotation[0]?.promotion?.promotion
+                                  ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                )
+              } else if (
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
+                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                ) &&
+                orderDetail?.payment_type === 'survey' &&
+                orderDetail?.work_orders?.work_order_status.length >= 1
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          <th>Satuan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                          orderDetail.work_orders.work_order_status[0].work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>
+                                  {item.name ?? ''}{' '}
+                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item.quantity ?? 0}</td>
+                                <td>{item.unit ?? ''}</td>
+                              </tr>
+                            )
+                          )
+                        ) : (
+                          <tr>
+                            <td>Item belum diset oleh Tukang/Vendor</td>
+                            <td>Quantity belum diset oleh Tukang/Vendor</td>
+                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              } else if (
+                orderDetail?.payment_type === 'gratis' ||
+                orderDetail?.payment_type === 'pemasangan_tanpa_survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <>
+                        <Form.Text className='fs-8 text-dark'>
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                          toko sehingga dikenakan biaya tambahan
+                        </Form.Text>
+                      </>
+                    )}
+
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          {!(orderDetail?.payment_type === 'gratis') && (
+                            <>
+                              <th>Harga Jasa</th>
+                              <th>Jumlah</th>
+                            </>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orderDetail?.order_details.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              {!(orderDetail?.payment_type === 'gratis') && (
+                                <>
+                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </>
+                              )}
+                            </tr>
+                          </>
+                        ))}
+
+                        {orderDetail?.is_overdistance === 1 && (
+                          <>
+                            <tr>
+                              <td
+                                colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                                className='text-end fw-bolder align-middle'
+                              >
+                                Biaya Tambahan
+                              </td>
+
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.additional_fee
+                              ).toLocaleString('id')}`}</td>
+                            </tr>
+                          </>
+                        )}
+
+                        <tr>
+                          <td
+                            colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
+                            className='text-end fw-bolder'
+                          >
+                            Grand Total
+                          </td>
+
+                          <td className=' fw-bolder'>{`Rp. ${Number(
+                            orderDetail?.grand_total
+                          ).toLocaleString('id')}`}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              }
+            })()}
+          </Skeleton>
+
+          <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+            <div className='button-submit d-flex justify-content-center align-items-center'>
+              <Button
+                className='d-flex justify-content-center align-items-center'
+                onClick={() => handleCancelRefund(1)}
+                variant='dark-primary'
+              >
+                Cancel & Refund
+              </Button>
+
+              <Button
+                className='d-flex justify-content-center align-items-center'
+                onClick={() => handleCancelRefund(2)}
+                variant='dark-primary'
+              >
+                Cancel & Not Refund
+              </Button>
+            </div>
+          </Skeleton>
+        </Modal.Body>
+      </>
+    )
+  }
+
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
@@ -2187,7 +2676,7 @@ const ViewOrders: FC = () => {
                 <Button
                   className='button-cancel'
                   variant='danger'
-                  onClick={() => cancelOrderHandler(record.order_id)}
+                  onClick={() => handleShowModal(id, 3)}
                 >
                   <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
                 </Button>
@@ -2427,6 +2916,8 @@ const ViewOrders: FC = () => {
               handleRemoveFile={handleRemoveFile}
             />
           )}
+
+          {modalType === 3 && <RefundModal orderDetail={orderDetail} loadingModal={loadingModal} />}
         </Modal>
       )}
     </section>
