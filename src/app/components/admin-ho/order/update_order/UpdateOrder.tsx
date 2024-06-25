@@ -1306,6 +1306,22 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   />
                 </Col>
               </Form.Group>
+
+              {orderDetail?.quotation[0]?.receipt_quotation && (
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label column sm='4'>
+                    Receipt Transaksi
+                  </Form.Label>
+                  <Col sm='8'>
+                    <Form.Control
+                      type='text'
+                      value={orderDetail?.quotation[0]?.receipt_quotation}
+                      readOnly={['QUOTEOUT'].includes(orderDetail?.status?.category) ? true : false}
+                      onChange={(e) => orderFormHandler(e)}
+                    />
+                  </Col>
+                </Form.Group>
+              )}
             </div>
           </div>
 

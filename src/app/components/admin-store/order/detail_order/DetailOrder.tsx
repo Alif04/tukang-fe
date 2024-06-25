@@ -318,6 +318,15 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       Receipt Number :
                       <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number ?? '-'}</span>
                     </Form.Label>
+
+                    {order?.quotation[0]?.receipt_quotation && (
+                      <Form.Label className='fs-4 fw-bold'>
+                        Receipt Transaksi :
+                        <span className='fs-4 ms-2 fw-normal'>
+                          {order?.quotation[0]?.receipt_quotation ?? '-'}
+                        </span>
+                      </Form.Label>
+                    )}
                   </Skeleton>
                 </Col>
 
