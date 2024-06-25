@@ -279,9 +279,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               case 'WORKSTART':
                 color = 'blue'
                 break
-              case 'WIP':
-                color = 'blue'
-                break
               case 'WORKEND':
                 color = 'blue'
                 break
@@ -309,7 +306,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
             {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
             {text: 'WORKREQ', value: 'WORKREQ'},
             {text: 'WORKSTART', value: 'WORKSTART'},
-            {text: 'WIP', value: 'WIP'},
             {text: 'WORKEND', value: 'WORKEND'},
             {text: 'QUOTEIN', value: 'QUOTEIN'},
             {text: 'QUOTEOUT', value: 'QUOTEOUT'},
@@ -588,7 +584,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               case 'QUOTE OUT':
               case 'WORKREQ':
               case 'WORKSTART':
-              case 'WIP':
               case 'WORKEND':
               case 'CISOUT':
                 color = 'green'
@@ -726,7 +721,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               case 'QUOTE OUT':
               case 'WORKREQ':
               case 'WORKSTART':
-              case 'WIP':
               case 'WORKEND':
               case 'CISOUT':
                 color = 'green'

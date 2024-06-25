@@ -177,9 +177,6 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
           case 'WORKSTART':
             color = 'blue'
             break
-          case 'WIP':
-            color = 'blue'
-            break
           case 'WORKEND':
             color = 'blue'
             break
@@ -207,7 +204,6 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
         {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
         {text: 'WORKREQ', value: 'WORKREQ'},
         {text: 'WORKSTART', value: 'WORKSTART'},
-        {text: 'WIP', value: 'WIP'},
         {text: 'WORKEND', value: 'WORKEND'},
         {text: 'QUOTEIN', value: 'QUOTEIN'},
         {text: 'QUOTEOUT', value: 'QUOTEOUT'},

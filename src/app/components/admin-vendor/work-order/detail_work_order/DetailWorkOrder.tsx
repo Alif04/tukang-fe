@@ -118,7 +118,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -217,7 +217,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             } else if (
                               ['WORKREQ'].includes(orderDetail?.status?.category) &&
                               orderDetail?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                              !['WORKSTART', 'WORKEND'].includes(
                                 orderDetail?.work_orders?.work_order_status[0]?.status?.category
                               )
                             ) {
@@ -355,7 +355,6 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   {[
                     'WORKREQ',
                     'WORKSTART',
-                    'WIP',
                     'WORKEND',
                     'REWORK',
                     'REWORKSTART',
@@ -729,7 +728,6 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     'SURVEYDONE',
                     'WORKREQ',
                     'WORKSTART',
-                    'WIP',
                     'WORKEND',
                     'DONE',
                   ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
@@ -774,7 +772,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     </div>
                   )
                 } else if (
-                  ['WORKREQ', 'WIP', 'WORKEND', 'DONE'].includes(
+                  ['WORKREQ', 'WORKEND', 'DONE'].includes(
                     orderDetail?.work_orders?.work_order_status[0]?.status?.category
                   ) &&
                   orderDetail?.work_orders?.work_order_status.length >= 1 &&

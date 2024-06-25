@@ -157,7 +157,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
           case 'QUOTE OUT':
           case 'WORKREQ':
           case 'WORKSTART':
-          case 'WIP':
           case 'WORKEND':
           case 'CISOUT':
             color = 'green'

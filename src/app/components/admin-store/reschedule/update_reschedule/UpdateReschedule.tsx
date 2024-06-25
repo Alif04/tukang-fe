@@ -601,7 +601,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                   rescheduleDetail?.order?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 rescheduleDetail?.order?.work_orders?.work_order_status.length > 1 &&

@@ -90,9 +90,7 @@ const ViewCalendarTukang: React.FC = () => {
                   } else if (
                     ['WORKREQ'].includes(item?.order?.status?.category) &&
                     item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                      item?.work_order_status[0]?.status?.category
-                    )
+                    !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
                   ) {
                     return item?.order?.status?.category
                   } else {
@@ -111,7 +109,6 @@ const ViewCalendarTukang: React.FC = () => {
                   case 'SURVEYSTART':
                   case 'SURVEYDONE':
                   case 'WORKSTART':
-                  case 'WIP':
                     return 'bg-calendar-order-wip'
                   case 'WORKEND':
                     return 'bg-calendar-order-done'
@@ -448,7 +445,6 @@ const ViewCalendarTukang: React.FC = () => {
                 {[
                   'WORKREQ',
                   'WORKSTART',
-                  'WIP',
                   'WORKEND',
                   'REWORK',
                   'REWORKSTART',
@@ -672,7 +668,7 @@ const ViewCalendarTukang: React.FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WORKSTART', 'WORKEND', 'DONE'].includes(
                   selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.status
                     ?.category
                 ) &&

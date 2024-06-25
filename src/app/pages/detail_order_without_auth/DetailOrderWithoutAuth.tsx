@@ -164,7 +164,7 @@ const DetailOrderWithoutAuth = () => {
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -684,7 +684,7 @@ const DetailOrderWithoutAuth = () => {
                       </div>
                     )
                   } else if (
-                    ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                    ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                       order?.work_orders?.work_order_status[0]?.status?.category
                     ) &&
                     order?.payment_type === 'survey' &&

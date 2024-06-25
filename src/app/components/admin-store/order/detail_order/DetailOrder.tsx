@@ -172,7 +172,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -333,7 +333,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             } else if (
                               ['WORKREQ'].includes(order?.status?.category ?? '') &&
                               order?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                              !['WORKSTART', 'WORKEND'].includes(
                                 order?.work_orders?.work_order_status[0]?.status?.category ?? ''
                               )
                             ) {
@@ -723,7 +723,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     </div>
                   )
                 } else if (
-                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                     order?.work_orders?.work_order_status[0]?.status?.category
                   ) &&
                   order?.payment_type === 'survey' &&

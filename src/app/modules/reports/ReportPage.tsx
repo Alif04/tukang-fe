@@ -142,7 +142,7 @@ const RefundPage: React.FC = () => {
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER ON PROGRESS</PageTitle>
-            <TotalOrderReportStore className='' statusName='WIP' />
+            <TotalOrderReportStore className='' statusName='WORKSTART' />
           </>
         }
       />
@@ -300,7 +300,7 @@ const RefundPage: React.FC = () => {
 
             <ReportHO
               endpoint='orders'
-              statusName='WIP'
+              statusName='WORKSTART'
               headerColor='primary'
               title='Laporan On Progress ( Omset )'
             />
@@ -1117,7 +1117,7 @@ const RefundPage: React.FC = () => {
 
             <ReportVendor
               endpoint='orders'
-              statusName='WIP'
+              statusName='WORKSTART'
               headerColor='primary'
               title='Laporan On Progress ( Omset )'
             />
@@ -1478,7 +1478,7 @@ const RefundPage: React.FC = () => {
 
             <ReportTukang
               endpoint='orders'
-              statusName='WIP'
+              statusName='WORKSTART'
               headerColor='primary'
               title='Laporan On Progress ( Omset )'
             />

@@ -31,7 +31,6 @@ const NewInvoiceVendor: FC = () => {
       [
         'SURVEYSTART',
         'WORKSTART',
-        'WIP',
         'WORKEND',
         'INVESTIGATE',
         'REWORK',

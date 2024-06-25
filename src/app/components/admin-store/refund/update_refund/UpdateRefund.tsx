@@ -685,7 +685,7 @@ const UpdateRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                   refundDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 refundDetail?.orders?.payment_type === 'survey' &&

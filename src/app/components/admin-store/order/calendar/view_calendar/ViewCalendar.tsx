@@ -98,7 +98,7 @@ const ViewCalendarCS: React.FC = () => {
                   } else if (
                     ['WORKREQ'].includes(item?.status?.category) &&
                     item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                    !['WORKSTART', 'WORKEND'].includes(
                       item?.work_orders?.work_order_status[0]?.status?.category
                     )
                   ) {
@@ -122,7 +122,6 @@ const ViewCalendarCS: React.FC = () => {
                   case 'SURVEYDONE':
                   case 'WORKREQ':
                   case 'WORKSTART':
-                  case 'WIP':
                     return 'bg-calendar-order-wip'
                   case 'WORKEND':
                     return 'bg-calendar-order-done'
@@ -200,7 +199,7 @@ const ViewCalendarCS: React.FC = () => {
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -771,7 +770,7 @@ const ViewCalendarCS: React.FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                   selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 selectedOrder?.order_detail?.payment_type === 'survey' &&

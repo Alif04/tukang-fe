@@ -59,7 +59,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -162,7 +162,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                                 workOrderDetail?.order?.status?.category ?? ''
                               ) &&
                               workOrderDetail?.order?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                              !['WORKSTART', 'WORKEND'].includes(
                                 workOrderDetail?.work_order_status[0]?.status?.category ?? ''
                               )
                             ) {
@@ -316,7 +316,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                   {[
                     'WORKSTART',
                     'WORKREQ',
-                    'WIP',
                     'WORKEND',
                     'REWORK',
                     'REWORKSTART',
@@ -570,7 +569,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     'SURVEYDONE',
                     'WORKREQ',
                     'WORKSTART',
-                    'WIP',
                     'WORKEND',
                     'DONE',
                   ].includes(workOrderDetail?.work_order_status[0]?.status?.category) &&

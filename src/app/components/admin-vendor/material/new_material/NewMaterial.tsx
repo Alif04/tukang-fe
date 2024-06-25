@@ -103,7 +103,7 @@ const NewMaterialVendor: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
-      ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(
+      ['SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(
         status.category
       )
     )
@@ -227,7 +227,7 @@ const NewMaterialVendor: FC = () => {
       const storedStatus = sessionStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
       const desiredStatus = statusData.filter((status: Status) =>
-        ['WORKSTART', 'WIP', 'WORKEND', 'RIP', 'REWORKEND'].includes(status.category)
+        ['WORKSTART', 'WORKEND', 'RIP', 'REWORKEND'].includes(status.category)
       )
 
       const selectedStatus = desiredStatus.map((status: Status) => ({

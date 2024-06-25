@@ -248,9 +248,7 @@ const UpdateInvoiceVendor: FC = () => {
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
               item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                item?.work_order_status[0]?.status?.description
-              )
+              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.description)
             ) {
               return item?.status?.description
             } else {
