@@ -11,6 +11,22 @@ type Props = {
 
 const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage}) => {
   const filteredOrderData = orderData?.slice(0, 4)
+  const calculateTotal = (orderDetail: any) => {
+    const {payment_type, status, grand_total} = orderDetail ?? {}
+
+    let totalAmount = 0
+
+    if (
+      ['QUOTEIN', 'QUOTEOUT', 'WORKREQ'].includes(status?.category) &&
+      payment_type === 'survey'
+    ) {
+      totalAmount = orderDetail?.quotation[0]?.quotation_grand_total
+    } else {
+      totalAmount = grand_total
+    }
+
+    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
+  }
 
   return (
     <div className={`card ${className}`}>
@@ -55,9 +71,7 @@ const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage})
                   </div>
 
                   <div className='d-flex flex-column align-items-end'>
-                    <span className='fw-bold text-success'>{`Rp. ${
-                      parseInt(item?.grand_total).toLocaleString('id') ?? 0
-                    }`}</span>
+                    <span className='fw-bold text-success'>{calculateTotal(item)}</span>
                     <span className='fw-bold text-dark'>{item?.status?.description ?? ''}</span>
                   </div>
                 </div>
