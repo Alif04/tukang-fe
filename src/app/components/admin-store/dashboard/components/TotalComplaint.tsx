@@ -4,15 +4,16 @@ import React from 'react'
 
 type Props = {
   className: string
-  orderData: any[]
+  chartOrder: any
   loadingPage: boolean
 }
 
-const getStatusCount = (orderData: any[], status: string): number => {
-  return orderData?.filter((order) => order?.status?.category === status)?.length ?? 0
-}
+const TotalComplaint: React.FC<Props> = ({className, loadingPage, chartOrder}) => {
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
-const TotalComplaint: React.FC<Props> = ({className, orderData, loadingPage}) => {
+  const waitingQuotations = sumTotal(chartOrder, 'totalWaitingQuotation')
+
   return (
     <div className={`card ${className}`}>
       <div className='card-body'>
@@ -20,7 +21,7 @@ const TotalComplaint: React.FC<Props> = ({className, orderData, loadingPage}) =>
           <Skeleton active loading={loadingPage}>
             <div className='d-flex flex-column gap-4'>
               <div className='fs-5 text-center fw-bold text-muted'>Menunggu Quotation</div>
-              <div className='fs-1 d-block m-auto'>{getStatusCount(orderData, 'QUOTEIN')}</div>
+              <div className='fs-1 d-block m-auto'>{waitingQuotations}</div>
               <div className='fs-5 text-center d-block m-auto text-muted'>
                 Menunggu Quotation Vendor
               </div>

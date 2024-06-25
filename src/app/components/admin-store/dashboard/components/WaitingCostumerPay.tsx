@@ -8,17 +8,13 @@ type Props = {
   className: string
   chartColor: string
   chartHeight: string
-  orderData: any[]
+  chartOrder: any
 }
 
-const getStatusCount = (orderData: any[]): number => {
-  return (
-    orderData?.filter((order) => order.receipt_number === null && order.payment_type !== 'gratis')
-      .length ?? 0
-  )
-}
+const sumTotal = (data: any, key: string) =>
+  data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
-const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight, orderData}) => {
+const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight, chartOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -27,7 +23,10 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartColor, chartHeight, orderData))
+    const chart = new ApexCharts(
+      chartRef.current,
+      chartOptions(chartColor, chartHeight, chartOrder)
+    )
     if (chart) {
       chart.render()
     }
@@ -44,7 +43,9 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode, orderData])
+  }, [chartRef, mode, chartOrder])
+
+  const totalUnpaid = sumTotal(chartOrder, 'totalUnpaid')
 
   return (
     <div className={`card ${className}`}>
@@ -52,7 +53,7 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
         <div className='d-flex align-items-center gap-5'>
           <div className='d-flex flex-column gap-5'>
             <div className='fs-5 text-dark text-muted'>Menunggu Bayar</div>
-            <div className='fs-1 d-block m-auto'>{getStatusCount(orderData)}</div>
+            <div className='fs-1 d-block m-auto'>{totalUnpaid}</div>
             <div className='fs-5 text-muted'>Menunggu pembayaran Customer</div>
           </div>
 
@@ -63,9 +64,9 @@ const WaitingCostumerPay: React.FC<Props> = ({className, chartColor, chartHeight
   )
 }
 
-const chartOptions = (chartColor: string, chartHeight: string, orderData: any): ApexOptions => {
-  const unpaidCount = getStatusCount(orderData)
-  const totalOrders = orderData?.length
+const chartOptions = (chartColor: string, chartHeight: string, chartOrder: any): ApexOptions => {
+  const unpaidCount = sumTotal(chartOrder, 'totalUnpaid')
+  const totalOrders = sumTotal(chartOrder, 'totalOrders')
 
   const percentageUnpaidOrder = totalOrders > 0 ? Math.round((unpaidCount / totalOrders) * 100) : 0
 

@@ -136,6 +136,7 @@ const DashboardStore: FC = () => {
     const data = await getOrder(queryparams)
     setOrderData(data)
 
+    await getSales()
     await getReportOrder()
 
     setLoadingButton(false)
@@ -208,15 +209,15 @@ const DashboardStore: FC = () => {
           <Row>
             <Col xxl={6} xl={6} lg={12}>
               <TotalComplaint
-                orderData={orderData}
                 className='card-xxl-stretch-50  mb-xl-8 mb-5'
                 loadingPage={isLoadingPage}
+                chartOrder={chartData}
               />
             </Col>
 
             <Col xxl={6} xl={6} lg={12}>
               <TotalReschedule
-                orderData={orderData}
+                chartOrder={chartData}
                 className='card-xxl-stretch-50  mb-xl-8 mb-5'
                 loadingPage={isLoadingPage}
               />
@@ -226,7 +227,7 @@ const DashboardStore: FC = () => {
           <Row>
             <Col>
               <WaitingCostumerPay
-                orderData={orderData}
+                chartOrder={chartData}
                 className='card-xxl-stretch-50 mb-xl-8 mb-5'
                 chartColor='success'
                 chartHeight='150px'
@@ -237,7 +238,7 @@ const DashboardStore: FC = () => {
           <Row>
             <Col>
               <TotalOrderStore
-                orderData={orderData}
+                chartOrder={chartData}
                 className='card-xxl-stretch-50 card-xl-stretch-50 mb-xl-8 mb-5'
                 chartHeight='220px'
               />

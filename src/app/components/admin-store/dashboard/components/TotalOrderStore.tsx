@@ -7,10 +7,13 @@ import {useThemeMode} from '../../../../../_metronic/partials/layout/theme-mode/
 type Props = {
   className: string
   chartHeight: string
-  orderData: any[]
+  chartOrder: any
 }
 
-const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) => {
+const sumTotal = (data: any, key: string) =>
+  data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+const TotalOrderStore: React.FC<Props> = ({className, chartHeight, chartOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -19,7 +22,7 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, orderData))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartOrder))
     if (chart) {
       chart.render()
     }
@@ -36,7 +39,9 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode, orderData])
+  }, [chartRef, mode, chartOrder])
+
+  const totalOrders = sumTotal(chartOrder, 'totalOrder')
 
   return (
     <div className={`card ${className}`}>
@@ -44,7 +49,7 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
         <div className='d-flex align-items-center gap-4'>
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>Jumlah Order</div>
-            <div className='fs-1 d-block m-auto'>{orderData?.length ?? 0}</div>
+            <div className='fs-1 d-block m-auto'>{totalOrders}</div>
           </div>
 
           <div ref={chartRef} className='mixed-widget-10-chart'></div>
@@ -54,26 +59,12 @@ const TotalOrderStore: React.FC<Props> = ({className, chartHeight, orderData}) =
   )
 }
 
-const chartOptions = (chartHeight: string, orderData: any): ApexOptions => {
+const chartOptions = (chartHeight: string, chartOrder: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
-  const completedOrder = orderData?.filter((order: any) =>
-    order?.work_orders?.work_order_status.length > 0
-      ? order?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND'
-      : order?.status?.category === 'WORKEND'
-  ).length
-
-  const canceledOrder = orderData?.filter((order: any) =>
-    order?.work_orders?.work_order_status.length > 0
-      ? order?.work_orders?.work_order_status[0]?.status?.category === 'CANCEL'
-      : order?.status?.category === 'CANCEL'
-  ).length
-
-  const refundOrder = orderData?.filter((order: any) =>
-    order?.work_orders?.work_order_status.length > 0
-      ? order?.work_orders?.work_order_status[0]?.status?.category === 'REFUND'
-      : order?.status?.category === 'REFUND'
-  ).length
+  const completedOrder = sumTotal(chartOrder, 'totalOrderDone')
+  const canceledOrder = sumTotal(chartOrder, 'totalCancel')
+  const refundOrder = sumTotal(chartOrder, 'totalRefund')
 
   const series = [completedOrder, canceledOrder, refundOrder]
   const noDataAvailable = series.every((value) => value === 0)

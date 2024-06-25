@@ -4,15 +4,15 @@ import React from 'react'
 
 type Props = {
   className: string
-  orderData: any[]
+  chartOrder: any
   loadingPage: boolean
 }
 
-const getStatusCount = (orderData: any[], status: string): number => {
-  return orderData?.filter((order) => order?.status?.category === status)?.length ?? 0
-}
+const TotalReschedule: React.FC<Props> = ({className, chartOrder, loadingPage}) => {
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+  const waitingSurvey = sumTotal(chartOrder, 'totalOrderSurvey')
 
-const TotalReschedule: React.FC<Props> = ({className, orderData, loadingPage}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body '>
@@ -22,7 +22,7 @@ const TotalReschedule: React.FC<Props> = ({className, orderData, loadingPage}) =
               <div className='fs-5 text-center fw-bold text-muted'>
                 Menunggu <br></br> Survey
               </div>
-              <div className='fs-1 d-block m-auto'>{getStatusCount(orderData, 'SURVEYREQ')}</div>
+              <div className='fs-1 d-block m-auto'>{waitingSurvey}</div>
               <div className='fs-5 text-center d-block m-auto text-muted'>
                 Menunggu Suvey dari Vendor
               </div>
