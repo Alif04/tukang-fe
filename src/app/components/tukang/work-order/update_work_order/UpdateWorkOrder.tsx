@@ -749,8 +749,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         case 'WORKREQ':
           return 'WORKSTART'
         case 'WORKSTART':
-          return 'WIP'
-        case 'WIP':
           return 'WORKEND'
         default:
           return null
@@ -783,7 +781,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       [
         'SURVEYSTART',
         'SURVEYDONE',
-        'WIP',
+        'WORKSTART',
         'WORKEND',
         'REWORKSTART',
         'RIP',
@@ -1055,7 +1053,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         {[
                           'WORKREQ',
                           'WORKSTART',
-                          'WIP',
                           'WORKEND',
                           'REWORKSTART',
                           'RIP',
@@ -1174,7 +1171,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     {[
                       'SURVEYSTART',
                       'SURVEYDONE',
-                      'WIP',
+                      'WORKSTART',
                       'WORKEND',
                       'REWORKSTART',
                       'RIP',
@@ -1352,7 +1349,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               {[
                 'WORKREQ',
                 'WORKSTART',
-                'WIP',
                 'WORKEND',
                 'REWORK',
                 'REWORKSTART',
@@ -1682,7 +1678,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </div>
               )
             } else if (
-              ['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+              ['WORKREQ', 'WORKSTART', 'WORKEND', 'DONE'].includes(
                 workOrderDetail?.work_order_status[0]?.status?.category
               ) &&
               workOrderDetail?.work_order_status.length >= 2 &&

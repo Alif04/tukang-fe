@@ -1,13 +1,16 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect, useRef} from 'react'
+import {WorkOrderTukang} from '../../../../interfaces/work-order'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import Select from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
+import makeAnimated from 'react-select/animated'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, Image} from 'antd'
 import {
   Row,
@@ -39,7 +42,9 @@ type Props = {
 }
 
 interface DataType {
+  work_order_id: number
   order_id: number
+  existing_tukang: Array<any>
   store_name: string
   date_order: string
   costumer_id: number
@@ -53,6 +58,7 @@ interface DataType {
 const ViewWorkVendor: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const animatedComponents = makeAnimated()
 
   const vendorId = localStorage.getItem('vendor_id')
 
@@ -73,7 +79,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'Order ID',
@@ -104,7 +109,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
-      title: 'Customer ID',
+      title: 'Nomor Member',
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
@@ -114,7 +119,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_id - b.costumer_id,
     },
     {
-      title: 'Customer Name',
+      title: 'Nama Konsumen',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
@@ -165,7 +170,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           case 'QUOTE OUT':
           case 'WORKREQ':
           case 'WORKSTART':
-          case 'WIP':
           case 'WORKEND':
           case 'CISOUT':
             color = 'green'
@@ -189,7 +193,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       key: 'action',
       align: 'center',
       fixed: 'right',
-      width: 80,
+      width: 130,
       render: (record) => {
         const id = record.order_id
 
@@ -206,6 +210,13 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
           if (selected) {
             setModalRequest(true)
+            setTukangRequest((prev: any) => ({
+              ...prev,
+              work_order_id: selected.work_order_id,
+              existing_tukang_id: selected.existing_tukang.map((item: any) => ({
+                id: item.tukang_id,
+              })),
+            }))
           }
         }
 
@@ -353,7 +364,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
               item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+              !['WORKSTART', 'WORKEND'].includes(
                 item?.work_orders?.work_order_status[0]?.status?.category
               )
             ) {
@@ -373,7 +384,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
               item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+              !['WORKSTART', 'WORKEND'].includes(
                 item?.work_orders?.work_order_status[0]?.status?.category
               )
             ) {
@@ -388,6 +399,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         data = {
           order_id: item?.id,
+          work_order_id: item?.work_orders?.id,
           store_name: item?.store?.store_name,
           date_order: orderDate,
           costumer_id: item?.members?.member_number,
@@ -397,6 +409,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           payment_status: paymentStatus,
           order_status: orderStatus,
           order_status_label: orderStatusLabel,
+          existing_tukang: item?.work_orders?.work_order_tukang ?? [],
         }
 
         return data
@@ -414,8 +427,39 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     setOrderData(data)
   }
 
+  const getTukang = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/tukang?vendor_id=${vendorId}&take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempTukang = response.data.data.map((item: any) => ({
+          tukang_id: item.id ?? 0,
+          tukang_name: item.full_name,
+          is_active: item.is_active,
+        }))
+        const filteredTukang = tempTukang.filter((x: any) => x.is_active !== false)
+        setTukang(filteredTukang)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     fetchData(1, 10, '')
+  }, [])
+
+  useEffect(() => {
+    getTukang()
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -453,10 +497,17 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     setModalRequest(false)
   }
 
+  // Replace Tukang
+  const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
   const [tukangRequest, setTukangRequest] = useState<any>({
     work_order_id: null,
+    status_id: 2,
+    existing_tukang_id: null,
+    tukang_id: null,
     notes: '',
   })
+
+  console.log('tukang request', tukangRequest)
 
   // File
   const [files, setFiles] = useState<Array<File | null>>([])
@@ -512,19 +563,35 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   const handleTukangChanges = async () => {
     const formData = new FormData()
 
-    formData.append(`work_order_id`, tukangRequest.work_order_id)
-    formData.append(`notes`, tukangRequest.notes)
+    formData.append(`replace_tukang[0][status]`, tukangRequest.status_id)
+    formData.append(`replace_tukang[0][notes]`, tukangRequest.notes)
+
+    if (tukangRequest.existing_tukang_id?.length) {
+      tukangRequest.existing_tukang_id.forEach((item: any, index: number) => {
+        if (item) {
+          formData.append(`replace_tukang[${index}][id]`, item.id)
+        }
+      })
+    }
+
+    if (tukangRequest.tukang_id?.length) {
+      tukangRequest.tukang_id.forEach((item: any, index: number) => {
+        if (item) {
+          formData.append(`replace_tukang[${index}][tukang_id]`, item.id)
+        }
+      })
+    }
 
     if (files?.length) {
       files.forEach((item) => {
         if (item instanceof Blob) {
-          formData.append(`files`, item, item.name)
+          formData.append(`file`, item, item.name)
         }
       })
     }
 
     await axios
-      .post(`${apiUrl}/tukang/${tukangRequest.work_order_id}`, formData, {
+      .post(`${apiUrl}/work-orders/${tukangRequest.work_order_id}/replace-tukang`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -568,6 +635,25 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   // Preview Image
   const [visible, setVisible] = useState(false)
+
+  // Tukang Request Handler
+  const tukangRequestHandler = (e: any) => {
+    setTukangRequest((prev: any) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  const tukangHandler = (selectedOptions: any) => {
+    const updatedTukang = selectedOptions.map((option: any) => ({
+      id: option.tukang_id,
+    }))
+
+    setTukangRequest((prev: any) => ({
+      ...prev,
+      tukang_id: updatedTukang,
+    }))
+  }
 
   return (
     <section id='view-work-order-vendor'>
@@ -672,18 +758,35 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         </Modal.Header>
 
         <Modal.Body>
+          <Row className='mb-5'>
+            <Form.Group className='tukang-info'>
+              <Form.Label>Tukang</Form.Label>
+
+              <Select
+                classNamePrefix='select'
+                placeholder='Pilih Tukang'
+                closeMenuOnSelect={false}
+                components={animatedComponents}
+                isMulti
+                options={tukang}
+                getOptionValue={(option: WorkOrderTukang) => `${option.tukang_id}`}
+                getOptionLabel={(option: WorkOrderTukang) =>
+                  tukang.find((item) => item.tukang_id === option.tukang_id)?.tukang_name ||
+                  'Pilih Tukang'
+                }
+                onChange={(e) => tukangHandler(e)}
+              />
+            </Form.Group>
+          </Row>
+
           <Row className='notes mb-5'>
             <Form.Group>
               <Form.Label className='fs-5 fw-bold'>Alasan :</Form.Label>
               <Form.Control
+                name='notes'
                 style={{minHeight: '140px'}}
                 as='textarea'
-                onChange={(e) =>
-                  setTukangRequest((prev: any) => ({
-                    ...prev,
-                    notes: e.target.value,
-                  }))
-                }
+                onChange={(e) => tukangRequestHandler(e)}
               />
             </Form.Group>
           </Row>

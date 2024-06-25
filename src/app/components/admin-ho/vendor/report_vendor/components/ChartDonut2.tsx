@@ -59,7 +59,7 @@ const chartOptions = (chartHeight: string, workOrderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
   const workInProgress = workOrderData.filter(
-    (workOrder: any) => workOrder?.status?.category === 'WIP'
+    (workOrder: any) => workOrder?.status?.category === 'WORKSTART'
   ).length
 
   const workDone = workOrderData.filter(

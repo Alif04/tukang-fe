@@ -9,7 +9,6 @@ import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Row, Col, Card, Table} from 'react-bootstrap'
 const {RangePicker} = DatePicker
@@ -31,7 +30,6 @@ interface WorkOrderHistory {
   work_order_status: string
   work_order_status_label: string
   time_range: string
-  // created_at: string
   updated_at: string
   work_date_time: string
   updated_by: string
@@ -148,7 +146,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             if (
               ['WORKREQ'].includes(data?.status?.category) &&
               data?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+              !['WORKSTART', 'WORKEND'].includes(
                 data?.work_orders?.work_order_status[0]?.status?.category
               )
             ) {
@@ -353,14 +351,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   // Format Date
   const today = new Date().toISOString().split('T')[0]
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const formatInputDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -378,7 +368,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           [
             'WORKREQ',
             'WORKSTART',
-            'WIP',
             'WORKEND',
             'REWORK',
             'REWORKSTART',
@@ -392,7 +381,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           [
             'WORKREQ',
             'WORKSTART',
-            'WIP',
             'WORKEND',
             'REWORK',
             'REWORKSTART',
@@ -409,7 +397,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             'SURVEYDONE',
             'WORKREQ',
             'WORKSTART',
-            'WIP',
             'WORKEND',
             'REWORK',
             'REWORKSTART',
@@ -633,81 +620,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       })
   }
 
-  // Work Order History
-  const columns: ColumnsType<WorkOrderHistory> = [
-    {
-      title: 'ID',
-      dataIndex: 'work_order_id',
-      key: 'work_order_id',
-      align: 'center',
-      width: 100,
-      defaultSortOrder: 'descend',
-      sorter: (a, b) => a.work_order_id - b.work_order_id,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'work_order_status_label',
-      key: 'work_order_status_label',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.work_order_status_label.includes(String(value)),
-      sorter: (a, b) => a.work_order_status_label.length - b.work_order_status_label.length,
-    },
-    // {
-    //   title: 'Tanggal Survey',
-    //   dataIndex: 'created_at',
-    //   key: 'created_at',
-    //   align: 'center',
-    //   width: 110,
-    //   onFilter: (value, record) => record.created_at.includes(String(value)),
-    //   sorter: (a, b) => a.created_at.length - b.created_at.length,
-    // },
-    {
-      title: 'Terakhir Update Survey/Pengerjaan',
-      dataIndex: 'updated_at',
-      key: 'updated_at',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.updated_at.includes(String(value)),
-      sorter: (a, b) => a.updated_at.length - b.updated_at.length,
-    },
-    // {
-    //   title: 'Selisih Waktu Update Survey/Pengerjaan',
-    //   dataIndex: 'time_range',
-    //   key: 'time_range',
-    //   align: 'center',
-    //   width: 110,
-    //   onFilter: (value, record) => record.time_range.includes(String(value)),
-    //   sorter: (a, b) => a.time_range.length - b.time_range.length,
-    // },
-    {
-      title: 'Tanggal Pengerjaan',
-      dataIndex: 'work_date_time',
-      key: 'work_date_time',
-      align: 'center',
-      width: 120,
-      onFilter: (value, record) => record.work_date_time.includes(String(value)),
-      sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
-    },
-  ]
-
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   return (
     <section id='update-work-order'>
       <Card className=' mb-5'>
@@ -888,7 +800,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   {[
                     'WORKREQ',
                     'WORKSTART',
-                    'WIP',
                     'WORKEND',
                     'REWORK',
                     'REWORKSTART',
@@ -1089,7 +1000,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                orderDetail?.grand_total
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
                         )}
@@ -1214,7 +1127,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
                               ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
                               : `Rp. ${parseInt(
-                                  orderDetail?.quotation[0]?.promotion?.promotion
+                                  orderDetail?.quotation[0]?.promotion?.promotion ?? 0
                                 ).toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -1254,7 +1167,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   'SURVEYDONE',
                   'WORKREQ',
                   'WORKSTART',
-                  'WIP',
                   'WORKEND',
                   'DONE',
                 ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
@@ -1298,7 +1210,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
                 )
               } else if (
-                ['WORKREQ', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['WORKREQ', 'WORKSTART', 'WORKEND', 'DONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 orderDetail?.work_orders?.work_order_status.length >= 1 &&
@@ -1512,7 +1424,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>{calculateTotal(orderDetail)}</td>
+                          <td className=' fw-bolder'>{`Rp. ${Number(
+                            orderDetail?.grand_total
+                          ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
                     </Table>
