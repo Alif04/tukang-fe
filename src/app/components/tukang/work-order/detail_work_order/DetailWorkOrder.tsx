@@ -488,9 +488,52 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     </div>
                   )
                 } else if (
-                  ['QUOTEIN', 'QUOTEOUT'].includes(
-                    workOrderDetail?.order?.status?.category ?? ''
+                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                    workOrderDetail?.work_order_status[0]?.status?.category
                   ) &&
+                  workOrderDetail?.order?.payment_type === 'survey' &&
+                  workOrderDetail?.work_order_status.length >= 1 &&
+                  workOrderDetail?.order?.quotation?.length === 0
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      <Table hover responsive='md'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
+                            <th>Satuan</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {workOrderDetail?.work_order_status[0]?.work_order_items.length ? (
+                            workOrderDetail?.work_order_status[0]?.work_order_items.map(
+                              (item: any, index: any) => (
+                                <tr key={`${index}-work_order_detail`}>
+                                  <td>
+                                    {item.name ?? ''}{' '}
+                                    {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                  </td>
+                                  <td>{item.quantity ?? 0}</td>
+                                  <td>{item.unit ?? ''}</td>
+                                </tr>
+                              )
+                            )
+                          ) : (
+                            <tr>
+                              <td>Item belum diset oleh Tukang/Vendor</td>
+                              <td>Quantity belum diset oleh Tukang/Vendor</td>
+                              <td>Satuan belum diset oleh Tukang/Vendor</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </Table>
+                    </div>
+                  )
+                } else if (
+                  workOrderDetail?.work_order_status.length >= 1 &&
+                  workOrderDetail?.order?.quotation?.length >= 1 &&
                   workOrderDetail?.order?.payment_type === 'survey'
                 ) {
                   return (
@@ -528,87 +571,47 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                         </tbody>
                       </Table>
 
-                      <Table hover responsive='md'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center' style={{width: '355px'}}>
-                              Material Yang Dibutuhkan
-                            </th>
-
-                            <th className='text-center' style={{width: '100px'}}>
-                              QTY
-                            </th>
-
-                            <th className='text-center' style={{width: '250px'}}>
-                              Satuan
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {workOrderDetail?.order?.quotation[0]?.quotation_details
-                            .filter((x: any) => x.item_type === 1)
-                            .map((item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>
-                                  {item?.name ?? '-'}{' '}
-                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </Table>
-                    </div>
-                  )
-                } else if (
-                  [
-                    'SURVEYREQ',
-                    'SURVEYSTART',
-                    'SURVEYDONE',
-                    'WORKREQ',
-                    'WORKSTART',
-                    'WORKEND',
-                    'DONE',
-                  ].includes(workOrderDetail?.work_order_status[0]?.status?.category) &&
-                  workOrderDetail?.order?.payment_type === 'survey' &&
-                  workOrderDetail?.work_order_status.length >= 2
-                ) {
-                  return (
-                    <div className='table-warranty-content'>
-                      <Table hover responsive='md'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th>Nama Pemasangan</th>
-                            <th>QTY Pemasangan</th>
-                            <th>Satuan</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {workOrderDetail?.work_order_status[0]?.work_order_items.length ? (
-                            workOrderDetail.work_order_status[0].work_order_items.map(
-                              (item: any, index: any) => (
-                                <tr key={`${index}-work_order_detail`}>
-                                  <td>
-                                    {item.name ?? ''}{' '}
-                                    {item.is_customer ? '( Disediakan oleh customer )' : ''}
-                                  </td>
-                                  <td>{item.quantity ?? 0}</td>
-                                  <td>{item.unit ?? ''}</td>
-                                </tr>
-                              )
-                            )
-                          ) : (
+                      {workOrderDetail?.order?.quotation[0]?.quotation_details.filter(
+                        (x: any) => x.item_type === 1
+                      ).length > 0 && (
+                        <Table hover responsive='md'>
+                          <thead className='table-warranty-head'>
                             <tr>
-                              <td>Item belum diset oleh Tukang/Vendor</td>
-                              <td>Quantity belum diset oleh Tukang/Vendor</td>
-                              <td>Satuan belum diset oleh Tukang/Vendor</td>
+                              <th className='text-center' style={{width: '355px'}}>
+                                Material Yang Dibutuhkan
+                              </th>
+
+                              <th className='text-center' style={{width: '100px'}}>
+                                QTY
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Satuan
+                              </th>
                             </tr>
-                          )}
-                        </tbody>
-                      </Table>
+                          </thead>
+
+                          <tbody>
+                            {workOrderDetail?.order?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 1)
+                              .map((item: any, index: any) => (
+                                <tr key={`${index}-quotation`}>
+                                  <td>
+                                    {item?.name ?? '-'}{' '}
+                                    {item?.is_customer === true
+                                      ? '( Disediakan oleh customer )'
+                                      : ''}
+                                  </td>
+                                  <td>{item?.quantity ?? 0}</td>
+                                  <td>{item?.unit ?? '-'}</td>
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </Table>
+                      )}
                     </div>
                   )
                 } else if (
@@ -627,7 +630,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                           </tr>
                         </thead>
                         <tbody>
-                          {workOrderDetail?.order?.m_order_details?.map((item: any, index: any) => (
+                          {workOrderDetail?.order_details.map((item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
                                 <td>{item?.item_code}</td>

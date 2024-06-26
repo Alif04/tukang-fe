@@ -523,7 +523,52 @@ const DetailOrderWithoutAuth = () => {
                       </div>
                     )
                   } else if (
-                    ['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '') &&
+                    ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                      order?.work_orders?.work_order_status[0]?.status?.category
+                    ) &&
+                    order?.payment_type === 'survey' &&
+                    order?.work_orders?.work_order_status.length >= 1 &&
+                    order?.quotation?.length === 0
+                  ) {
+                    return (
+                      <div className='table-warranty-content'>
+                        <Table hover responsive='md'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th>Nama Pemasangan</th>
+                              <th>QTY Pemasangan</th>
+                              <th>Satuan</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {order?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                              order.work_orders.work_order_status[0].work_order_items.map(
+                                (item: any, index: any) => (
+                                  <tr key={`${index}-work_order_detail`}>
+                                    <td>
+                                      {item.name ?? ''}{' '}
+                                      {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                    </td>
+                                    <td>{item.quantity ?? 0}</td>
+                                    <td>{item.unit ?? ''}</td>
+                                  </tr>
+                                )
+                              )
+                            ) : (
+                              <tr>
+                                <td>Item belum diset oleh Tukang/Vendor</td>
+                                <td>Quantity belum diset oleh Tukang/Vendor</td>
+                                <td>Satuan belum diset oleh Tukang/Vendor</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </Table>
+                      </div>
+                    )
+                  } else if (
+                    order?.work_orders?.work_order_status.length >= 1 &&
+                    order?.quotation?.length >= 1 &&
                     order?.payment_type === 'survey'
                   ) {
                     return (
@@ -679,49 +724,6 @@ const DetailOrderWithoutAuth = () => {
                                 ).toLocaleString('id')}`}
                               </td>
                             </tr>
-                          </tbody>
-                        </Table>
-                      </div>
-                    )
-                  } else if (
-                    ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
-                      order?.work_orders?.work_order_status[0]?.status?.category
-                    ) &&
-                    order?.payment_type === 'survey' &&
-                    order?.work_orders?.work_order_status.length >= 1
-                  ) {
-                    return (
-                      <div className='table-warranty-content'>
-                        <Table hover responsive='md'>
-                          <thead className='table-warranty-head'>
-                            <tr>
-                              <th>Nama Pemasangan</th>
-                              <th>QTY Pemasangan</th>
-                              <th>Satuan</th>
-                            </tr>
-                          </thead>
-
-                          <tbody>
-                            {order?.work_orders?.work_order_status[0]?.work_order_items.length ? (
-                              order.work_orders.work_order_status[0].work_order_items.map(
-                                (item: any, index: any) => (
-                                  <tr key={`${index}-work_order_detail`}>
-                                    <td>
-                                      {item.name ?? ''}{' '}
-                                      {item.is_customer ? '( Disediakan oleh customer )' : ''}
-                                    </td>
-                                    <td>{item.quantity ?? 0}</td>
-                                    <td>{item.unit ?? ''}</td>
-                                  </tr>
-                                )
-                              )
-                            ) : (
-                              <tr>
-                                <td>Item belum diset oleh Tukang/Vendor</td>
-                                <td>Quantity belum diset oleh Tukang/Vendor</td>
-                                <td>Satuan belum diset oleh Tukang/Vendor</td>
-                              </tr>
-                            )}
                           </tbody>
                         </Table>
                       </div>

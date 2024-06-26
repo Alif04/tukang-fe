@@ -484,20 +484,23 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             </div>
 
             <Skeleton active loading={isLoadingPage} paragraph={{rows: 4}}>
-              {/* Newest */}
               {(() => {
                 if (
                   (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
-                  (orderDetail?.payment_type === 'survey' &&
-                    orderDetail?.work_orders?.work_order_status.length === 1)
+                  (orderDetail?.work_orders?.work_order_status.length === 1 &&
+                    orderDetail?.payment_type === 'survey')
                 ) {
                   return (
                     <div className='table-warranty-content'>
-                      <Form.Text className='fs-8 text-dark'>
-                        *Order ini lebih dari{' '}
-                        <span className='fw-bolder text-decoration-underline'>10 KM</span> dari toko
-                        sehingga dikenakan biaya tambahan
-                      </Form.Text>
+                      {orderDetail?.is_overdistance === 1 && (
+                        <>
+                          <Form.Text className='fs-8 text-dark'>
+                            *Order ini lebih dari{' '}
+                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                            toko sehingga dikenakan biaya tambahan
+                          </Form.Text>
+                        </>
+                      )}
 
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
@@ -510,7 +513,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         </thead>
 
                         <tbody>
-                          {orderDetail?.order_details?.map((item: any, index: any) => (
+                          {orderDetail?.order_details.map((item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
                                 <td>{item?.item_code}</td>
@@ -557,7 +560,53 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     </div>
                   )
                 } else if (
-                  ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
+                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                    orderDetail?.work_orders?.work_order_status[0]?.status?.category
+                  ) &&
+                  orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.work_orders?.work_order_status.length >= 1 &&
+                  orderDetail?.quotation?.length === 0
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
+                            <th>Satuan</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.work_orders?.work_order_status[0]?.work_order_items
+                            .length ? (
+                            orderDetail.work_orders.work_order_status[0].work_order_items.map(
+                              (item: any, index: any) => (
+                                <tr key={`${index}-work_order_detail`}>
+                                  <td>
+                                    {item.name ?? ''}{' '}
+                                    {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                  </td>
+                                  <td>{item.quantity ?? 0}</td>
+                                  <td>{item.unit ?? ''}</td>
+                                </tr>
+                              )
+                            )
+                          ) : (
+                            <tr>
+                              <td>Item belum diset oleh Tukang/Vendor</td>
+                              <td>Quantity belum diset oleh Tukang/Vendor</td>
+                              <td>Satuan belum diset oleh Tukang/Vendor</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )
+                } else if (
+                  orderDetail?.work_orders?.work_order_status.length >= 1 &&
+                  orderDetail?.quotation?.length >= 1 &&
                   orderDetail?.payment_type === 'survey'
                 ) {
                   return (
@@ -602,246 +651,6 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         </tbody>
                       </table>
 
-                      {orderDetail?.quotation[0]?.quotation_details.filter(
-                        (x: any) => x.item_type === 1
-                      ).length ? (
-                        <table className='table hover responsive'>
-                          <thead className='table-warranty-head'>
-                            <tr>
-                              <th className='text-center' style={{width: '355px'}}>
-                                Material Yang Dibutuhkan
-                              </th>
-
-                              <th className='text-center' style={{width: '100px'}}>
-                                QTY
-                              </th>
-
-                              <th className='text-center' style={{width: '250px'}}>
-                                Satuan
-                              </th>
-
-                              <th className='text-center' style={{width: '250px'}}>
-                                Final Price
-                              </th>
-                            </tr>
-                          </thead>
-
-                          <tbody>
-                            {orderDetail?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 1)
-                              .map((item: any, index: any) => (
-                                <tr key={`${index}-quotation`}>
-                                  <td>
-                                    {item?.name ?? '-'}{' '}
-                                    {item?.is_customer === true
-                                      ? '( Disediakan oleh customer )'
-                                      : ''}
-                                  </td>
-                                  <td>{item?.quantity ?? 0}</td>
-                                  <td>{item?.unit ?? '-'}</td>
-                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </tr>
-                              ))}
-
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Total Jasa
-                              </td>
-                              <td className='fw-bolder'>{`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_details
-                                  .filter((x: any) => x.item_type === 2)
-                                  .reduce(
-                                    (total: any, item: any) =>
-                                      total + parseInt(item.final_price || 0),
-                                    0
-                                  )
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
-
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Total Material
-                              </td>
-                              <td className='fw-bolder'>{`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_details
-                                  .filter((x: any) => x.item_type === 1)
-                                  .reduce(
-                                    (total: any, item: any) =>
-                                      total + parseInt(item.final_price || 0),
-                                    0
-                                  )
-                              ).toLocaleString('id')}`}</td>
-                            </tr>
-
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Promosi ( Free Survey )
-                              </td>
-                              <td className=' fw-bolder'>
-                                {`Rp. ${parseInt(
-                                  orderDetail?.quotation[0]?.quotation_disc ?? 0
-                                ).toLocaleString('id')}`}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                {`${
-                                  orderDetail?.quotation[0]?.promotion
-                                    ? `Additional Promotion (${orderDetail?.quotation[0]?.promotion?.name})`
-                                    : `Additional Promotion`
-                                }`}
-                              </td>
-
-                              <td className=' fw-bolder'>
-                                {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
-                                  ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
-                                  : `Rp. ${parseInt(
-                                      orderDetail?.quotation[0]?.promotion?.promotion ?? 0
-                                    ).toLocaleString('id')}`}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder'>
-                                Grand Total
-                              </td>
-                              <td className=' fw-bolder'>
-                                {`Rp. ${parseInt(
-                                  orderDetail?.quotation[0]?.quotation_grand_total ?? 0
-                                ).toLocaleString('id')}`}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      ) : (
-                        <></>
-                      )}
-                    </div>
-                  )
-                } else if (
-                  [
-                    'SURVEYREQ',
-                    'SURVEYSTART',
-                    'SURVEYDONE',
-                    'WORKREQ',
-                    'WORKSTART',
-                    'WORKEND',
-                    'DONE',
-                  ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
-                  orderDetail?.work_orders?.work_order_status.length >= 1 &&
-                  orderDetail?.payment_type === 'survey'
-                ) {
-                  return (
-                    <div className='table-warranty-content'>
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th>Item / Nama Pemasangan</th>
-                            <th>QTY Pemasangan</th>
-                            <th>Satuan</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {orderDetail?.work_orders?.work_order_status[0]?.work_order_items
-                            .length ? (
-                            orderDetail.work_orders.work_order_status[0].work_order_items.map(
-                              (item: any, index: any) => (
-                                <tr key={`${index}-work_order_detail`}>
-                                  <td>
-                                    {item.name ?? ''}{' '}
-                                    {item.is_customer ? '( Disediakan oleh customer )' : ''}
-                                  </td>
-                                  <td>{item.quantity ?? 0}</td>
-                                  <td>{item.unit ?? ''}</td>
-                                </tr>
-                              )
-                            )
-                          ) : (
-                            <tr>
-                              <td>Item belum diset oleh Tukang/Vendor</td>
-                              <td>Quantity belum diset oleh Tukang/Vendor</td>
-                              <td>Satuan belum diset oleh Tukang/Vendor</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )
-                } else if (
-                  ['WORKREQ', 'WORKEND', 'DONE'].includes(
-                    orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                  ) &&
-                  orderDetail?.work_orders?.work_order_status.length >= 1 &&
-                  orderDetail?.payment_type === 'survey'
-                ) {
-                  return (
-                    <div className='table-warranty-content'>
-                      {orderDetail?.is_overdistance === 1 && (
-                        <>
-                          <Form.Text className='fs-8 text-dark'>
-                            *Order ini lebih dari{' '}
-                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                            toko sehingga dikenakan biaya tambahan
-                          </Form.Text>
-                        </>
-                      )}
-
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center' style={{width: '355px'}}>
-                              Jenis Jasa
-                            </th>
-
-                            <th className='text-center' style={{width: '100px'}}>
-                              QTY
-                            </th>
-
-                            <th className='text-center' style={{width: '250px'}}>
-                              Satuan
-                            </th>
-
-                            <th className='text-center' style={{width: '250px'}}>
-                              Price
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {orderDetail?.quotation[0]?.quotation_details
-                            .filter((x: any) => x.item_type === 2)
-                            .map((item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>
-                                  {item?.name ?? '-'}{' '}
-                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
-                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                              </tr>
-                            ))}
-
-                          <tr>
-                            <td colSpan={3} className='text-end fw-bolder'>
-                              Total
-                            </td>
-
-                            <td className='fw-bolder'>
-                              {`Rp. ${orderDetail?.quotation[0]?.quotation_details
-                                .filter((x: any) => x.item_type === 2)
-                                .map((item: any) => parseInt(item?.price ?? 0))
-                                .reduce((total: number, price: number) => total + price, 0)
-                                .toLocaleString('id')}`}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
@@ -858,7 +667,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             </th>
 
                             <th className='text-center' style={{width: '250px'}}>
-                              Price
+                              Final Price
                             </th>
                           </tr>
                         </thead>
@@ -873,53 +682,42 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                   {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
                                 </td>
                                 <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
-                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
                               </tr>
                             ))}
 
                           <tr>
                             <td colSpan={3} className='text-end fw-bolder'>
-                              Promosi ( Free Survey )
+                              Total Jasa
                             </td>
-                            <td className=' fw-bolder'>
-                              {`Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.quotation_disc ?? 0
-                              ).toLocaleString('id')}`}
-                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
                           </tr>
 
                           <tr>
                             <td colSpan={3} className='text-end fw-bolder'>
-                              {`${
-                                orderDetail?.quotation[0]?.promotion
-                                  ? `Additional Promotion (${orderDetail?.quotation[0]?.promotion?.name})`
-                                  : `Additional Promotion`
-                              }`}
+                              Total Material
                             </td>
-
-                            <td className=' fw-bolder'>
-                              {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
-                                ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
-                                : `Rp. ${parseInt(
-                                    orderDetail?.quotation[0]?.promotion?.promotion
-                                  ).toLocaleString('id')}`}
-                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 1)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
                           </tr>
-
-                          {orderDetail?.is_overdistance === 1 && (
-                            <>
-                              <tr>
-                                <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                  Biaya Tambahan
-                                </td>
-
-                                <td className=' fw-bolder'>{`Rp. ${Number(
-                                  orderDetail?.additional_fee
-                                ).toLocaleString('id')}.`}</td>
-                              </tr>
-                            </>
-                          )}
 
                           <tr>
                             <td colSpan={3} className='text-end fw-bolder'>
@@ -941,6 +739,16 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 ) {
                   return (
                     <div className='table-warranty-content'>
+                      {orderDetail?.is_overdistance === 1 && (
+                        <>
+                          <Form.Text className='fs-8 text-dark'>
+                            *Order ini lebih dari{' '}
+                            <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
+                            toko sehingga dikenakan biaya tambahan
+                          </Form.Text>
+                        </>
+                      )}
+
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
@@ -956,9 +764,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             )}
                           </tr>
                         </thead>
-
                         <tbody>
-                          {orderDetail?.order_details?.map((item: any, index: any) => (
+                          {orderDetail?.order_details.map((item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
                                 <td>{item?.item_code}</td>

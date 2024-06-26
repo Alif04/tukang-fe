@@ -52,7 +52,7 @@ const ViewCalendarCS: React.FC = () => {
     try {
       await axios
         .get(
-          `${apiUrl}/orders?store_id=${store_id}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
+          `${apiUrl}/orders/calender?store_id=${store_id}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
           {
             headers: {
               Accept: 'application/json',
