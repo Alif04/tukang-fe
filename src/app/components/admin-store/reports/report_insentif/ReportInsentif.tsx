@@ -36,6 +36,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
   const salesId = localStorage.getItem('sales_id') as any
+  const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -47,6 +48,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const [loadData, setLoadData] = useState<boolean>(true)
   const [loadingButton, setLoadingButton] = useState(false)
+  const [loadingExport, setLoadingExport] = useState(false)
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -213,8 +215,10 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   // Export To Excel
   const exportToExcel = () => {
+    setLoadingExport(true)
+
     axios
-      .get(`${apiUrl}/sales/export-excel?take=0`, {
+      .get(`${apiUrl}/sales/export-excel-template`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -228,6 +232,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
         link.setAttribute('download', `Report Insentif Sales.xlsx`)
         document.body.appendChild(link)
         link.click()
+
+        setLoadingExport(false)
       })
   }
 
@@ -302,8 +308,9 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
                 variant='success m-0'
                 className='d-flex justify-content-center align-items-center'
                 onClick={exportToExcel}
+                disabled={loadingExport}
               >
-                Export Report
+                {loadingExport ? 'Exporting..' : 'Export To Excel'}
               </Button>
             </div>
           </Row>

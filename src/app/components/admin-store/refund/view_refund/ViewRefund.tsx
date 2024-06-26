@@ -218,7 +218,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       })
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
+      setTotalData(response?.data?.takeTotal ?? 0)
       setLoadData(false)
 
       return response.data.data
