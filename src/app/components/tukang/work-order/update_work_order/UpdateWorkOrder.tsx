@@ -239,7 +239,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             data?.order?.payment_type === 'survey'
           ) {
             const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
-              id: item.id,
+              id: null,
               index: (Date.now() + index).toString(),
               item_name: item.item_name ?? '',
               unit: item?.unit ?? '',

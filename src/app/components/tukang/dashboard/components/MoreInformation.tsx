@@ -9,7 +9,7 @@ type Props = {
 }
 
 const getStatusCount = (orderData: any[], status: string): number => {
-  return orderData.filter((order) => order.status === status).length
+  return orderData.filter((order) => order?.status?.category === status).length
 }
 
 const MoreInformation: React.FC<Props> = ({className, orderData}) => {
