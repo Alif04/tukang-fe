@@ -214,7 +214,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               ...prev,
               work_order_id: selected.work_order_id,
               existing_tukang_id: selected.existing_tukang.map((item: any) => ({
-                id: item.tukang_id,
+                id: item.request_tukang,
               })),
             }))
           }
@@ -240,7 +240,14 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {!['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) ? (
+            {![
+              'QUOTEIN',
+              'QUOTEOUT',
+              'WARRANTYCLAIM',
+              'INVESTIGATED',
+              'RESCHEDULE',
+              'CANCEL',
+            ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -266,9 +273,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               >
                 <FontAwesomeIcon className='text-white' icon={faShuffle} fontSize={'13px'} />
               </Button>
-            </OverlayTrigger>
+            </OverlayTrigger> */}
 
-            <OverlayTrigger
+            {/* <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Notifikasi Permintaan Pergantian Tukang')}
@@ -359,7 +366,11 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         const orderStatus = (() => {
           if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+            if (
+              ['QUOTEIN', 'QUOTEOUT', 'CANCEL', 'WARRANTYCLAIM', 'INVESTIGATED'].includes(
+                item?.status?.category
+              )
+            ) {
               return item?.status?.category
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
@@ -379,7 +390,16 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         const orderStatusLabel = (() => {
           if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+            if (
+              [
+                'QUOTEIN',
+                'QUOTEOUT',
+                'CANCEL',
+                'WARRANTYCLAIM',
+                'INVESTIGATED',
+                'RESCHEDULE',
+              ].includes(item?.status?.category ?? '')
+            ) {
               return item?.status?.description
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
@@ -409,7 +429,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           payment_status: paymentStatus,
           order_status: orderStatus,
           order_status_label: orderStatusLabel,
-          existing_tukang: item?.work_orders?.work_order_tukang ?? [],
+          existing_tukang: item?.work_orders?.request_tukang ?? [],
         }
 
         return data

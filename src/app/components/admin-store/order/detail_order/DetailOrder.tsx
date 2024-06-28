@@ -337,7 +337,18 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       <span className='fs-4 ms-2 fw-bold text-success'>
                         {(() => {
                           if (order?.work_orders?.work_order_status?.length >= 0) {
-                            if (['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '')) {
+                            if (
+                              [
+                                'QUOTEIN',
+                                'QUOTEOUT',
+                                'CANCEL',
+                                'WARRANTYCLAIM',
+                                'INVESTIGATED',
+                                'COMPLAINTAPPROVEDBYHO',
+                                'COMPLAINTREJECTEDBYHO',
+                                'RESCHEDULE',
+                              ].includes(order?.status?.category ?? '')
+                            ) {
                               return order?.status?.description
                             } else if (
                               ['WORKREQ'].includes(order?.status?.category ?? '') &&

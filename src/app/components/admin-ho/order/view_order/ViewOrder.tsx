@@ -660,7 +660,18 @@ const ViewOrders: FC = () => {
 
         const orderStatus = (() => {
           if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+            if (
+              [
+                'QUOTEIN',
+                'QUOTEOUT',
+                'CANCEL',
+                'WARRANTYCLAIM',
+                'INVESTIGATED',
+                'COMPLAINTAPPROVEDBYHO',
+                'COMPLAINTREJECTEDBYHO',
+                'RESCHEDULE',
+              ].includes(item?.status?.category)
+            ) {
               return item?.status?.category
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&
@@ -680,7 +691,16 @@ const ViewOrders: FC = () => {
 
         const orderStatusLabel = (() => {
           if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+            if (
+              [
+                'QUOTEIN',
+                'QUOTEOUT',
+                'CANCEL',
+                'WARRANTYCLAIM',
+                'INVESTIGATED',
+                'RESCHEDULE',
+              ].includes(item?.status?.category)
+            ) {
               return item?.status?.description
             } else if (
               ['WORKREQ'].includes(item?.status?.category) &&

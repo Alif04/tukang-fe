@@ -212,7 +212,16 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                       <span className='fs-4 ms-2 fw-bold text-success'>
                         {(() => {
                           if (orderDetail?.work_orders?.work_order_status?.length >= 0) {
-                            if (['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category)) {
+                            if (
+                              [
+                                'QUOTEIN',
+                                'QUOTEOUT',
+                                'WARRANTYCLAIM',
+                                'INVESTIGATED',
+                                'RESCHEDULE',
+                                'CANCEL',
+                              ].includes(orderDetail?.status?.category)
+                            ) {
                               return orderDetail?.status?.description
                             } else if (
                               ['WORKREQ'].includes(orderDetail?.status?.category) &&
