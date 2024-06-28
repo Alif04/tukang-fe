@@ -61,11 +61,11 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     series: [
       {
         name: 'Order Selesai',
-        data: chartOrderData.map((item: any) => item?.totalCompleteOrder),
+        data: chartOrderData.map((item: any) => item?.totalOrderDone),
       },
       {
         name: 'Order Masuk',
-        data: chartOrderData.map((item: any) => item?.totalSurveyReqOrder),
+        data: chartOrderData.map((item: any) => item?.totalOrder),
       },
     ],
     chart: {

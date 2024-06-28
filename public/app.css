@@ -40,7 +40,7 @@ h6 {
 }
 
 .bg-calendar-order-wip {
-  background-color: #b2b377;
+  background-color: #da7297;
 }
 
 .bg-calendar-order-done {
@@ -53,6 +53,10 @@ h6 {
 
 .bg-calendar-order-complaint {
   background-color: #c80036;
+}
+
+.bg-calendar-order-cancel {
+  background-color: #373a40;
 }
 
 /* Box Color */
@@ -85,7 +89,7 @@ h6 {
   height: 20px;
   border: solid 1px black;
   border-radius: 5px;
-  background-color: #b2b377;
+  background-color: #da7297;
 }
 
 .box-warning {
@@ -102,6 +106,14 @@ h6 {
   border: solid 1px black;
   border-radius: 5px;
   background-color: #c80036;
+}
+
+.box-black {
+  width: 20px;
+  height: 20px;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #373a40;
 }
 
 /* Line */

@@ -152,9 +152,14 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                         {(() => {
                           if (workOrderDetail?.work_order_status?.length >= 0) {
                             if (
-                              ['QUOTEIN', 'QUOTEOUT'].includes(
-                                workOrderDetail?.order?.status?.category ?? ''
-                              )
+                              [
+                                'QUOTEIN',
+                                'QUOTEOUT',
+                                'WARRANTYCLAIM',
+                                'INVESTIGATED',
+                                'RESCHEDULE',
+                                'CANCEL',
+                              ].includes(workOrderDetail?.order?.status?.category ?? '')
                             ) {
                               return workOrderDetail?.order?.status?.description
                             } else if (
@@ -630,7 +635,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                           </tr>
                         </thead>
                         <tbody>
-                          {workOrderDetail?.order_details.map((item: any, index: any) => (
+                          {workOrderDetail?.order?.m_order_details?.map((item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
                                 <td>{item?.item_code}</td>

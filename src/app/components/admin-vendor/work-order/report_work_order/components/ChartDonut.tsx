@@ -10,6 +10,9 @@ type Props = {
   chartComplaint: any[]
 }
 
+const sumTotal = (data: any, key: string) =>
+  data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
 const ChartDonut: React.FC<Props> = ({className, chartHeight, chartComplaint}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
@@ -60,14 +63,18 @@ const chartOptions = (chartHeight: string, chartComplaint: any): ApexOptions => 
   const pendingColor = getCSSVariableValue('--kt-gray-800')
   const cancelColor = getCSSVariableValue('--kt-info')
 
-  const investigated = chartComplaint.map((item: any) => item.totalOrder)
-  const totalInvestigated = investigated.reduce((acc: any, curr: any) => acc + curr, 0)
+  const totalInvestigated = sumTotal(chartComplaint, 'totalOrder')
+  const totalRejected = sumTotal(chartComplaint, 'totalWIP')
+  const totalDone = sumTotal(chartComplaint, 'totalOrderDone')
 
-  const rejected = chartComplaint.map((item: any) => item.totalOrder)
-  const totalRejected = rejected.reduce((acc: any, curr: any) => acc + curr, 0)
+  // const investigated = chartComplaint.map((item: any) => item.totalOrder)
+  // const totalRejected = investigated.reduce((acc: any, curr: any) => acc + curr, 0)
 
-  const done = chartComplaint.map((item: any) => item.totalOrder)
-  const totalDone = done.reduce((acc: any, curr: any) => acc + curr, 0)
+  // const rejected = chartComplaint.map((item: any) => item.totalOrder)
+  // const totalRejected = rejected.reduce((acc: any, curr: any) => acc + curr, 0)
+
+  // const done = chartComplaint.map((item: any) => item.totalOrder)
+  // const totalDone = done.reduce((acc: any, curr: any) => acc + curr, 0)
 
   return {
     series: [totalInvestigated, totalRejected, totalDone],

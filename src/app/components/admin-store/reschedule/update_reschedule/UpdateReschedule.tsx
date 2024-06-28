@@ -32,6 +32,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
   const [orderId, setOrderId] = useState<any>()
   const [rescheduleDetail, setRescheduleDetail] = useState<any>()
 
+  const userRole = localStorage.getItem('userRole')
   const [reschedule, setReschedule] = useState<Reschedule>({
     order_id: null,
     status_id: null,
@@ -307,7 +308,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                 <Form.Label className='fs-4 fw-bold'>
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {rescheduleDetail?.order?.status?.category}
+                    {rescheduleDetail?.order?.status?.description}
                   </span>
                 </Form.Label>
               </Col>
@@ -755,6 +756,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                   name='reschedule_date'
                   type='date'
                   min={today}
+                  disabled={userRole === 'Tukang'}
                   value={reschedule.reschedule_date}
                   onChange={(e) => RescheduleFormHandler(e)}
                 />
@@ -769,6 +771,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                   className='reason'
                   name='description'
                   value={reschedule.description}
+                  disabled={userRole === 'Tukang'}
                   onChange={(e) => RescheduleFormHandler(e)}
                 />
               </Form.Group>
@@ -776,26 +779,33 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
 
             <Col xxl={4} xl={4} md={4} sm={12}>
               <Form.Group>
-                <Form.Label>UPLOAD FILE PENDUKUNG</Form.Label>
-                <Form className='form-input-image' onClick={handleImageClick}>
-                  <Form.Control
-                    type='file'
-                    accept='image/jpeg, image/png'
-                    className='input-field-image'
-                    multiple
-                    hidden
-                    id='file-input'
-                    ref={evidenceRef}
-                    onChange={handleFileChange}
-                  />
+                <Form.Label className='mb-2'>
+                  {userRole === 'Tukang' ? 'File Pendukung' : 'Upload File Pendukung'}
+                </Form.Label>
 
-                  <div className='input-image-text'>
-                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                    <p>Add File</p>
-                  </div>
-                </Form>
+                {userRole !== 'Tukang' && (
+                  <>
+                    <Form className='form-input-image' onClick={handleImageClick}>
+                      <Form.Control
+                        type='file'
+                        accept='image/jpeg, image/png'
+                        className='input-field-image'
+                        multiple
+                        hidden
+                        id='file-input'
+                        ref={evidenceRef}
+                        onChange={handleFileChange}
+                      />
 
-                <ListGroup className='pt-3'>
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    </Form>
+                  </>
+                )}
+
+                <ListGroup>
                   {rescheduleEvidence.length ? (
                     rescheduleEvidence.map((item, index) => (
                       <ListGroup>
@@ -852,11 +862,13 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
             </Col>
           </Row>
 
-          <div className='d-flex justify-content-center mt-5'>
-            <Button variant='dark-primary' type='submit' onClick={handleUpdateReschedule}>
-              Save Update
-            </Button>
-          </div>
+          {userRole !== 'Tukang' && (
+            <div className='d-flex justify-content-center mt-5'>
+              <Button variant='dark-primary' type='submit' onClick={handleUpdateReschedule}>
+                Save Update
+              </Button>
+            </div>
+          )}
         </Card.Body>
       </Card>
     </section>

@@ -7,10 +7,13 @@ import {useThemeMode} from '../../../../../../_metronic/partials'
 type Props = {
   className: string
   chartHeight: string
-  workOrderData: any[]
+  chartOrder: any
 }
 
-const TotalWork: React.FC<Props> = ({className, chartHeight, workOrderData}) => {
+const sumTotal = (data: any, key: string) =>
+  data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+const TotalWork: React.FC<Props> = ({className, chartHeight, chartOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -19,7 +22,7 @@ const TotalWork: React.FC<Props> = ({className, chartHeight, workOrderData}) => 
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, workOrderData))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartOrder))
     if (chart) {
       chart.render()
     }
@@ -36,7 +39,9 @@ const TotalWork: React.FC<Props> = ({className, chartHeight, workOrderData}) => 
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode, workOrderData])
+  }, [chartRef, mode, chartOrder])
+
+  const totalWork = sumTotal(chartOrder, 'totalOrder')
 
   return (
     <div className={`card ${className}`}>
@@ -46,7 +51,7 @@ const TotalWork: React.FC<Props> = ({className, chartHeight, workOrderData}) => 
 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted text-center'>Work</div>
-            <div className='fs-1 d-block m-auto'>{workOrderData.length}</div>
+            <div className='fs-1 d-block m-auto'>{totalWork}</div>
             <div className='fs-5 text-muted'>Work bulan ini</div>
           </div>
         </div>
@@ -55,22 +60,26 @@ const TotalWork: React.FC<Props> = ({className, chartHeight, workOrderData}) => 
   )
 }
 
-const chartOptions = (chartHeight: string, workOrderData: any): ApexOptions => {
+const chartOptions = (chartHeight: string, chartOrder: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
-  const workReq = workOrderData.filter(
-    (workOrder: any) => workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKREQ'
-  ).length
+  // const workReq = workOrderData.filter(
+  //   (workOrder: any) => workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKREQ'
+  // ).length
 
-  const workInProgress = workOrderData.filter(
-    (workOrder: any) =>
-      workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKSTART'
-  ).length
+  // const workInProgress = workOrderData.filter(
+  //   (workOrder: any) =>
+  //     workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKSTART'
+  // ).length
 
-  const workDone = workOrderData.filter(
-    (workOrder: any) =>
-      workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKDONE'
-  ).length
+  // const workDone = workOrderData.filter(
+  //   (workOrder: any) =>
+  //     workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKDONE'
+  // ).length
+
+  const workReq = sumTotal(chartOrder, 'totalOrderDone')
+  const workInProgress = sumTotal(chartOrder, 'totalWIP')
+  const workDone = sumTotal(chartOrder, 'totalOrderDone')
 
   const series = [workReq, workInProgress, workDone]
   const noDataAvailable = series.every((value) => value === 0)

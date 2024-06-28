@@ -63,11 +63,11 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
     series: [
       {
         name: 'Order Survey',
-        data: chartWorkOrder?.map((item: any) => item?.totalSurveyOrder ?? 0),
+        data: chartWorkOrder?.map((item: any) => item?.totalOrderSurvey ?? 0),
       },
       {
         name: 'Pengerjaan Selesai',
-        data: chartWorkOrder?.map((item: any) => item?.totalWorkEndOrder ?? 0),
+        data: chartWorkOrder?.map((item: any) => item?.totalOrderDone ?? 0),
       },
     ],
     chart: {

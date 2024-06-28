@@ -23,7 +23,7 @@ const ViewReportTukang = () => {
             <div className='title'>
               <hr />
 
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Work Reports</h1>
+              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>LAPORAN PENGERJAAN</h1>
             </div>
 
             <Row>

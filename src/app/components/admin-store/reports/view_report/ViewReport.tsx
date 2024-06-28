@@ -50,7 +50,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('pending-survey', 'Pending Survey')}
+                    {newTabs('pending-survey', 'Permintaan Survei')}
                   </Card.Body>
                 </Card>
               </Link>
@@ -68,7 +68,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('survey', 'Survey')}
+                    {newTabs('survey', 'Survei Dimulai')}
                   </Card.Body>
                 </Card>
               </Link>
@@ -86,7 +86,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('pending-quotation', 'Pending Quotation')}
+                    {newTabs('pending-quotation', 'Quotation dikirim ke konsumen')}
                   </Card.Body>
                 </Card>
               </Link>
@@ -104,7 +104,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('pending-bayar', 'Pending Bayar')}
+                    {newTabs('pending-bayar', 'Menunggu bayar')}
                   </Card.Body>
                 </Card>
               </Link>
@@ -124,7 +124,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('on-progress', 'On Progress')}
+                    {newTabs('on-progress', 'Sedang Pengerjaan')}
                   </Card.Body>
                 </Card>
               </Link>

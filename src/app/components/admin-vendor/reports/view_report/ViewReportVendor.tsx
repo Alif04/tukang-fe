@@ -23,7 +23,7 @@ const ViewReportVendor = () => {
             <div className='title'>
               <hr />
 
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Pembayaran Tukang Reports</h1>
+              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>LAPORAN PEMBAYARAN</h1>
             </div>
 
             <Row>
@@ -107,99 +107,11 @@ const ViewReportVendor = () => {
             </Row>
           </div>
 
-          {/* <div className='tagihan-reports mb-5'>
-            <div className='title'>
-              <hr />
-
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Tagihan Reports</h1>
-            </div>
-
-            <Row>
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-pending-payment`}>
-                  <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('pending-payment', 'Laporan Pending Payment')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-tagihan-bulanan`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex  justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('tagihan-bulanan', 'Laporan Tagihan Bulanan')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-paid`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('paid', 'Laporan Tagihan Dibayar')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={4}>
-                <Link to={`/reports/vendor-report-unpaid`}>
-                  <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('unpaid', 'Laporan Tagihan Belum Dibayar')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}></Col>
-
-              <Col md={4}></Col>
-            </Row>
-          </div> */}
-
           <div className='work-reports mb-5'>
             <div className='title'>
               <hr />
 
-              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Work Reports</h1>
+              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>LAPORAN PENGERJAAN</h1>
             </div>
 
             <Row>
@@ -215,7 +127,7 @@ const ViewReportVendor = () => {
                         height={50}
                       />
 
-                      {newTabs('claim-garansi', 'Laporan Garansi')}
+                      {newTabs('claim-garansi', 'Laporan Penalti')}
                     </Card.Body>
                   </Card>
                 </Link>

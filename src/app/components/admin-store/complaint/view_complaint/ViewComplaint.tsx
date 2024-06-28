@@ -38,6 +38,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId') as number | null
   const userVendor = localStorage.getItem('vendor_id') as number | null
   const userTukang = localStorage.getItem('tukang_id') as number | null
@@ -329,15 +330,17 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Edit Komplain')}
-            >
-              <Button variant='primary' className='button-edit' onClick={handleEdit}>
-                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
+            {!['Tukang'].includes(userRole) && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Edit Komplain')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleEdit}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            )}
           </div>
         )
       },
@@ -387,14 +390,14 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           year: 'numeric',
         })
 
-        const complaintDate = new Date(item?.complaint_date).toLocaleDateString('id-ID', {
+        const complaintDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
 
         const currentDate = new Date()
-        const complaintDates = new Date(item?.complaint_date)
+        const complaintDates = new Date(item?.created_at)
 
         const timeDifferenceInMilliseconds = Number(currentDate) - Number(complaintDates)
         const timeDifferenceInMinutes = Math.floor(timeDifferenceInMilliseconds / (1000 * 60))
@@ -422,11 +425,11 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           costumer_name: item?.orders?.members?.full_name,
           phone_number: item?.orders?.project_number,
           service_name: item.orders?.m_order_details[0]?.item_name ?? '-',
-          order_status: item.orders?.status?.category,
-          work_status: item.orders?.status?.category,
+          order_status: item.orders?.status?.description,
+          work_status: item.orders?.status?.description,
           complaint_date: complaintDate,
           complaint_age: complaintAge,
-          complaint_status: item.status?.category,
+          complaint_status: item.status?.description,
         }
 
         return data

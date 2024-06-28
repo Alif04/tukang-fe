@@ -892,7 +892,7 @@ const DetailComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
             })()}
           </Row>
 
-          <hr />
+          {/* <hr />
 
           <Row>
             <div className='d-flex justify-content-end align-items-center'>
@@ -914,7 +914,7 @@ const DetailComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                 Accepted
               </Button>
             </div>
-          </Row>
+          </Row> */}
 
           <Row>
             <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>

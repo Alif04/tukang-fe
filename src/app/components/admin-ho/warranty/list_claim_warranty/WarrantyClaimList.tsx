@@ -59,7 +59,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     phone_number: number
     services_name: string
     status_order: string
-    tanggal_aktif_garansi: string
+    tanggal_aktif_garansi: Date
+    tanggal_berakhir_garansi: Date
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
@@ -148,7 +149,18 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'tanggal_aktif_garansi',
       align: 'left',
       width: 140,
-      sorter: (a, b) => a.tanggal_aktif_garansi.length - b.tanggal_aktif_garansi.length,
+      sorter: (a, b) =>
+        new Date(a.tanggal_aktif_garansi).getTime() - new Date(b.tanggal_aktif_garansi).getTime(),
+    },
+    {
+      title: 'Tanggal Berakhir Garansi',
+      dataIndex: 'tanggal_berakhir_garansi',
+      key: 'tanggal_berakhir_garansi',
+      align: 'left',
+      width: 160,
+      sorter: (a, b) =>
+        new Date(a.tanggal_berakhir_garansi).getTime() -
+        new Date(b.tanggal_berakhir_garansi).getTime(),
     },
     {
       title: 'Action',
@@ -227,6 +239,26 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           year: 'numeric',
         })
 
+        const createdAt = item?.work_orders?.work_order_status[0]?.created_at
+          ? new Date(item.work_orders.work_order_status[0].created_at)
+          : null
+
+        const workEndDate = createdAt
+          ? createdAt.toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+          : '-'
+
+        const warrantyEndDate = createdAt
+          ? new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+          : '-'
+
         data = {
           order_id: item?.id,
           store_name: item?.store?.store_name ?? '-',
@@ -235,6 +267,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           costumer_name: item?.members?.full_name ?? '-',
           phone_number: item?.project_number ?? '-',
           status_order: item?.work_orders?.work_order_status[0]?.status?.description ?? '-',
+          tanggal_aktif_garansi: workEndDate,
+          tanggal_berakhir_garansi: warrantyEndDate,
         }
 
         return data
@@ -346,7 +380,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={claimWarrantyData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1300}}
+            scroll={{x: 1400}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

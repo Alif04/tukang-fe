@@ -1474,13 +1474,13 @@ const RefundPage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ON PROGRESS ( OMSET )</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ON PROGRESS</PageTitle>
 
             <ReportTukang
-              endpoint='orders'
-              statusName='WORKSTART'
+              endpoint='work-orders'
+              statusName=''
               headerColor='primary'
-              title='Laporan On Progress ( Omset )'
+              title='Laporan On Progress'
             />
           </>
         }

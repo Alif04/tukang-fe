@@ -34,6 +34,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId') as number | null
   const userVendor = localStorage.getItem('vendor_id') as number | null
   const userTukang = localStorage.getItem('tukang_id') as number | null

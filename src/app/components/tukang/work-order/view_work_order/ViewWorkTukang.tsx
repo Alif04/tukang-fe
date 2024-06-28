@@ -222,7 +222,14 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {!['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) ? (
+            {![
+              'QUOTEIN',
+              'QUOTEOUT',
+              'WARRANTYCLAIM',
+              'INVESTIGATED',
+              'RESCHEDULE',
+              'CANCEL',
+            ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
