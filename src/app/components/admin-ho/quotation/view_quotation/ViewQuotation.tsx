@@ -269,14 +269,10 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         })
 
         const paymentStatus = (() => {
-          if (item?.order?.payment_type === 'survey') {
-            return item.order.receipt_number === null ? 'UNPAID' : 'PAID'
-          } else if (item?.order?.payment_type === 'gratis') {
-            return 'FREE'
-          } else if (item?.order?.payment_type === 'pemasangan_tanpa_survey') {
-            return item?.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          if (item?.receipt_quotation === null) {
+            return 'UNPAID'
           } else {
-            return ''
+            return 'PAID'
           }
         })()
 
