@@ -839,7 +839,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
           <hr />
 
           <Row>
-            <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+            <Col xs={12} md={12} lg={12} xl={12} xxl={12}>
               <div className='fs-3 fw-bold text-danger'>COMPLAINT HISTORY</div>
 
               <Row>
@@ -940,9 +940,13 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                 </Col>
               </Row>
             </Col>
+          </Row>
 
+          <hr />
+
+          <Row>
             {complaintDetail?.status.category === 'REJECT' ? (
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Col xs={12} md={12} lg={12} xl={12} xxl={12}>
                 <div className='fs-3 fw-bold text-success'>
                   REMEDIAL ACTION
                   <span className='ms-3 fs-5 fw-semibold text-danger'>
@@ -994,7 +998,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                 </Row>
               </Col>
             ) : (
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+              <Col xs={12} md={12} lg={12} xl={12} xxl={12}>
                 <div className='fs-3 fw-bold text-success'>REMEDIAL ACTION</div>
 
                 <Row>
@@ -1016,13 +1020,13 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <option value='4'>INVESTIGATED</option>
                         <option value='25'>ACCEPTED</option>
                         <option value='27'>REJECTED</option>
-                        <option value='17'>REWORKREQ</option>
+                        {/* <option value='17'>REWORKREQ</option>
                         <option value='18'>REWORKSTART</option>
                         <option value='19'>REWORKEND</option>
                         <option value='8'>RESURVEYREQ</option>
                         <option value='28'>RESCHEDULE</option>
                         <option value='24'>REFUND</option>
-                        <option value='1006'>DONE</option>
+                        <option value='1006'>DONE</option> */}
                       </Form.Select>
                     </Form.Group>
 

@@ -198,7 +198,7 @@ export function AsideMenuMain() {
           <AsideMenuItem
             to='/reschedule/new-reschedule'
             title='New Reschedule'
-            role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
+            role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor']}
             hasBullet={true}
           />
 
