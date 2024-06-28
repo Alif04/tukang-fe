@@ -178,21 +178,10 @@ const DashboardOrderStore: FC = () => {
         let data
         let totalAmount = 0
 
-        if (item?.payment_type === 'gratis') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : 0
-        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : item?.grand_total ?? 0
-        } else if (item?.payment_type === 'survey') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : 99000 ?? 0
+        if (item.quotation.length > 0 && item.payment_type === 'survey') {
+          totalAmount = item?.quotation[0]?.quotation_grand_total
+        } else {
+          totalAmount = item?.grand_total
         }
 
         data = {
