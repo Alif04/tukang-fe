@@ -635,7 +635,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                           </tr>
                         </thead>
                         <tbody>
-                          {workOrderDetail?.order_details.map((item: any, index: any) => (
+                          {workOrderDetail?.order?.m_order_details?.map((item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
                                 <td>{item?.item_code}</td>
