@@ -1,26 +1,47 @@
-import React, {FC, useState, useEffect} from 'react'
-import {useNavigate} from 'react-router-dom'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './NewMaterial.css'
 
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import {Table, Spin} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
-import {Form, Button, Row, Col, Card, FormGroup} from 'react-bootstrap'
+import makeAnimated from 'react-select/animated'
+import dayjs from 'dayjs'
+import {Image, DatePicker} from 'antd'
+import {useNavigate} from 'react-router-dom'
+import {Form, Button, Card, Row, Col, ListGroup, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage, faPlus} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faFileArrowUp, faPlus} from '@fortawesome/free-solid-svg-icons'
+const {RangePicker} = DatePicker
 
-interface Status {
-  value: number | null
-  label: string
+interface StatusStorage {
+  value: number
   category: string
+  description: string
 }
 
 interface WorkOrderSelect {
   value: number | null
   label: number | null
+}
+
+interface Tukang {
+  value: number | null
+  label: string
+  type: number
+}
+
+interface WorkOrders {
+  id: number | null
+  work_order_status: number | null
+  description: string
+  tukang_id: Array<any>
+  survey_date_time: string
+  work_date_time: string
+  work_start_date: string
+  work_end_date: string
+  work_order_before: Array<any>
+  work_order_after: Array<any>
 }
 
 interface WorkOrderItem {
@@ -38,39 +59,70 @@ interface WorkOrderItem {
 interface WorkOrderHistory {
   work_order_id: number
   work_order_status: string
+  work_order_status_label: string
+  time_range: string
   created_at: string
   updated_at: string
   work_date_time: string
-  time_spent: string
   updated_by: string
 }
 
 const NewMaterialVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const animatedComponents = makeAnimated()
 
-  // Loader
-  const [loading, setLoading] = useState<boolean>(false)
+  const userVendor = localStorage.getItem('vendor_id')
+  const vendorId = userVendor ? `&vendor_id=${userVendor}` : null
 
   // Loader for Submit
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Work Order
-  const [workOrder, setWorkOrder] = useState<any>()
-  const [workOrderDetail, setWorkOrderDetail] = useState<any>(null)
+  // Work Order Tukang
+  const [tukang, setTukang] = useState<Tukang[]>([])
+  const [tukangId, setTukangId] = useState<any>()
+  const [tukangName, setTukangName] = useState<string>('')
+
+  console.log('tukang id', tukangId)
+
+  // Work Order History
   const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
-  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<WorkOrderSelect>({
+  const [workOrderDetail, setWorkOrderDetail] = useState<any>(null)
+
+  // Work Order
+  const [workOrderOption, setWorkOrderOption] = useState<WorkOrderSelect[]>([])
+  const [workOrder, setWorkOrder] = useState<WorkOrders>({
+    id: null,
+    work_order_status: null,
+    description: '',
+    tukang_id: [],
+    survey_date_time: '',
+    work_date_time: '',
+    work_start_date: '',
+    work_end_date: '',
+    work_order_before: [],
+    work_order_after: [],
+  })
+
+  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<SingleValue<WorkOrderSelect>>({
     value: null,
     label: null,
   })
 
-  // Work Order Status
-  const [workOrderStatus, setWorkOrderStatus] = useState<Status[]>([])
-  const [selectedWorkOrderStatus, setSelectedWorkOrderStatus] = useState<SingleValue<Status>>({
-    value: null,
-    label: '',
-    category: '',
-  })
+  // Update Work Order File ( Before And After )
+  const [workOrderBefore, setWorkOrderBefore] = useState<Array<File | null>>([])
+  const [workOrderAfter, setWorkOrderAfter] = useState<Array<File | null>>([])
+
+  const [selectedWorkBeforeFile, setSelectedWorkBeforeFile] = useState<number | null>(null)
+  const [selectedWorkAfterFile, setSelectedWorkAfterFile] = useState<number | null>(null)
+
+  const [previewWorkBeforeImage, setPreviewWorkBeforeImage] = useState<any>()
+  const [previewWorkAfterImage, setPreviewWorkAfterImage] = useState<any>()
+
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
+  const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
 
   // Add Work Order Item
   const [workOrderItem, setWorkOrderItem] = useState<WorkOrderItem[]>([
@@ -98,58 +150,38 @@ const NewMaterialVendor: FC = () => {
     },
   ])
 
+  console.log('work order item', workOrderItem)
+
   // Fetch Work Order Data
   const getWorkOrder = async () => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData.filter((status: any) =>
-      ['SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'RIP', 'REWORKEND', 'RESCHEDULE'].includes(
-        status.category
-      )
-    )
+    try {
+      const response = await axios.get(`${apiUrl}/work-orders?order_by=desc&take=0${vendorId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      if (Array.isArray(response.data.data)) {
+        const tempWorkOrder = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.id,
+        }))
 
-    if (desiredStatus) {
-      const statuses = desiredStatus.map((x) => x.value)
-
-      try {
-        const response = await axios.get(
-          `${apiUrl}/orders?order_by=desc&take=0&status=${statuses.join(',')}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-        if (Array.isArray(response.data.data)) {
-          const tempWorkOrder = response.data.data
-            .filter((item: any) => item.work_orders && item.work_orders.id)
-            .map((item: any) => ({
-              value: item.work_orders.id,
-              label: item.work_orders.id,
-            }))
-
-          setWorkOrder(tempWorkOrder)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error)
+        setWorkOrderOption(tempWorkOrder)
+      } else {
+        console.error('API response data is not an array:', response.data)
       }
-    } else {
-      console.error('Desired status not found in statusData')
+    } catch (error) {
+      console.error('Error fetching data:', error)
     }
   }
 
   const getWorkOrderDetail = async () => {
     try {
-      setLoading(false)
-      setWorkOrderHistory([])
-
       await axios
-        .get(`${apiUrl}/work-orders/${selectedWorkOrderId.value}`, {
+        .get(`${apiUrl}/work-orders/${selectedWorkOrderId?.value}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -162,41 +194,228 @@ const NewMaterialVendor: FC = () => {
 
           setWorkOrderDetail(data)
 
-          if (data?.work_order_status) {
-            const workOrderHistoryData = data.work_order_status.map((item: any) => ({
-              work_order_id: item?.work_order_id,
-              work_order_status: item?.status?.category,
-              created_at: item.created_at ? formatDate(new Date(item?.created_at)) : '',
-              updated_at: item.updated_at ? formatDate(new Date(item?.updated_at)) : '',
-              work_date_time: item?.work_date_time
-                ? formatDate(new Date(item?.work_date_time))
-                : '-',
-              time_spent: item?.time_spent ? item.time_spent : '-',
-              updated_by: item?.updated_by,
+          if (data) {
+            const tukang = data.work_order_tukang.map((item: any) => ({
+              value: item.tukang.id,
+              label: item.tukang.full_name,
+              type: item.type,
             }))
 
-            setWorkOrderHistory(workOrderHistoryData)
+            setTukangId(data.work_order_tukang[0]?.tukang?.id)
+            setTukangName(data.work_order_tukang[0]?.tukang?.full_name)
+
+            setWorkOrder((prev) => ({
+              ...prev,
+              id: data.id,
+              description: data.work_order_status[0].description,
+              survey_date_time: data.survey_date ? formatDateTime(new Date(data.survey_date)) : '',
+              work_date_time: '',
+              work_start_date: data.work_start_date,
+              work_end_date: data.work_end_date,
+              tukang_id: tukang,
+              work_order_status: data.work_order_status[0].status.id,
+            }))
           }
 
-          if (
-            data?.work_orders?.work_order_status &&
-            data.work_orders.work_order_status[0].work_order_items.length > 0
-          ) {
-            const workOrderItem = data.work_orders.work_order_status[0].work_order_items.map(
+          if (data?.work_order_evidences) {
+            const initialWorkOrderFiles = data.work_order_evidences
+              .filter((x: any) => x.type === 2)
+              .map((item: any) => ({
+                id: item.id,
+                name: item.evidence_location,
+              }))
+
+            setWorkOrderBefore(initialWorkOrderFiles)
+          }
+
+          if (data?.work_order_evidences) {
+            const initialWorkOrderFiles = data.work_order_evidences
+              .filter((x: any) => x.type === 3)
+              .map((item: any) => ({
+                id: item.id,
+                name: item.evidence_location,
+              }))
+
+            setWorkOrderAfter(initialWorkOrderFiles)
+          }
+
+          // GLOBAL
+          if (data?.work_order_status.length >= 3 && data?.order?.payment_type === 'survey') {
+            const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
                 index: (Date.now() + index).toString(),
-                item_name: item.name,
-                tukang_id: item?.tukang_id,
-                tukang_name: item?.tukang_name,
+                item_name: item?.name,
+                tukang_id: item?.tukang_id ?? null,
+                tukang_name: item?.tukang_name ?? null,
                 unit: item?.unit,
-                is_user: item.is_customer ? 1 : 0,
-                type: item.type,
-                quantity: item.quantity,
+                is_user: item?.is_customer === true ? 1 : 0,
+                type: item?.type,
+                quantity: item?.quantity,
               })
             )
 
             setWorkOrderItem(workOrderItem)
+          } else if (
+            data?.work_order_status.length > 2 &&
+            ['gratis', 'pemasangan_tanpa_survey'].includes(data?.order?.payment_type)
+          ) {
+            const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
+              (item: any, index: number) => ({
+                id: item.id,
+                index: (Date.now() + index).toString(),
+                item_name: item?.name,
+                tukang_id: item?.tukang_id ?? null,
+                tukang_name: item?.tukang_name ?? null,
+                unit: item?.unit,
+                is_user: item?.is_customer === true ? 1 : 0,
+                type: item?.type,
+                quantity: item?.quantity,
+              })
+            )
+
+            setWorkOrderItem(workOrderItem)
+          } else if (
+            data?.work_order_status?.length >= 1 &&
+            data?.order?.payment_type === 'survey'
+          ) {
+            const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
+              id: item.id,
+              index: (Date.now() + index).toString(),
+              item_name: item.item_name ?? '',
+              unit: item?.unit ?? '',
+              is_user: item.is_customer ? 1 : 0,
+              type: 2,
+              quantity: item?.quantity ?? 0,
+            }))
+
+            const workOrderItemMaterial = [
+              {
+                id: null,
+                index: (Date.now() + workOrderItem.length).toString(),
+                item_name: '',
+                tukang_id: null,
+                tukang_name: '',
+                is_user: 0,
+                type: 1,
+                quantity: null,
+                unit: '',
+              },
+            ]
+
+            const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+            setWorkOrderItem(mergedWorkOrderItem)
+          } else if (
+            (data?.work_order_status?.length >= 1 || data?.work_order_status?.length <= 2) &&
+            ['gratis', 'pemasangan_tanpa_survey'].includes(data?.order?.payment_type)
+          ) {
+            const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
+              id: item.id,
+              index: (Date.now() + index).toString(),
+              item_name: item.item_name ?? '',
+              unit: item?.unit ?? '',
+              is_user: item.is_customer ? 1 : 0,
+              type: 2,
+              quantity: item?.quantity ?? 0,
+            }))
+
+            const workOrderItemMaterial = [
+              {
+                id: null,
+                index: (Date.now() + workOrderItem.length).toString(),
+                item_name: '',
+                tukang_id: null,
+                tukang_name: '',
+                is_user: 0,
+                type: 1,
+                quantity: null,
+                unit: '',
+              },
+            ]
+
+            const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
+            setWorkOrderItem(mergedWorkOrderItem)
+          }
+
+          if (data?.work_order_status) {
+            const workStartDate = new Date(data?.work_start_date).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            const workEndDate = new Date(data?.work_end_date).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            const workDateTime =
+              data?.work_end_date !== null
+                ? `${workStartDate} - ${workEndDate}`
+                : 'Belum dijadwalkan oleh vendor'
+
+            const surveyDate = data.survey_date
+              ? new Date(data.survey_date).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })
+              : 'Order ini tanpa survey'
+
+            const workOrderHistoryData = data.work_order_status.map(
+              (item: any, index: number, array: any[]) => {
+                let workTime = '-'
+
+                if (index > 0) {
+                  const date_1 = new Date(array[index - 1].created_at).getTime()
+                  const date_2 = new Date(item.created_at).getTime()
+
+                  const timeDifferenceInMilliseconds = Math.abs(date_2 - date_1)
+
+                  const timeDifferenceInMinutes = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60)
+                  )
+
+                  const timeDifferenceInHours = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60 * 60)
+                  )
+
+                  const timeDifferenceInDays = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
+                  )
+
+                  if (timeDifferenceInDays >= 1) {
+                    workTime = `${timeDifferenceInDays} Hari`
+                  } else if (timeDifferenceInHours >= 1) {
+                    workTime = `${timeDifferenceInHours} Jam`
+                  } else {
+                    workTime = `${timeDifferenceInMinutes} Menit`
+                  }
+                }
+
+                return {
+                  work_order_id: item?.work_order_id,
+                  work_order_status: item?.status?.category,
+                  work_order_status_label: item?.status?.description,
+                  // created_at: surveyDate,
+                  time_range: workTime,
+                  updated_at: item?.created_at
+                    ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      })
+                    : '-',
+                  work_date_time: workDateTime,
+                  updated_by: item?.updated_by,
+                }
+              }
+            )
+
+            setWorkOrderHistory(workOrderHistoryData)
           }
         })
     } catch (error) {
@@ -204,43 +423,79 @@ const NewMaterialVendor: FC = () => {
     }
   }
 
+  const getTukang = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/tukang`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempTukang = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+        }))
+
+        setTukang(tempTukang)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getWorkOrder()
+    getTukang()
   }, [])
 
   const formatDateTime = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return ''
-    }
-
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     const hours = date.getHours().toString().padStart(2, '0')
     const minutes = date.getMinutes().toString().padStart(2, '0')
-    return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
+    const seconds = date.getSeconds().toString().padStart(2, '0')
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
   }
 
   // Filter Work Order Status
   useEffect(() => {
-    const workOrderStatusOption = () => {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: Status) =>
-        ['WORKSTART', 'WORKEND', 'RIP', 'REWORKEND'].includes(status.category)
-      )
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
-      const selectedStatus = desiredStatus.map((status: Status) => ({
-        value: status.value,
-        category: status.category,
-        label: status.category,
-      }))
-
-      setWorkOrderStatus(selectedStatus)
+    const getStatusNameByCategory = (category: string) => {
+      switch (category) {
+        case 'SURVEYREQ':
+          return 'SURVEYSTART'
+        case 'SURVEYSTART':
+          return 'SURVEYDONE'
+        case 'SURVEYDONE':
+          return 'SURVEYDONE'
+        case 'WORKREQ':
+          return 'WORKSTART'
+        case 'WORKSTART':
+          return 'WORKEND'
+        default:
+          return null
+      }
     }
 
-    workOrderStatusOption()
-  }, [])
+    const status = getStatusNameByCategory(workOrderDetail?.work_order_status[0]?.status?.category)
+    const desiredStatus =
+      statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
+
+    setWorkOrder({
+      ...workOrder,
+      work_order_status: desiredStatus,
+    })
+  }, [workOrderDetail?.work_order_status[0]?.status?.category, workOrder.work_order_status])
 
   // Selected Work Order ID
   useEffect(() => {
@@ -248,18 +503,6 @@ const NewMaterialVendor: FC = () => {
       getWorkOrderDetail()
     }
   }, [selectedWorkOrderId])
-
-  // Format Date
-  const formatDate = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return '--/--/----'
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
 
   // Hash Key
   const stringToHash = (string: string) => {
@@ -276,17 +519,37 @@ const NewMaterialVendor: FC = () => {
     return hash
   }
 
-  // Select Work Order
-  const handleChangeSelectWorkOrder = (value: any) => {
-    const selectedWorkOrder = value
-    setSelectedWorkOrderId(selectedWorkOrder)
-    setLoading(true)
-    setWorkOrderHistory([])
-    setWorkOrderItem([])
+  // Form Handler
+  const workOrderHandler = (
+    value: number | string | Array<number | string | null> | any | null,
+    target: string
+  ) => {
+    setWorkOrder((prev) => {
+      const cache = {...prev, [target]: value}
+      return cache
+    })
   }
 
-  // Form Handler
-  let handleAddForm = (type: number) => {
+  const tukangHandler = (selectedOptions: any, field: any) => {
+    const type = field === 'survey_tukang_id' ? 1 : 2
+
+    setWorkOrder((prevWorkOrder) => {
+      const updatedTukang = selectedOptions.map((option: any) => ({
+        ...option,
+        type: type,
+      }))
+
+      const filteredTukang = prevWorkOrder.tukang_id.filter((x: any) => x.type !== type)
+      const mergedTukang = [...filteredTukang, ...updatedTukang]
+
+      return {
+        ...prevWorkOrder,
+        tukang_id: mergedTukang,
+      }
+    })
+  }
+
+  const handleAddForm = (type: number) => {
     const newForm = {
       id: null,
       index: Date.now().toString(),
@@ -302,7 +565,7 @@ const NewMaterialVendor: FC = () => {
     setWorkOrderItem((prev) => [...prev, newForm])
   }
 
-  let handleRemoveForm = (index: any) => {
+  const handleRemoveForm = (index: any) => {
     setWorkOrderItem((prev) => {
       const updatedValues = [...prev]
       const typeIndex = updatedValues.findIndex((item) => item.index === index)
@@ -315,8 +578,19 @@ const NewMaterialVendor: FC = () => {
     })
   }
 
+  // Handle Checkbox Change
+  const handleCheckboxChange = (index: any, isChecked: boolean) => {
+    const updatedMaterialValues = [...workOrderItem]
+    const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
+    if (elementIndex !== -1) {
+      updatedMaterialValues[elementIndex].is_user = isChecked ? 1 : 0
+    }
+
+    setWorkOrderItem(updatedMaterialValues)
+  }
+
   // Handle Item Name Change
-  let handleItemNameChange = (index: any, value: any, type: number) => {
+  const handleItemNameChange = (index: any, value: any, type: number) => {
     const updatedMaterialValues = [...workOrderItem]
     const filteredMaterialValues = updatedMaterialValues.filter((x) => x.type === type)
 
@@ -362,54 +636,229 @@ const NewMaterialVendor: FC = () => {
     setWorkOrderItem(updatedMaterialValues)
   }
 
-  // Handle Checkbox Change
-  let handleCheckboxChange = (index: any, isChecked: boolean) => {
-    const updatedMaterialValues = [...workOrderItem]
-    const elementIndex = updatedMaterialValues.findIndex((item) => item.index === index)
+  // Handle File ( Before ) Change
+  const handleFileWorkBefore = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...workOrderBefore]
+      const mergedFiles = existingFiles.concat(file)
 
-    if (elementIndex !== -1) {
-      updatedMaterialValues[elementIndex].is_user = isChecked ? 1 : 0
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setWorkOrderBefore(mergedFiles)
+    }
+  }
+
+  const handleImageWorkBeforeClick = () => {
+    const inputField = document.querySelector('.work-before-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleFileWorkBeforeClick = (index: number) => {
+    setPreviewWorkBeforeImage(workOrderBefore[index]?.name)
+    setVisibleWorkBefore(true)
+    setSelectedWorkBeforeFile(index)
+  }
+
+  const handleRemoveWorkBeforeFile = (index: number) => {
+    const newEvidances = [...workOrderBefore]
+    newEvidances.splice(index, 1)
+    setWorkOrderBefore(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // Handle File ( After ) Change
+  const handleFileWorkAfter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...workOrderAfter]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setWorkOrderAfter(mergedFiles)
+    }
+  }
+
+  const handleImageWorkAfterClick = () => {
+    const inputField = document.querySelector('.work-after-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleFileWorkAfterClick = (index: number) => {
+    setPreviewWorkAfterImage(workOrderAfter[index]?.name)
+    setVisibleWorkAfter(true)
+    setSelectedWorkAfterFile(index)
+  }
+
+  const handleRemoveWorkAfterFile = (index: number) => {
+    const newEvidances = [...workOrderAfter]
+    newEvidances.splice(index, 1)
+    setWorkOrderAfter(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  const WorkOrderValidation = () => {
+    let valid = true
+
+    if (workOrderBefore.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Upload Foto Sebelum',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (
+      workOrderAfter.length === 0 &&
+      [
+        'SURVEYSTART',
+        'SURVEYDONE',
+        'WORKSTART',
+        'WORKEND',
+        'REWORKSTART',
+        'RIP',
+        'REWORKEND',
+        'WORKDONE',
+        'DONE',
+      ].includes(workOrderDetail?.work_order_status[0]?.status?.category)
+    ) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Upload Foto Sesudah',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (
+      workOrderItem.filter((x) => x.type === 2).some((x) => x.item_name === '') &&
+      ['SURVEYSTART', 'SURVEYDONE'].includes(
+        workOrderDetail?.work_order_status[0]?.status?.category
+      )
+    ) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Item Jasa Pemasangan',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (
+      workOrderItem.filter((x) => x.type === 2).some((x) => x.quantity === null) &&
+      ['SURVEYSTART', 'SURVEYDONE'].includes(
+        workOrderDetail?.work_order_status[0]?.status?.category
+      )
+    ) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Quantity',
+        icon: 'warning',
+      })
+      valid = false
     }
 
-    setWorkOrderItem(updatedMaterialValues)
+    return valid
   }
 
   // Update Work Order
   const handleUpdateWorkOrder = async () => {
-    setIsLoading(true)
+    if (!WorkOrderValidation()) {
+      setIsLoading(false)
+      return false
+    }
+
     const formData = new FormData()
+    setIsLoading(true)
 
     // Work Order Detail
-    formData.append('work_order_status', selectedWorkOrderStatus?.value?.toString() ?? '')
+    formData.append('status_id', String(workOrder?.work_order_status))
+    formData.append('description', workOrder.description)
+
+    if (workOrder.work_date_time !== '') {
+      formData.append('work_date_time', workOrder.survey_date_time)
+    }
+
+    if (workOrder.work_start_date) {
+      formData.append('work_start_date', workOrder.work_start_date)
+    }
+
+    if (workOrder.work_end_date) {
+      formData.append('work_end_date', workOrder.work_end_date)
+    }
+
+    // if (workOrder.tukang_id) {
+    //   workOrder.tukang_id.map((item) => {
+    //     formData.append(`tukang_id`, item?.value)
+    //     formData.append(`tukang_type`, item?.type)
+    //   })
+    // }
+
+    if (workOrderBefore?.length) {
+      workOrderBefore.forEach((item, index) => {
+        if (item instanceof Blob) {
+          formData.append(`work_order_before`, item, item?.name)
+        }
+      })
+    }
+
+    if (workOrderAfter?.length) {
+      workOrderAfter.forEach((item, index) => {
+        if (item instanceof Blob) {
+          formData.append(`work_order_after`, item, item?.name)
+        }
+      })
+    }
 
     // Work Order Item
     if (workOrderItem) {
       workOrderItem.forEach((order, index) => {
-        if (order.id) {
+        if (order.id && order.item_name !== '') {
           formData.append(`work_order_items[${index}][id]`, order.id.toString())
         }
 
-        formData.append(`work_order_items[${index}][type]`, order.type.toString())
-        formData.append(`work_order_items[${index}][item_name]`, order.item_name)
-        formData.append(`work_order_items[${index}][is_customer]`, order.is_user.toString())
-        formData.append(`work_order_items[${index}][unit]`, order.unit)
+        if (order.item_name !== '') {
+          formData.append(`work_order_items[${index}][type]`, order.type.toString())
+          formData.append(`work_order_items[${index}][item_name]`, order.item_name)
+          formData.append(`work_order_items[${index}][is_customer]`, order.is_user.toString())
 
-        if (order.quantity) {
+          if (tukangId !== null) {
+            formData.append(`work_order_items[${index}][tukang_id]`, tukangId)
+          }
+
+          if (tukangName !== '') {
+            formData.append(`work_order_items[${index}][tukang_name]`, tukangName)
+          }
+        }
+
+        if (order.unit !== '') {
+          formData.append(`work_order_items[${index}][unit]`, order.unit)
+        }
+
+        if (order.quantity && order.item_name !== '') {
           formData.append(`work_order_items[${index}][quantity]`, order.quantity.toString())
-        }
-
-        if (order.tukang_id) {
-          formData.append(`work_order_items[${index}][tukang_id]`, order.tukang_id.toString())
-        }
-
-        if (order.tukang_name) {
-          formData.append(`work_order_items[${index}][tukang_name]`, order.tukang_name)
         }
       })
     }
 
     await axios
-      .post(`${apiUrl}/work-orders/${selectedWorkOrderId.value}/set-materials`, formData, {
+      .post(`${apiUrl}/work-orders/${workOrder.id}/set-materials`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -421,7 +870,7 @@ const NewMaterialVendor: FC = () => {
         if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
-            text: response.data.message,
+            text: 'Work Order Updated',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -441,7 +890,6 @@ const NewMaterialVendor: FC = () => {
         navigate('/work-order/view-work-order')
       })
       .catch((error) => {
-        console.error(error)
         setIsLoading(false)
 
         Swal.fire({
@@ -452,505 +900,978 @@ const NewMaterialVendor: FC = () => {
       })
   }
 
-  // Table Work Order History
-  const columns: ColumnsType<WorkOrderHistory> = [
-    {
-      title: 'ID',
-      dataIndex: 'work_order_id',
-      key: 'work_order_id',
-      align: 'center',
-      width: 100,
-      defaultSortOrder: 'descend',
-      sorter: (a, b) => a.work_order_id - b.work_order_id,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'work_order_status',
-      key: 'work_order_status',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.work_order_status.includes(String(value)),
-      sorter: (a, b) => a.work_order_status.length - b.work_order_status.length,
-    },
-    {
-      title: 'Date Order',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.created_at.includes(String(value)),
-      sorter: (a, b) => a.created_at.length - b.created_at.length,
-    },
-    {
-      title: 'Work Date Time',
-      dataIndex: 'work_date_time',
-      key: 'work_date_time',
-      align: 'center',
-      width: 120,
-      onFilter: (value, record) => record.work_date_time.includes(String(value)),
-      sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
-    },
-    {
-      title: 'Time Spent',
-      dataIndex: 'time_spent',
-      key: 'time_spent',
-      align: 'center',
-      width: 140,
-      onFilter: (value, record) => record.time_spent.includes(String(value)),
-      sorter: (a, b) => a.time_spent.length - b.time_spent.length,
-    },
-  ]
-
   return (
     <section id='new-material'>
       <Card className='mb-5'>
         <Card.Body>
-          <div className='form-wrapper'>
-            <Row className='form-header mb-5'>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='fs-4 fw-bold'>
-                  Nama Toko :{' '}
-                  <span className='fs-4 ms-2 fw-normal'>
-                    {workOrderDetail?.order?.store?.store_name ?? ''}
-                  </span>
-                </Form.Label>
-              </Col>
-
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Col>
-                  <Form.Label className='fs-4 fw-bold'>
-                    Order ID :{' '}
-                    <span className='fs-4 ms-2 fw-normal'>{workOrderDetail?.order?.id ?? ''}</span>
-                  </Form.Label>
-                </Col>
-
-                <Col>
-                  <Form.Label className='fs-4 fw-bold'>Work Order ID : </Form.Label>
-
-                  <Select
-                    name='work-order-id'
-                    className='form-control p-0'
-                    placeholder='Ketik/Pilih Work Order Id'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={workOrder}
-                    onChange={(newValue) => handleChangeSelectWorkOrder(newValue)}
-                  />
-                </Col>
-              </Col>
-
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Col>
-                  <Form.Label className='fs-4 fw-bold'>
-                    Receipt Number :
-                    <span className='fs-4 ms-2 fw-normal'>
-                      {workOrderDetail?.order?.receipt_number ?? '-'}
-                    </span>
-                  </Form.Label>
-                </Col>
-
-                <Col>
-                  <Form.Label className='fs-4 fw-bold'>Work Status :</Form.Label>
-                  <Select
-                    classNamePrefix='select'
-                    placeholder='Select Status'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={workOrderStatus}
-                    value={{
-                      value: selectedWorkOrderStatus?.value ?? null,
-                      label: selectedWorkOrderStatus?.label ?? '',
-                      category: selectedWorkOrderStatus?.category ?? '',
-                    }}
-                    onChange={(newValue) => setSelectedWorkOrderStatus(newValue)}
-                  />
-                </Col>
-              </Col>
-            </Row>
-
-            <Row className='information-detail mb-5'>
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
-                <div className='fs-4 fw-bold'>Informasi Pembeli</div>
-                <Row>
-                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
-                        No Member :
-                      </Form.Label>
-                      <Col sm='6'>
-                        <p className='fs-7'>
-                          {workOrderDetail?.order?.members?.member_number ?? ''}
-                        </p>
-                      </Col>
-                    </Form.Group>
-
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
-                        Customer Name :
-                      </Form.Label>
-                      <Col sm='6'>
-                        <p className='fs-7'>{workOrderDetail?.order?.members?.full_name ?? ''}</p>
-                      </Col>
-                    </Form.Group>
-
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
-                        Alamat Pemasangan
-                      </Form.Label>
-                      <Col sm='6'>
-                        <p className='fs-7'>{workOrderDetail?.order?.project_address ?? ''}</p>
-                      </Col>
-                    </Form.Group>
-                  </Col>
-
-                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='4'>
-                        Nomor Telp/WA :
-                      </Form.Label>
-
-                      <Col sm='8'>
-                        <p className='fs-7'>{workOrderDetail?.order?.project_number ?? ''}</p>
-                      </Col>
-                    </Form.Group>
-
-                    <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='4'>
-                        Alamat Email
-                      </Form.Label>
-
-                      <Col sm='8'>
-                        <p className='fs-7'>{workOrderDetail?.order?.members?.email ?? ''} </p>
-                      </Col>
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Col>
-
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <Row>
-                  <Col md={5}>
-                    <div className='survey mb-3'>
-                      <div className='detail-info mb-3'>
-                        <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
-                        <p className='fs-7'>
-                          {formatDateTime(new Date(workOrderDetail?.survey_date) ?? '')}
-                        </p>
-                      </div>
-
-                      <div className='detail-info mb-3'>
-                        <p className='fs-5 fw-bold'>Oleh:</p>
-                        <p className='fs-7'>
-                          {workOrderDetail?.work_order_tukang
-                            .filter((x: any) => x.type === 1)
-                            .map((item: any) => item?.tukang?.full_name)
-                            .join(', ')}
-                        </p>
-                      </div>
-                    </div>
-                  </Col>
-
-                  <Col md={7}>
-                    <div className='work-date'>
-                      <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
-
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='3'>
-                          MULAI
-                        </Form.Label>
-
-                        <Col sm='9'>
-                          <p className='fs-7'>
-                            {formatDateTime(new Date(workOrderDetail?.work_start_date))}
-                          </p>
-                        </Col>
-                      </Form.Group>
-
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='3'>
-                          SELESAI
-                        </Form.Label>
-
-                        <Col sm='9'>
-                          <p className='fs-7'>
-                            {formatDateTime(new Date(workOrderDetail?.work_orders?.work_end_date))}
-                          </p>
-                        </Col>
-                      </Form.Group>
-
-                      <div className='detail-info mb-3'>
-                        <p className='fs-5 fw-bold'>Oleh:</p>
-                        <p className='fs-7'>
-                          {workOrderDetail?.work_orders?.work_order_tukang
-                            .filter((x: any) => x.type === 2)
-                            .map((item: any) => item?.tukang?.full_name)
-                            .join(', ')}
-                        </p>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          </div>
-
-          <Row className='table-warranty d-flex align-items-center mb-5'>
-            <div className='table-title-warranty'>
-              <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+          <Row>
+            <Col xxl={8} xl={8} md={8} sm={12}>
               <Row>
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Tanggal request pemasangan :</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>
-                      {formatDate(new Date(workOrderDetail?.order?.request_survey))}
-                    </p>
-                  </Col>
-                </Form.Group>
+                <Col xxl={6} xl={6} md={6} sm={12}>
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column md='4'>
+                      Nama Toko
+                    </Form.Label>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
-                  </Col>
-                </Form.Group>
+                    <Col md='8' className='d-flex align-items-center'>
+                      <p className='fs-7 fw-semibold'>
+                        {workOrderDetail?.order?.store?.store_name ?? ''}
+                      </p>
+                    </Col>
+                  </Form.Group>
+                </Col>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Form.Label column>Payment Type:</Form.Label>
-                  <Col>
-                    <p className='fs-7 p-0'>
-                      {(() => {
-                        if (workOrderDetail?.order?.payment_type === 'survey') {
-                          return `Berbayar & Survey`
-                        } else if (workOrderDetail?.order?.payment_type === 'gratis') {
-                          return `Gratis`
-                        } else if (
-                          workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
-                        ) {
-                          return `Berbayar & Pemasangan Tanpa Survey`
-                        } else {
-                          return ``
-                        }
-                      })()}
-                    </p>
-                  </Col>
+                <Col xxl={6} xl={6} md={6} sm={12}>
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column md='4'>
+                      Nama Vendor
+                    </Form.Label>
+
+                    <Col md='8' className='d-flex align-items-center'>
+                      <p className='fs-7 fw-semibold'>
+                        {workOrderDetail?.vendor?.company_name ?? ''}
+                      </p>
+                    </Col>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row>
+                <Col xxl={6} xl={6} md={6} sm={12}>
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column md='4'>
+                      Order ID
+                    </Form.Label>
+
+                    <Col md='8'>
+                      <Form.Control readOnly value={workOrderDetail?.order_id ?? ''} />
+                    </Col>
+                  </Form.Group>
+
+                  <Row className='detail-info'>
+                    <Col md={4}>
+                      <div className='title'>
+                        <h1 className='fs-6'>Costumer Info</h1>
+                      </div>
+                    </Col>
+
+                    <Col md={8} className='mt-5'>
+                      <div className='detail-info'>
+                        <p className='fs-7 fw-bold '>
+                          {workOrderDetail?.order?.members?.full_name ?? ''}
+                        </p>
+                        <p className='fs-7'> {workOrderDetail?.order?.project_number ?? ''}</p>
+                        <p className='fs-7'>{workOrderDetail?.order?.members?.email ?? ''}</p>
+                        <p className='fs-7'>{workOrderDetail?.order?.project_address ?? ''}</p>
+                      </div>
+                    </Col>
+                  </Row>
+                </Col>
+
+                <Col xxl={6} xl={6} md={6} sm={12}>
+                  <Form.Group className='detail-info' as={Row}>
+                    <Form.Label className='fs-7' column sm='4'>
+                      Work Order ID
+                    </Form.Label>
+
+                    <Col sm='8'>
+                      <Select
+                        name='work-order-id'
+                        className='form-control p-0'
+                        classNamePrefix='select'
+                        isSearchable={true}
+                        isClearable={true}
+                        placeholder='Pilih Work Order'
+                        options={workOrderOption}
+                        onChange={(newValue) => setSelectedWorkOrderId(newValue)}
+                      />
+                    </Col>
+                  </Form.Group>
+
+                  <Row className='detail-info'>
+                    <Col md={4}>
+                      <div className='title'>
+                        <h1 className='fs-6'>Work Order Info</h1>
+                      </div>
+                    </Col>
+
+                    <Col md={8} className='mt-5'>
+                      <div className='detail-info'>
+                        {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                          workOrderDetail?.work_order_status[0]?.status?.category
+                        ) && (
+                          <>
+                            {workOrderDetail?.order?.m_order_details?.map(
+                              (item: any, index: number) => (
+                                <p key={`${index}-work_order_tukang`} className='fs-7'>
+                                  {item?.item_notes ?? '-'}
+                                </p>
+                              )
+                            )}
+                          </>
+                        )}
+
+                        {[
+                          'WORKREQ',
+                          'WORKSTART',
+                          'WORKEND',
+                          'REWORKSTART',
+                          'RIP',
+                          'REWORKEND',
+                          'WORKDONE',
+                          'DONE',
+                        ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
+                          <>
+                            {workOrderDetail?.work_order_status[0]?.work_order_items.map(
+                              (item: any, index: number) => (
+                                <p key={`${index}-work_order_tukang`} className='fs-7'>
+                                  {item?.name ?? '-'}
+                                </p>
+                              )
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </Col>
+                  </Row>
+
+                  <Row className='detail-info'>
+                    <Form.Group className='detail-info' as={Row}>
+                      <Form.Label
+                        className='fs-9 text-decoration-underline pt-0 pb-0'
+                        column
+                        md='4'
+                      >
+                        Upload Foto Sebelum
+                      </Form.Label>
+
+                      <Col md='8'>
+                        <Form.Group>
+                          <Form className='form-input-image' onClick={handleImageWorkBeforeClick}>
+                            <Form.Control
+                              type='file'
+                              accept='image/*'
+                              className='work-before-image'
+                              multiple
+                              hidden
+                              id='work-before-file-input'
+                              ref={evidenceRef}
+                              onChange={handleFileWorkBefore}
+                            />
+
+                            <div className='input-image-text'>
+                              <FontAwesomeIcon icon={faFileArrowUp} color='#858585' size='2xl' />
+                            </div>
+                          </Form>
+
+                          <ListGroup className='pt-3'>
+                            {workOrderBefore?.length ? (
+                              workOrderBefore.map((item, index) => (
+                                <ListGroup key={`${stringToHash(item?.name ?? 'randomImageHash')}`}>
+                                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                                    <FontAwesomeIcon
+                                      className='me-3'
+                                      icon={faFileArrowUp}
+                                      color='#858585'
+                                      size='sm'
+                                    />
+
+                                    <span
+                                      className='upload-content'
+                                      style={{cursor: 'pointer'}}
+                                      onClick={() => handleFileWorkBeforeClick(index)}
+                                    >
+                                      {item?.name}
+                                    </span>
+
+                                    <FontAwesomeIcon
+                                      icon={faTrash}
+                                      size='sm'
+                                      color='#ed2b2a'
+                                      style={{cursor: 'pointer'}}
+                                      onClick={(e) => handleRemoveWorkBeforeFile(index)}
+                                    />
+                                  </ListGroup.Item>
+
+                                  {selectedWorkBeforeFile === index && item && (
+                                    <Image
+                                      key={`${stringToHash(previewWorkBeforeImage)} - ${index} - ${
+                                        item?.name
+                                      }`}
+                                      width={200}
+                                      style={{display: 'none'}}
+                                      src={
+                                        item instanceof File
+                                          ? URL.createObjectURL(item)
+                                          : `${apiUrl}/public/work-orders/${previewWorkBeforeImage}`
+                                      }
+                                      preview={{
+                                        visible: visibleWorkBefore,
+                                        src:
+                                          item instanceof File
+                                            ? URL.createObjectURL(item)
+                                            : `${apiUrl}/public/work-orders/${previewWorkBeforeImage}`,
+                                        onVisibleChange: (value) => {
+                                          setVisibleWorkBefore(value)
+                                        },
+                                      }}
+                                    />
+                                  )}
+                                </ListGroup>
+                              ))
+                            ) : (
+                              <ListGroup.Item className='d-flex justify-content-center'>
+                                Tidak ada file yang dipilih
+                              </ListGroup.Item>
+                            )}
+                          </ListGroup>
+                        </Form.Group>
+                      </Col>
+                    </Form.Group>
+
+                    {[
+                      'SURVEYSTART',
+                      'SURVEYDONE',
+                      'WORKSTART',
+                      'WORKEND',
+                      'REWORKSTART',
+                      'RIP',
+                      'REWORKEND',
+                      'WORKDONE',
+                      'DONE',
+                    ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
+                      <Form.Group className='detail-info' as={Row}>
+                        <Form.Label
+                          className='fs-9 text-decoration-underline pt-0 pb-0 '
+                          column
+                          md='4'
+                        >
+                          Upload Foto Sesudah
+                        </Form.Label>
+
+                        <Col md='8'>
+                          <Form.Group>
+                            <Form className='form-input-image' onClick={handleImageWorkAfterClick}>
+                              <Form.Control
+                                type='file'
+                                accept='image/*'
+                                className='work-after-image'
+                                multiple
+                                hidden
+                                id='work-after-file-input'
+                                ref={evidenceRef}
+                                onChange={handleFileWorkAfter}
+                              />
+
+                              <div className='input-image-text'>
+                                <FontAwesomeIcon icon={faFileArrowUp} color='#858585' size='2xl' />
+                              </div>
+                            </Form>
+
+                            <ListGroup className='pt-3'>
+                              {workOrderAfter?.length ? (
+                                workOrderAfter.map((item, index) => (
+                                  <ListGroup
+                                    key={`${stringToHash(item?.name ?? 'randomImageHash')}`}
+                                  >
+                                    <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                                      <FontAwesomeIcon
+                                        className='me-3'
+                                        icon={faFileArrowUp}
+                                        color='#858585'
+                                        size='sm'
+                                      />
+
+                                      <span
+                                        style={{cursor: 'pointer'}}
+                                        className='upload-content'
+                                        onClick={() => handleFileWorkAfterClick(index)}
+                                      >
+                                        {item?.name}
+                                      </span>
+
+                                      <FontAwesomeIcon
+                                        icon={faTrash}
+                                        size='sm'
+                                        color='#ed2b2a'
+                                        style={{cursor: 'pointer'}}
+                                        onClick={(e) => handleRemoveWorkAfterFile(index)}
+                                      />
+                                    </ListGroup.Item>
+
+                                    {selectedWorkAfterFile === index && item && (
+                                      <Image
+                                        key={`${stringToHash(previewWorkAfterImage)} - ${index} - ${
+                                          item?.name
+                                        }`}
+                                        width={200}
+                                        style={{display: 'none'}}
+                                        src={
+                                          item instanceof File
+                                            ? URL.createObjectURL(item)
+                                            : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`
+                                        }
+                                        preview={{
+                                          visible: visibleWorkAfter,
+                                          src:
+                                            item instanceof File
+                                              ? URL.createObjectURL(item)
+                                              : `${apiUrl}/public/work-orders/${previewWorkAfterImage}`,
+                                          onVisibleChange: (value) => {
+                                            setVisibleWorkAfter(value)
+                                          },
+                                        }}
+                                      />
+                                    )}
+                                  </ListGroup>
+                                ))
+                              ) : (
+                                <ListGroup.Item className='d-flex justify-content-center'>
+                                  Tidak ada file yang dipilih
+                                </ListGroup.Item>
+                              )}
+                            </ListGroup>
+                          </Form.Group>
+                        </Col>
+                      </Form.Group>
+                    )}
+                  </Row>
+                </Col>
+              </Row>
+
+              <Row>
+                <Form.Group className='detail-info'>
+                  <Form.Label className='fs-7'>Catatan Tambahan</Form.Label>
+
+                  <Form.Control
+                    name='description'
+                    style={{minHeight: '170px'}}
+                    as='textarea'
+                    value={workOrder.description}
+                    onChange={(e) => workOrderHandler(e.target.value, 'description')}
+                  />
                 </Form.Group>
               </Row>
-            </div>
+            </Col>
 
-            <div className='table-warranty-content'>
-              <table className='table hover responsive'>
-                <thead className='table-warranty-head'>
-                  <tr>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
-                    <th>Nama Pemasangan</th>
-                    <th>QTY Pemasangan</th>
-                    <th>Harga Jasa</th>
-                    <th>Jumlah</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <>
-                    {workOrderDetail?.work_order_status[0]?.work_order_items.map(
-                      (item: any, index: any) => (
-                        <tr key={`${index}-work_order_detail`}>
-                          <td>{item?.item_id ?? '-'}</td>
-                          <td>{item?.item ?? '-'}</td>
-                          <td>{item?.name ?? '-'}</td>
-                          <td>{item?.quantity ?? 0}</td>
-                          <td>{`Rp. ${parseInt(item?.unit_price ?? 0)?.toLocaleString('id')}`}</td>
-                          <td>{`Rp. ${parseInt(item?.total ?? 0).toLocaleString('id')}`}</td>
+            <Col xxl={4} xl={4} md={4} sm={12}>
+              <Form.Group as={Row} className='detail-info'>
+                <Form.Label className='pt-3 fs-5 fw-semibold'>
+                  WORK ORDER STATUS :
+                  <span className='fw-bold'>
+                    {' '}
+                    {workOrderDetail?.work_order_status[0].status?.description}
+                  </span>
+                </Form.Label>
+              </Form.Group>
+
+              {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                workOrderDetail?.work_order_status[0]?.status?.category
+              ) && (
+                <Row className='detail-info'>
+                  <div className='title'>
+                    <h1 className='fs-6'>Survey</h1>
+                  </div>
+
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tanggal Survey</Form.Label>
+
+                    <Col sm='8'>
+                      <Form.Control
+                        type='datetime-local'
+                        disabled
+                        value={workOrder.survey_date_time}
+                        onChange={(e) => workOrderHandler(e.target.value, 'survey_date_time')}
+                      />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tehnisi Survey</Form.Label>
+
+                    <Col sm='8'>
+                      <Select
+                        classNamePrefix='select'
+                        closeMenuOnSelect={false}
+                        isClearable={false}
+                        menuIsOpen={false}
+                        isMulti
+                        components={animatedComponents}
+                        options={tukang}
+                        getOptionLabel={(option) => `${option.label}`}
+                        getOptionValue={(option) => `${option.value}`}
+                        value={workOrder?.tukang_id?.filter((x) => x.type === 1)}
+                      />
+                    </Col>
+                  </Form.Group>
+                </Row>
+              )}
+
+              {[
+                'WORKREQ',
+                'WORKSTART',
+                'WORKEND',
+                'REWORK',
+                'REWORKSTART',
+                'RIP',
+                'REWORKEND',
+                'RESCHEDULE',
+                'DONE',
+              ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
+                <Row className='detail-info'>
+                  <div className='title'>
+                    <h1 className='fs-6'>Pengerjaan</h1>
+                  </div>
+
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tanggal Mulai dan Selesai Pekerjaan</Form.Label>
+
+                    <Col sm='8'>
+                      <RangePicker
+                        disabled={[true, true]}
+                        allowClear={false}
+                        className='date-range w-100'
+                        format='DD-MM-YYYY'
+                        onChange={(values) => {
+                          if (values && values.length === 2) {
+                            const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                            const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
+
+                            setWorkOrder((prev) => ({
+                              ...prev,
+                              work_start_date: dateFromFormatted,
+                              work_end_date: dateToFormatted,
+                            }))
+                          } else {
+                            setWorkOrder({
+                              id: null,
+                              work_order_status: null,
+                              description: '',
+                              tukang_id: [],
+                              survey_date_time: '',
+                              work_date_time: '',
+                              work_start_date: '',
+                              work_end_date: '',
+                              work_order_before: [],
+                              work_order_after: [],
+                            })
+                          }
+                        }}
+                        value={
+                          (workOrder.work_start_date &&
+                            workOrder.work_end_date && [
+                              dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
+                              dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
+                            ]) ||
+                          undefined
+                        }
+                      />{' '}
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group className='detail-info'>
+                    <Form.Label className='fs-6'>Tehnisi Pengerjaan</Form.Label>
+
+                    <Col sm='8'>
+                      <Select
+                        placeholder='Tukang belum diset oleh Vendor'
+                        classNamePrefix='select'
+                        closeMenuOnSelect={false}
+                        isClearable={false}
+                        menuIsOpen={false}
+                        isMulti
+                        components={animatedComponents}
+                        options={tukang}
+                        getOptionLabel={(option) => `${option.label}`}
+                        getOptionValue={(option) => `${option.value}`}
+                        value={workOrder.tukang_id.filter((x) => x.type === 2)}
+                      />
+                    </Col>
+                  </Form.Group>
+                </Row>
+              )}
+            </Col>
+          </Row>
+
+          {(() => {
+            if (
+              workOrderDetail?.order?.payment_type === 'survey' &&
+              workOrderDetail?.order?.quotation?.length === 0 &&
+              ['SURVEYSTART', 'SURVEYDONE'].includes(
+                workOrderDetail?.work_order_status[0]?.status?.category
+              )
+            ) {
+              return (
+                <>
+                  <Row>
+                    <Col>
+                      <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
+
+                      <Table responsive>
+                        <thead className='table-item-head'>
+                          <tr>
+                            <th></th>
+                            <th className='content'>Jenis Jasa</th>
+                            <th className='content'>QTY</th>
+                            <th className='content'>Satuan</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {workOrderItem
+                            .filter((x) => x.type === 2)
+                            .map((element, index) => (
+                              <tr
+                                key={`${stringToHash(element.index)}-service`}
+                                id={`${element.index}-service`}
+                              >
+                                <td align='center' width={70}>
+                                  <Button
+                                    variant='btn-jasa button-dark-primary'
+                                    onClick={() => handleAddForm(2)}
+                                  >
+                                    <FontAwesomeIcon icon={faPlus} />
+                                  </Button>
+                                </td>
+
+                                <td>
+                                  <Form.Control
+                                    id={`service-name-${index}`}
+                                    type='text'
+                                    value={element.item_name}
+                                    onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
+                                  />
+                                </td>
+
+                                <td>
+                                  <Form.Control
+                                    id={`quantity-${index}`}
+                                    type='number'
+                                    value={element.quantity?.toString()}
+                                    onChange={(e) =>
+                                      handleQuantityChange(element.index, e.target.value, 2)
+                                    }
+                                  />{' '}
+                                </td>
+
+                                <td>
+                                  <Form.Control
+                                    id={`unit-${index}`}
+                                    value={element.unit?.toString()}
+                                    onChange={(e) =>
+                                      handleSatuanChange(element.index, e.target.value, 2)
+                                    }
+                                  />
+                                </td>
+
+                                <td align='center' width={70}>
+                                  <Button
+                                    variant='danger'
+                                    onClick={() => handleRemoveForm(element.index)}
+                                  >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </Table>
+                    </Col>
+                  </Row>
+
+                  <Row>
+                    <Col>
+                      <Table responsive>
+                        <thead className='table-item-head'>
+                          <tr>
+                            <th></th>
+                            <th>Disediakan Customer</th>
+                            <th className='content'>Material Yang Dibutuhkan</th>
+                            <th className='content'>QTY</th>
+                            <th className='content'>Satuan</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {workOrderItem
+                            .filter((x) => x.type === 1)
+                            .map((element, index) => (
+                              <tr
+                                key={`${stringToHash(element.index)}-material`}
+                                id={`${element.index}-material`}
+                              >
+                                <td align='center' width={70}>
+                                  <Button
+                                    variant='btn-material button-dark-primary'
+                                    onClick={() => handleAddForm(1)}
+                                  >
+                                    <FontAwesomeIcon icon={faPlus} />
+                                  </Button>
+                                </td>
+
+                                <td align='center' style={{verticalAlign: 'middle'}}>
+                                  <Form.Check
+                                    id={`is-user-${index}`}
+                                    type='checkbox'
+                                    checked={element.is_user === 1}
+                                    onChange={(e) =>
+                                      handleCheckboxChange(element.index, e.target.checked)
+                                    }
+                                  />
+                                </td>
+
+                                <td>
+                                  <Form.Control
+                                    id={`item-name-${index}`}
+                                    value={element.item_name}
+                                    onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
+                                  />
+                                </td>
+
+                                <td>
+                                  <Form.Control
+                                    id={`quantity-${index}`}
+                                    value={element.quantity?.toString()}
+                                    onChange={(e) =>
+                                      handleQuantityChange(element.index, e.target.value, 1)
+                                    }
+                                  />
+                                </td>
+
+                                <td>
+                                  <Form.Control
+                                    id={`unit-${index}`}
+                                    value={element.unit?.toString()}
+                                    onChange={(e) =>
+                                      handleSatuanChange(element.index, e.target.value, 1)
+                                    }
+                                  />
+                                </td>
+
+                                <td align='center' width={70}>
+                                  <Button
+                                    variant='danger'
+                                    onClick={() => handleRemoveForm(element.index)}
+                                  >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </Table>
+                    </Col>
+                  </Row>
+                </>
+              )
+            } else if (
+              workOrderDetail?.order?.quotation?.length >= 1 &&
+              workOrderDetail?.order?.payment_type === 'survey'
+            ) {
+              return (
+                <>
+                  <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
+
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
                         </tr>
-                      )
+                      </thead>
+
+                      <tbody>
+                        {workOrderDetail?.order?.quotation[0]?.quotation_details
+                          ?.filter((x: any) => x.item_type === 2)
+                          ?.map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+
+                    {workOrderDetail?.order?.quotation[0]?.quotation_details?.filter(
+                      (x: any) => x.item_type === 1
+                    )?.length > 0 && (
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {workOrderDetail?.order?.quotation[0]?.quotation_details
+                            ?.filter((x: any) => x.item_type === 1)
+                            ?.map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
                     )}
-                  </>
+                  </div>
+                </>
+              )
+            } else if (
+              ['WORKREQ', 'WORKSTART', 'WORKEND', 'DONE'].includes(
+                workOrderDetail?.work_order_status[0]?.status?.category
+              ) &&
+              workOrderDetail?.work_order_status.length >= 2 &&
+              workOrderDetail?.order?.payment_type === 'survey'
+            ) {
+              return (
+                <div className='table-warranty-content'>
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th className='text-center' style={{width: '355px'}}>
+                          Jenis Jasa
+                        </th>
 
+                        <th className='text-center' style={{width: '100px'}}>
+                          QTY
+                        </th>
+
+                        <th className='text-center' style={{width: '250px'}}>
+                          Satuan
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {workOrderDetail?.order?.quotation[0]?.quotation_details
+                        ?.filter((x: any) => x.item_type === 2)
+                        ?.map((item: any, index: any) => (
+                          <tr key={`${index}-quotation`}>
+                            <td>
+                              {item?.name ?? '-'}{' '}
+                              {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                            </td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{item?.unit}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th className='text-center' style={{width: '355px'}}>
+                          Material Yang Dibutuhkan
+                        </th>
+
+                        <th className='text-center' style={{width: '100px'}}>
+                          QTY
+                        </th>
+
+                        <th className='text-center' style={{width: '250px'}}>
+                          Satuan
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {workOrderDetail?.order?.quotation[0]?.quotation_details
+                        ?.filter((x: any) => x.item_type === 1)
+                        ?.map((item: any, index: any) => (
+                          <tr key={`${index}-quotation`}>
+                            <td>
+                              {item?.name ?? '-'}{' '}
+                              {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                            </td>
+                            <td>{item?.quantity ?? 0}</td>
+                            <td>{item?.unit}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            } else if (
+              workOrderDetail?.order?.payment_type === 'gratis' ||
+              workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
+            ) {
+              return (
+                <>
+                  <div className='table-title-warranty mt-5'>
+                    <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
+                    <Row>
+                      <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                        <Form.Label column>
+                          {workOrderDetail?.order?.payment_type !== 'survey'
+                            ? 'Tanggal request pemasangan'
+                            : 'Tanggal request survey'}
+                        </Form.Label>
+                        <Col>
+                          <p className='fs-7 p-0'>
+                            {new Date(workOrderDetail?.order?.request_survey).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              }
+                            )}
+                          </p>
+                        </Col>
+                      </Form.Group>
+
+                      <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                        <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                        <Col>
+                          <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
+                        </Col>
+                      </Form.Group>
+
+                      <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                        <Form.Label column>Payment Type:</Form.Label>
+                        <Col>
+                          <p className='fs-7 p-0'>
+                            {(() => {
+                              if (workOrderDetail?.order?.payment_type === 'survey') {
+                                return `Berbayar & Survey`
+                              } else if (workOrderDetail?.order?.payment_type === 'gratis') {
+                                return `Gratis`
+                              } else if (
+                                workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
+                              ) {
+                                return `Berbayar & Pemasangan Tanpa Survey`
+                              } else {
+                                return ``
+                              }
+                            })()}
+                          </p>
+                        </Col>
+                      </Form.Group>
+                    </Row>
+                  </div>
+
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Item Code</th>
+                          <th>Item Name</th>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {workOrderDetail?.order?.m_order_details?.map((item: any, index: any) => (
+                          <>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
+                          </>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )
+            }
+          })()}
+
+          <Row>
+            {workOrderDetail?.work_order_status?.length > 1 &&
+            workOrderDetail?.work_order_status[0]?.status?.category === 'WORKEND' ? (
+              <div className='d-flex justify-content-center align-items-center'>
+                <Button
+                  className='btn-done d-flex justify-content-center align-items-center'
+                  type='submit'
+                  disabled
+                >
+                  Order Ini Pengerjaannya Telah Selesai
+                </Button>
+              </div>
+            ) : (
+              <div className='d-flex justify-content-center align-items-center'>
+                <Button
+                  className='d-flex justify-content-center align-items-center'
+                  variant='dark-primary'
+                  type='submit'
+                  disabled={isLoading}
+                  onClick={handleUpdateWorkOrder}
+                >
+                  {isLoading ? 'Submitting Order...' : 'Save'}
+                </Button>
+              </div>
+            )}
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {workOrderDetail?.work_order_status?.length && (
+        <Card className='mb-5'>
+          <Card.Body>
+            <div className='work-order-history'>
+              <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
+
+              <Table responsive>
+                <thead className='table-item-head'>
                   <tr>
-                    <td colSpan={5} className='text-end fw-bolder'>
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>
-                      {`Rp. ${parseInt(workOrderDetail?.grand_total ?? 0).toLocaleString('id')}`}
-                    </td>
+                    <th className='content-history'>Work Order ID</th>
+                    <th className='content-history'>Work Order Status</th>
+                    <th className='content-history'>Terakhir Update Survey/Pengerjaan</th>
+                    <th className='content-history'>Tanggal Pengerjaan</th>
                   </tr>
+                </thead>
+
+                <tbody>
+                  {workOrderHistory.map((item, index) => (
+                    <tr key={`${index}-history`} id={`${index}-history`}>
+                      <td>{item?.work_order_id}</td>
+                      <td>{item?.work_order_status_label}</td>
+                      <td>{item?.updated_at}</td>
+                      <td>{item?.work_date_time}</td>
+                    </tr>
+                  ))}
                 </tbody>
-              </table>
+              </Table>
             </div>
-          </Row>
-
-          <Row>
-            <Col>
-              <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
-
-              <table className='table'>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th></th>
-                    <th>Nama Produk / Jenis Jasa</th>
-                    <th>QTY</th>
-                    <th>Satuan</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderItem
-                    .filter((x) => x.type === 2)
-                    .map((element, index) => (
-                      <tr
-                        key={`${stringToHash(element.index)}-service`}
-                        id={`${stringToHash(element.index)}-service`}
-                      >
-                        <td align='center' width={70}>
-                          <Button
-                            variant='btn-jasa button-dark-primary'
-                            onClick={() => handleAddForm(2)}
-                          >
-                            <FontAwesomeIcon icon={faPlus} />
-                          </Button>
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`service-name-${index}`}
-                            value={element.item_name}
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                          />
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity?.toString()}
-                            onChange={(e) => handleQuantityChange(element.index, e.target.value, 2)}
-                          />{' '}
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`unit-${index}`}
-                            value={element.unit?.toString()}
-                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 2)}
-                          />
-                        </td>
-
-                        <td align='center' width={70}>
-                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col>
-              <table className='table'>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th></th>
-                    <th>Disediakan Customer</th>
-                    <th>Material Yang Dibutuhkan</th>
-                    <th>QTY</th>
-                    <th>Satuan</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderItem
-                    .filter((x) => x.type === 1)
-                    .map((element, index) => (
-                      <tr
-                        key={`${stringToHash(element.index)}-material`}
-                        id={`${stringToHash(element.index)}-material`}
-                      >
-                        <td align='center' width={70}>
-                          <Button
-                            variant='btn-material button-dark-primary'
-                            onClick={() => handleAddForm(1)}
-                          >
-                            <FontAwesomeIcon icon={faPlus} />
-                          </Button>
-                        </td>
-
-                        <td align='center' style={{verticalAlign: 'middle'}}>
-                          <Form.Check
-                            id={`is-user-${index}`}
-                            type='checkbox'
-                            checked={element.is_user === 1}
-                            onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
-                          />
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`item-name-${index}`}
-                            value={element.item_name}
-                            onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                          />
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`quantity-${index}`}
-                            value={element.quantity?.toString()}
-                            onChange={(e) => handleQuantityChange(index, e.target.value, 1)}
-                          />
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`unit-${index}`}
-                            value={element.unit?.toString()}
-                            onChange={(e) => handleSatuanChange(element.index, e.target.value, 1)}
-                          />
-                        </td>
-
-                        <td align='center' width={70}>
-                          <Button variant='danger' onClick={() => handleRemoveForm(element.index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </Col>
-          </Row>
-
-          <div className='d-flex justify-content-center align-items-center'>
-            <Button
-              className='button-dark-primary'
-              disabled={isLoading}
-              onClick={() => handleUpdateWorkOrder()}
-            >
-              {isLoading ? 'Saving..' : 'Save'}
-            </Button>
-          </div>
-        </Card.Body>
-      </Card>
-
-      <Card className='mb-5'>
-        <Card.Body>
-          <div className='work-order-history'>
-            <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
-
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={workOrderHistory}
-              loading={loading}
-              rowKey={(record) => record.work_order_id}
-              pagination={{position: ['bottomRight']}}
-            />
-          </div>
-        </Card.Body>
-      </Card>
+          </Card.Body>
+        </Card>
+      )}
     </section>
   )
 }

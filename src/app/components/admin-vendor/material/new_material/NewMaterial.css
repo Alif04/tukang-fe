@@ -1,42 +1,40 @@
 /* Form Layout */
 
-#new-material p {
-  padding: 3px 0px;
+#new-material .detail-info {
+  margin-bottom: 10px;
 }
 
-#new-material .form-wrapper {
-  margin-bottom: 30px;
+#new-material .detail-info p {
+  margin-bottom: 10px;
 }
 
-#new-material .form-wrapper .form-header {
-  margin-bottom: 30px;
+#new-material .detail-info .title {
+  margin-bottom: 10px;
 }
 
-#new-material .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-  width: 55%;
+/* Date Picker */
+#new-material
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
+  .ant-picker-input
+  > input[disabled] {
+  color: black !important;
+  font-weight: 600;
 }
 
-#new-material .costumer-info .detail-info.row label.form-label.col-form-label {
-  padding: 3px 9.75px;
+#new-material .ant-picker-range-separator .anticon svg {
+  color: black;
 }
 
-#new-material .costumer-info .detail-info.row input.form-control-plaintext {
-  padding: 3px 0px;
+#new-material .ant-picker-suffix .anticon svg {
+  color: black;
 }
 
-#new-material .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-  width: 45%;
-}
+/* Form Upload File */
 
-#new-material .sales-info .detail-info.row label.form-label.col-form-label {
-  padding: 3px 9.75px;
+#new-material form.form-input-image {
+  border: 2px solid #858585;
+  min-height: 80px;
 }
-
-#new-material .sales-info .detail-info.row input.form-control-plaintext {
-  padding: 3px 0px;
-}
-
-/* Table Item List */
 
 #new-material .table .table-item-head tr th {
   font-weight: 400;
@@ -45,22 +43,7 @@
   background-color: #464646;
 }
 
-/* Table Work Order Item List */
-#new-material .table-head-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
-}
-
-#new-material .table-head-wrapper .left {
-  display: flex;
-  align-items: center;
-}
-
-#new-material .table-head-wrapper .middle {
-  display: flex;
-  justify-content: space-between;
-}
+/* Table Work Order History */
 
 #new-material .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
@@ -82,14 +65,6 @@
   border-start-end-radius: 0;
 }
 
-#new-material .table-head-wrapper {
-  margin-bottom: 20px;
-}
-
-#new-material .ant-table-fixed {
-  table-layout: fixed;
-}
-
 #new-material .ant-table-tbody > tr.ant-table-row:hover > td {
   background-color: #dcdcdc;
 }
@@ -97,6 +72,19 @@
 #new-material .ant-table-tbody > tr > td {
   word-wrap: break-word;
   word-break: break-word;
+}
+
+/* Work Order Tukang */
+#new-material :where(.css-dev-only-do-not-override-1ck3jst).ant-picker.ant-picker-disabled {
+  background-color: white !important;
+}
+
+#new-material
+  :where(.css-dev-only-do-not-override-1ck3jst).ant-picker
+  .ant-picker-input
+  > input[disabled] {
+  color: black !important;
+  font-weight: 600;
 }
 
 /* Button Action */
@@ -127,4 +115,20 @@
   border-radius: 5px;
   background-color: #183383;
   color: white;
+}
+
+/* Responsive Table */
+
+@media screen and (max-width: 768px) {
+  #new-material .table-responsive {
+    margin-bottom: 30px;
+  }
+
+  #new-material .table .table-item-head tr th.content-history {
+    min-width: 200px;
+  }
+
+  #new-material .table .table-item-head tr th.content {
+    min-width: 300px;
+  }
 }
