@@ -790,7 +790,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                   complaintDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 complaintDetail?.orders?.work_orders?.work_order_status.length > 1 &&

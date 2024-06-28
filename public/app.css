@@ -35,16 +35,24 @@ h6 {
 }
 
 /* Flagging Color Calendar */
-.bg-calendar-order-reschedule {
-  background-color: #a06d00;
+.bg-calendar-order-booked {
+  background-color: #03aed2;
 }
 
-.bg-calendar-order-complaint {
-  background-color: #a30014;
+.bg-calendar-order-wip {
+  background-color: #b2b377;
 }
 
 .bg-calendar-order-done {
   background-color: #6b9230;
+}
+
+.bg-calendar-order-reschedule {
+  background-color: #ff9a00;
+}
+
+.bg-calendar-order-complaint {
+  background-color: #c80036;
 }
 
 /* Box Color */
@@ -56,6 +64,14 @@ h6 {
   background-color: #0f4cff;
 }
 
+.box-light-primary {
+  width: 20px;
+  height: 20px;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #03aed2;
+}
+
 .box-success {
   width: 20px;
   height: 20px;
@@ -64,12 +80,20 @@ h6 {
   background-color: #6b9230;
 }
 
+.box-brown {
+  width: 20px;
+  height: 20px;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #b2b377;
+}
+
 .box-warning {
   width: 20px;
   height: 20px;
   border: solid 1px black;
   border-radius: 5px;
-  background-color: #a06d00;
+  background-color: #ff9a00;
 }
 
 .box-danger {
@@ -77,7 +101,7 @@ h6 {
   height: 20px;
   border: solid 1px black;
   border-radius: 5px;
-  background-color: #a30014;
+  background-color: #c80036;
 }
 
 /* Line */
@@ -240,7 +264,6 @@ iframe.csi-frame {
 .ant-picker.ant-picker-range.date-range {
   display: flex;
   align-items: center;
-  /* width: 200px; */
   height: 45px !important;
 }
 
@@ -364,6 +387,17 @@ button.button-edit.btn.btn-primary {
   align-items: center;
   width: 25px;
   height: 25px;
+}
+
+button.button-request.btn.btn-warning {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  border: transparent !important;
 }
 
 button.button-email.btn.btn-success {
@@ -703,6 +737,19 @@ span.anticon.anticon-filter svg {
   color: white !important;
 }
 
+/* Pagination Table */
+.pagination-container {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100% !important;
+}
+
+.pagination {
+  display: flex;
+  justify-content: end;
+}
+
 @media screen and (max-width: 1200px) {
   .apexcharts-legend.apexcharts-align-center.apx-legend-position-left {
     top: 25px !important;
@@ -712,5 +759,48 @@ span.anticon.anticon-filter svg {
 @media screen and (max-width: 768px) {
   .text-light-md-black {
     color: #484747 !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  /* Date Range */
+  .ant-picker.ant-picker-range.date-range {
+    width: 100% !important;
+  }
+
+  .ant-picker-panels {
+    flex-direction: column;
+  }
+
+  /* Pagination */
+  .pagination-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    width: 100%;
+    text-align: right;
+  }
+
+  .total-text {
+    margin-bottom: 10px;
+  }
+
+  .ant-pagination .ant-pagination-options {
+    display: block;
+  }
+
+  ul.ant-pagination.pagination {
+    justify-content: start;
+  }
+
+  /* Button */
+  button.btn-dark-primary.button-submit.btn.btn-primary {
+    width: 100% !important;
+  }
+
+  .btn.btn-dark-primary {
+    width: 100% !important;
   }
 }

@@ -52,7 +52,7 @@ const ViewCalendarCS: React.FC = () => {
     try {
       await axios
         .get(
-          `${apiUrl}/orders?store_id=${store_id}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
+          `${apiUrl}/orders/calender?store_id=${store_id}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
           {
             headers: {
               Accept: 'application/json',
@@ -98,7 +98,7 @@ const ViewCalendarCS: React.FC = () => {
                   } else if (
                     ['WORKREQ'].includes(item?.status?.category) &&
                     item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                    !['WORKSTART', 'WORKEND'].includes(
                       item?.work_orders?.work_order_status[0]?.status?.category
                     )
                   ) {
@@ -113,6 +113,16 @@ const ViewCalendarCS: React.FC = () => {
 
               const contextualColor = (() => {
                 switch (orderStatus) {
+                  case 'PICKLIST':
+                    return 'bg-primary'
+                  case 'BOOKED':
+                    return 'bg-calendar-order-booked'
+                  case 'SURVEYREQ':
+                  case 'SURVEYSTART':
+                  case 'SURVEYDONE':
+                  case 'WORKREQ':
+                  case 'WORKSTART':
+                    return 'bg-calendar-order-wip'
                   case 'WORKEND':
                     return 'bg-calendar-order-done'
                   case 'RESCHEDULE':
@@ -189,7 +199,7 @@ const ViewCalendarCS: React.FC = () => {
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -229,23 +239,6 @@ const ViewCalendarCS: React.FC = () => {
     },
   ]
 
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount = is_overdistance === 1 ? Number(99000) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   return (
     <section id='view-calendar'>
       <Accordion className='mb-5'>
@@ -271,7 +264,7 @@ const ViewCalendarCS: React.FC = () => {
 
                 <tbody>
                   <tr>
-                    <td>Order sedang dalam pengerjaan</td>
+                    <td>Order baru</td>
 
                     <td>
                       <div className='box-primary'></div>
@@ -279,7 +272,24 @@ const ViewCalendarCS: React.FC = () => {
                   </tr>
 
                   <tr>
+                    <td>Order diterima HO</td>
+
+                    <td>
+                      <div className='box-light-primary'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order diterima Vendor</td>
+
+                    <td>
+                      <div className='box-brown'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
                     <td>Order Selesai</td>
+
                     <td>
                       <div className='box-success'></div>
                     </td>
@@ -584,9 +594,9 @@ const ViewCalendarCS: React.FC = () => {
                                 Grand Total
                               </td>
 
-                              <td className=' fw-bolder'>
-                                {calculateTotal(selectedOrder?.order_detail)}
-                              </td>
+                              <td className=' fw-bolder'>{`Rp. ${Number(
+                                selectedOrder?.order_detail?.grand_total
+                              ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
                         )}
@@ -760,7 +770,7 @@ const ViewCalendarCS: React.FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                   selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 selectedOrder?.order_detail?.payment_type === 'survey' &&
@@ -885,7 +895,9 @@ const ViewCalendarCS: React.FC = () => {
                             Grand Total
                           </td>
 
-                          <td className=' fw-bolder'>{calculateTotal(order)}</td>
+                          <td className=' fw-bolder'>{`Rp. ${Number(
+                            selectedOrder?.order_detail?.grand_total
+                          ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
                     </Table>

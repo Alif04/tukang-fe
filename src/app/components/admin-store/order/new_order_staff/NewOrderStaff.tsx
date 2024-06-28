@@ -139,12 +139,13 @@ const NewOrderStoreStaff: FC = () => {
 
   // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
+  const [searchItem, setSearchItem] = useState('')
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Fetch API Data
-  const getItem = async (itemNameSearch: string) => {
+  const getItem = async () => {
     const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
-    const search = itemNameSearch ? `&search=${itemNameSearch}` : ''
+    const search = searchItem ? `&search=${searchItem}` : ''
 
     try {
       const response = await axios.get(`${apiUrl}/items?take=0${search}${itemFree}`, {
@@ -188,8 +189,8 @@ const NewOrderStoreStaff: FC = () => {
   }
 
   useEffect(() => {
-    getItem('')
-  }, [paymentTypeValue])
+    getItem()
+  }, [paymentTypeValue, searchItem])
 
   useEffect(() => {
     const getMember = async () => {
@@ -248,17 +249,14 @@ const NewOrderStoreStaff: FC = () => {
     const search = searchSales ? `&search=${searchSales}` : ''
 
     try {
-      const response = await axios.get(
-        `${apiUrl}/sales?take=0&store_id=${staffStoreId}${searchSales}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       if (Array.isArray(response.data.data)) {
         const tempSales = response.data.data.map((item: any) => ({
@@ -459,7 +457,7 @@ const NewOrderStoreStaff: FC = () => {
       return cache
     })
 
-    getItem('')
+    getItem()
   }
 
   const handleRemoveForm = (index: any) => {
@@ -469,7 +467,7 @@ const NewOrderStoreStaff: FC = () => {
       return cache
     })
 
-    getItem('')
+    getItem()
   }
 
   // Calculate Grand Total Order Amount
@@ -662,7 +660,16 @@ const NewOrderStoreStaff: FC = () => {
         newMember.phone_number = selectedMember.phone_number
       }
 
-      if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
+      if (!selectedMember.email) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please enter member email address.',
+          icon: 'warning',
+        })
+
+        setIsSubmittingNewMember(false)
+        return
+      } else if (selectedMember.email && !emailPattern.test(selectedMember.email)) {
         Swal.fire({
           title: 'Invalid Email',
           text: 'Please enter a valid email address.',
@@ -671,7 +678,7 @@ const NewOrderStoreStaff: FC = () => {
 
         setIsSubmittingNewMember(false)
         return
-      } else {
+      } else if (selectedMember.email && emailPattern.test(selectedMember.email)) {
         newMember.email = selectedMember.email
       }
 
@@ -1162,14 +1169,14 @@ const NewOrderStoreStaff: FC = () => {
               <thead className='table-order-head'>
                 <tr>
                   {orderForm.order_details.length >= 2 && <th>Action</th>}
-                  <th>Item Code</th>
-                  <th>Item Name</th>
-                  <th>Nama Pemasangan</th>
-                  <th>QTY Pemasangan</th>
+                  <th className='content'>Item Code</th>
+                  <th className='content'>Item Name</th>
+                  <th className='content'>Nama Pemasangan</th>
+                  <th className='content'>QTY Pemasangan</th>
                   {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                     <>
-                      <th>Harga Jasa</th>
-                      <th>Total</th>
+                      <th className='content'>Harga Jasa</th>
+                      <th className='content'>Total</th>
                     </>
                   )}
                 </tr>
@@ -1182,7 +1189,10 @@ const NewOrderStoreStaff: FC = () => {
                         <Button
                           className='btn-remove'
                           variant='danger'
-                          onClick={() => handleRemoveForm(index)}
+                          onClick={() => {
+                            handleRemoveForm(index)
+                            calcEachDetails()
+                          }}
                         >
                           <FontAwesomeIcon icon={faTrash} />
                         </Button>
@@ -1209,7 +1219,7 @@ const NewOrderStoreStaff: FC = () => {
                         value={element?.item_name ?? ''}
                         onChange={(e) => {
                           orderDetailsFormHandler(e, index)
-                          getItem(e.target.value)
+                          setSearchItem(e.target.value)
                         }}
                       />
                     </td>
@@ -1231,9 +1241,11 @@ const NewOrderStoreStaff: FC = () => {
                           classNamePrefix='select'
                           placeholder='Pilih/Ketik Nama Pemasangan'
                           isSearchable={true}
+                          isClearable={true}
                           options={item}
                           name={`item_id`}
                           value={orderForm.order_details[index]?.item ?? null}
+                          onInputChange={(newValue) => setSearchItem(newValue)}
                           onChange={(newValue) => {
                             setOrderForm((prev) => {
                               const cache = {...prev}

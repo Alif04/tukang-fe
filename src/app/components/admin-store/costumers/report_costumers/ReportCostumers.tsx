@@ -58,13 +58,6 @@ const ReportCostumerStore: FC = () => {
                   </div>
                 </div>
 
-                <div className='wip'>
-                  <div className='d-flex flex-column align-items-center ms-5 me-5 gap-2'>
-                    <h1 className='fw-normal'>12</h1>
-                    <p>WIP</p>
-                  </div>
-                </div>
-
                 <div className='done'>
                   <div className='d-flex flex-column align-items-center me-5 gap-2'>
                     <h1 className='fw-normal'>05</h1>

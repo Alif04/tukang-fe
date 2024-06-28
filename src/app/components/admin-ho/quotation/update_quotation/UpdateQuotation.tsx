@@ -402,18 +402,18 @@ const UpdateQuotationHO: FC = () => {
     setAdditionalPromosi(updatedPromosiValue)
   }
 
-  useEffect(() => {
-    if (quotationData?.readiness === 1) {
-      let promotionSurvey = 0
-      const minimalGrandTotal = 500000
+  // useEffect(() => {
+  //   if (quotationData?.readiness === 1) {
+  //     let promotionSurvey = 0
+  //     const minimalGrandTotal = 500000
 
-      if (grandTotalBeforePromotion >= minimalGrandTotal) {
-        promotionSurvey = 99000
-      }
+  //     if (grandTotalBeforePromotion >= minimalGrandTotal) {
+  //       promotionSurvey = 99000
+  //     }
 
-      setPromosiDiscount(promotionSurvey)
-    }
-  }, [grandTotalBeforePromotion])
+  //     setPromosiDiscount(promotionSurvey)
+  //   }
+  // }, [grandTotalBeforePromotion])
 
   useEffect(() => {
     if (quotationData?.readiness === 1) {
@@ -488,6 +488,13 @@ const UpdateQuotationHO: FC = () => {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill quotation valid until form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (quotationDetail.filter((x) => x.type === 2).some((x) => x.category_id === null)) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill quotation category form',
         icon: 'warning',
       })
       valid = false
@@ -953,8 +960,8 @@ const UpdateQuotationHO: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={6} className='text-end fw-bolder'>
-                    Promosi ( Free Survey )
+                  <td align='center' colSpan={6} className='text-end fw-bolder'>
+                    Promosi
                   </td>
 
                   <td>
@@ -1311,8 +1318,6 @@ const UpdateQuotationHO: FC = () => {
               </tr>
             </table>
           </div>
-          
-          
           */}
 
           <div className='payment-detail'>

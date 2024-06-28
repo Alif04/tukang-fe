@@ -53,7 +53,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  const tukangId = localStorage.getItem('tukang_id')
+  const tukangId = localStorage.getItem('tukang_id') as number | null
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -79,7 +79,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'work_order_id',
       key: 'work_order_id',
       align: 'center',
-      width: 80,
+      width: 90,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.work_order_id - b.work_order_id,
@@ -89,7 +89,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 110,
+      width: 120,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -98,26 +98,26 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 90,
+      width: 110,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
-      title: 'Customer ID',
+      title: 'Nomor Member',
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
-      width: 80,
+      width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.costumer_id - b.costumer_id,
     },
     {
-      title: 'Customer Name',
+      title: 'Nama Konsumen',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
-      width: 120,
+      width: 110,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -134,7 +134,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
-      width: 100,
+      width: 130,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -155,7 +155,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           case 'QUOTE OUT':
           case 'WORKREQ':
           case 'WORKSTART':
-          case 'WIP':
           case 'WORKEND':
           case 'CISOUT':
             color = 'green'
@@ -196,6 +195,10 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
           if (selected) {
             setModalRequest(true)
+            setTukangRequest((prev: any) => ({
+              ...prev,
+              work_order_id: selected.work_order_id,
+            }))
           }
         }
 
@@ -245,9 +248,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               >
                 <FontAwesomeIcon className='text-white' icon={faUserXmark} fontSize={'13px'} />
               </Button>
-            </OverlayTrigger>
+            </OverlayTrigger> */}
 
-            <OverlayTrigger
+            {/* <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Notifikasi Pergantian Tukang')}
@@ -327,9 +330,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             } else if (
               ['WORKREQ'].includes(item?.order?.status?.category) &&
               item?.order?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                item?.work_order_status[0]?.status?.category
-              )
+              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
             ) {
               return item?.order?.status?.category
             } else {
@@ -347,9 +348,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             } else if (
               ['WORKREQ'].includes(item?.order?.status?.category) &&
               item?.order?.payment_type === 'survey' &&
-              !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                item?.work_order_status[0]?.status?.category
-              )
+              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
             ) {
               return item?.order?.status?.description
             } else {
@@ -428,8 +427,12 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
   const [tukangRequest, setTukangRequest] = useState<any>({
     work_order_id: null,
+    status_id: 1,
+    existing_tukang_id: Number(tukangId),
     notes: '',
   })
+
+  console.log('tukang request', tukangRequest)
 
   // File
   const [files, setFiles] = useState<Array<File | null>>([])
@@ -485,19 +488,20 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const handleTukangChanges = async () => {
     const formData = new FormData()
 
-    formData.append(`work_order_id`, tukangRequest.work_order_id)
-    formData.append(`notes`, tukangRequest.notes)
+    formData.append(`replace_tukang[0][status]`, tukangRequest.status_id)
+    formData.append(`replace_tukang[0][notes]`, tukangRequest.notes)
+    formData.append(`replace_tukang[0][id]`, tukangRequest.existing_tukang_id)
 
     if (files?.length) {
       files.forEach((item) => {
         if (item instanceof Blob) {
-          formData.append(`files`, item, item.name)
+          formData.append(`file`, item, item.name)
         }
       })
     }
 
     await axios
-      .post(`${apiUrl}/tukang/${tukangRequest.work_order_id}`, formData, {
+      .post(`${apiUrl}/tukang/${tukangRequest.work_order_id}/replace-tukang`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -606,7 +610,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               columns={columns}
               dataSource={workOrderData}
               rowKey={(record) => record.work_order_id}
-              scroll={{x: 1700}}
+              scroll={{x: 1200}}
               pagination={false}
             />
           </Spin>

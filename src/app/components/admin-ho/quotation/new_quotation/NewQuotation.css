@@ -1,5 +1,5 @@
 /* Header */
-#new-quotation {
+/* #new-quotation {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,11 +46,11 @@
 #new-quotation .payment-request h3 {
   padding: 0 0 10px 0;
   font-size: 16px;
-}
+} */
 
 /* Table Jasa */
 
-#new-quotation .detail-table-jasa {
+/* #new-quotation .detail-table-jasa {
   margin: 0 0 30px 0;
 }
 
@@ -75,11 +75,11 @@
   tr:nth-child(odd)
   td {
   background-color: #ffff;
-}
+} */
 
 /* Table Material */
 
-#new-quotation .detail-table-material {
+/* #new-quotation .detail-table-material {
   margin: 0 0 30px 0;
 }
 
@@ -104,11 +104,11 @@
   tr:nth-child(odd)
   td {
   background-color: #ffff;
-}
+} */
 
 /* Footer */
 
-#new-quotation .payment-detail .payment-method {
+/* #new-quotation .payment-detail .payment-method {
   margin: 10px 0;
 }
 
@@ -134,4 +134,4 @@
 #new-quotation .payment-detail .payment-method h3 {
   padding: 0 0 10px 0;
   font-size: 14px;
-}
+} */

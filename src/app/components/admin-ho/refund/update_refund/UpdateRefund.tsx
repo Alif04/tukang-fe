@@ -437,7 +437,6 @@ const UpdateRefundHO: FC = () => {
             </div>
 
             {/* New */}
-
             {(() => {
               if (
                 refundDetail?.orders?.payment_type === 'survey' ||
@@ -596,7 +595,7 @@ const UpdateRefundHO: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
                   refundDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 refundDetail?.orders?.work_orders?.work_order_status.length > 1 &&

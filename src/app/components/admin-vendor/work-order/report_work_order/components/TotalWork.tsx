@@ -63,7 +63,8 @@ const chartOptions = (chartHeight: string, workOrderData: any): ApexOptions => {
   ).length
 
   const workInProgress = workOrderData.filter(
-    (workOrder: any) => workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WIP'
+    (workOrder: any) =>
+      workOrder?.work_orders?.work_order_status[0]?.status?.category === 'WORKSTART'
   ).length
 
   const workDone = workOrderData.filter(
@@ -78,7 +79,7 @@ const chartOptions = (chartHeight: string, workOrderData: any): ApexOptions => {
     series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
     labels: ['REQUEST PENGERJAAN', 'SEDANG DIKERJAKAN', 'PEKERJAAN SELESAI'],
     colors: ['#1D7710', '#F59B22', '#D8001B'],
-    // labels: noDataAvailable ? ['No Data Available'] : ['W.Req', 'WIP', 'DONE'], // Set labels to empty array if no data available
+    // labels: noDataAvailable ? ['No Data Available'] : ['W.Req', 'DONE'], // Set labels to empty array if no data available
     // colors: noDataAvailable ? ['#f0f0f0'] : ['#1D7710', '#F59B22', '#D8001B'], // Set colors to default if no data available
     chart: {
       width: chartHeight,

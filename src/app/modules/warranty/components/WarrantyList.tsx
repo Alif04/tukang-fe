@@ -1,12 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 
-import {WarrantyClaimList} from '../../../components'
+import {WarrantyClaimListHO} from '../../../components'
 
 const WarrantyList: React.FC = () => {
   return (
     <>
-      <WarrantyClaimList className='' />
+      <WarrantyClaimListHO className='' />
     </>
   )
 }

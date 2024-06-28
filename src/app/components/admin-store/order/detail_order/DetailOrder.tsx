@@ -172,7 +172,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART', 'WIP'])
+  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -211,24 +211,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       value: complaintDoneStatuses,
     },
   ]
-
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : 0
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 1 ? Number(grand_total) : grand_total ?? 0
-    } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 1 ? Number(grand_total) + Number(additional_fee) : 99000 ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
 
   // Reprint Order
   const handleReprintOrderCS = async () => {
@@ -336,6 +318,15 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       Receipt Number :
                       <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number ?? '-'}</span>
                     </Form.Label>
+
+                    {order?.quotation[0]?.receipt_quotation && (
+                      <Form.Label className='fs-4 fw-bold'>
+                        Receipt Transaksi :
+                        <span className='fs-4 ms-2 fw-normal'>
+                          {order?.quotation[0]?.receipt_quotation ?? '-'}
+                        </span>
+                      </Form.Label>
+                    )}
                   </Skeleton>
                 </Col>
 
@@ -351,7 +342,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             } else if (
                               ['WORKREQ'].includes(order?.status?.category ?? '') &&
                               order?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WIP', 'WORKEND'].includes(
+                              !['WORKSTART', 'WORKEND'].includes(
                                 order?.work_orders?.work_order_status[0]?.status?.category ?? ''
                               )
                             ) {
@@ -507,7 +498,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             </div>
 
             <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
-              {/* Newest */}
               {(() => {
                 if (
                   (order?.payment_type === 'survey' && order?.work_orders === null) ||
@@ -573,7 +563,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                                   Grand Total
                                 </td>
 
-                                <td className=' fw-bolder'>{calculateTotal(order)}</td>
+                                <td className=' fw-bolder'>{`Rp. ${Number(
+                                  order?.grand_total
+                                ).toLocaleString('id')}`}</td>
                               </tr>
                             </>
                           )}
@@ -582,7 +574,52 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     </div>
                   )
                 } else if (
-                  ['QUOTEIN', 'QUOTEOUT'].includes(order?.status?.category ?? '') &&
+                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                    order?.work_orders?.work_order_status[0]?.status?.category
+                  ) &&
+                  order?.payment_type === 'survey' &&
+                  order?.work_orders?.work_order_status.length >= 1 &&
+                  order?.quotation?.length === 0
+                ) {
+                  return (
+                    <div className='table-warranty-content'>
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
+                            <th>Satuan</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {order?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                            order.work_orders.work_order_status[0].work_order_items.map(
+                              (item: any, index: any) => (
+                                <tr key={`${index}-work_order_detail`}>
+                                  <td>
+                                    {item.name ?? ''}{' '}
+                                    {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                  </td>
+                                  <td>{item.quantity ?? 0}</td>
+                                  <td>{item.unit ?? ''}</td>
+                                </tr>
+                              )
+                            )
+                          ) : (
+                            <tr>
+                              <td>Item belum diset oleh Tukang/Vendor</td>
+                              <td>Quantity belum diset oleh Tukang/Vendor</td>
+                              <td>Satuan belum diset oleh Tukang/Vendor</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )
+                } else if (
+                  order?.work_orders?.work_order_status.length >= 1 &&
+                  order?.quotation?.length >= 1 &&
                   order?.payment_type === 'survey'
                 ) {
                   return (
@@ -739,49 +776,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     </div>
                   )
                 } else if (
-                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WIP', 'WORKEND', 'DONE'].includes(
-                    order?.work_orders?.work_order_status[0]?.status?.category
-                  ) &&
-                  order?.payment_type === 'survey' &&
-                  order?.work_orders?.work_order_status.length >= 1
-                ) {
-                  return (
-                    <div className='table-warranty-content'>
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th>Nama Pemasangan</th>
-                            <th>QTY Pemasangan</th>
-                            <th>Satuan</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {order?.work_orders?.work_order_status[0]?.work_order_items.length ? (
-                            order.work_orders.work_order_status[0].work_order_items.map(
-                              (item: any, index: any) => (
-                                <tr key={`${index}-work_order_detail`}>
-                                  <td>
-                                    {item.name ?? ''}{' '}
-                                    {item.is_customer ? '( Disediakan oleh customer )' : ''}
-                                  </td>
-                                  <td>{item.quantity ?? 0}</td>
-                                  <td>{item.unit ?? ''}</td>
-                                </tr>
-                              )
-                            )
-                          ) : (
-                            <tr>
-                              <td>Item belum diset oleh Tukang/Vendor</td>
-                              <td>Quantity belum diset oleh Tukang/Vendor</td>
-                              <td>Satuan belum diset oleh Tukang/Vendor</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )
-                } else if (
                   order?.payment_type === 'gratis' ||
                   order?.payment_type === 'pemasangan_tanpa_survey'
                 ) {
@@ -859,7 +853,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               Grand Total
                             </td>
 
-                            <td className=' fw-bolder'>{calculateTotal(order)}</td>
+                            <td className=' fw-bolder'>{`Rp. ${Number(
+                              order?.grand_total
+                            ).toLocaleString('id')}`}</td>
                           </tr>
                         </tbody>
                       </table>

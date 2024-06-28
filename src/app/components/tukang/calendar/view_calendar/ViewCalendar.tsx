@@ -72,39 +72,44 @@ const ViewCalendarTukang: React.FC = () => {
               const startDate =
                 item.survey_date !== null && item.work_start_date === null
                   ? item.survey_date
-                  : item.survey_date && item.work_start_date
+                  : item.survey_date === null && item.work_start_date
                   ? item.work_start_date
-                  : null
+                  : item.work_start_date
 
               const endDate =
                 item.survey_date !== null && item.work_end_date === null
                   ? item.survey_date
-                  : item.survey_date && item.work_end_date
+                  : item.survey_date === null && item.work_end_date
                   ? item.work_end_date
-                  : null
+                  : item.work_end_date
 
               const orderStatus = (() => {
-                if (item?.work_orders?.work_order_status?.length >= 0) {
-                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+                if (item?.work_order_status?.length >= 0) {
+                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
                     return item?.status?.category
                   } else if (
-                    ['WORKREQ'].includes(item?.status?.category) &&
+                    ['WORKREQ'].includes(item?.order?.status?.category) &&
                     item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WIP', 'WORKEND'].includes(
-                      item?.work_orders?.work_order_status[0]?.status?.category
-                    )
+                    !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
                   ) {
-                    return item?.status?.category
+                    return item?.order?.status?.category
                   } else {
-                    return item?.work_orders?.work_order_status[0]?.status?.category
+                    return item?.work_order_status[0]?.status?.category
                   }
                 } else {
-                  return item?.status?.category
+                  return item?.order?.status?.category
                 }
               })()
 
               const contextualColor = (() => {
                 switch (orderStatus) {
+                  case 'SURVEYREQ':
+                  case 'WORKREQ':
+                    return 'bg-primary'
+                  case 'SURVEYSTART':
+                  case 'SURVEYDONE':
+                  case 'WORKSTART':
+                    return 'bg-calendar-order-wip'
                   case 'WORKEND':
                     return 'bg-calendar-order-done'
                   case 'RESCHEDULE':
@@ -119,7 +124,9 @@ const ViewCalendarTukang: React.FC = () => {
               return {
                 id: item?.id.toString(),
                 order_id: item?.order_id.toString(),
-                title: `WORK ORDER - ${item.id}`,
+                title: `#${item?.order?.id} - ${item?.order?.members?.full_name ?? ''} - ${
+                  item?.order?.store?.store_name ?? ''
+                }`,
                 work_order_status: item?.work_order_status[0]?.status.category,
                 service: workOrderItems ?? '',
                 tukang: workOrderTukang ?? '',
@@ -193,24 +200,6 @@ const ViewCalendarTukang: React.FC = () => {
     return `Tanggal ${day}-${month}-${year} Jam ${hours}:${minutes}`
   }
 
-  // Grand Total Order
-  const calculateTotal = (orderDetail: any) => {
-    const {payment_type, is_overdistance, grand_total, additional_fee} = orderDetail ?? {}
-
-    let totalAmount = 0
-
-    if (payment_type === 'gratis') {
-      totalAmount = is_overdistance === 0 ? 0 : Number(grand_total)
-    } else if (payment_type === 'pemasangan_tanpa_survey') {
-      totalAmount = is_overdistance === 0 ? Number(grand_total) : Number(grand_total)
-    } else if (payment_type === 'survey') {
-      totalAmount =
-        is_overdistance === 0 ? 99000 : Number(grand_total) + Number(additional_fee) ?? 0
-    }
-
-    return `Rp. ${Number(totalAmount).toLocaleString('id')}`
-  }
-
   return (
     <section id='view-calendar'>
       <Accordion className='mb-5'>
@@ -236,10 +225,18 @@ const ViewCalendarTukang: React.FC = () => {
 
                 <tbody>
                   <tr>
-                    <td>Order sedang dalam pengerjaan</td>
+                    <td>Order permintaan survey/pengerjaan</td>
 
                     <td>
                       <div className='box-primary'></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order sedang survey/pengerjaan</td>
+
+                    <td>
+                      <div className='box-brown'></div>
                     </td>
                   </tr>
 
@@ -448,7 +445,6 @@ const ViewCalendarTukang: React.FC = () => {
                 {[
                   'WORKREQ',
                   'WORKSTART',
-                  'WIP',
                   'WORKEND',
                   'REWORK',
                   'REWORKSTART',
@@ -672,7 +668,7 @@ const ViewCalendarTukang: React.FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WORKSTART', 'WIP', 'WORKEND', 'DONE'].includes(
+                ['SURVEYSTART', 'SURVEYDONE', 'WORKSTART', 'WORKEND', 'DONE'].includes(
                   selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.status
                     ?.category
                 ) &&

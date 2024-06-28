@@ -983,7 +983,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            if (['QUOTEOUT'].includes(orderDetail?.status?.category) && isCanceledOrder === false) {
+            if (
+              orderDetail?.quotation?.length >= 1 &&
+              orderDetail?.payment_type === 'survey' &&
+              isCanceledOrder === false
+            ) {
               navigate(`/order/view-order`)
             } else if (isCanceledOrder === true) {
               navigate(`/refund/new-refund/${orderId}`)
@@ -1240,7 +1244,12 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       as='textarea'
                       name='project_address'
                       className='field-alamat'
-                      disabled={['QUOTEOUT'].includes(orderDetail?.status?.category) ? true : false}
+                      disabled={
+                        orderDetail?.quotation?.length >= 1 &&
+                        orderDetail?.payment_type === 'survey'
+                          ? true
+                          : false
+                      }
                       value={orderForm.project_address}
                       onChange={(event) => orderFormHandler(event)}
                     />
@@ -1301,16 +1310,40 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     name='receipt_number'
                     type='text'
                     value={orderForm.receipt_number}
-                    readOnly={['QUOTEOUT'].includes(orderDetail?.status?.category) ? true : false}
+                    readOnly={
+                      orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey'
+                        ? true
+                        : false
+                    }
                     onChange={(e) => orderFormHandler(e)}
                   />
                 </Col>
               </Form.Group>
+
+              {orderDetail?.quotation[0]?.receipt_quotation && (
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label column sm='4'>
+                    Receipt Transaksi
+                  </Form.Label>
+                  <Col sm='8'>
+                    <Form.Control
+                      type='text'
+                      value={orderDetail?.quotation[0]?.receipt_quotation}
+                      readOnly={
+                        orderDetail?.quotation?.length >= 1 &&
+                        orderDetail?.payment_type === 'survey'
+                          ? true
+                          : false
+                      }
+                      onChange={(e) => orderFormHandler(e)}
+                    />
+                  </Col>
+                </Form.Group>
+              )}
             </div>
           </div>
 
-          {['QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
-          orderDetail?.payment_type === 'survey' ? (
+          {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
             <Row className='table-order-header d-flex align-items-center mb-5'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
                 <Form.Group>
@@ -1346,7 +1379,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     name='request_survey'
                     type='date'
                     value={orderForm.request_survey}
-                    readOnly={['QUOTEOUT'].includes(orderDetail?.status?.category) ? true : false}
+                    readOnly={
+                      orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey'
+                        ? true
+                        : false
+                    }
                     onChange={(e) => orderFormHandler(e)}
                     min={today}
                   />
@@ -1450,10 +1487,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           )}
 
           {(() => {
-            if (
-              ['QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
-              orderDetail?.payment_type === 'survey'
-            ) {
+            if (orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey') {
               return (
                 <>
                   <div className='table-warranty-content'>
@@ -2075,7 +2109,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
           <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
             <Button onClick={handleUpdateOrder} disabled={isLoading} variant='dark-primary'>
-              {['QUOTEOUT'].includes(orderDetail?.status?.category)
+              {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey'
                 ? isLoading
                   ? 'Submitting..'
                   : 'Request Pengerjaan Ke Vendor Terkait'
@@ -2084,7 +2118,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 : 'Submit Order & Email'}
             </Button>
 
-            {['QUOTEOUT'].includes(orderDetail?.status?.category) ? (
+            {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
               <Button onClick={handleCancelOrder} disabled={isLoading} variant='dark-danger'>
                 Cancel Order
               </Button>

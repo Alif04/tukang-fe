@@ -28,7 +28,15 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
   const [loadingButton, setLoadingButton] = useState(false)
 
-  const [claimWarrantyData, setclaimWarrantyData] = useState<DataType[]>([])
+  const userStore = localStorage.getItem('storeId')
+  const userVendor = localStorage.getItem('vendor_id')
+  const userTukang = localStorage.getItem('tukang_id')
+
+  const storeId = userStore ? `&store_id=${userStore}` : ''
+  const vendorId = userVendor ? `&vendor_id=${userVendor}` : ''
+  const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
+
+  const [claimWarrantyData, setClaimWarrantyData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -45,6 +53,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     key: string
     order_id: number
     date_order: Date
+    store_name: string
     no_member: number
     costumer_name: string
     phone_number: number
@@ -67,11 +76,20 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Order Date',
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      width: 120,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 100,
+      width: 120,
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
@@ -100,20 +118,11 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
-      title: 'Nama Jasa Pemasangan',
-      dataIndex: 'services_name',
-      key: 'services_name',
-      align: 'left',
-      width: 180,
-      onFilter: (value, record) => record.services_name.includes(String(value)),
-      sorter: (a, b) => a.services_name.length - b.services_name.length,
-    },
-    {
       title: 'Status Order',
       dataIndex: 'status_order',
       key: 'status_order',
       align: 'left',
-      width: 110,
+      width: 130,
       render: (status_order) => {
         const orderStatus = status_order
         let color = ''
@@ -166,46 +175,35 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         )
       },
       fixed: 'right',
-      width: 50,
+      width: 80,
     },
   ]
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   const fetchWorkOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatus = statusData.filter((status: any) =>
+      ['WORKEND', 'DONE'].includes(status.category)
+    )
+
+    const statuses = desiredStatus.map((x) => x.value)
+
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&work_order_status=${statuses}&page=${page}&take=${pageSize}${queryparams}${storeId}${vendorId}${tukangId}`
 
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData.filter((status: any) =>
-        ['DONE', 'REJECTED'].includes(status.category)
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-      if (desiredStatus) {
-        const statuses = desiredStatus.map((x) => x.value)
+      setCurrentPage(response.data.page)
+      setTotalData(response?.data?.total ?? 0)
 
-        const response = await axios.get(apiUrlWithParams, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        setCurrentPage(response.data.page)
-        setTotalData(response?.data?.total ?? 0)
-
-        return response.data.data
-      } else {
-        console.error('Desired status not found in statusData')
-      }
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -223,19 +221,20 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       const claimWarrantyData = apiData.map((item: any) => {
         let data
 
-        const WorkOrderDate = new Date(item?.survey_date ?? '-')
-        const workOrderItems = item?.work_order_status[0]?.work_order_items
-          .map((service: any) => service.name ?? '-')
-          .join(', ')
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         data = {
-          order_id: item?.order_id,
-          date_order: formatDate(WorkOrderDate),
-          no_member: item?.order?.members?.member_number ?? '-',
-          costumer_name: item?.order?.members?.full_name ?? '-',
-          phone_number: item?.order?.project_number ?? '-',
-          services_name: workOrderItems,
-          status_order: item?.work_order_status[0]?.status?.category ?? '-',
+          order_id: item?.id,
+          store_name: item?.store?.store_name ?? '-',
+          date_order: orderDate,
+          no_member: item?.members?.member_number ?? '-',
+          costumer_name: item?.members?.full_name ?? '-',
+          phone_number: item?.project_number ?? '-',
+          status_order: item?.work_orders?.work_order_status[0]?.status?.description ?? '-',
         }
 
         return data
@@ -250,7 +249,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
   const fetchData = async (page: number, pageSize: number, queryparams: any) => {
     const data = await ViewWorkOrder(page, pageSize, queryparams)
-    setclaimWarrantyData(data)
+    setClaimWarrantyData(data)
   }
 
   useEffect(() => {
@@ -269,9 +268,20 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    let queryparams = ''
 
-    const queryparams = `&date_from=${dateFrom}&date_to=${dateTo}&search=${searchFilter}`
-    await fetchWorkOrderList(1, 10, queryparams)
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        queryparams += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&search=`, searchFilter)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    const data = await ViewWorkOrder(1, 10, queryparams)
+    setClaimWarrantyData(data)
 
     setLoadingButton(false)
   }
@@ -336,6 +346,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={claimWarrantyData}
             rowKey={(record) => record.order_id}
+            scroll={{x: 1300}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

@@ -70,8 +70,23 @@
   border-right: none !important;
 }
 
+/* Button */
+#report-insentif button.d-flex.justify-content-center.align-items-center.btn.btn-success.m-0 {
+  width: fit-content;
+  height: 44px;
+  background-color: green;
+  color: white;
+  border: none;
+}
+
 @media screen and (max-width: 1200px) {
   #report-insentif .filter-search {
     width: 100%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  #report-insentif button.d-flex.justify-content-center.align-items-center.btn.btn-success.m-0 {
+    width: 100% !important;
   }
 }
