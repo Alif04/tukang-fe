@@ -50,7 +50,7 @@ const ViewCalendarHO: React.FC = () => {
   const getOrder = async (start: any, end: any) => {
     try {
       await axios
-        .get(`${apiUrl}/orders?order_by=desc&take=0&date_from=${start}&date_to=${end}`, {
+        .get(`${apiUrl}/orders/calender?order_by=desc&take=0&date_from=${start}&date_to=${end}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -89,7 +89,18 @@ const ViewCalendarHO: React.FC = () => {
 
               const orderStatus = (() => {
                 if (item?.work_orders?.work_order_status?.length >= 0) {
-                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+                  if (
+                    [
+                      'QUOTEIN',
+                      'QUOTEOUT',
+                      'CANCEL',
+                      'WARRANTYCLAIM',
+                      'INVESTIGATED',
+                      'COMPLAINTAPPROVEDBYHO',
+                      'COMPLAINTREJECTEDBYHO',
+                      'RESCHEDULE',
+                    ].includes(item?.status?.category)
+                  ) {
                     return item?.status?.category
                   } else if (
                     ['WORKREQ'].includes(item?.status?.category) &&
@@ -124,7 +135,11 @@ const ViewCalendarHO: React.FC = () => {
                   case 'RESCHEDULE':
                     return 'bg-calendar-order-reschedule'
                   case 'INVESTIGATED':
+                  case 'COMPLAINTAPPROVEDBYHO':
+                  case 'COMPLAINTREJECTEDBYHO':
                     return 'bg-calendar-order-complaint'
+                  case 'CANCEL':
+                    return 'bg-calendar-order-cancel'
                   default:
                     return 'bg-primary'
                 }
@@ -263,7 +278,10 @@ const ViewCalendarHO: React.FC = () => {
                     <td>Order baru</td>
 
                     <td>
-                      <div className='box-primary'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-primary'></div>
+                        <div className='fs-6'>(Biru Tua)</div>
+                      </div>
                     </td>
                   </tr>
 
@@ -271,7 +289,10 @@ const ViewCalendarHO: React.FC = () => {
                     <td>Order diterima HO</td>
 
                     <td>
-                      <div className='box-light-primary'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-light-primary'></div>
+                        <div className='fs-6'>(Biru Muda)</div>
+                      </div>
                     </td>
                   </tr>
 
@@ -279,7 +300,10 @@ const ViewCalendarHO: React.FC = () => {
                     <td>Order diterima Vendor</td>
 
                     <td>
-                      <div className='box-brown'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-brown'></div>
+                        <div className='fs-6'>(Pink)</div>
+                      </div>
                     </td>
                   </tr>
 
@@ -287,20 +311,41 @@ const ViewCalendarHO: React.FC = () => {
                     <td>Order Selesai</td>
 
                     <td>
-                      <div className='box-success'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-success'></div>
+                        <div className='fs-6'>(Hijau)</div>
+                      </div>
                     </td>
                   </tr>
+
                   <tr>
                     <td>Order yang dijadwalkan ulang</td>
+
                     <td>
-                      <div className='box-warning'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-warning'></div>
+                        <div className='fs-6'>(Orange)</div>
+                      </div>
                     </td>
                   </tr>
 
                   <tr>
                     <td>Order yang dikomplain</td>
                     <td>
-                      <div className='box-danger'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-danger'></div>
+                        <div className='fs-6'>(Merah)</div>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order yang dibatalkan</td>
+                    <td>
+                      <div className='d-flex gap-2'>
+                        <div className='box-black'></div>
+                        <div className='fs-6'>(Hitam)</div>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -367,15 +412,36 @@ const ViewCalendarHO: React.FC = () => {
                   <span className='fs-4 ms-2 fw-bold text-success'>
                     {(() => {
                       if (
-                        selectedOrder?.order_detail?.status?.category === 'QUOTEIN' ||
-                        selectedOrder?.order_detail?.status?.category === 'QUOTEOUT'
+                        selectedOrder?.order_detail?.work_orders?.work_order_status?.length >= 0
                       ) {
-                        return selectedOrder?.order_detail?.status?.description
-                      } else if (
-                        selectedOrder?.order_detail?.work_orders?.work_order_status?.length > 0
-                      ) {
-                        return selectedOrder?.order_detail?.work_orders?.work_order_status[0]
-                          ?.status?.description
+                        if (
+                          [
+                            'QUOTEIN',
+                            'QUOTEOUT',
+                            'CANCEL',
+                            'WARRANTYCLAIM',
+                            'INVESTIGATED',
+                            'COMPLAINTAPPROVEDBYHO',
+                            'COMPLAINTREJECTEDBYHO',
+                            'RESCHEDULE',
+                          ].includes(selectedOrder?.order_detail.status?.category ?? '')
+                        ) {
+                          return selectedOrder?.order_detail?.status?.description
+                        } else if (
+                          ['WORKREQ'].includes(
+                            selectedOrder?.order_detail?.status?.category ?? ''
+                          ) &&
+                          selectedOrder?.order_detail?.payment_type === 'survey' &&
+                          !['WORKSTART', 'WORKEND'].includes(
+                            selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status
+                              ?.category ?? ''
+                          )
+                        ) {
+                          return selectedOrder?.order_detail?.status?.description
+                        } else {
+                          return selectedOrder?.order_detail?.work_orders?.work_order_status[0]
+                            ?.status?.description
+                        }
                       } else {
                         return selectedOrder?.order_detail?.status?.description
                       }

@@ -30,7 +30,9 @@ interface Status {
 
 const ViewCalendarCS: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const store_id = localStorage.getItem('storeId')
+
+  const userStore = localStorage.getItem('storeId')
+  const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
@@ -45,14 +47,38 @@ const ViewCalendarCS: React.FC = () => {
     },
   ])
 
+  const [vendor, setVendor] = useState<any>()
+  const vendorIds = vendor ? `&vendor_id=${vendor.join(',')}` : ''
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   // Fetch Data
+  const getVendor = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/vendor?take=0${storeId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempVendor = response.data.data.map((item: any) => item.id)
+        setVendor(tempVendor)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const getOrder = async (start: any, end: any) => {
     try {
       await axios
         .get(
-          `${apiUrl}/orders/calender?store_id=${store_id}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
+          `${apiUrl}/orders/calender?take=0&order_by=desc&date_from=${start}&date_to=${end}${vendorIds}`,
           {
             headers: {
               Accept: 'application/json',
@@ -62,11 +88,17 @@ const ViewCalendarCS: React.FC = () => {
             },
           }
         )
-        .then((response) => {
+        .then((response: any) => {
           const data = response.data.data
 
-          if (data) {
-            const orderDetail = data.map((item: any) => {
+          const filteredNewOrderByStore = data.filter(
+            (x: any) => x.store_id === Number(userStore) && x.vendor === null
+          )
+          const filteredOrderByVendor = data.filter((x: any) => x.vendor !== null)
+          const calendarData = filteredNewOrderByStore.concat(filteredOrderByVendor)
+
+          if (calendarData) {
+            const orderDetail = calendarData.map((item: any) => {
               const startDate = item?.work_orders
                 ? item?.work_orders &&
                   item.work_orders.survey_date !== null &&
@@ -93,7 +125,18 @@ const ViewCalendarCS: React.FC = () => {
 
               const orderStatus = (() => {
                 if (item?.work_orders?.work_order_status?.length >= 0) {
-                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
+                  if (
+                    [
+                      'QUOTEIN',
+                      'QUOTEOUT',
+                      'CANCEL',
+                      'WARRANTYCLAIM',
+                      'INVESTIGATED',
+                      'COMPLAINTAPPROVEDBYHO',
+                      'COMPLAINTREJECTEDBYHO',
+                      'RESCHEDULE',
+                    ].includes(item?.status?.category)
+                  ) {
                     return item?.status?.category
                   } else if (
                     ['WORKREQ'].includes(item?.status?.category) &&
@@ -128,7 +171,11 @@ const ViewCalendarCS: React.FC = () => {
                   case 'RESCHEDULE':
                     return 'bg-calendar-order-reschedule'
                   case 'INVESTIGATED':
+                  case 'COMPLAINTAPPROVEDBYHO':
+                  case 'COMPLAINTREJECTEDBYHO':
                     return 'bg-calendar-order-complaint'
+                  case 'CANCEL':
+                    return 'bg-calendar-order-cancel'
                   default:
                     return 'bg-primary'
                 }
@@ -156,10 +203,14 @@ const ViewCalendarCS: React.FC = () => {
   }
 
   useEffect(() => {
+    getVendor()
+  }, [])
+
+  useEffect(() => {
     if (dateFrom && dateTo) {
       getOrder(dateFrom, dateTo)
     }
-  }, [dateFrom, dateTo])
+  }, [dateFrom, dateTo, vendorIds])
 
   const handleDatesSet = (arg: any) => {
     const start = dayjs(arg.startStr).format('YYYY-MM-DD')
@@ -267,7 +318,10 @@ const ViewCalendarCS: React.FC = () => {
                     <td>Order baru</td>
 
                     <td>
-                      <div className='box-primary'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-primary'></div>
+                        <div className='fs-6'>(Biru Tua)</div>
+                      </div>
                     </td>
                   </tr>
 
@@ -275,7 +329,10 @@ const ViewCalendarCS: React.FC = () => {
                     <td>Order diterima HO</td>
 
                     <td>
-                      <div className='box-light-primary'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-light-primary'></div>
+                        <div className='fs-6'>(Biru Muda)</div>
+                      </div>
                     </td>
                   </tr>
 
@@ -283,7 +340,10 @@ const ViewCalendarCS: React.FC = () => {
                     <td>Order diterima Vendor</td>
 
                     <td>
-                      <div className='box-brown'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-brown'></div>
+                        <div className='fs-6'>(Pink)</div>
+                      </div>
                     </td>
                   </tr>
 
@@ -291,21 +351,41 @@ const ViewCalendarCS: React.FC = () => {
                     <td>Order Selesai</td>
 
                     <td>
-                      <div className='box-success'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-success'></div>
+                        <div className='fs-6'>(Hijau)</div>
+                      </div>
                     </td>
                   </tr>
 
                   <tr>
                     <td>Order yang dijadwalkan ulang</td>
+
                     <td>
-                      <div className='box-warning'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-warning'></div>
+                        <div className='fs-6'>(Orange)</div>
+                      </div>
                     </td>
                   </tr>
 
                   <tr>
                     <td>Order yang dikomplain</td>
                     <td>
-                      <div className='box-danger'></div>
+                      <div className='d-flex gap-2'>
+                        <div className='box-danger'></div>
+                        <div className='fs-6'>(Merah)</div>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Order yang dibatalkan</td>
+                    <td>
+                      <div className='d-flex gap-2'>
+                        <div className='box-black'></div>
+                        <div className='fs-6'>(Hitam)</div>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -372,15 +452,36 @@ const ViewCalendarCS: React.FC = () => {
                   <span className='fs-4 ms-2 fw-bold text-success'>
                     {(() => {
                       if (
-                        selectedOrder?.order_detail?.status?.category === 'QUOTEIN' ||
-                        selectedOrder?.order_detail?.status?.category === 'QUOTEOUT'
+                        selectedOrder?.order_detail?.work_orders?.work_order_status?.length >= 0
                       ) {
-                        return selectedOrder?.order_detail?.status?.description
-                      } else if (
-                        selectedOrder?.order_detail?.work_orders?.work_order_status?.length > 0
-                      ) {
-                        return selectedOrder?.order_detail?.work_orders?.work_order_status[0]
-                          ?.status?.description
+                        if (
+                          [
+                            'QUOTEIN',
+                            'QUOTEOUT',
+                            'CANCEL',
+                            'WARRANTYCLAIM',
+                            'INVESTIGATED',
+                            'COMPLAINTAPPROVEDBYHO',
+                            'COMPLAINTREJECTEDBYHO',
+                            'RESCHEDULE',
+                          ].includes(selectedOrder?.order_detail.status?.category ?? '')
+                        ) {
+                          return selectedOrder?.order_detail?.status?.description
+                        } else if (
+                          ['WORKREQ'].includes(
+                            selectedOrder?.order_detail?.status?.category ?? ''
+                          ) &&
+                          selectedOrder?.order_detail?.payment_type === 'survey' &&
+                          !['WORKSTART', 'WORKEND'].includes(
+                            selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status
+                              ?.category ?? ''
+                          )
+                        ) {
+                          return selectedOrder?.order_detail?.status?.description
+                        } else {
+                          return selectedOrder?.order_detail?.work_orders?.work_order_status[0]
+                            ?.status?.description
+                        }
                       } else {
                         return selectedOrder?.order_detail?.status?.description
                       }
