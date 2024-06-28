@@ -3,6 +3,7 @@ import React, {useState, useEffect, FC} from 'react'
 import {SalesReportWidget} from './components/SalesReportWidget'
 import {TransactionWidget} from './components/TransactionWidget'
 import {WaitingCostumerPay} from './components/WaitingCostumerPay'
+import {WaitingPaymentQuotation} from './components/WaitingPaymentQuotation'
 import {TopSalesWidget} from './components/TopSalesWidget'
 import {TotalOrderStore} from './components/TotalOrderStore'
 import {TotalComplaint} from './components/TotalComplaint'
@@ -42,7 +43,7 @@ const DashboardStore: FC = () => {
   const [totalSales, setTotalSales] = useState<number>(0)
 
   const getOrder = async (queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc${queryparams}&date_from=${dateFrom}&date_to=${dateTo}${salesId}${storeId}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc${queryparams}&date_from=${dateFrom}&date_to=${dateTo}&take=0${salesId}${storeId}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -212,11 +213,13 @@ const DashboardStore: FC = () => {
                 className='card-xxl-stretch-50  mb-xl-8 mb-5'
                 loadingPage={isLoadingPage}
                 chartOrder={chartData}
+                orderData={orderData}
               />
             </Col>
 
             <Col xxl={6} xl={6} lg={12}>
               <TotalReschedule
+                orderData={orderData}
                 chartOrder={chartData}
                 className='card-xxl-stretch-50  mb-xl-8 mb-5'
                 loadingPage={isLoadingPage}
@@ -225,12 +228,21 @@ const DashboardStore: FC = () => {
           </Row>
 
           <Row>
-            <Col>
+            <Col xxl={6} xl={6} lg={12}>
               <WaitingCostumerPay
                 chartOrder={chartData}
                 className='card-xxl-stretch-50 mb-xl-8 mb-5'
-                chartColor='success'
-                chartHeight='150px'
+                orderData={orderData}
+                loadingPage={isLoadingPage}
+              />
+            </Col>
+
+            <Col xxl={6} xl={6} lg={12}>
+              <WaitingPaymentQuotation
+                chartOrder={chartData}
+                orderData={orderData}
+                className='card-xxl-stretch-50  mb-xl-8 mb-5'
+                loadingPage={isLoadingPage}
               />
             </Col>
           </Row>

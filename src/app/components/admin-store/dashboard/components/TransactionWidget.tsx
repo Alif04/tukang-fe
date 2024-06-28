@@ -12,14 +12,11 @@ type Props = {
 const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage}) => {
   const filteredOrderData = orderData?.slice(0, 4)
   const calculateTotal = (orderDetail: any) => {
-    const {payment_type, status, grand_total} = orderDetail ?? {}
+    const {payment_type, grand_total, quotation} = orderDetail ?? {}
 
     let totalAmount = 0
 
-    if (
-      ['QUOTEIN', 'QUOTEOUT', 'WORKREQ'].includes(status?.category) &&
-      payment_type === 'survey'
-    ) {
+    if (quotation?.length > 0 && payment_type === 'survey') {
       totalAmount = orderDetail?.quotation[0]?.quotation_grand_total
     } else {
       totalAmount = grand_total
@@ -72,7 +69,9 @@ const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage})
 
                   <div className='d-flex flex-column align-items-end'>
                     <span className='fw-bold text-success'>{calculateTotal(item)}</span>
-                    <span className='fw-bold text-dark'>{item?.status?.description ?? ''}</span>
+                    <span className='fw-bold text-dark text-end'>
+                      {item?.status?.description ?? ''}
+                    </span>
                   </div>
                 </div>
               ))
