@@ -1022,6 +1022,78 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
             </Col>
           </Row>
 
+          {complaintDetail?.remedials && complaintDetail.remedials.length > 0 && (
+            <>
+              <hr />
+
+              <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
+                REMEDIAL HISTORY
+              </div>
+
+              {complaintDetail.remedials.map((item: any) => (
+                <Row key={item.id}>
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        PIC Feedback:
+                      </Form.Label>
+                      <Col sm='6'>
+                        <Form.Control plaintext readOnly value={item.remedial_pic} />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Feedback Description:</Form.Label>
+                    <Form.Control
+                      style={{minHeight: '200px'}}
+                      as='textarea'
+                      plaintext
+                      readOnly
+                      value={item.remedial_action}
+                    ></Form.Control>
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Remedial Evidence:</Form.Label>
+                    <ListGroup>
+                      {item?.remedial_evidence?.map((evidenceItem: any) => (
+                        <ListGroup.Item
+                          key={evidenceItem.id}
+                          action
+                          onClick={() => {
+                            setPreviewImage(evidenceItem.evidence_location)
+                            setVisible(true)
+                          }}
+                        >
+                          {evidenceItem.evidence_location}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+
+                    {previewImage && (
+                      <div>
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/remedials/${previewImage}`}
+                          preview={{
+                            visible,
+                            src: `${apiUrl}/public/remedials/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisible(value)
+                            },
+                          }}
+                        />
+                      </div>
+                    )}
+                  </Col>
+                </Row>
+              ))}
+            </>
+          )}
+
           {/* <hr /> */}
           {/* 
           <Row>

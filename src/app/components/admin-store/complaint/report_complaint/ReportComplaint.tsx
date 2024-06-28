@@ -159,7 +159,7 @@ const ReportComplaintStore: FC = () => {
         },
       })
 
-      const chartDatas = response.data.monthlyOrders
+      const chartDatas = response.data.data
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
 
@@ -429,7 +429,7 @@ const ReportComplaintStore: FC = () => {
         </div>
 
         <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartWorkOrder} />
+          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartDataOrder} />
         </div>
 
         <div className='col-xl-4'>

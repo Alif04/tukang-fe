@@ -63,7 +63,7 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     series: [
       {
         name: 'Komplain Masuk',
-        data: chartComplaintData.map((item: any) => item?.totalApprovedByHO ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalOrder ?? 0),
       },
       {
         name: 'Komplain Ditolak',

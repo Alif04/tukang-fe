@@ -209,10 +209,6 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
     setLoadingButton(false)
   }
 
-  const handlePrintReport = () => {
-    navigate('/reports/print-report')
-  }
-
   return (
     <section id='report-performance'>
       <div className={`card ${className}`}>
@@ -294,25 +290,6 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
               </span>
             )}
           />
-
-          {/* <div className='d-flex justify-content-center align-items-center mt-5'>
-            <Button
-              variant='dark-gray'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handlePrintReport}
-            >
-              Print Report
-            </Button>
-
-            <Button
-              variant='dark-success'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-            >
-              Email Report
-            </Button>
-          </div> */}
         </div>
       </div>
     </section>

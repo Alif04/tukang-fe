@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportTukang.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import * as XLSX from 'xlsx'
 import {Table, PaginationProps, Tag} from 'antd'
@@ -27,18 +28,22 @@ interface Status {
 const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const userTukang = localStorage.getItem('tukang_id')
+  const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
+
   const [reportData, setReportData] = useState<any[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<string>('0')
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const today = new Date()
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   let columns: ColumnsType<any> = []
 
   switch (endpoint) {
-    case 'orders':
+    case 'work-orders':
       columns = [
         {
           title: 'Order ID',
@@ -101,30 +106,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           width: 170,
           onFilter: (value, record) => record.service_name.includes(String(value)),
           sorter: (a, b) => a.service_name.length - b.service_name.length,
-        },
-        {
-          title: 'Quantity',
-          dataIndex: 'quantity',
-          key: 'quantity',
-          align: 'center',
-          width: 90,
-          sorter: (a, b) => a.quantity - b.quantity,
-        },
-        {
-          title: 'Harga',
-          dataIndex: 'harga',
-          key: 'harga',
-          align: 'center',
-          width: 135,
-          sorter: (a, b) => a.harga - b.harga,
-        },
-        {
-          title: 'Grand Total',
-          dataIndex: 'grand_total',
-          key: 'grand_total',
-          align: 'center',
-          width: 135,
-          sorter: (a, b) => a.grand_total - b.grand_total,
         },
       ]
       break
@@ -507,33 +488,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
-          title: 'Item Name',
-          dataIndex: 'item_name',
-          key: 'item_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.item_name.includes(String(value)),
-          sorter: (a, b) => a.item_name.length - b.item_name.length,
-        },
-        {
-          title: 'Nama Jasa Pemasangan',
-          dataIndex: 'nama_jasa',
-          key: 'nama_jasa',
-          align: 'center',
-          width: 180,
-          onFilter: (value, record) => record.nama_jasa.includes(String(value)),
-          sorter: (a, b) => a.nama_jasa.length - b.nama_jasa.length,
-        },
-        {
-          title: 'Payment Status',
-          dataIndex: 'payment_status',
-          key: 'payment_status',
-          align: 'left',
-          width: 140,
-          onFilter: (value, record) => record.payment_status.includes(String(value)),
-          sorter: (a, b) => a.payment_status.length - b.payment_status.length,
-        },
-        {
           title: 'Order Status',
           dataIndex: 'order_status',
           key: 'order_status',
@@ -593,14 +547,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Refund Id',
-          dataIndex: 'refund_id',
-          key: 'refund_id',
-          align: 'center',
-          width: 80,
-          sorter: (a, b) => a.refund_id - b.refund_id,
-        },
-        {
           title: 'Nama Toko',
           dataIndex: 'store_name',
           key: 'store_name',
@@ -642,24 +588,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           align: 'center',
           width: 110,
           sorter: (a, b) => a.phone_number - b.phone_number,
-        },
-        {
-          title: 'Item Name',
-          dataIndex: 'item_name',
-          key: 'item_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.item_name.includes(String(value)),
-          sorter: (a, b) => a.item_name.length - b.item_name.length,
-        },
-        {
-          title: 'Nama Jasa Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          align: 'center',
-          width: 180,
-          onFilter: (value, record) => record.service_name.includes(String(value)),
-          sorter: (a, b) => a.service_name.length - b.service_name.length,
         },
         {
           title: 'Payment Status',
@@ -940,8 +868,8 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
         const url =
           statusName === ''
-            ? `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}`
-            : `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}&status=${statuses}`
+            ? `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${tukangId}`
+            : `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}&status=${statuses}${tukangId}`
 
         const response = await axios.get(url, {
           headers: {
@@ -954,7 +882,7 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
         if (response?.data) {
           switch (endpoint) {
-            case 'orders':
+            case 'work-orders':
               setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
               break
 
@@ -971,8 +899,8 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
               break
           }
 
-          setCurrentPage(response?.data?.data?.page ?? 1)
-          setTotalOrder(response?.data?.data?.total ?? 0)
+          setCurrentPage(response?.data?.page ?? 1)
+          setTotalOrder(response?.data?.total ?? 0)
         }
 
         return endpoint === 'reschedule' ? response.data.data.data : response.data.data
@@ -999,31 +927,22 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
       let csiData
 
       switch (endpoint) {
-        case 'orders':
+        case 'work-orders':
           orderData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item.request_survey)
-
-            const price = parseInt(item.m_order_details[0]?.unit_price ?? 0, 10)
-            const formattedUnitPrice = `Rp. ${price.toLocaleString('id')}`
-
-            const quantity = parseInt(item.m_order_details[0]?.quantity ?? 0, 10)
-
-            const grandTotalPrice = parseInt(item.grand_total)
-            const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
+            const orderDate = new Date(item?.order?.request_survey)
 
             data = {
               order_id: item.id,
               date_order: formatDate(orderDate),
-              costumer_name: item.members.full_name,
-              phone_number: item.project_number,
-              email: item.members.email,
-              address: item.project_address,
-              service_name: item.m_order_details[0]?.item?.service_name ?? '-',
-              quantity: quantity,
-              harga: formattedUnitPrice,
-              grand_total: formattedGrandTotal,
+              costumer_name: item?.order?.members.full_name,
+              phone_number: item?.order?.project_number,
+              email: item?.order?.members.email,
+              address: item?.order?.project_address,
+              service_name: item?.work_order_status[0]?.work_order_items
+                .map((item: any) => item.name)
+                .join(', '),
             }
 
             return data
@@ -1200,7 +1119,7 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           break
       }
 
-      return endpoint === 'orders'
+      return endpoint === 'work-orders'
         ? orderData
         : endpoint === 'quotation'
         ? quotationData
@@ -1264,6 +1183,10 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -1272,8 +1195,8 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
@@ -1298,7 +1221,7 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
                 </button>
               </div>
 
-              {!['csi', 'complaints', 'reschedule'].includes(endpoint) ? (
+              {!['csi', 'complaints', 'reschedule', 'work-orders'].includes(endpoint) ? (
                 <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
                   'id'
                 )}`}</h1>

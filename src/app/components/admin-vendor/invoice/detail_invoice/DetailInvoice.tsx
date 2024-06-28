@@ -153,13 +153,12 @@ const DetailInvoiceVendor: FC = () => {
           <Row className='invoice-detail mb-4'>
             <Col xxl={6} xl={6} md={6} sm={12} className='receiver-information'>
               <div className='fs-2 fw-semibold'>Ditunjukkan kepada :</div>
-              <div className='fs-4 mb-2 fw-bold'>{storeName}</div>
-              <h3 className='fs-4 mb-2 fw-normal'>{storeAddress}</h3>
+              <div className='fs-4 mb-2 fw-bold'>PT Catur Mitra Sejati Sentosa</div>
               <h3 className='fs-4 mb-2 fw-normal'>
-                {invoiceDetail?.invoice_details.length
-                  ? `Telp : ${storePhoneNumber}`
-                  : 'Nomor telepon belum tersedia'}
+                Jl. Gading Serpong Boulevard Blok mitra 10, Curug Sangereng, Kec. Klp. Dua,
+                Kabupaten Tangerang, Banten 15820
               </h3>
+              <h3 className='fs-4 mb-2 fw-normal'>Telp : 0878-8210-5748</h3>
             </Col>
 
             <Col xxl={6} xl={6} md={6} sm={12} className='receiver-information'>
@@ -182,8 +181,9 @@ const DetailInvoiceVendor: FC = () => {
               <thead>
                 <tr>
                   <th className='text-center'>Order ID</th>
-                  <th className='text-center'>Nama Toko</th>
                   <th className='text-center'>Tanggal Order</th>
+                  <th className='text-center'>Nama Toko</th>
+                  <th className='text-center'>Nama Konsumen</th>
                   <th className='text-center'>Jenis Pekerjaan</th>
                   <th className='text-center'>Nomor Receipt</th>
                   <th className='text-center'>Total Harga</th>
@@ -195,9 +195,6 @@ const DetailInvoiceVendor: FC = () => {
                   <tr key={item?.order?.id}>
                     <td>{item?.order?.id}</td>
                     <td>
-                      {store.find((x: any) => x.store_id === item?.order?.store_id)?.store_name}
-                    </td>
-                    <td>
                       {new Date(item?.order?.request_survey).toLocaleDateString('id-ID', {
                         day: 'numeric',
                         month: 'long',
@@ -205,17 +202,26 @@ const DetailInvoiceVendor: FC = () => {
                       })}
                     </td>
                     <td>
+                      {store.find((x: any) => x.store_id === item?.order?.store_id)?.store_name}
+                    </td>
+                    <td>{item?.order?.members?.full_name}</td>
+                    <td>
                       {item?.order?.payment_type === 'survey'
                         ? 'Survey'
                         : 'Pemasangan Tanpa Survey'}
                     </td>
-                    <td>{item?.order?.receipt_number}</td>
+                    <td>
+                      {item?.order?.quotation?.length > 0 &&
+                      item?.order?.quotation[0]?.receipt_quotation !== null
+                        ? item?.order?.quotation[0]?.receipt_quotation
+                        : item?.order?.receipt_number}
+                    </td>
                     <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
                   </tr>
                 ))}
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td colSpan={6} className='text-end fw-bolder'>
                     Grand Total
                   </td>
 
