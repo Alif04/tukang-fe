@@ -1,7 +1,7 @@
 import React, {FC, useState} from 'react'
 
 import {PageTitle} from '../../../../_metronic/layout/core'
-import {UpdateComplaintStore} from '../../../components'
+import {UpdateComplaintForm} from '../../../components'
 import {UpdateComplaintHO} from '../../../components'
 import {UpdateComplaintVendor} from '../../../components'
 import {UpdateComplaintTukang} from '../../../components'
@@ -22,7 +22,7 @@ const UpdateComplaint: FC = () => {
       {userRole === 'Store CS' || userRole === 'Store Staff' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
-          <UpdateComplaintStore updatePageTitle={updatePageTitle} />
+          <UpdateComplaintForm updatePageTitle={updatePageTitle} />
         </>
       ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
         <>

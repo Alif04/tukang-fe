@@ -13,6 +13,7 @@ import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface Complaint {
   order_id: number | null
+  pic_name: string
   description: string
   complaint_channel: number | null
   complaint_date: string
@@ -52,6 +53,7 @@ const NewComplaintForm: FC = () => {
   const [complaintCode, setComplaintCode] = useState<string | number>('NaN')
   const [complaintForm, setComplaintForm] = useState<Complaint>({
     order_id: null,
+    pic_name: '',
     description: '',
     complaint_channel: null,
     complaint_date: '',
@@ -108,7 +110,16 @@ const NewComplaintForm: FC = () => {
 
         const filteredOrder = tempOrder.filter(
           (detail: any) =>
-            !['UNPAID', 'PICKLIST', 'BOOK', 'BOOKED', 'INVESTIGATED'].includes(detail.status)
+            ![
+              'UNPAID',
+              'PICKLIST',
+              'BOOK',
+              'BOOKED',
+              'INVESTIGATE',
+              'INVESTIGATED',
+              'COMPLAINTAPPROVEDBYHO',
+              'COMPLAINTREJECTEDBYHO',
+            ].includes(detail.status)
         )
 
         setOrder(filteredOrder)
@@ -340,6 +351,7 @@ const NewComplaintForm: FC = () => {
     setComplaintForm({
       order_id: null,
       complaint_channel: null,
+      pic_name: '',
       description: '',
       complaint_date: '',
       complaint_status: '',
@@ -359,6 +371,7 @@ const NewComplaintForm: FC = () => {
       const formData = new FormData()
 
       formData.append('order_id', String(complaintForm.order_id))
+      formData.append('pic_name', complaintForm.pic_name)
       formData.append('description', complaintForm.description)
       formData.append('complaint_status', complaintForm.complaint_status)
       formData.append('complaint_channel', String(complaintForm.complaint_channel))
@@ -373,7 +386,7 @@ const NewComplaintForm: FC = () => {
         })
       }
 
-      const response = await axios
+      await axios
         .post(`${apiUrl}/complaints`, formData, {
           headers: {
             Accept: 'application/json',
@@ -1001,6 +1014,17 @@ const NewComplaintForm: FC = () => {
 
           <Row className='mb-5'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+              <Form.Group className='mb-3'>
+                <Form.Label>Nama PIC :</Form.Label>
+                <Form.Control
+                  name='pic_name'
+                  type='text'
+                  placeholder='Isi Nama PIC'
+                  value={complaintForm?.pic_name ?? ''}
+                  onChange={(e) => complaintFormHandler(e)}
+                />
+              </Form.Group>
+
               <Form.Group className='mb-3'>
                 <Form.Label>Tanggal Komplain :</Form.Label>
                 <Form.Control

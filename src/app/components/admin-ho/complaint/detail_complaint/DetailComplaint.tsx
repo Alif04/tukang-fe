@@ -11,11 +11,6 @@ import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface Member {
-  value: any
-  label: string
-}
-
 interface Position {
   value: string
   label: string
@@ -25,12 +20,10 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [complaintId, setComplaintId] = useState<any>()
-  const [complaintStatusApprove, setComplaintStatusApprove] = useState<any>()
-  const [complaintStatusCancel, setComplaintStatusCancel] = useState<any>()
-
   const [complaintDetail, setComplaintDetail] = useState<any>()
 
   const [previewImage, setPreviewImage] = useState<any>()
@@ -62,54 +55,9 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
     }
   }
 
-  const getEmployees = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/member`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      if (Array.isArray(response.data.data.member)) {
-        const tempMember = response.data.data.member.map((item: any) => ({
-          value: item.id,
-          label: item.full_name,
-        }))
-
-        setPicFeedback(tempMember)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   useEffect(() => {
     fetchComplaintData()
-    getEmployees()
   }, [])
-
-  // Complaint Status Approve
-  useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-    const desiredStatusApprove = statusData.find(
-      (status: any) => status.category === 'COMPLAINTAPPROVEDBYHO'
-    )
-    const statusApproveId = desiredStatusApprove.value
-
-    const desiredStatusCancel = statusData.find(
-      (status: any) => status.category === 'COMPLAINTREJECTEDBYHO'
-    )
-    const statusCancelId = desiredStatusCancel.value
-
-    setComplaintStatusApprove(statusApproveId)
-    setComplaintStatusCancel(statusCancelId)
-  }, [complaintStatusApprove, complaintStatusCancel])
 
   const phoneNumber =
     complaintDetail?.orders.members.phone_number !== null
@@ -124,11 +72,8 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   }
 
   // PIC Feedback
-  const [picFeedbackId, setPicFeedbackId] = useState<any>()
-  const [picFeedback, setPicFeedback] = useState<Member[]>([])
-  const [picFeedbackName, setPicFeedbackName] = useState<string>('')
+  const [picFeedback, setPicFeedback] = useState<string>('')
   const [picPosition, setPicPosition] = useState<string>('')
-
   const picPositions = [
     {value: 'Staff', label: 'Staff'},
     {value: 'Supervisor', label: 'Supervisor'},
@@ -157,14 +102,9 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
     setFeedbackStatusId(statusId)
   }, [feedbackStatus])
 
-  const handlePicFeedbackChange = (element: Member | null) => {
-    const newMemberInfo: Member = {
-      value: element?.value || 0,
-      label: element?.label || '',
-    }
-
-    setPicFeedbackId(newMemberInfo.value)
-    setPicFeedbackName(newMemberInfo.label)
+  const handlePicFeedbackChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setPicFeedback(updatedInputValue)
   }
 
   const handlePicPositonChange = (element: Position | null) => {
@@ -189,11 +129,6 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
     const updatedFeedbackDate = event.target.value
     setFeedbackStartDate(updatedFeedbackDate)
   }
-
-  // useEffect(() => {
-  //   const today = new Date().toISOString().split('T')[0]
-  //   setFeedbackStartDate(today)
-  // }, [])
 
   // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -237,19 +172,6 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
     }
   }
 
-  // Reason Rejected
-  const [showModal, setShowModal] = useState(false)
-  const [reasonRejected, setReasonRejected] = useState<string>('')
-
-  const handleShowModal = () => {
-    setShowModal(true)
-  }
-
-  const handleInputReasonReject = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setReasonRejected(updatedInputValue)
-  }
-
   // Feedback Validation
   const FeedbackValidation = () => {
     let valid = true
@@ -281,79 +203,31 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
 
   // Handle Submit Feedback
   const handleSubmitNewFeedback = async () => {
-    if (FeedbackValidation()) {
-      setIsLoading(true)
-
-      const formData = new FormData()
-
-      formData.append('complaint_id', complaintId)
-      formData.append('remedial_action', feedbackDesc)
-      formData.append('ra_date_start', feedbackStartDate)
-      formData.append('remedial_pic', picFeedbackId)
-      formData.append('remedial_status', feedbackStatus)
-
-      if (feedbackEvidence?.length) {
-        feedbackEvidence.forEach((item) => {
-          if (item) {
-            formData.append(`remedial_evidences`, item, item?.name)
-          }
-        })
-      }
-
-      const response = await axios
-        .post(`${apiUrl}/remedials`, formData, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          if (response.data.status === 200 || response.data.status === 201) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Success Add Feedback',
-              icon: 'success',
-            })
-
-            setIsLoading(false)
-          } else {
-            Swal.fire({
-              title: 'Error',
-              text: response.data.message,
-              icon: 'error',
-            })
-
-            setIsLoading(false)
-          }
-
-          navigate('/complaint/view-complaint')
-        })
-        .catch((error) => {
-          console.error(error)
-          setIsLoading(false)
-
-          Swal.fire({
-            title: 'Error',
-            text: error.response.data.message,
-            icon: 'error',
-          })
-        })
+    if (!FeedbackValidation()) {
+      setIsLoading(false)
+      return false
     }
-  }
 
-  // Cancel Complaint
-  const handleCancel = () => {
-    navigate('/complaint/view-complaint')
-  }
-
-  // Handle Approve & Cancel
-  const handleApprovalComplaint = async (status: number) => {
+    const formData = new FormData()
     setIsLoading(true)
 
+    formData.append('complaint_id', complaintId)
+    formData.append('remedial_action', feedbackDesc)
+    formData.append('ra_date_start', feedbackStartDate)
+    formData.append('remedial_pic', picFeedback)
+    formData.append('remedial_pic_position', picPosition)
+    formData.append('remedial_status', feedbackStatus)
+
+    if (feedbackEvidence?.length) {
+      feedbackEvidence.forEach((item) => {
+        if (item) {
+          formData.append(`remedial_evidences`, item, item?.name)
+        }
+      })
+    }
+
     await axios
-      .post(`${apiUrl}/complaints/${complaintId}/set-status/${status}`, null, {
+      .post(`${apiUrl}/remedials`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -365,7 +239,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: response.data.message,
+            text: 'Success Add Feedback',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -385,7 +259,6 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
         navigate('/complaint/view-complaint')
       })
       .catch((error) => {
-        console.error(error)
         setIsLoading(false)
 
         Swal.fire({
@@ -394,6 +267,11 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
           icon: 'error',
         })
       })
+  }
+
+  // Cancel Complaint
+  const handleCancel = () => {
+    navigate('/complaint/view-complaint')
   }
 
   return (
@@ -559,12 +437,12 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                 </Row>
 
                 <Row>
-                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
+                  <div className='fs-3 fw-bold'>Informasi Tukang Pemasangan</div>
 
                   <div className='d-flex'>
                     <Form.Group as={Row}>
                       <Form.Label column md='5'>
-                        Vendor Name :
+                        Tukang Name :
                       </Form.Label>
 
                       <Col md='7'>
@@ -923,35 +801,20 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
           <hr />
 
           <Row>
-            <div className='d-flex justify-content-end align-items-center'>
-              <Button
-                variant='light-danger'
-                className='d-flex justify-content-center align-items-center'
-                type='submit'
-                disabled={isLoading}
-                onClick={handleShowModal}
-              >
-                {isLoading ? 'Rejected..' : 'Rejected'}
-              </Button>
-
-              <Button
-                variant='dark-success'
-                className='d-flex justify-content-center align-items-center'
-                type='submit'
-                disabled={isLoading}
-                onClick={() => handleApprovalComplaint(complaintStatusApprove)}
-              >
-                {isLoading ? 'Accepted..' : 'Accepted'}
-              </Button>
-            </div>
-          </Row>
-
-          <Row>
             <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
               COMPLAINT HISTORY
             </div>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Form.Group as={Row} className='detail-info'>
+                <Form.Label column sm='6'>
+                  Nama PIC Komplain :
+                </Form.Label>
+                <Col sm='6'>
+                  <Form.Control plaintext readOnly value={complaintDetail?.pic_name ?? ''} />
+                </Col>
+              </Form.Group>
+
               <Form.Group as={Row} className='detail-info'>
                 <Form.Label column sm='6'>
                   Complaint Date :
@@ -976,34 +839,21 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                   <Form.Control
                     plaintext
                     readOnly
-                    value={complaintDetail?.complaint_channels.name}
+                    value={complaintDetail?.complaint_channels?.name}
                   />
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='6'>
-                  PIC Complaint :
-                </Form.Label>
-                <Col sm='6'>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    value={complaintDetail?.orders.members.full_name}
-                  />
-                </Col>
-              </Form.Group>
-
-              {complaintDetail?.complaint_histories.map((item: any) => (
+              {/* {complaintDetail?.complaint_histories.map((item: any) => (
                 <Form.Group as={Row} className='detail-info'>
                   <Form.Label column sm='6'>
-                    Reason :
+                    Alasan :
                   </Form.Label>
                   <Col sm='6'>
                     <Form.Control plaintext readOnly value={item?.reason} />
                   </Col>
                 </Form.Group>
-              ))}
+              ))} */}
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -1056,11 +906,106 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
             </Col>
           </Row>
 
+          {complaintDetail?.remedials && complaintDetail.remedials.length > 0 && (
+            <>
+              <hr />
+
+              <div className='fs-3 fw-bold text-uppercase text-decoration-underline'>
+                REMEDIAL HISTORY
+              </div>
+
+              {complaintDetail.remedials.map((item: any) => (
+                <Row key={item.id}>
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='5'>
+                        PIC Feedback :
+                      </Form.Label>
+                      <Col sm='7'>
+                        <Form.Control plaintext readOnly value={item.remedial_pic} />
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='5'>
+                        Jabatan :
+                      </Form.Label>
+                      <Col sm='7'>
+                        <Form.Control plaintext readOnly value={item.remedial_pic_positon} />
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='5'>
+                        Tanggal :
+                      </Form.Label>
+
+                      <Col sm='7'>
+                        <Form.Control
+                          plaintext
+                          readOnly
+                          value={formatDate(new Date(item.ra_date_start))}
+                        />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Feedback Description:</Form.Label>
+                    <Form.Control
+                      style={{minHeight: '200px'}}
+                      as='textarea'
+                      plaintext
+                      readOnly
+                      value={item.remedial_action}
+                    ></Form.Control>
+                  </Col>
+
+                  <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                    <Form.Label className='mt-3'>Remedial Evidence:</Form.Label>
+                    <ListGroup>
+                      {item?.remedial_evidences?.map((evidenceItem: any) => (
+                        <ListGroup.Item
+                          key={evidenceItem.id}
+                          action
+                          onClick={() => {
+                            setPreviewImage(evidenceItem.evidence_location)
+                            setVisible(true)
+                          }}
+                        >
+                          {evidenceItem.evidence_location}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+
+                    {previewImage && (
+                      <div>
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/remedials/${previewImage}`}
+                          preview={{
+                            visible,
+                            src: `${apiUrl}/public/remedials/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisible(value)
+                            },
+                          }}
+                        />
+                      </div>
+                    )}
+                  </Col>
+                </Row>
+              ))}
+            </>
+          )}
+
           <hr />
 
           <Row>
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-              <Form.Label className='fs-3 fw-bold'>Feedback Store</Form.Label>
+              <Form.Label className='fs-3 fw-bold'>Feedback</Form.Label>
               <Form.Control
                 style={{minHeight: '170px'}}
                 as='textarea'
@@ -1126,20 +1071,11 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
               <Form.Group>
                 <Form.Label>Nama Pemberi Feedback</Form.Label>
 
-                <Select
-                  name='member'
-                  id='member'
-                  className='form-control p-0 form-item-name'
-                  classNamePrefix='select'
-                  placeholder='Pilih PIC Feedback'
-                  isSearchable={true}
-                  options={picFeedback}
-                  // value={{
-                  //   value: picFeedbackId,
-                  //   label: picFeedbackName,
-                  // }}
-                  onChange={(element) => handlePicFeedbackChange(element)}
-                />
+                <Form.Control
+                  placeholder='Isi Nama Pemberi Feedback'
+                  type='text'
+                  onChange={handlePicFeedbackChange}
+                ></Form.Control>
               </Form.Group>
             </Col>
 
@@ -1153,6 +1089,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                   classNamePrefix='select'
                   placeholder='Jabatan'
                   isSearchable={true}
+                  isClearable={true}
                   options={picPositions}
                   onChange={(element) => handlePicPositonChange(element)}
                 />
@@ -1173,6 +1110,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
               className='d-flex justify-content-center align-items-center'
               type='submit'
               onClick={handleCancel}
+              disabled={isLoading}
             >
               Cancel
             </Button>
@@ -1184,98 +1122,9 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
               disabled={isLoading}
               onClick={handleSubmitNewFeedback}
             >
-              {isLoading ? 'Submitting..' : 'Submit'}
+              {isLoading ? 'Submitting...' : 'Submit'}
             </Button>
           </div>
-
-          <Modal show={showModal} onHide={() => setShowModal(false)}>
-            <Modal.Header closeButton></Modal.Header>
-
-            <Modal.Body>
-              <Form.Label className='fs-5 fw-bolder'>Reason Rejected :</Form.Label>
-              <Form.Group>
-                <Form.Control as='textarea' rows={3} onChange={handleInputReasonReject} />
-              </Form.Group>
-            </Modal.Body>
-
-            <Modal.Footer>
-              <Button variant='dark-danger' onClick={() => setShowModal(false)}>
-                Close
-              </Button>
-
-              <Button
-                variant='dark-primary'
-                onClick={() => handleApprovalComplaint(complaintStatusCancel)}
-              >
-                Submit
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
-          {/* <hr />
-
-          <div className='card'>
-            <div className='card-body'>
-              <Row>
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      Complaint Date :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control type='date' plaintext readOnly />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      Complaint via :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='Call' />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      PIC Complaint :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <Form.Control plaintext readOnly defaultValue='Nuning' />
-                    </Col>
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Label className='mt-3'>Complaint Detail :</Form.Label>
-                  <Form.Control
-                    style={{minHeight: '200px'}}
-                    as='textarea'
-                    plaintext
-                    readOnly
-                    defaultValue='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-                        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat'
-                  ></Form.Control>
-                </Col>
-
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                  <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
-                  <ListGroup>
-                    <ListGroup.Item action onClick={() => setVisible(true)}>
-                      342344.png
-                    </ListGroup.Item>
-                    <ListGroup.Item action onClick={() => setVisible(true)}>
-                      848735.png
-                    </ListGroup.Item>
-                    <ListGroup.Item action onClick={() => setVisible(true)}>
-                      Complaint.docx
-                    </ListGroup.Item>
-                  </ListGroup>
-                </Col>
-              </Row>
-            </div>
-          </div> */}
         </div>
       </div>
     </section>
