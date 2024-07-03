@@ -19,6 +19,7 @@ interface DataType {
   store_name: string
   costumer_name: string
   service_name: string
+  status: string
 }
 
 const columns: ColumnsType<DataType> = [
@@ -53,6 +54,14 @@ const columns: ColumnsType<DataType> = [
     align: 'left',
     onFilter: (value, record) => record.service_name.includes(String(value)),
     sorter: (a, b) => a.service_name.length - b.service_name.length,
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    align: 'left',
+    onFilter: (value, record) => record.status.includes(String(value)),
+    sorter: (a, b) => a.status.length - b.status.length,
   },
 ]
 
@@ -157,14 +166,46 @@ const DashboardTukang: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
+        const orderStatus = (() => {
+          if (item?.work_order_status?.length >= 0) {
+            if (
+              [
+                'QUOTEIN',
+                'QUOTEOUT',
+                'CANCEL',
+                'WARRANTYCLAIM',
+                'INVESTIGATED',
+                'COMPLAINTAPPROVEDBYHO',
+                'COMPLAINTREJECTEDBYHO',
+                'RESCHEDULE',
+              ].includes(item?.order?.status?.category)
+            ) {
+              return item?.order?.status?.description
+            } else if (
+              ['WORKREQ'].includes(item?.order?.status?.category) &&
+              item?.order?.payment_type === 'survey' &&
+              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
+            ) {
+              return item?.order?.status?.description
+            } else {
+              return item?.work_order_status[0]?.status?.description
+            }
+          } else {
+            return item?.order?.status?.description
+          }
+        })()
+
         data = {
           order_id: item?.order?.id,
           store_name: item?.order?.store?.store_name ?? '-',
           costumer_name: item?.order?.members?.full_name ?? '-',
           service_name:
-            item?.payment_type === 'survey'
-              ? item?.order?.m_order_details[0]?.item_notes ?? '-'
-              : item?.order?.m_order_details[0]?.item?.service_name ?? '-',
+            item?.order?.payment_type === 'survey'
+              ? item?.order?.m_order_details[0]?.item_notes
+              : item?.work_order_status[0]?.work_order_items
+                  .map((item: any) => item?.name)
+                  .join(', '),
+          status: orderStatus,
         }
 
         return data
@@ -280,19 +321,13 @@ const DashboardTukang: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
-                {renderStat(surveyOrder, 'Survey')}
-                {renderStat(workInProgress, 'On Progress')}
-                {renderStat(orderDone, 'Complete')}
-                {renderStat(totalReschedule, 'Reschedule', 'text-danger')}
-                {renderStat(totalCancel, 'Cancel', 'text-danger')}
-                {renderStat(totalRefund, 'Refund', 'text-danger')}
-                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-brown fw-bold text-center')}
-                {renderStat(
-                  waitingQuotations,
-                  'Menunggu Quotation',
-                  'text-brown fw-bold text-center'
-                )}
-                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
+                {renderStat(surveyOrder, 'Permintaan Survei')}
+                {renderStat(surveyOrder, 'Survei Dimulai')}
+                {renderStat(surveyOrder, 'Survei Selesai')}
+                {renderStat(waitingQuotations, 'Menunggu Quotation')}
+                {renderStat(workInProgress, 'Permintaan Pengerjaan')}
+                {renderStat(workInProgress, 'Pengerjaan Dimulai')}
+                {renderStat(orderDone, 'Pengerjaan Selesai')}
               </Row>
             </Card.Body>
           </Card>
