@@ -243,10 +243,12 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
             {![
               'QUOTEIN',
               'QUOTEOUT',
+              'CANCEL',
               'WARRANTYCLAIM',
               'INVESTIGATED',
+              'COMPLAINTAPPROVEDBYHO',
+              'COMPLAINTREJECTEDBYHO',
               'RESCHEDULE',
-              'CANCEL',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -367,9 +369,16 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
         const orderStatus = (() => {
           if (item?.work_orders?.work_order_status?.length >= 0) {
             if (
-              ['QUOTEIN', 'QUOTEOUT', 'CANCEL', 'WARRANTYCLAIM', 'INVESTIGATED'].includes(
-                item?.status?.category
-              )
+              [
+                'QUOTEIN',
+                'QUOTEOUT',
+                'CANCEL',
+                'WARRANTYCLAIM',
+                'INVESTIGATED',
+                'COMPLAINTAPPROVEDBYHO',
+                'COMPLAINTREJECTEDBYHO',
+                'RESCHEDULE',
+              ].includes(item?.status?.category)
             ) {
               return item?.status?.category
             } else if (
@@ -397,6 +406,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                 'CANCEL',
                 'WARRANTYCLAIM',
                 'INVESTIGATED',
+                'COMPLAINTAPPROVEDBYHO',
+                'COMPLAINTREJECTEDBYHO',
                 'RESCHEDULE',
               ].includes(item?.status?.category ?? '')
             ) {

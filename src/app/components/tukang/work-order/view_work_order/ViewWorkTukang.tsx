@@ -225,10 +225,12 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             {![
               'QUOTEIN',
               'QUOTEOUT',
+              'CANCEL',
               'WARRANTYCLAIM',
               'INVESTIGATED',
+              'COMPLAINTAPPROVEDBYHO',
+              'COMPLAINTREJECTEDBYHO',
               'RESCHEDULE',
-              'CANCEL',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -332,7 +334,18 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
         const orderStatus = (() => {
           if (item?.work_order_status?.length >= 0) {
-            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
+            if (
+              [
+                'QUOTEIN',
+                'QUOTEOUT',
+                'CANCEL',
+                'WARRANTYCLAIM',
+                'INVESTIGATED',
+                'COMPLAINTAPPROVEDBYHO',
+                'COMPLAINTREJECTEDBYHO',
+                'RESCHEDULE',
+              ].includes(item?.order?.status?.category)
+            ) {
               return item?.order?.status?.category
             } else if (
               ['WORKREQ'].includes(item?.order?.status?.category) &&
@@ -350,7 +363,18 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
         const orderStatusLabel = (() => {
           if (item?.work_order_status?.length >= 0) {
-            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
+            if (
+              [
+                'QUOTEIN',
+                'QUOTEOUT',
+                'CANCEL',
+                'WARRANTYCLAIM',
+                'INVESTIGATED',
+                'COMPLAINTAPPROVEDBYHO',
+                'COMPLAINTREJECTEDBYHO',
+                'RESCHEDULE',
+              ].includes(item?.order?.status?.category)
+            ) {
               return item?.order?.status?.description
             } else if (
               ['WORKREQ'].includes(item?.order?.status?.category) &&
