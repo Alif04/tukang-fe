@@ -127,11 +127,11 @@ const UpdateCostumerHO: FC = () => {
   const memberInfoFormHandler = (e: any) => {
     let newValue = e.target.value
 
-    if (e.target.name === 'whatsapp_number' && !newValue.startsWith('+62')) {
-      newValue = '+62' + newValue
-    } else if (e.target.name === 'phone_number' && !newValue.startsWith('08')) {
-      newValue = '08' + newValue
-    }
+    // if (e.target.name === 'whatsapp_number') {
+    //   newValue = newValue
+    // } else if (e.target.name === 'phone_number') {
+    //   newValue = newValue
+    // }
 
     setMemberInfo((prevMemberInfo) => ({
       ...prevMemberInfo,

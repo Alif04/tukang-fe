@@ -630,7 +630,7 @@ $font-sizes: (
   // 68.25px
   5hx: $font-size-base * 5.5,
   // 71.5px
-  5tx: $font-size-base * 5.75 // 74.75px,,,,,,,,,,,,,,
+  5tx: $font-size-base * 5.75 // 74.75px,,,,,,,,,,,,,,,
 ) !default;
 
 $headings-font-weight: 600 !default;
@@ -1106,7 +1106,7 @@ $card-py: 1rem !default;
 $card-px: 1rem !default;
 $card-border-radius: $border-radius-lg !default;
 $card-header-py: 0.5rem !default;
-$card-header-height: 70px !default;
+$card-header-height: 40px !default;
 $card-border-enabled: false !default;
 
 // Accordion

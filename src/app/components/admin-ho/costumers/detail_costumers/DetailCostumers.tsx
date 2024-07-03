@@ -45,16 +45,6 @@ const DetailCostumerHO: FC = () => {
     fetchMemberDetail()
   }, [])
 
-  const phoneNumber =
-    memberDetail?.phone_number !== null ? memberDetail?.phone_number : memberDetail?.whatsapp_number
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   interface DataTypeOrder {
     number: number
     order_id: number
@@ -140,14 +130,18 @@ const DetailCostumerHO: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.request_survey ?? '-')
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
 
         data = {
           number: apiData.indexOf(item) + 1,
           order_id: item.id,
           store_name: item?.store?.store_name ?? '-',
           receipt_number: item?.receipt_number ?? '-',
-          date_order: formatDate(orderDate),
+          date_order: orderDate,
           // total_invoice: item?.total_invoice ?? '-',
           status: item?.status?.category ?? '-',
         }
@@ -171,12 +165,16 @@ const DetailCostumerHO: FC = () => {
 
         const complaintDataArray = apiData.flatMap((orderItem: any) => {
           return orderItem.complaints.map((complaintItem: any) => {
-            const complaintDate = new Date(complaintItem.complaint_date)
+            const complaintDate = new Date(complaintItem?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
 
             const complaintData = {
               number: complaintNumber,
               complaint_id: complaintItem.id,
-              complaint_date: formatDate(complaintDate),
+              complaint_date: complaintDate,
             }
 
             complaintNumber++
@@ -221,9 +219,8 @@ const DetailCostumerHO: FC = () => {
             <h1 className='fs-1 mb-3'>{memberDetail?.full_name}</h1>
             <h3 className='fs-2 fst-3 mb-3 text-muted'>{memberDetail?.id}</h3>
             {/* <p className='fs-4 mb-1'>Customer of : Mitra 10-BSD</p> */}
-            <p className='fs-4 text-muted mb-1'>Rating</p>
-
-            <Rate disabled defaultValue={memberDetail?.rating} />
+            {/* <p className='fs-4 text-muted mb-1'>Rating</p> */}
+            {/* <Rate disabled defaultValue={memberDetail?.rating} /> */}
           </div>
         </Col>
       </Row>
@@ -241,21 +238,21 @@ const DetailCostumerHO: FC = () => {
             <div className='data'>
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
-                  Address :
+                  Nomor Whatsapp :
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly as='textarea' value={memberDetail?.address_1} />
+                  <Form.Control plaintext readOnly value={memberDetail?.whatsapp_number} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
-                  Phone :
+                  Nomor Telp :
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly value={phoneNumber} />
+                  <Form.Control plaintext readOnly value={memberDetail?.phone_number} />
                 </Col>
               </Form.Group>
 
@@ -266,6 +263,16 @@ const DetailCostumerHO: FC = () => {
 
                 <Col sm='8'>
                   <Form.Control plaintext readOnly value={memberDetail?.email} />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row}>
+                <Form.Label column sm='4'>
+                  Address :
+                </Form.Label>
+
+                <Col sm='8'>
+                  <Form.Control plaintext readOnly as='textarea' value={memberDetail?.address_1} />
                 </Col>
               </Form.Group>
             </div>
@@ -292,14 +299,22 @@ const DetailCostumerHO: FC = () => {
                     plaintext
                     readOnly
                     type='text'
-                    value={memberDetail ? formatDate(new Date(memberDetail?.join_date)) : ''}
+                    value={
+                      memberDetail
+                        ? new Date(memberDetail?.join_date).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
+                        : ''
+                    }
                   />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
-                  Total Invoice :
+                  Total Order :
                 </Form.Label>
 
                 <Col sm='8'>
