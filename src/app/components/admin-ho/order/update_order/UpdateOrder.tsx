@@ -7,8 +7,9 @@ import './UpdateOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
-import {Image} from 'antd'
+import {Card, Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
+import {Image, Spin} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -72,6 +73,7 @@ interface Order {
   receipt_number: string
   is_overdistance: number
   additional_fee: number
+  notes: string
   order_details: Array<{
     id: number | null
     item?: ItemSelect | null
@@ -92,6 +94,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Information Detail
@@ -122,6 +126,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     receipt_number: '',
     is_overdistance: 0,
     additional_fee: 25000,
+    notes: '',
     order_details: [
       {
         id: null,
@@ -382,6 +387,13 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               }))
             }
 
+            if (data?.notes) {
+              setOrderForm((prev) => ({
+                ...prev,
+                notes: data?.notes ?? '',
+              }))
+            }
+
             if (data?.order_details) {
               setOrderForm((prev) => {
                 const previousDetailValues = data.order_details.map((item: any) => {
@@ -561,6 +573,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             label: item.company_name,
           }))
 
+          setIsLoadingPage(false)
           setVendor(tempVendor)
         } else {
           console.error('API response data is not an array:', response.data)
@@ -875,6 +888,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},
+      {key: 'notes', fieldName: 'Catatan'},
     ]
 
     const requiredOrderDetailsFields = [
@@ -923,6 +937,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               formData.append(key, orderForm[key].toString())
             }
           } else if (key === 'is_overdistance') {
+            if (value) {
+              formData.append(key, orderForm[key].toString())
+            }
+          } else if (key === 'notes') {
             if (value) {
               formData.append(key, orderForm[key].toString())
             }
@@ -1036,299 +1054,290 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   return (
     <section id='update-order'>
-      <div className='card mb-5'>
-        <div className='card-body'>
-          <div className='form-wrapper'>
-            <div className='form-costumer'>
-              <Row className='form-header'>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      Nama Toko
+      <Spin
+        spinning={isLoadingPage}
+        size='large'
+        tip='Loading...'
+        indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+      >
+        <Card className='mb-5'>
+          <Card.Body>
+            <div className='form-wrapper'>
+              <div className='form-costumer'>
+                <Row className='form-header'>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                    <Form.Group as={Row} className='mb-5'>
+                      <Form.Label column sm='4'>
+                        Nama Toko
+                      </Form.Label>
+
+                      <Col sm='8'>
+                        {orderDetail?.status?.category === 'QUOTEOUT' ? (
+                          <Form.Control readOnly type='text' value={selectedStore?.label ?? ''} />
+                        ) : (
+                          <Select
+                            name='store_id'
+                            className='form-control p-0'
+                            classNamePrefix='select'
+                            placeholder='Pilih Toko'
+                            isSearchable={true}
+                            isClearable={true}
+                            options={store}
+                            value={{
+                              value: selectedStore?.value ?? null,
+                              label: selectedStore?.label ?? '',
+                              address: selectedStore?.address ?? '',
+                              city_id: selectedStore?.city_id ?? null,
+                              zip_code: selectedStore?.zip_code ?? '',
+                            }}
+                            onChange={(newValue) => setSelectedStore(newValue)}
+                          />
+                        )}
+                      </Col>
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                    <Row>
+                      <Col xxl={3}>
+                        <Form.Label className='payment-type'>Payment Type :</Form.Label>
+                      </Col>
+
+                      <Col className='form-check-request' xxl={9}>
+                        <Row>
+                          <Col xxl={5}>
+                            <Form.Check
+                              inline
+                              label='Gratis'
+                              id='gratis'
+                              name='type'
+                              type='radio'
+                              value='gratis'
+                              checked={paymentTypeValue[0] === 'gratis'}
+                              onChange={() =>
+                                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+                              }
+                            />
+                          </Col>
+
+                          <Col xxl={7}>
+                            <Form.Check
+                              inline
+                              label='Survey'
+                              id='survey'
+                              name='paymentType'
+                              type='radio'
+                              value='survey'
+                              checked={
+                                paymentTypeValue[0] === 'berbayar' &&
+                                paymentTypeValue[1] === 'survey'
+                              }
+                              disabled={paymentTypeValue[0] === 'gratis'}
+                              onChange={() => {
+                                setPaymentTypeValue(['berbayar', 'survey'])
+                              }}
+                            />
+                          </Col>
+                        </Row>
+
+                        <Row>
+                          <Col xxl={5}>
+                            <Form.Check
+                              inline
+                              label='Berbayar'
+                              id='berbayar'
+                              name='type'
+                              type='radio'
+                              value='berbayar'
+                              checked={paymentTypeValue[0] === 'berbayar'}
+                              onChange={() => {
+                                setPaymentTypeValue(['berbayar', 'survey'])
+                              }}
+                            />
+                          </Col>
+
+                          <Col xxl={7}>
+                            <Form.Check
+                              inline
+                              label='Pemasangan Tanpa Survey'
+                              id='pemasangan_tanpa_survey'
+                              name='paymentType'
+                              type='radio'
+                              value='pemasangan_tanpa_survey'
+                              checked={
+                                (paymentTypeValue[0] === 'gratis' &&
+                                  paymentTypeValue[1] === 'pemasangan_tanpa_survey') ||
+                                (paymentTypeValue[0] === 'berbayar' &&
+                                  paymentTypeValue[1] === 'pemasangan_tanpa_survey')
+                              }
+                              disabled={paymentTypeValue[0] === 'gratis'}
+                              onChange={() => {
+                                setPaymentTypeValue([
+                                  paymentTypeValue[0],
+                                  'pemasangan_tanpa_survey',
+                                ])
+                              }}
+                            />
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+
+                    <Form.Label className='fs-7 fw-normal'>
+                      <span className='text-danger fw-bold'>Note :</span>
+                      <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
                     </Form.Label>
+                  </Col>
+                </Row>
 
-                    <Col sm='8'>
-                      {orderDetail?.status?.category === 'QUOTEOUT' ? (
-                        <Form.Control readOnly type='text' value={selectedStore?.label ?? ''} />
-                      ) : (
-                        <Select
-                          name='store_id'
-                          className='form-control p-0'
-                          classNamePrefix='select'
-                          placeholder='Pilih Toko'
-                          isSearchable={true}
-                          isClearable={true}
-                          options={store}
-                          value={{
-                            value: selectedStore?.value ?? null,
-                            label: selectedStore?.label ?? '',
-                            address: selectedStore?.address ?? '',
-                            city_id: selectedStore?.city_id ?? null,
-                            zip_code: selectedStore?.zip_code ?? '',
-                          }}
-                          onChange={(newValue) => setSelectedStore(newValue)}
-                        />
-                      )}
-                    </Col>
-                  </Form.Group>
-                </Col>
+                <Row className='input-order'>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <Form.Label>No Member</Form.Label>
+                      <Select
+                        name='member'
+                        id='member'
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Ketik No Telepon Member/Nomor Member'
+                        isSearchable={true}
+                        isClearable={true}
+                        isDisabled={true}
+                        options={member}
+                        value={{
+                          value: selectedMember?.value ?? null,
+                          label: selectedMember?.label ?? '',
+                          full_name: selectedMember?.full_name ?? '',
+                          email: selectedMember?.email ?? '',
+                          phone_number: selectedMember?.phone_number ?? '',
+                          whatsapp_number: selectedMember?.whatsapp_number ?? '',
+                          address_1: selectedMember?.address_1 ?? '',
+                        }}
+                        onChange={(newValue) => setSelectedMember(newValue)}
+                      />
+                    </Form.Group>
+                  </Col>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Row>
-                    <Col xxl={3}>
-                      <Form.Label className='payment-type'>Payment Type :</Form.Label>
-                    </Col>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <div className='d-flex justify-content-between'>
+                        <Form.Label>WA / Phone Number</Form.Label>
 
-                    <Col className='form-check-request' xxl={9}>
-                      <Row>
-                        <Col xxl={5}>
+                        <div className='form-check-request'>
                           <Form.Check
                             inline
-                            label='Gratis'
-                            id='gratis'
-                            name='type'
-                            type='radio'
-                            value='gratis'
-                            checked={paymentTypeValue[0] === 'gratis'}
-                            onChange={() =>
-                              setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
-                            }
+                            disabled
+                            label='Bukan Whatsapp'
+                            name='group1'
+                            value='1'
+                            type='checkbox'
+                            onChange={() => setIsWhatsapp(!isWhatsapp)}
                           />
-                        </Col>
-
-                        <Col xxl={7}>
-                          <Form.Check
-                            inline
-                            label='Survey'
-                            id='survey'
-                            name='paymentType'
-                            type='radio'
-                            value='survey'
-                            checked={
-                              paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'survey'
-                            }
-                            disabled={paymentTypeValue[0] === 'gratis'}
-                            onChange={() => {
-                              setPaymentTypeValue(['berbayar', 'survey'])
-                            }}
-                          />
-                        </Col>
-                      </Row>
-
-                      <Row>
-                        <Col xxl={5}>
-                          <Form.Check
-                            inline
-                            label='Berbayar'
-                            id='berbayar'
-                            name='type'
-                            type='radio'
-                            value='berbayar'
-                            checked={paymentTypeValue[0] === 'berbayar'}
-                            onChange={() => {
-                              setPaymentTypeValue(['berbayar', 'survey'])
-                            }}
-                          />
-                        </Col>
-
-                        <Col xxl={7}>
-                          <Form.Check
-                            inline
-                            label='Pemasangan Tanpa Survey'
-                            id='pemasangan_tanpa_survey'
-                            name='paymentType'
-                            type='radio'
-                            value='pemasangan_tanpa_survey'
-                            checked={
-                              (paymentTypeValue[0] === 'gratis' &&
-                                paymentTypeValue[1] === 'pemasangan_tanpa_survey') ||
-                              (paymentTypeValue[0] === 'berbayar' &&
-                                paymentTypeValue[1] === 'pemasangan_tanpa_survey')
-                            }
-                            disabled={paymentTypeValue[0] === 'gratis'}
-                            onChange={() => {
-                              setPaymentTypeValue([paymentTypeValue[0], 'pemasangan_tanpa_survey'])
-                            }}
-                          />
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-
-                  <Form.Label className='fs-7 fw-normal'>
-                    <span className='text-danger fw-bold'>Note :</span>
-                    <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
-                  </Form.Label>
-                </Col>
-              </Row>
-
-              <Row className='input-order'>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>No Member</Form.Label>
-                    <Select
-                      name='member'
-                      id='member'
-                      className='form-control p-0 form-item-name'
-                      classNamePrefix='select'
-                      placeholder='Ketik No Telepon Member/Nomor Member'
-                      isSearchable={true}
-                      isClearable={true}
-                      isDisabled={true}
-                      options={member}
-                      value={{
-                        value: selectedMember?.value ?? null,
-                        label: selectedMember?.label ?? '',
-                        full_name: selectedMember?.full_name ?? '',
-                        email: selectedMember?.email ?? '',
-                        phone_number: selectedMember?.phone_number ?? '',
-                        whatsapp_number: selectedMember?.whatsapp_number ?? '',
-                        address_1: selectedMember?.address_1 ?? '',
-                      }}
-                      onChange={(newValue) => setSelectedMember(newValue)}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <div className='d-flex justify-content-between'>
-                      <Form.Label>WA / Phone Number</Form.Label>
-
-                      <div className='form-check-request'>
-                        <Form.Check
-                          inline
-                          disabled
-                          label='Bukan Whatsapp'
-                          name='group1'
-                          value='1'
-                          type='checkbox'
-                          onChange={() => setIsWhatsapp(!isWhatsapp)}
-                        />
+                        </div>
                       </div>
-                    </div>
 
-                    <InputGroup className='mb-5'>
+                      <InputGroup className='mb-5'>
+                        <Form.Control
+                          disabled
+                          name='project_number'
+                          value={orderForm.project_number}
+                          onChange={(event) => orderFormHandler(event)}
+                        />
+                      </InputGroup>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className='input-order'>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <Form.Label>Nama Customer</Form.Label>
+                      <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <Form.Label>Email</Form.Label>
+                      <Form.Control type='text' disabled value={selectedMember?.email || ''} />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className='alamat-order'>
+                  <Col>
+                    <Form.Group className='mb-5'>
+                      <Form.Label>Alamat</Form.Label>
                       <Form.Control
-                        disabled
-                        name='project_number'
-                        value={orderForm.project_number}
+                        as='textarea'
+                        name='project_address'
+                        className='field-alamat'
+                        disabled={
+                          orderDetail?.quotation?.length >= 1 &&
+                          orderDetail?.payment_type === 'survey'
+                            ? true
+                            : false
+                        }
+                        value={orderForm.project_address}
                         onChange={(event) => orderFormHandler(event)}
                       />
-                    </InputGroup>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className='input-order'>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Nama Customer</Form.Label>
-                    <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type='text' disabled value={selectedMember?.email || ''} />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className='alamat-order'>
-                <Col>
-                  <Form.Group className='mb-5'>
-                    <Form.Label>Alamat</Form.Label>
-                    <Form.Control
-                      as='textarea'
-                      name='project_address'
-                      className='field-alamat'
-                      disabled={
-                        orderDetail?.quotation?.length >= 1 &&
-                        orderDetail?.payment_type === 'survey'
-                          ? true
-                          : false
-                      }
-                      value={orderForm.project_address}
-                      onChange={(event) => orderFormHandler(event)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </div>
-
-            <div className='form-sales'>
-              <div className='form-header'>
-                <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
+                    </Form.Group>
+                  </Col>
+                </Row>
               </div>
-              <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
-                  Sales ID :
-                </Form.Label>
 
-                <Col sm='8'>
-                  <Form.Control readOnly type='number' value={selectedSales?.value || ''} />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
-                  Nama Sales :
-                </Form.Label>
-
-                <Col sm='8'>
-                  {orderDetail?.status?.category === 'QUOTEOUT' ? (
-                    <Form.Control readOnly type='text' value={selectedSales?.full_name ?? ''} />
-                  ) : (
-                    <Select
-                      name='sales'
-                      id='sales'
-                      className='form-control p-0 form-item-name'
-                      classNamePrefix='select'
-                      placeholder='Pilih/Ketik Nama Sales'
-                      isSearchable={true}
-                      isClearable={true}
-                      options={sales}
-                      value={{
-                        value: selectedSales?.value ?? null,
-                        label: selectedSales?.full_name ?? '',
-                        full_name: selectedSales?.full_name ?? '',
-                      }}
-                      onChange={(newValue) => setSelectedSales(newValue)}
-                    />
-                  )}
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
-                  No Receipt
-                </Form.Label>
-                <Col sm='8'>
-                  <Form.Control
-                    name='receipt_number'
-                    type='text'
-                    value={orderForm.receipt_number}
-                    readOnly={
-                      orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey'
-                        ? true
-                        : false
-                    }
-                    onChange={(e) => orderFormHandler(e)}
-                  />
-                </Col>
-              </Form.Group>
-
-              {orderDetail?.quotation[0]?.receipt_quotation && (
+              <div className='form-sales'>
+                <div className='form-header'>
+                  <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
+                </div>
                 <Form.Group as={Row} className='mb-5'>
                   <Form.Label column sm='4'>
-                    Receipt Transaksi
+                    Sales ID :
+                  </Form.Label>
+
+                  <Col sm='8'>
+                    <Form.Control readOnly type='number' value={selectedSales?.value || ''} />
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label column sm='4'>
+                    Nama Sales :
+                  </Form.Label>
+
+                  <Col sm='8'>
+                    {orderDetail?.status?.category === 'QUOTEOUT' ? (
+                      <Form.Control readOnly type='text' value={selectedSales?.full_name ?? ''} />
+                    ) : (
+                      <Select
+                        name='sales'
+                        id='sales'
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Pilih/Ketik Nama Sales'
+                        isSearchable={true}
+                        isClearable={true}
+                        options={sales}
+                        value={{
+                          value: selectedSales?.value ?? null,
+                          label: selectedSales?.full_name ?? '',
+                          full_name: selectedSales?.full_name ?? '',
+                        }}
+                        onChange={(newValue) => setSelectedSales(newValue)}
+                      />
+                    )}
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label column sm='4'>
+                    No Receipt
                   </Form.Label>
                   <Col sm='8'>
                     <Form.Control
+                      name='receipt_number'
                       type='text'
-                      value={orderDetail?.quotation[0]?.receipt_quotation}
+                      value={orderForm.receipt_number}
                       readOnly={
                         orderDetail?.quotation?.length >= 1 &&
                         orderDetail?.payment_type === 'survey'
@@ -1339,795 +1348,859 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     />
                   </Col>
                 </Form.Group>
-              )}
-            </div>
-          </div>
 
-          {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
-            <Row className='table-order-header d-flex align-items-center mb-5'>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
-                <Form.Group>
-                  <Form.Label>Nama Vendor :</Form.Label>
-
-                  <Select
-                    name='vendor'
-                    id='vendor'
-                    className='form-control p-0 form-item-name'
-                    classNamePrefix='select'
-                    placeholder='Pilih/Ketik Nama Vendor'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={vendor}
-                    value={{
-                      value: selectedVendor?.value ?? null,
-                      label: selectedVendor?.label ?? '',
-                    }}
-                    onChange={(newValue) => handleChangeVendor(newValue)}
-                  />
-                </Form.Group>
-                <Form.Text className='fs-8 text-transparent'>
-                  *Tanggal Request{' '}
-                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
-                  Konfirmasi kunjungan dilakukan oleh Vendor
-                </Form.Text>
-              </Col>
-
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date'>
-                <Form.Group>
-                  <Form.Label>Tanggal Request</Form.Label>
-                  <Form.Control
-                    name='request_survey'
-                    type='date'
-                    value={orderForm.request_survey}
-                    readOnly={
-                      orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey'
-                        ? true
-                        : false
-                    }
-                    onChange={(e) => orderFormHandler(e)}
-                    min={today}
-                  />
-                  <Form.Text className='fs-8 text-dark-danger'>
-                    *Tanggal Request{' '}
-                    <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
-                    pasti. Konfirmasi kunjungan dilakukan oleh Vendor
-                  </Form.Text>
-                </Form.Group>
-              </Col>
-
-              <Col
-                xs={12}
-                md={4}
-                lg={4}
-                xl={4}
-                xxl={4}
-                className='text-start order-status order-1 order-md-2'
-              >
-                <h1 className='fs-3 fw-bold'>
-                  ORDER STATUS :{' '}
-                  {orderDetail?.quotation[0].quotation_files.length ? (
-                    <span className='fw-bold text-success'>
-                      {`${orderDetail?.status?.description}`}{' '}
-                      <span className='text-dark'>( Sudah dibayar )</span>
-                    </span>
-                  ) : (
-                    <span className='fw-bold text-success'>
-                      {`${orderDetail?.status?.description}`}{' '}
-                      <span className='text-dark'>( Belum dibayar )</span>
-                    </span>
-                  )}
-                </h1>
-              </Col>
-            </Row>
-          ) : (
-            <Row className='table-order-header d-flex align-items-center mb-5'>
-              <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date order-2 order-md-1'>
-                <Form.Group>
-                  <Form.Label>Nama Vendor :</Form.Label>
-
-                  <Select
-                    name='vendor'
-                    id='vendor'
-                    className='form-control p-0 form-item-name'
-                    classNamePrefix='select'
-                    placeholder='Pilih/Ketik Nama Vendor'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={vendor}
-                    value={{
-                      value: selectedVendor?.value ?? null,
-                      label: selectedVendor?.label ?? '',
-                    }}
-                    onChange={(newValue) => handleChangeVendor(newValue)}
-                  />
-                </Form.Group>
-                <Form.Text className='fs-8 text-transparent'>
-                  *Tanggal Request{' '}
-                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
-                  Konfirmasi kunjungan dilakukan oleh Vendor
-                </Form.Text>
-              </Col>
-
-              <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date'>
-                <Form.Group>
-                  <Form.Label>Tanggal Request</Form.Label>
-                  <Form.Control
-                    name='request_survey'
-                    type='date'
-                    value={orderForm.request_survey}
-                    onChange={(e) => orderFormHandler(e)}
-                    min={today}
-                  />
-                  <Form.Text className='fs-8 text-dark-danger'>
-                    *Tanggal Request{' '}
-                    <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
-                    pasti. Konfirmasi kunjungan dilakukan oleh Vendor
-                  </Form.Text>
-                </Form.Group>
-              </Col>
-
-              <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='order-status order-1 order-md-2'>
-                <h1 className='fs-3 fw-bold'>
-                  ORDER STATUS :{' '}
-                  <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
-                </h1>
-              </Col>
-
-              <Col
-                xs={12}
-                md={3}
-                lg={3}
-                xl={3}
-                xxl={3}
-                className='button-add text-end order-3 order-md-3'
-              >
-                <button onClick={() => addOrderDetails()}>Tambah Order</button>
-              </Col>
-            </Row>
-          )}
-
-          {(() => {
-            if (orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey') {
-              return (
-                <>
-                  <div className='table-warranty-content'>
-                    <table className='table hover responsive'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Jenis Jasa
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Final Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 2)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                                'id'
-                              )}`}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-
-                    <table className='table hover responsive'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Material Yang Dibutuhkan
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 1)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit ?? '-'}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Total Jasa
-                          </td>
-                          <td className='fw-bolder'>{`Rp. ${parseInt(
-                            orderDetail?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 2)
-                              .reduce(
-                                (total: any, item: any) => total + parseInt(item.final_price || 0),
-                                0
-                              )
-                          ).toLocaleString('id')}`}</td>
-                        </tr>
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Total Material
-                          </td>
-                          <td className='fw-bolder'>{`Rp. ${parseInt(
-                            orderDetail?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 1)
-                              .reduce(
-                                (total: any, item: any) => total + parseInt(item.final_price || 0),
-                                0
-                              )
-                          ).toLocaleString('id')}`}</td>
-                        </tr>
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Promosi ( Free Survey )
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_disc ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Additional Promosi
-                          </td>
-                          <td className=' fw-bolder'>{`Rp. ${parseInt(
-                            orderDetail?.quotation[0]?.quotation_promotion ?? 0
-                          ).toLocaleString('id')}`}</td>
-                        </tr>
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <Row className='upload-receipt d-flex align-items-start mt-5'>
-                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                      <Form.Label className='mt-3'>Bukti Receipt :</Form.Label>
-                      <ListGroup>
-                        {orderDetail?.order_files.map((item: any) => (
-                          <ListGroup.Item
-                            key={item.id}
-                            action
-                            onClick={() => {
-                              setPreviewImage(item.path)
-                              setVisible(true)
-                            }}
-                          >
-                            {item.path}
-                          </ListGroup.Item>
-                        ))}
-                      </ListGroup>
-
-                      {previewImage && (
-                        <div>
-                          <Image
-                            key={previewImage}
-                            width={200}
-                            style={{display: 'none'}}
-                            src={`${apiUrl}/public/receipt/${previewImage}`}
-                            preview={{
-                              visible: visible,
-                              src: `${apiUrl}/public/receipt/${previewImage}`,
-                              onVisibleChange: (value) => {
-                                setVisible(value)
-                              },
-                            }}
-                          />
-                        </div>
-                      )}
-                    </Col>
-
-                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                      <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
-                      <ListGroup>
-                        {orderDetail?.quotation[0]?.quotation_files
-                          .filter((x: any) => x.type === 2)
-                          .map((item: any) => (
-                            <ListGroup.Item
-                              key={item.id}
-                              action
-                              onClick={() => {
-                                setPreviewImage(item.path)
-                                setVisibleQuotationReceipt(true)
-                              }}
-                            >
-                              {item.path}
-                            </ListGroup.Item>
-                          ))}
-                      </ListGroup>
-
-                      {orderDetail?.quotation[0]?.quotation_files.length ? (
-                        <>
-                          {previewImage && (
-                            <div>
-                              <Image
-                                key={previewImage}
-                                width={200}
-                                style={{display: 'none'}}
-                                src={`${apiUrl}/public/quotation/${previewImage}`}
-                                preview={{
-                                  visible: visibleQuotationReceipt,
-                                  src: `${apiUrl}/public/quotation/${previewImage}`,
-                                  onVisibleChange: (value) => {
-                                    setVisibleQuotationReceipt(value)
-                                  },
-                                }}
-                              />
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className='d-flex justify-content-start align-items-center'>
-                          <p className='fs-7 text-danger'>
-                            Pembayaran belum diverifikasi oleh Toko
-                          </p>
-                        </div>
-                      )}
-                    </Col>
-
-                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                      <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
-                      <ListGroup>
-                        {orderDetail?.quotation[0].quotation_files
-                          .filter((x: any) => x.type === 1)
-                          .map((item: any) => (
-                            <ListGroup.Item
-                              key={item.id}
-                              action
-                              onClick={() => {
-                                setPreviewImage(item.path)
-                                setVisibleQuotationFiles(true)
-                              }}
-                            >
-                              {item.path}
-                            </ListGroup.Item>
-                          ))}
-                      </ListGroup>
-
-                      {orderDetail?.quotation[0]?.quotation_files.length ? (
-                        <>
-                          {previewImage && (
-                            <div>
-                              <Image
-                                key={previewImage}
-                                width={200}
-                                style={{display: 'none'}}
-                                src={`${apiUrl}/public/quotation/${previewImage}`}
-                                preview={{
-                                  visible: visibleQuotationFiles,
-                                  src: `${apiUrl}/public/quotation/${previewImage}`,
-                                  onVisibleChange: (value) => {
-                                    setVisibleQuotationFiles(value)
-                                  },
-                                }}
-                              />
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className='d-flex justify-content-start align-items-center'>
-                          <p className='fs-7 text-danger'>
-                            Pembayaran belum diverifikasi oleh Toko
-                          </p>
-                        </div>
-                      )}
-                    </Col>
-                  </Row>
-                </>
-              )
-            } else {
-              return (
-                <>
-                  <Row className='mb-2'>
-                    <Col>
-                      <Form.Check
-                        inline
-                        label='Lebih dari 10 KM dari Store'
-                        type='checkbox'
-                        checked={isOverdistance === 1}
-                        onChange={(e) => handleCheckboxChange(e.target.checked)}
+                {orderDetail?.quotation[0]?.receipt_quotation && (
+                  <Form.Group as={Row} className='mb-5'>
+                    <Form.Label column sm='4'>
+                      Receipt Transaksi
+                    </Form.Label>
+                    <Col sm='8'>
+                      <Form.Control
+                        type='text'
+                        value={orderDetail?.quotation[0]?.receipt_quotation}
+                        readOnly={
+                          orderDetail?.quotation?.length >= 1 &&
+                          orderDetail?.payment_type === 'survey'
+                            ? true
+                            : false
+                        }
+                        onChange={(e) => orderFormHandler(e)}
                       />
                     </Col>
-                  </Row>
+                  </Form.Group>
+                )}
 
-                  <div className='table-order-content'>
-                    <Table hover responsive='md'>
-                      <thead className='table-order-head'>
-                        <tr>
-                          {orderForm.order_details.length >= 2 && <th>Action</th>}
-                          <th>Item Code</th>
-                          <th>Item Name</th>
-                          <th>Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                          {!(
-                            paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey'
-                          ) && (
-                            <>
-                              <th>Harga Jasa</th>
-                              <th>Total</th>
-                            </>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orderForm.order_details.map((element, index) => (
-                          <tr key={`${index}-order_details`}>
-                            {orderForm.order_details.length >= 2 && (
-                              <td align='center'>
-                                <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                                  Remove
-                                </Button>
-                              </td>
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label className='title' column xxl='4' xl='5' md='2'>
+                    Catatan :
+                  </Form.Label>
+
+                  <Col xxl='8' xl='7' md='10'>
+                    <Form.Control
+                      as='textarea'
+                      name='notes'
+                      className='additional-notes'
+                      style={{minHeight: '150px'}}
+                      value={orderForm.notes}
+                      onChange={(event) => {
+                        orderFormHandler(event)
+                      }}
+                    />
+                  </Col>
+                </Form.Group>
+              </div>
+            </div>
+
+            {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
+              <Row className='table-order-header d-flex align-items-center mb-5'>
+                <Col
+                  xs={12}
+                  md={4}
+                  lg={4}
+                  xl={4}
+                  xxl={4}
+                  className='request-date order-2 order-md-1'
+                >
+                  <Form.Group>
+                    <Form.Label>Nama Vendor :</Form.Label>
+
+                    <Select
+                      name='vendor'
+                      id='vendor'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Pilih/Ketik Nama Vendor'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={vendor}
+                      value={{
+                        value: selectedVendor?.value ?? null,
+                        label: selectedVendor?.label ?? '',
+                      }}
+                      onChange={(newValue) => handleChangeVendor(newValue)}
+                    />
+                  </Form.Group>
+                  <Form.Text className='fs-8 text-transparent'>
+                    *Tanggal Request{' '}
+                    <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
+                    pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+                  </Form.Text>
+                </Col>
+
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date'>
+                  <Form.Group>
+                    <Form.Label>Tanggal Request</Form.Label>
+                    <Form.Control
+                      name='request_survey'
+                      type='date'
+                      value={orderForm.request_survey}
+                      readOnly={
+                        orderDetail?.quotation?.length >= 1 &&
+                        orderDetail?.payment_type === 'survey'
+                          ? true
+                          : false
+                      }
+                      onChange={(e) => orderFormHandler(e)}
+                      min={today}
+                    />
+                    <Form.Text className='fs-8 text-dark-danger'>
+                      *Tanggal Request{' '}
+                      <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
+                      pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+
+                <Col
+                  xs={12}
+                  md={4}
+                  lg={4}
+                  xl={4}
+                  xxl={4}
+                  className='text-start order-status order-1 order-md-2'
+                >
+                  <h1 className='fs-3 fw-bold'>
+                    ORDER STATUS :{' '}
+                    {orderDetail?.quotation[0].quotation_files.length ? (
+                      <span className='fw-bold text-success'>
+                        {`${orderDetail?.status?.description}`}{' '}
+                        <span className='text-dark'>( Sudah dibayar )</span>
+                      </span>
+                    ) : (
+                      <span className='fw-bold text-success'>
+                        {`${orderDetail?.status?.description}`}{' '}
+                        <span className='text-dark'>( Belum dibayar )</span>
+                      </span>
+                    )}
+                  </h1>
+                </Col>
+              </Row>
+            ) : (
+              <Row className='table-order-header d-flex align-items-center mb-5'>
+                <Col
+                  xs={12}
+                  md={3}
+                  lg={3}
+                  xl={3}
+                  xxl={3}
+                  className='request-date order-2 order-md-1'
+                >
+                  <Form.Group>
+                    <Form.Label>Nama Vendor :</Form.Label>
+
+                    <Select
+                      name='vendor'
+                      id='vendor'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Pilih/Ketik Nama Vendor'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={vendor}
+                      value={{
+                        value: selectedVendor?.value ?? null,
+                        label: selectedVendor?.label ?? '',
+                      }}
+                      onChange={(newValue) => handleChangeVendor(newValue)}
+                    />
+                  </Form.Group>
+                  <Form.Text className='fs-8 text-transparent'>
+                    *Tanggal Request{' '}
+                    <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
+                    pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+                  </Form.Text>
+                </Col>
+
+                <Col xs={12} md={3} lg={3} xl={3} xxl={3} className='request-date'>
+                  <Form.Group>
+                    <Form.Label>Tanggal Request</Form.Label>
+                    <Form.Control
+                      name='request_survey'
+                      type='date'
+                      value={orderForm.request_survey}
+                      onChange={(e) => orderFormHandler(e)}
+                      min={today}
+                    />
+                    <Form.Text className='fs-8 text-dark-danger'>
+                      *Tanggal Request{' '}
+                      <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
+                      pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+
+                <Col
+                  xs={12}
+                  md={3}
+                  lg={3}
+                  xl={3}
+                  xxl={3}
+                  className='order-status order-1 order-md-2'
+                >
+                  <h1 className='fs-3 fw-bold'>
+                    ORDER STATUS :{' '}
+                    <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
+                  </h1>
+                </Col>
+
+                <Col
+                  xs={12}
+                  md={3}
+                  lg={3}
+                  xl={3}
+                  xxl={3}
+                  className='button-add text-end order-3 order-md-3'
+                >
+                  <button onClick={() => addOrderDetails()}>Tambah Order</button>
+                </Col>
+              </Row>
+            )}
+
+            {(() => {
+              if (orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey') {
+                return (
+                  <>
+                    <div className='table-warranty-content'>
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Jenis Jasa
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 2)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              </tr>
+                            ))}
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Jasa
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Total Material
+                            </td>
+                            <td className='fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 1)
+                                .reduce(
+                                  (total: any, item: any) =>
+                                    total + parseInt(item.final_price || 0),
+                                  0
+                                )
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Promosi ( Free Survey )
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_disc ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Additional Promosi
+                            </td>
+                            <td className=' fw-bolder'>{`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_promotion ?? 0
+                            ).toLocaleString('id')}`}</td>
+                          </tr>
+
+                          <tr>
+                            <td colSpan={3} className='text-end fw-bolder'>
+                              Grand Total
+                            </td>
+                            <td className=' fw-bolder'>
+                              {`Rp. ${parseInt(
+                                orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                              ).toLocaleString('id')}`}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <Row className='upload-receipt d-flex align-items-start mt-5'>
+                      <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                        <Form.Label className='mt-3'>Bukti Receipt :</Form.Label>
+                        <ListGroup>
+                          {orderDetail?.order_files.map((item: any) => (
+                            <ListGroup.Item
+                              key={item.id}
+                              action
+                              onClick={() => {
+                                setPreviewImage(item.path)
+                                setVisible(true)
+                              }}
+                            >
+                              {item.path}
+                            </ListGroup.Item>
+                          ))}
+                        </ListGroup>
+
+                        {previewImage && (
+                          <div>
+                            <Image
+                              key={previewImage}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={`${apiUrl}/public/receipt/${previewImage}`}
+                              preview={{
+                                visible: visible,
+                                src: `${apiUrl}/public/receipt/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisible(value)
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </Col>
+
+                      <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                        <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
+                        <ListGroup>
+                          {orderDetail?.quotation[0]?.quotation_files
+                            .filter((x: any) => x.type === 2)
+                            .map((item: any) => (
+                              <ListGroup.Item
+                                key={item.id}
+                                action
+                                onClick={() => {
+                                  setPreviewImage(item.path)
+                                  setVisibleQuotationReceipt(true)
+                                }}
+                              >
+                                {item.path}
+                              </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+
+                        {orderDetail?.quotation[0]?.quotation_files.length ? (
+                          <>
+                            {previewImage && (
+                              <div>
+                                <Image
+                                  key={previewImage}
+                                  width={200}
+                                  style={{display: 'none'}}
+                                  src={`${apiUrl}/public/quotation/${previewImage}`}
+                                  preview={{
+                                    visible: visibleQuotationReceipt,
+                                    src: `${apiUrl}/public/quotation/${previewImage}`,
+                                    onVisibleChange: (value) => {
+                                      setVisibleQuotationReceipt(value)
+                                    },
+                                  }}
+                                />
+                              </div>
                             )}
+                          </>
+                        ) : (
+                          <div className='d-flex justify-content-start align-items-center'>
+                            <p className='fs-7 text-danger'>
+                              Pembayaran belum diverifikasi oleh Toko
+                            </p>
+                          </div>
+                        )}
+                      </Col>
 
-                            <td>
-                              <Form.Control
-                                id={`item-code-${index}`}
-                                name={`item_code`}
-                                plaintext
-                                readOnly={
-                                  paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
-                                }
-                                value={element.item_code ?? ''}
-                                onChange={(e) => orderDetailsFormHandler(e, index)}
-                              />
-                            </td>
-
-                            <td style={{maxWidth: '200px', minWidth: '200px'}}>
-                              <Form.Control
-                                id={`item-name-${index}`}
-                                name={`item_name`}
-                                plaintext
-                                readOnly={
-                                  paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
-                                }
-                                value={element.item_name ?? ''}
-                                onChange={(e) => {
-                                  orderDetailsFormHandler(e, index)
-                                  getItem(e.target.value)
+                      <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                        <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
+                        <ListGroup>
+                          {orderDetail?.quotation[0].quotation_files
+                            .filter((x: any) => x.type === 1)
+                            .map((item: any) => (
+                              <ListGroup.Item
+                                key={item.id}
+                                action
+                                onClick={() => {
+                                  setPreviewImage(item.path)
+                                  setVisibleQuotationFiles(true)
                                 }}
-                              />
-                            </td>
+                              >
+                                {item.path}
+                              </ListGroup.Item>
+                            ))}
+                        </ListGroup>
 
-                            <td>
-                              {paymentTypeValue[1] === 'survey' ? (
-                                <Form.Control
-                                  id={`item-notes-${index}`}
-                                  plaintext
-                                  name={`item_notes`}
-                                  value={element.item_notes ?? ''}
-                                  onChange={(e) => {
-                                    orderDetailsFormHandler(e, index)
+                        {orderDetail?.quotation[0]?.quotation_files.length ? (
+                          <>
+                            {previewImage && (
+                              <div>
+                                <Image
+                                  key={previewImage}
+                                  width={200}
+                                  style={{display: 'none'}}
+                                  src={`${apiUrl}/public/quotation/${previewImage}`}
+                                  preview={{
+                                    visible: visibleQuotationFiles,
+                                    src: `${apiUrl}/public/quotation/${previewImage}`,
+                                    onVisibleChange: (value) => {
+                                      setVisibleQuotationFiles(value)
+                                    },
                                   }}
                                 />
-                              ) : (
-                                <Select
-                                  id={`item_id-${index}`}
-                                  className='form-control p-0 form-item-name'
-                                  classNamePrefix='select'
-                                  placeholder='Pilih/Ketik Nama Pemasangan'
-                                  isSearchable={true}
-                                  options={item}
-                                  name={`item_id`}
-                                  value={{
-                                    value: orderForm.order_details[index]?.item_id ?? null,
-                                    label: orderForm.order_details[index]?.item?.label ?? '',
-                                    item_code: orderForm.order_details[index]?.item_code ?? '',
-                                    item_name: orderForm.order_details[index]?.item_name ?? '',
-                                    category_id:
-                                      orderForm.order_details[index]?.item?.category_id ?? null,
-                                    default_price:
-                                      orderForm.order_details[index]?.item?.default_price ?? null,
-                                    prices: orderForm.order_details[index]?.item?.prices ?? [],
-                                  }}
-                                  onChange={(newValue) => {
-                                    setOrderForm((prev) => {
-                                      const cache = {...prev}
-                                      cache.order_details[index] = {
-                                        ...cache.order_details[index],
-                                        item_id: newValue?.value ?? null,
-                                        item_code: newValue?.item_code ?? '',
-                                        item_name: newValue?.item_name ?? '',
-                                        item: newValue,
-                                      }
-                                      return cache
-                                    })
-                                    calcEachDetails()
-                                  }}
-                                />
-                              )}
-                            </td>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className='d-flex justify-content-start align-items-center'>
+                            <p className='fs-7 text-danger'>
+                              Pembayaran belum diverifikasi oleh Toko
+                            </p>
+                          </div>
+                        )}
+                      </Col>
+                    </Row>
+                  </>
+                )
+              } else {
+                return (
+                  <>
+                    <Row className='mb-2'>
+                      <Col>
+                        <Form.Check
+                          inline
+                          label='Lebih dari 10 KM dari Store'
+                          type='checkbox'
+                          checked={isOverdistance === 1}
+                          onChange={(e) => handleCheckboxChange(e.target.checked)}
+                        />
+                      </Col>
+                    </Row>
 
-                            <td>
-                              <Form.Control
-                                id={`quantity-${index}`}
-                                name={`quantity`}
-                                value={element.quantity ?? ''}
-                                onChange={(e) => {
-                                  orderDetailsFormHandler(e, index)
-                                  calcEachDetails()
-                                }}
-                              />
-                            </td>
-
+                    <div className='table-order-content'>
+                      <Table hover responsive='md'>
+                        <thead className='table-order-head'>
+                          <tr>
+                            {orderForm.order_details.length >= 2 && <th>Action</th>}
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Nama Pemasangan</th>
+                            <th>QTY Pemasangan</th>
                             {!(
                               paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey'
                             ) && (
                               <>
-                                <td>
-                                  <Form.Control
-                                    id={`unit-price-${index}`}
-                                    readOnly
-                                    plaintext
-                                    value={`Rp. ${
-                                      element?.unit_price
-                                        ? parseInt(element?.unit_price).toLocaleString('id')
-                                        : 0
-                                    }`}
-                                  />
-                                </td>
-
-                                <td>
-                                  <Form.Control
-                                    id={`total-${index}`}
-                                    readOnly
-                                    plaintext
-                                    value={`Rp. ${
-                                      element?.total
-                                        ? parseInt(element?.total).toLocaleString('id')
-                                        : 0
-                                    }`}
-                                  />
-                                </td>
+                                <th>Harga Jasa</th>
+                                <th>Total</th>
                               </>
                             )}
                           </tr>
-                        ))}
+                        </thead>
+                        <tbody>
+                          {orderForm.order_details.map((element, index) => (
+                            <tr key={`${index}-order_details`}>
+                              {orderForm.order_details.length >= 2 && (
+                                <td align='center'>
+                                  <Button variant='danger' onClick={() => handleRemoveForm(index)}>
+                                    Remove
+                                  </Button>
+                                </td>
+                              )}
 
-                        {!(
-                          paymentTypeValue[0] === 'gratis' ||
-                          paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-                        ) && (
-                          <tr>
-                            <td
-                              className='text-end fw-bolder'
-                              colSpan={orderForm.order_details.length >= 2 ? 4 : 3}
-                            >
-                              Biaya Survey
-                            </td>
+                              <td>
+                                <Form.Control
+                                  id={`item-code-${index}`}
+                                  name={`item_code`}
+                                  plaintext
+                                  readOnly={
+                                    paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
+                                  }
+                                  value={element.item_code ?? ''}
+                                  onChange={(e) => orderDetailsFormHandler(e, index)}
+                                />
+                              </td>
 
-                            <td className=' fw-bolder'>
-                              {(() => {
-                                if (paymentTypeValue[1] === 'survey') {
-                                  return `Rp. 99.000`
-                                } else {
-                                  return `Rp. 0`
-                                }
-                              })()}
-                            </td>
-                          </tr>
-                        )}
+                              <td style={{maxWidth: '200px', minWidth: '200px'}}>
+                                <Form.Control
+                                  id={`item-name-${index}`}
+                                  name={`item_name`}
+                                  plaintext
+                                  readOnly={
+                                    paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
+                                  }
+                                  value={element.item_name ?? ''}
+                                  onChange={(e) => {
+                                    orderDetailsFormHandler(e, index)
+                                    getItem(e.target.value)
+                                  }}
+                                />
+                              </td>
 
-                        {isOverdistance === 1 && (
-                          <tr>
-                            <td
-                              className='text-end fw-bolder align-middle'
-                              colSpan={
-                                !(
-                                  paymentTypeValue[0] === 'gratis' ||
-                                  paymentTypeValue[1] === 'survey'
-                                )
-                                  ? orderForm.order_details.length >= 2
-                                    ? 6
-                                    : 5
-                                  : orderForm.order_details.length === 1
-                                  ? 3
-                                  : 4
-                              }
-                            >
-                              Biaya Tambahan
-                            </td>
-
-                            <td className=' fw-bolder'>
-                              <Form.Control
-                                name='additional_fee'
-                                type='number'
-                                value={orderForm.additional_fee}
-                                onChange={(e) => orderFormHandler(e)}
-                              />
-                            </td>
-                          </tr>
-                        )}
-
-                        {(paymentTypeValue[1] !== 'survey' || isOverdistance === 1) && (
-                          <tr>
-                            <td
-                              className='text-end fw-bolder'
-                              colSpan={
-                                !(
-                                  paymentTypeValue[0] === 'gratis' ||
-                                  paymentTypeValue[1] === 'survey'
-                                )
-                                  ? orderForm.order_details.length >= 2
-                                    ? 6
-                                    : 5
-                                  : orderForm.order_details.length === 1
-                                  ? 3
-                                  : 4
-                              }
-                            >
-                              Grand Total
-                            </td>
-                            <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </Table>
-
-                    <Form.Text className='fs-8 fs-l text-dark-danger'>
-                      *Penulisan Item code dan Item Name sama persis dengan yang tercantum di NAV
-                    </Form.Text>
-                  </div>
-
-                  <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                      <Form.Group>
-                        <Form.Label>Upload Receipt</Form.Label>
-                        <Form className='form-input-image' onClick={handleImageClick}>
-                          <Form.Control
-                            type='file'
-                            accept='image/jpeg, image/png'
-                            className='input-field-image'
-                            multiple
-                            hidden
-                            id='file-input'
-                            ref={evidenceRef}
-                            onChange={handleFileChange}
-                          />
-
-                          <div className='input-image-text'>
-                            <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                            <p>Add File</p>
-                          </div>
-                        </Form>
-
-                        <ListGroup className='pt-3'>
-                          {receiptFiles.length ? (
-                            receiptFiles.map((item, index) => (
-                              <ListGroup>
-                                <ListGroup.Item
-                                  className='d-flex justify-content-between align-items-center'
-                                  key={`${item?.name}-${index}-${item?.type}`}
-                                >
-                                  <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                                  <span
-                                    className='upload-content'
-                                    onClick={() => handleFileClick(index)}
-                                  >
-                                    {item?.name}
-                                  </span>
-
-                                  <FontAwesomeIcon
-                                    icon={faTrash}
-                                    size='sm'
-                                    color='#ed2b2a'
-                                    style={{cursor: 'pointer'}}
-                                    onClick={(e) => handleRemoveFile(index)}
+                              <td>
+                                {paymentTypeValue[1] === 'survey' ? (
+                                  <Form.Control
+                                    id={`item-notes-${index}`}
+                                    plaintext
+                                    name={`item_notes`}
+                                    value={element.item_notes ?? ''}
+                                    onChange={(e) => {
+                                      orderDetailsFormHandler(e, index)
+                                    }}
                                   />
-                                </ListGroup.Item>
-
-                                {selectedFileIndex === index && item && (
-                                  <Image
-                                    key={`${previewImage} - ${index}`}
-                                    width={200}
-                                    style={{display: 'none'}}
-                                    src={
-                                      item instanceof File
-                                        ? URL.createObjectURL(item)
-                                        : `${apiUrl}/public/receipt/${previewImage}`
-                                    }
-                                    preview={{
-                                      visible,
-                                      src:
-                                        item instanceof File
-                                          ? URL.createObjectURL(item)
-                                          : `${apiUrl}/public/receipt/${previewImage}`,
-                                      onVisibleChange: (value) => {
-                                        setVisible(value)
-                                      },
+                                ) : (
+                                  <Select
+                                    id={`item_id-${index}`}
+                                    className='form-control p-0 form-item-name'
+                                    classNamePrefix='select'
+                                    placeholder='Pilih/Ketik Nama Pemasangan'
+                                    isSearchable={true}
+                                    options={item}
+                                    name={`item_id`}
+                                    value={{
+                                      value: orderForm.order_details[index]?.item_id ?? null,
+                                      label: orderForm.order_details[index]?.item?.label ?? '',
+                                      item_code: orderForm.order_details[index]?.item_code ?? '',
+                                      item_name: orderForm.order_details[index]?.item_name ?? '',
+                                      category_id:
+                                        orderForm.order_details[index]?.item?.category_id ?? null,
+                                      default_price:
+                                        orderForm.order_details[index]?.item?.default_price ?? null,
+                                      prices: orderForm.order_details[index]?.item?.prices ?? [],
+                                    }}
+                                    onChange={(newValue) => {
+                                      setOrderForm((prev) => {
+                                        const cache = {...prev}
+                                        cache.order_details[index] = {
+                                          ...cache.order_details[index],
+                                          item_id: newValue?.value ?? null,
+                                          item_code: newValue?.item_code ?? '',
+                                          item_name: newValue?.item_name ?? '',
+                                          item: newValue,
+                                        }
+                                        return cache
+                                      })
+                                      calcEachDetails()
                                     }}
                                   />
                                 )}
-                              </ListGroup>
-                            ))
-                          ) : (
-                            <ListGroup.Item className='d-flex justify-content-center'>
-                              Tidak ada file yang dipilih
-                            </ListGroup.Item>
+                              </td>
+
+                              <td>
+                                <Form.Control
+                                  id={`quantity-${index}`}
+                                  name={`quantity`}
+                                  value={element.quantity ?? ''}
+                                  onChange={(e) => {
+                                    orderDetailsFormHandler(e, index)
+                                    calcEachDetails()
+                                  }}
+                                />
+                              </td>
+
+                              {!(
+                                paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey'
+                              ) && (
+                                <>
+                                  <td>
+                                    <Form.Control
+                                      id={`unit-price-${index}`}
+                                      readOnly
+                                      plaintext
+                                      value={`Rp. ${
+                                        element?.unit_price
+                                          ? parseInt(element?.unit_price).toLocaleString('id')
+                                          : 0
+                                      }`}
+                                    />
+                                  </td>
+
+                                  <td>
+                                    <Form.Control
+                                      id={`total-${index}`}
+                                      readOnly
+                                      plaintext
+                                      value={`Rp. ${
+                                        element?.total
+                                          ? parseInt(element?.total).toLocaleString('id')
+                                          : 0
+                                      }`}
+                                    />
+                                  </td>
+                                </>
+                              )}
+                            </tr>
+                          ))}
+
+                          {!(
+                            paymentTypeValue[0] === 'gratis' ||
+                            paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+                          ) && (
+                            <tr>
+                              <td
+                                className='text-end fw-bolder'
+                                colSpan={orderForm.order_details.length >= 2 ? 4 : 3}
+                              >
+                                Biaya Survey
+                              </td>
+
+                              <td className=' fw-bolder'>
+                                {(() => {
+                                  if (paymentTypeValue[1] === 'survey') {
+                                    return `Rp. 99.000`
+                                  } else {
+                                    return `Rp. 0`
+                                  }
+                                })()}
+                              </td>
+                            </tr>
                           )}
-                        </ListGroup>
-                      </Form.Group>
-                    </Col>
 
-                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-                    <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-                  </Row>
-                </>
-              )
-            }
-          })()}
+                          {isOverdistance === 1 && (
+                            <tr>
+                              <td
+                                className='text-end fw-bolder align-middle'
+                                colSpan={
+                                  !(
+                                    paymentTypeValue[0] === 'gratis' ||
+                                    paymentTypeValue[1] === 'survey'
+                                  )
+                                    ? orderForm.order_details.length >= 2
+                                      ? 6
+                                      : 5
+                                    : orderForm.order_details.length === 1
+                                    ? 3
+                                    : 4
+                                }
+                              >
+                                Biaya Tambahan
+                              </td>
 
-          <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
-            <Button onClick={handleUpdateOrder} disabled={isLoading} variant='dark-primary'>
-              {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey'
-                ? isLoading
+                              <td className=' fw-bolder'>
+                                <Form.Control
+                                  name='additional_fee'
+                                  type='number'
+                                  value={orderForm.additional_fee}
+                                  onChange={(e) => orderFormHandler(e)}
+                                />
+                              </td>
+                            </tr>
+                          )}
+
+                          {(paymentTypeValue[1] !== 'survey' || isOverdistance === 1) && (
+                            <tr>
+                              <td
+                                className='text-end fw-bolder'
+                                colSpan={
+                                  !(
+                                    paymentTypeValue[0] === 'gratis' ||
+                                    paymentTypeValue[1] === 'survey'
+                                  )
+                                    ? orderForm.order_details.length >= 2
+                                      ? 6
+                                      : 5
+                                    : orderForm.order_details.length === 1
+                                    ? 3
+                                    : 4
+                                }
+                              >
+                                Grand Total
+                              </td>
+                              <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </Table>
+
+                      <Form.Text className='fs-8 fs-l text-dark-danger'>
+                        *Penulisan Item code dan Item Name sama persis dengan yang tercantum di NAV
+                      </Form.Text>
+                    </div>
+
+                    <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                      <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                        <Form.Group>
+                          <Form.Label>Upload Receipt</Form.Label>
+                          <Form className='form-input-image' onClick={handleImageClick}>
+                            <Form.Control
+                              type='file'
+                              accept='image/jpeg, image/png'
+                              className='input-field-image'
+                              multiple
+                              hidden
+                              id='file-input'
+                              ref={evidenceRef}
+                              onChange={handleFileChange}
+                            />
+
+                            <div className='input-image-text'>
+                              <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                              <p>Add File</p>
+                            </div>
+                          </Form>
+
+                          <ListGroup className='pt-3'>
+                            {receiptFiles.length ? (
+                              receiptFiles.map((item, index) => (
+                                <ListGroup>
+                                  <ListGroup.Item
+                                    className='d-flex justify-content-between align-items-center'
+                                    key={`${item?.name}-${index}-${item?.type}`}
+                                  >
+                                    <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                                    <span
+                                      className='upload-content'
+                                      onClick={() => handleFileClick(index)}
+                                    >
+                                      {item?.name}
+                                    </span>
+
+                                    <FontAwesomeIcon
+                                      icon={faTrash}
+                                      size='sm'
+                                      color='#ed2b2a'
+                                      style={{cursor: 'pointer'}}
+                                      onClick={(e) => handleRemoveFile(index)}
+                                    />
+                                  </ListGroup.Item>
+
+                                  {selectedFileIndex === index && item && (
+                                    <Image
+                                      key={`${previewImage} - ${index}`}
+                                      width={200}
+                                      style={{display: 'none'}}
+                                      src={
+                                        item instanceof File
+                                          ? URL.createObjectURL(item)
+                                          : `${apiUrl}/public/receipt/${previewImage}`
+                                      }
+                                      preview={{
+                                        visible,
+                                        src:
+                                          item instanceof File
+                                            ? URL.createObjectURL(item)
+                                            : `${apiUrl}/public/receipt/${previewImage}`,
+                                        onVisibleChange: (value) => {
+                                          setVisible(value)
+                                        },
+                                      }}
+                                    />
+                                  )}
+                                </ListGroup>
+                              ))
+                            ) : (
+                              <ListGroup.Item className='d-flex justify-content-center'>
+                                Tidak ada file yang dipilih
+                              </ListGroup.Item>
+                            )}
+                          </ListGroup>
+                        </Form.Group>
+                      </Col>
+
+                      <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+                      <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+                    </Row>
+                  </>
+                )
+              }
+            })()}
+
+            <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
+              <Button onClick={handleUpdateOrder} disabled={isLoading} variant='dark-primary'>
+                {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey'
+                  ? isLoading
+                    ? 'Submitting..'
+                    : 'Request Pengerjaan Ke Vendor Terkait'
+                  : isLoading
                   ? 'Submitting..'
-                  : 'Request Pengerjaan Ke Vendor Terkait'
-                : isLoading
-                ? 'Submitting..'
-                : 'Submit Order & Email'}
-            </Button>
-
-            {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
-              <Button onClick={handleCancelOrder} disabled={isLoading} variant='dark-danger'>
-                Cancel Order
+                  : 'Submit Order & Email'}
               </Button>
-            ) : (
-              <></>
-            )}
-          </div>
-        </div>
-      </div>
+
+              {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
+                <Button onClick={handleCancelOrder} disabled={isLoading} variant='dark-danger'>
+                  Cancel Order
+                </Button>
+              ) : (
+                <></>
+              )}
+            </div>
+          </Card.Body>
+        </Card>
+      </Spin>
     </section>
   )
 }

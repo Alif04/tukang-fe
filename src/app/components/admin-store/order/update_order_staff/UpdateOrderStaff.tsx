@@ -7,7 +7,9 @@ import './UpdateOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
+import {Card, Row, Col, Form, InputGroup, Table, Button} from 'react-bootstrap'
+import {Spin} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -56,6 +58,7 @@ interface Order {
   payment_type: string
   is_overdistance: number
   additional_fee: number
+  notes: string
   order_details: Array<{
     id: number | null
     item?: ItemSelect | null
@@ -76,10 +79,11 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // If User Login is Admin Sales
-  const userId = localStorage.getItem('user_id') as any
   const salesId = localStorage.getItem('sales_id') as any
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole')
@@ -101,6 +105,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
     payment_type: '',
     is_overdistance: 0,
     additional_fee: 25000,
+    notes: '',
     order_details: [
       {
         id: null,
@@ -134,7 +139,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
   const [isOverdistance, setIsOverdistance] = useState<number>(0)
 
   // Sales
-  const [sales, setSales] = useState<SalesSelect[]>([])
   const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
     label: '',
@@ -210,6 +214,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
           .then((response) => {
             const data = response.data.data
 
+            setIsLoadingPage(false)
             setOrderDetail(data)
 
             if (data?.payment_type) {
@@ -293,6 +298,13 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               }))
             }
 
+            if (data?.notes) {
+              setOrderForm((prev) => ({
+                ...prev,
+                notes: data?.notes ?? '',
+              }))
+            }
+
             if (data?.order_details) {
               setOrderForm((prev) => {
                 const previousDetailValues = data.order_details.map((item: any) => {
@@ -373,36 +385,8 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
       }
     }
 
-    const getSales = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempSales = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.id,
-            full_name: item.full_name,
-          }))
-
-          setSales(tempSales)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     fetchOrderData()
     getMember()
-    getSales()
   }, [])
 
   // Order Form Handler
@@ -611,6 +595,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
       {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},
+      {key: 'notes', fieldName: 'Catatan'},
     ]
 
     const requiredOrderDetailsFields = [
@@ -659,6 +644,10 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
               formData.append(key, orderForm[key].toString())
             }
           } else if (key === 'is_overdistance') {
+            if (value) {
+              formData.append(key, orderForm[key].toString())
+            }
+          } else if (key === 'notes') {
             if (value) {
               formData.append(key, orderForm[key].toString())
             }
@@ -739,22 +728,6 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
         },
       })
       .then((response) => {
-        // if (response.data.status === 200 || response.data.status === 201) {
-        //   Swal.fire({
-        //     title: 'Success',
-        //     text: 'Success Reprint Order',
-        //     icon: 'success',
-        //     showConfirmButton: false,
-        //     timer: 1000,
-        //   })
-        // } else {
-        //   Swal.fire({
-        //     title: 'Error',
-        //     text: response.data.message,
-        //     icon: 'error',
-        //   })
-        // }
-
         navigate(`/order/printout-order/${params.id}`)
       })
       .catch((error) => {
@@ -770,532 +743,569 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
 
   return (
     <section id='update-order'>
-      <div className='card mb-5'>
-        <div className='card-body'>
-          <div className='form-wrapper'>
-            <div className='form-costumer'>
-              <Row className='form-header'>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Form.Group>
-                    <Form.Label className='title'>
-                      Nama Toko
-                      <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
-                        {staffStoreName}
-                      </span>
+      <Spin
+        spinning={isLoadingPage}
+        size='large'
+        tip='Loading..'
+        indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+      >
+        <Card className='mb-5'>
+          <Card.Body>
+            <div className='form-wrapper'>
+              <div className='form-costumer'>
+                <Row className='form-header'>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                    <Form.Group>
+                      <Form.Label className='title'>
+                        Nama Toko
+                        <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                          {staffStoreName}
+                        </span>
+                      </Form.Label>
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                    <Row>
+                      <Col xxl={3}>
+                        <Form.Label className='payment-type title'>Payment Type :</Form.Label>
+                      </Col>
+
+                      <Col className='form-check-request' xxl={9}>
+                        <Row>
+                          <Col xxl={5}>
+                            <Form.Check
+                              inline
+                              label='Gratis'
+                              id='gratis'
+                              name='type'
+                              type='radio'
+                              value='gratis'
+                              checked={paymentTypeValue[0] === 'gratis'}
+                              onChange={() =>
+                                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+                              }
+                            />
+                          </Col>
+
+                          <Col xxl={7}>
+                            <Form.Check
+                              inline
+                              label='Survey'
+                              id='survey'
+                              name='paymentType'
+                              type='radio'
+                              value='survey'
+                              checked={
+                                paymentTypeValue[0] === 'berbayar' &&
+                                paymentTypeValue[1] === 'survey'
+                              }
+                              disabled={paymentTypeValue[0] === 'gratis'}
+                              onChange={() => {
+                                setPaymentTypeValue(['berbayar', 'survey'])
+                              }}
+                            />
+                          </Col>
+                        </Row>
+
+                        <Row>
+                          <Col xxl={5}>
+                            <Form.Check
+                              inline
+                              label='Berbayar'
+                              id='berbayar'
+                              name='type'
+                              type='radio'
+                              value='berbayar'
+                              checked={paymentTypeValue[0] === 'berbayar'}
+                              onChange={() => {
+                                setPaymentTypeValue(['berbayar', 'survey'])
+                              }}
+                            />
+                          </Col>
+
+                          <Col xxl={7}>
+                            <Form.Check
+                              inline
+                              label='Pemasangan Tanpa Survey'
+                              id='pemasangan_tanpa_survey'
+                              name='paymentType'
+                              type='radio'
+                              value='pemasangan_tanpa_survey'
+                              checked={
+                                (paymentTypeValue[0] === 'gratis' &&
+                                  paymentTypeValue[1] === 'pemasangan_tanpa_survey') ||
+                                (paymentTypeValue[0] === 'berbayar' &&
+                                  paymentTypeValue[1] === 'pemasangan_tanpa_survey')
+                              }
+                              disabled={paymentTypeValue[0] === 'gratis'}
+                              onChange={() => {
+                                setPaymentTypeValue([
+                                  paymentTypeValue[0],
+                                  'pemasangan_tanpa_survey',
+                                ])
+                              }}
+                            />
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+
+                    <Form.Label className='fs-7 fw-normal'>
+                      <span className='text-danger fw-bold'>Note :</span>
+                      <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
                     </Form.Label>
-                  </Form.Group>
-                </Col>
+                  </Col>
+                </Row>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                  <Row>
-                    <Col xxl={3}>
-                      <Form.Label className='payment-type title'>Payment Type :</Form.Label>
-                    </Col>
+                <Row className='input-order'>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <Form.Label className='title'>No Member</Form.Label>
+                      <Select
+                        name='member'
+                        id='member'
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Ketik No Telepon Member/Nomor Member'
+                        isSearchable={true}
+                        isClearable={true}
+                        isDisabled={true}
+                        options={member}
+                        value={{
+                          value: selectedMember?.value ?? null,
+                          label: selectedMember?.label ?? '',
+                          full_name: selectedMember?.full_name ?? '',
+                          email: selectedMember?.email ?? '',
+                          phone_number: selectedMember?.phone_number ?? '',
+                          whatsapp_number: selectedMember?.whatsapp_number ?? '',
+                          address_1: selectedMember?.address_1 ?? '',
+                        }}
+                        onChange={(newValue) => setSelectedMember(newValue)}
+                      />
+                    </Form.Group>
+                  </Col>
 
-                    <Col className='form-check-request' xxl={9}>
-                      <Row>
-                        <Col xxl={5}>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <div className='d-flex justify-content-between'>
+                        <Form.Label className='title'>WA / Phone Number</Form.Label>
+
+                        <div className='form-check-request'>
                           <Form.Check
                             inline
-                            label='Gratis'
-                            id='gratis'
-                            name='type'
-                            type='radio'
-                            value='gratis'
-                            checked={paymentTypeValue[0] === 'gratis'}
-                            onChange={() =>
-                              setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
-                            }
+                            disabled
+                            label='Bukan Whatsapp'
+                            name='group1'
+                            value='1'
+                            type='checkbox'
+                            onChange={() => setIsWhatsapp(!isWhatsapp)}
                           />
-                        </Col>
-
-                        <Col xxl={7}>
-                          <Form.Check
-                            inline
-                            label='Survey'
-                            id='survey'
-                            name='paymentType'
-                            type='radio'
-                            value='survey'
-                            checked={
-                              paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'survey'
-                            }
-                            disabled={paymentTypeValue[0] === 'gratis'}
-                            onChange={() => {
-                              setPaymentTypeValue(['berbayar', 'survey'])
-                            }}
-                          />
-                        </Col>
-                      </Row>
-
-                      <Row>
-                        <Col xxl={5}>
-                          <Form.Check
-                            inline
-                            label='Berbayar'
-                            id='berbayar'
-                            name='type'
-                            type='radio'
-                            value='berbayar'
-                            checked={paymentTypeValue[0] === 'berbayar'}
-                            onChange={() => {
-                              setPaymentTypeValue(['berbayar', 'survey'])
-                            }}
-                          />
-                        </Col>
-
-                        <Col xxl={7}>
-                          <Form.Check
-                            inline
-                            label='Pemasangan Tanpa Survey'
-                            id='pemasangan_tanpa_survey'
-                            name='paymentType'
-                            type='radio'
-                            value='pemasangan_tanpa_survey'
-                            checked={
-                              (paymentTypeValue[0] === 'gratis' &&
-                                paymentTypeValue[1] === 'pemasangan_tanpa_survey') ||
-                              (paymentTypeValue[0] === 'berbayar' &&
-                                paymentTypeValue[1] === 'pemasangan_tanpa_survey')
-                            }
-                            disabled={paymentTypeValue[0] === 'gratis'}
-                            onChange={() => {
-                              setPaymentTypeValue([paymentTypeValue[0], 'pemasangan_tanpa_survey'])
-                            }}
-                          />
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-
-                  <Form.Label className='fs-7 fw-normal'>
-                    <span className='text-danger fw-bold'>Note :</span>
-                    <br></br>Tidak dapat memilih gratis dan survey secara bersamaan
-                  </Form.Label>
-                </Col>
-              </Row>
-
-              <Row className='input-order'>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label className='title'>No Member</Form.Label>
-                    <Select
-                      name='member'
-                      id='member'
-                      className='form-control p-0 form-item-name'
-                      classNamePrefix='select'
-                      placeholder='Ketik No Telepon Member/Nomor Member'
-                      isSearchable={true}
-                      isClearable={true}
-                      isDisabled={true}
-                      options={member}
-                      value={{
-                        value: selectedMember?.value ?? null,
-                        label: selectedMember?.label ?? '',
-                        full_name: selectedMember?.full_name ?? '',
-                        email: selectedMember?.email ?? '',
-                        phone_number: selectedMember?.phone_number ?? '',
-                        whatsapp_number: selectedMember?.whatsapp_number ?? '',
-                        address_1: selectedMember?.address_1 ?? '',
-                      }}
-                      onChange={(newValue) => setSelectedMember(newValue)}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <div className='d-flex justify-content-between'>
-                      <Form.Label className='title'>WA / Phone Number</Form.Label>
-
-                      <div className='form-check-request'>
-                        <Form.Check
-                          inline
-                          disabled
-                          label='Bukan Whatsapp'
-                          name='group1'
-                          value='1'
-                          type='checkbox'
-                          onChange={() => setIsWhatsapp(!isWhatsapp)}
-                        />
+                        </div>
                       </div>
-                    </div>
 
-                    <InputGroup className='mb-5'>
+                      <InputGroup className='mb-5'>
+                        <Form.Control
+                          disabled
+                          name='project_number'
+                          value={orderForm.project_number}
+                          onChange={(event) => orderFormHandler(event)}
+                        />
+                      </InputGroup>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className='input-order'>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <Form.Label className='title'>Nama Customer</Form.Label>
+                      <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group className='mb-5'>
+                      <Form.Label className='title'>Email</Form.Label>
+                      <Form.Control type='text' disabled value={selectedMember?.email || ''} />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className='alamat-order'>
+                  <Col>
+                    <Form.Group className='mb-5'>
+                      <Form.Label className='title'>Alamat</Form.Label>
                       <Form.Control
-                        disabled
-                        name='project_number'
-                        value={orderForm.project_number}
+                        as='textarea'
+                        name='project_address'
+                        className='field-alamat'
+                        value={orderForm.project_address}
                         onChange={(event) => orderFormHandler(event)}
                       />
-                    </InputGroup>
-                  </Form.Group>
-                </Col>
-              </Row>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </div>
 
-              <Row className='input-order'>
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label className='title'>Nama Customer</Form.Label>
-                    <Form.Control type='text' disabled value={selectedMember?.full_name || ''} />
-                  </Form.Group>
-                </Col>
+              <div className='form-sales'>
+                <div className='form-header'>
+                  <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
+                </div>
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label className='title' column xxl='4' xl='5' md='2'>
+                    Sales ID :
+                  </Form.Label>
 
-                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group className='mb-5'>
-                    <Form.Label className='title'>Email</Form.Label>
-                    <Form.Control type='text' disabled value={selectedMember?.email || ''} />
-                  </Form.Group>
-                </Col>
-              </Row>
+                  <Col xxl='8' xl='7' md='10'>
+                    <Form.Control
+                      type='number'
+                      disabled
+                      value={
+                        userRole === 'SALES' ? salesId : selectedSales?.value?.toString() || ''
+                      }
+                    />
+                  </Col>
+                </Form.Group>
 
-              <Row className='alamat-order'>
-                <Col>
-                  <Form.Group className='mb-5'>
-                    <Form.Label className='title'>Alamat</Form.Label>
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label className='title' column xxl='4' xl='5' md='2'>
+                    Nama Sales :
+                  </Form.Label>
+
+                  <Col xxl='8' xl='7' md='10'>
+                    <Form.Control
+                      type='text'
+                      disabled
+                      value={userRole === 'SALES' ? username : selectedSales?.full_name || ''}
+                    />
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className='mb-5'>
+                  <Form.Label className='title' column xxl='4' xl='5' md='2'>
+                    Catatan :
+                  </Form.Label>
+
+                  <Col xxl='8' xl='7' md='10'>
                     <Form.Control
                       as='textarea'
-                      name='project_address'
-                      className='field-alamat'
-                      value={orderForm.project_address}
-                      onChange={(event) => orderFormHandler(event)}
+                      name='notes'
+                      className='additional-notes'
+                      style={{minHeight: '150px'}}
+                      value={orderForm.notes}
+                      onChange={(event) => {
+                        orderFormHandler(event)
+                      }}
                     />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </div>
-
-            <div className='form-sales'>
-              <div className='form-header'>
-                <h1 className='text-end fw-bold'>SALES INFORMATION</h1>
+                  </Col>
+                </Form.Group>
               </div>
-              <Form.Group as={Row} className='mb-5'>
-                <Form.Label className='title' column xxl='4' xl='5' md='2'>
-                  Sales ID :
-                </Form.Label>
-
-                <Col xxl='8' xl='7' md='10'>
-                  <Form.Control
-                    type='number'
-                    disabled
-                    value={userRole === 'SALES' ? salesId : selectedSales?.value?.toString() || ''}
-                  />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} className='mb-5'>
-                <Form.Label className='title' column xxl='4' xl='5' md='2'>
-                  Nama Sales :
-                </Form.Label>
-
-                <Col xxl='8' xl='7' md='10'>
-                  <Form.Control
-                    type='text'
-                    disabled
-                    value={userRole === 'SALES' ? username : selectedSales?.full_name || ''}
-                  />
-                </Col>
-              </Form.Group>
             </div>
-          </div>
 
-          <Row className='table-order-header d-flex align-items-center mb-5'>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
-              <Form.Group>
-                <Form.Label>Tanggal Request</Form.Label>
-                <Form.Control
-                  name='request_survey'
-                  type='date'
-                  value={orderForm.request_survey}
-                  onChange={(e) => orderFormHandler(e)}
-                  min={today}
+            <Row className='table-order-header d-flex align-items-center mb-5'>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
+                <Form.Group>
+                  <Form.Label>Tanggal Request</Form.Label>
+                  <Form.Control
+                    name='request_survey'
+                    type='date'
+                    value={orderForm.request_survey}
+                    onChange={(e) => orderFormHandler(e)}
+                    min={today}
+                  />
+                  <Form.Text className='fs-8 text-dark-danger'>
+                    *Tanggal Request{' '}
+                    <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal
+                    pasti. Konfirmasi kunjungan dilakukan oleh Vendor
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='order-status order-1 order-md-2'>
+                <h1 className='fs-3 fw-bold'>
+                  ORDER STATUS :{' '}
+                  <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
+                </h1>
+              </Col>
+
+              <Col
+                xs={12}
+                md={4}
+                lg={4}
+                xl={4}
+                xxl={4}
+                className='button-add text-end order-3 order-md-3'
+              >
+                <button onClick={() => addOrderDetails()}>Tambah Order</button>
+              </Col>
+            </Row>
+
+            <Row className='mb-2'>
+              <Col>
+                <Form.Check
+                  inline
+                  label='Lebih dari 10 KM dari Store'
+                  type='checkbox'
+                  checked={isOverdistance === 1}
+                  onChange={(e) => handleCheckboxChange(e.target.checked)}
                 />
-                <Form.Text className='fs-8 text-dark-danger'>
-                  *Tanggal Request{' '}
-                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
-                  Konfirmasi kunjungan dilakukan oleh Vendor
-                </Form.Text>
-              </Form.Group>
-            </Col>
+              </Col>
+            </Row>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='order-status order-1 order-md-2'>
-              <h1 className='fs-3 fw-bold'>
-                ORDER STATUS :{' '}
-                <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
-              </h1>
-            </Col>
-
-            <Col
-              xs={12}
-              md={4}
-              lg={4}
-              xl={4}
-              xxl={4}
-              className='button-add text-end order-3 order-md-3'
-            >
-              <button onClick={() => addOrderDetails()}>Tambah Order</button>
-            </Col>
-          </Row>
-
-          <Row className='mb-2'>
-            <Col>
-              <Form.Check
-                inline
-                label='Lebih dari 10 KM dari Store'
-                type='checkbox'
-                checked={isOverdistance === 1}
-                onChange={(e) => handleCheckboxChange(e.target.checked)}
-              />
-            </Col>
-          </Row>
-
-          <div className='table-order-content'>
-            <Table hover responsive='md'>
-              <thead className='table-order-head'>
-                <tr>
-                  {orderForm.order_details.length >= 2 && <th>Action</th>}
-                  <th>Item Code</th>
-                  <th>Item Name</th>
-                  <th>Nama Pemasangan</th>
-                  <th>QTY Pemasangan</th>
-                  {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
-                    <>
-                      <th>Harga Jasa</th>
-                      <th>Total</th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {orderForm.order_details.map((element, index) => (
-                  <tr key={`${index}-order_details`}>
-                    {orderForm.order_details.length >= 2 && (
-                      <td align='center'>
-                        <Button
-                          className='btn-remove'
-                          variant='danger'
-                          onClick={() => handleRemoveForm(index)}
-                        >
-                          <span className='text'>Remove</span>
-                          <span className='icon'>
-                            <FontAwesomeIcon icon={faTrash} />
-                          </span>
-                        </Button>
-                      </td>
-                    )}
-
-                    <td>
-                      <Form.Control
-                        id={`item-code-${index}`}
-                        name={`item_code`}
-                        plaintext
-                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
-                        value={element.item_code ?? ''}
-                        onChange={(e) => orderDetailsFormHandler(e, index)}
-                      />
-                    </td>
-
-                    <td style={{maxWidth: '200px', minWidth: '200px'}}>
-                      <Form.Control
-                        id={`item-name-${index}`}
-                        name={`item_name`}
-                        plaintext
-                        readOnly={paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false}
-                        value={element.item_name ?? ''}
-                        onChange={(e) => {
-                          orderDetailsFormHandler(e, index)
-                          getItem(e.target.value)
-                        }}
-                      />
-                    </td>
-
-                    <td>
-                      {paymentTypeValue[1] === 'survey' ? (
-                        <Form.Control
-                          id={`item-notes-${index}`}
-                          plaintext
-                          name={`item_notes`}
-                          value={element.item_notes ?? ''}
-                          onChange={(e) => {
-                            orderDetailsFormHandler(e, index)
-                          }}
-                        />
-                      ) : (
-                        <Select
-                          id={`item_id-${index}`}
-                          className='form-control p-0 form-item-name'
-                          classNamePrefix='select'
-                          placeholder='Pilih/Ketik Nama Pemasangan'
-                          isSearchable={true}
-                          options={item}
-                          name={`item_id`}
-                          value={{
-                            value: orderForm.order_details[index]?.item_id ?? null,
-                            label: orderForm.order_details[index]?.item?.label ?? '',
-                            item_code: orderForm.order_details[index]?.item_code ?? '',
-                            item_name: orderForm.order_details[index]?.item_name ?? '',
-                            category_id: orderForm.order_details[index]?.item?.category_id ?? null,
-                            default_price:
-                              orderForm.order_details[index]?.item?.default_price ?? null,
-                            prices: orderForm.order_details[index]?.item?.prices ?? [],
-                          }}
-                          onChange={(newValue) => {
-                            setOrderForm((prev) => {
-                              const cache = {...prev}
-                              cache.order_details[index] = {
-                                ...cache.order_details[index],
-                                item_id: newValue?.value ?? null,
-                                item_code: newValue?.item_code ?? '',
-                                item_name: newValue?.item_name ?? '',
-                                item: newValue,
-                              }
-                              return cache
-                            })
-                            calcEachDetails()
-                          }}
-                        />
-                      )}
-                    </td>
-
-                    <td>
-                      <Form.Control
-                        id={`quantity-${index}`}
-                        name={`quantity`}
-                        value={element.quantity ?? ''}
-                        onChange={(e) => {
-                          orderDetailsFormHandler(e, index)
-                          calcEachDetails()
-                        }}
-                      />
-                    </td>
-
+            <div className='table-order-content'>
+              <Table hover responsive='md'>
+                <thead className='table-order-head'>
+                  <tr>
+                    {orderForm.order_details.length >= 2 && <th>Action</th>}
+                    <th>Item Code</th>
+                    <th>Item Name</th>
+                    <th>Nama Pemasangan</th>
+                    <th>QTY Pemasangan</th>
                     {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
                       <>
-                        <td>
-                          <Form.Control
-                            id={`unit-price-${index}`}
-                            readOnly
-                            plaintext
-                            value={`Rp. ${
-                              element?.unit_price
-                                ? parseInt(element?.unit_price).toLocaleString('id')
-                                : 0
-                            }`}
-                          />
-                        </td>
-
-                        <td>
-                          <Form.Control
-                            id={`total-${index}`}
-                            readOnly
-                            plaintext
-                            value={`Rp. ${
-                              element?.total ? parseInt(element?.total).toLocaleString('id') : 0
-                            }`}
-                          />
-                        </td>
+                        <th>Harga Jasa</th>
+                        <th>Total</th>
                       </>
                     )}
                   </tr>
-                ))}
+                </thead>
+                <tbody>
+                  {orderForm.order_details.map((element, index) => (
+                    <tr key={`${index}-order_details`}>
+                      {orderForm.order_details.length >= 2 && (
+                        <td align='center'>
+                          <Button
+                            className='btn-remove'
+                            variant='danger'
+                            onClick={() => handleRemoveForm(index)}
+                          >
+                            <span className='text'>Remove</span>
+                            <span className='icon'>
+                              <FontAwesomeIcon icon={faTrash} />
+                            </span>
+                          </Button>
+                        </td>
+                      )}
 
-                {!(
-                  paymentTypeValue[0] === 'gratis' ||
-                  paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-                ) && (
-                  <tr>
-                    <td
-                      className='text-end fw-bolder'
-                      colSpan={orderForm.order_details.length >= 2 ? 4 : 3}
-                    >
-                      Biaya Survey
-                    </td>
+                      <td>
+                        <Form.Control
+                          id={`item-code-${index}`}
+                          name={`item_code`}
+                          plaintext
+                          readOnly={
+                            paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
+                          }
+                          value={element.item_code ?? ''}
+                          onChange={(e) => orderDetailsFormHandler(e, index)}
+                        />
+                      </td>
 
-                    <td className=' fw-bolder'>
-                      {(() => {
-                        if (paymentTypeValue[1] === 'survey') {
-                          return `Rp. 99.000`
-                        } else {
-                          return `Rp. 0`
+                      <td style={{maxWidth: '200px', minWidth: '200px'}}>
+                        <Form.Control
+                          id={`item-name-${index}`}
+                          name={`item_name`}
+                          plaintext
+                          readOnly={
+                            paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
+                          }
+                          value={element.item_name ?? ''}
+                          onChange={(e) => {
+                            orderDetailsFormHandler(e, index)
+                            getItem(e.target.value)
+                          }}
+                        />
+                      </td>
+
+                      <td>
+                        {paymentTypeValue[1] === 'survey' ? (
+                          <Form.Control
+                            id={`item-notes-${index}`}
+                            plaintext
+                            name={`item_notes`}
+                            value={element.item_notes ?? ''}
+                            onChange={(e) => {
+                              orderDetailsFormHandler(e, index)
+                            }}
+                          />
+                        ) : (
+                          <Select
+                            id={`item_id-${index}`}
+                            className='form-control p-0 form-item-name'
+                            classNamePrefix='select'
+                            placeholder='Pilih/Ketik Nama Pemasangan'
+                            isSearchable={true}
+                            options={item}
+                            name={`item_id`}
+                            value={{
+                              value: orderForm.order_details[index]?.item_id ?? null,
+                              label: orderForm.order_details[index]?.item?.label ?? '',
+                              item_code: orderForm.order_details[index]?.item_code ?? '',
+                              item_name: orderForm.order_details[index]?.item_name ?? '',
+                              category_id:
+                                orderForm.order_details[index]?.item?.category_id ?? null,
+                              default_price:
+                                orderForm.order_details[index]?.item?.default_price ?? null,
+                              prices: orderForm.order_details[index]?.item?.prices ?? [],
+                            }}
+                            onChange={(newValue) => {
+                              setOrderForm((prev) => {
+                                const cache = {...prev}
+                                cache.order_details[index] = {
+                                  ...cache.order_details[index],
+                                  item_id: newValue?.value ?? null,
+                                  item_code: newValue?.item_code ?? '',
+                                  item_name: newValue?.item_name ?? '',
+                                  item: newValue,
+                                }
+                                return cache
+                              })
+                              calcEachDetails()
+                            }}
+                          />
+                        )}
+                      </td>
+
+                      <td>
+                        <Form.Control
+                          id={`quantity-${index}`}
+                          name={`quantity`}
+                          value={element.quantity ?? ''}
+                          onChange={(e) => {
+                            orderDetailsFormHandler(e, index)
+                            calcEachDetails()
+                          }}
+                        />
+                      </td>
+
+                      {!(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey') && (
+                        <>
+                          <td>
+                            <Form.Control
+                              id={`unit-price-${index}`}
+                              readOnly
+                              plaintext
+                              value={`Rp. ${
+                                element?.unit_price
+                                  ? parseInt(element?.unit_price).toLocaleString('id')
+                                  : 0
+                              }`}
+                            />
+                          </td>
+
+                          <td>
+                            <Form.Control
+                              id={`total-${index}`}
+                              readOnly
+                              plaintext
+                              value={`Rp. ${
+                                element?.total ? parseInt(element?.total).toLocaleString('id') : 0
+                              }`}
+                            />
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+
+                  {!(
+                    paymentTypeValue[0] === 'gratis' ||
+                    paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+                  ) && (
+                    <tr>
+                      <td
+                        className='text-end fw-bolder'
+                        colSpan={orderForm.order_details.length >= 2 ? 4 : 3}
+                      >
+                        Biaya Survey
+                      </td>
+
+                      <td className=' fw-bolder'>
+                        {(() => {
+                          if (paymentTypeValue[1] === 'survey') {
+                            return `Rp. 99.000`
+                          } else {
+                            return `Rp. 0`
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  )}
+
+                  {isOverdistance === 1 && (
+                    <tr>
+                      <td
+                        className='text-end fw-bolder align-middle'
+                        colSpan={
+                          !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
+                            ? orderForm.order_details.length >= 2
+                              ? 6
+                              : 5
+                            : orderForm.order_details.length === 1
+                            ? 3
+                            : 4
                         }
-                      })()}
-                    </td>
-                  </tr>
-                )}
+                      >
+                        Biaya Tambahan
+                      </td>
 
-                {isOverdistance === 1 && (
-                  <tr>
-                    <td
-                      className='text-end fw-bolder align-middle'
-                      colSpan={
-                        !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
-                          ? orderForm.order_details.length >= 2
-                            ? 6
-                            : 5
-                          : orderForm.order_details.length === 1
-                          ? 3
-                          : 4
-                      }
-                    >
-                      Biaya Tambahan
-                    </td>
+                      <td className=' fw-bolder'>
+                        <Form.Control
+                          name='additional_fee'
+                          type='number'
+                          value={orderForm.additional_fee}
+                          onChange={(e) => orderFormHandler(e)}
+                        />
+                      </td>
+                    </tr>
+                  )}
 
-                    <td className=' fw-bolder'>
-                      <Form.Control
-                        name='additional_fee'
-                        type='number'
-                        value={orderForm.additional_fee}
-                        onChange={(e) => orderFormHandler(e)}
-                      />
-                    </td>
-                  </tr>
-                )}
+                  {(paymentTypeValue[1] !== 'survey' || isOverdistance === 1) && (
+                    <tr>
+                      <td
+                        className='text-end fw-bolder'
+                        colSpan={
+                          !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
+                            ? orderForm.order_details.length >= 2
+                              ? 6
+                              : 5
+                            : orderForm.order_details.length === 1
+                            ? 3
+                            : 4
+                        }
+                      >
+                        Grand Total
+                      </td>
+                      <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
 
-                {(paymentTypeValue[1] !== 'survey' || isOverdistance === 1) && (
-                  <tr>
-                    <td
-                      className='text-end fw-bolder'
-                      colSpan={
-                        !(paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey')
-                          ? orderForm.order_details.length >= 2
-                            ? 6
-                            : 5
-                          : orderForm.order_details.length === 1
-                          ? 3
-                          : 4
-                      }
-                    >
-                      Grand Total
-                    </td>
-                    <td className=' fw-bolder'>Rp. {grandTotal.toLocaleString('id')}</td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
+              <Form.Text className='fs-8 fs-l text-dark-danger'>
+                *Penulisan Item code dan Item Name sama persis dengan yang tercantum di NAV
+              </Form.Text>
+            </div>
 
-            <Form.Text className='fs-8 fs-l text-dark-danger'>
-              *Penulisan Item code dan Item Name sama persis dengan yang tercantum di NAV
-            </Form.Text>
-          </div>
+            <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
+              {orderDetail?.print_counter >= 1 && (
+                <Button type='submit' onClick={handleReprintOrder} variant='warning'>
+                  Reprint Order
+                </Button>
+              )}
 
-          <div className='button-submit d-flex justify-content-center align-items-center mt-5'>
-            {orderDetail?.print_counter >= 1 && (
-              <Button type='submit' onClick={handleReprintOrder} variant='warning'>
-                Reprint Order
+              <Button
+                type='submit'
+                disabled={isLoading}
+                onClick={handleUpdateOrder}
+                variant='dark-primary'
+              >
+                {isLoading ? 'Updating Order..' : ' Update Order & Print'}
               </Button>
-            )}
-
-            <Button
-              type='submit'
-              disabled={isLoading}
-              onClick={handleUpdateOrder}
-              variant='dark-primary'
-            >
-              {isLoading ? 'Updating Order..' : ' Update Order & Print'}
-            </Button>
-          </div>
-        </div>
-      </div>
+            </div>
+          </Card.Body>
+        </Card>
+      </Spin>
     </section>
   )
 }

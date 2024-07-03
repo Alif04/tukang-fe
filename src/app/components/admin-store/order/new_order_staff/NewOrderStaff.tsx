@@ -58,6 +58,7 @@ interface Order {
   payment_type: string
   is_overdistance: number
   additional_fee: number
+  notes: string
   order_details: Array<{
     item?: ItemSelect | null
     item_id: number | null
@@ -97,6 +98,7 @@ const NewOrderStoreStaff: FC = () => {
     payment_type: 'gratis',
     is_overdistance: 0,
     additional_fee: 25000,
+    notes: '',
     order_details: [
       {
         item_id: null,
@@ -526,6 +528,7 @@ const NewOrderStoreStaff: FC = () => {
       {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},
+      {key: 'notes', fieldName: 'Catatan'},
     ]
 
     const requiredOrderDetailsFields = [
@@ -571,6 +574,10 @@ const NewOrderStoreStaff: FC = () => {
               formData.append(key, orderForm[key].toString())
             }
           } else if (key === 'is_overdistance') {
+            if (value) {
+              formData.append(key, orderForm[key].toString())
+            }
+          } else if (key === 'notes') {
             if (value) {
               formData.append(key, orderForm[key].toString())
             }
@@ -1110,6 +1117,25 @@ const NewOrderStoreStaff: FC = () => {
                       onInputChange={(newValue) => setSearchSales(newValue)}
                     />
                   )}
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label className='title' column xxl='4' xl='5' md='2'>
+                  Catatan :
+                </Form.Label>
+
+                <Col xxl='8' xl='7' md='10'>
+                  <Form.Control
+                    as='textarea'
+                    name='notes'
+                    className='additional-notes'
+                    style={{minHeight: '150px'}}
+                    value={orderForm.notes}
+                    onChange={(event) => {
+                      orderFormHandler(event)
+                    }}
+                  />
                 </Col>
               </Form.Group>
             </div>

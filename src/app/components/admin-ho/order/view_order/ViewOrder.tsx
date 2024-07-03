@@ -640,6 +640,10 @@ const ViewOrders: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
+        const phoneNumber = item?.project_number.startsWith('0')
+          ? item.project_number
+          : `+62${item.project_number}`
+
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
@@ -725,7 +729,7 @@ const ViewOrders: FC = () => {
           vendor_name: item?.vendor?.company_name ?? 'Vendor Belum Ditugaskan',
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
-          phone_number: item?.project_number,
+          phone_number: phoneNumber,
           payment_status: paymentStatus,
           order_status: orderStatus,
           order_status_label: orderStatusLabel,
