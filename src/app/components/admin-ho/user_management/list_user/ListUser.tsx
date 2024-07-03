@@ -181,19 +181,21 @@ const ListUserHO: React.FC<Props> = ({className}) => {
                     <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
                   </Button>
                 </OverlayTrigger>
-
-                <OverlayTrigger
-                  placement='bottom'
-                  delay={{show: 250, hide: 400}}
-                  overlay={renderTooltip('Hapus User')}
-                >
-                  <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
-                    <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
-                  </Button>
-                </OverlayTrigger>
               </>
             ) : (
               <></>
+            )}
+
+            {!['Owner Vendor', 'Super User'].includes(role) && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Hapus User')}
+              >
+                <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                  <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
             )}
           </div>
         )

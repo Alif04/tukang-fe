@@ -631,24 +631,20 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                       </thead>
                       <tbody>
                         {orderDetail?.order_details?.map((item: any, index: any) => (
-                          <>
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item?.item_name}</td>
-                              <td>{item?.item?.service_name ?? '-'}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              {!(orderDetail?.payment_type === 'gratis') && (
-                                <>
-                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </>
-                              )}
-                            </tr>
-                          </>
+                          <tr key={`${index} - order_detail`}>
+                            <td>{item?.item_code}</td>
+                            <td>{item?.item?.item_name}</td>
+                            <td>{item?.item?.service_name ?? '-'}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            {!(orderDetail?.payment_type === 'gratis') && (
+                              <>
+                                <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                              </>
+                            )}
+                          </tr>
                         ))}
 
                         {orderDetail?.is_overdistance === 1 && (
