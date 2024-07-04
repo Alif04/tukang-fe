@@ -69,3 +69,31 @@
 #detail-invoice .payment-information .payment-evidence {
   margin: 10px 0;
 }
+
+#detail-invoice .signature-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+#detail-invoice .signature-name {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.signature-line {
+  width: 200px;
+  margin: 150px 0 10px 0;
+  border-bottom: 1px solid #000;
+}
+
+/* Button */
+#detail-invoice .btn.btn-dark-primary {
+  width: 100% !important;
+  height: 40px;
+  margin: 0;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
