@@ -153,7 +153,7 @@ const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName
 
           case 'reschedule':
             setCurrentPage(response?.data?.page ?? 1)
-            setTotalOrder(response?.data?.total ?? 0)
+            setTotalOrder(response?.data?.takeTotal ?? 0)
             setLoadData(false)
             break
 
