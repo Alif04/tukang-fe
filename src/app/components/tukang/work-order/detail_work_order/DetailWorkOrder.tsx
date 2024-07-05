@@ -252,7 +252,14 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <Row>
-                  {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                  {[
+                    'SURVEYREQ',
+                    'SURVEYSTART',
+                    'SURVEYDONE',
+                    'RESURVEYREQ',
+                    'RESURVEYSTART',
+                    'RESURVEYDONE',
+                  ].includes(
                     workOrderDetail?.work_order_status.length
                       ? workOrderDetail?.work_order_status[0]?.status?.category
                       : workOrderDetail?.order?.status?.category
@@ -322,9 +329,8 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     'WORKSTART',
                     'WORKREQ',
                     'WORKEND',
-                    'REWORK',
+                    'REWORKREQ',
                     'REWORKSTART',
-                    'RIP',
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
@@ -493,9 +499,14 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     </div>
                   )
                 } else if (
-                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                    workOrderDetail?.work_order_status[0]?.status?.category
-                  ) &&
+                  [
+                    'SURVEYREQ',
+                    'SURVEYSTART',
+                    'SURVEYDONE',
+                    'RESURVEYREQ',
+                    'RESURVEYSTART',
+                    'RESURVEYDONE',
+                  ].includes(workOrderDetail?.work_order_status[0]?.status?.category) &&
                   workOrderDetail?.order?.payment_type === 'survey' &&
                   workOrderDetail?.work_order_status.length >= 1 &&
                   workOrderDetail?.order?.quotation?.length === 0
