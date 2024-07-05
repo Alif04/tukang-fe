@@ -151,8 +151,8 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 /* Button Action */
 
 #update-complaint-ho .btn.btn-dark-primary {
-  width: 200px;
-  height: 50px;
+  width: fit-content;
+  height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;
   border-color: transparent !important;
@@ -162,6 +162,24 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 
 #update-complaint-ho .btn.btn-dark-primary:hover:not(.btn-active) {
   background-color: #0300b5 !important;
+}
+
+#update-complaint-ho .btn.btn-light-danger {
+  width: 100px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #a30014 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-complaint-ho .btn.btn-light-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
+}
+
+#update-complaint-ho .btn.btn-dark-danger:hover:not(.btn-active) {
+  background-color: #d80019 !important;
 }
 
 @media screen and (max-width: 1400px) {

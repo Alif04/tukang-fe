@@ -310,7 +310,14 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
                 <Row>
-                  {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                  {[
+                    'SURVEYREQ',
+                    'SURVEYSTART',
+                    'SURVEYDONE',
+                    'RESURVEYREQ',
+                    'RESURVEYSTART',
+                    'RESURVEYDONE',
+                  ].includes(
                     orderDetail?.work_orders !== null
                       ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
                       : orderDetail?.status?.category
@@ -365,9 +372,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     'WORKREQ',
                     'WORKSTART',
                     'WORKEND',
-                    'REWORK',
+                    'REWORKREQ',
                     'REWORKSTART',
-                    'RIP',
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
@@ -569,9 +575,14 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     </div>
                   )
                 } else if (
-                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                    orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                  ) &&
+                  [
+                    'SURVEYREQ',
+                    'SURVEYSTART',
+                    'SURVEYDONE',
+                    'RESURVEYREQ',
+                    'RESURVEYSTART',
+                    'RESURVEYDONE',
+                  ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
                   orderDetail?.payment_type === 'survey' &&
                   orderDetail?.work_orders?.work_order_status.length >= 1 &&
                   orderDetail?.quotation?.length === 0

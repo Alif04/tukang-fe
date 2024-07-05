@@ -1,10 +1,14 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
+import {useParams} from 'react-router-dom'
 
 import './DetailInvoice.css'
 
 import axios from 'axios'
-import {useParams} from 'react-router-dom'
-import {Form, Table, Row, Col, Card} from 'react-bootstrap'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
+import {Form, Table, Row, Col, Card, Button} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faDownload} from '@fortawesome/free-solid-svg-icons'
 
 interface Store {
   store_id: number
@@ -17,7 +21,9 @@ interface Store {
 const DetailInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
+  const pdfRef = useRef<HTMLDivElement>(null)
 
+  const [loadingPDF, setLoadingPDF] = useState(false)
   const [store, setStore] = useState<Store[]>([])
   const [invoiceDetail, setInvoiceDetail] = useState<any>()
 
@@ -78,51 +84,49 @@ const DetailInvoiceVendor: FC = () => {
     getStore()
   }, [])
 
-  // Store Data
-  const storeIds = invoiceDetail?.invoice_details?.map((item: any) => item?.order?.store_id) || []
-  const storeData = (
-    ids: number[]
-  ): {storeName: string; storeAddress: string; storePhoneNumber: string} => {
-    const uniqueStoreIds = Array.from(new Set(ids))
+  const getFormattedPeriod = () => {
+    const now = new Date()
+    const lastMonth = new Date(now)
+    lastMonth.setMonth(now.getMonth() - 1)
 
-    const storeName = uniqueStoreIds
-      .map((storeId: number) => {
-        return store.find((x: Store) => x.store_id === storeId)?.store_name
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('id-ID', {
+        month: 'long',
       })
-      .filter(Boolean)
-      .join(', ')
+    }
 
-    const storeAddress = uniqueStoreIds
-      .map((storeId: number) => {
-        return store.find((x: Store) => x.store_id === storeId)?.address
-      })
-      .filter(Boolean)
-      .join(', ')
-
-    const storePhoneNumber = uniqueStoreIds
-      .map(
-        (storeId: number) =>
-          store.find((x: Store) => x.store_id === storeId)?.phone_number_1 ||
-          store.find((x: Store) => x.store_id === storeId)?.phone_number_2
-      )
-      .join(', ')
-
-    return {storeName, storeAddress, storePhoneNumber}
+    return `${formatDate(lastMonth)} - ${formatDate(now)} ${now.getFullYear()}`
   }
-  const {storeName, storeAddress, storePhoneNumber} = storeData(storeIds)
 
-  // Grand Total Invoice ( Quotation )
-  const quotationGrandTotals = invoiceDetail?.invoice_details?.map((item: any) =>
-    parseInt(item?.order?.quotation[0]?.quotation_grand_total ?? 0)
-  )
-  const grandTotal = quotationGrandTotals
-    ? quotationGrandTotals.reduce((total: any, current: any) => total + current, 0)
-    : 0
-  const formattedGrandTotal = `Rp. ${grandTotal.toLocaleString('id')}`
+  const generatePdf = async () => {
+    setLoadingPDF(true)
+    const input = pdfRef.current
+    if (input) {
+      const canvas = await html2canvas(input)
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const imgProps = pdf.getImageProperties(imgData)
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save(
+        `Invoice - ${invoiceDetail?.id} - ${new Date(invoiceDetail?.created_at).toLocaleDateString(
+          'id-ID',
+          {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        )}.pdf`
+      )
+    }
+    setLoadingPDF(false)
+  }
 
   return (
     <section id='detail-invoice'>
-      <Card>
+      <Card ref={pdfRef}>
         <Card.Body>
           <Row className='invoice-detail mb-4'>
             <Col xxl={6} xl={6} md={6} sm={12} className='vendor-information'>
@@ -254,8 +258,33 @@ const DetailInvoiceVendor: FC = () => {
               <div className='fs-4 fw-normal'>Email : {invoiceDetail?.vendor?.email_address}</div>
             </div>
           </Row>
+
+          <Row className='signature'>
+            <Col xxl={8} xl={8} md={8} sm={12}></Col>
+
+            <Col xxl={4} xl={4} md={4} sm={12} className='signature'>
+              <div className='signature-label'>Tanda Tangan :</div>
+              <div className='signature-label'>{getFormattedPeriod()}</div>
+              <div className='signature-line'></div>
+              <div className='signature-name'>{invoiceDetail?.vendor?.company_name}</div>
+            </Col>
+          </Row>
         </Card.Body>
       </Card>
+
+      <Button
+        className='btn-dark-primary d-flex justify-content-center align-items-center mt-5 w-100 gap-3'
+        onClick={generatePdf}
+      >
+        {loadingPDF === false ? (
+          <>
+            <FontAwesomeIcon icon={faDownload} size='lg' />
+            Download PDF
+          </>
+        ) : (
+          'Generating PDF...'
+        )}
+      </Button>
     </section>
   )
 }

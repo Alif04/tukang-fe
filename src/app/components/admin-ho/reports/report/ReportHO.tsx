@@ -222,13 +222,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
-          title: 'Nama Jasa Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          width: 180,
-          className: 'text-start',
-        },
-        {
           title: 'Order Status',
           dataIndex: 'order_status',
           key: 'order_status',
@@ -532,33 +525,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
-          title: 'Item Name',
-          dataIndex: 'item_name',
-          key: 'item_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.item_name.includes(String(value)),
-          sorter: (a, b) => a.item_name.length - b.item_name.length,
-        },
-        {
-          title: 'Nama Jasa Pemasangan',
-          dataIndex: 'nama_jasa',
-          key: 'nama_jasa',
-          align: 'center',
-          width: 180,
-          onFilter: (value, record) => record.nama_jasa.includes(String(value)),
-          sorter: (a, b) => a.nama_jasa.length - b.nama_jasa.length,
-        },
-        {
-          title: 'Payment Status',
-          dataIndex: 'payment_status',
-          key: 'payment_status',
-          align: 'left',
-          width: 140,
-          onFilter: (value, record) => record.payment_status.includes(String(value)),
-          sorter: (a, b) => a.payment_status.length - b.payment_status.length,
-        },
-        {
           title: 'Order Status',
           dataIndex: 'order_status',
           key: 'order_status',
@@ -667,24 +633,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           align: 'center',
           width: 110,
           sorter: (a, b) => a.phone_number - b.phone_number,
-        },
-        {
-          title: 'Item Name',
-          dataIndex: 'item_name',
-          key: 'item_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.item_name.includes(String(value)),
-          sorter: (a, b) => a.item_name.length - b.item_name.length,
-        },
-        {
-          title: 'Nama Jasa Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          align: 'center',
-          width: 180,
-          onFilter: (value, record) => record.service_name.includes(String(value)),
-          sorter: (a, b) => a.service_name.length - b.service_name.length,
         },
         {
           title: 'Payment Status',
@@ -995,31 +943,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           sorter: (a, b) => a.address.length - b.address.length,
         },
         {
-          title: 'Nama Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          align: 'left',
-          width: 170,
-          onFilter: (value, record) => record.service_name.includes(String(value)),
-          sorter: (a, b) => a.service_name.length - b.service_name.length,
-        },
-        {
-          title: 'Quantity',
-          dataIndex: 'quantity',
-          key: 'quantity',
-          align: 'center',
-          width: 90,
-          sorter: (a, b) => a.quantity - b.quantity,
-        },
-        {
-          title: 'Harga',
-          dataIndex: 'harga',
-          key: 'harga',
-          align: 'center',
-          width: 135,
-          sorter: (a, b) => a.harga - b.harga,
-        },
-        {
           title: 'Grand Total',
           dataIndex: 'grand_total',
           key: 'grand_total',
@@ -1038,14 +961,26 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     queryparams: any
   ) => {
     try {
-      let url = ''
+      const nonReportEndpoints = ['orders', 'refund', 'reschedule', 'quotation', 'claim garansi']
 
-      if (endpoint === 'sales-comission' && statusName === 'UNPAID') {
-        url = `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=1`
-      } else if (endpoint === 'sales-comission' && statusName === 'PAID') {
-        url = `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=3`
+      let urlBase = nonReportEndpoints.includes(endpoint)
+        ? `${apiUrl}/${endpoint}`
+        : `${apiUrl}/reports/${endpoint}`
+      let url = `${urlBase}?order_by=desc&page=${page}&take=${pageSize}`
+
+      if (endpoint === 'sales-comission') {
+        if (statusName === 'UNPAID') {
+          url += `&status=1`
+        } else if (statusName === 'PAID') {
+          url += `&status=3`
+        }
       } else {
-        url = `${apiUrl}/reports/${endpoint}?order_by=desc&page=${page}&take=${pageSize}&status=${statuses}${queryparams}`
+        if (statuses.length) {
+          url += `&status=${statuses}`
+        }
+        if (queryparams) {
+          url += queryparams
+        }
       }
 
       const response = await axios.get(url, {
@@ -1065,6 +1000,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
           case 'complaints':
             setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
+            break
+
+          case 'refund':
+            setReportGrandTotal(response?.data?.refundGrandTotal ?? 0)
+            setTotalOrder(response?.data?.takeTotal ?? 0)
             break
 
           case 'quotation':
@@ -1199,7 +1139,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           quotationData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.order?.request_survey).toLocaleDateString('id-ID', {
+            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -1215,7 +1155,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               quotation_id: item.id,
               store_name: item?.store?.store_name ?? '-',
               order_id: item?.order?.id,
-              date_order: formatDate(orderDate),
+              date_order: orderDate,
               costumer_name: item?.order?.members?.full_name ?? '',
               service_name: workOrderItems,
               vendor_name: item?.order?.vendor?.company_name ?? '-',
@@ -1238,25 +1178,18 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               year: 'numeric',
             })
 
-            let phoneNumber =
-              item.orders.members.phone_number !== 'null'
-                ? item.orders.members.phone_number
-                : item.orders.members.whatsapp_number
-
             let paymentStatus = item.orders.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
 
             data = {
-              refund_id: item.id,
-              order_id: item.order_id,
-              store_name: item.orders.store.store_name,
+              refund_id: item?.id,
+              order_id: item?.order_id,
+              store_name: item?.orders?.store?.store_name,
               date_order: orderDate,
-              member_id: item.orders.members.id,
-              member_name: item.orders.members.full_name,
-              phone_number: phoneNumber,
-              item_name: item.orders.m_order_details[0].item?.item_name,
-              nama_jasa: item.orders.m_order_details[0].item?.category_name ?? '-',
+              member_id: item?.orders?.members?.id,
+              member_name: item?.orders?.members?.full_name,
+              phone_number: item?.orders?.project_number,
               payment_status: paymentStatus,
-              order_status: item.orders.status.category,
+              order_status: item?.status?.description,
             }
 
             return data

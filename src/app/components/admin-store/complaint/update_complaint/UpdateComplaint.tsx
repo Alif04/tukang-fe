@@ -4,19 +4,29 @@ import {useNavigate, useParams} from 'react-router-dom'
 import './UpdateComplaint.css'
 
 import axios from 'axios'
-import Select from 'react-select'
+import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import {Image} from 'antd'
 import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
+interface Complaint {
+  order_id: number | null
+  pic_name: string
+  description: string
+  complaint_channel: number | null
+  complaint_date: string
+  complaint_status: string
+  complaint_type: number
+}
+
 interface ComplaintChannel {
-  value: string
+  value: number | null
   label: string
 }
 
-const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
+const UpdateComplaintForm: FC<{updatePageTitle: (complaint: any) => void}> = ({
   updatePageTitle,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -24,9 +34,37 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  // Update Complaint
+  const [complaintForm, setComplaintForm] = useState<Complaint>({
+    order_id: null,
+    pic_name: '',
+    description: '',
+    complaint_channel: null,
+    complaint_date: '',
+    complaint_status: '',
+    complaint_type: 1,
+  })
+
+  // Evidence
+  const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
   // Complaint Detail
   const [orderId, setOrderId] = useState<string>('')
   const [complaintDetail, setComplaintDetail] = useState<any>()
+
+  // Complaint Channel
+  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [selectedComplaintChannel, setSelectedComplaintChannel] = useState<
+    SingleValue<ComplaintChannel>
+  >({
+    value: null,
+    label: 'Complaint Via',
+  })
 
   const fetchComplaintData = async () => {
     try {
@@ -45,28 +83,33 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
           setComplaintDetail(data)
           updatePageTitle(data)
 
-          if (data?.orders?.id) {
+          if (data) {
             setOrderId(data.orders.id)
-          }
 
-          if (data?.description) {
-            setComplaintDesc(data.description)
-          }
+            setComplaintForm({
+              ...complaintForm,
+              order_id: data?.orders?.id,
+              pic_name: data?.pic_name,
+              description: data?.description,
+              complaint_channel: data?.complaint_channels?.id,
+              complaint_date: new Date(data?.complaint_date).toISOString().split('T')[0],
+              complaint_type: data?.type,
+              complaint_status: data?.complaint_status,
+            })
 
-          if (data?.complaint_date) {
-            setComplaintDate(new Date(data.complaint_date).toISOString().split('T')[0])
-          }
-
-          if (data?.complaint_channels?.id && data?.complaint_channels?.name) {
-            setComplaintChannelId(data.complaint_channels.id)
-            setComplaintChannelName(data.complaint_channels.name)
-          }
-
-          if (data?.complaint_evidence) {
-            const initialComplaintEvidenceValues = data.complaint_evidence.map((item: any) => ({
-              id: item.id,
-              name: item.evidence_location,
+            setSelectedComplaintChannel((prev) => ({
+              ...prev,
+              value: data?.complaint_channels?.id,
+              label: data?.complaint_channels?.name,
             }))
+          }
+
+          if (data?.complaint_histories[0]?.complaint_evidence) {
+            const initialComplaintEvidenceValues =
+              data?.complaint_histories[0]?.complaint_evidence.map((item: any) => ({
+                id: item.id,
+                name: item.evidence_location,
+              }))
 
             setComplaintEvidence(initialComplaintEvidenceValues)
           }
@@ -107,6 +150,8 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
     fetchComplaintChannel()
   }, [])
 
+  // Date Time
+  const today = new Date().toISOString().split('T')[0]
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -114,43 +159,20 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
     return `${day}/${month}/${year}`
   }
 
-  // Add Complaint
-  const [complaintDesc, setComplaintDesc] = useState<any>('')
-  const [complaintDate, setComplaintDate] = useState<string>('')
-  const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
-  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  const [previewImage, setPreviewImage] = useState<any>()
-  const [visible, setVisible] = useState(false)
-
-  // Complaint Channel
-  const [complaintChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
-  const [complaintChannelId, setComplaintChannelId] = useState<string>('')
-  const [complaintChannelName, setComplaintChannelName] = useState<string>('')
-
-  // Handle Input Change
-  const handleInputComplaintDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setComplaintDesc(updatedInputValue)
+  // Complaint Form Handler
+  const complaintFormHandler = (e: any) => {
+    setComplaintForm({
+      ...complaintForm,
+      [e.target.name]: e.target.value,
+    })
   }
 
-  // Handle Change Complaint Channel
-  const handleChangeSelectComplaintChannel = (element: any) => {
-    const updatedComplaintChannelId = element.value
-    const updatedComplaintChannelName = element.label
-
-    setComplaintChannelId(updatedComplaintChannelId)
-    setComplaintChannelName(updatedComplaintChannelName)
-  }
-
-  // Handle Complaint Date Change
-  const today = new Date().toISOString().split('T')[0]
-
-  const handleChangeComplaintDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedComplaintDate = event.target.value
-    setComplaintDate(updatedComplaintDate)
-  }
+  useEffect(() => {
+    setComplaintForm({
+      ...complaintForm,
+      complaint_channel: selectedComplaintChannel?.value ?? null,
+    })
+  }, [selectedComplaintChannel])
 
   // Handle Change Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,9 +201,7 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
   const handleRemoveFile = (index: number) => {
     const newEvidances = [...complaintEvidence]
-
     newEvidances.splice(index, 1)
-
     setComplaintEvidence(newEvidances)
 
     // Update element value
@@ -197,24 +217,24 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
   }
 
   // Update Complaint Validation
-  const UpdateComplaintValidation = () => {
+  const ComplaintValidation = () => {
     let valid = true
 
-    if (!complaintDesc) {
+    if (!complaintForm.description) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill complaint description',
+        text: 'Please fill complaint description form',
         icon: 'error',
       })
       valid = false
-    } else if (!complaintChannelId) {
+    } else if (!selectedComplaintChannel?.value) {
       Swal.fire({
         title: 'Error',
-        text: 'Please select complaint via form',
+        text: 'Please select complaint channel',
         icon: 'error',
       })
       valid = false
-    } else if (!complaintDate) {
+    } else if (!complaintForm.complaint_date) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill complaint date form',
@@ -234,24 +254,27 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
   // Handle Submit Complaint
   const handleUpdateComplaint = async () => {
-    if (UpdateComplaintValidation()) {
+    if (ComplaintValidation()) {
       setIsLoading(true)
       const formData = new FormData()
 
       formData.append('order_id', orderId)
-      formData.append('description', complaintDesc)
-      formData.append('complaint_channel', complaintChannelId)
-      formData.append('complaint_date', complaintDate)
+      formData.append('pic_name', complaintForm.pic_name)
+      formData.append('description', complaintForm.description)
+      formData.append('complaint_status', complaintForm.complaint_status)
+      formData.append('complaint_channel', String(complaintForm.complaint_channel))
+      formData.append('complaint_date', complaintForm.complaint_date)
+      formData.append('type', complaintForm.complaint_type.toString())
 
       if (complaintEvidence?.length) {
         complaintEvidence.forEach((item) => {
-          if (item) {
-            formData.append(`complaint_evidences`, item)
+          if (item instanceof Blob) {
+            formData.append(`complaint_evidences`, item, item?.name)
           }
         })
       }
 
-      const response = await axios
+      await axios
         .post(`${apiUrl}/complaints/${params.id}`, formData, {
           headers: {
             Accept: 'application/json',
@@ -468,12 +491,12 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 </Row>
 
                 <Row>
-                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
+                  <div className='fs-3 fw-bold'>Informasi Tukang Pemasangan</div>
 
                   <div className='d-flex'>
                     <Form.Group as={Row}>
                       <Form.Label column md='5'>
-                        Vendor Name :
+                        Tukang Name :
                       </Form.Label>
 
                       <Col md='7'>
@@ -829,15 +852,28 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
             })()}
           </Row>
 
+          <hr />
+
           <Row className='mb-5'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group className='mb-3'>
+                <Form.Label>Nama PIC</Form.Label>
+                <Form.Control
+                  name='pic_name'
+                  type='text'
+                  value={complaintForm.pic_name}
+                  onChange={(e) => complaintFormHandler(e)}
+                />
+              </Form.Group>
+
+              <Form.Group className='mb-3'>
                 <Form.Label>Tanggal Komplain :</Form.Label>
                 <Form.Control
+                  name='complaint_date'
                   type='date'
                   min={today}
-                  value={complaintDate}
-                  onChange={handleChangeComplaintDate}
+                  value={complaintForm.complaint_date}
+                  onChange={(e) => complaintFormHandler(e)}
                 />
               </Form.Group>
 
@@ -851,10 +887,10 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                   isSearchable={true}
                   options={complaintChannel}
                   value={{
-                    value: complaintChannelId,
-                    label: complaintChannelName,
+                    value: selectedComplaintChannel?.value ?? null,
+                    label: selectedComplaintChannel?.label ?? '',
                   }}
-                  onChange={(element) => handleChangeSelectComplaintChannel(element)}
+                  onChange={(newValue) => setSelectedComplaintChannel(newValue)}
                 />
               </Form.Group>
             </Col>
@@ -864,8 +900,9 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               <Form.Control
                 style={{minHeight: '250px'}}
                 as='textarea'
-                value={complaintDesc}
-                onChange={handleInputComplaintDesc}
+                name='description'
+                value={complaintForm.description}
+                onChange={(e) => complaintFormHandler(e)}
               ></Form.Control>
             </Col>
 
@@ -952,6 +989,7 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               variant='dark-danger'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleCancelComplaint}
             >
               Cancel
@@ -973,4 +1011,4 @@ const UpdateComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
   )
 }
 
-export {UpdateComplaintStore}
+export {UpdateComplaintForm}

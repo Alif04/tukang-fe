@@ -267,7 +267,7 @@ export function AsideMenuMain() {
         title='Customers'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Super User']}
+        role={['Admin HO', 'Super User', 'Store CS']}
       >
         <AsideMenuItem
           to='/costumers/report-costumers'
@@ -278,13 +278,13 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/costumers/new-costumers'
           title='Register Customers'
-          role={['Admin HO', 'Super User']}
+          role={['Admin HO', 'Super User', 'Store CS']}
           hasBullet={true}
         />
         <AsideMenuItem
           to='/costumers/view-costumers'
           title='View Customers'
-          role={['Admin HO', 'Super User']}
+          role={['Admin HO', 'Super User', 'Store CS']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>

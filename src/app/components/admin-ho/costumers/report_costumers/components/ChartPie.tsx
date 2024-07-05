@@ -7,10 +7,11 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 type Props = {
   className: string
   chartHeight: string
+  totalMember: number
   memberData: any[]
 }
 
-const ChartPie: React.FC<Props> = ({className, chartHeight, memberData}) => {
+const ChartPie: React.FC<Props> = ({className, chartHeight, memberData, totalMember}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -36,7 +37,7 @@ const ChartPie: React.FC<Props> = ({className, chartHeight, memberData}) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode, memberData])
+  }, [chartRef, mode, memberData, totalMember])
 
   return (
     <div className={`card ${className}`}>
@@ -46,7 +47,7 @@ const ChartPie: React.FC<Props> = ({className, chartHeight, memberData}) => {
 
           <div className='d-flex flex-column gap-4'>
             <div className='fs-5 text-dark text-muted'>Customer</div>
-            <div className='fs-1 '>{memberData?.length}</div>
+            <div className='fs-1 '>{totalMember}</div>
             <div className='fs-5 text-muted mb-5'>Total</div>
           </div>
         </div>

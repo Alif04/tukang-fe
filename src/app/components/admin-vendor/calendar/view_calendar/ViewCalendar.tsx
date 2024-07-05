@@ -74,7 +74,7 @@ const ViewCalendarVendor: React.FC = () => {
                   ? item.work_orders.survey_date
                   : item?.work_orders &&
                     item.work_orders.survey_date === null &&
-                    item.work_orders.work_start_date
+                    item.work_orders.work_start_date !== null
                   ? item.work_orders.work_start_date
                   : null
                 : item?.request_survey
@@ -86,7 +86,7 @@ const ViewCalendarVendor: React.FC = () => {
                   ? item.work_orders.survey_date
                   : item?.work_orders &&
                     item.work_orders.survey_date === null &&
-                    item.work_orders.work_end_date
+                    item.work_orders.work_end_date !== null
                   ? item.work_orders.work_end_date
                   : null
                 : item?.request_survey
@@ -136,8 +136,8 @@ const ViewCalendarVendor: React.FC = () => {
                 title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
                   item?.members?.full_name ?? ''
                 } `,
-                start: dayjs(startDate).format('YYYY-MM-DD'),
-                end: dayjs(endDate).format('YYYY-MM-DD'),
+                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
                 order_status: orderStatus,
                 className: contextualColor,
                 order_detail: item,
@@ -311,6 +311,8 @@ const ViewCalendarVendor: React.FC = () => {
           right: 'dayGridMonth,dayGridWeek,dayGridDay',
         }}
         initialView='dayGridMonth'
+        displayEventTime={false}
+        eventDisplay=''
         weekends={true}
         events={order}
         datesSet={handleDatesSet}
@@ -328,7 +330,7 @@ const ViewCalendarVendor: React.FC = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <Row className='form-header'>
+          <Row className='form-header mb-5'>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <Form.Label className='fs-4 fw-bold'>
                 Nama Toko :{' '}
@@ -360,15 +362,36 @@ const ViewCalendarVendor: React.FC = () => {
                   <span className='fs-4 ms-2 fw-bold text-success'>
                     {(() => {
                       if (
-                        selectedOrder?.order_detail?.status?.category === 'QUOTEIN' ||
-                        selectedOrder?.order_detail?.status?.category === 'QUOTEOUT'
+                        selectedOrder?.order_detail?.work_orders?.work_order_status?.length >= 0
                       ) {
-                        return selectedOrder?.order_detail?.status?.description
-                      } else if (
-                        selectedOrder?.order_detail?.work_orders?.work_order_status?.length > 0
-                      ) {
-                        return selectedOrder?.order_detail?.work_orders?.work_order_status[0]
-                          ?.status?.description
+                        if (
+                          [
+                            'QUOTEIN',
+                            'QUOTEOUT',
+                            'CANCEL',
+                            'WARRANTYCLAIM',
+                            'INVESTIGATED',
+                            'COMPLAINTAPPROVEDBYHO',
+                            'COMPLAINTREJECTEDBYHO',
+                            'RESCHEDULE',
+                          ].includes(selectedOrder?.order_detail.status?.category ?? '')
+                        ) {
+                          return selectedOrder?.order_detail?.status?.description
+                        } else if (
+                          ['WORKREQ'].includes(
+                            selectedOrder?.order_detail?.status?.category ?? ''
+                          ) &&
+                          selectedOrder?.order_detail?.payment_type === 'survey' &&
+                          !['WORKSTART', 'WORKEND'].includes(
+                            selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status
+                              ?.category ?? ''
+                          )
+                        ) {
+                          return selectedOrder?.order_detail?.status?.description
+                        } else {
+                          return selectedOrder?.order_detail?.work_orders?.work_order_status[0]
+                            ?.status?.description
+                        }
                       } else {
                         return selectedOrder?.order_detail?.status?.description
                       }
@@ -379,34 +402,38 @@ const ViewCalendarVendor: React.FC = () => {
             </Col>
           </Row>
 
-          <Row className='information-detail'>
-            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
+          <Row className='information-detail mb-5'>
+            <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='costumer-info'>
               <div className='fs-3 fw-bold'>Informasi Pembeli</div>
+
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
+                    <Form.Label column sm='5'>
                       No Member :
                     </Form.Label>
-                    <Col sm='6'>
+
+                    <Col sm='7'>
                       <p className='fs-7'>{selectedOrder?.order_detail?.members?.member_number}</p>
                     </Col>
                   </Form.Group>
 
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
+                    <Form.Label column sm='5'>
                       Customer Name :
                     </Form.Label>
-                    <Col sm='6'>
+
+                    <Col sm='7'>
                       <p className='fs-7'>{selectedOrder?.order_detail?.members?.full_name}</p>
                     </Col>
                   </Form.Group>
 
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
+                    <Form.Label column sm='5'>
                       Alamat Pemasangan :
                     </Form.Label>
-                    <Col sm='6'>
+
+                    <Col sm='7'>
                       <p className='fs-7'>{selectedOrder?.order_detail?.project_address}</p>
                     </Col>
                   </Form.Group>
@@ -414,19 +441,37 @@ const ViewCalendarVendor: React.FC = () => {
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='5'>
-                      Nomor Telp/WA :
+                    <Form.Label column sm='4'>
+                      Nomor WA :
                     </Form.Label>
-                    <Col sm='7'>
-                      <p className='fs-7'>{selectedOrder?.order_detail?.project_number}</p>
+
+                    <Col sm='8'>
+                      <p className='fs-7'>
+                        {!selectedOrder?.order_detail?.project_number.startsWith('0')
+                          ? `+62${selectedOrder?.order_detail?.members?.whatsapp_number}`
+                          : '-'}
+                      </p>
                     </Col>
                   </Form.Group>
 
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='5'>
+                    <Form.Label column sm='4'>
+                      Nomor Telepon :
+                    </Form.Label>
+                    <Col sm='8'>
+                      <p className='fs-7'>
+                        {selectedOrder?.order_detail?.project_number.startsWith('0')
+                          ? selectedOrder?.order_detail?.members?.phone_number
+                          : '-'}
+                      </p>
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='4'>
                       Alamat Email :
                     </Form.Label>
-                    <Col sm='7'>
+                    <Col sm='8'>
                       <p className='fs-7'>{selectedOrder?.order_detail?.members?.email} </p>
                     </Col>
                   </Form.Group>
@@ -434,23 +479,25 @@ const ViewCalendarVendor: React.FC = () => {
               </Row>
             </Col>
 
-            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='sales-info'>
               <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='3'>
+                <Form.Label column sm='4'>
                   Sales ID :
                 </Form.Label>
-                <Col sm='9'>
+
+                <Col sm='8'>
                   <p className='fs-7'>{selectedOrder?.order_detail?.sales?.id} </p>
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className='detail-info'>
-                <Form.Label column sm='3'>
+                <Form.Label column sm='4'>
                   Sales Person :
                 </Form.Label>
-                <Col sm='9'>
+
+                <Col sm='8'>
                   <p className='fs-7'>{selectedOrder?.order_detail?.sales?.full_name} </p>
                 </Col>
               </Form.Group>

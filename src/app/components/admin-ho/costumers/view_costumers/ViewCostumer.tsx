@@ -4,7 +4,6 @@ import {useNavigate} from 'react-router-dom'
 
 import './ViewCostumer.css'
 
-import * as XLSX from 'xlsx'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
@@ -12,7 +11,7 @@ import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faFileExcel, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -26,7 +25,8 @@ interface DataType {
   costumer_id: number
   member_number: number
   full_name: string
-  phone_number: number
+  whatsapp_number: string
+  phone_number: string
   email_address: string
   customer_since: Date
   total_order: number
@@ -39,6 +39,9 @@ interface DataType {
 const ViewCostumerHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const userStore = localStorage.getItem('storeId')
+  const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
@@ -90,10 +93,18 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
     {
-      title: 'Nomor HP/WA',
+      title: 'No. Whatsapp',
+      dataIndex: 'whatsapp_number',
+      key: 'whatsapp_number',
+      onFilter: (value, record) => record.whatsapp_number.includes(String(value)),
+      sorter: (a, b) => a.whatsapp_number.length - b.whatsapp_number.length,
+    },
+    {
+      title: 'No. Telepon',
       dataIndex: 'phone_number',
       key: 'phone_number',
-      sorter: (a, b) => a.phone_number - b.phone_number,
+      onFilter: (value, record) => record.phone_number.includes(String(value)),
+      sorter: (a, b) => a.phone_number.length - b.phone_number.length,
     },
     {
       title: 'Email Address',
@@ -170,7 +181,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   ]
 
   const fetchMemberList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/member?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/member?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -182,10 +193,8 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         },
       })
 
-      const data = response.data.data
-
       setCurrentPage(response?.data?.page ?? 1)
-      setTotalData(data.length)
+      setTotalData(response?.data?.total ?? 0)
       setLoadData(false)
 
       return response.data.data
@@ -212,19 +221,17 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
           year: 'numeric',
         })
 
-        const phoneNumber = item.phone_number !== 'null' ? item.phone_number : item.whatsapp_number
-        const totalOrder = item?.order.length ?? 0
-
         data = {
           number: index + 1,
           store_name: item?.join_location_store?.store_name ?? '-',
           costumer_id: item.id,
           member_number: item.member_number,
           full_name: item.full_name,
-          phone_number: phoneNumber,
+          whatsapp_number: `+62${item?.whatsapp_number}` ?? '-',
+          phone_number: item?.phone_number ?? '-',
           email_address: item?.email ?? '-',
           customer_since: joinDate,
-          total_order: totalOrder,
+          total_order: item?.order?.length ?? 0,
           // total_spend: item?.total_spend ?? '-',
           // total_complaint: item?.total_complaint ?? '-',
           // total_cis_score: item?.total_cis_score ?? '-',

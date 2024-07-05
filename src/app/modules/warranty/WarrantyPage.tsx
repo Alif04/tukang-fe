@@ -34,6 +34,10 @@ const WarrantyPage: React.FC = () => {
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
             ) : (
               <></>
             )}

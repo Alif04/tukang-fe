@@ -1,17 +1,23 @@
-import React, {FC, useState, useEffect, useRef, ChangeEvent} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateComplaint.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import Select from 'react-select'
 import {Image} from 'antd'
-import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface OptionRemedialStatus {
   value: any
+  label: string
+}
+
+interface Position {
+  value: string
   label: string
 }
 
@@ -26,8 +32,6 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
   const userId = localStorage.getItem('user_id') as any
 
   // Complaint Detail
-  const [orderDetail, setOrderDetail] = useState<any>()
-
   const [complaintId, setComplaintId] = useState<any>()
   const [complaintDetail, setComplaintDetail] = useState<any>()
 
@@ -100,6 +104,13 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
   // Add Remedial Action
   const [picRemedialId, setPicRemedialId] = useState<any>()
+  const [picFeedback, setPicFeedback] = useState<string>('')
+  const [picPosition, setPicPosition] = useState<string>('')
+  const picPositions = [
+    {value: 'Owner Vendor', label: 'Owner Vendor'},
+    {value: 'Admin Vendor', label: 'Admin Vendor'},
+  ]
+
   const [remedialDesc, setRemedialDesc] = useState<any>('')
   const [remedialStartDate, setremedialStartDate] = useState<string>('')
   const [remedialEndDate, setremedialEndDate] = useState<string>('')
@@ -110,7 +121,6 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
   // Remedial Status
   const [optionRemedialStatus, setOptionRemedialStatus] = useState<OptionRemedialStatus[]>([])
   const [optionRemedialStatusId, setOptionRemedialStatusId] = useState<string>('')
-  const [optionRemedialStatusName, setOptionRemedialStatusName] = useState<string>('')
 
   // PIC Remedial
   useEffect(() => {
@@ -130,25 +140,26 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
     setOptionRemedialStatusId(updatedOptionRemedialStatusId)
   }
 
-  // const handleChangeSelectRemedialStatus = (element: any) => {
-  //   const updatedOptionRemedialStatusId = element.value
-  //   const updatedOptionRemedialStatusName = element.label
-
-  //   setOptionRemedialStatusId(updatedOptionRemedialStatusId)
-  //   setOptionRemedialStatusName(updatedOptionRemedialStatusName)
-  // }
-
   // Handle Complaint Date Change
   const today = new Date().toISOString().split('T')[0]
+
+  const handlePicFeedbackChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setPicFeedback(updatedInputValue)
+  }
+
+  const handlePicPositonChange = (element: Position | null) => {
+    const picPosition: Position = {
+      value: element?.value ?? '',
+      label: element?.label ?? '',
+    }
+
+    setPicPosition(picPosition.value)
+  }
 
   const handleChangeremedialStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedremedialStartDate = event.target.value
     setremedialStartDate(updatedremedialStartDate)
-  }
-
-  const handleChangeremedialEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedremedialEndDate = event.target.value
-    setremedialEndDate(updatedremedialEndDate)
   }
 
   // Handle Change Upload File
@@ -215,13 +226,6 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
         icon: 'error',
       })
       valid = false
-    } else if (!remedialEndDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill remedial end date form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!optionRemedialStatus) {
       Swal.fire({
         title: 'Error',
@@ -249,8 +253,8 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
       formData.append('complaint_id', complaintId)
       formData.append('remedial_action', remedialDesc)
       formData.append('ra_date_start', remedialStartDate)
-      formData.append('ra_date_end', remedialEndDate)
-      formData.append('remedial_pic', picRemedialId)
+      formData.append('remedial_pic', picFeedback)
+      formData.append('remedial_pic_position', picPosition)
       formData.append('remedial_status', optionRemedialStatusId)
 
       if (remedialEvidence?.length) {
@@ -261,7 +265,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
         })
       }
 
-      const response = await axios
+      await axios
         .post(`${apiUrl}/remedials`, formData, {
           headers: {
             Accept: 'application/json',
@@ -274,8 +278,10 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Update Complaint',
+              text: 'Success Add Feedback',
               icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
             })
 
             setIsLoading(false)
@@ -475,12 +481,12 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                 </Row>
 
                 <Row>
-                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
+                  <div className='fs-3 fw-bold'>Informasi Tukang Pemasangan</div>
 
                   <div className='d-flex'>
                     <Form.Group as={Row}>
                       <Form.Label column md='5'>
-                        Vendor Name :
+                        Tukang Name :
                       </Form.Label>
 
                       <Col md='7'>
@@ -843,21 +849,43 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
               <div className='fs-3 fw-bold text-danger'>COMPLAINT HISTORY</div>
 
               <Row>
-                <Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
+                    <Form.Label column sm='6'>
                       Complaint ID :
                     </Form.Label>
-                    <Col sm='5'>
-                      <Form.Control type='text' plaintext readOnly value={complaintDetail?.id} />
+                    <Col sm='6'>
+                      <Form.Control plaintext readOnly value={complaintDetail?.id} />
                     </Col>
                   </Form.Group>
 
                   <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
-                      Complaint Channel :
+                    <Form.Label column sm='6'>
+                      PIC Complaint :
                     </Form.Label>
-                    <Col sm='5'>
+                    <Col sm='6'>
+                      <Form.Control plaintext readOnly value={complaintDetail?.pic_name} />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Complaint Date :
+                    </Form.Label>
+                    <Col sm='6'>
+                      <Form.Control
+                        plaintext
+                        readOnly
+                        value={formatDate(new Date(complaintDetail?.complaint_date))}
+                      />
+                    </Col>
+                  </Form.Group>
+
+                  <Form.Group as={Row} className='detail-info'>
+                    <Form.Label column sm='6'>
+                      Complaint via :
+                    </Form.Label>
+                    <Col sm='6'>
                       <Form.Control
                         plaintext
                         readOnly
@@ -865,7 +893,9 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                       />
                     </Col>
                   </Form.Group>
+                </Col>
 
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Label className='mt-3'>Complaint Detail :</Form.Label>
                   <Form.Control
                     style={{minHeight: '200px'}}
@@ -876,48 +906,23 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                   ></Form.Control>
                 </Col>
 
-                <Col>
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
-                      Complaint Date :
-                    </Form.Label>
-                    <Col sm='5'>
-                      <Form.Control
-                        type='text'
-                        plaintext
-                        readOnly
-                        value={
-                          complaintDetail
-                            ? formatDate(new Date(complaintDetail.complaint_date))
-                            : ''
-                        }
-                      />
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='7'>
-                      Complaint Handler :
-                    </Form.Label>
-                    <Col sm='5'>
-                      <Form.Control plaintext readOnly defaultValue='HO' />
-                    </Col>
-                  </Form.Group>
-
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Label className='mt-3'>Complaint Evidence :</Form.Label>
                   <ListGroup>
-                    {complaintDetail?.complaint_evidence?.map((item: any) => (
-                      <ListGroup.Item
-                        key={item.id}
-                        action
-                        onClick={() => {
-                          setPreviewImage(item.evidence_location)
-                          setVisible(true)
-                        }}
-                      >
-                        {item.evidence_location}
-                      </ListGroup.Item>
-                    ))}
+                    {complaintDetail?.complaint_histories[0]?.complaint_evidence?.map(
+                      (item: any) => (
+                        <ListGroup.Item
+                          key={item.id}
+                          action
+                          onClick={() => {
+                            setPreviewImage(item.evidence_location)
+                            setVisible(true)
+                          }}
+                        >
+                          {item.evidence_location}
+                        </ListGroup.Item>
+                      )
+                    )}
                   </ListGroup>
 
                   {previewImage && (
@@ -1004,7 +1009,42 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                 <Row>
                   <Col>
                     <Form.Group>
-                      <Form.Label className='mt-3'>Start Date :</Form.Label>
+                      <Form.Label className='mt-3'>PIC Feedback :</Form.Label>
+                      <Form.Control
+                        placeholder='Isi Nama Pemberi Feedback'
+                        type='text'
+                        onChange={handlePicFeedbackChange}
+                      />
+                    </Form.Group>
+
+                    <Form.Group>
+                      <Form.Label className='mt-3'>Jabatan :</Form.Label>
+                      <Select
+                        name='pic_position'
+                        id='pic_position'
+                        className='form-control p-0 form-item-name'
+                        classNamePrefix='select'
+                        placeholder='Jabatan'
+                        isSearchable={true}
+                        isClearable={true}
+                        options={picPositions}
+                        onChange={(element) => handlePicPositonChange(element)}
+                      />
+                    </Form.Group>
+
+                    <Form.Group>
+                      <Form.Label className='mt-5'>Feedback ke Store :</Form.Label>
+                      <Form.Control
+                        style={{minHeight: '200px'}}
+                        as='textarea'
+                        onChange={handleInputRemedialDesc}
+                      ></Form.Control>
+                    </Form.Group>
+                  </Col>
+
+                  <Col>
+                    <Form.Group>
+                      <Form.Label className='mt-3'>Tanggal :</Form.Label>
                       <Form.Control
                         type='date'
                         min={today}
@@ -1020,34 +1060,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <option value='4'>INVESTIGATED</option>
                         <option value='25'>ACCEPTED</option>
                         <option value='27'>REJECTED</option>
-                        {/* <option value='17'>REWORKREQ</option>
-                        <option value='18'>REWORKSTART</option>
-                        <option value='19'>REWORKEND</option>
-                        <option value='8'>RESURVEYREQ</option>
-                        <option value='28'>RESCHEDULE</option>
-                        <option value='24'>REFUND</option>
-                        <option value='1006'>DONE</option> */}
                       </Form.Select>
-                    </Form.Group>
-
-                    <Form.Group>
-                      <Form.Label className='mt-5'>Notes :</Form.Label>
-                      <Form.Control
-                        style={{minHeight: '200px'}}
-                        as='textarea'
-                        onChange={handleInputRemedialDesc}
-                      ></Form.Control>
-                    </Form.Group>
-                  </Col>
-
-                  <Col>
-                    <Form.Group>
-                      <Form.Label className='mt-3'>End Date :</Form.Label>
-                      <Form.Control
-                        type='date'
-                        min={today}
-                        onChange={handleChangeremedialEndDate}
-                      />
                     </Form.Group>
 
                     <Form.Group controlId='formFile' className='mt-3'>
@@ -1108,6 +1121,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
               variant='dark-danger'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleCancelRemedial}
             >
               Cancel
@@ -1120,7 +1134,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
               disabled={isLoading}
               onClick={handleSubmitRemedialAction}
             >
-              {isLoading ? 'Submitting..' : 'Submit Remedial'}
+              {isLoading ? 'Submitting..' : 'Submit'}
             </Button>
           </div>
         </div>

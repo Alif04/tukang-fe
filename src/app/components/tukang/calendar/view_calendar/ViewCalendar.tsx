@@ -20,6 +20,7 @@ interface WorkOrder {
   status_order: string
   className: string
   work_order_detail?: any
+  work_order_history?: any
 }
 
 const ViewCalendarTukang: React.FC = () => {
@@ -83,6 +84,23 @@ const ViewCalendarTukang: React.FC = () => {
                   ? item.work_end_date
                   : item.work_end_date
 
+              const workStartDate = new Date(item?.work_start_date).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })
+
+              const workEndDate = new Date(item?.work_end_date).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })
+
+              const workDateTime =
+                item?.work_end_date !== null
+                  ? `${workStartDate} - ${workEndDate}`
+                  : 'Belum dijadwalkan oleh vendor'
+
               const orderStatus = (() => {
                 if (item?.work_order_status?.length >= 0) {
                   if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
@@ -121,6 +139,57 @@ const ViewCalendarTukang: React.FC = () => {
                 }
               })()
 
+              const workOrderHistoryData = item?.work_order_status.map(
+                (item: any, index: number, array: any[]) => {
+                  let workTime = '-'
+
+                  if (index > 0) {
+                    const date_1 = new Date(array[index - 1].created_at).getTime()
+                    const date_2 = new Date(item.created_at).getTime()
+
+                    const timeDifferenceInMilliseconds = Math.abs(date_2 - date_1)
+
+                    const timeDifferenceInMinutes = Math.floor(
+                      timeDifferenceInMilliseconds / (1000 * 60)
+                    )
+
+                    const timeDifferenceInHours = Math.floor(
+                      timeDifferenceInMilliseconds / (1000 * 60 * 60)
+                    )
+
+                    const timeDifferenceInDays = Math.floor(
+                      timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
+                    )
+
+                    if (timeDifferenceInDays >= 1) {
+                      workTime = `${timeDifferenceInDays} Hari`
+                    } else if (timeDifferenceInHours >= 1) {
+                      workTime = `${timeDifferenceInHours} Jam`
+                    } else {
+                      workTime = `${timeDifferenceInMinutes} Menit`
+                    }
+                  }
+
+                  return {
+                    work_order_id: item?.work_order_id,
+                    work_order_status: item?.status?.category,
+                    work_order_status_label: item?.status?.description,
+                    time_range: workTime,
+                    updated_at: item?.created_at
+                      ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })
+                      : '-',
+                    work_date_time: workDateTime,
+                    updated_by: item?.updated_by,
+                  }
+                }
+              )
+
               return {
                 id: item?.id.toString(),
                 order_id: item?.order_id.toString(),
@@ -130,11 +199,12 @@ const ViewCalendarTukang: React.FC = () => {
                 work_order_status: item?.work_order_status[0]?.status.category,
                 service: workOrderItems ?? '',
                 tukang: workOrderTukang ?? '',
-                start: dayjs(startDate).format('YYYY-MM-DD'),
-                end: dayjs(endDate).format('YYYY-MM-DD'),
+                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
                 order_status: orderStatus,
                 className: contextualColor,
                 work_order_detail: item,
+                work_order_history: workOrderHistoryData,
               }
             })
 
@@ -592,11 +662,54 @@ const ViewCalendarTukang: React.FC = () => {
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(
-                  selectedWorkOrder?.work_order_detail?.order?.status?.category ?? ''
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                  selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status?.category
                 ) &&
                 selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' &&
-                selectedWorkOrder?.work_order_detail?.work_order_status?.length >= 2
+                selectedWorkOrder?.work_order_detail?.work_order_status.length >= 1 &&
+                selectedWorkOrder?.work_order_detail?.order?.quotation?.length === 0
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <Table hover responsive='md'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          <th>Satuan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {selectedWorkOrder?.work_order_detail?.work_order_status[0]
+                          ?.work_order_items.length ? (
+                          selectedWorkOrder?.work_order_detail?.work_order_status[0]?.work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>
+                                  {item.name ?? ''}{' '}
+                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item.quantity ?? 0}</td>
+                                <td>{item.unit ?? ''}</td>
+                              </tr>
+                            )
+                          )
+                        ) : (
+                          <tr>
+                            <td>Item belum diset oleh Tukang/Vendor</td>
+                            <td>Quantity belum diset oleh Tukang/Vendor</td>
+                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                )
+              } else if (
+                selectedWorkOrder?.work_order_detail?.work_order_status.length >= 1 &&
+                selectedWorkOrder?.work_order_detail?.order?.quotation?.length >= 1 &&
+                selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -619,8 +732,8 @@ const ViewCalendarTukang: React.FC = () => {
 
                       <tbody>
                         {selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details
-                          ?.filter((x: any) => x.item_type === 2)
-                          ?.map((item: any, index: any) => (
+                          .filter((x: any) => x.item_type === 2)
+                          .map((item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>
                                 {item?.name ?? '-'}{' '}
@@ -633,71 +746,45 @@ const ViewCalendarTukang: React.FC = () => {
                       </tbody>
                     </Table>
 
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Material Yang Dibutuhkan
-                          </th>
+                    {selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details.filter(
+                      (x: any) => x.item_type === 1
+                    ).length > 0 && (
+                      <Table hover responsive='md'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Material Yang Dibutuhkan
+                            </th>
 
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
 
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-                        </tr>
-                      </thead>
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+                          </tr>
+                        </thead>
 
-                      <tbody>
-                        {selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details
-                          ?.filter((x: any) => x.item_type === 1)
-                          ?.map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WORKSTART', 'WORKEND', 'DONE'].includes(
-                  selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.status
-                    ?.category
-                ) &&
-                selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status.length > 1 &&
-                selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th>Item / Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                          <th>Satuan</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {selectedWorkOrder?.work_order_detail?.work_orders?.work_order_status[0]?.work_order_items.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.name ?? '-'}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit ?? ''}</td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </Table>
+                        <tbody>
+                          {selectedWorkOrder?.work_order_detail?.order?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit ?? '-'}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </Table>
+                    )}
                   </div>
                 )
               } else if (
@@ -717,7 +804,7 @@ const ViewCalendarTukang: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedWorkOrder?.work_order_detail?.order?.m_order_details.map(
+                        {selectedWorkOrder?.work_order_detail?.order?.m_order_details?.map(
                           (item: any, index: any) => (
                             <>
                               <tr key={`${index} - order_detail`}>
@@ -736,6 +823,36 @@ const ViewCalendarTukang: React.FC = () => {
               }
             })()}
           </Row>
+
+          {selectedWorkOrder?.work_order_detail?.work_order_status?.length && (
+            <Row>
+              <div className='work-order-history'>
+                <div className='fs-3 fw-bold'>Work Order History</div>
+
+                <Table responsive>
+                  <thead className='table-item-head'>
+                    <tr>
+                      <th className='content-history'>Work Order ID</th>
+                      <th className='content-history'>Work Order Status</th>
+                      <th className='content-history'>Terakhir Update Survey/Pengerjaan</th>
+                      <th className='content-history'>Tanggal Pengerjaan</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {selectedWorkOrder?.work_order_history?.map((item: any, index: number) => (
+                      <tr key={`${index}-history`} id={`${index}-history`}>
+                        <td>{item?.work_order_id}</td>
+                        <td>{item?.work_order_status_label}</td>
+                        <td>{item?.updated_at}</td>
+                        <td>{item?.work_date_time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            </Row>
+          )}
         </Modal.Body>
       </Modal>
     </section>

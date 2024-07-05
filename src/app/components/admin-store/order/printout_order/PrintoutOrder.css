@@ -59,6 +59,10 @@
 
 /* Printout Order */
 @media screen and (max-width: 576px) {
+  #printout-order .header-printout {
+    flex-direction: column;
+  }
+
   #printout-order .button-wrapper {
     flex-direction: column;
   }

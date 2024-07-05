@@ -41,6 +41,7 @@ const ReportCostumerHO: FC = () => {
   const [chartComplaint, setChartComplaint] = useState<any[]>([])
 
   const [member, setMember] = useState<any[]>([])
+  const [totalMember, setTotalMember] = useState(0)
   const [memberOption, setMemberOption] = useState<any[]>([])
   const memberOptions = [{value: null, label: 'All Member'}, ...memberOption]
   const [selectedMember, setSelectedMember] = useState<any>({
@@ -67,6 +68,7 @@ const ReportCostumerHO: FC = () => {
         }))
 
         setMember(response.data.data)
+        setTotalMember(response.data.total)
         setMemberOption(tempMember)
       } else {
         console.error('API response data is not an array:', response.data)
@@ -90,7 +92,7 @@ const ReportCostumerHO: FC = () => {
         }
       )
 
-      const chartDatas = response.data.monthlyOrders
+      const chartDatas = response.data.data
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -291,7 +293,12 @@ const ReportCostumerHO: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <ChartPie className='card-xl-stretch mb-5' chartHeight='240px' memberData={member} />
+          <ChartPie
+            className='card-xl-stretch mb-5'
+            chartHeight='240px'
+            totalMember={totalMember}
+            memberData={member}
+          />
         </div>
 
         <div className='col-xl-4'>

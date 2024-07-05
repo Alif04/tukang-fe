@@ -98,6 +98,7 @@ export function Login() {
             localStorage.setItem('salesName', user?.sales[0]?.full_name)
             localStorage.setItem('storeId', user?.sales[0]?.store?.id)
             localStorage.setItem('storeName', user?.sales[0]?.store?.store_name)
+            localStorage.setItem('areaId', user?.sales[0]?.store?.area?.id)
           } else if (isStore) {
             localStorage.setItem(
               'storeId',
@@ -108,10 +109,16 @@ export function Login() {
               'storeName',
               user.employee ? user?.employee?.store?.store_name : user?.store[0]?.store_name
             )
+
+            localStorage.setItem(
+              'areaId',
+              user.employee ? user?.employee?.store?.area?.id : user?.store[0]?.area?.id
+            )
           } else if (isEmployee) {
             localStorage.setItem('storeId', user?.employee?.store?.id)
             localStorage.setItem('employeeName', user?.employee?.full_name)
             localStorage.setItem('storeName', user?.employee?.store?.store_name)
+            localStorage.setItem('areaId', user?.employee?.store?.area?.id)
           } else if (isVendor) {
             localStorage.setItem('vendor_id', user?.pic_vendor[0]?.vendor_id)
             localStorage.setItem('vendorName', user?.pic_vendor[0]?.vendor?.company_name)

@@ -98,15 +98,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           onFilter: (value, record) => record.address.includes(String(value)),
           sorter: (a, b) => a.address.length - b.address.length,
         },
-        {
-          title: 'Nama Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          align: 'left',
-          width: 170,
-          onFilter: (value, record) => record.service_name.includes(String(value)),
-          sorter: (a, b) => a.service_name.length - b.service_name.length,
-        },
       ]
       break
 
@@ -176,13 +167,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           width: 160,
           className: 'text-start',
           sorter: (a, b) => a.phone_number - b.phone_number,
-        },
-        {
-          title: 'Nama Jasa Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          width: 180,
-          className: 'text-start',
         },
         {
           title: 'Order Status',
@@ -352,74 +336,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           ],
           onFilter: (value, record) => record.complaint_status.includes(String(value)),
           sorter: (a, b) => a.complaint_status.length - b.complaint_status.length,
-        },
-      ]
-      break
-
-    case 'quotation':
-      columns = [
-        {
-          title: 'Quotation ID',
-          dataIndex: 'quotation_id',
-          key: 'quotation_id',
-          align: 'center',
-          width: 110,
-          defaultSortOrder: 'descend',
-          sorter: (a, b) => a.quotation_id - b.quotation_id,
-        },
-        {
-          title: 'Nama Store',
-          dataIndex: 'store_name',
-          key: 'store_name',
-          align: 'center',
-          width: 130,
-          onFilter: (value, record) => record.store_name.includes(String(value)),
-          sorter: (a, b) => a.store_name.length - b.store_name.length,
-        },
-        {
-          title: 'Order ID',
-          dataIndex: 'order_id',
-          key: 'order_id',
-          align: 'center',
-          width: 90,
-          className: 'col_order_id',
-          sorter: (a, b) => a.order_id - b.order_id,
-        },
-        {
-          title: 'Order Date',
-          dataIndex: 'date_order',
-          key: 'date_order',
-          align: 'center',
-          width: 110,
-          onFilter: (value, record) => record.date_order.includes(String(value)),
-          sorter: (a, b) => a.date_order.length - b.date_order.length,
-        },
-        {
-          title: 'Customer Name',
-          dataIndex: 'costumer_name',
-          key: 'costumer_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.costumer_name.includes(String(value)),
-          sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
-        },
-        {
-          title: 'Nama Pekerjaan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.service_name.includes(String(value)),
-          sorter: (a, b) => a.service_name.length - b.service_name.length,
-        },
-        {
-          title: 'Payment Status',
-          dataIndex: 'payment_status',
-          key: 'payment_status',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.payment_status.includes(String(value)),
-          sorter: (a, b) => a.payment_status.length - b.payment_status.length,
         },
       ]
       break
@@ -645,119 +561,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
       ]
       break
 
-    case 'csi':
-      columns = [
-        {
-          title: 'Order ID',
-          dataIndex: 'order_id',
-          key: 'order_id',
-          align: 'center',
-          width: 90,
-          className: 'col_order_id',
-          defaultSortOrder: 'descend',
-          sorter: (a, b) => a.order_id - b.order_id,
-        },
-        {
-          title: 'Nama Toko',
-          dataIndex: 'store_name',
-          key: 'store_name',
-          align: 'center',
-          width: 110,
-          onFilter: (value, record) => record.store_name.includes(String(value)),
-          sorter: (a, b) => a.store_name.length - b.store_name.length,
-        },
-        {
-          title: 'Nama Vendor',
-          dataIndex: 'vendor_name',
-          key: 'vendor_name',
-          align: 'center',
-          width: 120,
-          onFilter: (value, record) => record.vendor_name.includes(String(value)),
-          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-        },
-        {
-          title: 'No Member',
-          dataIndex: 'member_id',
-          key: 'member_id',
-          align: 'center',
-          width: 110,
-          sorter: (a, b) => a.member_id - b.member_id,
-        },
-        {
-          title: 'Nama Member',
-          dataIndex: 'member_name',
-          key: 'member_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.member_name.includes(String(value)),
-          sorter: (a, b) => a.member_name.length - b.member_name.length,
-        },
-        {
-          title: 'Email Member',
-          dataIndex: 'member_email',
-          key: 'member_email',
-          align: 'left',
-          width: 140,
-          onFilter: (value, record) => record.member_email.includes(String(value)),
-          sorter: (a, b) => a.member_email.length - b.member_email.length,
-        },
-        {
-          title: 'Performance Rate',
-          dataIndex: 'performance_rate',
-          key: 'performance_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.performance_rate.includes(String(value)),
-          sorter: (a, b) => a.performance_rate.length - b.performance_rate.length,
-        },
-        {
-          title: 'Delivery Rate',
-          dataIndex: 'delivery_rate',
-          key: 'delivery_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.delivery_rate.includes(String(value)),
-          sorter: (a, b) => a.delivery_rate.length - b.delivery_rate.length,
-        },
-        {
-          title: 'Invoicing Rate',
-          dataIndex: 'invoicing_rate',
-          key: 'invoicing_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.invoicing_rate.includes(String(value)),
-          sorter: (a, b) => a.invoicing_rate.length - b.invoicing_rate.length,
-        },
-        {
-          title: 'Customer Service Rate',
-          dataIndex: 'cs_rate',
-          key: 'cs_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.cs_rate.includes(String(value)),
-          sorter: (a, b) => a.cs_rate.length - b.cs_rate.length,
-        },
-        {
-          title: 'Knowledge Rate',
-          dataIndex: 'knowledge_rate',
-          key: 'knowledge_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.knowledge_rate.includes(String(value)),
-          sorter: (a, b) => a.knowledge_rate.length - b.knowledge_rate.length,
-        },
-        {
-          title: 'Catatan Tambahan',
-          dataIndex: 'notes',
-          key: 'notes',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.notes.includes(String(value)),
-          sorter: (a, b) => a.notes.length - b.notes.length,
-        },
-      ]
-      break
-
     default:
       columns = [
         {
@@ -813,39 +616,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           onFilter: (value, record) => record.address.includes(String(value)),
           sorter: (a, b) => a.address.length - b.address.length,
         },
-        {
-          title: 'Nama Pemasangan',
-          dataIndex: 'service_name',
-          key: 'service_name',
-          align: 'left',
-          width: 170,
-          onFilter: (value, record) => record.service_name.includes(String(value)),
-          sorter: (a, b) => a.service_name.length - b.service_name.length,
-        },
-        {
-          title: 'Quantity',
-          dataIndex: 'quantity',
-          key: 'quantity',
-          align: 'center',
-          width: 90,
-          sorter: (a, b) => a.quantity - b.quantity,
-        },
-        {
-          title: 'Harga',
-          dataIndex: 'harga',
-          key: 'harga',
-          align: 'center',
-          width: 135,
-          sorter: (a, b) => a.harga - b.harga,
-        },
-        {
-          title: 'Grand Total',
-          dataIndex: 'grand_total',
-          key: 'grand_total',
-          align: 'center',
-          width: 135,
-          sorter: (a, b) => a.grand_total - b.grand_total,
-        },
       ]
       break
   }
@@ -888,10 +658,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
             case 'complaints':
               setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
-              break
-
-            case 'quotation':
-              setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
               break
 
             default:
@@ -1001,35 +767,6 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           })
           break
 
-        case 'quotation':
-          quotationData = apiData.map((item: any) => {
-            let data
-
-            const orderDate = new Date(item?.order?.request_survey ?? '-')
-
-            const workOrderItems = item?.quotation_details
-              .map((service: any) => service.name ?? '-')
-              .join(', ')
-
-            let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
-
-            data = {
-              quotation_id: item.id,
-              store_name: item?.store?.store_name ?? '-',
-              order_id: item?.order?.id,
-              date_order: formatDate(orderDate),
-              costumer_name: item?.order?.members?.full_name ?? '',
-              service_name: workOrderItems,
-              vendor_name: item?.order?.vendor?.company_name ?? '-',
-              payment_status: paymentStatus,
-              order_status: item?.status?.category ?? '',
-              quotation_status: item?.status?.category ?? '',
-            }
-
-            return data
-          })
-          break
-
         case 'refund':
           refundData = apiData.map((item: any) => {
             let data
@@ -1092,45 +829,18 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
           })
           break
 
-        case 'csi':
-          csiData = apiData.map((item: any) => {
-            let data
-
-            data = {
-              order_id: item.id,
-              store_name: item?.store_name,
-              vendor_name: item?.vendor_name,
-              member_id: item?.member_id,
-              member_name: item?.member_name,
-              member_email: item?.email_address,
-              performance_rate: item?.performance_rate,
-              delivery_rate: item?.delivery_rate,
-              invoicing_rate: item?.invoicing_rate,
-              cs_rate: item?.customer_service_rate,
-              knowledge_rate: item?.knowledge_rate,
-              notes: item?.notes,
-            }
-
-            return data
-          })
-          break
-
         default:
           break
       }
 
       return endpoint === 'work-orders'
         ? orderData
-        : endpoint === 'quotation'
-        ? quotationData
         : endpoint === 'complaints'
         ? complaintData
         : endpoint === 'refund'
         ? refundData
         : endpoint === 'reschedule'
         ? rescheduleData
-        : endpoint === 'csi'
-        ? csiData
         : []
     } catch (error) {
       console.error('Error getting report list data:', error)

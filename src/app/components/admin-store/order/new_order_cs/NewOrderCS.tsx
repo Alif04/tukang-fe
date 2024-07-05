@@ -60,6 +60,7 @@ interface Order {
   receipt_number: string
   is_overdistance: number
   additional_fee: number
+  notes: string
   order_details: Array<{
     item?: ItemSelect | null
     item_id: number | null
@@ -100,6 +101,7 @@ const NewOrderStoreCS: FC = () => {
     receipt_number: '',
     is_overdistance: 0,
     additional_fee: 25000,
+    notes: '',
     order_details: [
       {
         item_id: null,
@@ -575,6 +577,7 @@ const NewOrderStoreCS: FC = () => {
       {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},
+      {key: 'notes', fieldName: 'Catatan'},
     ]
 
     const requiredOrderDetailsFields = [
@@ -619,6 +622,10 @@ const NewOrderStoreCS: FC = () => {
               formData.append(key, orderForm[key].toString())
             }
           } else if (key === 'is_overdistance') {
+            if (value) {
+              formData.append(key, orderForm[key].toString())
+            }
+          } else if (key === 'notes') {
             if (value) {
               formData.append(key, orderForm[key].toString())
             }
@@ -1152,15 +1159,35 @@ const NewOrderStoreCS: FC = () => {
               </Form.Group>
 
               <Form.Group as={Row} className='mb-5'>
-                <Form.Label column sm='4'>
+                <Form.Label column xxl='4' xl='5' md='2'>
                   No Receipt
                 </Form.Label>
-                <Col sm='8'>
+
+                <Col xxl='8' xl='7' md='10'>
                   <Form.Control
                     name='receipt_number'
                     type='text'
                     value={orderForm.receipt_number}
                     onChange={(e) => orderFormHandler(e)}
+                  />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} className='mb-5'>
+                <Form.Label className='title' column xxl='4' xl='5' md='2'>
+                  Catatan :
+                </Form.Label>
+
+                <Col xxl='8' xl='7' md='10'>
+                  <Form.Control
+                    as='textarea'
+                    name='notes'
+                    className='additional-notes'
+                    style={{minHeight: '150px'}}
+                    value={orderForm.notes}
+                    onChange={(event) => {
+                      orderFormHandler(event)
+                    }}
                   />
                 </Col>
               </Form.Group>
@@ -1438,7 +1465,7 @@ const NewOrderStoreCS: FC = () => {
           </div>
 
           <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <Form.Group>
                 <Form.Label>Upload Receipt</Form.Label>
                 <Form className='form-input-image' onClick={handleImageClick}>

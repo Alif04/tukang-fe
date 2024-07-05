@@ -285,7 +285,8 @@ const NewVendorHO: FC = () => {
   const [bankName, setBankName] = useState<string>('')
   const [accountNumber, setAccountNumber] = useState<any>()
   const [accountName, setAccountName] = useState<string>('')
-  const [markup, setMarkup] = useState<any>()
+  const [marginNominal, setMarginNominal] = useState<any>()
+  const [marginType, setMarginType] = useState<number>(1)
   // const [discount, setDiscount] = useState<any>()
 
   // Handle Join Date Change
@@ -543,9 +544,14 @@ const NewVendorHO: FC = () => {
     setAccountNumber(updatedAccountNumber)
   }
 
-  const handleChangeMarkup = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedMarkup = event.target.value
-    setMarkup(updatedMarkup)
+  const handleChangeMargin = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedMargin = event.target.value
+    setMarginNominal(updatedMargin)
+  }
+
+  const handleMarginTypeChange = (isChecked: boolean) => {
+    const updatedMarginType = isChecked === true ? 1 : 2
+    setMarginType(updatedMarginType)
   }
 
   const handleChangeUsernameVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -746,7 +752,8 @@ const NewVendorHO: FC = () => {
       formData.append('nominal_survey', nominalSurvey)
 
       formData.append('pic_name', picName)
-      formData.append('markup', markup)
+      formData.append('margin_nominal', marginNominal)
+      formData.append('margin_type', String(marginType))
       formData.append('account_name', accountName)
       formData.append('account_number', accountNumber)
       formData.append('bank_id', bankId)
@@ -1317,12 +1324,26 @@ const NewVendorHO: FC = () => {
                     <Form.Label>Margin</Form.Label>
 
                     <div className='form-check-request'>
-                      <Form.Check inline label='Rp' name='group1' type='radio' />
-                      <Form.Check inline label='%' checked name='group1' type='radio' />
+                      <Form.Check
+                        inline
+                        label='Rp'
+                        name='margin_type'
+                        type='radio'
+                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                      />
+
+                      <Form.Check
+                        inline
+                        label='%'
+                        name='margin_type'
+                        type='radio'
+                        checked={marginType === 1}
+                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                      />
                     </div>
                   </div>
 
-                  <Form.Control type='number' onChange={handleChangeMarkup} value={markup} />
+                  <Form.Control type='number' onChange={handleChangeMargin} value={marginNominal} />
                 </Form.Group>
               </Row>
 

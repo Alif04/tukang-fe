@@ -746,10 +746,20 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           return 'SURVEYDONE'
         case 'SURVEYDONE':
           return 'SURVEYDONE'
+        case 'RESURVEYREQ':
+          return 'RESURVEYSTART'
+        case 'RESURVEYSTART':
+          return 'RESURVEYDONE'
+        case 'RESURVEYDONE':
+          return 'RESURVEYDONE'
         case 'WORKREQ':
           return 'WORKSTART'
         case 'WORKSTART':
           return 'WORKEND'
+        case 'REWORKREQ':
+          return 'REWORKSTART'
+        case 'REWORKSTART':
+          return 'REWORKEND'
         default:
           return null
       }
@@ -784,7 +794,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         'WORKSTART',
         'WORKEND',
         'REWORKSTART',
-        'RIP',
         'REWORKEND',
         'WORKDONE',
         'DONE',
@@ -1036,9 +1045,14 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                     <Col md={8} className='mt-5'>
                       <div className='detail-info'>
-                        {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                          workOrderDetail?.work_order_status[0]?.status?.category
-                        ) && (
+                        {[
+                          'SURVEYREQ',
+                          'SURVEYSTART',
+                          'SURVEYDONE',
+                          'RESURVEYREQ',
+                          'RESURVEYSTART',
+                          'RESURVEYDONE',
+                        ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                           <>
                             {workOrderDetail?.order?.m_order_details?.map(
                               (item: any, index: number) => (
@@ -1055,7 +1069,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           'WORKSTART',
                           'WORKEND',
                           'REWORKSTART',
-                          'RIP',
                           'REWORKEND',
                           'WORKDONE',
                           'DONE',
@@ -1171,10 +1184,11 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     {[
                       'SURVEYSTART',
                       'SURVEYDONE',
+                      'RESURVEYSTART',
+                      'RESURVEYDONE',
                       'WORKSTART',
                       'WORKEND',
                       'REWORKSTART',
-                      'RIP',
                       'REWORKEND',
                       'WORKDONE',
                       'DONE',
@@ -1304,9 +1318,14 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </Form.Label>
               </Form.Group>
 
-              {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                workOrderDetail?.work_order_status[0]?.status?.category
-              ) && (
+              {[
+                'SURVEYREQ',
+                'SURVEYSTART',
+                'SURVEYDONE',
+                'RESURVEYREQ',
+                'RESURVEYSTART',
+                'RESURVEYDONE',
+              ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                 <Row className='detail-info'>
                   <div className='title'>
                     <h1 className='fs-6'>Survey</h1>
@@ -1350,9 +1369,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 'WORKREQ',
                 'WORKSTART',
                 'WORKEND',
-                'REWORK',
+                'REWORKREQ',
                 'REWORKSTART',
-                'RIP',
                 'REWORKEND',
                 'RESCHEDULE',
                 'DONE',
@@ -1436,7 +1454,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             if (
               workOrderDetail?.order?.payment_type === 'survey' &&
               workOrderDetail?.order?.quotation?.length === 0 &&
-              ['SURVEYSTART', 'SURVEYDONE'].includes(
+              ['SURVEYSTART', 'SURVEYDONE', 'RESURVEYSTART', 'RESURVEYDONE'].includes(
                 workOrderDetail?.work_order_status[0]?.status?.category
               )
             ) {
@@ -1687,9 +1705,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </>
               )
             } else if (
-              ['WORKREQ', 'WORKSTART', 'WORKEND', 'DONE'].includes(
-                workOrderDetail?.work_order_status[0]?.status?.category
-              ) &&
+              [
+                'WORKREQ',
+                'WORKSTART',
+                'WORKEND',
+                'DONE',
+                'REWORKREQ',
+                'REWORKSTART',
+                'REWORKEND',
+              ].includes(workOrderDetail?.work_order_status[0]?.status?.category) &&
               workOrderDetail?.work_order_status.length >= 2 &&
               workOrderDetail?.order?.payment_type === 'survey'
             ) {

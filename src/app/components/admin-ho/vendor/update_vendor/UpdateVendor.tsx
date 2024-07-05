@@ -87,6 +87,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setNpwpNumber(data.npwp_number)
             setMaxOrder(data.max_order)
             setNominalSurvey(data.nominal_survey)
+            setMarginNominal(data.margin_nominal)
+            setMarginType(data.margin_type)
           }
 
           if (data?.pic_vendor) {
@@ -111,8 +113,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             const vendorAreaId = data.vendor_area.map((item: any) => item?.area_id)
 
             setserviceAreaId(vendorAreaId)
-            setMarkup(data?.vendor_area[0]?.default_markup)
-            setDiscount(data?.vendor_area[0]?.default_discount ?? '')
           }
 
           if (data?.vendor_store) {
@@ -419,7 +419,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [bankName, setBankName] = useState<string>('')
   const [accountNumber, setAccountNumber] = useState<any>()
   const [accountName, setAccountName] = useState<string>('')
-  const [markup, setMarkup] = useState<any>()
+  const [marginNominal, setMarginNominal] = useState<any>()
+  const [marginType, setMarginType] = useState<any>()
   const [discount, setDiscount] = useState<any>()
 
   // Handle Join Date Change
@@ -474,6 +475,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const handleChangeNominalSurvey = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedNominalSurvey = event.target.value
     setNominalSurvey(updatedNominalSurvey)
+  }
+
+  const handleMarginTypeChange = (isChecked: boolean) => {
+    const updatedMarginType = isChecked === true ? 1 : 2
+    setMarginType(updatedMarginType)
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
@@ -764,9 +770,9 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     setAccountNumber(updatedAccountNumber)
   }
 
-  const handleChangeMarkup = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedMarkup = event.target.value
-    setMarkup(updatedMarkup)
+  const handleChangeMargin = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedMargin = event.target.value
+    setMarginNominal(updatedMargin)
   }
 
   // const handleChangeDiscount = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -953,6 +959,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       formData.append('account_number', accountNumber)
       formData.append('account_name', accountName)
       formData.append('nominal_survey', nominalSurvey)
+      formData.append('margin_nominal', marginNominal)
+      formData.append('margin_type', String(marginType))
 
       if (username) {
         formData.append('default_username', username)
@@ -1010,8 +1018,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         serviceAreaId.forEach((item: any, index: number) => {
           if (item) {
             formData.append(`vendor_area[${index}][area_id]`, item)
-            formData.append(`vendor_area[${index}][default_markup]`, markup)
-            // formData.append(`vendor_area[${index}][default_discount]`, discount)
           }
         })
       }
@@ -1534,12 +1540,26 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     <Form.Label>Margin</Form.Label>
 
                     <div className='form-check-request'>
-                      <Form.Check inline label='Rp' name='group1' type='radio' />
-                      <Form.Check inline label='%' checked name='group1' type='radio' />
+                      <Form.Check
+                        inline
+                        label='Rp'
+                        name='margin_type'
+                        type='radio'
+                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                      />
+
+                      <Form.Check
+                        inline
+                        label='%'
+                        name='margin_type'
+                        type='radio'
+                        checked={marginType === 1}
+                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                      />
                     </div>
                   </div>
 
-                  <Form.Control type='number' onChange={handleChangeMarkup} value={markup} />
+                  <Form.Control type='number' onChange={handleChangeMargin} value={marginNominal} />
                 </Form.Group>
               </Row>
 

@@ -4,20 +4,24 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
-import Swal from 'sweetalert2'
 import Select from 'react-select'
-import * as XLSX from 'xlsx'
-import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
+import {Table, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch, faFilter, faFileExcel, faPrint} from '@fortawesome/free-solid-svg-icons'
+import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
 type Props = {
   className: string
+}
+
+interface StoreItem {
+  value: number | null
+  label: string
+  city_id: number | null
 }
 
 interface SalesItem {
@@ -38,6 +42,7 @@ interface DataType {
 const ReportInsentifHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
+  const [loadingExport, setLoadingExport] = useState(false)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
@@ -49,12 +54,23 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
+  // Store
+  const [store, setStore] = useState<SalesItem[]>([])
+  const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
+  const [selectedStore, setSelectedStore] = useState<any>({
+    value: null,
+    label: 'All Store',
+    area_id: null,
+  })
+
+  // Sales
   const [sales, setSales] = useState<SalesItem[]>([])
+  const [searchSales, setSearchSales] = useState('')
+  const salesOptions = [{value: null, label: 'All Sales'}, ...sales]
   const [selectedSales, setSelectedSales] = useState<any>({
     value: null,
     label: 'All Sales',
   })
-  const salesOptions = [{value: null, label: 'All Sales'}, ...sales]
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -202,35 +218,68 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
     fetchData(1, 10, '')
   }, [])
 
-  useEffect(() => {
-    const getSales = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/sales?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+  const getSales = async () => {
+    const search = searchSales ? `&search=${searchSales}` : ''
 
-        if (Array.isArray(response.data.data)) {
-          const tempSales = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.full_name,
-          }))
+    try {
+      const response = await axios.get(`${apiUrl}/sales?take=0${search}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
-          setSales(tempSales)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
+      if (Array.isArray(response.data.data)) {
+        const tempSales = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+        }))
+
+        setSales(tempSales)
+      } else {
+        console.error('API response data is not an array:', response.data)
       }
+    } catch (err) {
+      console.error(err)
     }
+  }
 
-    getSales()
+  const getStore = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStore = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.store_name,
+          area_id: item.area_id,
+        }))
+
+        setStore(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getStore()
   }, [])
+
+  useEffect(() => {
+    getSales()
+  }, [searchSales])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -244,14 +293,21 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
 
   // Export To Excel
   const exportToExcel = () => {
+    setLoadingExport(true)
+
     axios
-      .get(`${apiUrl}/sales/export-excel?take=0`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
+      .get(
+        `${apiUrl}/sales/export-excel-template?take=0${
+          selectedStore?.value ? `&store_id=${selectedStore.value}` : ''
+        }${selectedSales?.value ? `&sales_id=${selectedSales.value}` : ''}`,
+        {
+          method: 'GET',
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        }
+      )
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
@@ -259,6 +315,8 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
         link.setAttribute('download', `Report Insentif Sales.xlsx`)
         document.body.appendChild(link)
         link.click()
+
+        setLoadingExport(false)
       })
   }
 
@@ -276,6 +334,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&sales_id=`, selectedSales.value)
+    valueCheck(`&store_id=`, selectedStore.value)
 
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)
@@ -340,11 +399,12 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
             <Col>
               <div className='d-flex justify-content-end'>
                 <Button
-                  variant='outline-primary'
+                  variant='success m-0'
                   className='d-flex justify-content-center align-items-center'
                   onClick={exportToExcel}
+                  disabled={loadingExport}
                 >
-                  Download Report
+                  {loadingExport ? 'Exporting..' : 'Export To Excel'}
                 </Button>
               </div>
             </Col>
@@ -355,8 +415,15 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
               <h3 className='fs-3 fw-bold w-100'>Filter By : </h3>
             </Col>
 
-            <Col xs={12} md={12} lg={12} xl={10} xxl={10} className='d-flex align-items-center'>
-              <h3 className='fs-5 fw-normal'>Sales Person : </h3>
+            <Col
+              xs={12}
+              md={12}
+              lg={12}
+              xl={10}
+              xxl={10}
+              className='d-flex align-items-center gap-2'
+            >
+              <h3 className='fs-5 fw-normal'>Store</h3>
 
               <Select
                 name='sales_id'
@@ -364,15 +431,16 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
                 classNamePrefix='select'
                 placeholder='Pilih Sales'
                 isSearchable={true}
-                options={salesOptions}
-                value={selectedSales}
-                onChange={(newValue) => setSelectedSales(newValue)}
+                options={storeOptions}
+                value={selectedStore}
+                onChange={(newValue) => setSelectedStore(newValue)}
+                // onInputChange={(newValue) => setSearchSales(newValue)}
               />
             </Col>
           </Row>
 
           <div className='total-order'>
-            <p className='fs-5'>Total order : {orderData.length}</p>
+            <p className='fs-5'>Total order : {totalOrder}</p>
           </div>
 
           <Spin

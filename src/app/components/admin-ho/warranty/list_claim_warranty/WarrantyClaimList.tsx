@@ -28,6 +28,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
   const [loadingButton, setLoadingButton] = useState(false)
 
+  const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
   const userVendor = localStorage.getItem('vendor_id')
   const userTukang = localStorage.getItem('tukang_id')
@@ -74,7 +75,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
+      sorter: (a: DataType, b: DataType) => a.order_id - b.order_id,
     },
     {
       title: 'Nama Toko',
@@ -82,8 +83,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'store_name',
       align: 'center',
       width: 120,
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
+      onFilter: (value: string, record: DataType) => record.store_name.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.store_name.length - b.store_name.length,
     },
     {
       title: 'Tanggal Order',
@@ -91,7 +92,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 120,
-      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+      sorter: (a: DataType, b: DataType) =>
+        new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'No Member',
@@ -99,7 +101,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'no_member',
       align: 'center',
       width: 110,
-      sorter: (a, b) => a.no_member - b.no_member,
+      sorter: (a: DataType, b: DataType) => a.no_member - b.no_member,
     },
     {
       title: 'Nama Customer',
@@ -107,8 +109,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'costumer_name',
       align: 'left',
       width: 140,
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+      onFilter: (value: string, record: DataType) => record.costumer_name.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.costumer_name.length - b.costumer_name.length,
     },
     {
       title: 'No. Telp / WA',
@@ -116,7 +118,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'phone_number',
       align: 'left',
       width: 140,
-      sorter: (a, b) => a.phone_number - b.phone_number,
+      sorter: (a: DataType, b: DataType) => a.phone_number - b.phone_number,
     },
     {
       title: 'Status Order',
@@ -124,7 +126,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'status_order',
       align: 'left',
       width: 130,
-      render: (status_order) => {
+      render: (status_order: string) => {
         const orderStatus = status_order
         let color = ''
 
@@ -140,8 +142,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         return <Tag color={color}>{orderStatus}</Tag>
       },
       filters: [{text: 'WARRANTYCLAIM', value: 'WARRANTYCLAIM'}],
-      onFilter: (value, record) => record.status_order.includes(String(value)),
-      sorter: (a, b) => a.status_order.length - b.status_order.length,
+      onFilter: (value: string, record: DataType) => record.status_order.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.status_order.length - b.status_order.length,
     },
     {
       title: 'Tanggal Aktif Garansi',
@@ -149,7 +151,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'tanggal_aktif_garansi',
       align: 'left',
       width: 140,
-      sorter: (a, b) =>
+      sorter: (a: DataType, b: DataType) =>
         new Date(a.tanggal_aktif_garansi).getTime() - new Date(b.tanggal_aktif_garansi).getTime(),
     },
     {
@@ -158,15 +160,15 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'tanggal_berakhir_garansi',
       align: 'left',
       width: 160,
-      sorter: (a, b) =>
+      sorter: (a: DataType, b: DataType) =>
         new Date(a.tanggal_berakhir_garansi).getTime() -
         new Date(b.tanggal_berakhir_garansi).getTime(),
     },
-    {
+    userRole !== 'Tukang' && {
       title: 'Action',
       key: 'action',
       align: 'center',
-      render: (record) => {
+      render: (record: DataType) => {
         const handleDetailId = () => {
           const id = record.order_id
           navigate(`/warranty/claim-warranty-form/${id}`)
@@ -189,7 +191,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       fixed: 'right',
       width: 80,
     },
-  ]
+  ].filter(Boolean) as ColumnsType<DataType>
 
   const fetchWorkOrderList = async (page: number, pageSize: number, queryparams: any) => {
     const storedStatus = sessionStorage.getItem('statusData')

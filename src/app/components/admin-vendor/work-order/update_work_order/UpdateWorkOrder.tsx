@@ -758,7 +758,14 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
               <Col xxl={6} xl={6} lg={6} md={12} sm={12} xs={12} className='sales-info mb-5'>
                 <Row>
-                  {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                  {[
+                    'SURVEYREQ',
+                    'SURVEYSTART',
+                    'SURVEYDONE',
+                    'RESURVEYREQ',
+                    'RESURVEYSTART',
+                    'RESURVEYDONE',
+                  ].includes(
                     workOrderStatus.find((option) => option.value === workOrder.work_order_status)
                       ?.category || ''
                   ) && (
@@ -801,9 +808,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     'WORKREQ',
                     'WORKSTART',
                     'WORKEND',
-                    'REWORK',
+                    'REWORKEQ',
                     'REWORKSTART',
-                    'RIP',
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
@@ -1015,9 +1021,14 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
+                [
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'RESURVEYREQ',
+                  'RESURVEYSTART',
+                  'RESURVEYDONE',
+                ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
                 orderDetail?.payment_type === 'survey' &&
                 orderDetail?.work_orders?.work_order_status.length >= 1 &&
                 orderDetail?.quotation?.length === 0

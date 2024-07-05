@@ -347,48 +347,55 @@ const ViewInvoiceHO: FC = () => {
       }
     })
 
-    await axios
-      .post(`${apiUrl}/invoices/payment`, formData, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Success Add Payment Request',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          }).then(() => {
-            window.location.reload()
+    Swal.fire({
+      title: 'Apakah anda yakin akan menyetujui daftar invoice ini?',
+      icon: 'question',
+      showConfirmButton: true,
+      confirmButtonColor: '#6b9230',
+      showDenyButton: true,
+      confirmButtonText: 'Ya',
+      denyButtonText: 'Tidak',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.post(`${apiUrl}/invoices/payment`, formData, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
           })
+          if (response.data.status === 200 || response.data.status === 201) {
+            setIsLoading(false)
+            Swal.fire({
+              title: 'Success',
+              text: 'Success Update Invoice',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+          } else {
+            setIsLoading(false)
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+          }
 
+          window.location.reload()
+        } catch (error: any) {
+          console.error(error)
           setIsLoading(false)
-        } else {
           Swal.fire({
             title: 'Error',
-            text: response.data.message,
+            text: error.response.data.message,
             icon: 'error',
           })
-
-          setIsLoading(false)
         }
-      })
-      .catch((error) => {
-        console.error(error)
-        setIsLoading(false)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
+      }
+    })
   }
 
   // Filter

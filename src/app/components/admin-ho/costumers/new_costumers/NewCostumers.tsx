@@ -26,6 +26,11 @@ interface Member {
 const NewCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+
+  const userRole = localStorage.getItem('userRole') as string
+  const userStoreId = localStorage.getItem('storeId') as any
+  const userStoreName = localStorage.getItem('storeName') as string
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Store
@@ -50,10 +55,6 @@ const NewCostumerHO: FC = () => {
   const memberInfoFormHandler = (e: any) => {
     let newValue = e.target.value
 
-    if (e.target.name === 'phone_number' && !newValue.startsWith('08')) {
-      newValue = '08' + newValue
-    }
-
     setMemberInfo((prevMemberInfo) => ({
       ...prevMemberInfo,
       [e.target.name]: newValue,
@@ -64,7 +65,8 @@ const NewCostumerHO: FC = () => {
   useEffect(() => {
     setMemberInfo((prev) => ({
       ...prev,
-      join_location: selectedStore?.value ?? null,
+      join_location:
+        userRole === 'Admin HO' ? selectedStore?.value ?? null : Number.parseInt(userStoreId),
     }))
   }, [selectedStore])
 
@@ -223,16 +225,22 @@ const NewCostumerHO: FC = () => {
                 <Form.Group>
                   <Form.Label>Nama Toko :</Form.Label>
 
-                  <Select
-                    name='store_id'
-                    className='form-control p-0'
-                    classNamePrefix='select'
-                    placeholder='Pilih Toko'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={store}
-                    onChange={(newValue) => setSelectedStore(newValue)}
-                  />
+                  {userRole === 'Admin HO' ? (
+                    <Select
+                      name='store_id'
+                      className='form-control p-0'
+                      classNamePrefix='select'
+                      placeholder='Pilih Toko'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={store}
+                      onChange={(newValue) => setSelectedStore(newValue)}
+                    />
+                  ) : (
+                    <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                      {userStoreName}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
 
@@ -266,12 +274,12 @@ const NewCostumerHO: FC = () => {
             <Row className='input-member mb-5'>
               <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                 <Form.Group>
-                  <Form.Label>Phone Number</Form.Label>
+                  <Form.Label>Whatsapp Number</Form.Label>
 
                   <InputGroup>
-                    <InputGroup.Text>08</InputGroup.Text>
+                    <InputGroup.Text>+ 62</InputGroup.Text>
                     <Form.Control
-                      name='phone_number'
+                      name='whatsapp_number'
                       type='number'
                       onChange={(e) => memberInfoFormHandler(e)}
                     />
@@ -281,12 +289,11 @@ const NewCostumerHO: FC = () => {
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                 <Form.Group>
-                  <Form.Label>Whatsapp Number</Form.Label>
+                  <Form.Label>Phone Number</Form.Label>
 
                   <InputGroup>
-                    <InputGroup.Text>+ 62</InputGroup.Text>
                     <Form.Control
-                      name='whatsapp_number'
+                      name='phone_number'
                       type='number'
                       onChange={(e) => memberInfoFormHandler(e)}
                     />

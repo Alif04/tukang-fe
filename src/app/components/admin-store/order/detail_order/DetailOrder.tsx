@@ -410,10 +410,27 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                       <Form.Group as={Row} className='detail-info'>
                         <Form.Label column sm='5'>
-                          Nomor Telp/WA :
+                          Nomor Whatsapp :
                         </Form.Label>
                         <Col sm='7'>
-                          <p className='fs-7'>{order?.project_number}</p>
+                          <p className='fs-7'>
+                            {!order?.project_number.startsWith('0')
+                              ? `+62${order?.members?.whatsapp_number}`
+                              : '-'}
+                          </p>
+                        </Col>
+                      </Form.Group>
+
+                      <Form.Group as={Row} className='detail-info'>
+                        <Form.Label column sm='5'>
+                          Nomor Telepon :
+                        </Form.Label>
+                        <Col sm='7'>
+                          <p className='fs-7'>
+                            {order?.project_number.startsWith('0')
+                              ? order?.members?.phone_number
+                              : '-'}
+                          </p>
                         </Col>
                       </Form.Group>
 

@@ -39,7 +39,7 @@ const ViewReportTukang = () => {
                         height={50}
                       />
 
-                      {newTabs('claim-garansi', 'Laporan Garansi')}
+                      {newTabs('claim-garansi', 'Laporan Total Penalti')}
                     </Card.Body>
                   </Card>
                 </Link>
@@ -75,7 +75,7 @@ const ViewReportTukang = () => {
                         height={50}
                       />
 
-                      {newTabs('on-progress', 'Laporan On Progress')}
+                      {newTabs('on-progress', 'Laporan Pengerjaan')}
                     </Card.Body>
                   </Card>
                 </Link>

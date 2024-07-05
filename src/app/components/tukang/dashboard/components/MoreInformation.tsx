@@ -17,35 +17,51 @@ const MoreInformation: React.FC<Props> = ({className, orderData}) => {
     <section id='more-information-tukang'>
       <div className={`card ${className}`} id='more-information'>
         <div className='card-body'>
-          <div className='row mb-5'>
-            <div className='fs-1 text-gray-800'>Informasi Lainnya</div>
+          <div className='fs-1 text-gray-800'>Informasi Lainnya</div>
 
-            <div className='col pt-5 pb-5'>
+          <div className='row'>
+            <div className='col pt-3 pb-3'>
+              <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
+                {getStatusCount(orderData, 'RESCHEDULE')}
+              </h1>
+              <p className='fs-6 text-danger text-center mt-1 mb-1'>RESCHEDULE</p>
+            </div>
+
+            <div className='col pt-3 pb-3'>
+              <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
+                {getStatusCount(orderData, 'CANCEL')}
+              </h1>
+              <p className='fs-6 text-danger text-center mt-1 mb-1'>CANCEL</p>
+            </div>
+          </div>
+
+          <div className='row'>
+            <div className='col pt-3 pb-3'>
               <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
                 {getStatusCount(orderData, 'WARRANTYCLAIM')}
               </h1>
               <p className='fs-6 text-danger text-center mt-1 mb-1'>GARANSI AKTIF</p>
             </div>
 
-            <div className='col pt-5 pb-5'>
+            <div className='col pt-3 pb-3'>
               <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
-                {getStatusCount(orderData, 'CLAIM')}
+                {getStatusCount(orderData, 'WARRANTYCLAIM')}
               </h1>
-              <p className='fs-6 text-success text-center mt-1 mb-1'>RESOLVE</p>
+              <p className='fs-6 text-black text-center mt-1 mb-1'>GARANSI EXPIRED</p>
             </div>
           </div>
 
-          <div className='row mb-5'>
-            <div className='fs-1 text-danger'>COMPLAINT</div>
+          <div className='fs-1 text-danger'>Komplain</div>
 
-            <div className='col pt-5 pb-5'>
+          <div className='row mb-5'>
+            <div className='col pt-3 pb-3'>
               <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
                 {getStatusCount(orderData, 'APPROVED')}
               </h1>
               <p className='fs-6 text-danger text-center mt-1 mb-1'>MENUNGGU REVISIT </p>
             </div>
 
-            <div className='col pt-5 pb-5'>
+            <div className='col pt-3 pb-3'>
               <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
                 {getStatusCount(orderData, 'CLAIM')}
               </h1>
