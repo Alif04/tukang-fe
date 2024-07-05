@@ -48,7 +48,7 @@ const ViewCalendarCS: React.FC = () => {
   ])
 
   const [vendor, setVendor] = useState<any>()
-  const vendorIds = vendor ? `&vendor_id=${vendor.join(',')}` : ''
+  const vendorIds = vendor ? `&vendor=${vendor.join(',')}` : ''
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   // Fetch Data
@@ -106,7 +106,7 @@ const ViewCalendarCS: React.FC = () => {
                   ? item.work_orders.survey_date
                   : item?.work_orders &&
                     item.work_orders.survey_date === null &&
-                    item.work_orders.work_start_date
+                    item.work_orders.work_start_date !== null
                   ? item.work_orders.work_start_date
                   : null
                 : item?.request_survey
@@ -118,7 +118,7 @@ const ViewCalendarCS: React.FC = () => {
                   ? item.work_orders.survey_date
                   : item?.work_orders &&
                     item.work_orders.survey_date === null &&
-                    item.work_orders.work_end_date
+                    item.work_orders.work_end_date !== null
                   ? item.work_orders.work_end_date
                   : null
                 : item?.request_survey
@@ -186,8 +186,8 @@ const ViewCalendarCS: React.FC = () => {
                 title: `#${item?.id ?? ''} ${
                   item.vendor ? `- ${item.vendor.company_name}` : '- Vendor Belum Ditugaskan'
                 } - ${item?.members?.full_name ?? ''} `,
-                start: dayjs(startDate).format('YYYY-MM-DD'),
-                end: dayjs(endDate).format('YYYY-MM-DD'),
+                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
                 order_status: orderStatus,
                 className: contextualColor,
                 order_detail: item,
@@ -403,6 +403,8 @@ const ViewCalendarCS: React.FC = () => {
           right: 'dayGridMonth,dayGridWeek,dayGridDay',
         }}
         initialView='dayGridMonth'
+        displayEventTime={false}
+        eventDisplay=''
         weekends={true}
         events={order}
         datesSet={handleDatesSet}

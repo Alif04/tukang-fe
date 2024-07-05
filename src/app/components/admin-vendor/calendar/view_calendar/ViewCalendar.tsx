@@ -74,7 +74,7 @@ const ViewCalendarVendor: React.FC = () => {
                   ? item.work_orders.survey_date
                   : item?.work_orders &&
                     item.work_orders.survey_date === null &&
-                    item.work_orders.work_start_date
+                    item.work_orders.work_start_date !== null
                   ? item.work_orders.work_start_date
                   : null
                 : item?.request_survey
@@ -86,7 +86,7 @@ const ViewCalendarVendor: React.FC = () => {
                   ? item.work_orders.survey_date
                   : item?.work_orders &&
                     item.work_orders.survey_date === null &&
-                    item.work_orders.work_end_date
+                    item.work_orders.work_end_date !== null
                   ? item.work_orders.work_end_date
                   : null
                 : item?.request_survey
@@ -136,8 +136,8 @@ const ViewCalendarVendor: React.FC = () => {
                 title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
                   item?.members?.full_name ?? ''
                 } `,
-                start: dayjs(startDate).format('YYYY-MM-DD'),
-                end: dayjs(endDate).format('YYYY-MM-DD'),
+                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
                 order_status: orderStatus,
                 className: contextualColor,
                 order_detail: item,
@@ -311,6 +311,8 @@ const ViewCalendarVendor: React.FC = () => {
           right: 'dayGridMonth,dayGridWeek,dayGridDay',
         }}
         initialView='dayGridMonth'
+        displayEventTime={false}
+        eventDisplay=''
         weekends={true}
         events={order}
         datesSet={handleDatesSet}
