@@ -175,7 +175,7 @@ const DashboardHO: FC = () => {
   const getReportOrder = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/reports/orders${store_id}?date_from=${dateFrom}&date_to=${dateTo}`,
+        `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}${store_id}`,
         {
           headers: {
             Accept: 'application/json',

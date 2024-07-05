@@ -56,7 +56,7 @@ const ReportVendorHO: FC = () => {
 
   const getVendor = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/vendor?take=0&top_best=true`, {
+      const response = await axios.get(`${apiUrl}/vendor?take=0&top_best=1`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

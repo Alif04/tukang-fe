@@ -122,6 +122,7 @@ const WarrantyFormClaimHO: FC<{updatePageTitle: (warranty: any) => void}> = ({up
       formData.append('complaint_date', date)
       formData.append('complaint_channel', complantChannel.toString())
       formData.append('complaint_status', complaintStatus)
+      formData.append('type', String(2))
 
       const response = await axios
         .post(`${apiUrl}/complaints`, formData, {

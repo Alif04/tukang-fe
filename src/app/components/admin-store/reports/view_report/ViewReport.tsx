@@ -104,7 +104,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('pending-bayar', 'Menunggu bayar')}
+                    {newTabs('pending-bayar', 'Menunggu bayar receipt')}
                   </Card.Body>
                 </Card>
               </Link>
@@ -142,7 +142,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('complete', 'Complete')}
+                    {newTabs('complete', 'Order Selesai')}
                   </Card.Body>
                 </Card>
               </Link>

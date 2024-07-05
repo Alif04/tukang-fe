@@ -4,12 +4,10 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
-import Swal from 'sweetalert2'
-import * as XLSX from 'xlsx'
-import {Table, PaginationProps, Spin, Pagination} from 'antd'
+import {Table, PaginationProps, Spin} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -35,7 +33,9 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const userRole = localStorage.getItem('userRole')
   const userStore = localStorage.getItem('storeId')
-  const salesId = localStorage.getItem('sales_id') as any
+  const userSales = localStorage.getItem('sales_id') as any
+
+  const salesId = userSales ? `&sales_id=${userSales}` : ''
   const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [orderData, setOrderData] = useState<DataType[]>([])
@@ -111,14 +111,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   ].filter(Boolean) as ColumnsType<DataType>
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
-
-    if (salesId) {
-      apiUrlWithParams += `&sales_id=${salesId}`
-    } else if (userStore) {
-      apiUrlWithParams += `&store_id=${userStore}`
-    }
-
+    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}${salesId}${storeId}`
     try {
       const response = await axios.get(apiUrlWithParams, {
         headers: {
@@ -218,7 +211,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     setLoadingExport(true)
 
     axios
-      .get(`${apiUrl}/sales/export-excel-template`, {
+      .get(`${apiUrl}/sales/export-excel-template?take=0${storeId}${salesId}`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
