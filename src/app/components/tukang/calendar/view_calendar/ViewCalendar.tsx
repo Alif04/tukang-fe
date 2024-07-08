@@ -346,6 +346,8 @@ const ViewCalendarTukang: React.FC = () => {
         }}
         initialView='dayGridMonth'
         weekends={true}
+        displayEventTime={false}
+        eventDisplay=''
         events={workOrder}
         datesSet={handleDatesSet}
         eventClick={(info) => handleShowModal(info.event.id)}
@@ -483,7 +485,14 @@ const ViewCalendarTukang: React.FC = () => {
 
             <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
               <Row>
-                {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                {[
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'RESURVEYREQ',
+                  'RESURVESTART',
+                  'RESURVEYDONE',
+                ].includes(
                   selectedWorkOrder?.work_order_detail?.work_order_status.length !== 0
                     ? selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status?.category
                     : selectedWorkOrder?.work_order_detail?.order?.status?.category
@@ -516,9 +525,8 @@ const ViewCalendarTukang: React.FC = () => {
                   'WORKREQ',
                   'WORKSTART',
                   'WORKEND',
-                  'REWORK',
+                  'REWORKREQ',
                   'REWORKSTART',
-                  'RIP',
                   'REWORKEND',
                   'RESCHEDULE',
                   'DONE',
