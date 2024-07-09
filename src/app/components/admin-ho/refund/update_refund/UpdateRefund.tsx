@@ -741,6 +741,7 @@ const UpdateRefundHO: FC = () => {
                     type='date'
                     className='w-75'
                     min={today}
+                    readOnly
                     onChange={(element) => handleChangeRefundDate(element)}
                     value={refundValues.date_of_filing}
                   />
@@ -853,6 +854,7 @@ const UpdateRefundHO: FC = () => {
             </Button>
 
             <Button
+              className='d-flex justify-content-center align-items-center'
               variant='dark-primary'
               type='submit'
               disabled={isLoading}

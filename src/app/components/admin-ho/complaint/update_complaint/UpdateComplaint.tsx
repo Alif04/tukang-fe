@@ -8,11 +8,32 @@ import Swal from 'sweetalert2'
 import {Image} from 'antd'
 import {Row, Col, Form, Table, Button, ListGroup, Modal} from 'react-bootstrap'
 
+interface Complaint {
+  order_id: number | null
+  pic_name: string
+  description: string
+  complaint_channel: number | null
+  complaint_date: string
+  complaint_status: string
+  complaint_type: number
+}
+
 const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Update Complaint
+  const [complaintForm, setComplaintForm] = useState<Complaint>({
+    order_id: null,
+    pic_name: '',
+    description: '',
+    complaint_channel: null,
+    complaint_date: '',
+    complaint_status: '',
+    complaint_type: 1,
+  })
 
   // Complaint Detail
   const [complaintId, setComplaintId] = useState<any>()
@@ -44,6 +65,17 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
 
           if (data?.id) {
             setComplaintId(data.id)
+
+            setComplaintForm({
+              ...complaintForm,
+              order_id: data?.orders?.id,
+              pic_name: data?.pic_name,
+              description: data?.description,
+              complaint_channel: data?.complaint_channels?.id,
+              complaint_date: new Date(data?.complaint_date).toISOString().split('T')[0],
+              complaint_type: data?.type,
+              complaint_status: data?.complaint_status,
+            })
           }
         })
     } catch (error) {
@@ -98,8 +130,18 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   const handleApprovalComplaint = async (status: number) => {
     setIsLoading(true)
 
+    const formData = new FormData()
+
+    formData.append('order_id', String(complaintForm?.order_id))
+    formData.append('pic_name', complaintForm.pic_name)
+    formData.append('description', complaintForm.description)
+    formData.append('complaint_status', `${status}`)
+    formData.append('complaint_channel', String(complaintForm.complaint_channel))
+    formData.append('complaint_date', complaintForm.complaint_date)
+    formData.append('type', complaintForm.complaint_type.toString())
+
     await axios
-      .post(`${apiUrl}/complaints/${complaintId}/set-status/${status}`, null, {
+      .post(`${apiUrl}/complaints/${complaintId}`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

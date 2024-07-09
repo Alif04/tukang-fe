@@ -12,6 +12,8 @@ type Props = {
 interface DataType {
   order_id: number
   complaint_date: string
+  customer_name: string
+  complaint_age: string
   status: string
 }
 
@@ -25,9 +27,21 @@ const columns: ColumnsType<DataType> = [
     width: 100,
   },
   {
-    title: 'Complaint Date',
+    title: 'Tanggal Komplain',
     dataIndex: 'complaint_date',
     key: 'complaint_date',
+    align: 'left',
+  },
+  {
+    title: 'Nama Konsumen',
+    dataIndex: 'customer_name',
+    key: 'customer_name',
+    align: 'left',
+  },
+  {
+    title: 'Umur Komplain',
+    dataIndex: 'complaint_age',
+    key: 'complaint_age',
     align: 'left',
   },
   {

@@ -674,6 +674,8 @@ const ViewOrders: FC = () => {
                 'COMPLAINTAPPROVEDBYHO',
                 'COMPLAINTREJECTEDBYHO',
                 'RESCHEDULE',
+                'RESURVEYREQ',
+                'REWORKREQ',
               ].includes(item?.status?.category)
             ) {
               return item?.status?.category
@@ -703,6 +705,8 @@ const ViewOrders: FC = () => {
                 'WARRANTYCLAIM',
                 'INVESTIGATED',
                 'RESCHEDULE',
+                'RESURVEYREQ',
+                'REWORKREQ',
               ].includes(item?.status?.category)
             ) {
               return item?.status?.description
@@ -785,6 +789,12 @@ const ViewOrders: FC = () => {
     setOrderData(data)
 
     setLoadingButton(false)
+  }
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
   }
 
   // Modal Handler
@@ -2764,7 +2774,9 @@ const ViewOrders: FC = () => {
               <></>
             )}
 
-            {['WORKEND', 'SURVEYDONE'].includes(record.order_status) ? (
+            {['WORKEND', 'SURVEYDONE', 'RESURVEYDONE', 'REWORKEND'].includes(
+              record.order_status
+            ) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -2812,7 +2824,10 @@ const ViewOrders: FC = () => {
       <Card>
         <Card.Body className='table-view-order'>
           <Row className='table-head-wrapper'>
-            <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
               <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker

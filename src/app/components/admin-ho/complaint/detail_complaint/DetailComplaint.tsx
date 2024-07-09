@@ -21,6 +21,8 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   const params = useParams()
   const navigate = useNavigate()
 
+  const username = localStorage.getItem('username') as string
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [complaintId, setComplaintId] = useState<any>()
@@ -72,9 +74,10 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
   }
 
   // PIC Feedback
-  const [picFeedback, setPicFeedback] = useState<string>('')
+  const [picFeedback, setPicFeedback] = useState<string>(username)
   const [picPosition, setPicPosition] = useState<string>('')
   const picPositions = [
+    {value: 'Admin HO', label: 'Admin HO'},
     {value: 'Staff', label: 'Staff'},
     {value: 'Supervisor', label: 'Supervisor'},
     {value: 'Deputy Store Manager', label: 'Deputy Store Manager'},
@@ -944,7 +947,7 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                         <Form.Control
                           plaintext
                           readOnly
-                          value={formatDate(new Date(item.ra_date_start))}
+                          value={formatDate(new Date(item.created_at))}
                         />
                       </Col>
                     </Form.Group>
@@ -1067,19 +1070,20 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
           </Row>
 
           <Row>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
               <Form.Group>
                 <Form.Label>Nama Pemberi Feedback</Form.Label>
 
                 <Form.Control
                   placeholder='Isi Nama Pemberi Feedback'
                   type='text'
+                  value={picFeedback}
                   onChange={handlePicFeedbackChange}
                 ></Form.Control>
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
               <Form.Group>
                 <Form.Label>Jabatan</Form.Label>
                 <Select
@@ -1096,12 +1100,12 @@ const DetailComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+            {/* <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Tanggal</Form.Label>
                 <Form.Control type='date' min={today} onChange={handleChangeFeedbackDate} />
               </Form.Group>
-            </Col>
+            </Col> */}
           </Row>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>

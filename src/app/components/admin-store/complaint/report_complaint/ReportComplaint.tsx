@@ -115,15 +115,37 @@ const ReportComplaintStore: FC = () => {
       const apiData = complaintList.map((item: any) => {
         let data
 
-        const complaintDate = new Date(item?.complaint_date).toLocaleDateString('id-ID', {
+        const complaintDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
 
+        const currentDate = new Date()
+        const complaintDates = new Date(item?.created_at)
+
+        const timeDifferenceInMilliseconds = Number(currentDate) - Number(complaintDates)
+        const timeDifferenceInMinutes = Math.floor(timeDifferenceInMilliseconds / (1000 * 60))
+        const timeDifferenceInHours = Math.floor(timeDifferenceInMilliseconds / (1000 * 60 * 60))
+        const timeDifferenceInDays = Math.floor(
+          timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
+        )
+
+        let complaintAge
+
+        if (timeDifferenceInDays >= 1) {
+          complaintAge = `${timeDifferenceInDays} Hari`
+        } else if (timeDifferenceInHours >= 1) {
+          complaintAge = `${timeDifferenceInHours} Jam`
+        } else {
+          complaintAge = `${timeDifferenceInMinutes} Menit`
+        }
+
         data = {
           order_id: item?.orders?.id,
           complaint_date: complaintDate,
+          customer_name: item?.orders?.members?.full_name,
+          complaint_age: complaintAge,
           complaint_status: item?.status?.description,
         }
 
@@ -303,13 +325,9 @@ const ReportComplaintStore: FC = () => {
 
   const resurvey = sumTotal(chartDataComplaint, 'totalReworkStart')
   const rework = sumTotal(chartDataComplaint, 'totalReworkStart')
-  const reschedule = sumTotal(chartDataOrder, 'totalRescheduleOrder')
-  const refund = sumTotal(chartDataOrder, 'totalRefundOrder')
 
-  const nonWorkRelated = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
-  const workRelated = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
-  const notResolved = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
-  const resolved = sumTotal(chartDataComplaint, 'totalApprovedByVendor')
+  const resurveyDone = sumTotal(chartDataComplaint, 'totalReworkEnd')
+  const reworkDone = sumTotal(chartDataComplaint, 'totalReworkEnd')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <div className={`${label} ${className}`}>
@@ -382,9 +400,9 @@ const ReportComplaintStore: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                {renderStat(totalComplaint, 'BARU')}
-                {renderStat(rejectComplaint, 'DITOLAK')}
-                {renderStat(acceptedComplaint, 'DITERIMA')}
+                {renderStat(totalComplaint, 'Masuk')}
+                {renderStat(acceptedComplaint, 'Diterima')}
+                {renderStat(rejectComplaint, 'Ditolak')}
               </div>
             </Card.Body>
           </Card>
@@ -396,10 +414,8 @@ const ReportComplaintStore: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Pekerjaan Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                {renderStat(resurvey, 'SURVEY ULANG')}
-                {renderStat(rework, 'PENGERJAAN ULANG')}
-                {renderStat(reschedule, 'RESCHEDULE')}
-                {renderStat(refund, 'REFUND')}
+                {renderStat(resurvey, 'Survei Ulang')}
+                {renderStat(rework, 'Pengerjaan Ulang')}
               </div>
             </Card.Body>
           </Card>
@@ -411,10 +427,8 @@ const ReportComplaintStore: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Result Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                {renderStat(nonWorkRelated, 'NON WORK RELATED')}
-                {renderStat(workRelated, 'WORK RELATED')}
-                {renderStat(notResolved, 'NOT RESOLVED')}
-                {renderStat(resolved, 'RESOLVED')}
+                {renderStat(resurveyDone, 'Survei Ulang Selesai')}
+                {renderStat(reworkDone, 'Pengerjaan Ulang Selesai')}
               </div>
             </Card.Body>
           </Card>
@@ -440,7 +454,7 @@ const ReportComplaintStore: FC = () => {
 
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
-        <div className='col-xl-4'>
+        {/* <div className='col-xl-4'>
           <ChartDonut
             className='card-xl-stretch mb-xl-8'
             chartHeight='300px'
@@ -454,9 +468,9 @@ const ReportComplaintStore: FC = () => {
             chartHeight='300px'
             chartWorkOrder={chartWorkOrder}
           />
-        </div>
+        </div> */}
 
-        <div className='col-xl-4'>
+        <div className='col-xl-12'>
           <TableList className='card-xl-stretch mb-5 mb-xl-8' complaintData={complaintData} />
         </div>
       </div>

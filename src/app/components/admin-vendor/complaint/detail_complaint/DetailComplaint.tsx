@@ -946,7 +946,7 @@ const DetailComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <Form.Control
                           plaintext
                           readOnly
-                          value={formatDate(new Date(item?.ra_date_start))}
+                          value={formatDate(new Date(item?.created_at))}
                         />
                       </Col>
                     </Form.Group>
@@ -1003,7 +1003,7 @@ const DetailComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
             </>
           )}
 
-          <hr />
+          {/* <hr />
 
           <Row>
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
@@ -1126,7 +1126,7 @@ const DetailComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
             >
               {isLoading ? 'Submitting...' : 'Submit'}
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
