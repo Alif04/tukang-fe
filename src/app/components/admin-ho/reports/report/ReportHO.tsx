@@ -1149,7 +1149,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               .map((service: any) => service.name ?? '-')
               .join(', ')
 
-            let paymentStatus = item.receipt_number === null ? 'UNPAID' : 'PAID'
+            let paymentStatus = item?.receipt_quotation === null ? 'UNPAID' : 'PAID'
 
             data = {
               quotation_id: item.id,
