@@ -954,6 +954,71 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       break
   }
 
+  const fetchAllReportData = async (endpoint: string, queryparams: any) => {
+    try {
+      const nonReportEndpoints = ['orders', 'refund', 'reschedule', 'quotation', 'claim garansi']
+      const urlBase = nonReportEndpoints.includes(endpoint)
+        ? `${apiUrl}/${endpoint}`
+        : `${apiUrl}/reports/${endpoint}`
+
+      let url = `${urlBase}?order_by=desc&take=0`
+
+      if (endpoint === 'sales-comission') {
+        if (statusName === 'UNPAID') {
+          url += `&status=1`
+        } else if (statusName === 'PAID') {
+          url += `&status=3`
+        }
+      } else {
+        if (statuses && statuses.length) {
+          url += `&status=${statuses}`
+        }
+        if (queryparams) {
+          url += queryparams
+        }
+      }
+
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (response?.data) {
+        switch (endpoint) {
+          case 'orders':
+            setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
+            return response?.data?.orderGrandTotal ?? 0
+
+          case 'complaints':
+            setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
+            return response?.data?.complaintGrandTotal ?? 0
+
+          case 'refund':
+            setReportGrandTotal(response?.data?.refundGrandTotal ?? 0)
+            return response?.data?.refundGrandTotal ?? 0
+
+          case 'quotation':
+            setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
+            return response?.data?.quotationGrandTotal ?? 0
+
+          case 'sales-comission':
+            setReportGrandTotal(response?.data?.totalIncentive?._sum?.nominal ?? 0)
+            return response?.data?.totalIncentive?._sum?.nominal ?? 0
+
+          default:
+            setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
+            break
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
   const fetchReportData = async (
     endpoint: string,
     page: number,
@@ -993,33 +1058,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       })
 
       if (response?.data) {
-        switch (endpoint) {
-          case 'orders':
-            setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
-            break
-
-          case 'complaints':
-            setReportGrandTotal(response?.data?.complaintGrandTotal ?? 0)
-            break
-
-          case 'refund':
-            setReportGrandTotal(response?.data?.refundGrandTotal ?? 0)
-            setTotalOrder(response?.data?.takeTotal ?? 0)
-            break
-
-          case 'quotation':
-            setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
-            break
-
-          case 'sales-comission':
-            setReportGrandTotal(response?.data?.totalIncentive?._sum?.nominal ?? 0)
-            break
-
-          default:
-            setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
-            break
-        }
-
         setCurrentPage(response?.data?.page ?? 1)
         setTotalOrder(response?.data?.total ?? 0)
       }
@@ -1063,6 +1101,12 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               year: 'numeric',
             })
 
+            const grandTotal =
+              item?.payment_type === 'survey'
+                ? Number(item?.grand_total ?? 0) +
+                  Number(item?.quotation?.[0]?.quotation_grand_total ?? 0)
+                : Number(item?.grand_total ?? 0)
+
             data = {
               order_id: item.id,
               store_name: item?.store?.store_name,
@@ -1070,7 +1114,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               costumer_name: item?.members?.full_name,
               phone_number: item?.project_number,
               vendor_name: item?.vendor?.company_name ?? '-',
-              grand_total: `Rp. ${parseInt(item?.grand_total ?? 0).toLocaleString('id')}`,
+              grand_total: `Rp. ${grandTotal.toLocaleString('id')}`,
               date_order: orderDate,
             }
 
@@ -1312,6 +1356,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
   useEffect(() => {
     fetchData(1, 10, '')
+    fetchAllReportData(endpoint, '')
   }, [])
 
   useEffect(() => {
@@ -1553,6 +1598,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     valueCheck(`&date_from=`, dateFrom)
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&store_id=`, selectedStore?.value)
+
+    const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
+    setReportGrandTotal(reportGrandTotal)
 
     const data = await ViewReportData(endpoint, 1, 10, queryparams)
     setReportData(data)
