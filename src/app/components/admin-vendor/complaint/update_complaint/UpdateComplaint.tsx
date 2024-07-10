@@ -30,6 +30,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const userId = localStorage.getItem('user_id') as any
+  const username = localStorage.getItem('username') as string
 
   // Complaint Detail
   const [complaintId, setComplaintId] = useState<any>()
@@ -104,7 +105,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
   // Add Remedial Action
   const [picRemedialId, setPicRemedialId] = useState<any>()
-  const [picFeedback, setPicFeedback] = useState<string>('')
+  const [picFeedback, setPicFeedback] = useState<string>(username)
   const [picPosition, setPicPosition] = useState<string>('')
   const picPositions = [
     {value: 'Owner Vendor', label: 'Owner Vendor'},
@@ -1013,6 +1014,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                       <Form.Control
                         placeholder='Isi Nama Pemberi Feedback'
                         type='text'
+                        value={picFeedback}
                         onChange={handlePicFeedbackChange}
                       />
                     </Form.Group>
@@ -1035,7 +1037,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                     <Form.Group>
                       <Form.Label className='mt-5'>Feedback ke Store :</Form.Label>
                       <Form.Control
-                        style={{minHeight: '200px'}}
+                        style={{minHeight: '180px'}}
                         as='textarea'
                         onChange={handleInputRemedialDesc}
                       ></Form.Control>
@@ -1043,14 +1045,14 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                   </Col>
 
                   <Col>
-                    <Form.Group>
+                    {/* <Form.Group>
                       <Form.Label className='mt-3'>Tanggal :</Form.Label>
                       <Form.Control
                         type='date'
                         min={today}
                         onChange={handleChangeremedialStartDate}
                       />
-                    </Form.Group>
+                    </Form.Group> */}
 
                     <Form.Group>
                       <Form.Label className='mt-3'>Change Status :</Form.Label>
@@ -1058,8 +1060,8 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                       <Form.Select onChange={handleChangeSelectRemedialStatus}>
                         <option selected>Select Status</option>
                         <option value='4'>INVESTIGATED</option>
-                        <option value='25'>ACCEPTED</option>
-                        <option value='27'>REJECTED</option>
+                        <option value='1009'>ACCEPTED</option>
+                        <option value='1011'>REJECTED</option>
                       </Form.Select>
                     </Form.Group>
 

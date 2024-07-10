@@ -942,7 +942,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
                         <Form.Control
                           plaintext
                           readOnly
-                          value={formatDate(new Date(item.ra_date_start))}
+                          value={formatDate(new Date(item.created_at))}
                         />
                       </Col>
                     </Form.Group>
@@ -1065,7 +1065,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
           </Row>
 
           <Row>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
               <Form.Group>
                 <Form.Label>Nama Pemberi Feedback</Form.Label>
 
@@ -1077,7 +1077,7 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
               <Form.Group>
                 <Form.Label>Jabatan</Form.Label>
                 <Select
@@ -1094,12 +1094,12 @@ const DetailComplaintStore: FC<{updatePageTitle: (complaint: any) => void}> = ({
               </Form.Group>
             </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+            {/* <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <Form.Group>
                 <Form.Label>Tanggal</Form.Label>
                 <Form.Control type='date' min={today} onChange={handleChangeFeedbackDate} />
               </Form.Group>
-            </Col>
+            </Col> */}
           </Row>
 
           <div className='d-flex justify-content-center align-items-center mt-5'>

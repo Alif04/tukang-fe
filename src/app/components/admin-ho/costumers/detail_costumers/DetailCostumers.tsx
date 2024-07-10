@@ -143,7 +143,7 @@ const DetailCostumerHO: FC = () => {
           receipt_number: item?.receipt_number ?? '-',
           date_order: orderDate,
           // total_invoice: item?.total_invoice ?? '-',
-          status: item?.status?.category ?? '-',
+          status: item?.status?.description ?? '-',
         }
 
         return data

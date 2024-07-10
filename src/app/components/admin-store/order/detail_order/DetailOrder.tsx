@@ -347,6 +347,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                                 'COMPLAINTAPPROVEDBYHO',
                                 'COMPLAINTREJECTEDBYHO',
                                 'RESCHEDULE',
+                                'RESURVEYREQ',
+                                'REWORKREQ',
                               ].includes(order?.status?.category ?? '')
                             ) {
                               return order?.status?.description

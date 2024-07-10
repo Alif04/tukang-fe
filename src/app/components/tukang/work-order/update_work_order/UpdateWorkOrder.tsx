@@ -451,7 +451,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   work_order_status_label: item?.status?.description,
                   // created_at: surveyDate,
                   time_range: workTime,
-                  updated_at: item?.created_at
+                  updated_at: item?.updated_at
+                    ? new Date(item?.updated_at).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      })
+                    : item?.created_at
                     ? new Date(item?.created_at).toLocaleDateString('id-ID', {
                         day: 'numeric',
                         month: 'long',
@@ -759,6 +767,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         case 'REWORKREQ':
           return 'REWORKSTART'
         case 'REWORKSTART':
+          return 'REWORKEND'
+        case 'REWORKEND':
           return 'REWORKEND'
         default:
           return null
