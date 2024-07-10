@@ -35,8 +35,10 @@ interface DataType {
   costumer_name: string
   sales_name: string
   incentive_name: string
-  status: string
+  incentive_nominal: string
+  quotation_grand_total: number
   sales_comission: number
+  status: string
 }
 
 const ReportInsentifHO: React.FC<Props> = ({className}) => {
@@ -106,15 +108,6 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'Jenis Insentif',
-      dataIndex: 'incentive_name',
-      key: 'incentive_name',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.incentive_name.includes(String(value)),
-      sorter: (a, b) => a.incentive_name.length - b.incentive_name.length,
-    },
-    {
       title: 'Nama Sales',
       dataIndex: 'sales_name',
       key: 'sales_name',
@@ -124,12 +117,48 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.sales_name.length - b.sales_name.length,
     },
     {
+      title: 'Jenis Insentif',
+      dataIndex: 'incentive_name',
+      key: 'incentive_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.incentive_name.includes(String(value)),
+      sorter: (a, b) => a.incentive_name.length - b.incentive_name.length,
+    },
+    {
+      title: 'Insentif',
+      dataIndex: 'incentive_nominal',
+      key: 'incentive_nominal',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.incentive_nominal.includes(String(value)),
+      sorter: (a, b) => a.incentive_nominal.length - b.incentive_nominal.length,
+    },
+
+    {
+      title: 'Grand Total Quotation',
+      dataIndex: 'quotation_grand_total',
+      key: 'quotation_grand_total',
+      align: 'center',
+      width: 135,
+      sorter: (a, b) => a.quotation_grand_total - b.quotation_grand_total,
+    },
+    {
       title: 'Komisi Sales',
       dataIndex: 'sales_comission',
       key: 'sales_comission',
       align: 'center',
       width: 135,
       sorter: (a, b) => a.sales_comission - b.sales_comission,
+    },
+    {
+      title: 'Status Insentif',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      width: 135,
+      onFilter: (value, record) => record.status.includes(String(value)),
+      sorter: (a, b) => a.status.length - b.status.length,
     },
   ]
 
@@ -195,7 +224,14 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
           costumer_name: item?.quotation?.order?.members?.full_name,
           sales_name: item?.sales?.full_name,
           incentive_name: item?.incentive?.name,
+          incentive_nominal:
+            item.type === 1
+              ? `${item?.incentive?.incentive ?? 0} %`
+              : `Rp. ${parseInt(item?.incentive?.incentive ?? 0).toLocaleString('id')}`,
           status: statusIncentive(item?.status),
+          quotation_grand_total: `Rp. ${parseInt(
+            item?.quotation?.quotation_grand_total ?? 0
+          ).toLocaleString('id')}`,
           sales_comission: `Rp. ${parseInt(item?.nominal ?? 0).toLocaleString('id')}`,
         }
 

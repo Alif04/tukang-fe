@@ -1483,8 +1483,19 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   const exportToExcel = () => {
     setLoadingExport(true)
 
+    let url = `${apiUrl}/${endpoint}/export-excel?take=0`
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        url += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
     axios
-      .get(`${apiUrl}/${endpoint}/export-excel?take=0`, {
+      .get(url, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -1528,7 +1539,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
   }
 
   // Submit Filter
-  const handleSubmitFilter = async () => {
+  const handleSubmitFilter = async (endpoint: string) => {
     setLoadingButton(true)
 
     let queryparams = ``
@@ -1543,7 +1554,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&store_id=`, selectedStore?.value)
 
-    const data = await ViewReportData('orders', 1, 10, queryparams)
+    const data = await ViewReportData(endpoint, 1, 10, queryparams)
     setReportData(data)
 
     setLoadingButton(false)
@@ -1629,7 +1640,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           <Button
             className='btn-dark-primary button-submit'
             disabled={loadingButton}
-            onClick={handleSubmitFilter}
+            onClick={() => handleSubmitFilter(endpoint)}
           >
             {loadingButton ? 'Filtering..' : 'Submit'}
           </Button>
