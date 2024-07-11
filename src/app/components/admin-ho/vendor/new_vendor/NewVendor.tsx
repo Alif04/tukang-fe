@@ -287,6 +287,7 @@ const NewVendorHO: FC = () => {
   const [accountName, setAccountName] = useState<string>('')
   const [marginNominal, setMarginNominal] = useState<any>()
   const [marginType, setMarginType] = useState<number>(1)
+  const [vendorType, setVendorType] = useState<number>(1)
   // const [discount, setDiscount] = useState<any>()
 
   // Handle Join Date Change
@@ -750,6 +751,7 @@ const NewVendorHO: FC = () => {
       formData.append('join_date', joinDate)
       formData.append('max_order', maxOrder)
       formData.append('nominal_survey', nominalSurvey)
+      formData.append('vendor_type', String(vendorType))
 
       formData.append('pic_name', picName)
       formData.append('margin_nominal', marginNominal)
@@ -1215,7 +1217,7 @@ const NewVendorHO: FC = () => {
                       checked={isActive.ptkp}
                       onChange={() => handleFormCheckbox('ptkp')}
                     />
-                    <Form.Label className='ms-2'>PTKP</Form.Label>
+                    <Form.Label className='ms-2'>PKP</Form.Label>
                   </div>
 
                   <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>

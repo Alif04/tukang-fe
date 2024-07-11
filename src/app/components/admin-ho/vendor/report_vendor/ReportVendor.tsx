@@ -257,10 +257,18 @@ const ReportVendorHO: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrder = sumTotal(chartOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartWorkOrder, 'totalSurveyOrder')
-  const rejectedOrder = sumTotal(chartComplaint, 'totalRejectByVendor')
-  const totalInvoices = sumTotal(chartComplaint, 'totalApprovedByVendor')
-  const totalComplaint = sumTotal(chartComplaint, 'totalOrder')
+  const surveyOrder = sumTotal(chartOrder, 'orderSurvey')
+  const workOrder = sumTotal(chartOrder, 'totalWork')
+  const orderDone = sumTotal(chartOrder, 'totalOrderDone')
+
+  const totalInvoices = sumTotal(chartComplaint, 'totalInvoice')
+  const totalPaidInvoices = sumTotal(chartComplaint, 'totalPaidInvoices')
+  const totalUnpaidInvoices = sumTotal(chartComplaint, 'totalUnpaidInvoices')
+
+  const totalComplaint = sumTotal(chartOrder, 'totalComplaint')
+  const totalApprovedComplaint = sumTotal(chartComplaint, 'totalApprovedByHO')
+  const totalRejectedComplaint = sumTotal(chartComplaint, 'totalRejectByHo')
+  const totalResolveComplaint = sumTotal(chartComplaint, 'totalResolve')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-2'>
@@ -349,9 +357,10 @@ const ReportVendorHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Pekerjaan bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                {renderStat(totalOrder, 'MASUK')}
-                {renderStat(surveyOrder, 'SURVEY')}
-                {renderStat(rejectedOrder, 'DITOLAK')}
+                {renderStat(totalOrder, 'Total Order')}
+                {renderStat(surveyOrder, 'Survei')}
+                {renderStat(workOrder, 'Pengerjaan')}
+                {renderStat(orderDone, 'Selesai')}
               </div>
             </Card.Body>
           </Card>
@@ -363,9 +372,9 @@ const ReportVendorHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Invoice bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                {renderStat(totalInvoices, 'MASUK')}
-                {renderStat(surveyOrder, 'DIBAYAR')}
-                {renderStat(rejectedOrder, 'BELUM DIBAYAR')}
+                {renderStat(totalInvoices, 'Tagihan')}
+                {renderStat(totalPaidInvoices, 'Dibayar')}
+                {renderStat(totalUnpaidInvoices, 'Belum Dibayar')}
               </div>
             </Card.Body>
           </Card>
@@ -377,9 +386,10 @@ const ReportVendorHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                {renderStat(totalComplaint, 'MASUK')}
-                {renderStat(surveyOrder, 'DITOLAK')}
-                {renderStat(rejectedOrder, 'SELESAI')}
+                {renderStat(totalComplaint, 'Masuk')}
+                {renderStat(totalApprovedComplaint, 'Diterima')}
+                {renderStat(totalRejectedComplaint, 'Ditolak')}
+                {renderStat(totalResolveComplaint, 'Selesai')}
               </div>
             </Card.Body>
           </Card>
@@ -394,7 +404,7 @@ const ReportVendorHO: FC = () => {
         </div>
 
         <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrderData={chartWorkOrder} />
+          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartOrderData={chartOrder} />
         </div>
 
         <div className='col-xl-4'>
@@ -405,7 +415,7 @@ const ReportVendorHO: FC = () => {
 
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
-        <div className='col-xl-4'>
+        {/* <div className='col-xl-4'>
           <ChartDonut
             className='card-xl-stretch mb-xl-8'
             chartHeight='300px'
@@ -419,9 +429,9 @@ const ReportVendorHO: FC = () => {
             chartHeight='300px'
             workOrderData={workOrderData}
           />
-        </div>
+        </div> */}
 
-        <div className='col-xl-4'>
+        <div className='col-xl-12'>
           <TopVendorWidget className='card-xl-stretch mb-5 mb-xl-8' vendorData={vendor} />
         </div>
       </div>

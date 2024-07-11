@@ -42,7 +42,7 @@ const ChartDonut: React.FC<Props> = ({className, chartHeight, complaintData}) =>
     <div className={`card ${className}`}>
       <div className='card-body p-2'>
         <div className='d-flex flex-column'>
-          <h1 className='fs-1 text-danger'>Complaint</h1>
+          <h1 className='fs-1 text-danger'>Komplain</h1>
 
           <div className='d-flex justify-content-center'>
             <div ref={chartRef} className='mixed-widget-10-chart'></div>

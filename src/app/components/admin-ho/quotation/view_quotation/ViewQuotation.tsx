@@ -19,6 +19,11 @@ type Props = {
   className: string
 }
 
+interface Status {
+  value: number | null
+  category: string
+}
+
 interface DataType {
   key: React.Key
   quotation_id: number
@@ -45,6 +50,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [quotationData, setQuotationData] = useState<DataType[]>([])
+  const [quotationStatusFilter, setQuotationStatusFilter] = useState<any>()
+
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -57,6 +64,10 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     value: null,
     label: 'All Store',
   })
+
+  // Status
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -152,7 +163,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [{text: 'QUOTEOUT', value: 'QUOTEOUT'}],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
     },
@@ -177,11 +187,19 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
-        {text: 'QUOTEIN', value: 'QUOTEIN'},
-      ],
-      onFilter: (value, record) => record.quotation_status.includes(String(value)),
+      filters: statusData
+        .filter((x) => ['QUOTEIN', 'QUOTEOUT', 'UNPAID', 'PAID'].includes(x.category))
+        .map((item: any) => ({
+          text: item.description,
+          value: item.value.toString(),
+        })),
+      onFilter: (value: any, record: any) => {
+        if (record.quotation_status) {
+          setQuotationStatusFilter(value)
+        }
+
+        return true
+      },
       sorter: (a, b) => a.quotation_status.length - b.quotation_status.length,
     },
     {

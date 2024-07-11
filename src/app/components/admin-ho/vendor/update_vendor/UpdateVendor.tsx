@@ -89,6 +89,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setNominalSurvey(data.nominal_survey)
             setMarginNominal(data.margin_nominal)
             setMarginType(data.margin_type)
+            setVendorType(data.vendor_type)
           }
 
           if (data?.pic_vendor) {
@@ -328,6 +329,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [password, setPassword] = useState<any>('')
   const [maxOrder, setMaxOrder] = useState<string>('')
   const [nominalSurvey, setNominalSurvey] = useState<any>()
+  const [vendorType, setVendorType] = useState<any>()
 
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
@@ -961,6 +963,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       formData.append('nominal_survey', nominalSurvey)
       formData.append('margin_nominal', marginNominal)
       formData.append('margin_type', String(marginType))
+      formData.append('vendor_type', String(vendorType))
 
       if (username) {
         formData.append('default_username', username)
@@ -1427,7 +1430,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       checked={isActive.ptkp}
                       onChange={() => handleFormCheckbox('ptkp')}
                     />
-                    <Form.Label className='ms-2'>PTKP</Form.Label>
+                    <Form.Label className='ms-2'>PKP</Form.Label>
                   </div>
 
                   <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
