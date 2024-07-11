@@ -56,6 +56,8 @@ const NewStore: FC = () => {
     default_password: '',
   })
 
+  console.log('store info', storeInfo)
+
   // Area
   const [area, setArea] = useState<AreaItem[]>([])
   const [selectedArea, setSelectedArea] = useState<SingleValue<AreaItem>>({
@@ -258,14 +260,27 @@ const NewStore: FC = () => {
     return valid
   }
 
+  const objectValueCheck = (data: Store) => {
+    let cleanedData: Partial<Store> = {}
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        cleanedData[key as keyof Store] = value
+      }
+    })
+
+    return cleanedData
+  }
+
   const handleSubmitNewStore = async () => {
     if (!StoreValidation()) {
       return false
     }
 
     setIsLoading(true)
+    const storeBody = objectValueCheck(storeInfo)
     await axios
-      .post(`${apiUrl}/stores`, storeInfo, {
+      .post(`${apiUrl}/stores`, storeBody, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -381,7 +396,7 @@ const NewStore: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Telpon</Form.Label>
                   <Form.Control
-                    type='number'
+                    type='text'
                     name='phone_number_1'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
