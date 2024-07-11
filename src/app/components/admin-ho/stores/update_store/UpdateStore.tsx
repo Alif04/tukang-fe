@@ -64,9 +64,6 @@ const UpdateStores: FC = () => {
     label: '',
   })
 
-  console.log('store info', storeInfo)
-  console.log('selected area', selectedArea)
-
   // Fetch API Data
   useEffect(() => {
     const getArea = async () => {
@@ -135,7 +132,7 @@ const UpdateStores: FC = () => {
                 bank_number: data?.bank_number,
                 bank_account: data?.bank_account,
                 zip_code: data?.zip_code,
-                username: data?.username,
+                username: data?.users?.username,
                 default_password: data?.default_password,
               }))
             }
