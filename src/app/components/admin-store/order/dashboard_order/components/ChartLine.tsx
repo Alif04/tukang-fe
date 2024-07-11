@@ -56,8 +56,8 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
   return {
     series: [
       {
-        name: 'Menunggu Bayar',
-        data: orderData.map((item: any) => item.totalUnpaid),
+        name: 'Menunggu Bayar Receipt',
+        data: orderData.map((item: any) => item.totalUnpaidReceipt),
       },
     ],
     chart: {

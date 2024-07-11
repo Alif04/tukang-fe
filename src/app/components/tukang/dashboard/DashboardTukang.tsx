@@ -247,15 +247,15 @@ const DashboardTukang: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartDataOrder, 'totalOrderSurvey')
+  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
+  const surveyed = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const surveyEnd = sumTotal(chartDataOrder, 'totalSurveyEnd')
+
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
+  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
+  const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaid')
-  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
-  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotation')
-  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
-  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
-  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-5'>
@@ -321,11 +321,11 @@ const DashboardTukang: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
-                {renderStat(surveyOrder, 'Permintaan Survei')}
-                {renderStat(surveyOrder, 'Survei Dimulai')}
-                {renderStat(surveyOrder, 'Survei Selesai')}
+                {renderStat(waitingSurvey, 'Permintaan Survei')}
+                {renderStat(surveyed, 'Survei Dimulai')}
+                {renderStat(surveyEnd, 'Survei Selesai')}
                 {renderStat(waitingQuotations, 'Menunggu Quotation')}
-                {renderStat(workInProgress, 'Permintaan Pengerjaan')}
+                {renderStat(waitingWork, 'Permintaan Pengerjaan')}
                 {renderStat(workInProgress, 'Pengerjaan Dimulai')}
                 {renderStat(orderDone, 'Pengerjaan Selesai')}
               </Row>

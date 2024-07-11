@@ -42,7 +42,7 @@ const ChartBarSurvey: React.FC<Props> = ({className, orderData}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body p-1'>
-        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '235px'}} />
+        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '345px'}} />
       </div>
     </div>
   )
@@ -57,12 +57,12 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
   return {
     series: [
       {
-        name: 'Order Survey',
-        data: orderData.map((item: any) => item.totalOrderSurvey),
+        name: 'Survei',
+        data: orderData.map((item: any) => item.orderSurvey),
       },
       {
-        name: 'Pengerjaan Selesai',
-        data: orderData.map((item: any) => item.totalOrderDone),
+        name: 'Pengerjaan',
+        data: orderData.map((item: any) => item.orderWork),
       },
     ],
     chart: {

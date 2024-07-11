@@ -234,16 +234,24 @@ const DashboardOrderStore: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartDataOrder, 'totalOrderSurvey')
+  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
+  const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
+  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
+  const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
-  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
-  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotation')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaid')
+
+  const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
+  const totalRework = sumTotal(chartDataOrder, 'totalRework')
+  const totalResurvey = sumTotal(chartDataOrder, 'totalResurvey')
 
   const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
   const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
   const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
+
+  const activeWarranty = sumTotal(chartDataOrder, 'totalActiveWarranty')
+  const expiredWarranty = sumTotal(chartDataOrder, 'totalExpiredWarranty')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-2'>
@@ -297,23 +305,13 @@ const DashboardOrderStore: FC = () => {
             <Card.Body>
               <Row className='justify-content-md-center mt-2'>
                 {renderStat(totalOrders, 'Total Order')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
+                {renderStat(unpaidOrder, 'Menunggu Bayar Quotation', 'text-center')}
+                {renderStat(waitingWork, 'Menunggu Pengerjaan')}
                 {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
                 {renderStat(orderDone, 'Order Selesai')}
-                {renderStat(
-                  totalReschedule,
-                  'Order yang dijadwalkan ulang',
-                  'text-danger text-center'
-                )}
-                {renderStat(totalCancel, 'Order yang dibatalkan', 'text-danger text-center')}
-                {renderStat(totalRefund, 'Order yang dikembalikan dana', 'text-danger text-center')}
-                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-brown fw-bold text-center')}
-                {renderStat(
-                  waitingQuotations,
-                  'Menunggu Quotation',
-                  'text-brown fw-bold text-center'
-                )}
-                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
               </Row>
             </Card.Body>
           </Card>
@@ -322,7 +320,15 @@ const DashboardOrderStore: FC = () => {
 
       <Row className='g-5 g-xl-8 mb-5'>
         <div className='col-xl-4'>
-          <MoreInformation className='card-xl-stretch mb-xl-8' orderData={orderList} />
+          <MoreInformation
+            className='card-xl-stretch mb-xl-8'
+            totalComplaint={totalComplaint}
+            totalCancel={totalCancel}
+            totalResurvey={totalResurvey}
+            totalRework={totalRework}
+            totalActiveWarranty={activeWarranty}
+            totalExpiredWarranty={expiredWarranty}
+          />
         </div>
         <div className='col-xl-4'>
           <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />

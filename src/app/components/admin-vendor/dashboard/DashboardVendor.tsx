@@ -259,10 +259,13 @@ const DashboardVendor: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartDataOrder, 'totalOrderSurvey')
+  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
+  const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
+  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
+  const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaid')
 
   const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
   const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
@@ -334,10 +337,13 @@ const DashboardVendor: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
-                {renderStat(surveyOrder, 'Order Survey')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
+                {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
+                {renderStat(unpaidOrder, 'Menunggu Bayar Quotation', 'text-center')}
+                {renderStat(waitingWork, 'Menunggu Pengerjaan')}
                 {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
                 {renderStat(orderDone, 'Order Selesai')}
-                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
               </Row>
             </Card.Body>
           </Card>

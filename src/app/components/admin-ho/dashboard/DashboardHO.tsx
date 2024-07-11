@@ -221,21 +221,10 @@ const DashboardHO: FC = () => {
         let data
         let totalAmount = 0
 
-        if (item?.payment_type === 'gratis') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : 0
-        } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : item?.grand_total ?? 0
-        } else if (item?.payment_type === 'survey') {
-          totalAmount =
-            item?.is_overdistance === 1
-              ? Number(item?.grand_total) + Number(item?.additional_fee)
-              : 99000 ?? 0
+        if (item.quotation.length > 0 && item.payment_type === 'survey') {
+          totalAmount = item?.quotation[0]?.quotation_grand_total
+        } else {
+          totalAmount = item?.grand_total
         }
 
         data = {
@@ -351,18 +340,24 @@ const DashboardHO: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartDataOrder, 'totalOrderSurvey')
+  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
+  const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
+  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
+  const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
-  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
-  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotation')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaid')
 
   const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
+  const totalRework = sumTotal(chartDataOrder, 'totalRework')
+  const totalResurvey = sumTotal(chartDataOrder, 'totalResurvey')
+
   const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
   const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
   const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
-  const totalRework = sumTotal(chartDataOrder, 'totalRework')
+
+  const activeWarranty = sumTotal(chartDataOrder, 'totalActiveWarranty')
+  const expiredWarranty = sumTotal(chartDataOrder, 'totalExpiredWarranty')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-5'>
@@ -472,16 +467,13 @@ const DashboardHO: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
+                {renderStat(unpaidOrder, 'Menunggu Bayar Quotation', 'text-center')}
+                {renderStat(waitingWork, 'Menunggu Pengerjaan')}
                 {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
                 {renderStat(orderDone, 'Order Selesai')}
-                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-brown fw-bold text-center')}
-                {renderStat(
-                  waitingQuotations,
-                  'Menunggu Quotation',
-                  'text-brown fw-bold text-center'
-                )}
-                {renderStat(unpaidOrder, 'Menunggu Bayar', 'text-brown fw-bold text-center')}
               </Row>
             </Card.Body>
           </Card>
@@ -493,10 +485,13 @@ const DashboardHO: FC = () => {
           <MoreInformation
             className='card-xl-stretch'
             totalComplaint={totalComplaint}
-            totalCancel={totalCancel}
-            totalRefund={totalRefund}
-            totalReschedule={totalReschedule}
+            totalResurvey={totalResurvey}
             totalRework={totalRework}
+            totalReschedule={totalReschedule}
+            totalRefund={totalRefund}
+            totalCancel={totalCancel}
+            totalActiveWarranty={activeWarranty}
+            totalExpiredWarranty={expiredWarranty}
           />
         </Col>
 
@@ -511,7 +506,7 @@ const DashboardHO: FC = () => {
 
       <Row className='mb-5'>
         <Col md={12}>
-          <ChartBarPerformance orderData={chartDataOrder} className='card-xl-stretch' />
+          <ChartBarPerformance className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
       </Row>
 
