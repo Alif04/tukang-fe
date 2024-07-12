@@ -56,6 +56,7 @@ const NewSales: FC = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)
+  const [loadingExport, setLoadingExport] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
   // const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
@@ -212,7 +213,7 @@ const NewSales: FC = () => {
     }
 
     const getExportData = async () => {
-      let apiUrlWithParams = `${apiUrl}/sales?order_by=desc&take=0${storeId}`
+      let apiUrlWithParams = `${apiUrl}/sales?order_by=desc&take=0&${storeId}`
 
       try {
         const response = await axios.get(apiUrlWithParams, {
@@ -252,15 +253,22 @@ const NewSales: FC = () => {
 
   // Store ID
   const storeId =
-    userRole === 'Admin HO' && selectedStore && selectedStore.value
-      ? `&store_id=${selectedStore.value}`
+    (userRole === 'Admin HO' || userRole === 'Super User') && selectedStore && selectedStore.value
+      ? `store_id=${selectedStore.value}`
       : userRole === 'Store Staff' || userRole === 'Store CS'
-      ? `&store_id=${staffStoreId}`
+      ? `store_id=${staffStoreId}`
+      : ''
+
+  const storeName =
+    (userRole === 'Admin HO' || userRole === 'Super User') && selectedStore && selectedStore.label
+      ? `${selectedStore.label}`
+      : userRole === 'Store Staff' || userRole === 'Store CS'
+      ? `${staffStoreName}`
       : ''
 
   // Fetch Sales List
   const fetchSalesList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/sales?order_by=desc&page=${page}&take=${pageSize}${storeId}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/sales?order_by=desc&page=${page}&take=${pageSize}&${storeId}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -351,7 +359,9 @@ const NewSales: FC = () => {
     setSalesInfo((prev) => ({
       ...prev,
       store_id:
-        userRole === 'Admin HO' ? selectedStore?.value ?? null : Number.parseInt(staffStoreId),
+        userRole === 'Admin HO' || userRole === 'Super User'
+          ? selectedStore?.value ?? null
+          : Number.parseInt(staffStoreId),
     }))
   }, [selectedStore])
 
@@ -691,15 +701,57 @@ const NewSales: FC = () => {
 
   // Export To Excel
   const exportToExcel = () => {
-    if (exportSales.length === 0) {
-      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
-      return
+    setLoadingExport(true)
+
+    let url = `${apiUrl}/sales/export-excel`
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        url += `${key}${value}`
+      }
     }
 
-    const worksheet = XLSX.utils.json_to_sheet(exportSales)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-    XLSX.writeFile(workbook, `List Sales ${staffStoreName}.xlsx`)
+    valueCheck(`?`, storeId)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    axios
+      .get(url, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', `List Sales ${storeName}.xlsx`)
+          document.body.appendChild(link)
+          link.click()
+
+          setLoadingExport(false)
+        } else {
+          Swal.fire({
+            title: 'Warning',
+            text: response.data.message,
+            icon: 'warning',
+          })
+
+          setLoadingExport(false)
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        Swal.fire({
+          title: 'Warning',
+          text: 'Anda harus memilih toko terlebih dahulu',
+          icon: 'warning',
+        })
+        setLoadingExport(false)
+      })
   }
 
   // Filtering Data
@@ -737,7 +789,7 @@ const NewSales: FC = () => {
                 <Form.Group as={Row}>
                   <Form.Label column sm='4'>
                     Nama Toko
-                    {userRole === 'Admin HO' ? (
+                    {userRole === 'Admin HO' || userRole === 'Super User' ? (
                       <Select
                         name='store_id'
                         className='form-control p-0'
@@ -934,13 +986,13 @@ const NewSales: FC = () => {
       <section id='view-sales'>
         <div className='card'>
           <div className='card-body table-view-order'>
-            {userRole === 'Store CS' && (
-              <div className='d-flex justify-content-end mb-3'>
-                <button className='button-export' onClick={exportToExcel}>
-                  <h3 className='fs-5 fw-semibold'>Export To Excel</h3>
-                </button>
-              </div>
-            )}
+            <div className='d-flex justify-content-end mb-4'>
+              <button className='button-export' onClick={exportToExcel}>
+                <h3 className='fs-5 fw-semibold'>
+                  {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                </h3>
+              </button>
+            </div>
 
             <Row className='table-head-wrapper'>
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
@@ -986,7 +1038,7 @@ const NewSales: FC = () => {
               </Col>
 
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-                {userRole === 'Admin HO' ? (
+                {userRole === 'Admin HO' || userRole === 'Super User' ? (
                   <div className='d-flex'>
                     <Select
                       name='store_id'

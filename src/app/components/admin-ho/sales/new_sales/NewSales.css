@@ -36,6 +36,16 @@
   border-radius: 5px;
 }
 
+.select__control.css-13cymwt-control {
+  height: 44px !important;
+  z-index: 99 !important;
+}
+
+/* .css-t3ipsp-control:hover {
+  height: 44px !important;
+  z-index: 99 !important;
+} */
+
 /* Table Layout */
 #view-sales .table-view-order {
   margin: 20px 20px 20px 20px;

@@ -220,6 +220,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                 'INVESTIGATED',
                                 'RESCHEDULE',
                                 'CANCEL',
+                                'RESURVEYREQ',
+                                'REWORKREQ',
                               ].includes(orderDetail?.status?.category)
                             ) {
                               return orderDetail?.status?.description

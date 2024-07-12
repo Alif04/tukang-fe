@@ -86,6 +86,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     ],
   })
 
+  console.log('work order', workOrder)
+
   // Option Tukang
   const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
 
@@ -141,14 +143,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
           if (
             Array.isArray(data?.work_orders?.work_order_status) &&
-            data?.work_orders?.work_order_status.length > 1
+            data?.work_orders?.work_order_status?.length > 1
           ) {
             if (
-              ['WORKREQ'].includes(data?.status?.category) &&
-              data?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(
-                data?.work_orders?.work_order_status[0]?.status?.category
-              )
+              ['WORKREQ', 'RESURVEYREQ', 'REWORKREQ'].includes(data?.status?.category) &&
+              !['WORKSTART'].includes(data?.work_orders?.work_order_status[0]?.status?.category)
             ) {
               workOrderHandler(data?.status?.id, 'work_order_status')
             } else {
@@ -292,7 +291,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           // }
 
           if (data?.quotation) {
-            const workOrderItem = data.quotation[0].quotation_details.map(
+            const workOrderItem = data?.quotation[0]?.quotation_details.map(
               (item: any, index: number) => ({
                 id: item.id,
                 index: (Date.now() + index).toString(),
@@ -369,9 +368,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             'WORKREQ',
             'WORKSTART',
             'WORKEND',
-            'REWORK',
+            'REWORKREQ',
             'REWORKSTART',
-            'RIP',
             'REWORKEND',
             'RESCHEDULE',
           ],
@@ -382,9 +380,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             'WORKREQ',
             'WORKSTART',
             'WORKEND',
-            'REWORK',
+            'REWORKREQ',
             'REWORKSTART',
-            'RIP',
             'REWORKEND',
             'RESCHEDULE',
           ],
@@ -398,9 +395,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             'WORKREQ',
             'WORKSTART',
             'WORKEND',
-            'REWORK',
+            'RESURVEYREQ',
+            'RESURVEYSTART',
+            'RESURVEYDONE',
+            'REWORKREQ',
             'REWORKSTART',
-            'RIP',
             'REWORKEND',
             'RESCHEDULE',
           ],
@@ -459,17 +458,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     // TODO: Fix conditional url
     const url = !workOrder.id
       ? `${apiUrl}/work-orders`
-      : workOrder.id && workOrder.work_order_item.length === 0
+      : workOrder?.id && workOrder?.work_order_item?.length === 0
       ? `${apiUrl}/work-orders/${workOrder.id}`
-      : (workOrder.id &&
-          workOrder.work_order_item.length >= 1 &&
-          workOrder.work_order_status === 13) ||
-        workOrder.work_order_status === 5 ||
-        workOrder.work_order_status === 6 ||
-        workOrder.work_order_status === 7
-      ? `${apiUrl}/work-orders/${workOrder.id}`
-      : workOrder.id && workOrder.work_order_item.length >= 1 && workOrder.work_order_status !== 13
-      ? `${apiUrl}/work-orders/${workOrder.id}/set-materials`
       : `${apiUrl}/work-orders/${workOrder.id}`
 
     const formData = new FormData()
@@ -485,82 +475,39 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       {key: 'work_order_status', fieldName: 'Update Work Order Status'},
       {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
       {key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan'},
-      {key: 'work_order_item', fieldName: 'Work Order Item'},
+      // {key: 'work_order_item', fieldName: 'Work Order Item'},
     ]
 
-    if (
-      workOrder.id &&
-      workOrder.work_order_item.length >= 1 &&
-      workOrder.work_order_status !== 13 &&
-      workOrder.work_order_status !== 5 &&
-      workOrder.work_order_status !== 6 &&
-      workOrder.work_order_status !== 7
-    ) {
-      if (workOrder.work_order_item && workOrder.work_order_item.length > 0) {
-        formData.append('status_id', String(workOrder.work_order_status))
-        formData.append(`work_start_date`, workOrder.work_start_date)
-        formData.append(`work_end_date`, workOrder.work_end_date)
+    for (const key in workOrder) {
+      if (Object.prototype.hasOwnProperty.call(workOrder, key)) {
+        const value = workOrder[key]
+        const required = requiredFields.find((fields: {key: string}) => fields.key === key)
 
-        workOrder.work_order_item.forEach((item: any, index: number) => {
-          if (item) {
-            if (item.item_name !== null && item.item_name !== undefined) {
-              formData.append(`work_order_items[${index}][item_name]`, item.item_name)
-            }
-
-            if (item.is_user !== null && item.is_user !== undefined) {
-              formData.append(`work_order_items[${index}][is_customer]`, item.is_user)
-            }
-
-            if (item.type !== null && item.type !== undefined) {
-              formData.append(`work_order_items[${index}][type]`, item.type)
-            }
-
-            if (item.quantity !== null && item.quantity !== undefined) {
-              formData.append(`work_order_items[${index}][quantity]`, item.quantity)
-            }
-
-            if (item.unit !== null && item.unit !== undefined) {
-              formData.append(`work_order_items[${index}][unit]`, item.unit)
-            }
-          }
-        })
-      } else {
-        errorBags.push({
-          message: 'Work Order Item cannot be empty',
-        })
-      }
-    } else {
-      for (const key in workOrder) {
-        if (Object.prototype.hasOwnProperty.call(workOrder, key)) {
-          const value = workOrder[key]
-          const required = requiredFields.find((fields: {key: string}) => fields.key === key)
-
-          if (required) {
-            if (value) {
-              if (key === 'tukang_id') {
-                value.forEach((item: any, index: number) => {
-                  if (item) {
-                    if (item.tukang_id) {
-                      formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
-                    }
-
-                    if (item.type) {
-                      formData.append(`work_order_tukang[${index}][type]`, item.type)
-                    }
+        if (required) {
+          if (value) {
+            if (key === 'tukang_id') {
+              value.forEach((item: any, index: number) => {
+                if (item) {
+                  if (item.tukang_id) {
+                    formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
                   }
-                })
-              } else {
-                formData.append(key, workOrder[key])
-              }
-            } else if (['survey_date', 'work_start_date', 'work_end_date'].includes(key)) {
-              if (value) {
-                formData.append(key, workOrder[key])
-              }
-            } else {
-              errorBags.push({
-                message: `${required.fieldName} cannot be empty`,
+
+                  if (item.type) {
+                    formData.append(`work_order_tukang[${index}][type]`, item.type)
+                  }
+                }
               })
+            } else {
+              formData.append(key, workOrder[key])
             }
+          } else if (['survey_date', 'work_start_date', 'work_end_date'].includes(key)) {
+            if (value) {
+              formData.append(key, workOrder[key])
+            }
+          } else {
+            errorBags.push({
+              message: `${required.fieldName} cannot be empty`,
+            })
           }
         }
       }
@@ -808,7 +755,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     'WORKREQ',
                     'WORKSTART',
                     'WORKEND',
-                    'REWORKEQ',
+                    'REWORKREQ',
                     'REWORKSTART',
                     'REWORKEND',
                     'RESCHEDULE',
@@ -1287,7 +1234,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           </Row>
 
           {orderDetail?.work_orders?.work_order_status.length > 1 &&
-          orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND' ? (
+          orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND' &&
+          !['RESURVEYREQ', 'REWORKREQ'].includes(orderDetail?.status?.category) ? (
             <div className='d-flex justify-content-center'>
               <Button
                 className='btn-done d-flex justify-content-center align-items-center'
