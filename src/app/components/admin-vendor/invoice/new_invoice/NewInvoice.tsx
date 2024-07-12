@@ -22,12 +22,10 @@ interface Status {
 
 interface DataType {
   order_id: number
-  // quotation_id: number
-  // quotation_id_label: string
   store_name: string
   date_order: string
   member_name: string
-  payment_status: string
+  order_type: string
   order_status: string
   order_status_label: string
 }
@@ -37,7 +35,7 @@ interface InvoiceData {
   invoice_evidences: Array<any>
   invoice_details: Array<{
     order_id?: number | null
-    quotation_id?: number | null
+    type?: number | null
   }>
 }
 
@@ -52,18 +50,8 @@ const columns: ColumnsType<DataType> = [
     className: 'col_order_id',
     sorter: (a, b) => a.order_id - b.order_id,
   },
-  // {
-  //   title: 'Quotation ID',
-  //   dataIndex: 'quotation_id_label',
-  //   key: 'quotation_id_label',
-  //   align: 'center',
-  //   width: 110,
-  //   className: 'col_order_id',
-  //   onFilter: (value, record) => record.quotation_id_label.includes(String(value)),
-  //   sorter: (a, b) => a.quotation_id_label.length - b.quotation_id_label.length,
-  // },
   {
-    title: 'Date Order',
+    title: 'Tanggal Order',
     dataIndex: 'date_order',
     key: 'date_order',
     align: 'center',
@@ -72,7 +60,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.date_order.length - b.date_order.length,
   },
   {
-    title: 'Member Name',
+    title: 'Nama Konsumen',
     dataIndex: 'member_name',
     key: 'member_name',
     align: 'center',
@@ -81,24 +69,24 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.member_name.length - b.member_name.length,
   },
   {
-    title: 'Payment Status',
-    dataIndex: 'payment_status',
-    key: 'payment_status',
+    title: 'Tipe Pengerjaan',
+    dataIndex: 'order_type',
+    key: 'order_type',
     align: 'left',
     width: 140,
-    onFilter: (value, record) => record.payment_status.includes(String(value)),
-    sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+    onFilter: (value, record) => record.order_type.includes(String(value)),
+    sorter: (a, b) => a.order_type.length - b.order_type.length,
   },
   {
     title: 'Order Status',
-    dataIndex: 'order_status',
-    key: 'order_status',
+    dataIndex: 'order_status_label',
+    key: 'order_status_label',
     align: 'left',
     width: 140,
-    onFilter: (value, record) => record.order_status.includes(String(value)),
-    sorter: (a, b) => a.order_status.length - b.order_status.length,
-    render: (order_status) => {
-      const orderStatus = order_status
+    onFilter: (value, record) => record.order_status_label.includes(String(value)),
+    sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
+    render: (order_status_label) => {
+      const orderStatus = order_status_label
       return <Tag color='green'>{orderStatus}</Tag>
     },
   },
@@ -130,7 +118,9 @@ const NewInvoiceVendor: FC = () => {
   // Status
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
+  const desiredStatus = statusData.filter((status: any) =>
+    ['SURVEYDONE', 'WORKEND'].includes(status.category)
+  )
 
   // Create Invoice
   const [selectedRows, setSelectedRows] = useState<DataType[]>([])
@@ -141,9 +131,7 @@ const NewInvoiceVendor: FC = () => {
     invoice_details: [
       {
         order_id: null,
-      },
-      {
-        quotation_id: null,
+        type: null,
       },
     ],
   })
@@ -172,7 +160,7 @@ const NewInvoiceVendor: FC = () => {
   const getOrders = async (page: number, pageSize: number, queryparams: any) => {
     if (desiredStatus) {
       const statuses = desiredStatus.map((x) => x.value)
-      let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&page=${page}&work_order_status=${statuses}&take=${pageSize}${queryparams}`
+      let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&page=${page}&work_order_status=${statuses}&is_invoice=1&take=${pageSize}${queryparams}`
 
       const response = await axios.get(apiUrlWithParams, {
         headers: {
@@ -184,15 +172,12 @@ const NewInvoiceVendor: FC = () => {
       })
 
       const data = response.data.data
-      const filteredData = data.filter(
-        (x: any) => x.payment_type !== 'gratis' && x.invoice_details.length === 0
-      )
 
       setCurrentPage(response.data.page)
-      setTotalData(filteredData.length)
+      setTotalData(response.data.total)
       setLoadData(false)
 
-      return filteredData
+      return data
     } else {
       console.error('Desired status not found in statusData')
     }
@@ -216,45 +201,34 @@ const NewInvoiceVendor: FC = () => {
           year: 'numeric',
         })
 
-        const paymentStatus = (() => {
-          if (item?.payment_type === 'survey') {
-            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
+        const orderType = (() => {
+          if (
+            item?.payment_type === 'survey' &&
+            ['SURVEYDONE'].includes(item?.work_orders?.work_order_status[0]?.status?.category)
+          ) {
+            return 'Survei'
+          } else if (
+            item?.payment_type === 'survey' &&
+            ['WORKEND'].includes(item?.work_orders?.work_order_status[0]?.status?.category)
+          ) {
+            return 'Pengerjaan'
           } else if (item?.payment_type === 'gratis') {
-            return 'FREE'
+            return 'Pengerjaan'
           } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
+            return 'Pengerjaan'
           } else {
             return ''
           }
         })()
 
-        const orderStatus = (() => {
-          if (item?.work_order_status?.length >= 0) {
-            if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
-              return item?.status?.description
-            } else if (
-              ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.description)
-            ) {
-              return item?.status?.description
-            } else {
-              return item?.work_order_status[0]?.status?.description
-            }
-          } else {
-            return item?.status?.description
-          }
-        })()
-
         data = {
           order_id: item?.id,
-          quotation_id: item?.quotation[0]?.id ?? null,
-          quotation_id_label: item?.quotation[0]?.id ?? 'Tidak Rilis Quotation',
           store_name: item?.store?.store_name,
           date_order: orderDate,
           member_name: item?.members?.full_name,
-          payment_status: paymentStatus,
-          order_status: item?.work_orders?.work_order_status[0]?.status?.description,
+          order_type: orderType,
+          order_status: item?.work_orders?.work_order_status[0]?.status?.category,
+          order_status_label: item?.work_orders?.work_order_status[0]?.status?.description,
         }
 
         return data
@@ -281,14 +255,24 @@ const NewInvoiceVendor: FC = () => {
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
       const updatedSelectedRowKeys = selectedRows.map((row) => row.order_id)
+      const invoiceType = selectedRows.map((row) => ({
+        order_id: row.order_id,
+        type: row.order_status === 'SURVEYDONE' ? 1 : row.order_status === 'WORKEND' ? 2 : 0,
+      }))
 
       setSelectedRows(selectedRows)
       setInvoices((prevInvoices) => ({
         ...prevInvoices,
-        invoice_details: selectedRows.map((row) => ({
-          order_id: row.order_id,
-        })),
+        invoice_details: invoiceType,
       }))
+
+      // setInvoices((prevInvoices) => ({
+      //   ...prevInvoices,
+      //   invoice_details: selectedRows.map((row) => ({
+      //     order_id: row.order_id,
+      //     type: 1,
+      //   })),
+      // }))
 
       console.log(`selectedRowKeys: ${updatedSelectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
@@ -325,6 +309,7 @@ const NewInvoiceVendor: FC = () => {
     invoices.invoice_details.forEach((invoice, index) => {
       if (invoice.order_id !== null) {
         formData.append(`invoice_details[${index}][order_id]`, String(invoice.order_id))
+        formData.append(`invoice_details[${index}][type]`, String(invoice.type))
       }
     })
 
@@ -369,75 +354,6 @@ const NewInvoiceVendor: FC = () => {
         icon: 'error',
       })
     }
-
-    // let textConfirmation = ''
-    // switch (status) {
-    //   case 1:
-    //     formData.append('status', String(1))
-    //     textConfirmation = 'Apakah Anda yakin membuat invoice ini ?'
-    //     break
-
-    //   case 2:
-    //     formData.append('status', String(2))
-    //     textConfirmation = 'Apakah Anda yakin invoice ini dibuat menjadi Draft ?'
-    //     break
-    //   default:
-    //     break
-    // }
-
-    // Swal.fire({
-    //   title: textConfirmation,
-    //   icon: 'question',
-    //   showConfirmButton: true,
-    //   confirmButtonColor: '#6b9230',
-    //   showDenyButton: true,
-    //   confirmButtonText: 'Ya',
-    //   denyButtonText: 'Tidak',
-    // }).then(async (result) => {
-    //   if (result.isConfirmed) {
-    //     try {
-    //       const response = await axios.post(`${apiUrl}/invoices`, formData, {
-    //         headers: {
-    //           Accept: 'application/json',
-    //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    //           'Access-Control-Allow-Origin': '*',
-    //           'ngrok-skip-browser-warning': 'true',
-    //         },
-    //       })
-
-    //       if (response.data.status === 201) {
-    //         Swal.fire({
-    //           title: 'Success',
-    //           text: 'Success Add Invoice',
-    //           icon: 'success',
-    //           showConfirmButton: false,
-    //           timer: 1500,
-    //         }).then(() => {
-    //           navigate(`/invoice/view-invoice`)
-    //         })
-
-    //         setIsLoading(false)
-    //       } else {
-    //         Swal.fire({
-    //           title: 'Error',
-    //           text: response.data.message,
-    //           icon: 'error',
-    //         })
-
-    //         setIsLoading(false)
-    //       }
-    //     } catch (error: any) {
-    //       console.error(error)
-    //       setIsLoading(false)
-
-    //       Swal.fire({
-    //         title: 'Error',
-    //         text: error.response.data.message,
-    //         icon: 'error',
-    //       })
-    //     }
-    //   }
-    // })
   }
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -536,27 +452,6 @@ const NewInvoiceVendor: FC = () => {
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-
-              {/* <Form.Group as={Row}>
-                <Form.Label className='fs-5' column sm='4'>
-                  Invoice ID :
-                </Form.Label>
-
-                <Col sm='8'>
-                  <Form.Control type='number' readOnly value={invoiceCode} />
-                </Col>
-              </Form.Group> */}
-
-              {/* <div className='d-flex justify-content-end align-items-end'>
-                <Button
-                  className='d-flex justify-content-center align-items-center'
-                  variant='outline-success'
-                  type='submit'
-                  onClick={exportToExcel}
-                >
-                  Download
-                </Button>
-              </div> */}
             </Col>
           </Row>
 
@@ -623,15 +518,6 @@ const NewInvoiceVendor: FC = () => {
             >
               {isLoading ? 'Creating..' : 'Create Invoice Draft'}
             </Button>
-
-            {/* <Button
-              className='d-flex justify-content-center align-items-center'
-              variant='dark-success'
-              type='submit'
-              onClick={() => handleCreateInvoice(1)}
-            >
-              Create Invoice
-            </Button> */}
           </div>
         </Card.Body>
       </Card>

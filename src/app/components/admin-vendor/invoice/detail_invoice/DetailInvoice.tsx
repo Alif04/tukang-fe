@@ -23,6 +23,8 @@ const DetailInvoiceVendor: FC = () => {
   const params = useParams()
   const pdfRef = useRef<HTMLDivElement>(null)
 
+  const userRole = localStorage.getItem('userRole') as string
+
   const [loadingPDF, setLoadingPDF] = useState(false)
   const [store, setStore] = useState<Store[]>([])
   const [invoiceDetail, setInvoiceDetail] = useState<any>()
@@ -138,7 +140,11 @@ const DetailInvoiceVendor: FC = () => {
               <h1 className='fw-bolder'>INVOICE</h1>
 
               <div className='fs-3 fw-semibold'>
-                Tanggal Dibuat :{' '}
+                Invoice ID : <span className='fw-normal'>{invoiceDetail?.id}</span>
+              </div>
+
+              <div className='fs-3 fw-semibold'>
+                Tanggal dibuat :{' '}
                 <span className='fw-normal'>
                   {new Date(invoiceDetail?.created_at).toLocaleDateString('id-ID', {
                     day: 'numeric',
@@ -149,7 +155,7 @@ const DetailInvoiceVendor: FC = () => {
               </div>
 
               <div className='fs-3 fw-semibold'>
-                Invoice ID : <span className='fw-normal'>{invoiceDetail?.id}</span>
+                Periode : <span className='fw-normal'>{getFormattedPeriod()}</span>
               </div>
             </Col>
           </Row>
@@ -162,20 +168,15 @@ const DetailInvoiceVendor: FC = () => {
                 Jl. Gading Serpong Boulevard Blok mitra 10, Curug Sangereng, Kec. Klp. Dua,
                 Kabupaten Tangerang, Banten 15820
               </h3>
-              <h3 className='fs-4 mb-2 fw-normal'>Telp : 0878-8210-5748</h3>
+              <h3 className='fs-4 mb-2 fw-normal'>Telp : 0878-8482-1089</h3>
             </Col>
 
-            <Col xxl={6} xl={6} md={6} sm={12} className='receiver-information'>
+            <Col xxl={6} xl={6} md={6} sm={12} className='notes'>
               {invoiceDetail?.status === 3 && (
-                <Form.Group>
-                  <Form.Label className='fs-5 fw-bold text-danger'>Alasan Ditolak :</Form.Label>
-                  <Form.Control
-                    style={{minHeight: '80px'}}
-                    as='textarea'
-                    readOnly
-                    value={invoiceDetail?.description ?? ''}
-                  />
-                </Form.Group>
+                <div className='fs-3 fw-semibold text-danger'>
+                  Alasan ditolak : <br></br>
+                  <span className='text-dark fw-normal'>{invoiceDetail?.notes}</span>
+                </div>
               )}
             </Col>
           </Row>
@@ -184,6 +185,7 @@ const DetailInvoiceVendor: FC = () => {
             <Table responsive hover>
               <thead>
                 <tr>
+                  <th className='text-center'>No. Invoice</th>
                   <th className='text-center'>Order ID</th>
                   <th className='text-center'>Tanggal Order</th>
                   <th className='text-center'>Nama Toko</th>
@@ -197,7 +199,8 @@ const DetailInvoiceVendor: FC = () => {
               <tbody>
                 {invoiceDetail?.invoice_details.map((item: any) => (
                   <tr key={item?.order?.id}>
-                    <td>{item?.order?.id}</td>
+                    <td align='center'>{item?.invoice_number}</td>
+                    <td align='center'>{item?.order?.id}</td>
                     <td>
                       {new Date(item?.order?.request_survey).toLocaleDateString('id-ID', {
                         day: 'numeric',
@@ -212,7 +215,11 @@ const DetailInvoiceVendor: FC = () => {
                     <td>
                       {item?.order?.payment_type === 'survey'
                         ? 'Survey'
-                        : 'Pemasangan Tanpa Survey'}
+                        : item?.order?.payment_type === 'pemasangan_tanpa_survey'
+                        ? 'Pengerjaan'
+                        : item?.order?.payment_type === 'gratis'
+                        ? item?.order?.m_order_details.map((x: any) => x.item_name).join(', ')
+                        : ''}
                     </td>
                     <td>
                       {item?.order?.quotation?.length > 0 &&
@@ -225,7 +232,29 @@ const DetailInvoiceVendor: FC = () => {
                 ))}
 
                 <tr>
-                  <td colSpan={6} className='text-end fw-bolder'>
+                  <td colSpan={7} className='text-end fw-bolder'>
+                    Total
+                  </td>
+
+                  <td className='fw-bolder'>
+                    {`Rp. ${invoiceDetail?.invoice_details
+                      .reduce((acc: number, item: any) => acc + parseInt(item?.total), 0)
+                      .toLocaleString('id')}`}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colSpan={7} className='text-end fw-bolder'>
+                    PKP ( 1, 11 %)
+                  </td>
+
+                  <td className='fw-bolder'>{`Rp. ${parseInt(
+                    invoiceDetail?.pkp_nominal ?? 0
+                  ).toLocaleString('id')}`}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={7} className='text-end fw-bolder'>
                     Grand Total
                   </td>
 
@@ -259,16 +288,25 @@ const DetailInvoiceVendor: FC = () => {
             </div>
           </Row>
 
-          <Row className='signature'>
-            <Col xxl={8} xl={8} md={8} sm={12}></Col>
+          {['Owner Vendor', 'Admin Vendor'].includes(userRole) && (
+            <Row className='signature'>
+              <Col xxl={8} xl={8} md={8} sm={12}></Col>
 
-            <Col xxl={4} xl={4} md={4} sm={12} className='signature'>
-              <div className='signature-label'>Tanda Tangan :</div>
-              <div className='signature-label'>{getFormattedPeriod()}</div>
-              <div className='signature-line'></div>
-              <div className='signature-name'>{invoiceDetail?.vendor?.company_name}</div>
-            </Col>
-          </Row>
+              <Col xxl={4} xl={4} md={4} sm={12} className='signature'>
+                <div className='signature-label'>Tanda Tangan :</div>
+                <div className='signature-label'>
+                  {new Date(invoiceDetail?.created_at).toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </div>
+                <div className='signature-line'></div>
+                <div className='signature-name'>{invoiceDetail?.vendor?.company_name}</div>
+              </Col>
+            </Row>
+          )}
         </Card.Body>
       </Card>
 

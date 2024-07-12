@@ -29,6 +29,7 @@ import {
   faImage,
   faFileImage,
   faTrash,
+  faCheckCircle,
 } from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
@@ -36,17 +37,16 @@ const {Dragger} = Upload
 
 interface DataType {
   invoice_id: number
+  status: number
   invoice_date: string
   vendor_name: string
   amount: number
   invoice_status: string
 }
 
-interface InvoiceData {
-  status_id: number | null
-  payment_request: Array<{
-    invoice_id?: number | null
-  }>
+interface Invoices {
+  status: number | null
+  invoice_id: any[]
 }
 
 interface Status {
@@ -77,30 +77,26 @@ const ViewInvoiceHO: FC = () => {
   // Status
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const statusInvoice = statusData.find((status: any) => status?.category === 'INVOICESEND')
 
   // Update Invoice
   const [invoiceId, setInvoiceId] = useState<any>()
+  console.log('invoice', invoiceId)
   const [invoiceNotes, setInvoiceNotes] = useState<any>()
-  const [invoices, setInvoices] = useState<InvoiceData>({
-    status_id: null,
-    payment_request: [
-      {
-        invoice_id: null,
-      },
-    ],
+  const [invoices, setInvoices] = useState<Invoices>({
+    status: 2,
+    invoice_id: [],
   })
 
   // Update Status Invoice
-  useEffect(() => {
-    const updatedStatusId = statusData.find((status: any) => status?.category === 'UNPAID')
-    const statusId = updatedStatusId?.value
+  // useEffect(() => {
+  //   const updatedStatusId = statusData.find((status: any) => status?.category === 'UNPAID')
+  //   const statusId = updatedStatusId?.value
 
-    setInvoices((prev) => ({
-      ...prev,
-      status_id: statusId,
-    }))
-  }, [invoices])
+  //   setInvoices((prev) => ({
+  //     ...prev,
+  //     status_id: statusId,
+  //   }))
+  // }, [invoices])
 
   // Filter Table
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,7 +117,7 @@ const ViewInvoiceHO: FC = () => {
       sorter: (a, b) => a.invoice_id - b.invoice_id,
     },
     {
-      title: 'Invoice Date',
+      title: 'Tanggal Invoice Terbit',
       dataIndex: 'invoice_date',
       key: 'invoice_date',
       align: 'center',
@@ -130,7 +126,7 @@ const ViewInvoiceHO: FC = () => {
       sorter: (a, b) => a.invoice_date.length - b.invoice_date.length,
     },
     {
-      title: 'Vendor Name',
+      title: 'Nama Vendor',
       dataIndex: 'vendor_name',
       key: 'vendor_name',
       align: 'center',
@@ -139,7 +135,7 @@ const ViewInvoiceHO: FC = () => {
       sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
     },
     {
-      title: 'Amount',
+      title: 'Total Tagihan',
       dataIndex: 'amount',
       key: 'amount',
       align: 'center',
@@ -149,7 +145,7 @@ const ViewInvoiceHO: FC = () => {
       sorter: (a, b) => a.amount - b.amount,
     },
     {
-      title: 'Invoice Status',
+      title: 'Status Invoice',
       dataIndex: 'invoice_status',
       key: 'invoice_status',
       align: 'center',
@@ -164,10 +160,6 @@ const ViewInvoiceHO: FC = () => {
           case 'UNPAID':
             color = 'red'
             break
-          case 'INVOICE':
-            color = 'green'
-            break
-          case 'INVOICESEND':
           default:
             color = 'blue'
             break
@@ -175,10 +167,6 @@ const ViewInvoiceHO: FC = () => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'INVOICE', value: 'INVOICE'},
-        {text: 'INVOICESEND', value: 'INVOICESEND'},
-      ],
     },
     {
       title: 'Action',
@@ -196,8 +184,10 @@ const ViewInvoiceHO: FC = () => {
         const handleShowModal = (id: number) => {
           const selected = invoiceData.find((invoice) => invoice.invoice_id === id)
 
+          console.log('selected', selected)
+
           if (selected) {
-            setInvoiceId(selected)
+            setInvoiceId(selected.invoice_id)
             setModalInvoice(true)
           }
         }
@@ -214,28 +204,68 @@ const ViewInvoiceHO: FC = () => {
               </Button>
             </OverlayTrigger>
 
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Tolak Invoice')}
-            >
-              <Button
-                className='button-cancel'
-                variant='danger'
-                onClick={() => handleShowModal(id)}
+            {[1].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Tolak Invoice')}
               >
-                <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
+                <Button
+                  className='button-cancel'
+                  variant='danger'
+                  onClick={() => handleShowModal(id)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {[2, 4].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Kirim Invoice ke Finance')}
+              >
+                <Button
+                  variant='primary'
+                  className='button-verif'
+                  onClick={() => handleUpdateInvoice(id, 5, 'Invoice diberikan kepada Finance')}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {[5].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Sudah dibayarkan')}
+              >
+                <Button
+                  variant='primary'
+                  className='button-verif'
+                  onClick={() => handleUpdateInvoice(id, 6, 'Invoice sudah dibayarkan')}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
           </div>
         )
       },
     },
   ]
 
-  const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
+  const getInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
     const response = await axios.get(
-      `${apiUrl}/invoices?order_by=desc&status=${statusInvoice?.value}&page=${page}&take=${pageSize}${queryparams}`,
+      `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}${queryparams}`,
       {
         headers: {
           Accept: 'application/json',
@@ -255,10 +285,10 @@ const ViewInvoiceHO: FC = () => {
 
   const ViewInvoice = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchInvoiceList(page, pageSize, queryparams)
+      const apiData = await getInvoiceList(page, pageSize, queryparams)
 
       if (!apiData) {
-        console.error('No data received from fetchInvoiceList')
+        console.error('No data received from getInvoiceList')
         return []
       }
 
@@ -274,11 +304,17 @@ const ViewInvoiceHO: FC = () => {
         const invoiceStatus = (status: number) => {
           switch (status) {
             case 1:
-              return 'Waiting for Payment'
+              return 'Pengecekan Invoice'
             case 2:
-              return 'Paid'
+              return 'Invoice Disetujui'
             case 3:
-              return 'Invoice Declined'
+              return 'Invoice Ditolak'
+            case 4:
+              return 'Menunggu Dokumen Tagihan'
+            case 5:
+              return 'Invoice Diberikan Kepada Finance'
+            case 6:
+              return 'Invoice Sudah Dibayarkan'
             default:
               return ''
           }
@@ -289,6 +325,7 @@ const ViewInvoiceHO: FC = () => {
           invoice_date: invoiceDate,
           vendor_name: item?.vendor?.company_name ?? '-',
           amount: `Rp. ${parseInt(item?.total_amount).toLocaleString('id')}`,
+          status: item?.status,
           invoice_status: invoiceStatus(item?.status),
         }
 
@@ -326,26 +363,26 @@ const ViewInvoiceHO: FC = () => {
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
       setInvoices((prevInvoices) => ({
         ...prevInvoices,
-        payment_request: selectedRowKeys.map((key) => ({
-          invoice_id: Number(key),
-        })),
+        invoice_id: selectedRowKeys.map((key) => Number(key)),
       }))
 
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
   }
 
+  console.log('invoices', invoices)
+
   // Handle Approve Invoice
   const handleApproveInvoice = async () => {
     setIsLoading(true)
     const formData = new FormData()
 
-    invoices.payment_request.forEach((invoice) => {
-      if (invoice.invoice_id !== null) {
-        formData.append('status_id', String(invoices.status_id))
-        formData.append(`invoice_id`, String(invoice.invoice_id))
-      }
-    })
+    // invoices.invoice_id.forEach((invoice) => {
+    //   if (invoice.id !== null) {
+    //     formData.append('status', String(2))
+    //     formData.append(`invoice_id`, String(invoice.id))
+    //   }
+    // })
 
     Swal.fire({
       title: 'Apakah anda yakin akan menyetujui daftar invoice ini?',
@@ -504,7 +541,7 @@ const ViewInvoiceHO: FC = () => {
     if (invoiceEvidence?.length) {
       invoiceEvidence.forEach((item) => {
         if (item instanceof Blob) {
-          formData.append(`invoice_files`, item, item.name)
+          formData.append(`invoice_evidences`, item, item.name)
         }
       })
     }
@@ -522,7 +559,7 @@ const ViewInvoiceHO: FC = () => {
         if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
-            text: 'Berhasil Verifikasi Pembayaran',
+            text: 'Berhasil Membatalkan Pembayaran',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -624,16 +661,73 @@ const ViewInvoiceHO: FC = () => {
       })
   }
 
+  // Handle Update Status
+  const handleUpdateInvoice = async (id: number, status: number, statusName: string) => {
+    const formData = new FormData()
+    formData.append('status', String(status))
+
+    const textConfirmation = `Apakah Anda yakin ingin mengubah status invoice ini menjadi ${statusName} ?`
+
+    Swal.fire({
+      title: textConfirmation,
+      icon: 'question',
+      showConfirmButton: true,
+      confirmButtonColor: '#6b9230',
+      showDenyButton: true,
+      confirmButtonText: 'Ya',
+      denyButtonText: 'Tidak',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.post(`${apiUrl}/invoices/${id}`, formData, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          if (response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Berhasil mengubah status Invoice',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            })
+            setIsLoading(false)
+            navigate('/invoice/view-invoice')
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+            setIsLoading(false)
+          }
+        } catch (error: any) {
+          console.error(error)
+          setIsLoading(false)
+          Swal.fire({
+            title: 'Error',
+            text: error.response?.data?.message || 'Something went wrong',
+            icon: 'error',
+          })
+        }
+      }
+    })
+  }
+
   return (
     <section id='view-invoice'>
       <div className='card'>
         <div className='card-body table-view-order'>
           <div className='d-flex justify-content-end align-items-center gap-3 mb-5'>
-            <button className='button-export' onClick={handleUploadExcel}>
+            {/* <button className='button-export' onClick={handleUploadExcel}>
               <h3 className='fs-5 fw-semibold'>
                 {loadingUploadExcel ? 'Uploading..' : 'Import Excel'}
               </h3>
-            </button>
+            </button> */}
 
             <button className='button-export' onClick={exportTemplate}>
               <h3 className='fs-5 fw-semibold'>

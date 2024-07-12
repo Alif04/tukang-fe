@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useState, useEffect, FC} from 'react'
+import React, {useState, useEffect, FC, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewInvoice.css'
@@ -9,14 +9,33 @@ import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
-import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
-import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination, Skeleton, Image} from 'antd'
+import {
+  Form,
+  InputGroup,
+  Row,
+  Col,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+  Modal,
+  ListGroup,
+} from 'react-bootstrap'
+import {
+  faBook,
+  faPen,
+  faSearch,
+  faFile,
+  faTrash,
+  faFileImage,
+  faImage,
+} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
 interface DataType {
   invoice_id: number
+  status: number
   order_id: number
   invoice_date: string
   store_name: string
@@ -28,17 +47,44 @@ interface Store {
   store_name: string
 }
 
+interface Invoice {
+  id: number | null
+  vendor_id: number | null
+  status: number | null
+  invoice_evidences: Array<any>
+  invoice_details: Array<{
+    id?: number | null
+    order_id: number | null
+    type?: number | null
+  }>
+}
+
 const ViewInvoiceVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  const userVendor = localStorage.getItem('vendor_id') as any
+  const vendorId = localStorage.getItem('vendor_id')
 
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
-  const [store, setStore] = useState<Store[]>([])
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
+  const [invoice, setInvoice] = useState<Invoice>({
+    id: null,
+    vendor_id: Number(vendorId),
+    status: null,
+    invoice_evidences: [],
+    invoice_details: [
+      {
+        id: null,
+        order_id: null,
+        type: null,
+      },
+    ],
+  })
+
+  const [store, setStore] = useState<Store[]>([])
+
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -99,27 +145,27 @@ const ViewInvoiceVendor: FC = () => {
       width: 140,
       onFilter: (value, record) => record.invoice_status.includes(String(value)),
       sorter: (a, b) => a.invoice_status.length - b.invoice_status.length,
-      filters: [
-        {text: 'Waiting for Payment', value: 'Waiting for Payment'},
-        {text: 'Approve', value: 'Approve'},
-        {text: 'Decline', value: 'Decline'},
-      ],
+      // filters: [
+      //   {text: 'Waiting for Payment', value: 'Waiting for Payment'},
+      //   {text: 'Approve', value: 'Approve'},
+      //   {text: 'Decline', value: 'Decline'},
+      // ],
       render: (invoice_status) => {
         const orderStatus = invoice_status
         let color = ''
 
         switch (orderStatus) {
-          case 'Waiting for Payment':
+          case 'Pengecekan Invoice':
             color = 'green'
             break
-          case 'Paid':
+          case 'Invoice Disetujui':
             color = 'blue'
             break
-          case 'Invoice Declined':
+          case 'Invoice Ditolak':
             color = 'red'
             break
           default:
-            color = 'gray'
+            color = 'green'
             break
         }
 
@@ -133,13 +179,13 @@ const ViewInvoiceVendor: FC = () => {
       width: 70,
       align: 'center',
       render: (record) => {
+        const id = record.invoice_id
+
         const handleUpdateInvoice = () => {
-          const id = record.invoice_id
           navigate(`/invoice/update-invoice/${id}`)
         }
 
         const handleDetailInvoice = () => {
-          const id = record.invoice_id
           navigate(`/invoice/detail-invoice/${id}`)
         }
 
@@ -157,7 +203,7 @@ const ViewInvoiceVendor: FC = () => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .delete(`${apiUrl}/invoices/${id}`, {
+                  .delete(`${apiUrl}/invoice/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -192,6 +238,16 @@ const ViewInvoiceVendor: FC = () => {
             })
         }
 
+        const handleShowModal = (id: number, type: number) => {
+          const selected = invoiceData.find((invoice) => invoice.invoice_id === id)
+
+          if (selected) {
+            getInvoiceData(selected.invoice_id)
+            setShowModal(true)
+            setModalType(type)
+          }
+        }
+
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
             <OverlayTrigger
@@ -204,15 +260,37 @@ const ViewInvoiceVendor: FC = () => {
               </Button>
             </OverlayTrigger>
 
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Edit Invoice')}
-            >
-              <Button variant='primary' className='button-edit' onClick={handleUpdateInvoice}>
-                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
+            {![1, 2, 4, 5, 6].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Edit Invoice')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleUpdateInvoice}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {[2].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Upload Dokumen Tagihan')}
+              >
+                <Button
+                  variant='primary'
+                  className='button-verif'
+                  onClick={() => handleShowModal(id, 1)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faFile} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
 
             {/* <OverlayTrigger
               placement='bottom'
@@ -255,10 +333,10 @@ const ViewInvoiceVendor: FC = () => {
     }
   }
 
-  const fetchInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
+  const getInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/invoices?order_by=desc&page=${page}&vendor_id=${userVendor}&take=${pageSize}${queryparams}`,
+        `${apiUrl}/invoices?order_by=desc&page=${page}&vendor_id=${vendorId}&take=${pageSize}${queryparams}`,
         {
           headers: {
             Accept: 'application/json',
@@ -279,12 +357,56 @@ const ViewInvoiceVendor: FC = () => {
     }
   }
 
+  const getInvoiceData = async (invoice_id: number | null) => {
+    if (invoice_id === null) return
+
+    try {
+      await axios
+        .get(`${apiUrl}/invoices/${invoice_id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+
+          setTimeout(() => {
+            setLoadingModal(false)
+          }, 2000)
+
+          setInvoice((prevInvoices) => ({
+            ...prevInvoices,
+            status: data?.status,
+            invoice_details: data?.invoice_details.map((item: any) => ({
+              id: item.id,
+              order_id: item.order_id,
+              type: item.type,
+            })),
+          }))
+
+          if (data?.invoice?.length) {
+            const vendorFiles = data.invoice[0]?.invoice_evidences.map((item: any) => ({
+              id: item.id,
+              name: item.path,
+            }))
+
+            setVendorFiles(vendorFiles)
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const ViewInvoice = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchInvoiceList(page, pageSize, queryparams)
+      const apiData = await getInvoiceList(page, pageSize, queryparams)
 
       if (!apiData) {
-        console.error('No data received from fetchInvoiceList')
+        console.error('No data received from getInvoiceList')
         return []
       }
 
@@ -309,11 +431,17 @@ const ViewInvoiceVendor: FC = () => {
         const invoiceStatus = (status: number) => {
           switch (status) {
             case 1:
-              return 'Waiting for Payment'
+              return 'Pengecekan Invoice'
             case 2:
-              return 'Paid'
+              return 'Invoice Disetujui'
             case 3:
-              return 'Invoice Declined'
+              return 'Invoice Ditolak'
+            case 4:
+              return 'Menunggu Dokumen Tagihan'
+            case 5:
+              return 'Invoice Diberikan Kepada Finance'
+            case 6:
+              return 'Invoice Sudah Dibayarkan'
             default:
               return ''
           }
@@ -325,6 +453,7 @@ const ViewInvoiceVendor: FC = () => {
           invoice_date: invoiceDate,
           store_name: storeName,
           invoice_status: invoiceStatus(item?.status),
+          status: item?.status,
         }
 
         return data
@@ -347,6 +476,7 @@ const ViewInvoiceVendor: FC = () => {
   }, [store])
 
   useEffect(() => {
+    getInvoiceData(null)
     getStore()
   }, [])
 
@@ -379,6 +509,260 @@ const ViewInvoiceVendor: FC = () => {
     setInvoiceData(data)
 
     setLoadingButton(false)
+  }
+
+  // Modal
+  const [loadingUpdate, setLoadingUpdate] = useState(false)
+  const [loadingModal, setLoadingModal] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [modalType, setModalType] = useState<number | null>(null)
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
+
+  // Upload File Vendor
+  const evidenceRef = useRef<HTMLInputElement>(null)
+  const [vendorFiles, setVendorFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...vendorFiles]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setVendorFiles(mergedFiles)
+    }
+  }
+
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
+
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...vendorFiles]
+    newEvidances.splice(index, 1)
+    setVendorFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(vendorFiles[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
+  }
+
+  // Handle Update Invoice
+  const handleUploadFile = async () => {
+    setLoadingUpdate(true)
+    const formData = new FormData()
+
+    formData.append('vendor_id', String(invoice.vendor_id))
+    formData.append('status', String(invoice.status))
+    invoice.invoice_details.forEach((invoice, index) => {
+      if (invoice.order_id !== null) {
+        formData.append(`invoice_details[${index}][id]`, String(invoice.id))
+        formData.append(`invoice_details[${index}][order_id]`, String(invoice.order_id))
+        formData.append(`invoice_details[${index}][type]`, String(invoice.type))
+      }
+    })
+
+    if (vendorFiles?.length) {
+      vendorFiles.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`invoice_evidence`, item, item.name)
+        }
+      })
+    }
+
+    if (vendorFiles?.length) {
+      vendorFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(`preserve_files[${index}]`, item.id)
+        }
+      })
+    }
+
+    await axios
+      .post(`${apiUrl}/invoices/${invoice.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201 || response.data.status === 200) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil Upload Dokumen',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+
+          setLoadingUpdate(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setLoadingUpdate(false)
+        }
+
+        window.location.reload()
+      })
+      .catch((error) => {
+        setLoadingUpdate(false)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  const UploadFileVendor = ({
+    invoiceDetail,
+    loadingModal,
+    handleUpdateQuotation,
+    loadingUpdate,
+    vendorFiles,
+    handleImageClick,
+    handleFileChange,
+    handleFileClick,
+    handleRemoveFile,
+  }: any) => {
+    return (
+      <>
+        <Modal.Header closeButton>
+          <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
+            <Modal.Title>Upload Dokumen Tagihan - Invoice ID {invoiceDetail?.id}</Modal.Title>
+          </Skeleton>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+            <Row>
+              <Col md={12}>
+                <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                  <Form.Group>
+                    <Form.Label>Upload Dokumen Tagihan</Form.Label>
+
+                    <Form className='form-input-image' onClick={handleImageClick}>
+                      <Form.Control
+                        type='file'
+                        accept='image/jpeg, image/png'
+                        className='input-field-image'
+                        multiple
+                        hidden
+                        id='file-input'
+                        ref={evidenceRef}
+                        onChange={handleFileChange}
+                      />
+
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    </Form>
+
+                    <ListGroup className='pt-3'>
+                      {vendorFiles.length ? (
+                        vendorFiles.map((item: any, index: number) => (
+                          <ListGroup>
+                            <ListGroup.Item
+                              className='d-flex justify-content-between align-items-center'
+                              key={`${item?.name}-${index}-${item?.type}`}
+                            >
+                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                              <span
+                                className='upload-content'
+                                style={{cursor: 'pointer'}}
+                                onClick={() => handleFileClick(index)}
+                              >
+                                {item?.name}
+                              </span>
+
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size='sm'
+                                color='#ed2b2a'
+                                style={{cursor: 'pointer'}}
+                                onClick={(e) => handleRemoveFile(index)}
+                              />
+                            </ListGroup.Item>
+
+                            {selectedFileIndex === index && item && (
+                              <Image
+                                key={`${previewImage} - ${index}`}
+                                width={200}
+                                style={{display: 'none'}}
+                                src={
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/quotation/${previewImage}`
+                                }
+                                preview={{
+                                  visible: visible,
+                                  src:
+                                    item instanceof File
+                                      ? URL.createObjectURL(item)
+                                      : `${apiUrl}/public/quotation/${previewImage}`,
+                                  onVisibleChange: (value) => {
+                                    setVisible(value)
+                                  },
+                                }}
+                              />
+                            )}
+                          </ListGroup>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
+                  </Form.Group>
+                </Row>
+              </Col>
+            </Row>
+
+            <div className='button-submit d-flex justify-content-center align-items-center'>
+              <Button
+                className='d-flex justify-content-center align-items-center'
+                onClick={handleUpdateQuotation}
+                disabled={loadingUpdate}
+                variant='dark-primary'
+              >
+                {loadingUpdate ? 'Submitting..' : 'Submit'}
+              </Button>
+            </div>
+          </Skeleton>
+        </Modal.Body>
+      </>
+    )
   }
 
   return (
@@ -471,6 +855,26 @@ const ViewInvoiceVendor: FC = () => {
           />
         </div>
       </div>
+
+      <Modal
+        dialogClassName='modal-verification'
+        centered
+        show={showModal}
+        onHide={handleCloseModal}
+      >
+        {modalType === 1 && (
+          <UploadFileVendor
+            invoiceDetail={invoice}
+            loadingModal={loadingModal}
+            loadingUpdate={loadingUpdate}
+            vendorFiles={vendorFiles}
+            handleImageClick={handleImageClick}
+            handleFileChange={handleFileChange}
+            handleFileClick={handleFileClick}
+            handleRemoveFile={handleRemoveFile}
+          />
+        )}
+      </Modal>
     </section>
   )
 }
