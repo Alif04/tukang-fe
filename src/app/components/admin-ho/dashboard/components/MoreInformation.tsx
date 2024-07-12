@@ -8,28 +8,34 @@ import './MoreInformation.css'
 type Props = {
   className: string
   totalComplaint: number
-  totalReschedule: number
-  totalCancel: number
-  totalRefund: number
+  totalResurvey: number
   totalRework: number
+  totalReschedule: number
+  totalRefund: number
+  totalCancel: number
+  totalActiveWarranty: number
+  totalExpiredWarranty: number
 }
 
-const renderStat = (value: number, label: string) => (
+const renderStat = (value: number, label: string, className: string) => (
   <Col className='pt-5 pb-5'>
     <h1 className='fw-normal text-center' style={{fontSize: '25px'}}>
       {value}
     </h1>
-    <p className='fs-6 text-danger text-center mt-1 mb-1'>{label}</p>
+    <p className={className}>{label}</p>
   </Col>
 )
 
 const MoreInformation: React.FC<Props> = ({
   className,
   totalComplaint,
-  totalReschedule,
-  totalCancel,
-  totalRefund,
+  totalResurvey,
   totalRework,
+  totalReschedule,
+  totalRefund,
+  totalCancel,
+  totalActiveWarranty,
+  totalExpiredWarranty,
 }) => {
   return (
     <section id='more-information-ho'>
@@ -39,14 +45,29 @@ const MoreInformation: React.FC<Props> = ({
             <div className='fs-1 text-gray-800'>Informasi Lainnya</div>
 
             <Row>
-              {renderStat(totalComplaint, 'COMPLAINT')}
-              {renderStat(totalReschedule, 'RESCHEDULE')}
-              {renderStat(totalCancel, 'CANCEL')}
+              {renderStat(totalComplaint, 'COMPLAINT', 'fs-6 text-danger text-center mt-1 mb-1')}
+              {renderStat(totalResurvey, 'RESURVEY', 'fs-6 text-danger text-center mt-1 mb-1')}
+              {renderStat(totalRework, 'REWORK', 'fs-6 text-danger text-center mt-1 mb-1')}
             </Row>
 
             <Row>
-              {renderStat(totalRefund, 'REFUND')}
-              {renderStat(totalRework, 'REWORK')}
+              {renderStat(totalReschedule, 'RESCHEDULE', 'fs-6 text-danger text-center mt-1 mb-1')}
+              {renderStat(totalRefund, 'REFUND', 'fs-6 text-danger text-center mt-1 mb-1')}
+              {renderStat(totalCancel, 'CANCEL', 'fs-6 text-danger text-center mt-1 mb-1')}
+            </Row>
+
+            <Row>
+              {renderStat(
+                totalActiveWarranty,
+                'GARANSI AKTIF',
+                'fs-6 text-black text-center mt-1 mb-1'
+              )}
+
+              {renderStat(
+                totalExpiredWarranty,
+                'GARANSI EXPIRED',
+                'fs-6 text-black text-center mt-1 mb-1'
+              )}
               <Col className='hidden-column pt-5 pb-5'></Col>
             </Row>
           </Row>

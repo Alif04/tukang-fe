@@ -663,7 +663,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN CSI TERKIRIM</PageTitle>
 
             <ReportHO
-              endpoint='orders'
+              endpoint='csi'
               statusName=''
               headerColor='success'
               title='Laporan CSI Terkirim'
@@ -687,7 +687,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN CSI BELUM TERKIRIM</PageTitle>
 
             <ReportHO
-              endpoint='orders'
+              endpoint='csi'
               statusName=''
               headerColor='danger'
               title='Laporan CSI Belum Terkirim'
@@ -711,7 +711,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN CSI DIRESPON</PageTitle>
 
             <ReportHO
-              endpoint='orders'
+              endpoint='csi'
               statusName=''
               headerColor='success'
               title='Laporan CSI Direspon'
@@ -735,7 +735,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN CSI BELUM DIRESPON</PageTitle>
 
             <ReportHO
-              endpoint='orders'
+              endpoint='csi'
               statusName=''
               headerColor='danger'
               title='Laporan CSI Belum Direspon'
@@ -1049,7 +1049,7 @@ const RefundPage: React.FC = () => {
 
             <ReportVendor
               endpoint='orders'
-              statusName='SURVEY'
+              statusName=''
               headerColor='success'
               title='Laporan Survey ( Omset )'
             />

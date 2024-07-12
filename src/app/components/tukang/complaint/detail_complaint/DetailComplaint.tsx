@@ -728,7 +728,7 @@ const DetailComplaintTukang: FC<{updatePageTitle: (complaint: any) => void}> = (
                         <Form.Control
                           plaintext
                           readOnly
-                          value={formatDate(new Date(item?.ra_date_start))}
+                          value={formatDate(new Date(item.created_at))}
                         />
                       </Col>
                     </Form.Group>

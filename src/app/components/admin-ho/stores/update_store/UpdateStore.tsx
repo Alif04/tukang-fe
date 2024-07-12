@@ -64,9 +64,6 @@ const UpdateStores: FC = () => {
     label: '',
   })
 
-  console.log('store info', storeInfo)
-  console.log('selected area', selectedArea)
-
   // Fetch API Data
   useEffect(() => {
     const getArea = async () => {
@@ -135,7 +132,7 @@ const UpdateStores: FC = () => {
                 bank_number: data?.bank_number,
                 bank_account: data?.bank_account,
                 zip_code: data?.zip_code,
-                username: data?.username,
+                username: data?.users?.username,
                 default_password: data?.default_password,
               }))
             }
@@ -284,14 +281,27 @@ const UpdateStores: FC = () => {
     return valid
   }
 
+  const objectValueCheck = (data: Store) => {
+    let cleanedData: Partial<Store> = {}
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        cleanedData[key as keyof Store] = value
+      }
+    })
+
+    return cleanedData
+  }
+
   const handleUpdateStoreInfo = async () => {
     if (!StoreValidation()) {
       return false
     }
 
     setIsLoading(true)
+    const storeBody = objectValueCheck(storeInfo)
     await axios
-      .post(`${apiUrl}/stores/${params.id}`, storeInfo, {
+      .post(`${apiUrl}/stores/${params.id}`, storeBody, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

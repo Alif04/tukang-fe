@@ -42,7 +42,7 @@ const ChartBarOrder: React.FC<Props> = ({className, orderData}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body p-1'>
-        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '235px'}} />
+        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '345px'}} />
       </div>
     </div>
   )
@@ -57,12 +57,12 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
   return {
     series: [
       {
-        name: 'Order Selesai',
-        data: orderData.map((item: any) => item.totalOrderDone),
+        name: 'Survei Ulang',
+        data: orderData.map((item: any) => item.totalResurvey),
       },
       {
-        name: 'Order Masuk',
-        data: orderData.map((item: any) => item.totalOrder),
+        name: 'Pengerjaan Ulang',
+        data: orderData.map((item: any) => item.totalRework),
       },
     ],
     chart: {

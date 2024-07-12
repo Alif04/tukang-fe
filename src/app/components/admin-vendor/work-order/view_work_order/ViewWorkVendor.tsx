@@ -73,6 +73,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
+  console.log('order data', orderData)
+
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
@@ -378,6 +380,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                 'COMPLAINTAPPROVEDBYHO',
                 'COMPLAINTREJECTEDBYHO',
                 'RESCHEDULE',
+                'RESURVEYREQ',
+                'REWORKREQ',
               ].includes(item?.status?.category)
             ) {
               return item?.status?.category
@@ -409,6 +413,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                 'COMPLAINTAPPROVEDBYHO',
                 'COMPLAINTREJECTEDBYHO',
                 'RESCHEDULE',
+                'RESURVEYREQ',
+                'REWORKREQ',
               ].includes(item?.status?.category ?? '')
             ) {
               return item?.status?.description

@@ -149,7 +149,7 @@ const ReportCostumerHO: FC = () => {
   const getComplaint = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
+        `${apiUrl}/reports/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -302,7 +302,7 @@ const ReportCostumerHO: FC = () => {
         </div>
 
         <div className='col-xl-4'>
-          <ChartPie2 className='card-xl-stretch mb-5' chartHeight='200px' csiData={csiData} />
+          <ChartPie2 className='card-xl-stretch mb-5' chartHeight='200px' csiData={chartOrder} />
         </div>
 
         <div className='col-xl-4'>
@@ -322,7 +322,7 @@ const ReportCostumerHO: FC = () => {
         </div>
 
         <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrderData={chartWorkOrder} />
+          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartOrderData={chartOrder} />
         </div>
 
         <div className='col-xl-4'>
@@ -333,7 +333,7 @@ const ReportCostumerHO: FC = () => {
 
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
-        <div className='col-xl-4'>
+        {/* <div className='col-xl-4'>
           <ChartDonut
             className='card-xl-stretch mb-xl-8'
             chartHeight='300px'
@@ -347,10 +347,14 @@ const ReportCostumerHO: FC = () => {
             chartHeight='300px'
             workOrderData={workOrderData}
           />
-        </div>
+        </div> */}
 
-        <div className='col-xl-4'>
-          <BestCostumers className='card-xl-stretch mb-5 mb-xl-8' memberData={member} />
+        <div className='col-xl-12'>
+          <BestCostumers
+            className='card-xl-stretch mb-5 mb-xl-8'
+            memberData={member}
+            totalMember={totalMember}
+          />
         </div>
       </div>
       {/* end::Row */}

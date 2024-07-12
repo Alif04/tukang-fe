@@ -58,14 +58,14 @@ const MoreInformation: React.FC<Props> = ({className, orderData}) => {
               <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
                 {getStatusCount(orderData, 'APPROVED')}
               </h1>
-              <p className='fs-6 text-danger text-center mt-1 mb-1'>MENUNGGU REVISIT </p>
+              <p className='fs-6 text-danger text-center mt-1 mb-1'>SURVEI ULANG</p>
             </div>
 
             <div className='col pt-3 pb-3'>
               <h1 className='fw-normal text-center' style={{fontSize: '35px'}}>
                 {getStatusCount(orderData, 'CLAIM')}
               </h1>
-              <p className='fs-6 text-danger text-center mt-1 mb-1'>MENUNGGU RESOLVE</p>
+              <p className='fs-6 text-danger text-center mt-1 mb-1'>PENGERJAAN ULANG</p>
             </div>
           </div>
         </div>

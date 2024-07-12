@@ -6,9 +6,10 @@ import {Dropdown1} from '../../../../../../_metronic/partials/content/dropdown/D
 type Props = {
   className: string
   memberData: any[]
+  totalMember: number
 }
 
-const BestCostumers: React.FC<Props> = ({className, memberData}) => {
+const BestCostumers: React.FC<Props> = ({className, memberData, totalMember}) => {
   const topThree = memberData.slice(0, 3)
 
   return (
@@ -43,7 +44,7 @@ const BestCostumers: React.FC<Props> = ({className, memberData}) => {
       </div>
 
       <div className='card-footer pt-1 pb-1'>
-        <p className='text-muted'>Total Customers : {memberData.length} Customers</p>
+        <p className='text-muted'>Total Customers : {totalMember} Customers</p>
       </div>
     </div>
   )

@@ -37,6 +37,10 @@
 }
 
 /* Table Layout */
+#view-sales .select__control.css-13cymwt-control {
+  height: 44px !important;
+}
+
 #view-sales .table-view-order {
   margin: 20px 20px 20px 20px;
 }

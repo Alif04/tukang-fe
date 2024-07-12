@@ -7,10 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  chartWorkOrderData: any[]
+  chartOrderData: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className, chartWorkOrderData}) => {
+const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +21,7 @@ const ChartLine: React.FC<Props> = ({className, chartWorkOrderData}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartWorkOrderData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartOrderData))
     if (chart) {
       chart.render()
     }
@@ -37,7 +37,7 @@ const ChartLine: React.FC<Props> = ({className, chartWorkOrderData}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, chartWorkOrderData])
+  }, [chartRef, mode, chartOrderData])
 
   return (
     <div className={`card ${className}`}>
@@ -50,19 +50,19 @@ const ChartLine: React.FC<Props> = ({className, chartWorkOrderData}) => {
 
 export {ChartLine}
 
-function getChartOptions(height: number, chartWorkOrderData: any): ApexOptions {
+function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
   return {
     series: [
       {
-        name: 'Survey',
-        data: chartWorkOrderData?.map((item: any) => item?.totalSurveyOrder ?? 0),
+        name: 'Survei',
+        data: chartOrderData?.map((item: any) => item?.orderSurvey ?? 0),
       },
       {
-        name: 'Pekerjaan Selesai',
-        data: chartWorkOrderData?.map((item: any) => item?.totalWorkEndOrder ?? 0),
+        name: 'Pekerjaan',
+        data: chartOrderData?.map((item: any) => item?.orderWork ?? 0),
       },
     ],
     chart: {
@@ -89,7 +89,7 @@ function getChartOptions(height: number, chartWorkOrderData: any): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartWorkOrderData?.map((item: any) => item.month),
+      categories: chartOrderData?.map((item: any) => item.month),
 
       axisBorder: {
         show: false,

@@ -45,9 +45,9 @@ const ChartPie3: React.FC<Props> = ({className, chartHeight, complaintData}) => 
           <div ref={chartRef} className='mixed-widget-10-chart'></div>
 
           <div className='d-flex flex-column gap-4'>
-            <div className='fs-5 text-dark text-muted'>Complaint</div>
+            <div className='fs-5 text-dark text-muted'>Komplain</div>
             <div className='fs-1 '>{complaintData.length}</div>
-            <div className='fs-5 text-muted'>Complaint</div>
+            <div className='fs-5 text-muted'>Total</div>
           </div>
         </div>
       </div>
@@ -58,8 +58,12 @@ const ChartPie3: React.FC<Props> = ({className, chartHeight, complaintData}) => 
 const chartOptions = (chartHeight: string, complaintData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
+  const resurvey = complaintData.filter(
+    (complaint: any) => complaint?.status?.category === 'RESURVEYREQ'
+  ).length
+
   const rework = complaintData.filter(
-    (complaint: any) => complaint?.status?.category === 'REWORK'
+    (complaint: any) => complaint?.status?.category === 'REWORKREQ'
   ).length
 
   const refund = complaintData.filter(
@@ -70,13 +74,13 @@ const chartOptions = (chartHeight: string, complaintData: any): ApexOptions => {
     (complaint: any) => complaint?.status?.category === 'RESCHEDULE'
   ).length
 
-  const series = [rework, refund, reschedule]
+  const series = [resurvey, rework, refund, reschedule]
   const noDataAvailable = series.every((value) => value === 0)
 
   return {
     series: noDataAvailable ? [1] : series, // Set series to [1] if no data available
-    labels: ['REWORK', 'REFUND', 'RESCHEDULE'],
-    colors: ['#009DFF', '#22E4FF', '#3BFFD0'], // Set colors to default if no data available
+    labels: ['REFUND', 'RESCHEDULE'],
+    colors: ['#22E4FF', '#3BFFD0'], // Set colors to default if no data available
     // labels: noDataAvailable ? ['No Data Available'] : ['Diselidiki', 'Ditolak', 'Diselesaikan'], // Set labels to empty array if no data available
     // colors: noDataAvailable ? ['#f0f0f0'] : ['#009DFF', '#22E4FF', '#3BFFD0'], // Set colors to default if no data available
     chart: {
