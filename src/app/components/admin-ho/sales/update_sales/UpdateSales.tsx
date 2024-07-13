@@ -190,7 +190,7 @@ const UpdateSales: FC = () => {
 
     const getBank = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/bank`, {
+        const response = await axios.get(`${apiUrl}/bank?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -216,7 +216,7 @@ const UpdateSales: FC = () => {
 
     const getCategories = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/categories`, {
+        const response = await axios.get(`${apiUrl}/categories?take=0`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
