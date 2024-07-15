@@ -662,7 +662,7 @@ const UpdateQuotationHO: FC = () => {
                   <Form.Label className='fs-5 fw-bold'>
                     {quotationData?.store?.address ?? ''}
                   </Form.Label>
-
+                  <br></br>
                   <Form.Label className='fs-5 fw-bold'>
                     {`Telp : ${
                       quotationData?.store?.phone_number_1 ??
@@ -805,6 +805,7 @@ const UpdateQuotationHO: FC = () => {
             </Col>
           </Row>
 
+          {/* 
           <div className='detail-table'>
             <Table hover className='table-jasa'>
               <thead>
@@ -1003,10 +1004,8 @@ const UpdateQuotationHO: FC = () => {
                 </tr>
               </tbody>
             </Table>
-          </div>
+          </div> */}
 
-          {/* 
-          
           <hr />
 
           <div className='item-jasa'>
@@ -1243,7 +1242,31 @@ const UpdateQuotationHO: FC = () => {
             <table className='table table-borderless'>
               <tr>
                 <td align='right'>
-                  <div className='fs-6 fw-bold'>Promosi ( Free Survey ) :</div>
+                  <div className='fs-6 fw-bold'>Total Material :</div>
+                </td>
+
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${totalMaterial.toLocaleString(
+                    'id'
+                  )}`}</div>
+                </td>
+              </tr>
+
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Total Jasa & Material :</div>
+                </td>
+
+                <td className='total-content'>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${totalJasaMaterial.toLocaleString(
+                    'id'
+                  )}`}</div>
+                </td>
+              </tr>
+
+              <tr>
+                <td align='right'>
+                  <div className='fs-6 fw-bold'>Promosi :</div>
                 </td>
 
                 <Form.Control
@@ -1272,30 +1295,6 @@ const UpdateQuotationHO: FC = () => {
 
               <tr>
                 <td align='right'>
-                  <div className='fs-6 fw-bold'>Total Material :</div>
-                </td>
-
-                <td className='total-content'>
-                  <div className='fs-6 fw-semibold'>{`Rp. ${totalMaterial.toLocaleString(
-                    'id'
-                  )}`}</div>
-                </td>
-              </tr>
-
-              <tr>
-                <td align='right'>
-                  <div className='fs-6 fw-bold'>Total Jasa & Material :</div>
-                </td>
-
-                <td className='total-content'>
-                  <div className='fs-6 fw-semibold'>{`Rp. ${totalJasaMaterial.toLocaleString(
-                    'id'
-                  )}`}</div>
-                </td>
-              </tr>
-
-              <tr>
-                <td align='right'>
                   <div className='fs-6 fw-bold'>Grand Total :</div>
                 </td>
 
@@ -1318,7 +1317,6 @@ const UpdateQuotationHO: FC = () => {
               </tr>
             </table>
           </div>
-          */}
 
           <div className='payment-detail'>
             <div className='payment-method mb-2'>

@@ -94,7 +94,7 @@ interface Quotation {
   quotation_date: string
   quotation_validity: string
   quotation_disc: number
-  quotation_promotion: number
+  quotation_promotion: number | null
   quotation_grand_total: number
   readiness: number
   receipt_quotation: string
@@ -299,7 +299,7 @@ const ViewOrders: FC = () => {
               quotation_date: data?.quotation[0]?.quotation_date,
               quotation_validity: data?.quotation[0]?.quotation_validity,
               quotation_disc: data?.quotation[0]?.quotation_disc,
-              quotation_promotion: data?.quotation[0]?.quotation_promotion,
+              quotation_promotion: data?.quotation[0]?.promotion?.id,
               quotation_grand_total: data?.quotation[0]?.quotation_grand_total,
               readiness: data?.quotation[0]?.readiness,
               receipt_quotation: data?.quotation[0]?.receipt_quotation,
@@ -444,7 +444,7 @@ const ViewOrders: FC = () => {
     quotation_date: '',
     quotation_validity: '',
     quotation_disc: 0,
-    quotation_promotion: 0,
+    quotation_promotion: null,
     quotation_grand_total: 0,
     readiness: 1,
     receipt_quotation: '',
@@ -877,9 +877,13 @@ const ViewOrders: FC = () => {
     formData.append('quotation_date', quotation.quotation_date)
     formData.append('quotation_validity', quotation.quotation_validity)
     formData.append('quotation_disc', String(quotation.quotation_disc))
-    formData.append('quotation_promotion', String(quotation.quotation_promotion))
     formData.append('readiness', String(4))
     formData.append('receipt_quotation', quotation.receipt_quotation)
+    // formData.append('quotation_promotion', String(quotation.quotation_promotion))
+
+    if (quotation.quotation_promotion !== null) {
+      formData.append('promotion_id', String(quotation.quotation_promotion))
+    }
 
     quotation.quotation_details.forEach((quotation, index) => {
       appendIfNotDefault(formData, `quotation_details[${index}][id]`, quotation.id)

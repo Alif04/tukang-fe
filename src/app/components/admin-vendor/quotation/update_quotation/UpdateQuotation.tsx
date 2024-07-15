@@ -427,23 +427,23 @@ const UpdateQuotationVendor: FC = () => {
 
     if (!storeId) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please select store',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!quotationDate) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tanggal form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!quotationValidity) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill quotation valid until form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }
@@ -560,21 +560,17 @@ const UpdateQuotationVendor: FC = () => {
                   </Col>
                 </Form.Group>
 
-                <Form.Group>
-                  <Form.Label className='fs-5 fw-bold'>{quotationData?.store?.address}</Form.Label>
-
-                  <Col>
-                    <Form.Label className='fs-5 fw-bold'>
-                      {quotationData?.store?.phone_number_1
-                        ? `Telp : ${
-                            quotationData?.store?.phone_number_1 ??
-                            quotationData?.store?.phone_number_2 ??
-                            'Nomor Telepon tidak tersedia'
-                          }`
-                        : ''}
-                    </Form.Label>
-                  </Col>
-                </Form.Group>
+                <Form.Label className='fs-5 fw-bold'>{quotationData?.store?.address}</Form.Label>
+                <br></br>
+                <Form.Label className='fs-5 fw-bold'>
+                  {quotationData?.store?.phone_number_1
+                    ? `Telp : ${
+                        quotationData?.store?.phone_number_1 ??
+                        quotationData?.store?.phone_number_2 ??
+                        'Nomor Telepon tidak tersedia'
+                      }`
+                    : ''}
+                </Form.Label>
               </div>
             </Col>
 

@@ -469,16 +469,16 @@ const NewQuotationVendor: FC = () => {
 
     if (!workOrderDetail.order.id) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please select order Id',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!quotationDate) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill tanggal form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }

@@ -684,7 +684,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan CSI Terkirim'
-              params=''
+              params='&sent_csi=1'
             />
           </>
         }
@@ -709,7 +709,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='danger'
               title='Laporan CSI Belum Terkirim'
-              params=''
+              params='&sent_csi=0'
             />
           </>
         }

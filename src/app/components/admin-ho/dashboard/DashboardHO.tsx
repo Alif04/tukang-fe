@@ -342,6 +342,7 @@ const DashboardHO: FC = () => {
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
   const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyEnd')
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
   const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
@@ -469,6 +470,7 @@ const DashboardHO: FC = () => {
                 {renderStat(totalOrders, 'Total Order')}
                 {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(surveyOrderDone, 'Survei Selesai')}
                 {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
                 {renderStat(unpaidOrder, 'Menunggu Bayar Quotation', 'text-center')}
                 {renderStat(waitingWork, 'Menunggu Pengerjaan')}
