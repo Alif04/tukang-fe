@@ -26,12 +26,15 @@ const DashboardStore: FC = () => {
   const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const today = new Date()
-  const [dateFrom, setDateFrom] = useState<any>(
-    dayjs(new Date(today.getFullYear(), 0, 1)).format('YYYY-MM-DD')
-  )
-  const [dateTo, setDateTo] = useState<any>(
-    dayjs(new Date(today.getFullYear(), 11, 31)).format('YYYY-MM-DD')
-  )
+  // const [dateFrom, setDateFrom] = useState<any>(
+  //   dayjs(new Date(today.getFullYear(), 0, 1)).format('YYYY-MM-DD')
+  // )
+  // const [dateTo, setDateTo] = useState<any>(
+  //   dayjs(new Date(today.getFullYear(), 11, 31)).format('YYYY-MM-DD')
+  // )
+
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [loadingButton, setLoadingButton] = useState(false)
   const [isLoadingPage, setIsLoadingPage] = useState(true)
