@@ -1085,6 +1085,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           setCurrentPage(response?.data?.page ?? 1)
           setTotalOrder(response?.data?.takeTotal ?? 0)
         }
+      } else if (endpoint === 'orders') {
+        if (['Laporan CSI Terkirim', 'Laporan CSI Belum Terkirim'].includes(title)) {
+          setCurrentPage(response?.data?.page ?? 1)
+          setTotalOrder(response?.data?.takeTotal ?? 0)
+        }
       } else {
         if (response?.data) {
           setCurrentPage(response?.data?.page ?? 1)
