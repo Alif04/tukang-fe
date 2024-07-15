@@ -237,15 +237,11 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
       const data = response.data.data
 
-      const filteredQuotation = data.filter(
-        (detail: any) => detail?.order?.vendor_id === parseInt(vendorId)
-      )
-
       setCurrentPage(response?.data?.page)
-      setTotalData(filteredQuotation.length)
+      setTotalData(response?.data?.total)
       setLoadData(false)
 
-      return filteredQuotation
+      return data
     } catch (error) {
       console.error('Error fetching data:', error)
     }

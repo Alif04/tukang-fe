@@ -33,6 +33,8 @@ interface Item {
   name: string
   category_id: number | null
   default_price: number
+  item_type: number
+  invoice_nominal: number
   prices: Array<{
     id: number | null
     item_id: number | null
@@ -59,6 +61,8 @@ const UpdateItemHO: FC = () => {
     name: '',
     category_id: null,
     default_price: 0,
+    item_type: 1,
+    invoice_nominal: 0,
     prices: [
       {
         id: null,
@@ -124,6 +128,8 @@ const UpdateItemHO: FC = () => {
               name: data?.service_name,
               category_id: data?.category_id,
               default_price: data?.default_price,
+              item_type: data?.type,
+              invoice_nominal: data?.invoice_nominal,
               prices: pricesItem,
             }))
 
@@ -258,6 +264,13 @@ const UpdateItemHO: FC = () => {
     setItem({
       ...item,
       [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleMarginTypeChange = (isChecked: boolean) => {
+    setItem({
+      ...item,
+      item_type: isChecked ? 1 : 0,
     })
   }
 
@@ -521,6 +534,15 @@ const UpdateItemHO: FC = () => {
                       value={item.item_name}
                       onChange={(e) => itemFormHandler(e)}
                     />
+
+                    <Form.Check
+                      id={`item-type`}
+                      className='mt-2'
+                      label='Gratis ?'
+                      type='checkbox'
+                      checked={item.item_type === 1}
+                      onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                    />
                   </Col>
                 </Form.Group>
 
@@ -577,6 +599,23 @@ const UpdateItemHO: FC = () => {
                   />
                 </Col>
               </Form.Group>
+
+              {item.item_type === 1 && (
+                <Form.Group as={Row} className='mb-4'>
+                  <Form.Label className='fs-5 fw-bold' column sm='4'>
+                    Harga Kepada Vendor:
+                  </Form.Label>
+
+                  <Col sm='8'>
+                    <Form.Control
+                      name='invoice_nominal'
+                      type='number'
+                      value={item.invoice_nominal}
+                      onChange={(e) => itemFormHandler(e)}
+                    />
+                  </Col>
+                </Form.Group>
+              )}
             </Col>
           </Row>
 

@@ -30,6 +30,7 @@ import {
   faFileImage,
   faTrash,
   faCheckCircle,
+  faFile,
 } from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
@@ -181,14 +182,13 @@ const ViewInvoiceHO: FC = () => {
           navigate(`/invoice/detail-invoice/${id}`)
         }
 
-        const handleShowModal = (id: number) => {
+        const handleShowModal = (id: number, type: number) => {
           const selected = invoiceData.find((invoice) => invoice.invoice_id === id)
-
-          console.log('selected', selected)
 
           if (selected) {
             setInvoiceId(selected.invoice_id)
             setModalInvoice(true)
+            setModalType(type)
           }
         }
 
@@ -213,7 +213,7 @@ const ViewInvoiceHO: FC = () => {
                 <Button
                   className='button-cancel'
                   variant='danger'
-                  onClick={() => handleShowModal(id)}
+                  onClick={() => handleShowModal(id, 1)}
                 >
                   <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
                 </Button>
@@ -252,6 +252,24 @@ const ViewInvoiceHO: FC = () => {
                   onClick={() => handleUpdateInvoice(id, 6, 'Invoice sudah dibayarkan')}
                 >
                   <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {[6].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Upload File Invoice')}
+              >
+                <Button
+                  variant='primary'
+                  className='button-verif'
+                  onClick={() => handleShowModal(id, 2)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faFile} fontSize={'13px'} />
                 </Button>
               </OverlayTrigger>
             ) : (
@@ -464,6 +482,7 @@ const ViewInvoiceHO: FC = () => {
   const evidenceRef = useRef<HTMLInputElement>(null)
 
   const [showModalInvoice, setModalInvoice] = useState(false)
+  const [modalType, setModalType] = useState<number | null>(null)
   const handleCloseModalInvoice = () => {
     setModalInvoice(false)
   }
@@ -560,6 +579,57 @@ const ViewInvoiceHO: FC = () => {
           Swal.fire({
             title: 'Success',
             text: 'Berhasil Membatalkan Pembayaran',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+
+        window.location.reload()
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  const handleUploadInvoiceFile = async () => {
+    const formData = new FormData()
+
+    formData.append(`invoice_id`, invoiceId)
+    formData.append(`status`, String(6))
+
+    if (invoiceEvidence?.length) {
+      invoiceEvidence.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`invoice_evidences`, item, item.name)
+        }
+      })
+    }
+
+    await axios
+      .post(`${apiUrl}/invoices/${invoiceId}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201 || response.data.status === 200) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil Mengupload File Bukti Pembayaran',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -696,7 +766,6 @@ const ViewInvoiceHO: FC = () => {
               timer: 1500,
             })
             setIsLoading(false)
-            navigate('/invoice/view-invoice')
           } else {
             Swal.fire({
               title: 'Error',
@@ -705,6 +774,8 @@ const ViewInvoiceHO: FC = () => {
             })
             setIsLoading(false)
           }
+
+          window.location.reload()
         } catch (error: any) {
           console.error(error)
           setIsLoading(false)
@@ -876,120 +947,224 @@ const ViewInvoiceHO: FC = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Modal Tolak Invoice */}
+      {/* Modal Invoice */}
       <Modal
         dialogClassName='modal-upload-excel'
         centered
         show={showModalInvoice}
         onHide={handleCloseModalInvoice}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Formulir Alasan Penolakan Invoice</Modal.Title>
-        </Modal.Header>
+        {modalType === 1 && (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>Formulir Alasan Penolakan Invoice</Modal.Title>
+            </Modal.Header>
 
-        <Modal.Body>
-          <Row className='notes mb-5'>
-            <Form.Group>
-              <Form.Label className='fs-5 fw-bold'>Alasan Ditolak :</Form.Label>
-              <Form.Control
-                style={{minHeight: '140px'}}
-                as='textarea'
-                onChange={(e) => setInvoiceNotes(e.target.value)}
-                value={invoiceNotes}
-              />
-            </Form.Group>
-          </Row>
+            <Modal.Body>
+              <Row className='notes mb-5'>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Alasan Ditolak :</Form.Label>
+                  <Form.Control
+                    style={{minHeight: '140px'}}
+                    as='textarea'
+                    onChange={(e) => setInvoiceNotes(e.target.value)}
+                    value={invoiceNotes}
+                  />
+                </Form.Group>
+              </Row>
 
-          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-            <Form.Group>
-              <Form.Label>Upload File</Form.Label>
+              <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                <Form.Group>
+                  <Form.Label>Upload File</Form.Label>
 
-              <Form className='form-input-image' onClick={handleInvoiceClick}>
-                <Form.Control
-                  type='file'
-                  accept='image/jpeg, image/png'
-                  className='input-field-invoice'
-                  multiple
-                  hidden
-                  id='file-input'
-                  ref={evidenceRef}
-                  onChange={handleInvoiceEvidenceChange}
-                />
+                  <Form className='form-input-image' onClick={handleInvoiceClick}>
+                    <Form.Control
+                      type='file'
+                      accept='image/jpeg, image/png'
+                      className='input-field-invoice'
+                      multiple
+                      hidden
+                      id='file-input'
+                      ref={evidenceRef}
+                      onChange={handleInvoiceEvidenceChange}
+                    />
 
-                <div className='input-image-text'>
-                  <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                  <p>Add File</p>
-                </div>
-              </Form>
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  </Form>
 
-              <ListGroup className='pt-3'>
-                {invoiceEvidence.length ? (
-                  invoiceEvidence.map((item: any, index: number) => (
-                    <ListGroup>
-                      <ListGroup.Item
-                        className='d-flex justify-content-between align-items-center'
-                        key={`${item?.name}-${index}-${item?.type}`}
-                      >
-                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                  <ListGroup className='pt-3'>
+                    {invoiceEvidence.length ? (
+                      invoiceEvidence.map((item: any, index: number) => (
+                        <ListGroup>
+                          <ListGroup.Item
+                            className='d-flex justify-content-between align-items-center'
+                            key={`${item?.name}-${index}-${item?.type}`}
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                        <span
-                          className='upload-content'
-                          style={{cursor: 'pointer'}}
-                          onClick={() => handleFileInvoice(index)}
-                        >
-                          {item?.name}
-                        </span>
+                            <span
+                              className='upload-content'
+                              style={{cursor: 'pointer'}}
+                              onClick={() => handleFileInvoice(index)}
+                            >
+                              {item?.name}
+                            </span>
 
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          size='sm'
-                          color='#ed2b2a'
-                          style={{cursor: 'pointer'}}
-                          onClick={(e) => handleRemoveFiles(index)}
-                        />
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFiles(index)}
+                            />
+                          </ListGroup.Item>
+
+                          {selectedInvoiceIndex === index && item && (
+                            <Image
+                              key={`${previewInvoice} - ${index}`}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/invoices/${previewInvoice}`
+                              }
+                              preview={{
+                                visible: visibleInvoice,
+                                src:
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/invoices/${previewInvoice}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleInvoice(value)
+                                },
+                              }}
+                            />
+                          )}
+                        </ListGroup>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
                       </ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Form.Group>
+              </Row>
 
-                      {selectedInvoiceIndex === index && item && (
-                        <Image
-                          key={`${previewInvoice} - ${index}`}
-                          width={200}
-                          style={{display: 'none'}}
-                          src={
-                            item instanceof File
-                              ? URL.createObjectURL(item)
-                              : `${apiUrl}/public/invoices/${previewInvoice}`
-                          }
-                          preview={{
-                            visible: visibleInvoice,
-                            src:
-                              item instanceof File
-                                ? URL.createObjectURL(item)
-                                : `${apiUrl}/public/invoices/${previewInvoice}`,
-                            onVisibleChange: (value) => {
-                              setVisibleInvoice(value)
-                            },
-                          }}
-                        />
-                      )}
-                    </ListGroup>
-                  ))
-                ) : (
-                  <ListGroup.Item className='d-flex justify-content-center'>
-                    Tidak ada file yang dipilih
-                  </ListGroup.Item>
-                )}
-              </ListGroup>
-            </Form.Group>
-          </Row>
+              <Button
+                className='d-flex justify-content-center align-items-center w-100 mt-5'
+                onClick={handleDeclineInvoice}
+                variant='primary'
+              >
+                Submit
+              </Button>
+            </Modal.Body>
+          </>
+        )}
 
-          <Button
-            className='d-flex justify-content-center align-items-center w-100 mt-5'
-            onClick={handleDeclineInvoice}
-            variant='primary'
-          >
-            Submit
-          </Button>
-        </Modal.Body>
+        {modalType === 2 && (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>Formulir Upload Tagihan Invoice</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                <Form.Group>
+                  <Form.Label>Upload File</Form.Label>
+
+                  <Form className='form-input-image' onClick={handleInvoiceClick}>
+                    <Form.Control
+                      type='file'
+                      accept='image/jpeg, image/png'
+                      className='input-field-invoice'
+                      multiple
+                      hidden
+                      id='file-input'
+                      ref={evidenceRef}
+                      onChange={handleInvoiceEvidenceChange}
+                    />
+
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  </Form>
+
+                  <ListGroup className='pt-3'>
+                    {invoiceEvidence.length ? (
+                      invoiceEvidence.map((item: any, index: number) => (
+                        <ListGroup>
+                          <ListGroup.Item
+                            className='d-flex justify-content-between align-items-center'
+                            key={`${item?.name}-${index}-${item?.type}`}
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                            <span
+                              className='upload-content'
+                              style={{cursor: 'pointer'}}
+                              onClick={() => handleFileInvoice(index)}
+                            >
+                              {item?.name}
+                            </span>
+
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFiles(index)}
+                            />
+                          </ListGroup.Item>
+
+                          {selectedInvoiceIndex === index && item && (
+                            <Image
+                              key={`${previewInvoice} - ${index}`}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/invoices/${previewInvoice}`
+                              }
+                              preview={{
+                                visible: visibleInvoice,
+                                src:
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/invoices/${previewInvoice}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleInvoice(value)
+                                },
+                              }}
+                            />
+                          )}
+                        </ListGroup>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
+                      </ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Form.Group>
+              </Row>
+
+              <Button
+                className='d-flex justify-content-center align-items-center w-100 mt-5'
+                onClick={handleUploadInvoiceFile}
+                variant='primary'
+              >
+                Submit
+              </Button>
+            </Modal.Body>
+          </>
+        )}
       </Modal>
     </section>
   )

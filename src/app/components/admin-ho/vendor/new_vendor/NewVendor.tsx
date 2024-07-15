@@ -1323,7 +1323,7 @@ const NewVendorHO: FC = () => {
               <Row className='form-body'>
                 <Form.Group>
                   <div className='d-flex justify-content-between'>
-                    <Form.Label>Margin</Form.Label>
+                    <Form.Label>Margin Vendor</Form.Label>
 
                     <div className='form-check-request'>
                       <Form.Check

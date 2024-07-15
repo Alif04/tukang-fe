@@ -371,7 +371,7 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub>
 
       {/* Halaman Payment */}
-      <AsideMenuItemWithSub
+      {/* <AsideMenuItemWithSub
         to='/payment'
         title='Payment'
         icon='/media/icons/duotune/communication/com006.svg'
@@ -385,20 +385,20 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
 
-        {/* <AsideMenuItem
+         <AsideMenuItem
           to='/payment/new-payment'
           title='New Payment'
           role={['Admin HO', 'Super User']}
           hasBullet={true}
-        /> */}
+        /> 
 
-        {/* <AsideMenuItem
+        <AsideMenuItem
           to='/payment/detail-payment'
           title='Detail Payment'
           role={['Admin HO', 'Super User']}
           hasBullet={true}
-        /> */}
-      </AsideMenuItemWithSub>
+        />
+      </AsideMenuItemWithSub> */}
 
       {/* Halaman Refund */}
       <AsideMenuItemWithSub

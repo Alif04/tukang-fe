@@ -6,7 +6,8 @@ import './DetailInvoice.css'
 import axios from 'axios'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import {Form, Table, Row, Col, Card, Button} from 'react-bootstrap'
+import {Image} from 'antd'
+import {ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
 
@@ -28,6 +29,9 @@ const DetailInvoiceVendor: FC = () => {
   const [loadingPDF, setLoadingPDF] = useState(false)
   const [store, setStore] = useState<Store[]>([])
   const [invoiceDetail, setInvoiceDetail] = useState<any>()
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   const getInvoiceData = async () => {
     try {
@@ -157,6 +161,28 @@ const DetailInvoiceVendor: FC = () => {
               <div className='fs-3 fw-semibold'>
                 Periode : <span className='fw-normal'>{getFormattedPeriod()}</span>
               </div>
+
+              {['Super User', 'Admin HO'].includes(userRole) && (
+                <div className='fs-3 fw-semibold'>
+                  Tanggal diberikan kepada Finance :{' '}
+                  <span className='fw-normal'>
+                    {invoiceDetail?.invoice_to_finance_date ? (
+                      <>
+                        {new Date(invoiceDetail?.invoice_to_finance_date).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          }
+                        )}
+                      </>
+                    ) : (
+                      <>Invoice ini belum dikirimkan kepada finance</>
+                    )}
+                  </span>
+                </div>
+              )}
             </Col>
           </Row>
 
@@ -307,6 +333,60 @@ const DetailInvoiceVendor: FC = () => {
               </Col>
             </Row>
           )}
+        </Card.Body>
+      </Card>
+
+      <Card className='mt-5'>
+        <Card.Header>
+          <Card.Title>File Tagihan</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          <Row>
+            <Col>
+              <ListGroup>
+                {invoiceDetail?.invoice_evidence.map((item: any) => (
+                  <ListGroup.Item
+                    key={item.id}
+                    action
+                    style={{cursor: 'pointer'}}
+                    onClick={() => {
+                      setPreviewImage(item.evidence_location)
+                      setVisible(true)
+                    }}
+                  >
+                    {item.evidence_location}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+
+              {invoiceDetail?.invoice_evidence?.length ? (
+                <>
+                  {previewImage && (
+                    <div>
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/invoices/${previewImage}`}
+                        preview={{
+                          visible: visible,
+                          src: `${apiUrl}/public/invoices/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisible(value)
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className='d-flex justify-content-start align-items-center'>
+                  <p className='fs-7 text-danger'>Belum ada file tagihan</p>
+                </div>
+              )}
+            </Col>
+          </Row>
         </Card.Body>
       </Card>
 

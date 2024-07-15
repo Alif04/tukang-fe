@@ -18,6 +18,7 @@ type Props = {
   statusName: string
   headerColor: string
   title: string
+  params: string
 }
 
 interface Status {
@@ -36,7 +37,7 @@ interface AreaItem {
   label: string
 }
 
-const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) => {
+const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, params}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const storedStatus = sessionStorage.getItem('statusData')
@@ -525,6 +526,23 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
+          title: 'Voucher Customer',
+          dataIndex: 'voucher',
+          key: 'voucher',
+          align: 'center',
+          width: 110,
+          onFilter: (value, record) => record.voucher.includes(String(value)),
+          sorter: (a, b) => a.voucher.length - b.voucher.length,
+        },
+        {
+          title: 'Penalti Vendor',
+          dataIndex: 'penalty_vendor',
+          key: 'penalty_vendor',
+          align: 'center',
+          width: 110,
+          sorter: (a, b) => a.penalty_vendor - b.penalty_vendor,
+        },
+        {
           title: 'Order Status',
           dataIndex: 'order_status',
           key: 'order_status',
@@ -746,60 +764,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           onFilter: (value, record) => record.member_email.includes(String(value)),
           sorter: (a, b) => a.member_email.length - b.member_email.length,
         },
-        {
-          title: 'Performance Rate',
-          dataIndex: 'performance_rate',
-          key: 'performance_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.performance_rate.includes(String(value)),
-          sorter: (a, b) => a.performance_rate.length - b.performance_rate.length,
-        },
-        {
-          title: 'Delivery Rate',
-          dataIndex: 'delivery_rate',
-          key: 'delivery_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.delivery_rate.includes(String(value)),
-          sorter: (a, b) => a.delivery_rate.length - b.delivery_rate.length,
-        },
-        {
-          title: 'Invoicing Rate',
-          dataIndex: 'invoicing_rate',
-          key: 'invoicing_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.invoicing_rate.includes(String(value)),
-          sorter: (a, b) => a.invoicing_rate.length - b.invoicing_rate.length,
-        },
-        {
-          title: 'Customer Service Rate',
-          dataIndex: 'cs_rate',
-          key: 'cs_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.cs_rate.includes(String(value)),
-          sorter: (a, b) => a.cs_rate.length - b.cs_rate.length,
-        },
-        {
-          title: 'Knowledge Rate',
-          dataIndex: 'knowledge_rate',
-          key: 'knowledge_rate',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.knowledge_rate.includes(String(value)),
-          sorter: (a, b) => a.knowledge_rate.length - b.knowledge_rate.length,
-        },
-        {
-          title: 'Catatan Tambahan',
-          dataIndex: 'notes',
-          key: 'notes',
-          align: 'left',
-          width: 120,
-          onFilter: (value, record) => record.notes.includes(String(value)),
-          sorter: (a, b) => a.notes.length - b.notes.length,
-        },
       ]
       break
 
@@ -887,6 +851,47 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         },
       ]
       break
+
+    case 'invoices':
+      columns = [
+        {
+          title: 'Invoice ID',
+          dataIndex: 'order_id',
+          key: 'order_id',
+          align: 'center',
+          width: 110,
+          className: 'col_order_id',
+          defaultSortOrder: 'descend',
+          sorter: (a, b) => a.order_id - b.order_id,
+        },
+        {
+          title: 'Nama Vendor',
+          dataIndex: 'vendor_name',
+          key: 'vendor_name',
+          align: 'left',
+          width: 150,
+          onFilter: (value, record) => record.vendor_name.includes(String(value)),
+          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+        },
+        {
+          title: 'Grand Total',
+          dataIndex: 'grand_total',
+          key: 'grand_total',
+          align: 'center',
+          width: 135,
+          sorter: (a, b) => a.grand_total - b.grand_total,
+        },
+        {
+          title: 'Invoice Dibuat',
+          dataIndex: 'date_order',
+          key: 'date_order',
+          align: 'left',
+          width: 110,
+          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+        },
+      ]
+      break
+
     default:
       columns = [
         {
@@ -956,7 +961,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
 
   const fetchAllReportData = async (endpoint: string, queryparams: any) => {
     try {
-      const nonReportEndpoints = ['orders', 'refund', 'reschedule', 'quotation', 'claim garansi']
+      const nonReportEndpoints = [
+        'orders',
+        'refund',
+        'reschedule',
+        'quotation',
+        'claim garansi',
+        'invoices',
+      ]
       const urlBase = nonReportEndpoints.includes(endpoint)
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
@@ -1009,6 +1021,10 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
             setReportGrandTotal(response?.data?.totalIncentive?._sum?.nominal ?? 0)
             return response?.data?.totalIncentive?._sum?.nominal ?? 0
 
+          // case 'invoices':
+          //   setReportGrandTotal(response?.data?.grandTotalAmount ?? 0)
+          //   return response?.data?.grandTotalAmount ?? 0
+
           default:
             setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
             break
@@ -1026,12 +1042,19 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
     queryparams: any
   ) => {
     try {
-      const nonReportEndpoints = ['orders', 'refund', 'reschedule', 'quotation', 'claim garansi']
+      const nonReportEndpoints = [
+        'orders',
+        'refund',
+        'reschedule',
+        'quotation',
+        'claim garansi',
+        'invoices',
+      ]
 
       let urlBase = nonReportEndpoints.includes(endpoint)
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
-      let url = `${urlBase}?order_by=desc&page=${page}&take=${pageSize}`
+      let url = `${urlBase}?order_by=desc&page=${page}&take=${pageSize}${params}`
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
@@ -1057,12 +1080,19 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         },
       })
 
-      if (response?.data) {
-        setCurrentPage(response?.data?.page ?? 1)
-        setTotalOrder(response?.data?.total ?? 0)
+      if (endpoint === 'refund') {
+        if (response?.data) {
+          setCurrentPage(response?.data?.page ?? 1)
+          setTotalOrder(response?.data?.takeTotal ?? 0)
+        }
+      } else {
+        if (response?.data) {
+          setCurrentPage(response?.data?.page ?? 1)
+          setTotalOrder(response?.data?.total ?? 0)
+        }
       }
 
-      return ['reschedule'].includes(endpoint) ? response.data.data.data : response.data.data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -1089,6 +1119,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
       let rescheduleData
       let csiData
       let salesComissionData
+      let invoicesData
 
       switch (endpoint) {
         case 'orders':
@@ -1163,7 +1194,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               complaint_id: item.id,
               assign_from: item.orders.store.store_name,
               order_id: item.orders.id,
-              date_order: formatDate(orderDate),
+              date_order: orderDate,
               no_member: item.orders.members.member_number,
               costumer_name: item.orders.members.full_name,
               phone_number: phoneNumber,
@@ -1232,6 +1263,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               member_id: item?.orders?.members?.id,
               member_name: item?.orders?.members?.full_name,
               phone_number: item?.orders?.project_number,
+              voucher: item?.voucher ?? '-',
+              penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal).toLocaleString('id')}` ?? 0,
               payment_status: paymentStatus,
               order_status: item?.status?.description,
             }
@@ -1286,12 +1319,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
               member_id: item?.member_id,
               member_name: item?.member_name,
               member_email: item?.email_address,
-              performance_rate: item?.performance_rate,
-              delivery_rate: item?.delivery_rate,
-              invoicing_rate: item?.invoicing_rate,
-              cs_rate: item?.customer_service_rate,
-              knowledge_rate: item?.knowledge_rate,
-              notes: item?.notes,
             }
 
             return data
@@ -1324,6 +1351,27 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
           })
           break
 
+        case 'invoices':
+          invoicesData = apiData.map((item: any) => {
+            let data
+
+            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            data = {
+              order_id: item.id,
+              vendor_name: item?.vendor?.company_name ?? '-',
+              grand_total: `Rp. ${parseInt(item?.total_amount).toLocaleString('id')}`,
+              date_order: orderDate,
+            }
+
+            return data
+          })
+          break
+
         default:
           break
       }
@@ -1342,6 +1390,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
         ? csiData
         : endpoint === 'sales-comission'
         ? salesComissionData
+        : endpoint === 'invoices'
+        ? invoicesData
         : []
     } catch (error) {
       console.error('Error getting report list data:', error)
@@ -1741,7 +1791,19 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title}) =
                 </div>
               </div>
 
-              {!['csi', 'complaints', 'reschedule'].includes(endpoint) ? (
+              {/* {!['csi', 'complaints', 'reschedule'].includes(endpoint) ? (
+                <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
+                  'id'
+                )}`}</h1>
+              ) : (
+                <></>
+              )} */}
+
+              {![
+                'Laporan Claim Voucher',
+                'Laporan CSI Belum Terkirim',
+                'Laporan CSI Terkirim',
+              ].includes(title) ? (
                 <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
                   'id'
                 )}`}</h1>

@@ -261,7 +261,7 @@ const ListBankHO: React.FC = () => {
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
-              <div className='filter-search'>
+              <div className='filter-search mb-3'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
                     <FontAwesomeIcon icon={faSearch} size='sm' />
@@ -278,7 +278,7 @@ const ListBankHO: React.FC = () => {
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >

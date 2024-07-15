@@ -259,6 +259,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Transaksi All ( Omset )'
+              params=''
             />
           </>
         }
@@ -283,6 +284,7 @@ const RefundPage: React.FC = () => {
               statusName='SURVEY'
               headerColor='success'
               title='Laporan Survey ( Omset )'
+              params=''
             />
           </>
         }
@@ -307,6 +309,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Quotation ( Omset )'
+              params=''
             />
           </>
         }
@@ -327,10 +330,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENDING PAYMENT ( OMSET )</PageTitle>
 
             <ReportHO
-              endpoint='orders'
-              statusName='UNPAID'
+              endpoint='invoices'
+              statusName=''
               headerColor='danger'
               title='Laporan Pending Payment ( Omset )'
+              params='&invoice_status=1'
             />
           </>
         }
@@ -355,6 +359,7 @@ const RefundPage: React.FC = () => {
               statusName='WORKSTART'
               headerColor='primary'
               title='Laporan On Progress ( Omset )'
+              params=''
             />
           </>
         }
@@ -379,6 +384,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='primary'
               title='Laporan Reschedule ( Omset )'
+              params=''
             />
           </>
         }
@@ -403,6 +409,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='danger'
               title='Laporan Pengaduan '
+              params=''
             />
           </>
         }
@@ -423,10 +430,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN GARANSI</PageTitle>
 
             <ReportHO
-              endpoint='orders'
+              endpoint='complaints'
               statusName='WARRANTYCLAIM'
               headerColor='primary'
               title='Laporan Garansi '
+              params=''
             />
           </>
         }
@@ -447,10 +455,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN EXPENSE PROMOSI</PageTitle>
 
             <ReportHO
-              endpoint=''
+              endpoint='quotation'
               statusName=''
               headerColor='danger'
               title='Laporan Expense Promosi '
+              params=''
             />
           </>
         }
@@ -475,6 +484,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Refund'
+              params=''
             />
           </>
         }
@@ -499,6 +509,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Other Income'
+              params=''
             />
           </>
         }
@@ -519,10 +530,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL PENALTY</PageTitle>
 
             <ReportHO
-              endpoint=''
+              endpoint='refund'
               statusName=''
               headerColor='danger'
               title='Laporan Total Penalty'
+              params='&penalty_vendor=1'
             />
           </>
         }
@@ -547,6 +559,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Claim Voucher'
+              params='&claim_voucher=1'
             />
           </>
         }
@@ -567,16 +580,17 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN BULANAN</PageTitle>
 
             <ReportHO
-              endpoint=''
+              endpoint='invoices'
               statusName=''
               headerColor='success'
               title='Laporan Tagihan Bulanan'
+              params=''
             />
           </>
         }
       />
 
-      <Route
+      {/* <Route
         path='ho-report-pending-payment'
         element={
           <>
@@ -591,14 +605,15 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENDING PAYMENT ( OMSET )</PageTitle>
 
             <ReportHO
-              endpoint='orders'
-              statusName='UNPAID'
+              endpoint='invoices'
+              statusName=''
               headerColor='danger'
               title='Laporan Pending Payment ( Omset )'
+              params='&invoice_status=1'
             />
           </>
         }
-      />
+      /> */}
 
       <Route
         path='ho-report-paid'
@@ -615,10 +630,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN DIBAYAR</PageTitle>
 
             <ReportHO
-              endpoint=''
+              endpoint='invoices'
               statusName=''
               headerColor='success'
               title='Laporan Tagihan Dibayar'
+              params='&invoice_status=6'
             />
           </>
         }
@@ -639,10 +655,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN BELUM DIBAYAR</PageTitle>
 
             <ReportHO
-              endpoint=''
+              endpoint='invoices'
               statusName=''
               headerColor='warning'
               title='Laporan Tagihan Belum Dibayar'
+              params='&invoice_status=5'
             />
           </>
         }
@@ -663,10 +680,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN CSI TERKIRIM</PageTitle>
 
             <ReportHO
-              endpoint='csi'
+              endpoint='orders'
               statusName=''
               headerColor='success'
               title='Laporan CSI Terkirim'
+              params=''
             />
           </>
         }
@@ -687,15 +705,16 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN CSI BELUM TERKIRIM</PageTitle>
 
             <ReportHO
-              endpoint='csi'
+              endpoint='orders'
               statusName=''
               headerColor='danger'
               title='Laporan CSI Belum Terkirim'
+              params=''
             />
           </>
         }
       />
-
+      {/* 
       <Route
         path='ho-report-csi-responded'
         element={
@@ -742,7 +761,7 @@ const RefundPage: React.FC = () => {
             />
           </>
         }
-      />
+      /> */}
 
       <Route
         path='ho-report-complete-order'
@@ -763,6 +782,7 @@ const RefundPage: React.FC = () => {
               statusName='WORKEND'
               headerColor='success'
               title='Laporan Order Selesai'
+              params=''
             />
           </>
         }
@@ -810,7 +830,8 @@ const RefundPage: React.FC = () => {
               endpoint='sales-comission'
               statusName='PAID'
               headerColor='success'
-              title='Laporan Insentive Dibayar  '
+              title='Laporan Insentive Dibayar'
+              params=''
             />
           </>
         }
@@ -835,6 +856,7 @@ const RefundPage: React.FC = () => {
               statusName='UNPAID'
               headerColor='danger'
               title='Laporan Insentive Belum Dibayar'
+              params=''
             />
           </>
         }
@@ -856,7 +878,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN EXPENSE PROMOSI</PageTitle>
 
             <ReportVendor
-              endpoint=''
+              endpoint='quotation'
               statusName=''
               headerColor='danger'
               title='Laporan Expense Promosi '
@@ -1120,7 +1142,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL PINALTI</PageTitle>
 
             <ReportVendor
-              endpoint='orders'
+              endpoint='refund'
               statusName=''
               headerColor='primary'
               title='Laporan Total Pinalti '

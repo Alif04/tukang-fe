@@ -163,7 +163,7 @@ const ViewReportHO = () => {
             </div>
 
             <Row>
-              <Col md={4}>
+              {/* <Col md={4}>
                 <Link to={`/reports/ho-report-csi-unrespon`}>
                   <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
@@ -179,7 +179,7 @@ const ViewReportHO = () => {
                     </Card.Body>
                   </Card>
                 </Link>
-              </Col>
+              </Col> */}
 
               <Col md={4}>
                 <Link to={`/reports/ho-report-unsent-csi`}>
@@ -200,26 +200,6 @@ const ViewReportHO = () => {
               </Col>
 
               <Col md={4}>
-                <Link to={`/reports/ho-report-csi-responded`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('csi-responded', 'Laporan CSI direspon')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={4}>
                 <Link to={`/reports/ho-report-csi`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex  justify-content-left align-items-center'>
@@ -235,6 +215,44 @@ const ViewReportHO = () => {
                     </Card.Body>
                   </Card>
                 </Link>
+              </Col>
+              {/* 
+              <Col md={4}>
+                <Link to={`/reports/ho-report-csi-responded`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('csi-responded', 'Laporan CSI direspon')}
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col> */}
+            </Row>
+
+            <Row>
+              <Col md={4}>
+                {/* <Link to={`/reports/ho-report-csi`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('csi', 'Laporan CSI terkirim')}
+                    </Card.Body>
+                  </Card>
+                </Link> */}
               </Col>
 
               <Col md={4}></Col>
@@ -548,24 +566,6 @@ const ViewReportHO = () => {
 
             <Row>
               <Col md={4}>
-                <Link to={`/reports/ho-report-pending-payment`}>
-                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex  justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('pending-payment', 'Laporan Pending Payment')}
-                    </Card.Body>
-                  </Card>
-                </Link>
-              </Col>
-
-              <Col md={4}>
                 <Link to={`/reports/ho-report-reschedule`}>
                   <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex  justify-content-left align-items-center'>
@@ -581,6 +581,39 @@ const ViewReportHO = () => {
                     </Card.Body>
                   </Card>
                 </Link>
+                {/* <Link to={`/reports/ho-report-pending-payment`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('pending-payment', 'Laporan Pending Payment')}
+                    </Card.Body>
+                  </Card>
+                </Link> */}
+              </Col>
+
+              <Col md={4}>
+                {/* <Link to={`/reports/ho-report-reschedule`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('reschedule', 'Laporan Reschedule')}
+                    </Card.Body>
+                  </Card>
+                </Link> */}
               </Col>
 
               <Col md={4}></Col>

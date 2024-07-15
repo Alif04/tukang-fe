@@ -30,6 +30,8 @@ interface Item {
   name: string
   category_id: number | null
   default_price: number
+  item_type: number
+  invoice_nominal: number
   prices: Array<{
     id: number | null
     price_store: Array<{
@@ -53,6 +55,8 @@ const NewItemHO: FC = () => {
     name: '',
     category_id: null,
     default_price: 0,
+    item_type: 1,
+    invoice_nominal: 0,
     prices: [
       {
         id: null,
@@ -212,6 +216,13 @@ const NewItemHO: FC = () => {
       }
 
       return cache
+    })
+  }
+
+  const handleMarginTypeChange = (isChecked: boolean) => {
+    setItem({
+      ...item,
+      item_type: isChecked ? 1 : 0,
     })
   }
 
@@ -444,6 +455,15 @@ const NewItemHO: FC = () => {
                       type='text'
                       onChange={(e) => itemFormHandler(e)}
                     />
+
+                    <Form.Check
+                      id={`item-type`}
+                      className='mt-2'
+                      label='Gratis ?'
+                      type='checkbox'
+                      checked={item.item_type === 1}
+                      onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                    />
                   </Col>
                 </Form.Group>
 
@@ -490,6 +510,23 @@ const NewItemHO: FC = () => {
                   />
                 </Col>
               </Form.Group>
+
+              {item.item_type === 1 && (
+                <Form.Group as={Row} className='mb-4'>
+                  <Form.Label className='fs-5 fw-bold' column sm='4'>
+                    Harga Kepada Vendor:
+                  </Form.Label>
+
+                  <Col sm='8'>
+                    <Form.Control
+                      name='invoice_nominal'
+                      type='number'
+                      value={item.invoice_nominal}
+                      onChange={(e) => itemFormHandler(e)}
+                    />
+                  </Col>
+                </Form.Group>
+              )}
             </Col>
           </Row>
 
