@@ -4,10 +4,11 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
+import type {ColumnsType} from 'antd/es/table'
 import {Table, PaginationProps, Spin} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import type {ColumnsType} from 'antd/es/table'
-import {Row, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -24,14 +25,16 @@ interface DataType {
   costumer_name: string
   sales_name: string
   incentive_name: string
-  status: string
+  incentive_nominal: string
+  quotation_grand_total: number
   sales_comission: number
+  status: string
 }
 
 const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
   const userSales = localStorage.getItem('sales_id') as any
 
@@ -41,10 +44,18 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalOrder, setTotalOrder] = useState<number>(0)
+  const [totalInsentive, setTotalInsentive] = useState<any>()
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const today = new Date()
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const [loadData, setLoadData] = useState<boolean>(true)
   const [loadingButton, setLoadingButton] = useState(false)
@@ -76,20 +87,13 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
         new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
-      title: 'Nama Konsumen',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
       width: 140,
       onFilter: (value: string, record: DataType) => record.costumer_name.includes(value),
       sorter: (a: DataType, b: DataType) => a.costumer_name.localeCompare(b.costumer_name),
-    },
-    {
-      title: 'Jenis Insentif',
-      dataIndex: 'incentive_name',
-      key: 'incentive_name',
-      align: 'left',
-      width: 140,
     },
     (userRole === 'Store Staff' || userRole === 'Store CS') && {
       title: 'Nama Sales',
@@ -101,6 +105,14 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       sorter: (a: DataType, b: DataType) => a.sales_name.length - b.sales_name.length,
     },
     {
+      title: 'Grand Total Quotation',
+      dataIndex: 'quotation_grand_total',
+      key: 'quotation_grand_total',
+      align: 'center',
+      width: 135,
+      sorter: (a: DataType, b: DataType) => a.quotation_grand_total - b.quotation_grand_total,
+    },
+    {
       title: 'Komisi Sales',
       dataIndex: 'sales_comission',
       key: 'sales_comission',
@@ -108,10 +120,23 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       width: 135,
       sorter: (a: DataType, b: DataType) => a.sales_comission - b.sales_comission,
     },
+    {
+      title: 'Status Pembayaran',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      width: 135,
+      onFilter: (value: string, record: DataType) => record.status.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.status.length - b.status.length,
+    },
   ].filter(Boolean) as ColumnsType<DataType>
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}${salesId}${storeId}`
+    if (dateFrom && dateTo) {
+      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+    }
+
     try {
       const response = await axios.get(apiUrlWithParams, {
         headers: {
@@ -124,6 +149,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
       if (response?.data) {
         setLoadData(false)
+        setTotalInsentive(response?.data?.totalIncentive?._sum?.nominal ?? 0)
         setTotalOrder(response?.data?.total ?? 0)
         setCurrentPage(response?.data?.page ?? 1)
       }
@@ -157,11 +183,11 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
             case 1:
               return 'Draft'
             case 2:
-              return 'Waiting For Payment'
+              return 'Menunggu Pembayaran'
             case 3:
-              return 'Paid'
+              return 'Sudah dibayarkan'
             case 4:
-              return 'Decline'
+              return 'Ditolak'
             default:
               return ''
           }
@@ -173,7 +199,14 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           costumer_name: item?.quotation?.order?.members?.full_name,
           sales_name: item?.sales?.full_name,
           incentive_name: item?.incentive?.name,
+          incentive_nominal:
+            item.type === 1
+              ? `${item?.incentive?.incentive ?? 0} %`
+              : `Rp. ${parseInt(item?.incentive?.incentive ?? 0).toLocaleString('id')}`,
           status: statusIncentive(item?.status),
+          quotation_grand_total: `Rp. ${parseInt(
+            item?.quotation?.quotation_grand_total ?? 0
+          ).toLocaleString('id')}`,
           sales_comission: `Rp. ${parseInt(item?.nominal ?? 0).toLocaleString('id')}`,
         }
 
@@ -240,8 +273,6 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
     const data = await ViewOrder(1, 10, queryparams)
@@ -261,6 +292,10 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -297,20 +332,25 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
 
-              <Button
-                variant='success m-0'
-                className='d-flex justify-content-center align-items-center'
-                onClick={exportToExcel}
-                disabled={loadingExport}
-              >
-                {loadingExport ? 'Exporting..' : 'Export To Excel'}
-              </Button>
+              {!['Sales'].includes(userRole) && (
+                <Button
+                  variant='success m-0'
+                  className='d-flex justify-content-center align-items-center'
+                  onClick={exportToExcel}
+                  disabled={loadingExport}
+                >
+                  {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                </Button>
+              )}
             </div>
           </Row>
 
-          <div className='total-order'>
+          <Row className='total-order'>
             <p className='fs-5'>Total order : {totalOrder}</p>
-          </div>
+            <p className='fs-5'>
+              Total Insentif : {`Rp. ${parseInt(totalInsentive).toLocaleString('id')}`}
+            </p>
+          </Row>
 
           <Spin
             tip='Loading...'

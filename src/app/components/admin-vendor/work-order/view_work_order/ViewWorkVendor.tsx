@@ -50,7 +50,7 @@ interface DataType {
   costumer_id: number
   costumer_name: string
   phone_number: number
-  payment_status: string
+  payment_quotation: string
   order_status: string
   order_status_label: string
 }
@@ -137,15 +137,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
-    {
-      title: 'Payment Status',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
-      align: 'left',
-      width: 90,
-      onFilter: (value, record) => record.payment_status.includes(String(value)),
-      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
-    },
+
     {
       title: 'Order Status',
       dataIndex: 'order_status_label',
@@ -189,6 +181,15 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       ],
       onFilter: (value, record) => record.order_status_label.includes(String(value)),
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
+    },
+    {
+      title: 'Status Pembayaran Quotation',
+      dataIndex: 'payment_quotation',
+      key: 'payment_quotation',
+      align: 'left',
+      width: 120,
+      onFilter: (value, record) => record.payment_quotation.includes(String(value)),
+      sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
     },
     {
       title: 'Action',
@@ -346,23 +347,23 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
+        const phoneNumber = item?.project_number.startsWith('0')
+          ? item.project_number
+          : `+62${item.project_number}`
+
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
 
-        const paymentStatus = (() => {
-          if (item?.payment_type === 'survey') {
-            return item?.quotation?.length === 0
-              ? 'UNPAID'
-              : item?.quotation[0]?.quotation_files?.length === 0
-              ? 'UNPAID'
-              : 'PAID'
-          } else if (item?.payment_type === 'gratis') {
-            return 'FREE'
-          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return item?.receipt_number === null ? 'UNPAID' : 'PAID'
+        const paymentQuotation = (() => {
+          if (item?.quotation?.length) {
+            if (item?.quotation[0]?.receipt_quotation !== null) {
+              return 'PAID'
+            } else {
+              return 'UNPAID'
+            }
           } else {
             return ''
           }
@@ -441,9 +442,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           date_order: orderDate,
           costumer_id: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
-          phone_number: item?.project_number,
+          phone_number: phoneNumber,
           item_name: item?.m_order_details[0]?.item_name ?? '-',
-          payment_status: paymentStatus,
+          payment_quotation: paymentQuotation,
           order_status: orderStatus,
           order_status_label: orderStatusLabel,
           existing_tukang: item?.work_orders?.request_tukang ?? [],
@@ -760,7 +761,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               dataSource={orderData}
               rowKey={(record) => record.order_id}
               pagination={false}
-              scroll={{x: 1100}}
+              scroll={{x: 1400}}
             />
           </Spin>
 

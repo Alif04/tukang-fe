@@ -807,44 +807,15 @@ const NewOrderStoreStaff: FC = () => {
     //   return 'AVAILABLE'
     // }
 
-    return orderVendor.length >= maxOrder ? 'FULL BOOKED' : 'AVAILABLE'
+    return orderVendor.length >= maxOrder ? (
+      <p className='text-danger'>FULL BOOKED</p>
+    ) : (
+      <p className='text-black'>AVAILABLE</p>
+    )
   }
 
   return (
     <section id='pre-order'>
-      <Accordion className='mb-5'>
-        <Accordion.Item eventKey='0'>
-          <Accordion.Header>
-            <FontAwesomeIcon icon={faCircleInfo} size='lg' className='me-2' />
-            <p className='fs-7 fw-bold'>Ketersediaan Vendor</p>
-          </Accordion.Header>
-
-          <Accordion.Body>
-            <div className='description fs-7 mb-5'>Informasi mengenai ketersediaan dari Vendor</div>
-
-            <div className='vendor-avail'>
-              <Table>
-                <thead>
-                  <tr>
-                    <th>Nama Vendor</th>
-                    <th>Ketersediaan Vendor</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {vendor.map((item: any) => (
-                    <tr key={item?.id}>
-                      <td>{item?.company_name ?? '-'}</td>
-                      <td>{vendorAvailbility(item)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </Accordion.Body>
-        </Accordion.Item>
-      </Accordion>
-
       <Card className='mb-5'>
         <Card.Body>
           <div className='form-wrapper'>
@@ -1029,7 +1000,10 @@ const NewOrderStoreStaff: FC = () => {
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group className='mb-5'>
-                    <Form.Label className='title'>Email</Form.Label>
+                    <Form.Label className='title'>
+                      Email <span className='fs-8 fw-bold text-danger'>*Wajib di isi</span>
+                    </Form.Label>
+
                     <Form.Control
                       type='email'
                       value={selectedMember?.email || ''}
@@ -1047,7 +1021,17 @@ const NewOrderStoreStaff: FC = () => {
               <Row className='alamat-order'>
                 <Col>
                   <Form.Group className='mb-5'>
-                    <Form.Label className='title'>Alamat</Form.Label>
+                    <div className='d-flex gap-3'>
+                      <Form.Label className='title'>Alamat</Form.Label>
+
+                      <Form.Check
+                        inline
+                        label='Lebih dari 10 KM dengan maksimal jarak 40 KM'
+                        type='checkbox'
+                        onChange={(e) => handleCheckboxChange(e.target.checked)}
+                      />
+                    </div>
+
                     <Form.Control
                       as='textarea'
                       name='project_address'
@@ -1065,8 +1049,13 @@ const NewOrderStoreStaff: FC = () => {
 
                   <Form.Label className='fs-7 fw-normal'>
                     <span className='text-danger fw-bold'>Note :</span>
-                    <br></br>Jika member tersebut baru, maka isi data member tersebut diinputan yang
-                    telah disediakan, kecuali inputan <span className='fw-bolder'>No Member</span>
+                    <br></br>
+                    Jika member baru, maka semua field wajib di isi, kecuali field{' '}
+                    <span className='fw-bolder'>No Member</span>
+                    <br></br>
+                    Segala informasi akan di update melalui email
+                    <br></br>
+                    Untuk melihat history pengerjaan dapat melalui Aplikasi Mitra10
                   </Form.Label>
                 </Col>
               </Row>
@@ -1145,6 +1134,13 @@ const NewOrderStoreStaff: FC = () => {
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='request-date order-2 order-md-1'>
               <Form.Group>
                 <Form.Label className='title'>Tanggal Request</Form.Label>
+                <br></br>
+                <Form.Text className='fs-8 text-dark-danger'>
+                  *Tanggal Request{' '}
+                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
+                  Konfirmasi kunjungan dilakukan oleh Vendor
+                </Form.Text>
+
                 <Form.Control
                   name='request_survey'
                   type='date'
@@ -1153,11 +1149,6 @@ const NewOrderStoreStaff: FC = () => {
                   // TODO: ENABLE BACKDATE VALIDATION WHILE PRODUCTION
                   // min={today}
                 />
-                <Form.Text className='fs-8 text-dark-danger'>
-                  *Tanggal Request{' '}
-                  <span className='fw-bolder text-decoration-underline'>bukan</span> tanggal pasti.
-                  Konfirmasi kunjungan dilakukan oleh Vendor
-                </Form.Text>
               </Form.Group>
             </Col>
 
@@ -1174,19 +1165,54 @@ const NewOrderStoreStaff: FC = () => {
               xl={4}
               xxl={4}
               className='button-add text-end order-3 order-md-3'
-            >
-              <button onClick={() => addOrderDetails()}>Tambah Order</button>
-            </Col>
+            ></Col>
           </Row>
 
-          <Row className='mb-2'>
-            <Col>
-              <Form.Check
-                inline
-                label='Lebih dari 10 KM dari Store'
-                type='checkbox'
-                onChange={(e) => handleCheckboxChange(e.target.checked)}
-              />
+          <Row className='mb-5'>
+            <div className='description fs-7 mb-2'>Informasi mengenai ketersediaan dari Vendor</div>
+            <div className='vendor-avail'>
+              <Table responsive>
+                <thead>
+                  <tr>
+                    <th>Nama Vendor</th>
+                    <th>Service Type</th>
+                    <th>Ketersediaan Vendor</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {vendor.map((item: any) => (
+                    <tr key={item?.id}>
+                      <td>{item?.company_name ?? '-'}</td>
+                      <td>
+                        {Array.from(
+                          new Set(
+                            item?.vendor_service?.map(
+                              (item: any) => item?.service_type?.service_type
+                            )
+                          )
+                        ).join(', ')}
+                      </td>
+                      <td>{vendorAvailbility(item)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </Row>
+
+          <Row>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+            <Col
+              xs={12}
+              md={4}
+              lg={4}
+              xl={4}
+              xxl={4}
+              className='button-add text-end order-3 order-md-3'
+            >
+              <button onClick={() => addOrderDetails()}>Tambah Order</button>
             </Col>
           </Row>
 

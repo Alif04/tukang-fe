@@ -99,7 +99,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
-      title: 'Nama Konsumen',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -116,25 +116,6 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.sales_name.includes(String(value)),
       sorter: (a, b) => a.sales_name.length - b.sales_name.length,
     },
-    {
-      title: 'Jenis Insentif',
-      dataIndex: 'incentive_name',
-      key: 'incentive_name',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.incentive_name.includes(String(value)),
-      sorter: (a, b) => a.incentive_name.length - b.incentive_name.length,
-    },
-    {
-      title: 'Insentif',
-      dataIndex: 'incentive_nominal',
-      key: 'incentive_nominal',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.incentive_nominal.includes(String(value)),
-      sorter: (a, b) => a.incentive_nominal.length - b.incentive_nominal.length,
-    },
-
     {
       title: 'Grand Total Quotation',
       dataIndex: 'quotation_grand_total',
@@ -208,11 +189,11 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
             case 1:
               return 'Draft'
             case 2:
-              return 'Waiting For Payment'
+              return 'Menunggu pembayaran'
             case 3:
-              return 'Paid'
+              return 'Sudah dibayarkan'
             case 4:
-              return 'Decline'
+              return 'Ditolak'
             default:
               return ''
           }

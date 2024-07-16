@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ViewOrder.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
@@ -48,7 +49,8 @@ interface DataType {
   no_member: number
   costumer_name: string
   phone_number: number
-  payment_status: string
+  payment_receipt: string
+  payment_quotation: string
   order_status: string
   order_status_label: string
   work_order_status: string
@@ -123,7 +125,7 @@ const ViewOrders: FC = () => {
   const navigate = useNavigate()
 
   const salesId = localStorage.getItem('sales_id')
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
 
   const storeId = !['Super User', 'Admin HO'].includes(userRole ?? '')
@@ -142,9 +144,16 @@ const ViewOrders: FC = () => {
   const [totalData, setTotalData] = useState<number>(0)
   const [queryParams, setQueryParams] = useState('')
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const today = new Date()
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const [store, setStore] = useState<StoreItem[]>([])
   const storeOptions = [{value: null, label: 'All Store'}, ...store]
@@ -597,7 +606,10 @@ const ViewOrders: FC = () => {
   }
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}${storeId}${userSales}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}${userSales}`
+    if (dateFrom && dateTo) {
+      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+    }
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -648,15 +660,29 @@ const ViewOrders: FC = () => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
-        const paymentStatus = (() => {
+        const paymentReceipt = (() => {
           if (item?.payment_type === 'survey') {
+            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
             return item.receipt_number === null ? 'UNPAID' : 'PAID'
           } else if (item?.payment_type === 'gratis') {
             return 'FREE'
-          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return item.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else {
+            return ''
+          }
+        })()
+
+        const paymentQuotation = (() => {
+          if (item?.quotation?.length) {
+            if (item?.quotation[0]?.receipt_quotation !== null) {
+              return 'PAID'
+            } else {
+              return 'UNPAID'
+            }
           } else {
             return ''
           }
@@ -734,7 +760,8 @@ const ViewOrders: FC = () => {
           no_member: item?.members?.member_number,
           costumer_name: item?.members?.full_name,
           phone_number: phoneNumber,
-          payment_status: paymentStatus,
+          payment_receipt: paymentReceipt,
+          payment_quotation: paymentQuotation,
           order_status: orderStatus,
           order_status_label: orderStatusLabel,
         }
@@ -778,8 +805,6 @@ const ViewOrders: FC = () => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&store_id=`, selectedStore?.value)
     valueCheck(`&vendor_id=`, selectedVendor?.value)
@@ -1068,11 +1093,13 @@ const ViewOrders: FC = () => {
                 </Nav.Link>
               </Nav.Item>
 
-              <Nav.Item style={{cursor: 'pointer'}}>
-                <Nav.Link key={2} eventKey={2}>
-                  Kirim Email CSI
-                </Nav.Link>
-              </Nav.Item>
+              {!['Sales', 'Store'].includes(userRole) && (
+                <Nav.Item style={{cursor: 'pointer'}}>
+                  <Nav.Link key={2} eventKey={2}>
+                    Kirim Email CSI
+                  </Nav.Link>
+                </Nav.Item>
+              )}
             </Nav>
 
             <Tab.Content>
@@ -1674,7 +1701,7 @@ const ViewOrders: FC = () => {
                 {orderDetail?.quotation[0]?.receipt_quotation && (
                   <>
                     <Form.Label className='fs-6 fw-bold'>
-                      Receipt Transaksi :
+                      Receipt Quotation :
                       <span className='fs-6 ms-2 fw-normal'>
                         {orderDetail?.quotation[0]?.receipt_quotation}
                       </span>
@@ -1902,7 +1929,7 @@ const ViewOrders: FC = () => {
           <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
             <Row>
               <Form.Group className='mb-5'>
-                <Form.Label className='title'>Receipt Transaksi</Form.Label>
+                <Form.Label className='title'>Receipt Quotation</Form.Label>
                 <Form.Control
                   ref={inputRef}
                   type='text'
@@ -1922,7 +1949,7 @@ const ViewOrders: FC = () => {
               <Col md={6}>
                 <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
                   <Form.Group>
-                    <Form.Label>Upload Bukti Receipt Transaksi</Form.Label>
+                    <Form.Label>Upload Bukti Receipt Quotation</Form.Label>
 
                     <Form className='form-input-image' onClick={handleReceiptClick}>
                       <Form.Control
@@ -2006,7 +2033,7 @@ const ViewOrders: FC = () => {
               <Col md={6}>
                 <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
                   <Form.Group>
-                    <Form.Label>Upload Bukti Transfer</Form.Label>
+                    <Form.Label>Upload Bukti Transfer Quotation</Form.Label>
 
                     <Form className='form-input-image' onClick={handleImageClick}>
                       <Form.Control
@@ -2600,7 +2627,7 @@ const ViewOrders: FC = () => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Order Dibuat',
+      title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'left',
@@ -2627,15 +2654,6 @@ const ViewOrders: FC = () => {
       onFilter: (value, record) => record.vendor_name.includes(String(value)),
       sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
     },
-    // {
-    //   title: 'No Member',
-    //   dataIndex: 'no_member',
-    //   key: 'no_member',
-    //   align: 'center',
-    //   width: 110,
-    //   sorter: (a, b) => a.no_member - b.no_member,
-    //   responsive: ['md'],
-    // },
     {
       title: 'Nama Customer',
       dataIndex: 'costumer_name',
@@ -2654,13 +2672,13 @@ const ViewOrders: FC = () => {
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
-      title: 'Status Pembayaran',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
-      width: 120,
+      title: 'Status Pembayaran Receipt',
+      dataIndex: 'payment_receipt',
+      key: 'payment_receipt',
+      width: 150,
       align: 'left',
-      onFilter: (value, record) => record.payment_status.includes(String(value)),
-      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+      onFilter: (value, record) => record.payment_receipt.includes(String(value)),
+      sorter: (a, b) => a.payment_receipt.length - b.payment_receipt.length,
       filters: [
         {text: 'FREE', value: 'FREE'},
         {text: 'UNPAID', value: 'UNPAID'},
@@ -2671,6 +2689,8 @@ const ViewOrders: FC = () => {
       title: 'Status Order',
       dataIndex: 'order_status_label',
       key: 'order_status_label',
+      align: 'left',
+      width: 200,
       filters: statusFilters,
       render: (order_status_label) => {
         const orderStatus = order_status_label
@@ -2692,12 +2712,26 @@ const ViewOrders: FC = () => {
       },
       onFilter: (value, record) => record.order_status_label.includes(String(value)),
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
+    },
+    {
+      title: 'Status Pembayaran Quotation',
+      dataIndex: 'payment_quotation',
+      key: 'payment_quotation',
+      width: 150,
       align: 'left',
+      onFilter: (value, record) => record.payment_quotation.includes(String(value)),
+      sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
+      filters: [
+        {text: 'UNPAID', value: 'UNPAID'},
+        {text: 'PAID', value: 'PAID'},
+      ],
     },
     {
       title: 'Action',
       key: 'action',
       align: 'center',
+      width: 120,
+      fixed: 'right',
       render: (record) => {
         const id = record.order_id
 
@@ -2721,22 +2755,30 @@ const ViewOrders: FC = () => {
 
         return (
           <div className='d-flex justify-content-center gap-4'>
-            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
-              record.order_status
-            ) && (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Cancel Order')}
-              >
-                <Button
-                  className='button-cancel'
-                  variant='danger'
-                  onClick={() => handleShowModal(id, 3)}
-                >
-                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
+            {!['Sales'].includes(userRole) && (
+              <>
+                {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
+                  record.order_status
+                ) && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Cancel Order')}
+                  >
+                    <Button
+                      className='button-cancel'
+                      variant='danger'
+                      onClick={() => handleShowModal(id, 3)}
+                    >
+                      <FontAwesomeIcon
+                        className='text-white'
+                        icon={faXmarkCircle}
+                        fontSize={'13px'}
+                      />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+              </>
             )}
 
             <OverlayTrigger
@@ -2749,22 +2791,26 @@ const ViewOrders: FC = () => {
               </Button>
             </OverlayTrigger>
 
-            {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
-              record.order_status
-            ) && (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Update Order')}
-              >
-                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
-                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
+            {!['Sales'].includes(userRole) && (
+              <>
+                {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
+                  record.order_status
+                ) && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Update Order')}
+                  >
+                    <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                      <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+              </>
             )}
 
             {['QUOTEOUT'].includes(record.order_status) &&
-            ['Super User', 'Admin HO'].includes(userRole ?? '') ? (
+            ['Super User', 'Admin HO'].includes(userRole) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -2818,8 +2864,6 @@ const ViewOrders: FC = () => {
           </div>
         )
       },
-      fixed: 'right',
-      width: 130,
     },
   ]
 
@@ -2837,6 +2881,10 @@ const ViewOrders: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -2914,7 +2962,7 @@ const ViewOrders: FC = () => {
               dataSource={orderData}
               rowKey={(record) => record.order_id}
               pagination={false}
-              scroll={{x: 1200}}
+              scroll={{x: 1700}}
             />
           </Spin>
 

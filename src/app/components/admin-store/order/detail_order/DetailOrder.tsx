@@ -15,13 +15,10 @@ interface Status {
   category: string
 }
 
-interface WorkOrderHistory {
-  work_order_id: number
-  work_order_status: string
-  work_order_status_label: string
-  // survey_date: string
-  updated_at: string
-  work_date_time: string
+interface OrderHistory {
+  order_id: number
+  order_status: string
+  created_at: string
 }
 
 const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
@@ -61,10 +58,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       work_order_status: [],
     },
     quotation: [],
+    order_history: null,
   })
 
-  // Work Order History
-  const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
+  // Order History
+  const [orderHistorical, setOrderHistorical] = useState<OrderHistory[]>([])
 
   const fetchOrderData = async () => {
     try {
@@ -83,57 +81,22 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           updatePageTitle(data)
           setIsLoadingPage(false)
 
-          if (data.work_orders) {
-            const workStartDate = new Date(data?.work_orders?.work_start_date).toLocaleDateString(
-              'id-ID',
-              {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              }
-            )
-
-            const workEndDate = new Date(data?.work_orders?.work_end_date).toLocaleDateString(
-              'id-ID',
-              {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              }
-            )
-
-            const workDateTime =
-              data?.work_orders?.work_end_date !== null
-                ? `${workStartDate} - ${workEndDate}`
-                : 'Belum dijadwalkan oleh vendor'
-
-            const surveyDate = data.work_orders.survey_date
-              ? new Date(data.work_orders.survey_date).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })
-              : 'Order ini tanpa survey'
-
-            const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
-              work_order_id: item.work_order_id,
-              work_order_status: item?.status?.category,
-              work_order_status_label: item?.status?.description,
-              survey_date: surveyDate,
-              updated_at: item.created_at
+          if (data?.order_history) {
+            const orderHistory = data?.order_history.map((item: any) => ({
+              order_id: item.order_id,
+              order_status: item?.status?.description,
+              created_at: item.created_at
                 ? new Date(item.created_at).toLocaleDateString('id-ID', {
-                    day: 'numeric',
+                    day: '2-digit',
                     month: 'long',
                     year: 'numeric',
                     hour: 'numeric',
                     minute: 'numeric',
                   })
                 : '-',
-              work_date_time: workDateTime,
-              updated_by: item.updated_by,
             }))
 
-            setWorkOrderHistory(workOrderHistoryData)
+            setOrderHistorical(orderHistory)
           }
         })
     } catch (error) {
@@ -240,51 +203,33 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   }
 
   // Work Order History
-  const columns: ColumnsType<WorkOrderHistory> = [
+  const columns: ColumnsType<OrderHistory> = [
     {
       title: 'ID',
-      dataIndex: 'work_order_id',
-      key: 'work_order_id',
+      dataIndex: 'order_id',
+      key: 'order_id',
       align: 'center',
       width: 100,
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.work_order_id - b.work_order_id,
+      sorter: (a, b) => a.order_id - b.order_id,
     },
     {
       title: 'Status',
-      dataIndex: 'work_order_status_label',
-      key: 'work_order_status_label',
+      dataIndex: 'order_status',
+      key: 'order_status',
       align: 'center',
       width: 110,
-      onFilter: (value, record) => record.work_order_status_label.includes(String(value)),
-      sorter: (a, b) => a.work_order_status_label.length - b.work_order_status_label.length,
+      onFilter: (value, record) => record.order_status.includes(String(value)),
+      sorter: (a, b) => a.order_status.length - b.order_status.length,
     },
-    // {
-    //   title: 'Tanggal Survey',
-    //   dataIndex: 'survey_date',
-    //   key: 'survey_date',
-    //   align: 'center',
-    //   width: 110,
-    //   onFilter: (value, record) => record.survey_date.includes(String(value)),
-    //   sorter: (a, b) => a.survey_date.length - b.survey_date.length,
-    // },
     {
-      title: 'Terakhir Update Survey/Pengerjaan',
-      dataIndex: 'updated_at',
-      key: 'updated_at',
+      title: 'Terakhir Update Order',
+      dataIndex: 'created_at',
+      key: 'created_at',
       align: 'center',
       width: 110,
-      onFilter: (value, record) => record.updated_at.includes(String(value)),
-      sorter: (a, b) => a.updated_at.length - b.updated_at.length,
-    },
-    {
-      title: 'Tanggal Pengerjaan',
-      dataIndex: 'work_date_time',
-      key: 'work_date_time',
-      align: 'center',
-      width: 120,
-      onFilter: (value, record) => record.work_date_time.includes(String(value)),
-      sorter: (a, b) => a.work_date_time.length - b.work_date_time.length,
+      onFilter: (value, record) => record.created_at.includes(String(value)),
+      sorter: (a, b) => a.created_at.length - b.created_at.length,
     },
   ]
 
@@ -321,7 +266,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                     {order?.quotation[0]?.receipt_quotation && (
                       <Form.Label className='fs-4 fw-bold'>
-                        Receipt Transaksi :
+                        Receipt Quotation :
                         <span className='fs-4 ms-2 fw-normal'>
                           {order?.quotation[0]?.receipt_quotation ?? '-'}
                         </span>
@@ -1091,7 +1036,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='mt-3'>Bukti Receipt Pembayaran :</Form.Label>
+                <Form.Label className='mt-3'>Bukti Receipt Quotation :</Form.Label>
                 <ListGroup>
                   {order?.quotation[0]?.quotation_files
                     .filter((x: any) => x.type === 2)
@@ -1138,7 +1083,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
+                <Form.Label className='mt-3'>Bukti Transfer Quotation :</Form.Label>
                 <ListGroup>
                   {order?.quotation[0]?.quotation_files
                     .filter((x: any) => x.type === 1)
@@ -1338,14 +1283,14 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         <Card className='mt-5'>
           <Card.Body>
             <div className='work-order-history'>
-              <h1 className='title fw-bold mb-5'>Work Order History</h1>
+              <h1 className='title fw-bold mb-5'>Order History</h1>
 
               <Table
                 className='table-striped-rows'
                 bordered
                 columns={columns}
-                dataSource={workOrderHistory}
-                rowKey={(record) => record.work_order_id}
+                dataSource={orderHistorical}
+                rowKey={(record) => record.order_id}
                 pagination={{position: ['bottomRight']}}
               />
             </div>

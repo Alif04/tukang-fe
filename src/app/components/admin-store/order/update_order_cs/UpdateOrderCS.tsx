@@ -1058,14 +1058,36 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 <Row className='alamat-order'>
                   <Col>
                     <Form.Group className='mb-5'>
-                      <Form.Label className='title'>Alamat</Form.Label>
+                      <div className='d-flex gap-3'>
+                        <Form.Label className='title'>Alamat</Form.Label>
+
+                        <Form.Check
+                          inline
+                          label='Lebih dari 10 KM dengan maksimal jarak 40 KM'
+                          type='checkbox'
+                          checked={isOverdistance === 1}
+                          onChange={(e) => handleCheckboxChange(e.target.checked)}
+                        />
+                      </div>
+
                       <Form.Control
                         as='textarea'
-                        name='project_address'
+                        name='project_address mb-2'
                         className='field-alamat'
                         value={orderForm.project_address}
                         onChange={(event) => orderFormHandler(event)}
                       />
+
+                      <Form.Label className='fs-7 fw-normal'>
+                        <span className='text-danger fw-bold'>Note :</span>
+                        <br></br>
+                        Jika member baru, maka semua field wajib di isi, kecuali field{' '}
+                        <span className='fw-bolder'>No Member</span>
+                        <br></br>
+                        Segala informasi akan di update melalui email
+                        <br></br>
+                        Untuk melihat history pengerjaan dapat melalui Aplikasi Mitra10
+                      </Form.Label>
                     </Form.Group>
                   </Col>
                 </Row>
@@ -1199,18 +1221,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 className='button-add text-end order-md-4 order-sm-4 mt-3'
               >
                 <button onClick={() => addOrderDetails()}>Tambah Order</button>
-              </Col>
-            </Row>
-
-            <Row className='mb-2'>
-              <Col>
-                <Form.Check
-                  inline
-                  label='Lebih dari 10 KM dari Store'
-                  type='checkbox'
-                  checked={isOverdistance === 1}
-                  onChange={(e) => handleCheckboxChange(e.target.checked)}
-                />
               </Col>
             </Row>
 

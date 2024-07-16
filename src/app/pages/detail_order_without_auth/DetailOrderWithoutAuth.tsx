@@ -63,6 +63,7 @@ const DetailOrderWithoutAuth = () => {
       work_order_status: [],
     },
     quotation: [],
+    order_history: null,
   })
 
   const trackingOrderData = async (
