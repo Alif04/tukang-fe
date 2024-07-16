@@ -270,7 +270,7 @@ const UpdateItemHO: FC = () => {
   const handleMarginTypeChange = (isChecked: boolean) => {
     setItem({
       ...item,
-      item_type: isChecked ? 1 : 0,
+      item_type: isChecked ? 1 : 2,
     })
   }
 
