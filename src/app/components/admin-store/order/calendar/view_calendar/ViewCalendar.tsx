@@ -8,10 +8,11 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import {Steps} from 'antd'
+import {Steps, Spin} from 'antd'
 import {Row, Col, Modal, Form, Table, Accordion} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
+import {LoadingOutlined} from '@ant-design/icons'
 
 interface Order {
   id: any
@@ -34,6 +35,9 @@ const ViewCalendarCS: React.FC = () => {
   const userStore = localStorage.getItem('storeId')
   const storeId = userStore ? `&store_id=${userStore}` : ''
 
+  const [vendor, setVendor] = useState<any>()
+
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [order, setOrder] = useState<Order[]>([
@@ -47,8 +51,6 @@ const ViewCalendarCS: React.FC = () => {
     },
   ])
 
-  const [vendor, setVendor] = useState<any>()
-  const vendorIds = vendor ? `&vendor=${vendor.join(',')}` : ''
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   // Fetch Data
@@ -74,8 +76,10 @@ const ViewCalendarCS: React.FC = () => {
     }
   }
 
-  const getOrder = async (start: any, end: any) => {
+  const getOrder = async (start: any, end: any, vendorIds: any) => {
     try {
+      setIsLoadingPage(true)
+
       await axios
         .get(
           `${apiUrl}/orders/calender?take=0&order_by=desc&date_from=${start}&date_to=${end}${vendorIds}`,
@@ -90,6 +94,7 @@ const ViewCalendarCS: React.FC = () => {
         )
         .then((response: any) => {
           const data = response.data.data
+          setIsLoadingPage(false)
 
           const filteredNewOrderByStore = data.filter(
             (x: any) => x.store_id === Number(userStore) && x.vendor === null
@@ -207,10 +212,11 @@ const ViewCalendarCS: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (dateFrom && dateTo) {
-      getOrder(dateFrom, dateTo)
+    if (vendor && dateFrom && dateTo) {
+      const vendorIds = vendor ? `&vendor=${vendor.join(',')}` : ''
+      getOrder(dateFrom, dateTo, vendorIds)
     }
-  }, [dateFrom, dateTo, vendorIds])
+  }, [vendor, dateFrom, dateTo])
 
   const handleDatesSet = (arg: any) => {
     const start = dayjs(arg.startStr).format('YYYY-MM-DD')
@@ -395,21 +401,28 @@ const ViewCalendarCS: React.FC = () => {
         </Accordion.Item>
       </Accordion>
 
-      <FullCalendar
-        plugins={[dayGridPlugin, interactionPlugin]}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,dayGridWeek,dayGridDay',
-        }}
-        initialView='dayGridMonth'
-        displayEventTime={false}
-        eventDisplay=''
-        weekends={true}
-        events={order}
-        datesSet={handleDatesSet}
-        eventClick={(info) => handleShowModal(info.event.id)}
-      />
+      <Spin
+        spinning={isLoadingPage}
+        size='large'
+        tip='Loading...'
+        indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+      >
+        <FullCalendar
+          plugins={[dayGridPlugin, interactionPlugin]}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,dayGridWeek,dayGridDay',
+          }}
+          initialView='dayGridMonth'
+          displayEventTime={false}
+          eventDisplay=''
+          weekends={true}
+          events={order}
+          datesSet={handleDatesSet}
+          eventClick={(info) => handleShowModal(info.event.id)}
+        />
+      </Spin>
 
       <Modal
         dialogClassName='modal-calendar-detail'

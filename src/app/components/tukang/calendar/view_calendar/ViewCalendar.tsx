@@ -8,9 +8,11 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
+import {Spin} from 'antd'
 import {Row, Col, Modal, Form, Table, Accordion} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
+import {LoadingOutlined} from '@ant-design/icons'
 
 interface WorkOrder {
   id: any
@@ -27,6 +29,7 @@ const ViewCalendarTukang: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const tukangId = localStorage.getItem('tukang_id')
 
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [workOrder, setWorkOrder] = useState<WorkOrder[]>([
@@ -45,6 +48,8 @@ const ViewCalendarTukang: React.FC = () => {
   // Fetch Data
   const getWorkOrder = async (start: any, end: any) => {
     try {
+      setIsLoadingPage(true)
+
       await axios
         .get(
           `${apiUrl}/work-orders?tukang_id=${tukangId}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
@@ -59,6 +64,7 @@ const ViewCalendarTukang: React.FC = () => {
         )
         .then((response) => {
           const data = response.data.data
+          setIsLoadingPage(false)
 
           if (data) {
             const workOrderDetail = data.map((item: any) => {
@@ -337,21 +343,28 @@ const ViewCalendarTukang: React.FC = () => {
         </Accordion.Item>
       </Accordion>
 
-      <FullCalendar
-        plugins={[dayGridPlugin, interactionPlugin]}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,dayGridWeek,dayGridDay',
-        }}
-        initialView='dayGridMonth'
-        weekends={true}
-        displayEventTime={false}
-        eventDisplay=''
-        events={workOrder}
-        datesSet={handleDatesSet}
-        eventClick={(info) => handleShowModal(info.event.id)}
-      />
+      <Spin
+        spinning={isLoadingPage}
+        size='large'
+        tip='Loading...'
+        indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+      >
+        <FullCalendar
+          plugins={[dayGridPlugin, interactionPlugin]}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,dayGridWeek,dayGridDay',
+          }}
+          initialView='dayGridMonth'
+          weekends={true}
+          displayEventTime={false}
+          eventDisplay=''
+          events={workOrder}
+          datesSet={handleDatesSet}
+          eventClick={(info) => handleShowModal(info.event.id)}
+        />
+      </Spin>
 
       <Modal
         dialogClassName='modal-calendar-detail'
