@@ -78,7 +78,7 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
       },
       {
         name: 'Grand Total Value',
-        data: chartOrderData?.map((item) => item?.totalOrderGrandTotalPerMonth),
+        data: chartOrderData?.map((item) => item?.totalOrderGrandTotal),
       },
     ],
     chart: {

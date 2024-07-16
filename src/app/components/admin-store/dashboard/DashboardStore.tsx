@@ -26,13 +26,6 @@ const DashboardStore: FC = () => {
   const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const today = new Date()
-  // const [dateFrom, setDateFrom] = useState<any>(
-  //   dayjs(new Date(today.getFullYear(), 0, 1)).format('YYYY-MM-DD')
-  // )
-  // const [dateTo, setDateTo] = useState<any>(
-  //   dayjs(new Date(today.getFullYear(), 11, 31)).format('YYYY-MM-DD')
-  // )
-
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
@@ -146,6 +139,15 @@ const DashboardStore: FC = () => {
     setLoadingButton(false)
   }
 
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+  const totalOrders = sumTotal(chartData, 'totalOrder')
+  const totalComplete = sumTotal(chartData, 'totalOrderDone')
+  const totalProgress = sumTotal(chartData, 'totalProgressOrder')
+  const totalCancel = sumTotal(chartData, 'totalCancel')
+  const totalRefund = sumTotal(chartData, 'totalRefund')
+
   return (
     <>
       <Row className='mb-5'>
@@ -253,9 +255,12 @@ const DashboardStore: FC = () => {
           <Row>
             <Col>
               <TotalOrderStore
-                chartOrder={chartData}
-                className='card-xxl-stretch-50 card-xl-stretch-50 mb-xl-8 mb-5'
-                chartHeight='220px'
+                className=''
+                totalOrders={totalOrders}
+                totalComplete={totalComplete}
+                totalProgress={totalProgress}
+                totalCancel={totalCancel}
+                totalRefund={totalRefund}
               />
             </Col>
           </Row>
