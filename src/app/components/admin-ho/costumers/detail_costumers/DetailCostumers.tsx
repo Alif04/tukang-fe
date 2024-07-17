@@ -1,11 +1,10 @@
 import React, {FC, useEffect, useState} from 'react'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {useParams, Link} from 'react-router-dom'
 
 import './DetailCostumers.css'
 
 import axios from 'axios'
-import {Table, Rate} from 'antd'
-import {useParams} from 'react-router-dom'
+import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, Tabs, Tab} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -57,7 +56,7 @@ const DetailCostumerHO: FC = () => {
 
   const columnsOrder: ColumnsType<DataTypeOrder> = [
     {
-      title: 'Nomor Urut',
+      title: 'No. ',
       dataIndex: 'number',
       key: 'number',
       align: 'center',
@@ -71,23 +70,18 @@ const DetailCostumerHO: FC = () => {
       width: 150,
     },
     {
-      title: 'Nomor Resi',
+      title: 'Nomor Receipt',
       dataIndex: 'receipt_number',
       key: 'receipt_number',
       align: 'center',
       width: 130,
     },
     {
-      title: 'Tanggal Pembelian',
+      title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       width: 150,
     },
-    // {
-    //   title: 'Total Invoice',
-    //   dataIndex: 'total_invoice',
-    //   key: 'total_invoice',
-    // },
     {
       title: 'Status Order',
       dataIndex: 'status',
@@ -117,7 +111,7 @@ const DetailCostumerHO: FC = () => {
       width: 250,
     },
     {
-      title: 'Tanggal',
+      title: 'Tanggal Pengaduan',
       dataIndex: 'complaint_date',
       key: 'complaint_date',
     },
@@ -134,15 +128,18 @@ const DetailCostumerHO: FC = () => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         data = {
           number: apiData.indexOf(item) + 1,
           order_id: item.id,
           store_name: item?.store?.store_name ?? '-',
-          receipt_number: item?.receipt_number ?? '-',
+          receipt_number: (
+            <Link to={`/order/detail-order/${item.id}`}>{item?.receipt_number ?? '-'}</Link>
+          ),
           date_order: orderDate,
-          // total_invoice: item?.total_invoice ?? '-',
           status: item?.status?.description ?? '-',
         }
 
@@ -169,6 +166,8 @@ const DetailCostumerHO: FC = () => {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
             })
 
             const complaintData = {
@@ -340,7 +339,7 @@ const DetailCostumerHO: FC = () => {
                 columns={columnsOrder}
                 dataSource={orderData}
                 rowKey={(record) => record.order_id}
-                pagination={{position: ['bottomCenter']}}
+                pagination={{position: ['bottomRight']}}
               />
             </Tab>
 
@@ -351,7 +350,7 @@ const DetailCostumerHO: FC = () => {
                 columns={columnsComplaint}
                 dataSource={complaintData}
                 rowKey={(record) => record.complaint_id}
-                pagination={{position: ['bottomCenter']}}
+                pagination={{position: ['bottomRight']}}
               />
             </Tab>
           </Tabs>

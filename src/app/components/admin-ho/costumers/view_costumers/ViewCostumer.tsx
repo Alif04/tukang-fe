@@ -30,10 +30,6 @@ interface DataType {
   email_address: string
   customer_since: Date
   total_order: number
-  // total_spend: number
-  // total_complaint: number
-  // total_cis_score: number
-  // status: string
 }
 
 const ViewCostumerHO: React.FC<Props> = ({className}) => {
@@ -41,7 +37,9 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const userStore = localStorage.getItem('storeId')
-  const storeId = userStore ? `&store_id=${userStore}` : ''
+  const userStoreName = localStorage.getItem('storeName')
+  const storeId = userStore ? `store_id=${userStore}` : ''
+  const storeName = userStoreName ? `${userStoreName}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
@@ -127,17 +125,6 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       align: 'center',
       sorter: (a, b) => a.total_order - b.total_order,
     },
-    // {
-    //   title: 'Total Value',
-    //   dataIndex: 'total_spend',
-    //   key: 'total_spend',
-    //   sorter: (a, b) => a.total_spend - b.total_spend,
-    // },
-    // {
-    //   title: 'Status',
-    //   dataIndex: 'status',
-    //   key: 'status',
-    // },
     {
       title: 'Action',
       key: 'action',
@@ -181,7 +168,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   ]
 
   const fetchMemberList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/member?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}`
+    let apiUrlWithParams = `${apiUrl}/member?order_by=desc&page=${page}&take=${pageSize}${queryparams}&${storeId}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -232,10 +219,6 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
           email_address: item?.email ?? '-',
           customer_since: joinDate,
           total_order: item?.order?.length ?? 0,
-          // total_spend: item?.total_spend ?? '-',
-          // total_complaint: item?.total_complaint ?? '-',
-          // total_cis_score: item?.total_cis_score ?? '-',
-          // status: item?.is_active === true ? 'ACTIVE' : '-',
         }
 
         return data
@@ -298,7 +281,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
     setLoadingExport(true)
 
     axios
-      .get(`${apiUrl}/members/export-excel?take=0`, {
+      .get(`${apiUrl}/member/export-excel?${storeId}`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -309,10 +292,14 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `Data Member.xlsx`)
+        link.setAttribute('download', `Data Member ${storeName}.xlsx`)
         document.body.appendChild(link)
         link.click()
 
+        setLoadingExport(false)
+      })
+      .catch((error: any) => {
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
         setLoadingExport(false)
       })
   }

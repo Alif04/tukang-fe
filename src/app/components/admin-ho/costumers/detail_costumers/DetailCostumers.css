@@ -124,7 +124,7 @@
 
 /* Content Bottom */
 #detail-costumer .nav-fill > .nav-link,
-.nav-fill .nav-item {
+#detail-costumer .nav-fill .nav-item {
   width: fit-content;
   position: relative;
   color: grey;
