@@ -1279,26 +1279,22 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         </Card.Body>
       </Card>
 
-      {order?.work_orders ? (
-        <Card className='mt-5'>
-          <Card.Body>
-            <div className='work-order-history'>
-              <h1 className='title fw-bold mb-5'>Order History</h1>
+      <Card className='mt-5'>
+        <Card.Body>
+          <div className='work-order-history'>
+            <h1 className='title fw-bold mb-5'>Order History</h1>
 
-              <Table
-                className='table-striped-rows'
-                bordered
-                columns={columns}
-                dataSource={orderHistorical}
-                rowKey={(record) => record.order_id}
-                pagination={{position: ['bottomRight']}}
-              />
-            </div>
-          </Card.Body>
-        </Card>
-      ) : (
-        ''
-      )}
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={orderHistorical}
+              rowKey={(record) => record.order_id}
+              pagination={{position: ['bottomRight']}}
+            />
+          </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

@@ -145,8 +145,16 @@ const ViewOrders: FC = () => {
   const [queryParams, setQueryParams] = useState('')
 
   const today = new Date()
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+  // const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  // const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
+  const [dateFrom, setDateFrom] = useState<any>(
+    ['Super User', 'Admin HO'].includes(userRole) ? '' : new Date().toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(
+    ['Super User', 'Admin HO'].includes(userRole) ? '' : new Date().toISOString().split('T')[0]
+  )
+
   const [searchFilter, setSearchFilter] = useState<string>('')
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -987,7 +995,9 @@ const ViewOrders: FC = () => {
           setLoadingUpdate(false)
         }
 
-        window.location.reload()
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
       })
       .catch((error) => {
         setLoadingUpdate(false)
@@ -1093,7 +1103,7 @@ const ViewOrders: FC = () => {
                 </Nav.Link>
               </Nav.Item>
 
-              {!['Sales', 'Store'].includes(userRole) && (
+              {!['Sales', 'Store CS'].includes(userRole) && (
                 <Nav.Item style={{cursor: 'pointer'}}>
                   <Nav.Link key={2} eventKey={2}>
                     Kirim Email CSI
@@ -1472,7 +1482,7 @@ const ViewOrders: FC = () => {
 
                               <tr>
                                 <td colSpan={3} className='text-end fw-bolder'>
-                                  Promosi ( Free Survey )
+                                  Promosi
                                 </td>
                                 <td className=' fw-bolder'>
                                   {`Rp. ${parseInt(
@@ -1881,7 +1891,7 @@ const ViewOrders: FC = () => {
 
                       <tr>
                         <td colSpan={3} className='text-end fw-bolder'>
-                          Promosi ( Free Survey )
+                          Promosi
                         </td>
                         <td className=' fw-bolder'>
                           {`Rp. ${parseInt(
@@ -2412,7 +2422,7 @@ const ViewOrders: FC = () => {
 
                           <tr>
                             <td colSpan={3} className='text-end fw-bolder'>
-                              Promosi ( Free Survey )
+                              Promosi
                             </td>
                             <td className=' fw-bolder'>
                               {`Rp. ${parseInt(
@@ -2757,9 +2767,7 @@ const ViewOrders: FC = () => {
           <div className='d-flex justify-content-center gap-4'>
             {!['Sales'].includes(userRole) && (
               <>
-                {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
-                  record.order_status
-                ) && (
+                {['BOOK', 'BOOKED'].includes(record.order_status) && (
                   <OverlayTrigger
                     placement='bottom'
                     delay={{show: 250, hide: 400}}
@@ -2781,6 +2789,25 @@ const ViewOrders: FC = () => {
               </>
             )}
 
+            {['WORKREQ', 'SURVEYREQ'].includes(record.order_status) &&
+            ['Super User', 'Admin HO'].includes(userRole) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Cancel Order')}
+              >
+                <Button
+                  className='button-cancel'
+                  variant='danger'
+                  onClick={() => handleShowModal(id, 3)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
@@ -2793,9 +2820,7 @@ const ViewOrders: FC = () => {
 
             {!['Sales'].includes(userRole) && (
               <>
-                {['PICKLIST', 'BOOK', 'BOOKED', 'WORKREQ', 'SURVEYREQ'].includes(
-                  record.order_status
-                ) && (
+                {['PICKLIST', 'BOOK', 'BOOKED'].includes(record.order_status) && (
                   <OverlayTrigger
                     placement='bottom'
                     delay={{show: 250, hide: 400}}
@@ -2809,7 +2834,7 @@ const ViewOrders: FC = () => {
               </>
             )}
 
-            {['QUOTEOUT'].includes(record.order_status) &&
+            {['WORKREQ', 'SURVEYREQ', 'QUOTEOUT'].includes(record.order_status) &&
             ['Super User', 'Admin HO'].includes(userRole) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -2881,10 +2906,14 @@ const ViewOrders: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={[
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                ]}
+                defaultValue={
+                  ['Super User', 'Admin HO'].includes(userRole)
+                    ? null
+                    : [
+                        dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                        dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                      ]
+                }
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')

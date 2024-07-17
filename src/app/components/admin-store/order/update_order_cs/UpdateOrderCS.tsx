@@ -1208,7 +1208,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               >
                 <h1 className='fs-3 fw-bold'>
                   ORDER STATUS :{' '}
-                  <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
+                  <span className='fw-bold text-success'>{orderDetail?.status?.description}</span>
                 </h1>
               </Col>
 
@@ -1276,6 +1276,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                         <Form.Control
                           id={`item-name-${index}`}
                           name={`item_name`}
+                          as='textarea'
                           plaintext
                           readOnly={
                             paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
@@ -1421,12 +1422,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                       </td>
 
                       <td className=' fw-bolder'>
-                        <Form.Control
-                          name='additional_fee'
-                          type='number'
-                          value={orderForm.additional_fee}
-                          onChange={(e) => orderFormHandler(e)}
-                        />
+                        Rp. {Number(orderForm.additional_fee).toLocaleString('id')}
                       </td>
                     </tr>
                   )}
@@ -1536,8 +1532,8 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                 </Form.Group>
               </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+              <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
+              <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
             </Row>
 
             <div className='button-submit d-flex justify-content-center align-items-center'>

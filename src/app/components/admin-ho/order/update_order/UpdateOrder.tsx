@@ -1267,7 +1267,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 <Row className='alamat-order'>
                   <Col>
                     <Form.Group className='mb-5'>
-                      <Form.Label>Alamat</Form.Label>
+                      <div className='d-flex gap-3'>
+                        <Form.Label>Alamat</Form.Label>
+                        <Form.Check
+                          inline
+                          label='Lebih dari 10 KM dengan maksimal jarak 40 KM'
+                          type='checkbox'
+                          checked={isOverdistance === 1}
+                          onChange={(e) => handleCheckboxChange(e.target.checked)}
+                        />
+                      </div>
+
                       <Form.Control
                         as='textarea'
                         name='project_address'
@@ -1847,18 +1857,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               } else {
                 return (
                   <>
-                    <Row className='mb-2'>
-                      <Col>
-                        <Form.Check
-                          inline
-                          label='Lebih dari 10 KM dari Store'
-                          type='checkbox'
-                          checked={isOverdistance === 1}
-                          onChange={(e) => handleCheckboxChange(e.target.checked)}
-                        />
-                      </Col>
-                    </Row>
-
                     <div className='table-order-content'>
                       <Table hover responsive='md'>
                         <thead className='table-order-head'>
@@ -1906,6 +1904,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                 <Form.Control
                                   id={`item-name-${index}`}
                                   name={`item_name`}
+                                  as='textarea'
                                   plaintext
                                   readOnly={
                                     paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
@@ -2058,12 +2057,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                               </td>
 
                               <td className=' fw-bolder'>
-                                <Form.Control
-                                  name='additional_fee'
-                                  type='number'
-                                  value={orderForm.additional_fee}
-                                  onChange={(e) => orderFormHandler(e)}
-                                />
+                                Rp. {Number(orderForm.additional_fee).toLocaleString('id')}
                               </td>
                             </tr>
                           )}

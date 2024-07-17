@@ -87,7 +87,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Handle Cancel Print
   const handleCancelPrint = () => {
-    navigate(`/order/update-order/${params.id}`)
+    navigate(`/order/view-order`)
   }
 
   return (
