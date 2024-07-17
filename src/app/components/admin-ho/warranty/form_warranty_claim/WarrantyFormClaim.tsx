@@ -695,7 +695,7 @@ const WarrantyFormClaimHO: FC<{updatePageTitle: (warranty: any) => void}> = ({up
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
-              <Form.Control type='date' onChange={handleChangeDate} min={today} />
+              <Form.Control type='date' value={today} readOnly />
             </Col>
 
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>

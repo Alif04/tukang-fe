@@ -93,18 +93,11 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
   const ClaimWarrantyValidation = () => {
     let valid = true
 
-    if (!date) {
+    if (!desc) {
       Swal.fire({
-        title: 'Error',
-        text: 'Please fill date form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!desc) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill warranty claim description form',
-        icon: 'error',
+        title: 'Warning',
+        text: 'Tolong Isi Alasan Claim Garansi',
+        icon: 'warning',
       })
       valid = false
     }
@@ -119,7 +112,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
 
       formData.append('order_id', orderId)
       formData.append('description', desc)
-      formData.append('complaint_date', date)
+      formData.append('complaint_date', today)
       formData.append('complaint_channel', complantChannel.toString())
       formData.append('complaint_status', complaintStatus)
       formData.append('type', String(2))
@@ -691,7 +684,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
               <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
-              <Form.Control type='date' onChange={handleChangeDate} min={today} />
+              <Form.Control type='date' value={today} readOnly />
             </Col>
 
             <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>

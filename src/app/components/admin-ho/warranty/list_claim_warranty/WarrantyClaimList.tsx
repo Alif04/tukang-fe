@@ -23,6 +23,28 @@ interface Status {
   category: string
 }
 
+interface TimeLeft {
+  days: number
+  hours: number
+  minutes: number
+}
+
+interface DataType {
+  key: string
+  order_id: number
+  date_order: Date
+  store_name: string
+  no_member: number
+  costumer_name: string
+  phone_number: number
+  services_name: string
+  status_order: string
+  period_active: Date
+  countdown_to_expired: Date
+  period_expired: Date
+  warranty_status: string
+}
+
 const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -48,20 +70,6 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
-  }
-
-  interface DataType {
-    key: string
-    order_id: number
-    date_order: Date
-    store_name: string
-    no_member: number
-    costumer_name: string
-    phone_number: number
-    services_name: string
-    status_order: string
-    tanggal_aktif_garansi: Date
-    tanggal_berakhir_garansi: Date
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
@@ -147,23 +155,40 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     },
     {
       title: 'Tanggal Aktif Garansi',
-      dataIndex: 'tanggal_aktif_garansi',
-      key: 'tanggal_aktif_garansi',
+      dataIndex: 'period_active',
+      key: 'period_active',
       align: 'left',
       width: 140,
       sorter: (a: DataType, b: DataType) =>
-        new Date(a.tanggal_aktif_garansi).getTime() - new Date(b.tanggal_aktif_garansi).getTime(),
+        new Date(a.period_active).getTime() - new Date(b.period_active).getTime(),
+    },
+    {
+      title: 'Umur Masa Garansi',
+      dataIndex: 'countdown_to_expired',
+      key: 'countdown_to_expired',
+      align: 'left',
+      width: 140,
+      sorter: (a: DataType, b: DataType) =>
+        new Date(a.countdown_to_expired).getTime() - new Date(b.countdown_to_expired).getTime(),
     },
     {
       title: 'Tanggal Berakhir Garansi',
-      dataIndex: 'tanggal_berakhir_garansi',
-      key: 'tanggal_berakhir_garansi',
+      dataIndex: 'period_expired',
+      key: 'period_expired',
       align: 'left',
       width: 160,
       sorter: (a: DataType, b: DataType) =>
-        new Date(a.tanggal_berakhir_garansi).getTime() -
-        new Date(b.tanggal_berakhir_garansi).getTime(),
+        new Date(a.period_expired).getTime() - new Date(b.period_expired).getTime(),
     },
+    // {
+    //   title: 'Status Garansi',
+    //   dataIndex: 'warranty_status',
+    //   key: 'warranty_status',
+    //   align: 'left',
+    //   width: 160,
+    //   onFilter: (value: string, record: DataType) => record.warranty_status.includes(String(value)),
+    //   sorter: (a: DataType, b: DataType) => a.warranty_status.length - b.warranty_status.length,
+    // },
     userRole !== 'Tukang' && {
       title: 'Action',
       key: 'action',
@@ -239,6 +264,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const createdAt = item?.work_orders?.work_order_status[0]?.created_at
@@ -253,13 +280,57 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
             })
           : '-'
 
-        const warrantyEndDate = createdAt
-          ? new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
-          : '-'
+        let warrantyEndDate = '-'
+        let cooldownWarranty = 0
+
+        if (createdAt) {
+          const warrantyEnd = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+          warrantyEndDate = warrantyEnd.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+          cooldownWarranty = warrantyEnd.getTime() - new Date().getTime()
+        }
+
+        const calculateTimeLeft = (timeLeft: number): TimeLeft => {
+          let time: TimeLeft = {
+            days: 0,
+            hours: 0,
+            minutes: 0,
+          }
+
+          if (timeLeft > 0) {
+            time = {
+              days: Math.floor(timeLeft / (1000 * 60 * 60 * 24)),
+              hours: Math.floor((timeLeft / (1000 * 60 * 60)) % 24),
+              minutes: Math.floor((timeLeft / 1000 / 60) % 60),
+            }
+          } else {
+            time = {
+              days: 0,
+              hours: 0,
+              minutes: 0,
+            }
+          }
+
+          return time
+        }
+
+        const warrantyCountdown = calculateTimeLeft(cooldownWarranty)
+        const warrantyCountdownText =
+          warrantyCountdown.days === 0 &&
+          warrantyCountdown.hours === 0 &&
+          warrantyCountdown.minutes === 0
+            ? 'Garansi Expired'
+            : `${warrantyCountdown.days} Hari ${warrantyCountdown.hours} Jam ${warrantyCountdown.minutes} Menit`
+
+        const warrantyStatus =
+          warrantyCountdown.days === 0 &&
+          warrantyCountdown.hours === 0 &&
+          warrantyCountdown.minutes === 0
+            ? 'Garansi Expired'
+            : `Garansi Aktif`
 
         data = {
           order_id: item?.id,
@@ -269,8 +340,10 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           costumer_name: item?.members?.full_name ?? '-',
           phone_number: item?.project_number ?? '-',
           status_order: item?.work_orders?.work_order_status[0]?.status?.description ?? '-',
-          tanggal_aktif_garansi: workEndDate,
-          tanggal_berakhir_garansi: warrantyEndDate,
+          period_active: workEndDate,
+          period_expired: warrantyEndDate,
+          countdown_to_expired: warrantyCountdownText,
+          warranty_status: warrantyStatus,
         }
 
         return data
@@ -382,7 +455,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={claimWarrantyData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 1400}}
+            scroll={{x: 1500}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,
