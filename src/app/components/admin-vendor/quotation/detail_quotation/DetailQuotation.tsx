@@ -239,32 +239,6 @@ const DetailQuotationVendor: FC = () => {
 
                 <tr>
                   <td colSpan={5} className='text-end fw-bolder'>
-                    Promosi
-                  </td>
-                  <td className=' fw-bolder'>{`Rp. ${parseInt(
-                    quotationDetail?.quotation_disc
-                  ).toLocaleString('id')}`}</td>
-                </tr>
-
-                <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
-                    {`${
-                      quotationDetail?.promotion
-                        ? `Additional Promotion (${quotationDetail?.promotion?.name})`
-                        : `Additional Promotion`
-                    }`}
-                  </td>
-                  <td className=' fw-bolder'>
-                    {quotationDetail?.promotion?.promotion_type === 1
-                      ? `${quotationDetail?.promotion?.promotion} %`
-                      : `Rp. ${parseInt(quotationDetail?.promotion?.promotion ?? 0).toLocaleString(
-                          'id'
-                        )}`}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>

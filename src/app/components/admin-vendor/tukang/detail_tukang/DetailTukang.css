@@ -128,7 +128,7 @@
 
 /* Content Bottom */
 #detail-tukang .nav-fill > .nav-link,
-.nav-fill .nav-item {
+#detail-tukang .nav-fill .nav-item {
   width: fit-content;
   position: relative;
   color: grey;
