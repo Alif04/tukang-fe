@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
-import {useNavigate} from 'react-router-dom'
 
 import './TotalOrderReport.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
@@ -13,6 +13,7 @@ import {Row, Col, Button} from 'react-bootstrap'
 const {RangePicker} = DatePicker
 
 type Props = {
+  title: string
   endpoint: string
   isWorkOrder: boolean
   className: string
@@ -31,10 +32,17 @@ interface DataType {
   phone_number: number
   email: string
   address: string
+  sales_name: string
   grand_total: number
 }
 
-const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName, isWorkOrder}) => {
+const TotalOrderReportStore: React.FC<Props> = ({
+  endpoint,
+  className,
+  statusName,
+  isWorkOrder,
+  title,
+}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const storedStatus = sessionStorage.getItem('statusData')
@@ -47,11 +55,18 @@ const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName
       : `&status=${statuses.join(',')}`
     : ''
 
+  const reportStatus = statuses.length
+    ? isWorkOrder
+      ? `${statuses.join(',')}`
+      : `${statuses.join(',')}`
+    : ''
+
   const userStore = localStorage.getItem('storeId') as any
   const userStoreName = localStorage.getItem('storeName') as string
   const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadingExport, setLoadingExport] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [reportData, setReportData] = useState<DataType[]>([])
@@ -114,6 +129,15 @@ const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName
       width: 150,
       onFilter: (value, record) => record.address.includes(String(value)),
       sorter: (a, b) => a.address.length - b.address.length,
+    },
+    {
+      title: 'Nama Sales',
+      dataIndex: 'sales_name',
+      key: 'sales_name',
+      align: 'left',
+      width: 150,
+      onFilter: (value, record) => record.sales_name.includes(String(value)),
+      sorter: (a, b) => a.sales_name.length - b.sales_name.length,
     },
     {
       title: 'Grand Total',
@@ -213,6 +237,7 @@ const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName
               phone_number: item?.project_number ?? '-',
               email: item?.members?.email ?? '-',
               address: item?.project_address ?? '-',
+              sales_name: item?.sales?.full_name,
               grand_total: `Rp. ${Number(item?.grand_total).toLocaleString('id')}`,
             }
 
@@ -237,6 +262,7 @@ const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName
               phone_number: item?.orders?.project_number,
               email: item?.orders?.members?.email ?? '-',
               address: item?.orders?.project_address ?? '-',
+              sales_name: item?.orders?.sales?.full_name,
               grand_total: `Rp. ${Number(item?.orders?.grand_total).toLocaleString('id')}`,
             }
 
@@ -261,6 +287,7 @@ const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName
               phone_number: item?.order?.project_number,
               email: item?.order?.members?.email ?? '-',
               address: item?.order?.project_address ?? '-',
+              sales_name: item?.order?.sales?.full_name,
               grand_total: `Rp. ${Number(item?.order?.grand_total).toLocaleString('id')}`,
             }
 
@@ -323,10 +350,64 @@ const TotalOrderReportStore: React.FC<Props> = ({endpoint, className, statusName
     setLoadingButton(false)
   }
 
+  // Export To Excel
+  const exportToExcel = () => {
+    if (totalOrder === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+    setLoadingExport(true)
+    let url = `${apiUrl}/${endpoint}/export-excel?take=0`
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        url += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&store_id=`, userStore)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+    valueCheck(`${isWorkOrder === true ? '&work_order_status=' : '&status='}`, reportStatus)
+
+    axios
+      .get(url, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `${title}.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingExport(false)
+      })
+      .catch((error: any) => {
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+        setLoadingExport(false)
+      })
+  }
+
   return (
     <section id='total-order-report'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
+          <Row>
+            <div className='d-flex justify-content-end'>
+              <button className='button-export' onClick={exportToExcel}>
+                <h3 className='fs-5 fw-semibold'>
+                  {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                </h3>
+              </button>
+            </div>
+          </Row>
+
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex align-items-center mb-2'>
               <div className='fw-bold mb-5'>

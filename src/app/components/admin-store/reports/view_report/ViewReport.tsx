@@ -104,7 +104,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('pending-bayar', 'Menunggu bayar receipt')}
+                    {newTabs('pending-bayar', 'Menunggu bayar quotation')}
                   </Card.Body>
                 </Card>
               </Link>

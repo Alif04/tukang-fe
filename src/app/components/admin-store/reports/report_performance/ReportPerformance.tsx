@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ReportPerformance.css'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
@@ -23,6 +24,7 @@ interface DataType {
   phone_number: number
   email: string
   address: string
+  sales_name: string
   grand_total: number
 }
 
@@ -34,6 +36,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
   const staffStoreName = localStorage.getItem('storeName') as string
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [loadingExport, setLoadingExport] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [orderData, setOrderData] = useState<DataType[]>([])
@@ -98,6 +101,15 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.address.length - b.address.length,
     },
     {
+      title: 'Nama Sales',
+      dataIndex: 'sales_name',
+      key: 'sales_name',
+      align: 'left',
+      width: 150,
+      onFilter: (value, record) => record.sales_name.includes(String(value)),
+      sorter: (a, b) => a.sales_name.length - b.sales_name.length,
+    },
+    {
       title: 'Grand Total',
       dataIndex: 'grand_total',
       key: 'grand_total',
@@ -141,15 +153,21 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
 
       const orderData = apiData.map((item: any) => {
         let data
+        let totalAmount = 0
+
+        if (item.quotation.length > 0 && item.payment_type === 'survey') {
+          totalAmount = item?.quotation[0]?.quotation_grand_total
+        } else {
+          totalAmount = item?.grand_total
+        }
 
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
-
-        const grandTotalPrice = parseInt(item?.grand_total)
-        const formattedGrandTotal = `Rp. ${grandTotalPrice.toLocaleString('id')}`
 
         data = {
           order_id: item?.id,
@@ -158,7 +176,8 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
           phone_number: item?.project_number,
           email: item?.members?.email,
           address: item?.project_address,
-          grand_total: formattedGrandTotal,
+          sales_name: item?.sales?.full_name,
+          grand_total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
 
         return data
@@ -209,10 +228,53 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
     setLoadingButton(false)
   }
 
+  // Export To Excel
+  const exportToExcel = () => {
+    if (totalOrder === 0) {
+      Swal.fire('Warning', 'Belum ada data yang dapat di export', 'warning')
+      return
+    }
+
+    setLoadingExport(true)
+
+    axios
+      .get(`${apiUrl}/orders/export-excel`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Laporan.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingExport(false)
+      })
+      .catch((error: any) => {
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+        setLoadingExport(false)
+      })
+  }
+
   return (
     <section id='report-performance'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
+          <Row>
+            <div className='d-flex justify-content-end'>
+              <button className='button-export' onClick={exportToExcel}>
+                <h3 className='fs-5 fw-semibold'>
+                  {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                </h3>
+              </button>
+            </div>
+          </Row>
+
           <Row className='table-head-wrapper'>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex align-items-center mb-2'>
               <div className='fw-bold mb-5'>

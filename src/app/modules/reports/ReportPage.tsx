@@ -93,6 +93,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL ORDER</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN TOTAL ORDER'
               isWorkOrder={false}
               endpoint='orders'
               className=''
@@ -108,6 +109,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PERMINTAAN SURVEI</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN PERMINTAAN SURVEI'
               isWorkOrder={false}
               endpoint='orders'
               className=''
@@ -123,6 +125,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN SURVEI DIMULAI</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN SURVEI DIMULAI'
               isWorkOrder={false}
               endpoint='orders'
               className=''
@@ -140,6 +143,7 @@ const RefundPage: React.FC = () => {
               LAPORAN QUOTATION DIKIRIM KE KONSUMEN
             </PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN QUOTATION DIKIRIM KE KONSUMEN'
               isWorkOrder={false}
               endpoint='orders'
               className=''
@@ -153,12 +157,13 @@ const RefundPage: React.FC = () => {
         path='report-pending-bayar'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN MENUNGGU BAYAR RECEIPT</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN MENUNGGU BAYAR QUOTATION</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN MENUNGGU BAYAR QUOTATION'
               isWorkOrder={false}
               endpoint='orders'
               className=''
-              statusName={['BOOK']}
+              statusName={['QUOTEOUT']}
             />
           </>
         }
@@ -170,6 +175,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN SEDANG PENGERJAAN</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN SEDANG PENGERJAAN'
               isWorkOrder={true}
               endpoint='orders'
               className=''
@@ -185,6 +191,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER SELESAI</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN ORDER SELESAI'
               isWorkOrder={true}
               endpoint='orders'
               className=''
@@ -200,6 +207,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER RESCHEDULE</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN ORDER RESCHEDULE'
               isWorkOrder={false}
               endpoint='reschedule'
               className=''
@@ -215,6 +223,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER DIBATALKAN</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN ORDER DIBATALKAN'
               isWorkOrder={false}
               endpoint='orders'
               className=''
@@ -230,6 +239,7 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ORDER REFUND</PageTitle>
             <TotalOrderReportStore
+              title='LAPORAN ORDER REFUND'
               isWorkOrder={false}
               endpoint='refund'
               className=''
