@@ -588,14 +588,56 @@ const NewSales: FC = () => {
     if (salesInfo.full_name === '') {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill Name Sales Consultant form',
+        text: 'Tolong isi formulir Nama Sales Consultant',
         icon: 'warning',
       })
       valid = false
     } else if (salesInfo.store_id === null) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please select Store Name form',
+        text: 'Please pilih formulir Nama Toko',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (salesInfo.phone_number === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi formulir WA/Phone Number',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (salesInfo.bank_id === null) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please pilih formulir Nama Bank',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (salesInfo.account_number === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi formulir Nomor Akun Bank',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (salesInfo.account_name === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi formulir Nama Pemilik Akun Bank',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (salesInfo.sales_brand === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi formulir Brands',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (salesInfo.sales_categories.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong pilih formulir Nama Category',
         icon: 'warning',
       })
       valid = false
