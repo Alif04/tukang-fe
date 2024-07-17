@@ -58,11 +58,11 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
     series: [
       {
         name: 'Survei',
-        data: orderData.map((item: any) => item.orderSurvey),
+        data: orderData.map((item: any) => item?.orderSurvey),
       },
       {
         name: 'Pengerjaan',
-        data: orderData.map((item: any) => item.orderWork),
+        data: orderData.map((item: any) => item?.orderWork),
       },
     ],
     chart: {
@@ -93,7 +93,7 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: orderData.map((item: any) => item.month),
+      categories: orderData.map((item: any) => item?.period),
       axisBorder: {
         show: false,
       },

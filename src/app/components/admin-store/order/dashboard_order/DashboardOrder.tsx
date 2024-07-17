@@ -143,7 +143,7 @@ const DashboardOrderStore: FC = () => {
         }
       )
 
-      const chartDatas = response.data.data
+      const chartDatas = response?.data?.data
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)

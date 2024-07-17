@@ -1,5 +1,6 @@
 import React, {useState, useEffect, FC} from 'react'
 
+import {OrderValueWidget} from './components/OrderValueWidget'
 import {SalesReportWidget} from './components/SalesReportWidget'
 import {TransactionWidget} from './components/TransactionWidget'
 import {WaitingCostumerPay} from './components/WaitingCostumerPay'
@@ -12,7 +13,7 @@ import {TotalReschedule} from './components/TotalReschedule'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
-import {Row, Col, Button} from 'react-bootstrap'
+import {Row, Col, Button, Card, Tab, Nav} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
@@ -74,6 +75,7 @@ const DashboardStore: FC = () => {
       )
 
       const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -84,7 +86,7 @@ const DashboardStore: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
       setChartData(slicedData)
       setIsLoadingPage(false)
     } catch (error) {
@@ -149,7 +151,7 @@ const DashboardStore: FC = () => {
   const totalRefund = sumTotal(chartData, 'totalRefund')
 
   return (
-    <>
+    <section id='dashboard-store'>
       <Row className='mb-5'>
         <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
           <h3 className='d-flex align-items-center fs-3 fw-normal'>Pilih Periode :</h3>
@@ -182,14 +184,33 @@ const DashboardStore: FC = () => {
         </div>
       </Row>
 
-      <Row>
+      <Row className='mb-5'>
         <Col>
-          <SalesReportWidget
-            className='card-xl-stretch mb-5'
-            backGroundColor='white'
-            chartHeight='250px'
-            chartOrderData={chartData}
-          />
+          <Tab.Container defaultActiveKey={1}>
+            <Nav fill variant='tabs'>
+              <Nav.Item style={{cursor: 'pointer'}}>
+                <Nav.Link key={1} eventKey={1}>
+                  Total Order
+                </Nav.Link>
+              </Nav.Item>
+
+              <Nav.Item style={{cursor: 'pointer'}}>
+                <Nav.Link key={2} eventKey={2}>
+                  Grand Total Value
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
+
+            <Tab.Content>
+              <Tab.Pane eventKey={1}>
+                <SalesReportWidget chartHeight='250px' chartOrderData={chartData} />
+              </Tab.Pane>
+
+              <Tab.Pane eventKey={2}>
+                <OrderValueWidget chartHeight='250px' chartOrderData={chartData} />
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
         </Col>
       </Row>
 
@@ -266,7 +287,7 @@ const DashboardStore: FC = () => {
           </Row>
         </Col>
       </Row>
-    </>
+    </section>
   )
 }
 

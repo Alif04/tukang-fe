@@ -71,7 +71,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.service_name.length - b.service_name.length,
   },
   {
-    title: 'Order Dibuat',
+    title: 'Tanggal Order',
     dataIndex: 'order_date',
     key: 'order_date',
     align: 'left',
@@ -107,14 +107,6 @@ const DashboardHO: FC = () => {
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
 
   const today = new Date()
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
-
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
@@ -239,6 +231,8 @@ const DashboardHO: FC = () => {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
           }),
           total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
@@ -344,7 +338,7 @@ const DashboardHO: FC = () => {
   const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
   const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyEnd')
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
+  const unpaidQuotation = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
@@ -428,10 +422,7 @@ const DashboardHO: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
-                defaultValue={[
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                ]}
+                defaultValue={[dayjs(dateFrom, 'YYYY-MM-DD'), dayjs(dateTo, 'YYYY-MM-DD')]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -440,8 +431,8 @@ const DashboardHO: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom(new Date().toISOString().split('T')[0])
-                    setDateTo(new Date().toISOString().split('T')[0])
+                    setDateFrom(new Date(today.getFullYear(), 0, 2).toISOString().split('T')[0])
+                    setDateTo(new Date(today.getFullYear(), 11, 31).toISOString().split('T')[0])
                   }
                 }}
               />
@@ -472,7 +463,7 @@ const DashboardHO: FC = () => {
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}
                 {renderStat(surveyOrderDone, 'Survei Selesai')}
                 {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
-                {renderStat(unpaidOrder, 'Menunggu Bayar Quotation', 'text-center')}
+                {renderStat(unpaidQuotation, 'Menunggu Bayar Quotation', 'text-center')}
                 {renderStat(waitingWork, 'Menunggu Pengerjaan')}
                 {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
                 {renderStat(orderDone, 'Order Selesai')}

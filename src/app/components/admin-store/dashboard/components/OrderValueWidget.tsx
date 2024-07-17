@@ -10,7 +10,7 @@ type Props = {
   chartHeight: string
 }
 
-const SalesReportWidget: React.FC<Props> = ({chartHeight, chartOrderData}) => {
+const OrderValueWidget: React.FC<Props> = ({chartHeight, chartOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -53,8 +53,8 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
   return {
     series: [
       {
-        name: 'Jumlah Order',
-        data: chartOrderData?.map((item) => item?.totalOrder),
+        name: 'Grand Total Value',
+        data: chartOrderData?.map((item) => item?.totalOrderGrandTotal),
       },
     ],
     chart: {
@@ -104,12 +104,12 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
       y: [
         {
           formatter: function (val) {
-            return val + ' Order'
+            return 'Rp. ' + val.toLocaleString('id')
           },
         },
       ],
     },
-    colors: ['#009DFF'],
+    colors: ['#22E4FF'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,
@@ -199,4 +199,4 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
   }
 }
 
-export {SalesReportWidget}
+export {OrderValueWidget}

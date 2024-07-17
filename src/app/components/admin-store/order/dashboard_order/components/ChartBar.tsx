@@ -59,11 +59,11 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     series: [
       {
         name: 'Order Selesai',
-        data: chartOrderData.map((item: any) => item.totalOrderDone),
+        data: chartOrderData.map((item: any) => item?.totalOrderDone),
       },
       {
         name: 'Total Order',
-        data: chartOrderData.map((item: any) => item.totalOrder),
+        data: chartOrderData.map((item: any) => item?.totalOrder),
       },
     ],
     chart: {
@@ -94,7 +94,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartOrderData.map((item: any) => item.month.substring(0, 3)),
+      categories: chartOrderData.map((item: any) => item?.period.substring(0, 3)),
       axisBorder: {
         show: false,
       },

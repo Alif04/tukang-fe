@@ -99,7 +99,7 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: orderData.map((item: any) => item.month),
+      categories: orderData.map((item: any) => item?.period),
       axisBorder: {
         show: false,
       },
