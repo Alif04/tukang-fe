@@ -1,18 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useRef} from 'react'
 import ApexCharts, {ApexOptions} from 'apexcharts'
-import {KTSVG} from '../../../../../../_metronic/helpers'
-import {Dropdown1} from '../../../../../../_metronic/partials/content/dropdown/Dropdown1'
 import {getCSS, getCSSVariableValue} from '../../../../../../_metronic/assets/ts/_utils'
 import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mode/ThemeModeProvider'
-import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
   chartOrderData: any[]
 }
 
-const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
+const TotalOrder: React.FC<Props> = ({className, chartOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -50,10 +47,13 @@ const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
   )
 }
 
-export {ChartBar}
+export {TotalOrder}
 
 function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
+  const isHour = chartOrderData?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartOrderData.length === 24
+  )
 
   return {
     series: [
@@ -94,7 +94,13 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartOrderData.map((item: any) => item?.period.substring(0, 3)),
+      categories: chartOrderData?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },

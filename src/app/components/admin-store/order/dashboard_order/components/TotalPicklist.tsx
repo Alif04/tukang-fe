@@ -6,10 +6,10 @@ import {useThemeMode} from '../../../../../../_metronic/partials/layout/theme-mo
 
 type Props = {
   className: string
-  orderData: any[]
+  chartOrderData: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className, orderData}) => {
+const TotalPicklist: React.FC<Props> = ({className, chartOrderData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -20,7 +20,7 @@ const ChartLine: React.FC<Props> = ({className, orderData}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, orderData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartOrderData))
     if (chart) {
       chart.render()
     }
@@ -36,36 +36,46 @@ const ChartLine: React.FC<Props> = ({className, orderData}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, orderData])
+  }, [chartRef, mode, chartOrderData])
 
   return (
     <div className={`card ${className}`}>
       <div className='card-body'>
-        <div ref={chartRef} id='kt_charts_widget_4_chart' style={{height: '300px'}}></div>
+        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '300px'}} />
       </div>
     </div>
   )
 }
 
-export {ChartLine}
+export {TotalPicklist}
 
-function getChartOptions(height: number, orderData: any): ApexOptions {
+function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
-  const borderColor = getCSSVariableValue('--kt-gray-200')
+
+  const isHour = chartOrderData?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartOrderData.length === 24
+  )
 
   return {
     series: [
       {
-        name: 'Menunggu Bayar Receipt',
-        data: orderData.map((item: any) => item.totalUnpaidReceipt),
+        name: 'Order Picklist',
+        data: chartOrderData.map((item: any) => item?.totalPicklist),
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'line',
+      type: 'bar',
       height: height,
       toolbar: {
         show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '75%',
+        borderRadius: 0,
       },
     },
     legend: {
@@ -73,19 +83,22 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
       showForSingleSeries: true,
       position: 'bottom',
     },
-    plotOptions: {},
     dataLabels: {
       enabled: false,
     },
-    fill: {
-      type: 'solid',
-      opacity: 1,
-    },
     stroke: {
-      curve: 'straight',
+      show: true,
+      width: 2,
+      colors: ['transparent'],
     },
     xaxis: {
-      categories: orderData.map((item: any) => item.month),
+      categories: chartOrderData?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
@@ -98,22 +111,6 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
           fontSize: '12px',
         },
       },
-      crosshairs: {
-        position: 'front',
-        stroke: {
-          color: labelColor,
-          width: 1,
-          dashArray: 3,
-        },
-      },
-      tooltip: {
-        enabled: true,
-        formatter: undefined,
-        offsetY: 0,
-        style: {
-          fontSize: '12px',
-        },
-      },
     },
     yaxis: {
       labels: {
@@ -122,6 +119,9 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
           fontSize: '12px',
         },
       },
+    },
+    fill: {
+      opacity: 1,
     },
     states: {
       normal: {
@@ -150,23 +150,18 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return '' + val
+          return val + ''
         },
       },
     },
-    colors: ['#4DBAFF'],
+    colors: ['#009DFF', '#22E4FF'],
     grid: {
-      borderColor: borderColor,
       strokeDashArray: 4,
       yaxis: {
         lines: {
           show: true,
         },
       },
-    },
-    markers: {
-      colors: ['#009DFF'],
-      size: 5,
     },
   }
 }

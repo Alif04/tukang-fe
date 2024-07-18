@@ -2,8 +2,8 @@ import React, {FC, useState, useEffect} from 'react'
 
 import './DashboardOrder.css'
 
-import {ChartBar} from './components/ChartBar'
-import {ChartLine} from './components/ChartLine'
+import {TotalOrder} from './components/TotalOrder'
+import {TotalPicklist} from './components/TotalPicklist'
 import {MoreInformation} from './components/MoreInformation'
 
 import axios from 'axios'
@@ -57,7 +57,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.service_name.length - b.service_name.length,
   },
   {
-    title: 'Order Dibuat',
+    title: 'Tanggal Order',
     dataIndex: 'order_date',
     key: 'order_date',
     align: 'left',
@@ -143,7 +143,8 @@ const DashboardOrderStore: FC = () => {
         }
       )
 
-      const chartDatas = response?.data?.data
+      const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -154,7 +155,7 @@ const DashboardOrderStore: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
       setChartDataOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -196,6 +197,8 @@ const DashboardOrderStore: FC = () => {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
           }),
           total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
@@ -234,10 +237,15 @@ const DashboardOrderStore: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const newOrder = sumTotal(chartDataOrder, 'totalNewOrder')
+
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
   const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
-  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
+  const surveyDone = sumTotal(chartDataOrder, 'totalSurveyEnd')
+
+  const waitingQuotationVendor = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
+  const waitingQuotationHO = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
+
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
@@ -251,6 +259,7 @@ const DashboardOrderStore: FC = () => {
   const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
 
   const activeWarranty = sumTotal(chartDataOrder, 'totalActiveWarranty')
+  const warrantyUsed = sumTotal(chartDataOrder, 'totalUsedWarranty')
   const expiredWarranty = sumTotal(chartDataOrder, 'totalExpiredWarranty')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
@@ -305,10 +314,12 @@ const DashboardOrderStore: FC = () => {
             <Card.Body>
               <Row className='justify-content-md-center mt-2'>
                 {renderStat(totalOrders, 'Total Order')}
+                {renderStat(newOrder, 'Order Baru')}
                 {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}
-                {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
-                {renderStat(unpaidOrder, 'Menunggu Bayar Quotation', 'text-center')}
+                {renderStat(surveyDone, 'Survei Selesai')}
+                {renderStat(waitingQuotationVendor, 'Quotation Dikirim Vendor', 'text-center')}
+                {renderStat(waitingQuotationHO, 'Menunggu Bayar Quotation', 'text-center')}
                 {renderStat(waitingWork, 'Menunggu Pengerjaan')}
                 {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
                 {renderStat(orderDone, 'Order Selesai')}
@@ -318,28 +329,33 @@ const DashboardOrderStore: FC = () => {
         </div>
       </Row>
 
-      <Row className='g-5 g-xl-8 mb-5'>
-        <div className='col-xl-4'>
-          <MoreInformation
-            className='card-xl-stretch mb-xl-8'
-            totalComplaint={totalComplaint}
-            totalCancel={totalCancel}
-            totalResurvey={totalResurvey}
-            totalRework={totalRework}
-            totalActiveWarranty={activeWarranty}
-            totalExpiredWarranty={expiredWarranty}
-          />
-        </div>
-        <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
-        </div>
-        <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-xl-8' orderData={chartDataOrder} />
-        </div>
+      <Row className='g-5 g-xl-8'>
+        <Col md={6}>
+          <TotalOrder className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
+        </Col>
+
+        <Col md={6}>
+          <TotalPicklist className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
+        </Col>
       </Row>
 
       <Row className='g-5 g-xl-8'>
-        <Col md={12}>
+        <Col md={4}>
+          <MoreInformation
+            className='card-xl-stretch mb-xl-8'
+            totalComplaint={totalComplaint}
+            totalResurvey={totalResurvey}
+            totalRework={totalRework}
+            totalRefund={totalRefund}
+            totalReschedule={totalReschedule}
+            totalCancel={totalCancel}
+            totalActiveWarranty={activeWarranty}
+            totalUsedWarranty={warrantyUsed}
+            totalExpiredWarranty={expiredWarranty}
+          />
+        </Col>
+
+        <Col md={8}>
           <div className={`card`}>
             <div className='card-body p-5'>
               <div className='d-flex flex-column'>

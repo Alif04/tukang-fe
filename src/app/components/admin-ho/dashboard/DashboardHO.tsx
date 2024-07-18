@@ -334,11 +334,15 @@ const DashboardHO: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const newOrder = sumTotal(chartDataOrder, 'totalNewOrder')
+
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
   const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
   const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyEnd')
+
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
   const unpaidQuotation = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
+
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
@@ -459,6 +463,7 @@ const DashboardHO: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
+                {renderStat(newOrder, 'Order Baru')}
                 {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}
                 {renderStat(surveyOrderDone, 'Survei Selesai')}

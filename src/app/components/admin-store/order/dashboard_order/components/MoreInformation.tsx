@@ -7,10 +7,13 @@ import {Row, Col} from 'react-bootstrap'
 type Props = {
   className: string
   totalComplaint: number
-  totalCancel: number
   totalResurvey: number
   totalRework: number
+  totalRefund: number
+  totalReschedule: number
+  totalCancel: number
   totalActiveWarranty: number
+  totalUsedWarranty: number
   totalExpiredWarranty: number
 }
 
@@ -26,11 +29,14 @@ const renderStat = (value: number, label: string, className: string) => (
 const MoreInformation: React.FC<Props> = ({
   className,
   totalComplaint,
-  totalCancel,
   totalResurvey,
   totalRework,
+  totalRefund,
+  totalReschedule,
+  totalCancel,
   totalActiveWarranty,
   totalExpiredWarranty,
+  totalUsedWarranty,
 }) => {
   return (
     <div className={`card ${className}`} id='more-information'>
@@ -43,6 +49,12 @@ const MoreInformation: React.FC<Props> = ({
           )}
 
           {renderStat(
+            totalUsedWarranty,
+            'GARANSI TERPAKAI',
+            'fs-6 text-black text-center mt-1 mb-1'
+          )}
+
+          {renderStat(
             totalExpiredWarranty,
             'GARANSI EXPIRED',
             'fs-6 text-black text-center mt-1 mb-1'
@@ -51,12 +63,14 @@ const MoreInformation: React.FC<Props> = ({
 
         <Row>
           {renderStat(totalComplaint, 'COMPLAINT', 'fs-6 text-danger text-center mt-1 mb-1')}
-          {renderStat(totalCancel, 'CANCEL', 'fs-6 text-danger text-center mt-1 mb-1')}
+          {renderStat(totalResurvey, 'RESURVEY', 'fs-6 text-danger text-center mt-1 mb-1')}
+          {renderStat(totalRework, 'REWORK', 'fs-6 text-danger text-center mt-1 mb-1')}
         </Row>
 
         <Row>
-          {renderStat(totalResurvey, 'RESURVEY', 'fs-6 text-danger text-center mt-1 mb-1')}
-          {renderStat(totalRework, 'REWORK', 'fs-6 text-danger text-center mt-1 mb-1')}
+          '{renderStat(totalRefund, 'REFUND', 'fs-6 text-danger text-center mt-1 mb-1')}
+          {renderStat(totalReschedule, 'RESCHEDULE', 'fs-6 text-danger text-center mt-1 mb-1')}
+          {renderStat(totalCancel, 'CANCEL', 'fs-6 text-danger text-center mt-1 mb-1')}
         </Row>
       </div>
     </div>

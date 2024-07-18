@@ -50,6 +50,10 @@ const SalesReportWidget: React.FC<Props> = ({chartHeight, chartOrderData}) => {
 const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => {
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
+  const isHour = chartOrderData?.every(
+    (item) => /^\d+$/.test(item.period) && chartOrderData.length === 24
+  )
+
   return {
     series: [
       {
@@ -67,6 +71,7 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
     },
     legend: {
       show: true,
+      showForSingleSeries: true,
     },
     dataLabels: {
       enabled: false,
@@ -76,9 +81,13 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
       },
     },
     xaxis: {
-      categories: chartOrderData?.map((item) =>
-        /^\d+$/.test(item.period) ? `${item.period}:00` : `${item.period}`
-      ),
+      categories: chartOrderData?.map((item) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: true,
       },

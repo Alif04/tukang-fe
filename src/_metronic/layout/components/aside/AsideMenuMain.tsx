@@ -403,14 +403,14 @@ export function AsideMenuMain() {
       {/* Halaman Refund */}
       <AsideMenuItemWithSub
         to='/refund'
-        title='Refund'
+        title='Cancel dan Refund'
         icon='/media/icons/duotune/communication/com006.svg'
         fontIcon='bi-person'
         role={['Store CS', 'Admin HO', 'Super User']}
       >
         <AsideMenuItem
           to='/refund/view-refund'
-          title='View Refund'
+          title='View Cancel dan Refund'
           role={['Store CS', 'Admin HO', 'Super User']}
           hasBullet={true}
         />
