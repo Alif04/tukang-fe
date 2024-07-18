@@ -1274,6 +1274,10 @@ const NewOrderStoreCS: FC = () => {
             </Row>
 
             <div className='table-order-content'>
+              <Form.Text className='fs-8 fs-l text-dark-danger'>
+                *Penulisan Item code dan Item Name sama persis dengan yang tercantum di NAV
+              </Form.Text>
+
               <Table hover responsive='md'>
                 <thead className='table-order-head'>
                   <tr>
@@ -1488,10 +1492,6 @@ const NewOrderStoreCS: FC = () => {
                   )}
                 </tbody>
               </Table>
-
-              <Form.Text className='fs-8 fs-l text-dark-danger'>
-                *Penulisan Item code dan Item Name sama persis dengan yang tercantum di NAV
-              </Form.Text>
             </div>
 
             <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>

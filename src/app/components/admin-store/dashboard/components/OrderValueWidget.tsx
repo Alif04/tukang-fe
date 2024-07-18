@@ -100,6 +100,9 @@ const chartOptions = (chartHeight: string, chartOrderData: any): ApexOptions => 
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
         show: true,
       },
     },

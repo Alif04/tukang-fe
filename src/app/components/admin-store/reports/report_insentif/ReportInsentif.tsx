@@ -23,6 +23,7 @@ interface DataType {
   order_id: number
   date_order: Date
   costumer_name: string
+  order_status: string
   sales_name: string
   incentive_name: string
   incentive_nominal: string
@@ -94,6 +95,15 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       width: 140,
       onFilter: (value: string, record: DataType) => record.costumer_name.includes(value),
       sorter: (a: DataType, b: DataType) => a.costumer_name.localeCompare(b.costumer_name),
+    },
+    {
+      title: 'Status Order',
+      dataIndex: 'order_status',
+      key: 'order_status',
+      align: 'left',
+      width: 140,
+      onFilter: (value: string, record: DataType) => record.order_status.includes(value),
+      sorter: (a: DataType, b: DataType) => a.order_status.localeCompare(b.order_status),
     },
     (userRole === 'Store Staff' || userRole === 'Store CS') && {
       title: 'Nama Sales',
@@ -197,6 +207,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           order_id: item?.quotation?.order_id,
           date_order: orderDate,
           costumer_name: item?.quotation?.order?.members?.full_name,
+          order_status: item?.quotation?.order?.status?.description,
           sales_name: item?.sales?.full_name,
           incentive_name: item?.incentive?.name,
           incentive_nominal:

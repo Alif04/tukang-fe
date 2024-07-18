@@ -116,6 +116,10 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
+        show: true,
         style: {
           colors: labelColor,
           fontSize: '12px',

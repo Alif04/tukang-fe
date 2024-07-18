@@ -1088,9 +1088,7 @@ const ViewOrders: FC = () => {
       <>
         <Modal.Header closeButton>
           <Skeleton active loading={loadingModal} paragraph={{rows: 0}}>
-            <Modal.Title>
-              Pengiriman Formulir Survey Kepuasan Pelanggan - Order ID {orderDetail?.id}
-            </Modal.Title>
+            <Modal.Title>History Aktivitas Email - Order ID {orderDetail?.id}</Modal.Title>
           </Skeleton>
         </Modal.Header>
 
