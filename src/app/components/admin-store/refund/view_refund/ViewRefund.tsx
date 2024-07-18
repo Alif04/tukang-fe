@@ -125,7 +125,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
-      title: 'Payment Status',
+      title: 'Status Pembayaran Receipt',
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
@@ -243,6 +243,8 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const paymentStatus = (() => {
@@ -269,11 +271,11 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           order_status:
             item?.orders?.work_orders?.work_order_status?.length > 0 &&
             item?.status?.category !== 'QUOTEOUT'
-              ? item?.orders?.work_orders?.work_order_status[0]?.status?.category
+              ? item?.orders?.work_orders?.work_order_status[0]?.status?.description
               : item?.orders?.work_orders?.work_order_status?.length > 0 &&
                 item?.orders?.status?.category === 'QUOTEOUT'
-              ? item?.orders?.status?.category
-              : item?.orders?.status?.category,
+              ? item?.orders?.status?.description
+              : item?.orders?.status?.description,
         }
 
         return data

@@ -190,13 +190,6 @@ const NewRefundCS: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!refundValues.date_of_filing) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill refund date form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!refundFiles) {
       Swal.fire({
         title: 'Error',
@@ -218,7 +211,7 @@ const NewRefundCS: FC = () => {
       formData.append('refund_status', refundValues.refund_status)
       formData.append('notes', refundValues.notes)
       formData.append('reason', refundValues.reason)
-      formData.append('date_of_filing', refundValues.date_of_filing)
+      formData.append('date_of_filing', today)
 
       if (refundFiles.length) {
         refundFiles.forEach((item) => {
@@ -823,7 +816,8 @@ const NewRefundCS: FC = () => {
                   <Form.Control
                     type='date'
                     className='w-100'
-                    min={today}
+                    value={today}
+                    readOnly
                     onChange={(element) => handleChangeRefundDate(element)}
                   />
                 </Form.Group>
