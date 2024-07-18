@@ -148,54 +148,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           case 'UNPAID':
             color = 'red'
             break
-          case 'PAID':
-            color = 'green'
-            break
-          case 'PICKLIST':
-            color = 'green'
-            break
-          case 'BOOKED':
-            color = 'lime'
-            break
-          case 'SURVEYREQ':
-            color = 'blue'
-            break
-          case 'SURVEYSTART':
-            color = 'blue'
-            break
-          case 'SURVEYDONE':
-            color = 'blue'
-            break
-          case 'RESURVEYREQ':
-            color = 'blue'
-            break
-          case 'RESURVEYSTART':
-            color = 'blue'
-            break
-          case 'RESURVEYDONE':
-            color = 'blue'
-            break
-          case 'QUOTE IN':
-            color = 'blue'
-            break
-          case 'QUOTE OUT':
-            color = 'blue'
-            break
-          case 'WORKREQ':
-            color = 'blue'
-            break
-          case 'WORKSTART':
-            color = 'blue'
-            break
-          case 'WORKEND':
-            color = 'blue'
-            break
-          case 'INVOICED':
-            color = 'blue'
-            break
-          case 'CISOUT':
-            color = 'green'
-            break
           default:
             color = 'blue'
             break
@@ -203,23 +155,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'PICKLIST', value: 'PICKLIST'},
-        {text: 'BOOKED', value: 'BOOKED'},
-        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
-        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
-        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
-        {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
-        {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
-        {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
-        {text: 'WORKREQ', value: 'WORKREQ'},
-        {text: 'WORKSTART', value: 'WORKSTART'},
-        {text: 'WORKEND', value: 'WORKEND'},
-        {text: 'QUOTEIN', value: 'QUOTEIN'},
-        {text: 'QUOTEOUT', value: 'QUOTEOUT'},
-        {text: 'CISOUT', value: 'CISOUT'},
-        {text: 'INVOICED', value: 'INVOICED'},
-      ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
       width: 150,
@@ -251,10 +186,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{complaintStatus}</Tag>
       },
-      filters: [
-        {text: 'INVESTIGATED', value: 'INVESTIGATED'},
-        {text: 'ACCEPTED', value: 'ACCEPTED'},
-      ],
     },
     {
       title: 'Complaint Date',
@@ -297,10 +228,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{complaintStatus}</Tag>
       },
-      filters: [
-        {text: 'INVESTIGATED', value: 'INVESTIGATED'},
-        {text: 'ACCEPTED', value: 'ACCEPTED'},
-      ],
       onFilter: (value, record) => record.complaint_status.includes(String(value)),
       sorter: (a, b) => a.complaint_status.length - b.complaint_status.length,
     },
@@ -330,7 +257,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {!['Tukang'].includes(userRole) && (
+            {/* {!['Tukang'].includes(userRole) && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -340,7 +267,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
                   <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
                 </Button>
               </OverlayTrigger>
-            )}
+            )} */}
           </div>
         )
       },

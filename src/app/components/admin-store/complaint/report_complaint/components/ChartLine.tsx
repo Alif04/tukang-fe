@@ -7,10 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  chartWorkOrder: any[]
+  chartComplaintData: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className, chartWorkOrder}) => {
+const ChartLine: React.FC<Props> = ({className, chartComplaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +21,7 @@ const ChartLine: React.FC<Props> = ({className, chartWorkOrder}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartWorkOrder))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartComplaintData))
     if (chart) {
       chart.render()
     }
@@ -37,7 +37,7 @@ const ChartLine: React.FC<Props> = ({className, chartWorkOrder}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, chartWorkOrder])
+  }, [chartRef, mode, chartComplaintData])
 
   return (
     <div className={`card ${className}`}>
@@ -50,7 +50,7 @@ const ChartLine: React.FC<Props> = ({className, chartWorkOrder}) => {
 
 export {ChartLine}
 
-function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
+function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -63,11 +63,11 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
     series: [
       {
         name: 'Survei Ulang',
-        data: chartWorkOrder?.map((item: any) => item?.totalOrderSurvey ?? 0),
+        data: chartComplaintData?.map((item: any) => item?.totalOrderSurvey ?? 0),
       },
       {
-        name: 'Pengerjaan Ulang',
-        data: chartWorkOrder?.map((item: any) => item?.totalOrderDone ?? 0),
+        name: 'Survei Ulang Selesai',
+        data: chartComplaintData?.map((item: any) => item?.totalOrderDone ?? 0),
       },
     ],
     chart: {
@@ -94,7 +94,7 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartWorkOrder.map((item: any) => item.month),
+      categories: chartComplaintData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },

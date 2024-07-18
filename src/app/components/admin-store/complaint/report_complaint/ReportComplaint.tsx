@@ -3,8 +3,6 @@ import React, {FC, useState, useEffect} from 'react'
 import {ChartBar} from './components/ChartBar'
 import {ChartLine} from './components/ChartLine'
 import {ChartLine2} from './components/ChartLine2'
-import {ChartDonut} from './components/ChartDonut'
-import {ChartDonut2} from './components/ChartDonut2'
 import {TableList} from './components/TableList'
 
 import axios from 'axios'
@@ -23,13 +21,9 @@ const ReportComplaintStore: FC = () => {
 
   const [loadingButton, setLoadingButton] = useState(false)
 
-  const [orderData, setOrderData] = useState<any[]>([])
-  const [workOrderData, setWorkOrderData] = useState<any[]>([])
   const [complaintData, setComplaintData] = useState<any[]>([])
   const [complaintList, setComplaintList] = useState<any>()
 
-  const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
-  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
   const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
 
   const today = new Date()
@@ -40,37 +34,6 @@ const ReportComplaintStore: FC = () => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${day}-${month}-${year}`
-  }
-
-  const fetchOrder = async () => {
-    const url = (() => {
-      switch (userRole) {
-        case 'Store CS':
-          return `${apiUrl}/orders?order_by=desc&store_id=${userStore}&date_from=${dateFrom}&date_to=${dateTo}&take=0`
-        case 'Admin Vendor':
-          return `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&take=0`
-        default:
-          return `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&take=0`
-      }
-    })()
-
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-      setOrderData(data)
-
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
   }
 
   const fetchComplaintList = async () => {
@@ -159,45 +122,6 @@ const ReportComplaintStore: FC = () => {
     }
   }
 
-  const getReportOrder = async () => {
-    const url = (() => {
-      switch (userRole) {
-        case 'Store CS':
-          return `${apiUrl}/reports/orders?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-        case 'Admin Vendor':
-          return `${apiUrl}/reports/orders?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-        default:
-          return `${apiUrl}/reports/orders?take=0&date_from=${dateFrom}&date_to=${dateTo}`
-      }
-    })()
-
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const chartDatas = response.data.data
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-      setChartDataOrder(slicedData)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
   const getReportComplaint = async () => {
     const url = (() => {
       switch (userRole) {
@@ -235,52 +159,7 @@ const ReportComplaintStore: FC = () => {
 
       const slicedData = chartDatas.slice(startIndex, endIndex)
 
-      setWorkOrderData(data)
       setChartDataComplaint(slicedData)
-      return data
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  const getReportWorkOrder = async () => {
-    const url = (() => {
-      switch (userRole) {
-        case 'Store CS':
-          return `${apiUrl}/reports/work-orders?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-        case 'Admin Vendor':
-          return `${apiUrl}/reports/work-orders?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-        default:
-          return `${apiUrl}/reports/work-orders?take=0&date_from=${dateFrom}&date_to=${dateTo}`
-      }
-    })()
-
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setWorkOrderData(data)
-      setChartWorkOrder(slicedData)
       return data
     } catch (error) {
       console.error(error)
@@ -294,23 +173,17 @@ const ReportComplaintStore: FC = () => {
 
   useEffect(() => {
     fetchComplaintList()
-    getReportOrder()
-    getReportWorkOrder()
     getReportComplaint()
   }, [])
 
   useEffect(() => {
     fetchData()
-    fetchOrder()
   }, [complaintList])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
-    let queryparams = ``
 
     await fetchComplaintList()
-    await getReportOrder()
-    await getReportWorkOrder()
     await getReportComplaint()
 
     setLoadingButton(false)
@@ -415,7 +288,7 @@ const ReportComplaintStore: FC = () => {
 
               <div className='d-flex justify-content-between mb-5'>
                 {renderStat(resurvey, 'Survei Ulang')}
-                {renderStat(rework, 'Pengerjaan Ulang')}
+                {renderStat(resurveyDone, 'Survei Ulang Selesai')}
               </div>
             </Card.Body>
           </Card>
@@ -427,7 +300,7 @@ const ReportComplaintStore: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Result Complaint bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
-                {renderStat(resurveyDone, 'Survei Ulang Selesai')}
+                {renderStat(rework, 'Pengerjaan Ulang')}
                 {renderStat(reworkDone, 'Pengerjaan Ulang Selesai')}
               </div>
             </Card.Body>
@@ -439,11 +312,14 @@ const ReportComplaintStore: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
+          <ChartBar className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
         </div>
 
         <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartDataOrder} />
+          <ChartLine
+            className='card-xl-stretch mb-5 mb-xl-8'
+            chartComplaintData={chartDataComplaint}
+          />
         </div>
 
         <div className='col-xl-4'>
@@ -454,22 +330,6 @@ const ReportComplaintStore: FC = () => {
 
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
-        {/* <div className='col-xl-4'>
-          <ChartDonut
-            className='card-xl-stretch mb-xl-8'
-            chartHeight='300px'
-            chartComplaint={chartDataComplaint}
-          />
-        </div>
-
-        <div className='col-xl-4'>
-          <ChartDonut2
-            className='card-xl-stretch mb-5 mb-xl-8'
-            chartHeight='300px'
-            chartWorkOrder={chartWorkOrder}
-          />
-        </div> */}
-
         <div className='col-xl-12'>
           <TableList className='card-xl-stretch mb-5 mb-xl-8' complaintData={complaintData} />
         </div>

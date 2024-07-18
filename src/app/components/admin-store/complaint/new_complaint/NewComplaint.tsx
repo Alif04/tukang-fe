@@ -1,14 +1,14 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './NewComplaint.css'
 
 import axios from 'axios'
-import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import {useNavigate} from 'react-router-dom'
-import {Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
+import Select, {SingleValue} from 'react-select'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {Row, Col, Form, Button, ListGroup, Card} from 'react-bootstrap'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface Complaint {
@@ -34,14 +34,16 @@ interface Order {
 const NewComplaintForm: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const today = String(new Date().toISOString().split('T')[0])
 
   const userStore = localStorage.getItem('storeId')
   const userRole = localStorage.getItem('userRole')
   const userVendor = localStorage.getItem('vendor_id')
 
+  // Loading
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Fetch Data Order
+  // Data Order
   const [order, setOrder] = useState<Order[]>([])
   const [orderDetail, setOrderDetail] = useState<any>(null)
   const [selectedOrderId, setSelectedOrderId] = useState<SingleValue<Order>>({
@@ -144,7 +146,6 @@ const NewComplaintForm: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
-
           setOrderDetail(data)
         })
     } catch (err) {
@@ -198,7 +199,6 @@ const NewComplaintForm: FC = () => {
     }
   }
 
-  const today = new Date().toISOString().split('T')[0]
   const formatDate = (date: any) => {
     if (isNaN(date.getTime())) {
       return '--/--/----'
@@ -317,13 +317,6 @@ const NewComplaintForm: FC = () => {
         icon: 'error',
       })
       valid = false
-    } else if (!complaintForm.complaint_date) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill complaint date form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!complaintEvidence) {
       Swal.fire({
         title: 'Error',
@@ -375,7 +368,7 @@ const NewComplaintForm: FC = () => {
       formData.append('description', complaintForm.description)
       formData.append('complaint_status', complaintForm.complaint_status)
       formData.append('complaint_channel', String(complaintForm.complaint_channel))
-      formData.append('complaint_date', complaintForm.complaint_date)
+      formData.append('complaint_date', today)
       formData.append('type', complaintForm.complaint_type.toString())
 
       if (complaintEvidence?.length) {
@@ -436,8 +429,8 @@ const NewComplaintForm: FC = () => {
 
   return (
     <section id='new-complaint'>
-      <div className='card'>
-        <div className='card-body'>
+      <Card>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -480,8 +473,8 @@ const NewComplaintForm: FC = () => {
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
                     {orderDetail?.work_orders?.work_order_status.length > 0
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                      : orderDetail?.status?.category}
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.description
+                      : orderDetail?.status?.description}
                   </span>
                 </Form.Label>
               </Col>
@@ -490,6 +483,7 @@ const NewComplaintForm: FC = () => {
             <Row className='information-detail'>
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
                 <div className='fs-3 fw-bold'>Informasi Pembeli</div>
+
                 <Row>
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
@@ -497,7 +491,7 @@ const NewComplaintForm: FC = () => {
                         No Member :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members?.id ?? ''} />
+                        <p className='fs-7'>{orderDetail?.members?.member_number}</p>
                       </Col>
                     </Form.Group>
 
@@ -506,11 +500,7 @@ const NewComplaintForm: FC = () => {
                         Customer Name :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={orderDetail?.members.full_name || ''}
-                        />
+                        <p className='fs-7'>{orderDetail?.members?.full_name}</p>
                       </Col>
                     </Form.Group>
 
@@ -519,41 +509,44 @@ const NewComplaintForm: FC = () => {
                         Alamat Pemasangan :
                       </Form.Label>
                       <Col sm='6'>
-                        <Form.Control
-                          as='textarea'
-                          plaintext
-                          readOnly
-                          rows={3}
-                          value={orderDetail?.project_address || ''}
-                        />
+                        <p className='fs-7'>{orderDetail?.project_address}</p>
                       </Col>
                     </Form.Group>
                   </Col>
 
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
-                        Nomor Telp/WA :
+                      <Form.Label column sm='5'>
+                        Nomor Whatsapp :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={
-                            orderDetail?.members.phone_number
-                              ? orderDetail?.members.phone_number
-                              : orderDetail?.members.whatsapp_number || ''
-                          }
-                        />
+                      <Col sm='7'>
+                        <p className='fs-7'>
+                          {!orderDetail?.project_number.startsWith('0')
+                            ? `+62${orderDetail ? orderDetail?.members?.whatsapp_number : ''}`
+                            : '-'}
+                        </p>
                       </Col>
                     </Form.Group>
 
                     <Form.Group as={Row} className='detail-info'>
-                      <Form.Label column sm='6'>
+                      <Form.Label column sm='5'>
+                        Nomor Telepon :
+                      </Form.Label>
+                      <Col sm='7'>
+                        <p className='fs-7'>
+                          {orderDetail?.project_number.startsWith('0')
+                            ? orderDetail?.members?.phone_number
+                            : '-'}
+                        </p>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='5'>
                         Alamat Email :
                       </Form.Label>
-                      <Col sm='6'>
-                        <Form.Control plaintext readOnly value={orderDetail?.members.email || ''} />
+                      <Col sm='7'>
+                        <p className='fs-7'>{orderDetail?.members?.email} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -561,55 +554,25 @@ const NewComplaintForm: FC = () => {
               </Col>
 
               <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
-                <Row>
-                  <div className='fs-3 fw-bold'>Informasi Penjual</div>
+                <div className='fs-3 fw-bold'>Informasi Penjual</div>
 
-                  <div className='d-flex'>
-                    <Form.Group as={Row}>
-                      <Form.Label column md='4'>
-                        Sales ID :
-                      </Form.Label>
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='3'>
+                    Sales ID :
+                  </Form.Label>
+                  <Col sm='9'>
+                    <p className='fs-7'>{orderDetail?.sales?.id} </p>
+                  </Col>
+                </Form.Group>
 
-                      <Col md='8'>
-                        <Form.Control plaintext readOnly value={orderDetail?.sales?.id ?? ''} />
-                      </Col>
-                    </Form.Group>
-
-                    <Form.Group as={Row}>
-                      <Form.Label column md='5'>
-                        Sales Person :
-                      </Form.Label>
-
-                      <Col md='7'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={orderDetail?.sales?.full_name ?? ''}
-                        />
-                      </Col>
-                    </Form.Group>
-                  </div>
-                </Row>
-
-                <Row>
-                  <div className='fs-3 fw-bold'>Informasi Vendor Pemasangan</div>
-
-                  <div className='d-flex'>
-                    <Form.Group as={Row}>
-                      <Form.Label column md='5'>
-                        Vendor Name :
-                      </Form.Label>
-
-                      <Col md='7'>
-                        <Form.Control
-                          plaintext
-                          readOnly
-                          value={orderDetail?.vendor?.company_name ?? '-'}
-                        />
-                      </Col>
-                    </Form.Group>
-                  </div>
-                </Row>
+                <Form.Group as={Row} className='detail-info'>
+                  <Form.Label column sm='3'>
+                    Sales Person :
+                  </Form.Label>
+                  <Col sm='9'>
+                    <p className='fs-7'>{orderDetail?.sales?.full_name} </p>
+                  </Col>
+                </Form.Group>
               </Col>
             </Row>
           </div>
@@ -626,7 +589,15 @@ const NewComplaintForm: FC = () => {
                       : 'Tanggal request pemasangan :'}
                   </Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>{formatDate(new Date(orderDetail?.request_survey))}</p>
+                    <p className='fs-7 p-0'>
+                      {orderDetail
+                        ? new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
+                        : '-'}
+                    </p>
                   </Col>
                 </Form.Group>
 
@@ -649,7 +620,7 @@ const NewComplaintForm: FC = () => {
                         } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
                           return `Berbayar & Pemasangan Tanpa Survey`
                         } else {
-                          return ``
+                          return `-`
                         }
                       })()}
                     </p>
@@ -658,7 +629,6 @@ const NewComplaintForm: FC = () => {
               </Row>
             </div>
 
-            {/* New */}
             {(() => {
               if (
                 (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
@@ -670,14 +640,14 @@ const NewComplaintForm: FC = () => {
                     {orderDetail?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
                     )}
 
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -731,162 +701,20 @@ const NewComplaintForm: FC = () => {
                           </>
                         )}
                       </tbody>
-                    </Table>
+                    </table>
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
-                orderDetail?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    {orderDetail?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Jenis Jasa
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 2)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Total
-                          </td>
-
-                          <td className='fw-bolder'>
-                            {`Rp. ${orderDetail?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 2)
-                              .map((item: any) => parseInt(item?.price ?? 0))
-                              .reduce((total: number, price: number) => total + price, 0)
-                              .toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </Table>
-
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Material Yang Dibutuhkan
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 1)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Promosi ( Free Survey )
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_disc ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-
-                        {orderDetail?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
+                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
                   orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
+                orderDetail?.payment_type === 'survey' &&
                 orderDetail?.work_orders?.work_order_status.length >= 1 &&
-                orderDetail?.payment_type === 'survey'
+                orderDetail?.quotation?.length === 0
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Nama Pemasangan</th>
@@ -896,8 +724,9 @@ const NewComplaintForm: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length ? (
-                          orderDetail.work_orders.work_order_status[0].work_order_items.map(
+                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items
+                          ?.length ? (
+                          orderDetail?.work_orders?.work_order_status[0]?.work_order_items?.map(
                             (item: any, index: any) => (
                               <tr key={`${index}-work_order_detail`}>
                                 <td>
@@ -917,7 +746,163 @@ const NewComplaintForm: FC = () => {
                           </tr>
                         )}
                       </tbody>
-                    </Table>
+                    </table>
+                  </div>
+                )
+              } else if (
+                orderDetail?.work_orders?.work_order_status?.length >= 1 &&
+                orderDetail?.quotation?.length >= 1 &&
+                orderDetail?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Final Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.quotation[0]?.quotation_details
+                          ?.filter((x: any) => x.item_type === 2)
+                          ?.map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Material Yang Dibutuhkan
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Final Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.quotation[0]?.quotation_details
+                          ?.filter((x: any) => x.item_type === 1)
+                          ?.map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit ?? '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total Jasa
+                          </td>
+                          <td className='fw-bolder'>{`Rp. ${parseInt(
+                            orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2)
+                              .reduce(
+                                (total: any, item: any) => total + parseInt(item.final_price || 0),
+                                0
+                              )
+                          ).toLocaleString('id')}`}</td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total Material
+                          </td>
+                          <td className='fw-bolder'>{`Rp. ${parseInt(
+                            orderDetail?.quotation[0]?.quotation_details
+                              ?.filter((x: any) => x.item_type === 1)
+                              ?.reduce(
+                                (total: any, item: any) => total + parseInt(item.final_price || 0),
+                                0
+                              )
+                          ).toLocaleString('id')}`}</td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Promosi
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_disc ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            {`${
+                              orderDetail?.quotation[0]?.promotion
+                                ? `Additional Promotion (${orderDetail?.quotation[0]?.promotion?.name})`
+                                : `Additional Promotion`
+                            }`}
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
+                              ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
+                              : `Rp. ${parseInt(
+                                  orderDetail?.quotation[0]?.promotion?.promotion ?? 0
+                                ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Grand Total
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 )
               } else if (
@@ -929,14 +914,14 @@ const NewComplaintForm: FC = () => {
                     {orderDetail?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari{' '}
+                          *orderDetail ini lebih dari{' '}
                           <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
                     )}
 
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -956,8 +941,8 @@ const NewComplaintForm: FC = () => {
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
-                              <td>{item?.item?.item_name}</td>
-                              <td>{item?.item?.service_name ?? '-'}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
                               <td>{item?.quantity ?? 0}</td>
                               {!(orderDetail?.payment_type === 'gratis') && (
                                 <>
@@ -1003,7 +988,7 @@ const NewComplaintForm: FC = () => {
                           ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
-                    </Table>
+                    </table>
                   </div>
                 )
               }
@@ -1030,9 +1015,9 @@ const NewComplaintForm: FC = () => {
                 <Form.Control
                   name='complaint_date'
                   type='date'
-                  value={complaintForm?.complaint_date ?? ''}
+                  value={today}
+                  readOnly
                   onChange={(e) => complaintFormHandler(e)}
-                  min={today}
                 />
               </Form.Group>
 
@@ -1139,6 +1124,7 @@ const NewComplaintForm: FC = () => {
               variant='dark-danger'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
               onClick={handleCancelComplaint}
             >
               Cancel
@@ -1154,8 +1140,8 @@ const NewComplaintForm: FC = () => {
               {isLoading ? 'Submitting..' : 'Submit'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

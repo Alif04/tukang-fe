@@ -2849,25 +2849,19 @@ const ViewOrders: FC = () => {
               <></>
             )}
 
-            {['WORKEND', 'SURVEYDONE', 'RESURVEYDONE', 'REWORKEND'].includes(
-              record.order_status
-            ) ? (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Aktivitas Email')}
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Aktivitas Email')}
+            >
+              <Button
+                variant='success'
+                className='button-email'
+                onClick={() => handleShowModal(id, 1)}
               >
-                <Button
-                  variant='success'
-                  className='button-email'
-                  onClick={() => handleShowModal(id, 1)}
-                >
-                  <FontAwesomeIcon className='text-white' icon={faEnvelope} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
-            ) : (
-              <></>
-            )}
+                <FontAwesomeIcon className='text-white' icon={faEnvelope} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
 
             {['QUOTEOUT'].includes(record.order_status) && userRole === 'Store CS' ? (
               <OverlayTrigger

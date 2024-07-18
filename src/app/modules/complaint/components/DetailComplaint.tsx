@@ -1,13 +1,13 @@
 import React, {FC, useState} from 'react'
 
 import {PageTitle} from '../../../../_metronic/layout/core'
-import {DetailComplaintStore} from '../../../components'
+import {DetailComplaintPage} from '../../../components'
 import {DetailComplaintHO} from '../../../components'
 import {DetailComplaintVendor} from '../../../components'
 import {DetailComplaintTukang} from '../../../components'
 
 const DetailComplaint: FC = () => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const [pageTitle, setPageTitle] = useState<string>('')
 
   const updatePageTitle = (complaint: any) => {
@@ -19,22 +19,17 @@ const DetailComplaint: FC = () => {
 
   return (
     <>
-      {userRole === 'Store CS' || userRole === 'Store Staff' ? (
+      {['Sales', 'Store CS'].includes(userRole) ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
-          <DetailComplaintStore updatePageTitle={updatePageTitle} />
+          <DetailComplaintPage updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
+      ) : ['Admin HO', 'Super User'].includes(userRole) ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintHO updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole === 'Owner Vendor' ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <DetailComplaintVendor updatePageTitle={updatePageTitle} />
-        </>
-      ) : userRole === 'Admin Vendor' ? (
+      ) : ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintVendor updatePageTitle={updatePageTitle} />

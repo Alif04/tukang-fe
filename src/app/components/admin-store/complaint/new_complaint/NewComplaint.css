@@ -1,5 +1,9 @@
 /* Form Layout */
 
+#new-complaint p {
+  padding: 3px 9.75px;
+}
+
 #new-complaint .form-wrapper {
   margin-bottom: 30px;
 }
@@ -8,28 +12,32 @@
   margin-bottom: 30px;
 }
 
+#new-complaint input.form-control-plaintext {
+  padding: 3px 0px;
+}
+
+#new-complaint .costumer-info label.form-label {
+  padding: 3px 9.75px;
+}
+
+#new-complaint .sales-info label.form-label {
+  padding: 3px 9.75px;
+}
+
+#new-complaint .complaint-info label.form-label {
+  padding: 3px 9.75px;
+}
+
+#new-complaint .remedial-info label.form-label {
+  padding: 3px 9.75px;
+}
+
 #new-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 60%;
 }
 
-#new-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
-  padding: 3px 9.75px;
-}
-
-#new-complaint .costumer-info .detail-info.row input.form-control-plaintext {
-  padding: 3px 0px;
-}
-
 #new-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 40%;
-}
-
-#new-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
-  padding: 3px 9.75px;
-}
-
-#new-complaint .sales-info .detail-info.row input.form-control-plaintext {
-  padding: 3px 0px;
 }
 
 /* Form Header */

@@ -1,53 +1,3 @@
-/* Form Layout */
-
-#detail-complaint .form-wrapper {
-  margin-bottom: 30px;
-}
-
-#detail-complaint .form-wrapper .form-header {
-  margin-bottom: 30px;
-}
-
-#detail-complaint .form-wrapper .form-header label.form-label.col-form-label.col-sm-4 {
-  padding: 3px 9.75px;
-}
-
-#detail-complaint .form-wrapper .form-header input.form-control-plaintext {
-  padding: 3px 0px;
-}
-
-#detail-complaint .form-wrapper .form-header label.fs-4.fw-bold.form-label {
-  margin: 0 !important;
-}
-
-#detail-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-  width: 60%;
-}
-
-#detail-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
-  padding: 3px 9.75px;
-}
-
-#detail-complaint .costumer-info .detail-info.row label.form-label.col-form-label.col-sm-4 {
-  padding: 3px 9.75px;
-}
-
-#detail-complaint .costumer-info .detail-info.row input.form-control-plaintext {
-  padding: 3px 0px;
-}
-
-#detail-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-  width: 40%;
-}
-
-#detail-complaint .sales-info .detail-info.row label.form-label.col-form-label.col-sm-6 {
-  padding: 3px 9.75px;
-}
-
-#detail-complaint .sales-info .detail-info.row input.form-control-plaintext {
-  padding: 3px 0px;
-}
-
 /* Table Order */
 
 #detail-complaint .request-date.col-xxl-4.col-xl-4.col-lg-4.col-md-4.col-12 {
@@ -188,58 +138,9 @@ svg.svg-inline--fa.fa-trash.fa-sm {
 }
 
 @media screen and (max-width: 1400px) {
-  /* Form Layout */
-
-  #detail-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #detail-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #detail-complaint .alamat-order.row .col {
-    padding: 0 10px 0 10px;
-  }
 }
 
 @media screen and (max-width: 1200px) {
-  /* Form Layout */
-
-  #detail-complaint .form-wrapper {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  #detail-complaint .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    width: 100%;
-  }
-
-  #detail-complaint .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    width: 100%;
-  }
-
-  #detail-complaint .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #detail-complaint .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
-    padding: 0 10px 0 10px;
-  }
-
-  #detail-complaint .alamat-order.row .col {
-    padding: 0 10px 0 10px;
-  }
-
-  /* Form Sales */
-
-  #detail-complaint .form-sales .form-header {
-    margin-bottom: 20px;
-  }
-
-  #detail-complaint .form-sales .form-header h1 {
-    text-align: start !important;
-  }
 }
 
 @media screen and (max-width: 991px) {

@@ -7,10 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  chartOrderData: any[]
+  chartComplaintData: any[]
 }
 
-const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
+const ChartBar: React.FC<Props> = ({className, chartComplaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -22,7 +22,7 @@ const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, chartOrderData])
+  }, [chartRef, mode, chartComplaintData])
 
   const refreshChart = () => {
     if (!chartRef.current) {
@@ -31,7 +31,7 @@ const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartOrderData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartComplaintData))
     if (chart) {
       chart.render()
     }
@@ -50,7 +50,7 @@ const ChartBar: React.FC<Props> = ({className, chartOrderData}) => {
 
 export {ChartBar}
 
-function getChartOptions(height: number, chartOrderData: any): ApexOptions {
+function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -61,15 +61,15 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     series: [
       {
         name: 'Masuk',
-        data: chartOrderData.map((item: any) => item.totalOrderDone),
+        data: chartComplaintData.map((item: any) => item?.totalOrderDone ?? 0),
       },
       {
         name: 'Diterima',
-        data: chartOrderData.map((item: any) => item.totalOrder),
+        data: chartComplaintData.map((item: any) => item?.totalOrder ?? 0),
       },
       {
         name: 'Ditolak',
-        data: chartOrderData.map((item: any) => item.totalOrder),
+        data: chartComplaintData.map((item: any) => item?.totalOrder ?? 0),
       },
     ],
     chart: {
@@ -100,7 +100,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartOrderData.map((item: any) => item.month),
+      categories: chartComplaintData.map((item: any) => item.month),
       axisBorder: {
         show: false,
       },
