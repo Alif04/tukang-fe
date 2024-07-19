@@ -14,6 +14,7 @@ type Props = {
   totalRefund: number
   totalCancel: number
   totalActiveWarranty: number
+  totalUsedWarranty: number
   totalExpiredWarranty: number
 }
 
@@ -35,6 +36,7 @@ const MoreInformation: React.FC<Props> = ({
   totalRefund,
   totalCancel,
   totalActiveWarranty,
+  totalUsedWarranty,
   totalExpiredWarranty,
 }) => {
   return (
@@ -64,11 +66,16 @@ const MoreInformation: React.FC<Props> = ({
               )}
 
               {renderStat(
+                totalUsedWarranty,
+                'GARANSI TERPAKAI',
+                'fs-6 text-black text-center mt-1 mb-1'
+              )}
+
+              {renderStat(
                 totalExpiredWarranty,
                 'GARANSI EXPIRED',
                 'fs-6 text-black text-center mt-1 mb-1'
               )}
-              <Col className='hidden-column pt-5 pb-5'></Col>
             </Row>
           </Row>
         </div>

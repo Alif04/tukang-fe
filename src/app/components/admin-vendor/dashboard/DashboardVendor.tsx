@@ -43,7 +43,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.store_name.length - b.store_name.length,
   },
   {
-    title: 'Nama Konsumen',
+    title: 'Nama Customer',
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',
@@ -146,6 +146,7 @@ const DashboardVendor: FC = () => {
       )
 
       const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -156,7 +157,7 @@ const DashboardVendor: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
       setChartDataOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -195,7 +196,7 @@ const DashboardVendor: FC = () => {
             month: 'long',
             year: 'numeric',
           }),
-          total: `Rp. ${totalAmount.toLocaleString('id')}`,
+          total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
 
         return data

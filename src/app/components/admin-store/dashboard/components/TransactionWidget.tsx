@@ -68,7 +68,7 @@ const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage})
                   </div>
 
                   <div className='d-flex flex-column align-items-end'>
-                    <span className='fw-bold text-success'>{calculateTotal(item)}</span>
+                    <span className='fw-bold text-success text-end'>{calculateTotal(item)}</span>
                     <span className='fw-bold text-dark text-end'>
                       {item?.status?.description ?? ''}
                     </span>

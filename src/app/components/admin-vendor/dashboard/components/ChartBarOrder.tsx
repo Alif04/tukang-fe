@@ -53,6 +53,9 @@ export {ChartBarOrder}
 function getChartOptions(height: number, orderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
+  const isHour = orderData?.every(
+    (item: any) => /^\d+$/.test(item.period) && orderData.length === 24
+  )
 
   return {
     series: [
@@ -93,7 +96,13 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: orderData.map((item: any) => item.month),
+      categories: orderData?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
@@ -109,6 +118,10 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
+        show: true,
         style: {
           colors: labelColor,
           fontSize: '12px',

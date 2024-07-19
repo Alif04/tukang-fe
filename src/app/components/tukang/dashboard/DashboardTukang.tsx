@@ -40,7 +40,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.store_name.length - b.store_name.length,
   },
   {
-    title: 'Nama Konsumen',
+    title: 'Nama Customer',
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',
@@ -137,6 +137,7 @@ const DashboardTukang: FC = () => {
       )
 
       const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -147,7 +148,7 @@ const DashboardTukang: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
       setChartDataOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -252,7 +253,6 @@ const DashboardTukang: FC = () => {
   const surveyEnd = sumTotal(chartDataOrder, 'totalSurveyEnd')
 
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')

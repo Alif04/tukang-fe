@@ -41,7 +41,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.store_name.length - b.store_name.length,
   },
   {
-    title: 'Nama Konsumen',
+    title: 'Nama Customer',
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',

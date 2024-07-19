@@ -55,7 +55,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.store_name.length - b.store_name.length,
   },
   {
-    title: 'Nama Konsumen',
+    title: 'Nama Customer',
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',
@@ -179,6 +179,7 @@ const DashboardHO: FC = () => {
       )
 
       const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -189,7 +190,7 @@ const DashboardHO: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
       setChartDataOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -356,6 +357,7 @@ const DashboardHO: FC = () => {
   const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
 
   const activeWarranty = sumTotal(chartDataOrder, 'totalActiveWarranty')
+  const usedWarranty = sumTotal(chartDataOrder, 'totalUsedWarranty')
   const expiredWarranty = sumTotal(chartDataOrder, 'totalExpiredWarranty')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
@@ -489,6 +491,7 @@ const DashboardHO: FC = () => {
             totalRefund={totalRefund}
             totalCancel={totalCancel}
             totalActiveWarranty={activeWarranty}
+            totalUsedWarranty={usedWarranty}
             totalExpiredWarranty={expiredWarranty}
           />
         </Col>
