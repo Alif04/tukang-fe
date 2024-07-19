@@ -188,9 +188,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                 <Form.Label className='fs-4 fw-bold'>
                   Order Status :
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {orderDetail?.work_orders?.work_order_status.length > 0
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.description
-                      : orderDetail?.status?.description}
+                    {orderDetail?.status?.description ?? '-'}
                   </span>
                 </Form.Label>
               </Col>
@@ -679,25 +677,68 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
 
           <hr />
 
-          <Row className='claim-warranty-form d-flex align-items-start mt-5 mb-5'>
-            <div className='fs-3 fw-bold text-uppercase mb-3'>Formulir Claim</div>
+          {orderDetail?.complaints.length > 0 ? (
+            <>
+              <Row className='claim-warranty-form d-flex align-items-start mt-5 mb-5'>
+                <div className='fs-3 fw-bold text-uppercase mb-3'>
+                  Claim Garansi - KOMPLAIN ID {orderDetail?.complaints[0]?.id}
+                </div>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
-              <Form.Control type='date' value={today} readOnly />
-            </Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+                  <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
+                  <Form.Control
+                    value={new Date(orderDetail?.complaints[0]?.created_at).toLocaleDateString(
+                      'id-ID',
+                      {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      }
+                    )}
+                    readOnly
+                  />
+                </Col>
 
-            <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-              <div className='fs-5 fw-normal'>Alasan Claim</div>
-              <Form.Control as='textarea' onChange={handleChangeDescription} rows={3} />
-            </Col>
-          </Row>
+                <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
+                  <div className='fs-5 fw-normal'>Alasan Claim</div>
+                  <Form.Control
+                    readOnly
+                    as='textarea'
+                    value={orderDetail?.complaints[0]?.description}
+                    rows={3}
+                  />
+                </Col>
+              </Row>
+            </>
+          ) : (
+            <>
+              <Row className='claim-warranty-form d-flex align-items-start mt-5 mb-5'>
+                <div className='fs-3 fw-bold text-uppercase mb-3'>Formulir Claim</div>
 
-          <div className='button-submit d-flex justify-content-center align-items-center'>
-            <Button variant='dark-primary' disabled={isLoading} onClick={handleSubmitWarrantyClaim}>
-              {isLoading ? 'Mengajukan Claim...' : 'Ajukan Claim'}
-            </Button>
-          </div>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+                  <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
+                  <Form.Control type='date' value={today} readOnly />
+                </Col>
+
+                <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
+                  <div className='fs-5 fw-normal'>Alasan Claim</div>
+                  <Form.Control as='textarea' onChange={handleChangeDescription} rows={3} />
+                </Col>
+              </Row>
+
+              <div className='button-submit d-flex justify-content-center align-items-center'>
+                <Button
+                  variant='dark-primary'
+                  disabled={isLoading}
+                  onClick={handleSubmitWarrantyClaim}
+                >
+                  {isLoading ? 'Mengajukan Claim...' : 'Ajukan Claim'}
+                </Button>
+              </div>
+            </>
+          )}
         </Card.Body>
       </Card>
     </section>

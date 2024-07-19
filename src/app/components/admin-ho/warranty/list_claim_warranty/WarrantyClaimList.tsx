@@ -180,15 +180,15 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       sorter: (a: DataType, b: DataType) =>
         new Date(a.period_expired).getTime() - new Date(b.period_expired).getTime(),
     },
-    // {
-    //   title: 'Status Garansi',
-    //   dataIndex: 'warranty_status',
-    //   key: 'warranty_status',
-    //   align: 'left',
-    //   width: 160,
-    //   onFilter: (value: string, record: DataType) => record.warranty_status.includes(String(value)),
-    //   sorter: (a: DataType, b: DataType) => a.warranty_status.length - b.warranty_status.length,
-    // },
+    {
+      title: 'Status Garansi',
+      dataIndex: 'warranty_status',
+      key: 'warranty_status',
+      align: 'left',
+      width: 160,
+      onFilter: (value: string, record: DataType) => record.warranty_status.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.warranty_status.length - b.warranty_status.length,
+    },
     userRole !== 'Tukang' && {
       title: 'Action',
       key: 'action',
@@ -268,6 +268,10 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           minute: 'numeric',
         })
 
+        const phoneNumber = item?.project_number.startsWith('0')
+          ? item.project_number
+          : `+62${item.project_number}`
+
         const createdAt = item?.work_orders?.work_order_status[0]?.created_at
           ? new Date(item.work_orders.work_order_status[0].created_at)
           : null
@@ -330,7 +334,9 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           warrantyCountdown.hours === 0 &&
           warrantyCountdown.minutes === 0
             ? 'Garansi Expired'
-            : `Garansi Aktif`
+            : item?.complaints.length >= 1
+            ? 'Garansi Terpakai'
+            : 'Garansi Aktif'
 
         data = {
           order_id: item?.id,
@@ -338,8 +344,8 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           date_order: orderDate,
           no_member: item?.members?.member_number ?? '-',
           costumer_name: item?.members?.full_name ?? '-',
-          phone_number: item?.project_number ?? '-',
-          status_order: item?.work_orders?.work_order_status[0]?.status?.description ?? '-',
+          phone_number: phoneNumber,
+          status_order: item?.status?.description ?? '-',
           period_active: workEndDate,
           period_expired: warrantyEndDate,
           countdown_to_expired: warrantyCountdownText,

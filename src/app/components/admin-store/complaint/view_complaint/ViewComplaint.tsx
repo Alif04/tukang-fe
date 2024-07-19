@@ -315,13 +315,21 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const complaintDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
+
+        const phoneNumber = item?.orders?.project_number.startsWith('0')
+          ? item?.orders?.project_number
+          : `+62${item?.orders?.project_number}`
 
         const currentDate = new Date()
         const complaintDates = new Date(item?.created_at)
@@ -350,13 +358,13 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           date_order: orderDate,
           no_member: item?.orders?.members?.member_number,
           costumer_name: item?.orders?.members?.full_name,
-          phone_number: item?.orders?.project_number,
+          phone_number: phoneNumber,
           service_name: item.orders?.m_order_details[0]?.item_name ?? '-',
           order_status: item.orders?.status?.description,
-          work_status: item.orders?.status?.description,
+          work_status: item?.status?.description,
           complaint_date: complaintDate,
           complaint_age: complaintAge,
-          complaint_status: item.status?.description,
+          complaint_status: item?.status?.description,
         }
 
         return data

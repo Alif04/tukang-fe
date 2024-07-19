@@ -1,8 +1,8 @@
 import React, {FC, useState, useEffect} from 'react'
 
-import {ChartBar} from './components/ChartBar'
-import {ChartLine} from './components/ChartLine'
-import {ChartLine2} from './components/ChartLine2'
+import {TotalComplaint} from './components/TotalComplaint'
+import {TotalResurvey} from './components/TotalResurvey'
+import {TotalRework} from './components/TotalRework'
 import {TableList} from './components/TableList'
 
 import axios from 'axios'
@@ -12,7 +12,7 @@ import {Card, Row, Col, Button} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 
-const ReportComplaintStore: FC = () => {
+const ReportComplaintPage: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
   const userRole = localStorage.getItem('userRole')
@@ -24,6 +24,7 @@ const ReportComplaintStore: FC = () => {
   const [complaintData, setComplaintData] = useState<any[]>([])
   const [complaintList, setComplaintList] = useState<any>()
 
+  const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
   const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
 
   const today = new Date()
@@ -45,6 +46,7 @@ const ReportComplaintStore: FC = () => {
           apiUrlWithParams += `&store_id=${userStore}`
           break
         case 'Admin Vendor':
+        case 'Owner Vendor':
           apiUrlWithParams += `&vendor_id=${vendorId}`
           break
         default:
@@ -82,6 +84,8 @@ const ReportComplaintStore: FC = () => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const currentDate = new Date()
@@ -122,12 +126,55 @@ const ReportComplaintStore: FC = () => {
     }
   }
 
+  const getReportOrder = async () => {
+    const url = (() => {
+      switch (userRole) {
+        case 'Store CS':
+          return `${apiUrl}/reports/orders?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
+        case 'Admin Vendor':
+        case 'Owner Vendor':
+          return `${apiUrl}/reports/orders?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
+        default:
+          return `${apiUrl}/reports/orders?take=0&date_from=${dateFrom}&date_to=${dateTo}`
+      }
+    })()
+
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
+
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
+      setChartDataOrder(slicedData)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
   const getReportComplaint = async () => {
     const url = (() => {
       switch (userRole) {
         case 'Store CS':
           return `${apiUrl}/reports/complaints?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         case 'Admin Vendor':
+        case 'Owner Vendor':
           return `${apiUrl}/reports/complaints?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
         default:
           return `${apiUrl}/reports/complaints?take=0&date_from=${dateFrom}&date_to=${dateTo}`
@@ -173,6 +220,7 @@ const ReportComplaintStore: FC = () => {
 
   useEffect(() => {
     fetchComplaintList()
+    getReportOrder()
     getReportComplaint()
   }, [])
 
@@ -184,6 +232,7 @@ const ReportComplaintStore: FC = () => {
     setLoadingButton(true)
 
     await fetchComplaintList()
+    await getReportOrder()
     await getReportComplaint()
 
     setLoadingButton(false)
@@ -192,15 +241,15 @@ const ReportComplaintStore: FC = () => {
   const sumTotal = (data: any, key: string) =>
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
-  const totalComplaint = sumTotal(chartDataComplaint, 'totalOrder')
-  const rejectComplaint = sumTotal(chartDataComplaint, 'totalRejectByHo')
-  const acceptedComplaint = sumTotal(chartDataComplaint, 'totalApprovedByHO')
+  const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
+  const acceptedComplaint = sumTotal(chartDataOrder, 'totalComplaintApprovedByHO')
+  const rejectComplaint = sumTotal(chartDataOrder, 'totalComplaintRejectedByHO')
 
-  const resurvey = sumTotal(chartDataComplaint, 'totalReworkStart')
-  const rework = sumTotal(chartDataComplaint, 'totalReworkStart')
+  const resurvey = sumTotal(chartDataOrder, 'totalResurvey')
+  const rework = sumTotal(chartDataOrder, 'totalRework')
 
-  const resurveyDone = sumTotal(chartDataComplaint, 'totalReworkEnd')
-  const reworkDone = sumTotal(chartDataComplaint, 'totalReworkEnd')
+  const resurveyDone = sumTotal(chartDataOrder, 'totalResurveyDone')
+  const reworkDone = sumTotal(chartDataOrder, 'totalReworkDone')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <div className={`${label} ${className}`}>
@@ -312,18 +361,24 @@ const ReportComplaintStore: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
+          <TotalComplaint
+            className='card-xl-stretch mb-xl-8'
+            chartComplaintData={chartDataComplaint}
+          />
         </div>
 
         <div className='col-xl-4'>
-          <ChartLine
+          <TotalResurvey
             className='card-xl-stretch mb-5 mb-xl-8'
             chartComplaintData={chartDataComplaint}
           />
         </div>
 
         <div className='col-xl-4'>
-          <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
+          <TotalRework
+            className='card-xl-stretch mb-xl-8'
+            chartComplaintData={chartDataComplaint}
+          />
         </div>
       </div>
       {/* end::Row */}
@@ -339,4 +394,4 @@ const ReportComplaintStore: FC = () => {
   )
 }
 
-export {ReportComplaintStore}
+export {ReportComplaintPage}

@@ -10,7 +10,7 @@ type Props = {
   chartComplaintData: any[]
 }
 
-const ChartLine2: React.FC<Props> = ({className, chartComplaintData}) => {
+const TotalResurvey: React.FC<Props> = ({className, chartComplaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -42,13 +42,13 @@ const ChartLine2: React.FC<Props> = ({className, chartComplaintData}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body'>
-        <div ref={chartRef} id='kt_charts_widget_4_chart' style={{height: '350px'}}></div>
+        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '350px'}}></div>
       </div>
     </div>
   )
 }
 
-export {ChartLine2}
+export {TotalResurvey}
 
 function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
@@ -62,17 +62,17 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   return {
     series: [
       {
-        name: 'Pengerjaan Ulang',
-        data: chartComplaintData.map((item: any) => item?.totalOrder ?? 0),
+        name: 'Survei Ulang',
+        data: chartComplaintData?.map((item: any) => item?.totalResurvey ?? 0),
       },
       {
-        name: 'Pengerjaan Ulang Selesai',
-        data: chartComplaintData.map((item: any) => item?.totalCancelComplaint ?? 0),
+        name: 'Survei Ulang Selesai',
+        data: chartComplaintData?.map((item: any) => item?.totalResurveyDone ?? 0),
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'area',
+      type: 'bar',
       height: 350,
       toolbar: {
         show: false,
@@ -88,13 +88,13 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     },
     fill: {
       type: 'solid',
-      opacity: 0,
+      opacity: 0.4,
     },
     stroke: {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartComplaintData.map((item: any) => item.month),
+      categories: chartComplaintData.map((item: any) => item?.period),
       axisBorder: {
         show: false,
       },
@@ -126,6 +126,10 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
+        show: true,
         style: {
           colors: labelColor,
           fontSize: '12px',

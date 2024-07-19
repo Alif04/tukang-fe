@@ -751,14 +751,13 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
               </Form.Group>
 
               <Form.Group className='detail-info mb-3'>
-                <Form.Label>Tanggal Reschedule :</Form.Label>
+                <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
                 <Form.Control
                   name='reschedule_date'
                   type='date'
-                  min={today}
+                  readOnly
                   disabled={userRole === 'Tukang'}
                   value={reschedule.reschedule_date}
-                  onChange={(e) => RescheduleFormHandler(e)}
                 />
               </Form.Group>
             </Col>

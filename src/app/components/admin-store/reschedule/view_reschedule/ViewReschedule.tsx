@@ -63,6 +63,14 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
 
   const columns: ColumnsType<DataType> = [
     {
+      title: 'Reschedule ID',
+      dataIndex: 'reschedule_id',
+      key: 'reschedule_id',
+      align: 'center',
+      width: 100,
+      sorter: (a, b) => a.reschedule_id - b.reschedule_id,
+    },
+    {
       title: 'Order ID',
       dataIndex: 'order_id',
       key: 'order_id',
@@ -71,14 +79,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
-    },
-    {
-      title: 'Reschedule Id',
-      dataIndex: 'reschedule_id',
-      key: 'reschedule_id',
-      align: 'center',
-      width: 100,
-      sorter: (a, b) => a.reschedule_id - b.reschedule_id,
     },
     {
       title: 'Nama Toko',
@@ -107,7 +107,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.member_id - b.member_id,
     },
     {
-      title: 'Nama Member',
+      title: 'Nama Customer',
       dataIndex: 'member_name',
       key: 'member_name',
       align: 'left',
@@ -169,10 +169,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'BOOK', value: 'BOOK'},
-        {text: 'BOOKED', value: 'BOOKED'},
-      ],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
     },
@@ -180,7 +176,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 60,
+      width: 100,
       render: (record) => {
         const handleEdit = () => {
           const id = record.reschedule_id
@@ -243,15 +239,21 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
+        const phoneNumber = item?.order?.project_number.startsWith('0')
+          ? item?.order?.project_number
+          : `+62${item?.order?.project_number}`
+
         const paymentStatus = (() => {
-          if (item.order?.payment_type === 'survey') {
-            return item.order.receipt_number === null ? 'UNPAID' : 'PAID'
-          } else if (item.order?.payment_type === 'gratis') {
+          if (item?.order?.payment_type === 'survey') {
+            return item?.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.order?.payment_type === 'gratis') {
             return 'FREE'
-          } else if (item.order?.payment_type === 'pemasangan_tanpa_survey') {
-            return item.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          } else if (item?.order?.payment_type === 'pemasangan_tanpa_survey') {
+            return item?.order.receipt_number === null ? 'UNPAID' : 'PAID'
           } else {
             return ''
           }
@@ -264,7 +266,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
           date_order: orderDate,
           member_id: item?.order?.members.member_number,
           member_name: item?.order?.members.full_name,
-          phone_number: item?.order?.project_number,
+          phone_number: phoneNumber,
           payment_status: paymentStatus,
           order_status: item?.order?.status?.description,
         }
@@ -386,6 +388,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
               dataSource={rescheduleData}
               rowKey={(record) => record.reschedule_id}
               pagination={false}
+              scroll={{x: 1800}}
             />
           </Spin>
 

@@ -163,6 +163,14 @@ const NewReschedule: FC = () => {
     })
   }
 
+  // Reschedule Date
+  useEffect(() => {
+    setReschedule((prev) => ({
+      ...prev,
+      reschedule_date: today,
+    }))
+  }, [reschedule])
+
   // Upload File Reschedule
   const [rescheduleEvidence, setRescheduleEvidence] = useState<Array<File | null>>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
@@ -224,13 +232,6 @@ const NewReschedule: FC = () => {
       Swal.fire({
         title: 'Error',
         text: 'Please fill reschedule description form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!reschedule.reschedule_date) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill reschedule date form',
         icon: 'error',
       })
       valid = false
@@ -879,13 +880,12 @@ const NewReschedule: FC = () => {
               </Form.Group>
 
               <Form.Group className='detail-info mb-3'>
-                <Form.Label>Tanggal Reschedule :</Form.Label>
+                <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
                 <Form.Control
                   name='reschedule_date'
                   type='date'
-                  min={today}
                   value={reschedule.reschedule_date}
-                  onChange={(e) => RescheduleFormHandler(e)}
+                  readOnly
                 />
               </Form.Group>
             </Col>

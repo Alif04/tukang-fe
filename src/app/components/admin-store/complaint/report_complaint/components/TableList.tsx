@@ -33,7 +33,7 @@ const columns: ColumnsType<DataType> = [
     align: 'left',
   },
   {
-    title: 'Nama Konsumen',
+    title: 'Nama Customer',
     dataIndex: 'customer_name',
     key: 'customer_name',
     align: 'left',
@@ -45,7 +45,7 @@ const columns: ColumnsType<DataType> = [
     align: 'left',
   },
   {
-    title: 'Status',
+    title: 'Status Komplain',
     dataIndex: 'complaint_status',
     key: 'complaint_status',
     align: 'left',
@@ -68,10 +68,6 @@ const columns: ColumnsType<DataType> = [
 
       return <Tag color={color}>{complaintStatus}</Tag>
     },
-    filters: [
-      {text: 'INVESTIGATED', value: 'INVESTIGATED'},
-      {text: 'ACCEPTED', value: 'ACCEPTED'},
-    ],
   },
 ]
 

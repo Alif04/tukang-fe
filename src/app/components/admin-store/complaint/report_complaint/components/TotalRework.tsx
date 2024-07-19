@@ -10,7 +10,7 @@ type Props = {
   chartComplaintData: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className, chartComplaintData}) => {
+const TotalRework: React.FC<Props> = ({className, chartComplaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -48,7 +48,7 @@ const ChartLine: React.FC<Props> = ({className, chartComplaintData}) => {
   )
 }
 
-export {ChartLine}
+export {TotalRework}
 
 function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
@@ -62,17 +62,17 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   return {
     series: [
       {
-        name: 'Survei Ulang',
-        data: chartComplaintData?.map((item: any) => item?.totalOrderSurvey ?? 0),
+        name: 'Pengerjaan Ulang',
+        data: chartComplaintData.map((item: any) => item?.totalRework ?? 0),
       },
       {
-        name: 'Survei Ulang Selesai',
-        data: chartComplaintData?.map((item: any) => item?.totalOrderDone ?? 0),
+        name: 'Pengerjaan Ulang Selesai',
+        data: chartComplaintData.map((item: any) => item?.totalReworkDone ?? 0),
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'area',
+      type: 'bar',
       height: 350,
       toolbar: {
         show: false,
@@ -88,13 +88,13 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     },
     fill: {
       type: 'solid',
-      opacity: 0.4,
+      opacity: 0,
     },
     stroke: {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartComplaintData.map((item: any) => item.month),
+      categories: chartComplaintData.map((item: any) => item?.period),
       axisBorder: {
         show: false,
       },
@@ -126,6 +126,10 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
+        show: true,
         style: {
           colors: labelColor,
           fontSize: '12px',

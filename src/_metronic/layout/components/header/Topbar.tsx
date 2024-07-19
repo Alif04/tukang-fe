@@ -13,7 +13,7 @@ const Topbar: FC = () => {
 
   return (
     <div className='d-flex align-items-stretch flex-shrink-0' id='topbar'>
-      <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
+      {/* <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
         <div
           className={clsx(
             'btn btn-icon btn-active-light-primary btn-custom',
@@ -26,8 +26,8 @@ const Topbar: FC = () => {
         >
           <KTSVG path='/media/envelope.svg' className={toolbarButtonIconSizeClass} />
         </div>
-        {/* <QuickLinks /> */}
-      </div>
+        <QuickLinks />
+      </div> */}
 
       <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
         <div
@@ -42,7 +42,7 @@ const Topbar: FC = () => {
         >
           <KTSVG path='/media/bell.svg' className={toolbarButtonIconSizeClass} />
         </div>
-        {/* <HeaderNotificationsMenu /> */}
+        <HeaderNotificationsMenu />
       </div>
 
       {/* <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>

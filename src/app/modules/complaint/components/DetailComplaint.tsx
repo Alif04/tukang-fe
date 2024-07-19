@@ -19,7 +19,10 @@ const DetailComplaint: FC = () => {
 
   return (
     <>
-      {['Sales', 'Store CS'].includes(userRole) ? (
+      <PageTitle>{pageTitle}</PageTitle>
+      <DetailComplaintPage updatePageTitle={updatePageTitle} />
+
+      {/* {['Sales', 'Store CS'].includes(userRole) ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintPage updatePageTitle={updatePageTitle} />
@@ -41,7 +44,7 @@ const DetailComplaint: FC = () => {
         </>
       ) : (
         <></>
-      )}
+      )} */}
     </>
   )
 }

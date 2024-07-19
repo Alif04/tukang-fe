@@ -10,7 +10,7 @@ type Props = {
   chartComplaintData: any[]
 }
 
-const ChartBar: React.FC<Props> = ({className, chartComplaintData}) => {
+const TotalComplaint: React.FC<Props> = ({className, chartComplaintData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -48,7 +48,7 @@ const ChartBar: React.FC<Props> = ({className, chartComplaintData}) => {
   )
 }
 
-export {ChartBar}
+export {TotalComplaint}
 
 function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
@@ -61,15 +61,15 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     series: [
       {
         name: 'Masuk',
-        data: chartComplaintData.map((item: any) => item?.totalOrderDone ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalComplaint ?? 0),
       },
       {
         name: 'Diterima',
-        data: chartComplaintData.map((item: any) => item?.totalOrder ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalComplaintApprovedByHO ?? 0),
       },
       {
         name: 'Ditolak',
-        data: chartComplaintData.map((item: any) => item?.totalOrder ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalComplaintRejectedByHO ?? 0),
       },
     ],
     chart: {
@@ -100,7 +100,7 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartComplaintData.map((item: any) => item.month),
+      categories: chartComplaintData.map((item: any) => item?.period),
       axisBorder: {
         show: false,
       },
@@ -116,6 +116,10 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
+        show: true,
         style: {
           colors: labelColor,
           fontSize: '12px',
