@@ -378,6 +378,7 @@ const UpdateSales: FC = () => {
   // Handle Submit New Sales
   const handleUpdateSales = async () => {
     if (!SalesValidation()) {
+      setIsLoading(false)
       return false
     }
 
@@ -403,22 +404,26 @@ const UpdateSales: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           })
+
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+
+          setIsLoading(false)
         }
 
         navigate('/sales/new-sales')
       })
       .catch((error) => {
+        setIsLoading(false)
         console.error(error)
-
         Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
+          title: 'Terjadi Kesalahan Pada Server',
+          text: 'Tolong untuk mencoba hubungi administrator',
           icon: 'error',
         })
       })

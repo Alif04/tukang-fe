@@ -728,7 +728,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
         },
       })
       .then((response) => {
-        navigate(`/order/printout-order/${params.id}`)
+        navigate(`/order/printout-order-picklist/${params.id}`)
       })
       .catch((error) => {
         console.error(error)

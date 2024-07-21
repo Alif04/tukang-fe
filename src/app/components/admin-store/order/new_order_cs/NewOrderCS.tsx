@@ -680,7 +680,7 @@ const NewOrderStoreCS: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/order/printout-order/${orderId}`)
+            navigate(`/order/printout-order-dipesan/${orderId}`)
           })
 
           setIsLoading(false)

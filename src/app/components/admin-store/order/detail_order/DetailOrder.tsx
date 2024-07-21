@@ -18,7 +18,8 @@ interface Status {
 interface OrderHistory {
   order_id: number
   order_status: string
-  created_at: string
+  created_at: Date
+  created_at_label: string
 }
 
 const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
@@ -85,7 +86,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             const orderHistory = data?.order_history.map((item: any) => ({
               order_id: item.order_id,
               order_status: item?.status?.description,
-              created_at: item.created_at
+              created_at: item?.created_at,
+              created_at_label: item?.created_at
                 ? new Date(item.created_at).toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
@@ -189,7 +191,15 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         },
       })
       .then(() => {
-        navigate(`/order/printout-order/${params.id}`)
+        if (['PICKLIST'].includes(order?.status?.category ?? '')) {
+          navigate(`/order/printout-order-picklist/${params.id}`)
+        } else if (
+          ['BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+            order?.status?.category ?? ''
+          )
+        ) {
+          navigate(`/order/printout-order-dipesan/${params.id}`)
+        }
       })
       .catch((error) => {
         console.error(error)
@@ -202,6 +212,29 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       })
   }
 
+  // Export PDF Quotation
+  const exportToPDF = (order_id: number) => {
+    axios
+      .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Quotation - Order ID ${order_id}.pdf`)
+        document.body.appendChild(link)
+        link.click()
+      })
+      .catch((error: any) => {
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+      })
+  }
+
   // Work Order History
   const columns: ColumnsType<OrderHistory> = [
     {
@@ -211,7 +244,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       align: 'center',
       width: 100,
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
     },
     {
       title: 'Status',
@@ -224,12 +256,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     },
     {
       title: 'Terakhir Update Order',
-      dataIndex: 'created_at',
-      key: 'created_at',
+      dataIndex: 'created_at_label',
+      key: 'created_at_label',
       align: 'center',
       width: 110,
-      onFilter: (value, record) => record.created_at.includes(String(value)),
-      sorter: (a, b) => a.created_at.length - b.created_at.length,
+      sorter: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     },
   ]
 
@@ -1268,13 +1299,16 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               </div>
             )}
 
-            {order?.print_counter >= 1 && (
-              <div className='d-flex justify-content-center align-items-center'>
-                <Button type='submit' onClick={handleReprintOrderCS} variant='warning'>
-                  Reprint Order
-                </Button>
-              </div>
-            )}
+            {order?.print_counter >= 1 &&
+              ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                order?.status?.category ?? ''
+              ) && (
+                <div className='d-flex justify-content-center align-items-center'>
+                  <Button type='submit' onClick={handleReprintOrderCS} variant='warning'>
+                    Reprint Order
+                  </Button>
+                </div>
+              )}
           </Skeleton>
         </Card.Body>
       </Card>

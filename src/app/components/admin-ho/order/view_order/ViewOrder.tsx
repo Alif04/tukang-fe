@@ -37,6 +37,7 @@ import {
   faFileImage,
   faXmarkCircle,
   faEnvelope,
+  faPrint,
 } from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
@@ -54,6 +55,7 @@ interface DataType {
   order_status: string
   order_status_label: string
   work_order_status: string
+  print_counter: number
 }
 
 interface StoreItem {
@@ -772,6 +774,7 @@ const ViewOrders: FC = () => {
           payment_quotation: paymentQuotation,
           order_status: orderStatus,
           order_status_label: orderStatusLabel,
+          print_counter: item?.print_counter ?? 0,
         }
 
         return data
@@ -2621,6 +2624,29 @@ const ViewOrders: FC = () => {
     )
   }
 
+  // Export PDF Quotation
+  const exportToPDF = (order_id: number) => {
+    axios
+      .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Quotation - Order ID ${order_id}.pdf`)
+        document.body.appendChild(link)
+        link.click()
+      })
+      .catch((error: any) => {
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+      })
+  }
+
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
@@ -2738,10 +2764,19 @@ const ViewOrders: FC = () => {
       title: 'Action',
       key: 'action',
       align: 'center',
-      width: 120,
+      width: 160,
       fixed: 'right',
       render: (record) => {
         const id = record.order_id
+        const handlePrintout = (status: string) => {
+          if (['PICKLIST'].includes(status)) {
+            navigate(`/order/printout-order-picklist/${id}`)
+          } else if (
+            ['BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(status)
+          ) {
+            navigate(`/order/printout-order-dipesan/${id}`)
+          }
+        }
 
         const handleDetailId = () => {
           navigate(`/order/detail-order/${id}`)
@@ -2763,7 +2798,28 @@ const ViewOrders: FC = () => {
 
         return (
           <div className='d-flex justify-content-center gap-4'>
-            {!['Sales'].includes(userRole) && (
+            {['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+              record.order_status
+            ) &&
+              !['Admin HO', 'Super User'].includes(userRole) && (
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip(
+                    `${record.print_counter === 0 ? 'Print Order' : 'Reprint Order'}`
+                  )}
+                >
+                  <Button
+                    className='button-request'
+                    variant='warning'
+                    onClick={() => handlePrintout(record.order_status)}
+                  >
+                    <FontAwesomeIcon className='text-white' icon={faPrint} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+              )}
+
+            {!['Sales', 'Admin HO', 'Super User'].includes(userRole) && (
               <>
                 {['BOOK', 'BOOKED'].includes(record.order_status) && (
                   <OverlayTrigger
@@ -2787,8 +2843,7 @@ const ViewOrders: FC = () => {
               </>
             )}
 
-            {['WORKREQ', 'SURVEYREQ'].includes(record.order_status) &&
-            ['Super User', 'Admin HO'].includes(userRole) ? (
+            {['Super User', 'Admin HO'].includes(userRole) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -2878,6 +2933,24 @@ const ViewOrders: FC = () => {
             ) : (
               <></>
             )}
+
+            {/*  
+               {['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Cetak PDF Quotation')}
+              >
+                <Button
+                  className='button-request'
+                  variant='warning'
+                  onClick={() => exportToPDF(record.order_id)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faPrint} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            )}
+              */}
           </div>
         )
       },

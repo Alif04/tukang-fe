@@ -624,7 +624,7 @@ const NewOrderStoreStaff: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/order/printout-order/${orderId}`)
+            navigate(`/order/printout-order-picklist/${orderId}`)
           })
 
           setIsLoading(false)

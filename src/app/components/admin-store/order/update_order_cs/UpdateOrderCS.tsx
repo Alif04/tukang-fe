@@ -813,7 +813,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/order/printout-order/${orderId}`)
+            navigate(`/order/printout-order-dipesan/${orderId}`)
           })
 
           setIsLoading(false)
@@ -851,7 +851,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         },
       })
       .then((response) => {
-        navigate(`/order/printout-order/${params.id}`)
+        navigate(`/order/printout-order-dipesan/${params.id}`)
       })
       .catch((error) => {
         console.error(error)

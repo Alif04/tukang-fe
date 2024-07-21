@@ -730,8 +730,8 @@ const NewSales: FC = () => {
         setIsLoading(false)
 
         Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
+          title: 'Terjadi Kesalahan Pada Server',
+          text: 'Tolong untuk mencoba hubungi administrator',
           icon: 'error',
         })
       })

@@ -491,6 +491,13 @@ const UpdateQuotationHO: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (promosiDiscount === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill promotion form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (quotationDetail.filter((x) => x.type === 2).some((x) => x.category_id === null)) {
       Swal.fire({
         title: 'Warning',

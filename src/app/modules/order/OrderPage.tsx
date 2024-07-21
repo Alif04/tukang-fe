@@ -10,6 +10,7 @@ import {NewOrder} from './components/NewOrder'
 import {UpdateOrder} from './components/UpdateOrder'
 import {DetailOrder} from './components/DetailOrder'
 import {PrintOutOrder} from './components/PrintoutOrder'
+import {PrintoutPicklist} from './components/PrintoutPicklist'
 import {PreviewEmail} from './components/PreviewEmail'
 
 const orderBreadCrumbs: Array<PageLink> = [
@@ -129,7 +130,32 @@ const OrderPage: React.FC = () => {
       />
 
       <Route
-        path='printout-order/:id'
+        path='printout-order-picklist/:id'
+        element={
+          <>
+            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : userRole === 'Tukang' ? (
+              <>
+                <HeaderWrapper className='bg-header-tukang' />
+              </>
+            ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PrintoutPicklist />
+          </>
+        }
+      />
+
+      <Route
+        path='printout-order-dipesan/:id'
         element={
           <>
             {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (

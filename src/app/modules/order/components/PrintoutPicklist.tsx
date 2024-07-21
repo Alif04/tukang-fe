@@ -2,9 +2,9 @@ import React, {FC, useState} from 'react'
 
 import {Orders} from '../../../interfaces/order'
 import {PageTitle} from '../../../../_metronic/layout/core'
-import {PrintoutOrderCS} from '../../../components'
+import {PrintoutOrder} from '../../../components'
 
-const PrintOutOrder: FC = () => {
+const PrintoutPicklist: FC = () => {
   const [pageTitle, setPageTitle] = useState<string>('')
 
   const updatePageTitle = (order: Orders) => {
@@ -17,9 +17,9 @@ const PrintOutOrder: FC = () => {
   return (
     <>
       <PageTitle>{pageTitle}</PageTitle>
-      <PrintoutOrderCS updatePageTitle={updatePageTitle} />
+      <PrintoutOrder updatePageTitle={updatePageTitle} />
     </>
   )
 }
 
-export {PrintOutOrder}
+export {PrintoutPicklist}
