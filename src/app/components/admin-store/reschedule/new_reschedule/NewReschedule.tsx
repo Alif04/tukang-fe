@@ -55,7 +55,7 @@ const NewReschedule: FC = () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
-      ['SURVEYREQ'].includes(status.category)
+      ['SURVEYREQ', 'WORKREQ'].includes(status.category)
     )
 
     if (desiredStatus) {
@@ -379,8 +379,8 @@ const NewReschedule: FC = () => {
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
                     {orderDetail?.work_orders?.work_order_status.length > 0
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                      : orderDetail?.status?.category}
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.description
+                      : orderDetail?.status?.description}
                   </span>
                 </Form.Label>
               </Col>
