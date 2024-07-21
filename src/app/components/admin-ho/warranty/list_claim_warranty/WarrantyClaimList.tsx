@@ -149,9 +149,6 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [{text: 'WARRANTYCLAIM', value: 'WARRANTYCLAIM'}],
-      onFilter: (value: string, record: DataType) => record.status_order.includes(String(value)),
-      sorter: (a: DataType, b: DataType) => a.status_order.length - b.status_order.length,
     },
     {
       title: 'Tanggal Aktif Garansi',

@@ -1,11 +1,26 @@
 import React, {FC, useState, useEffect} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import './WarrantyFormClaim.css'
 
 import axios from 'axios'
-import {useNavigate, useParams} from 'react-router-dom'
 import Swal from 'sweetalert2'
+import Select, {SingleValue} from 'react-select'
 import {Form, Row, Col, Table, Button, Card} from 'react-bootstrap'
+
+interface Warranty {
+  order_id: number | null
+  desription: string
+  complaint_date: string
+  complaint_channel: number | null
+  complaint_status: string
+  type: number
+}
+
+interface ComplaintChannel {
+  value: number | null
+  label: string
+}
 
 const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -44,56 +59,84 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
     }
   }
 
+  const getComplaintChannel = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/complaint-channels`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempComplaintChannel = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setComplaintChannel(tempComplaintChannel)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getOrderDetail()
+    getComplaintChannel()
   }, [])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
+  // Warrany Form
+  const [warrantyForm, setWarrantyForm] = useState<Warranty>({
+    order_id: null,
+    desription: '',
+    complaint_date: new Date().toISOString().split('T')[0],
+    complaint_channel: null,
+    complaint_status: '',
+    type: 2,
+  })
+
+  // Complaint Channel
+  const [complantChannel, setComplaintChannel] = useState<ComplaintChannel[]>([])
+  const [selectedComplaintChannel, setSelectedComplaintChannel] = useState<
+    SingleValue<ComplaintChannel>
+  >({
+    value: null,
+    label: 'Complaint Via',
+  })
+
+  // Warranty Form Handler
+  const warrantyFormHandler = (e: any) => {
+    setWarrantyForm({
+      ...warrantyForm,
+      [e.target.name]: e.target.value,
+    })
   }
 
-  // Add Warranty Claim
-  const [complaintStatus, setComplaintStatus] = useState<any>()
-  const [date, setDate] = useState<any>()
-  const [desc, setDesc] = useState<any>()
-  const [complantChannel, setComplaintChannel] = useState<number>(1)
-
-  // Set Status Warranty Claim
-  const storedStatus = sessionStorage.getItem('statusData')
-  const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-  const desiredStatusName = 'WARRANTYCLAIM'
-  const desiredStatus = statusData.find((status: any) => status.category === desiredStatusName)
-
+  // Warranty Status
   useEffect(() => {
-    if (desiredStatus) {
-      const statusId = desiredStatus?.value
-      setComplaintStatus(statusId)
-    }
-  }, [complaintStatus])
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-  // Handle Change Date Warranty Claim
-  const today = new Date().toISOString().split('T')[0]
+    const desiredStatusName = 'WARRANTYCLAIM'
+    const desiredStatus = statusData.find((status: any) => status?.category === desiredStatusName)
+    const statusId = desiredStatus?.value
 
-  const handleChangeDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedValueDateClaim = event.target.value
-    setDate(updatedValueDateClaim)
-  }
-
-  // Handle Change Description Claim Warranty
-  const handleChangeDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedValueDescription = event.target.value
-    setDesc(updatedValueDescription)
-  }
+    setWarrantyForm({
+      ...warrantyForm,
+      complaint_status: statusId,
+    })
+  }, [])
 
   // Handle Submit Warranty
   const ClaimWarrantyValidation = () => {
     let valid = true
 
-    if (!desc) {
+    if (warrantyForm.desription === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong Isi Alasan Claim Garansi',
@@ -110,12 +153,12 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
       setIsLoading(true)
       const formData = new FormData()
 
-      formData.append('order_id', orderId)
-      formData.append('description', desc)
-      formData.append('complaint_date', today)
-      formData.append('complaint_channel', complantChannel.toString())
-      formData.append('complaint_status', complaintStatus)
-      formData.append('type', String(2))
+      formData.append('order_id', String(warrantyForm.order_id))
+      formData.append('description', warrantyForm.desription)
+      formData.append('complaint_date', warrantyForm.complaint_date)
+      formData.append('complaint_channel', warrantyForm.complaint_status)
+      formData.append('complaint_status', warrantyForm.complaint_status)
+      formData.append('type', String(warrantyForm.type))
 
       await axios
         .post(`${apiUrl}/complaints`, formData, {
@@ -295,7 +338,15 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                       : 'Tanggal request pemasangan :'}
                   </Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>{formatDate(new Date(orderDetail?.request_survey))}</p>
+                    <p className='fs-7 p-0'>
+                      {orderDetail
+                        ? new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
+                        : '-'}
+                    </p>
                   </Col>
                 </Form.Group>
 
@@ -685,20 +736,30 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                 </div>
 
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-                  <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
-                  <Form.Control
-                    value={new Date(orderDetail?.complaints[0]?.created_at).toLocaleDateString(
-                      'id-ID',
-                      {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      }
-                    )}
-                    readOnly
-                  />
+                  <Form.Group className='mb-3'>
+                    <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
+                    <Form.Control
+                      value={new Date(orderDetail?.complaints[0]?.created_at).toLocaleDateString(
+                        'id-ID',
+                        {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        }
+                      )}
+                      readOnly
+                    />
+                  </Form.Group>
+
+                  <Form.Group>
+                    <div className='fs-5 fw-normal'>Komplain Melalui</div>
+                    <Form.Control
+                      value={orderDetail?.complaints[0]?.complaint_channels?.name}
+                      readOnly
+                    />
+                  </Form.Group>
                 </Col>
 
                 <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
@@ -718,13 +779,41 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                 <div className='fs-3 fw-bold text-uppercase mb-3'>Formulir Claim</div>
 
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-                  <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
-                  <Form.Control type='date' value={today} readOnly />
+                  <Form.Group>
+                    <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
+                    <Form.Control
+                      name='complaint_date'
+                      type='date'
+                      value={warrantyForm.complaint_date}
+                      readOnly
+                    />
+                  </Form.Group>
+
+                  <Form.Group>
+                    <div className='fs-5 fw-normal'>Komplain Melalui</div>
+                    <Select
+                      name='complaint_channel_id'
+                      className='form-control p-0'
+                      classNamePrefix='select'
+                      placeholder='Complaint Via'
+                      isSearchable={true}
+                      options={complantChannel}
+                      value={selectedComplaintChannel}
+                      onChange={(newValue) => setSelectedComplaintChannel(newValue)}
+                    />
+                  </Form.Group>
                 </Col>
 
                 <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-                  <div className='fs-5 fw-normal'>Alasan Claim</div>
-                  <Form.Control as='textarea' onChange={handleChangeDescription} rows={3} />
+                  <Form.Group>
+                    <div className='fs-5 fw-normal'>Alasan Claim</div>
+                    <Form.Control
+                      name='description'
+                      as='textarea'
+                      onChange={(e) => warrantyFormHandler(e)}
+                      rows={3}
+                    />
+                  </Form.Group>
                 </Col>
               </Row>
 
