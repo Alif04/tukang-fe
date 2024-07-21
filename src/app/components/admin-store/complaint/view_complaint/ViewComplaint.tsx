@@ -76,16 +76,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.complaint_id - b.complaint_id,
     },
     {
-      title: 'Store Name',
-      dataIndex: 'assign_from',
-      key: 'assign_from',
-      align: 'center',
-      width: 120,
-      className: 'text-start',
-      onFilter: (value, record) => record.assign_from.includes(String(value)),
-      sorter: (a, b) => a.assign_from.length - b.assign_from.length,
-    },
-    {
       title: 'Order ID',
       dataIndex: 'order_id',
       key: 'order_id',
@@ -95,7 +85,17 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Order Date',
+      title: 'Nama Toko',
+      dataIndex: 'assign_from',
+      key: 'assign_from',
+      align: 'center',
+      width: 120,
+      className: 'text-start',
+      onFilter: (value, record) => record.assign_from.includes(String(value)),
+      sorter: (a, b) => a.assign_from.length - b.assign_from.length,
+    },
+    {
+      title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
@@ -113,7 +113,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.no_member - b.no_member,
     },
     {
-      title: 'Customer Name',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       width: 150,
@@ -122,7 +122,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'Phone Number',
+      title: 'No. Telp/WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       width: 160,
@@ -137,7 +137,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       className: 'text-start',
     },
     {
-      title: 'Order Status',
+      title: 'Status Order',
       dataIndex: 'order_status',
       key: 'order_status',
       render: (order_status) => {
@@ -161,7 +161,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       className: 'text-start',
     },
     {
-      title: 'Work Status',
+      title: 'Status Pengerjaan',
       dataIndex: 'work_status',
       key: 'work_status',
       className: 'col-complaint-date text-start',
@@ -188,7 +188,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       },
     },
     {
-      title: 'Complaint Date',
+      title: 'Tanggal Komplain',
       dataIndex: 'complaint_date',
       key: 'complaint_date',
       className: 'col-complaint-date text-start',
@@ -196,7 +196,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => new Date(a.complaint_date).getTime() - new Date(b.complaint_date).getTime(),
     },
     {
-      title: 'Umur Complaint',
+      title: 'Umur Komplain',
       dataIndex: 'complaint_age',
       key: 'complaint_age',
       className: 'col-complaint-date text-start',
@@ -205,7 +205,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.complaint_age.length - b.complaint_age.length,
     },
     {
-      title: 'Complaint Status',
+      title: 'Status Komplain',
       dataIndex: 'complaint_status',
       key: 'complaint_status',
       className: 'col-complaint-status text-start',
@@ -253,7 +253,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
               overlay={renderTooltip('Detail Komplain')}
             >
               <Button variant='primary' className='button-detail' onClick={handleDetail}>
-                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
               </Button>
             </OverlayTrigger>
 

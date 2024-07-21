@@ -1319,8 +1319,6 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
           <hr />
 
-          <div className='fs-3 fw-bold text-uppercase mb-3'>COMPLAINT HISTORY</div>
-
           <Card>
             <Card.Body>
               <Row className='complaint-info'>
@@ -1422,10 +1420,6 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
           {complaintDetail?.remedials && complaintDetail.remedials.length > 0 && (
             <>
-              <hr />
-
-              <div className='fs-3 fw-bold text-uppercase mb-3'>REMEDIAL HISTORY</div>
-
               {complaintDetail.remedials.map((item: any) => (
                 <Card className='mb-5'>
                   <Card.Body>
