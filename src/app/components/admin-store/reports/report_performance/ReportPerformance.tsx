@@ -25,6 +25,7 @@ interface DataType {
   email: string
   address: string
   sales_name: string
+  order_status: string
   grand_total: number
 }
 
@@ -110,6 +111,15 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.sales_name.length - b.sales_name.length,
     },
     {
+      title: 'Status Order',
+      dataIndex: 'order_status',
+      key: 'order_status',
+      align: 'left',
+      width: 150,
+      onFilter: (value, record) => record.order_status.includes(String(value)),
+      sorter: (a, b) => a.order_status.length - b.order_status.length,
+    },
+    {
       title: 'Grand Total',
       dataIndex: 'grand_total',
       key: 'grand_total',
@@ -177,6 +187,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
           email: item?.members?.email,
           address: item?.project_address,
           sales_name: item?.sales?.full_name,
+          order_status: item?.status?.description,
           grand_total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
 

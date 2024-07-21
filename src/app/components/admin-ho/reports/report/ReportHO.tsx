@@ -119,7 +119,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
         {
-          title: 'WA/Phone Number',
+          title: 'No. Telp/WA',
           dataIndex: 'phone_number',
           key: 'phone_number',
           align: 'left',
@@ -145,7 +145,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.grand_total - b.grand_total,
         },
         {
-          title: 'Order Dibuat',
+          title: 'Tanggal Order',
           dataIndex: 'date_order',
           key: 'date_order',
           align: 'left',
@@ -168,16 +168,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.complaint_id - b.complaint_id,
         },
         {
-          title: 'Store Name',
-          dataIndex: 'assign_from',
-          key: 'assign_from',
-          align: 'center',
-          width: 120,
-          className: 'text-start',
-          onFilter: (value, record) => record.assign_from.includes(String(value)),
-          sorter: (a, b) => a.assign_from.length - b.assign_from.length,
-        },
-        {
           title: 'Order ID',
           dataIndex: 'order_id',
           key: 'order_id',
@@ -187,7 +177,17 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Order Date',
+          title: 'Nama Toko',
+          dataIndex: 'assign_from',
+          key: 'assign_from',
+          align: 'center',
+          width: 120,
+          className: 'text-start',
+          onFilter: (value, record) => record.assign_from.includes(String(value)),
+          sorter: (a, b) => a.assign_from.length - b.assign_from.length,
+        },
+        {
+          title: 'Tanggal Order',
           dataIndex: 'date_order',
           key: 'date_order',
           align: 'center',
@@ -206,7 +206,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.no_member - b.no_member,
         },
         {
-          title: 'Customer Name',
+          title: 'Nama Customer',
           dataIndex: 'costumer_name',
           key: 'costumer_name',
           width: 150,
@@ -215,7 +215,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
         {
-          title: 'Phone Number',
+          title: 'No. Telp/WA',
           dataIndex: 'phone_number',
           key: 'phone_number',
           width: 160,
@@ -223,7 +223,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
-          title: 'Order Status',
+          title: 'Status Order',
           dataIndex: 'order_status',
           key: 'order_status',
           render: (order_status) => {
@@ -289,23 +289,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
             return <Tag color={color}>{orderStatus}</Tag>
           },
-          filters: [
-            {text: 'PICKLIST', value: 'PICKLIST'},
-            {text: 'BOOKED', value: 'BOOKED'},
-            {text: 'SURVEYREQ', value: 'SURVEYREQ'},
-            {text: 'SURVEYSTART', value: 'SURVEYSTART'},
-            {text: 'SURVEYDONE', value: 'SURVEYDONE'},
-            {text: 'RESURVEYREQ', value: 'RESURVEYREQ'},
-            {text: 'RESURVEYSTART', value: 'RESURVEYSTART'},
-            {text: 'RESURVEYDONE', value: 'RESURVEYDONE'},
-            {text: 'WORKREQ', value: 'WORKREQ'},
-            {text: 'WORKSTART', value: 'WORKSTART'},
-            {text: 'WORKEND', value: 'WORKEND'},
-            {text: 'QUOTEIN', value: 'QUOTEIN'},
-            {text: 'QUOTEOUT', value: 'QUOTEOUT'},
-            {text: 'CISOUT', value: 'CISOUT'},
-            {text: 'INVOICED', value: 'INVOICED'},
-          ],
           onFilter: (value, record) => record.order_status.includes(String(value)),
           sorter: (a, b) => a.order_status.length - b.order_status.length,
           width: 150,
@@ -337,13 +320,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
             return <Tag color={color}>{complaintStatus}</Tag>
           },
-          filters: [
-            {text: 'INVESTIGATED', value: 'INVESTIGATED'},
-            {text: 'ACCEPTED', value: 'ACCEPTED'},
-          ],
         },
         {
-          title: 'Complaint Date',
+          title: 'Tanggal Komplain',
           dataIndex: 'complaint_date',
           key: 'complaint_date',
           className: 'col-complaint-date text-start',
@@ -352,7 +331,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.complaint_date.length - b.complaint_date.length,
         },
         {
-          title: 'Umur Complaint',
+          title: 'Umur Komplain',
           dataIndex: 'complaint_age',
           key: 'complaint_age',
           className: 'col-complaint-date text-start',
@@ -361,7 +340,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.complaint_age.length - b.complaint_age.length,
         },
         {
-          title: 'Complaint Status',
+          title: 'Status Komplain',
           dataIndex: 'complaint_status',
           key: 'complaint_status',
           className: 'col-complaint-status text-start',
@@ -384,10 +363,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
             return <Tag color={color}>{complaintStatus}</Tag>
           },
-          filters: [
-            {text: 'INVESTIGATED', value: 'INVESTIGATED'},
-            {text: 'ACCEPTED', value: 'ACCEPTED'},
-          ],
           onFilter: (value, record) => record.complaint_status.includes(String(value)),
           sorter: (a, b) => a.complaint_status.length - b.complaint_status.length,
         },
@@ -406,15 +381,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.quotation_id - b.quotation_id,
         },
         {
-          title: 'Nama Store',
-          dataIndex: 'store_name',
-          key: 'store_name',
-          align: 'center',
-          width: 130,
-          onFilter: (value, record) => record.store_name.includes(String(value)),
-          sorter: (a, b) => a.store_name.length - b.store_name.length,
-        },
-        {
           title: 'Order ID',
           dataIndex: 'order_id',
           key: 'order_id',
@@ -424,7 +390,16 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Order Date',
+          title: 'Nama Toko',
+          dataIndex: 'store_name',
+          key: 'store_name',
+          align: 'center',
+          width: 130,
+          onFilter: (value, record) => record.store_name.includes(String(value)),
+          sorter: (a, b) => a.store_name.length - b.store_name.length,
+        },
+        {
+          title: 'Tanggal Order',
           dataIndex: 'date_order',
           key: 'date_order',
           align: 'center',
@@ -433,7 +408,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
         {
-          title: 'Customer Name',
+          title: 'Nama Customer',
           dataIndex: 'costumer_name',
           key: 'costumer_name',
           align: 'left',
@@ -442,7 +417,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
         {
-          title: 'Nama Pekerjaan',
+          title: 'Nama Pemasangan',
           dataIndex: 'service_name',
           key: 'service_name',
           align: 'left',

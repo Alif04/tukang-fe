@@ -97,6 +97,7 @@ const RefundPage: React.FC = () => {
               isWorkOrder={false}
               endpoint='orders'
               className=''
+              params=''
               statusName={['']}
             />
           </>
@@ -113,6 +114,7 @@ const RefundPage: React.FC = () => {
               isWorkOrder={false}
               endpoint='orders'
               className=''
+              params=''
               statusName={['SURVEYREQ']}
             />
           </>
@@ -129,6 +131,7 @@ const RefundPage: React.FC = () => {
               isWorkOrder={false}
               endpoint='orders'
               className=''
+              params=''
               statusName={['SURVEYSTART']}
             />
           </>
@@ -145,8 +148,9 @@ const RefundPage: React.FC = () => {
             <TotalOrderReportStore
               title='LAPORAN QUOTATION DIKIRIM KE KONSUMEN'
               isWorkOrder={false}
-              endpoint='orders'
+              endpoint='quotation'
               className=''
+              params=''
               statusName={['QUOTEOUT']}
             />
           </>
@@ -157,12 +161,13 @@ const RefundPage: React.FC = () => {
         path='report-pending-bayar'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN MENUNGGU BAYAR QUOTATION</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN QUOTATION TELAH DIBAYAR</PageTitle>
             <TotalOrderReportStore
               title='LAPORAN MENUNGGU BAYAR QUOTATION'
               isWorkOrder={false}
-              endpoint='orders'
+              endpoint='quotation'
               className=''
+              params='&is_paid=1'
               statusName={['QUOTEOUT']}
             />
           </>
@@ -173,12 +178,13 @@ const RefundPage: React.FC = () => {
         path='report-on-progress'
         element={
           <>
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN SEDANG PENGERJAAN</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN SEDANG/PROSES PENGERJAAN</PageTitle>
             <TotalOrderReportStore
               title='LAPORAN SEDANG PENGERJAAN'
               isWorkOrder={true}
               endpoint='orders'
               className=''
+              params=''
               statusName={['WORKSTART', 'WORKEND']}
             />
           </>
@@ -195,6 +201,7 @@ const RefundPage: React.FC = () => {
               isWorkOrder={true}
               endpoint='orders'
               className=''
+              params=''
               statusName={['WORKEND', 'DONE']}
             />
           </>
@@ -211,6 +218,7 @@ const RefundPage: React.FC = () => {
               isWorkOrder={false}
               endpoint='reschedule'
               className=''
+              params=''
               statusName={['']}
             />
           </>
@@ -227,6 +235,7 @@ const RefundPage: React.FC = () => {
               isWorkOrder={false}
               endpoint='orders'
               className=''
+              params=''
               statusName={['CANCEL']}
             />
           </>
@@ -243,6 +252,7 @@ const RefundPage: React.FC = () => {
               isWorkOrder={false}
               endpoint='refund'
               className=''
+              params=''
               statusName={['']}
             />
           </>

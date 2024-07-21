@@ -104,7 +104,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('pending-bayar', 'Menunggu bayar quotation')}
+                    {newTabs('pending-bayar', 'Quotation telah dibayar')}
                   </Card.Body>
                 </Card>
               </Link>
@@ -124,7 +124,7 @@ const ViewReportStore = () => {
                       height={50}
                     />
 
-                    {newTabs('on-progress', 'Sedang Pengerjaan')}
+                    {newTabs('on-progress', 'Sedang/Proses Pengerjaan')}
                   </Card.Body>
                 </Card>
               </Link>

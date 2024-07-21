@@ -17,6 +17,7 @@ type Props = {
   endpoint: string
   isWorkOrder: boolean
   className: string
+  params: string
   statusName: string[]
 }
 
@@ -33,6 +34,7 @@ interface DataType {
   email: string
   address: string
   sales_name: string
+  order_status: string
   grand_total: number
 }
 
@@ -42,6 +44,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
   statusName,
   isWorkOrder,
   title,
+  params,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
@@ -105,7 +108,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'No Telepon',
+      title: 'No Telp/WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
@@ -140,6 +143,15 @@ const TotalOrderReportStore: React.FC<Props> = ({
       sorter: (a, b) => a.sales_name.length - b.sales_name.length,
     },
     {
+      title: 'Status Order',
+      dataIndex: 'order_status',
+      key: 'order_status',
+      align: 'left',
+      width: 150,
+      onFilter: (value, record) => record.order_status.includes(String(value)),
+      sorter: (a, b) => a.order_status.length - b.order_status.length,
+    },
+    {
       title: 'Grand Total',
       dataIndex: 'grand_total',
       key: 'grand_total',
@@ -156,6 +168,10 @@ const TotalOrderReportStore: React.FC<Props> = ({
     queryparams: any
   ) => {
     let url = `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${storeId}${queryStatus}${queryparams}`
+
+    if (params !== '') {
+      url += `${params}`
+    }
 
     try {
       const response = await axios.get(url, {
@@ -218,6 +234,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
       let orderData
       let rescheduleData
       let refundData
+      let quotationData
 
       switch (endpoint) {
         case 'orders':
@@ -228,6 +245,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
               day: 'numeric',
               month: 'long',
               year: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
             })
 
             data = {
@@ -238,6 +257,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               email: item?.members?.email ?? '-',
               address: item?.project_address ?? '-',
               sales_name: item?.sales?.full_name,
+              order_status: item?.status?.description,
               grand_total: `Rp. ${Number(item?.grand_total).toLocaleString('id')}`,
             }
 
@@ -253,6 +273,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
               day: 'numeric',
               month: 'long',
               year: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
             })
 
             data = {
@@ -263,6 +285,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               email: item?.orders?.members?.email ?? '-',
               address: item?.orders?.project_address ?? '-',
               sales_name: item?.orders?.sales?.full_name,
+              order_status: item?.orders?.status?.description,
               grand_total: `Rp. ${Number(item?.orders?.grand_total).toLocaleString('id')}`,
             }
 
@@ -274,10 +297,12 @@ const TotalOrderReportStore: React.FC<Props> = ({
           rescheduleData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.orders?.created_at).toLocaleDateString('id-ID', {
+            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
             })
 
             data = {
@@ -288,6 +313,35 @@ const TotalOrderReportStore: React.FC<Props> = ({
               email: item?.order?.members?.email ?? '-',
               address: item?.order?.project_address ?? '-',
               sales_name: item?.order?.sales?.full_name,
+              order_status: item?.order?.status?.description,
+              grand_total: `Rp. ${Number(item?.order?.grand_total).toLocaleString('id')}`,
+            }
+
+            return data
+          })
+          break
+
+        case 'quotation':
+          quotationData = apiData.map((item: any) => {
+            let data
+
+            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+            })
+
+            data = {
+              order_id: item?.order?.id,
+              date_order: orderDate,
+              costumer_name: item?.order?.members?.full_name,
+              phone_number: item?.order?.project_number,
+              email: item?.order?.members?.email ?? '-',
+              address: item?.order?.project_address ?? '-',
+              sales_name: item?.order?.sales?.full_name,
+              order_status: item?.status?.description,
               grand_total: `Rp. ${Number(item?.order?.grand_total).toLocaleString('id')}`,
             }
 
@@ -305,6 +359,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
         ? refundData
         : endpoint === 'reschedule'
         ? rescheduleData
+        : endpoint === 'quotation'
+        ? quotationData
         : []
     } catch (error) {
       console.error('Error getting order list data:', error)
@@ -358,6 +414,10 @@ const TotalOrderReportStore: React.FC<Props> = ({
     }
     setLoadingExport(true)
     let url = `${apiUrl}/${endpoint}/export-excel?take=0`
+
+    if (params !== '') {
+      url += `${params}`
+    }
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {

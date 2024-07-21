@@ -186,6 +186,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
         })
 
         const statusIncentive = (status: number) => {
