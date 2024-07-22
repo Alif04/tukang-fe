@@ -1294,6 +1294,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                           <Form.Control
                             id={`item-notes-${index}`}
                             plaintext
+                            as='textarea'
                             name={`item_notes`}
                             value={element.item_notes ?? ''}
                             onChange={(e) => {

@@ -1,14 +1,18 @@
-import React, {useState, FC, useEffect} from 'react'
+import React, {useState, FC, useEffect, useRef} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import {Orders} from '../../../../interfaces/order'
 import './DetailOrder.css'
 
 import axios from 'axios'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 import Swal from 'sweetalert2'
 import {Image, Steps, Skeleton, Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, ListGroup, Button, Card, Modal} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faDownload} from '@fortawesome/free-solid-svg-icons'
 
 interface Status {
   value: number | null
@@ -26,8 +30,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const pdfRef = useRef<HTMLDivElement>(null)
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
+  const [loadingPDF, setLoadingPDF] = useState(false)
 
   const [order, setOrder] = useState<Orders>({
     member_id: null,
@@ -243,7 +249,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       key: 'order_id',
       align: 'center',
       width: 100,
-      defaultSortOrder: 'descend',
     },
     {
       title: 'Status',
@@ -264,9 +269,50 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     },
   ]
 
+  const generatePdf = async () => {
+    setLoadingPDF(true)
+    const input = pdfRef.current
+    if (input) {
+      const canvas = await html2canvas(input)
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const imgProps = pdf.getImageProperties(imgData)
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save(
+        `Quotation - ${order?.members?.full_name} - ${new Date(
+          order?.quotation[0]?.quotation_date
+        ).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })}.pdf`
+      )
+    }
+    setLoadingPDF(false)
+  }
+
   return (
     <section id='detail-order'>
-      <Card>
+      {['QUOTEOUT'].includes(order?.status?.category ?? '') && (
+        <Button
+          className='btn-dark-primary d-flex justify-content-center align-items-center mt-5 w-100 gap-3'
+          onClick={generatePdf}
+        >
+          {loadingPDF === false ? (
+            <>
+              <FontAwesomeIcon icon={faDownload} size='lg' />
+              Download PDF
+            </>
+          ) : (
+            'Generating PDF...'
+          )}
+        </Button>
+      )}
+
+      <Card ref={pdfRef}>
         <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>

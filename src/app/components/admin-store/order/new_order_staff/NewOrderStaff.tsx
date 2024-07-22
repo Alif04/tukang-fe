@@ -1278,6 +1278,7 @@ const NewOrderStoreStaff: FC = () => {
                         {paymentTypeValue[1] === 'survey' ? (
                           <Form.Control
                             id={`item-notes-${index}`}
+                            as='textarea'
                             plaintext
                             name={`item_notes`}
                             onChange={(e) => {

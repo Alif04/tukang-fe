@@ -1106,6 +1106,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                           id={`item-name-${index}`}
                           name={`item_name`}
                           plaintext
+                          as='textarea'
                           readOnly={
                             paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
                           }
@@ -1122,6 +1123,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                           <Form.Control
                             id={`item-notes-${index}`}
                             plaintext
+                            as='textarea'
                             name={`item_notes`}
                             value={element.item_notes ?? ''}
                             onChange={(e) => {

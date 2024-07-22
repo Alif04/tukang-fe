@@ -1138,6 +1138,8 @@ const ViewOrders: FC = () => {
                               day: 'numeric',
                               month: 'long',
                               year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
                             })}
                           </td>
                         </tr>

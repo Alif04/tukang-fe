@@ -1347,6 +1347,7 @@ const NewOrderStoreCS: FC = () => {
                           <Form.Control
                             id={`item-notes-${index}`}
                             plaintext
+                            as='textarea'
                             name={`item_notes`}
                             onChange={(e) => {
                               orderDetailsFormHandler(e, index)
