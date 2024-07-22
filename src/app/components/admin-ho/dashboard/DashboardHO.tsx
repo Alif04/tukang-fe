@@ -119,12 +119,12 @@ const DashboardHO: FC = () => {
     area_id: null,
   })
 
-  const store_id = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ``
-
   const [selectedZone, setSelectedZone] = useState<any>({
     value: null,
     label: 'All Zona',
   })
+
+  const store_id = store ? `${store.map((item) => item.value).join(',')}` : `${selectedStore.value}`
 
   const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
   const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
@@ -141,7 +141,10 @@ const DashboardHO: FC = () => {
   }, [selectedStore])
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}${store_id}&date_from=${dateFrom}&date_to=${dateTo}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}&date_from=${dateFrom}&date_to=${dateTo}`
+    if (store_id) {
+      apiUrlWithParams += `&store_id=${store_id}`
+    }
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -165,18 +168,21 @@ const DashboardHO: FC = () => {
   }
 
   const getReportOrder = async () => {
+    let url = `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}`
+
+    if (store_id) {
+      url += `&store_id=${store_id}`
+    }
+
     try {
-      const response = await axios.get(
-        `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}${store_id}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       const chartDatas = response.data.data
       const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
