@@ -88,6 +88,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([])
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -642,6 +643,15 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
     getItem('')
   }
+
+  useEffect(() => {
+    textAreaRefs.current.forEach((textarea: any) => {
+      if (textarea) {
+        textarea.style.height = 'auto'
+        textarea.style.height = textarea.scrollHeight + 'px'
+      }
+    })
+  }, [orderForm])
 
   // Calculate Grand Total Order Amount
   const calculatedGrandTotalOrder = () => {
@@ -1228,7 +1238,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               <Table hover responsive='md'>
                 <thead className='table-order-head'>
                   <tr>
-                    {orderForm.order_details.length >= 2 && <th>Action</th>}
                     <th>Item Code</th>
                     <th>Item Name</th>
                     <th>Nama Pemasangan</th>
@@ -1239,36 +1248,31 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                         <th>Total</th>
                       </>
                     )}
+                    {orderForm.order_details.length >= 2 && <th>Action</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {orderForm.order_details.map((element, index) => (
                     <tr key={`${index}-order_details`}>
-                      {orderForm.order_details.length >= 2 && (
-                        <td align='center'>
-                          <Button
-                            className='btn-remove'
-                            variant='danger'
-                            onClick={() => handleRemoveForm(index)}
-                          >
-                            <span className='text'>Remove</span>
-                            <span className='icon'>
-                              <FontAwesomeIcon icon={faTrash} />
-                            </span>
-                          </Button>
-                        </td>
-                      )}
-
                       <td>
                         <Form.Control
                           id={`item-code-${index}`}
                           name={`item_code`}
+                          as='textarea'
                           plaintext
+                          ref={(el: any) => (textAreaRefs.current[index] = el)}
                           readOnly={
                             paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
                           }
                           value={element.item_code ?? ''}
                           onChange={(e) => orderDetailsFormHandler(e, index)}
+                          onInput={() => {
+                            const textarea = textAreaRefs.current[index]
+                            if (textarea) {
+                              textarea.style.height = 'auto'
+                              textarea.style.height = textarea.scrollHeight + 'px'
+                            }
+                          }}
                         />
                       </td>
 
@@ -1278,6 +1282,9 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                           name={`item_name`}
                           as='textarea'
                           plaintext
+                          ref={(el: any) =>
+                            (textAreaRefs.current[orderForm.order_details.length + index] = el)
+                          }
                           readOnly={
                             paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
                           }
@@ -1285,6 +1292,14 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                           onChange={(e) => {
                             orderDetailsFormHandler(e, index)
                             getItem(e.target.value)
+                          }}
+                          onInput={() => {
+                            const textarea =
+                              textAreaRefs.current[orderForm.order_details.length + index]
+                            if (textarea) {
+                              textarea.style.height = 'auto'
+                              textarea.style.height = textarea.scrollHeight + 'px'
+                            }
                           }}
                         />
                       </td>
@@ -1296,9 +1311,21 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                             plaintext
                             as='textarea'
                             name={`item_notes`}
+                            ref={(el: any) =>
+                              (textAreaRefs.current[2 * orderForm.order_details.length + index] =
+                                el)
+                            }
                             value={element.item_notes ?? ''}
                             onChange={(e) => {
                               orderDetailsFormHandler(e, index)
+                            }}
+                            onInput={() => {
+                              const textarea =
+                                textAreaRefs.current[2 * orderForm.order_details.length + index]
+                              if (textarea) {
+                                textarea.style.height = 'auto'
+                                textarea.style.height = textarea.scrollHeight + 'px'
+                              }
                             }}
                           />
                         ) : (
@@ -1377,6 +1404,21 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                             />
                           </td>
                         </>
+                      )}
+
+                      {orderForm.order_details.length >= 2 && (
+                        <td align='center'>
+                          <Button
+                            className='btn-remove'
+                            variant='danger'
+                            onClick={() => handleRemoveForm(index)}
+                          >
+                            <span className='text'>Remove</span>
+                            <span className='icon'>
+                              <FontAwesomeIcon icon={faTrash} />
+                            </span>
+                          </Button>
+                        </td>
                       )}
                     </tr>
                   ))}

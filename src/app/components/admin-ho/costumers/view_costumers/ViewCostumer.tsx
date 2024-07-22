@@ -251,6 +251,12 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   }
 
   // Filter
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -307,7 +313,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   return (
     <section id='view-costumer'>
       <div className={`card ${className}`}>
-        <div className='card-body table-view-order'>
+        <div className='card-body table-view-order' onKeyDown={handleKeyPress}>
           <Row>
             <div className='d-flex justify-content-end'>
               <button className='button-export' onClick={exportToExcel}>

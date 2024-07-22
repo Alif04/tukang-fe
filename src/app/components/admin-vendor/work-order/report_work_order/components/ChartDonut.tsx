@@ -64,7 +64,7 @@ const chartOptions = (chartHeight: string, chartComplaint: any): ApexOptions => 
   const cancelColor = getCSSVariableValue('--kt-info')
 
   const totalInvestigated = sumTotal(chartComplaint, 'totalOrder')
-  const totalRejected = sumTotal(chartComplaint, 'totalWIP')
+  const totalRejected = sumTotal(chartComplaint, 'totalWorkStart')
   const totalDone = sumTotal(chartComplaint, 'totalOrderDone')
 
   // const investigated = chartComplaint.map((item: any) => item.totalOrder)

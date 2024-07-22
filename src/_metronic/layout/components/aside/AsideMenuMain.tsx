@@ -63,7 +63,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/dashboard-order'
           title='Order Summary'
-          role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
+          role={['Store CS', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -95,6 +95,19 @@ export function AsideMenuMain() {
           role={['Sales', 'Store Staff', 'Sales', 'Store CS', 'Admin HO', 'Super User']}
           hasBullet={true}
         />
+        <AsideMenuItemWithSub
+          to='/refund'
+          title='Cancel dan Refund'
+          hasBullet={true}
+          role={['Store CS', 'Admin HO', 'Super User']}
+        >
+          <AsideMenuItem
+            to='/refund/view-refund'
+            title='View Cancel dan Refund'
+            role={['Store CS', 'Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
       </AsideMenuItemWithSub>
 
       {/* Halaman Work Order */}
@@ -401,7 +414,7 @@ export function AsideMenuMain() {
       </AsideMenuItemWithSub> */}
 
       {/* Halaman Refund */}
-      <AsideMenuItemWithSub
+      {/* <AsideMenuItemWithSub
         to='/refund'
         title='Cancel dan Refund'
         icon='/media/icons/duotune/communication/com006.svg'
@@ -414,7 +427,7 @@ export function AsideMenuMain() {
           role={['Store CS', 'Admin HO', 'Super User']}
           hasBullet={true}
         />
-      </AsideMenuItemWithSub>
+      </AsideMenuItemWithSub> */}
 
       {/* Halaman Setting */}
       <AsideMenuItemWithSub

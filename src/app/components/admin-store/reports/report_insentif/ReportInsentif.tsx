@@ -37,6 +37,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
   const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
+  const userStoreName = localStorage.getItem('storeName')
   const userSales = localStorage.getItem('sales_id') as any
 
   const salesId = userSales ? `&sales_id=${userSales}` : ''
@@ -187,7 +188,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
           month: 'long',
           year: 'numeric',
           hour: 'numeric',
-          minute: 'numeric'
+          minute: 'numeric',
         })
 
         const statusIncentive = (status: number) => {
@@ -255,9 +256,19 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   // Export To Excel
   const exportToExcel = () => {
     setLoadingExport(true)
+    let url = `${apiUrl}/sales/export-excel-template?take=0${storeId}${salesId}`
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        url += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
 
     axios
-      .get(`${apiUrl}/sales/export-excel-template?take=0${storeId}${salesId}`, {
+      .get(url, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -268,12 +279,18 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `Report Insentif Sales.xlsx`)
+        link.setAttribute('download', `Report Insentif Sales ${userStoreName}.xlsx`)
         document.body.appendChild(link)
         link.click()
 
         setLoadingExport(false)
       })
+  }
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
   }
 
   const handleSubmitFilter = async () => {
@@ -299,7 +316,10 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       <div className={`card ${className}`}>
         <div className='card-body table-view-report'>
           <Row className='table-head-wrapper'>
-            <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
               <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker

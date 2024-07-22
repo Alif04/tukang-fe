@@ -67,6 +67,18 @@
   padding: 0 10px 0 100px;
 }
 
+#detail-order
+  .ant-table-wrapper
+  .ant-table.ant-table-bordered
+  > .ant-table-container
+  > .ant-table-content
+  > table
+  > tbody
+  > tr
+  > td {
+  font-size: 11px;
+}
+
 /* Timeline */
 
 #detail-order .anticon svg {

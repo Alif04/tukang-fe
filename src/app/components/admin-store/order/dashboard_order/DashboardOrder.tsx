@@ -222,6 +222,12 @@ const DashboardOrderStore: FC = () => {
     fetchData(1, 10, '')
   }, [])
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -241,13 +247,13 @@ const DashboardOrderStore: FC = () => {
 
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
   const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
-  const surveyDone = sumTotal(chartDataOrder, 'totalSurveyEnd')
+  const surveyDone = sumTotal(chartDataOrder, 'totalSurveyDone')
 
   const waitingQuotationVendor = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
   const waitingQuotationHO = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
 
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
-  const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
+  const workInProgress = sumTotal(chartDataOrder, 'totalWorkStart')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
 
   const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
@@ -274,7 +280,10 @@ const DashboardOrderStore: FC = () => {
   return (
     <section id='dashboard-order'>
       <Row className='mb-5'>
-        <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
+        <div
+          className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+          onKeyDown={handleKeyPress}
+        >
           <h3 className='d-flex align-items-center fs-3 fw-normal'>Pilih Periode :</h3>
 
           <RangePicker
@@ -330,16 +339,6 @@ const DashboardOrderStore: FC = () => {
       </Row>
 
       <Row className='g-5 g-xl-8'>
-        <Col md={6}>
-          <TotalOrder className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
-        </Col>
-
-        <Col md={6}>
-          <TotalPicklist className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
-        </Col>
-      </Row>
-
-      <Row className='g-5 g-xl-8'>
         <Col md={4}>
           <MoreInformation
             className='card-xl-stretch mb-xl-8'
@@ -356,10 +355,22 @@ const DashboardOrderStore: FC = () => {
         </Col>
 
         <Col md={8}>
+          <TotalPicklist className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
+        </Col>
+      </Row>
+
+      <Row>
+        <Col md={12}>
+          <TotalOrder className='card-xl-stretch mb-xl-8' chartOrderData={chartDataOrder} />
+        </Col>
+      </Row>
+
+      <Row className='g-5 g-xl-8'>
+        <Col md={12}>
           <div className={`card`}>
             <div className='card-body p-5'>
               <div className='d-flex flex-column'>
-                <h1 className='fs-1 text-black mb-3'>List Order</h1>
+                <h1 className='fs-1 text-black mb-5'>List Order</h1>
 
                 <Table
                   bordered

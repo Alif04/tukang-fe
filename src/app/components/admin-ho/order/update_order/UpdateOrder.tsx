@@ -94,6 +94,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([])
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -830,6 +831,15 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
     getItem('')
   }
+
+  useEffect(() => {
+    textAreaRefs.current.forEach((textarea: any) => {
+      if (textarea) {
+        textarea.style.height = 'auto'
+        textarea.style.height = textarea.scrollHeight + 'px'
+      }
+    })
+  }, [orderForm])
 
   // Calculate Grand Total Order Amount
   const calculatedGrandTotalOrder = () => {
@@ -1861,7 +1871,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                       <Table hover responsive='md'>
                         <thead className='table-order-head'>
                           <tr>
-                            {orderForm.order_details.length >= 2 && <th>Action</th>}
                             <th>Item Code</th>
                             <th>Item Name</th>
                             <th>Nama Pemasangan</th>
@@ -1874,29 +1883,31 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                 <th>Total</th>
                               </>
                             )}
+                            {orderForm.order_details.length >= 2 && <th>Action</th>}
                           </tr>
                         </thead>
                         <tbody>
                           {orderForm.order_details.map((element, index) => (
                             <tr key={`${index}-order_details`}>
-                              {orderForm.order_details.length >= 2 && (
-                                <td align='center'>
-                                  <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                                    Remove
-                                  </Button>
-                                </td>
-                              )}
-
                               <td>
                                 <Form.Control
                                   id={`item-code-${index}`}
                                   name={`item_code`}
                                   plaintext
+                                  as='textarea'
+                                  ref={(el: any) => (textAreaRefs.current[index] = el)}
                                   readOnly={
                                     paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
                                   }
                                   value={element.item_code ?? ''}
                                   onChange={(e) => orderDetailsFormHandler(e, index)}
+                                  onInput={() => {
+                                    const textarea = textAreaRefs.current[index]
+                                    if (textarea) {
+                                      textarea.style.height = 'auto'
+                                      textarea.style.height = textarea.scrollHeight + 'px'
+                                    }
+                                  }}
                                 />
                               </td>
 
@@ -1906,6 +1917,10 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                   name={`item_name`}
                                   as='textarea'
                                   plaintext
+                                  ref={(el: any) =>
+                                    (textAreaRefs.current[orderForm.order_details.length + index] =
+                                      el)
+                                  }
                                   readOnly={
                                     paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
                                   }
@@ -1913,6 +1928,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                   onChange={(e) => {
                                     orderDetailsFormHandler(e, index)
                                     getItem(e.target.value)
+                                  }}
+                                  onInput={() => {
+                                    const textarea =
+                                      textAreaRefs.current[orderForm.order_details.length + index]
+                                    if (textarea) {
+                                      textarea.style.height = 'auto'
+                                      textarea.style.height = textarea.scrollHeight + 'px'
+                                    }
                                   }}
                                 />
                               </td>
@@ -1922,10 +1945,26 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                   <Form.Control
                                     id={`item-notes-${index}`}
                                     plaintext
+                                    as='textarea'
                                     name={`item_notes`}
+                                    ref={(el: any) =>
+                                      (textAreaRefs.current[
+                                        2 * orderForm.order_details.length + index
+                                      ] = el)
+                                    }
                                     value={element.item_notes ?? ''}
                                     onChange={(e) => {
                                       orderDetailsFormHandler(e, index)
+                                    }}
+                                    onInput={() => {
+                                      const textarea =
+                                        textAreaRefs.current[
+                                          2 * orderForm.order_details.length + index
+                                        ]
+                                      if (textarea) {
+                                        textarea.style.height = 'auto'
+                                        textarea.style.height = textarea.scrollHeight + 'px'
+                                      }
                                     }}
                                   />
                                 ) : (
@@ -2008,6 +2047,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                     />
                                   </td>
                                 </>
+                              )}
+
+                              {orderForm.order_details.length >= 2 && (
+                                <td align='center'>
+                                  <Button variant='danger' onClick={() => handleRemoveForm(index)}>
+                                    Remove
+                                  </Button>
+                                </td>
                               )}
                             </tr>
                           ))}

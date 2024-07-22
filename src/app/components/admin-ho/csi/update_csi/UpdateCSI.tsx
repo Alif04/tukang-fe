@@ -92,11 +92,11 @@ const UpdateCSIHO: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.statusCode === 200) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: 'Success Update Format CSI',
+            text: 'Berhasil Update Format CSI',
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {

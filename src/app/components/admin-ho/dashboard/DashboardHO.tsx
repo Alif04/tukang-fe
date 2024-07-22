@@ -339,13 +339,13 @@ const DashboardHO: FC = () => {
 
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
   const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
-  const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyEnd')
+  const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyDone')
 
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
   const unpaidQuotation = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
 
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
-  const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
+  const workInProgress = sumTotal(chartDataOrder, 'totalWorkStart')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
 
   const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
@@ -481,7 +481,7 @@ const DashboardHO: FC = () => {
       </Row>
 
       <Row>
-        <Col lg={4} md={12} className='mb-5'>
+        <Col lg={4} md={4} className='mb-5'>
           <MoreInformation
             className='card-xl-stretch'
             totalComplaint={totalComplaint}
@@ -496,11 +496,13 @@ const DashboardHO: FC = () => {
           />
         </Col>
 
-        <Col lg={4} md={12} className='mb-5'>
+        <Col lg={8} md={8} className='mb-5'>
           <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
+      </Row>
 
-        <Col lg={4} md={12} className='mb-5'>
+      <Row>
+        <Col lg={12} md={12} className='mb-5'>
           <ChartBarOrder className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
       </Row>

@@ -2627,7 +2627,7 @@ const ViewOrders: FC = () => {
   }
 
   // Export PDF Quotation
-  const exportToPDF = (order_id: number) => {
+  const exportToPDF = (order_id: number, receipt_quotation: string, customer_name: string) => {
     axios
       .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
         method: 'GET',
@@ -2640,7 +2640,12 @@ const ViewOrders: FC = () => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `Quotation - Order ID ${order_id}.pdf`)
+        link.setAttribute(
+          'download',
+          `Quotation ${
+            receipt_quotation === 'UNPAID' ? 'Belum Dibayar' : 'Sudah Dibayar'
+          } - ${customer_name} - Order ID ${order_id}.pdf`
+        )
         document.body.appendChild(link)
         link.click()
       })
@@ -2936,8 +2941,7 @@ const ViewOrders: FC = () => {
               <></>
             )}
 
-            {/*  
-               {['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) && (
+            {['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -2946,13 +2950,14 @@ const ViewOrders: FC = () => {
                 <Button
                   className='button-request'
                   variant='warning'
-                  onClick={() => exportToPDF(record.order_id)}
+                  onClick={() =>
+                    exportToPDF(record.order_id, record.payment_quotation, record.costumer_name)
+                  }
                 >
                   <FontAwesomeIcon className='text-white' icon={faPrint} fontSize={'13px'} />
                 </Button>
               </OverlayTrigger>
             )}
-              */}
           </div>
         )
       },

@@ -76,134 +76,131 @@ const ViewCalendarCS: React.FC = () => {
     }
   }
 
-  const getOrder = async (start: any, end: any, vendorIds: any) => {
+  const fetchOrders = async (start: string, end: string, params: string) => {
+    const response = await axios.get(
+      `${apiUrl}/orders/calender?take=0&order_by=desc&date_from=${start}&date_to=${end}${params}`,
+      {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      }
+    )
+
+    return response.data.data
+  }
+
+  const parseOrderData = (data: any) => {
+    return data.map((item: any) => {
+      const startDate = item?.work_orders
+        ? item?.work_orders.survey_date || item.work_orders.work_start_date
+        : item?.request_survey
+
+      const endDate = item?.work_orders
+        ? item?.work_orders.work_end_date || item.work_orders.survey_date
+        : item?.request_survey
+
+      const orderStatus = (() => {
+        if (item?.work_orders?.work_order_status?.length >= 0) {
+          if (
+            [
+              'QUOTEIN',
+              'QUOTEOUT',
+              'CANCEL',
+              'WARRANTYCLAIM',
+              'INVESTIGATED',
+              'COMPLAINTAPPROVEDBYHO',
+              'COMPLAINTREJECTEDBYHO',
+              'RESCHEDULE',
+            ].includes(item?.status?.category)
+          ) {
+            return item?.status?.category
+          } else if (
+            ['WORKREQ'].includes(item?.status?.category) &&
+            item?.payment_type === 'survey' &&
+            !['WORKSTART', 'WORKEND'].includes(
+              item?.work_orders?.work_order_status[0]?.status?.category
+            )
+          ) {
+            return item?.status?.category
+          } else {
+            return item?.work_orders?.work_order_status[0]?.status?.category
+          }
+        } else {
+          return item?.status?.category
+        }
+      })()
+
+      const contextualColor = (() => {
+        switch (orderStatus) {
+          case 'PICKLIST':
+            return 'bg-primary'
+          case 'BOOKED':
+            return 'bg-calendar-order-booked'
+          case 'SURVEYREQ':
+          case 'SURVEYSTART':
+          case 'SURVEYDONE':
+          case 'WORKREQ':
+          case 'WORKSTART':
+            return 'bg-calendar-order-wip'
+          case 'WORKEND':
+            return 'bg-calendar-order-done'
+          case 'RESCHEDULE':
+            return 'bg-calendar-order-reschedule'
+          case 'INVESTIGATED':
+          case 'COMPLAINTAPPROVEDBYHO':
+          case 'COMPLAINTREJECTEDBYHO':
+            return 'bg-calendar-order-complaint'
+          case 'CANCEL':
+            return 'bg-calendar-order-cancel'
+          default:
+            return 'bg-primary'
+        }
+      })()
+
+      return {
+        id: item?.id.toString(),
+        title: `#${item?.id ?? ''} ${
+          item.vendor ? `- ${item.vendor.company_name}` : '- Vendor Belum Ditugaskan'
+        } - ${item?.members?.full_name ?? ''} `,
+        start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+        end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
+        order_status: orderStatus,
+        className: contextualColor,
+        order_detail: item,
+      }
+    })
+  }
+
+  const getOrder = async (start: string, end: string, storeId: string) => {
+    setIsLoadingPage(true)
     try {
-      setIsLoadingPage(true)
-
-      await axios
-        .get(
-          `${apiUrl}/orders/calender?take=0&order_by=desc&date_from=${start}&date_to=${end}${vendorIds}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
-        .then((response: any) => {
-          const data = response.data.data
-          setIsLoadingPage(false)
-
-          const filteredNewOrderByStore = data.filter(
-            (x: any) => x.store_id === Number(userStore) && x.vendor === null
-          )
-          const filteredOrderByVendor = data.filter((x: any) => x.vendor !== null)
-          const calendarData = filteredNewOrderByStore.concat(filteredOrderByVendor)
-
-          if (calendarData) {
-            const orderDetail = calendarData.map((item: any) => {
-              const startDate = item?.work_orders
-                ? item?.work_orders &&
-                  item.work_orders.survey_date !== null &&
-                  item.work_orders.work_start_date === null
-                  ? item.work_orders.survey_date
-                  : item?.work_orders &&
-                    item.work_orders.survey_date === null &&
-                    item.work_orders.work_start_date !== null
-                  ? item.work_orders.work_start_date
-                  : null
-                : item?.request_survey
-
-              const endDate = item?.work_orders
-                ? item?.work_orders &&
-                  item.work_orders.survey_date !== null &&
-                  item.work_orders.work_end_date === null
-                  ? item.work_orders.survey_date
-                  : item?.work_orders &&
-                    item.work_orders.survey_date === null &&
-                    item.work_orders.work_end_date !== null
-                  ? item.work_orders.work_end_date
-                  : null
-                : item?.request_survey
-
-              const orderStatus = (() => {
-                if (item?.work_orders?.work_order_status?.length >= 0) {
-                  if (
-                    [
-                      'QUOTEIN',
-                      'QUOTEOUT',
-                      'CANCEL',
-                      'WARRANTYCLAIM',
-                      'INVESTIGATED',
-                      'COMPLAINTAPPROVEDBYHO',
-                      'COMPLAINTREJECTEDBYHO',
-                      'RESCHEDULE',
-                    ].includes(item?.status?.category)
-                  ) {
-                    return item?.status?.category
-                  } else if (
-                    ['WORKREQ'].includes(item?.status?.category) &&
-                    item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WORKEND'].includes(
-                      item?.work_orders?.work_order_status[0]?.status?.category
-                    )
-                  ) {
-                    return item?.status?.category
-                  } else {
-                    return item?.work_orders?.work_order_status[0]?.status?.category
-                  }
-                } else {
-                  return item?.status?.category
-                }
-              })()
-
-              const contextualColor = (() => {
-                switch (orderStatus) {
-                  case 'PICKLIST':
-                    return 'bg-primary'
-                  case 'BOOKED':
-                    return 'bg-calendar-order-booked'
-                  case 'SURVEYREQ':
-                  case 'SURVEYSTART':
-                  case 'SURVEYDONE':
-                  case 'WORKREQ':
-                  case 'WORKSTART':
-                    return 'bg-calendar-order-wip'
-                  case 'WORKEND':
-                    return 'bg-calendar-order-done'
-                  case 'RESCHEDULE':
-                    return 'bg-calendar-order-reschedule'
-                  case 'INVESTIGATED':
-                  case 'COMPLAINTAPPROVEDBYHO':
-                  case 'COMPLAINTREJECTEDBYHO':
-                    return 'bg-calendar-order-complaint'
-                  case 'CANCEL':
-                    return 'bg-calendar-order-cancel'
-                  default:
-                    return 'bg-primary'
-                }
-              })()
-
-              return {
-                id: item?.id.toString(),
-                title: `#${item?.id ?? ''} ${
-                  item.vendor ? `- ${item.vendor.company_name}` : '- Vendor Belum Ditugaskan'
-                } - ${item?.members?.full_name ?? ''} `,
-                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
-                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
-                order_status: orderStatus,
-                className: contextualColor,
-                order_detail: item,
-              }
-            })
-
-            setOrder(orderDetail)
-          }
-        })
+      const data = await fetchOrders(start, end, storeId)
+      if (data) {
+        const parsedData = parseOrderData(data)
+        setOrder((prevData: any) => [...prevData, ...parsedData])
+      }
     } catch (error) {
       console.error(error)
+    } finally {
+      setIsLoadingPage(false)
+    }
+  }
+
+  const getOrderVendor = async (start: string, end: string, vendorIds: string) => {
+    setIsLoadingPage(true)
+    try {
+      const data = await fetchOrders(start, end, vendorIds)
+      if (data) {
+        const parsedData = parseOrderData(data)
+        setOrder((prevData: any) => [...prevData, ...parsedData])
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoadingPage(false)
     }
   }
 
@@ -214,7 +211,8 @@ const ViewCalendarCS: React.FC = () => {
   useEffect(() => {
     if (vendor && dateFrom && dateTo) {
       const vendorIds = vendor ? `&vendor=${vendor.join(',')}` : ''
-      getOrder(dateFrom, dateTo, vendorIds)
+      getOrder(dateFrom, dateTo, storeId)
+      getOrderVendor(dateFrom, dateTo, vendorIds)
     }
   }, [vendor, dateFrom, dateTo])
 

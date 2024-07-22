@@ -302,18 +302,18 @@ const NewSales: FC = () => {
       const salesData = apiData.map((item: any, index: number) => {
         let data
 
-        const salesCategory = item.sales_categories
-          .map((sales_categories: any) => sales_categories.categories.category_name)
-          .join(', ')
+        const salesCategory = item.sales_categories.map(
+          (sales_categories: any) => sales_categories.categories.category_name
+        )
+        const uniqueCategory = Array.from(new Set(salesCategory)).join(', ')
 
         data = {
           no: index + 1,
           sales_id: item?.id ?? '',
           store_name: item?.store?.store_name ?? '',
           full_name: item?.full_name ?? '',
-          // nik: item?.nik ?? '-',
           sales_brand: item?.sales_brand ?? '-',
-          sales_category: salesCategory,
+          sales_category: uniqueCategory,
           is_active: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
         }
 
@@ -405,7 +405,6 @@ const NewSales: FC = () => {
     sales_id: number
     store_name: string
     full_name: string
-    // nik: number
     sales_brand: string
     sales_category: string
     is_active: string
@@ -453,14 +452,6 @@ const NewSales: FC = () => {
       onFilter: (value, record) => record.full_name.includes(String(value)),
       sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
-    // {
-    //   title: 'NIK',
-    //   dataIndex: 'nik',
-    //   key: 'nik',
-    //   align: 'left',
-    //   width: 120,
-    //   sorter: (a, b) => a.nik - b.nik,
-    // },
     {
       title: 'Brands',
       dataIndex: 'sales_brand',
@@ -797,6 +788,12 @@ const NewSales: FC = () => {
   }
 
   // Filtering Data
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -1036,7 +1033,7 @@ const NewSales: FC = () => {
               </button>
             </div>
 
-            <Row className='table-head-wrapper'>
+            <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
                 <Form.Group as={Row}>
                   <Form.Label className='fs-3' column sm='4'>

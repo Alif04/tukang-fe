@@ -361,24 +361,18 @@ const ReportComplaintPage: FC = () => {
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <TotalComplaint
-            className='card-xl-stretch mb-xl-8'
-            chartComplaintData={chartDataComplaint}
-          />
+          <TotalComplaint className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataOrder} />
         </div>
 
         <div className='col-xl-4'>
           <TotalResurvey
             className='card-xl-stretch mb-5 mb-xl-8'
-            chartComplaintData={chartDataComplaint}
+            chartComplaintData={chartDataOrder}
           />
         </div>
 
         <div className='col-xl-4'>
-          <TotalRework
-            className='card-xl-stretch mb-xl-8'
-            chartComplaintData={chartDataComplaint}
-          />
+          <TotalRework className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataOrder} />
         </div>
       </div>
       {/* end::Row */}

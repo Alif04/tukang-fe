@@ -29,6 +29,10 @@ const UpdateCostumerHO: FC = () => {
   const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const userRole = localStorage.getItem('userRole') as string
+  const userStoreId = localStorage.getItem('storeId') as any
+  const userStoreName = localStorage.getItem('storeName') as string
+
   // Fetch API Data
   useEffect(() => {
     const getMemberData = async () => {
@@ -127,12 +131,6 @@ const UpdateCostumerHO: FC = () => {
   const memberInfoFormHandler = (e: any) => {
     let newValue = e.target.value
 
-    // if (e.target.name === 'whatsapp_number') {
-    //   newValue = newValue
-    // } else if (e.target.name === 'phone_number') {
-    //   newValue = newValue
-    // }
-
     setMemberInfo((prevMemberInfo) => ({
       ...prevMemberInfo,
       [e.target.name]: newValue,
@@ -208,20 +206,26 @@ const UpdateCostumerHO: FC = () => {
                 <Form.Group>
                   <Form.Label>Nama Toko :</Form.Label>
 
-                  <Select
-                    name='store_id'
-                    className='form-control p-0'
-                    classNamePrefix='select'
-                    placeholder='Pilih Toko'
-                    isSearchable={true}
-                    isClearable={true}
-                    options={store}
-                    onChange={(newValue) => setSelectedStore(newValue)}
-                    value={{
-                      value: selectedStore?.value ?? null,
-                      label: selectedStore?.label ?? '',
-                    }}
-                  />
+                  {userRole === 'Admin HO' ? (
+                    <Select
+                      name='store_id'
+                      className='form-control p-0'
+                      classNamePrefix='select'
+                      placeholder='Pilih Toko'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={store}
+                      onChange={(newValue) => setSelectedStore(newValue)}
+                      value={{
+                        value: selectedStore?.value ?? null,
+                        label: selectedStore?.label ?? '',
+                      }}
+                    />
+                  ) : (
+                    <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                      {userStoreName}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
 

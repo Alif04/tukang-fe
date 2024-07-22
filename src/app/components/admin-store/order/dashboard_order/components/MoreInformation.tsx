@@ -68,7 +68,7 @@ const MoreInformation: React.FC<Props> = ({
         </Row>
 
         <Row>
-          '{renderStat(totalRefund, 'REFUND', 'fs-6 text-danger text-center mt-1 mb-1')}
+          {renderStat(totalRefund, 'REFUND', 'fs-6 text-danger text-center mt-1 mb-1')}
           {renderStat(totalReschedule, 'RESCHEDULE', 'fs-6 text-danger text-center mt-1 mb-1')}
           {renderStat(totalCancel, 'CANCEL', 'fs-6 text-danger text-center mt-1 mb-1')}
         </Row>

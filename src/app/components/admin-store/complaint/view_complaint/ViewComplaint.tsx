@@ -396,6 +396,12 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -420,7 +426,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     <section id='view-complaint'>
       <div className={`card ${className}`}>
         <div className='card-body'>
-          <Row className='table-head-wrapper'>
+          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-5 fw-normal'>Date : </h3>

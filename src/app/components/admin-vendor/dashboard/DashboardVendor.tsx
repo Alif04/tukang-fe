@@ -265,7 +265,7 @@ const DashboardVendor: FC = () => {
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
   const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
-  const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
+  const workInProgress = sumTotal(chartDataOrder, 'totalWorkStart')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
 
   const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')

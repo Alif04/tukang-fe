@@ -78,7 +78,7 @@ const chartOptions = (chartHeight: string, chartOrder: any): ApexOptions => {
   // ).length
 
   const workReq = sumTotal(chartOrder, 'totalOrderDone')
-  const workInProgress = sumTotal(chartOrder, 'totalWIP')
+  const workInProgress = sumTotal(chartOrder, 'totalWorkStart')
   const workDone = sumTotal(chartOrder, 'totalOrderDone')
 
   const series = [workReq, workInProgress, workDone]

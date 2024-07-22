@@ -35,9 +35,13 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage, tot
                 <div className='flex-grow-1 me-2'>
                   <div className='text-dark fw-bold fs-6'>{item?.full_name}</div>
                   <span className='text-muted d-block fw-semibold me-5'>
-                    {item?.sales_categories
-                      .map((category: any) => category?.categories?.category_name ?? '-')
-                      .join(', ')}
+                    {Array.from(
+                      new Set(
+                        item?.sales_categories.map(
+                          (category: any) => category?.categories?.category_name ?? '-'
+                        )
+                      )
+                    ).join(', ')}
                   </span>
                 </div>
               </div>

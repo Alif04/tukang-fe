@@ -128,6 +128,12 @@ const DashboardStore: FC = () => {
     getReportOrder()
   }, [])
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -153,7 +159,10 @@ const DashboardStore: FC = () => {
   return (
     <section id='dashboard-store'>
       <Row className='mb-5'>
-        <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
+        <div
+          className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+          onKeyDown={handleKeyPress}
+        >
           <h3 className='d-flex align-items-center fs-3 fw-normal'>Pilih Periode :</h3>
 
           <RangePicker

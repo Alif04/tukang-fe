@@ -134,7 +134,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
     {
-      title: 'Order Status',
+      title: 'Status Order',
       filters: statusFilters,
       dataIndex: 'order_status',
       key: 'order_status',
@@ -307,6 +307,12 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -331,7 +337,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     <section id='view-refund'>
       <div className={`card ${className}`}>
         <div className='card-body'>
-          <Row className='table-head-wrapper'>
+          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>

@@ -220,6 +220,12 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -286,7 +292,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
             </div>
           </Row>
 
-          <Row className='table-head-wrapper'>
+          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex align-items-center mb-2'>
               <div className='fw-bold mb-5'>
                 Nama Toko

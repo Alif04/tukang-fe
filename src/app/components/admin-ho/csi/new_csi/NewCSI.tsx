@@ -59,11 +59,11 @@ const NewCSIHO: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.statusCode === 201) {
+        if (response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: response.data.message,
+            text: 'Berhasil membuat formulir CSI',
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {

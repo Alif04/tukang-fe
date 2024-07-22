@@ -241,7 +241,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       })
   }
 
-  // Work Order History
+  // Order History
   const columns: ColumnsType<OrderHistory> = [
     {
       title: 'ID',
@@ -265,54 +265,69 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       key: 'created_at_label',
       align: 'center',
       width: 110,
-      sorter: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     },
   ]
 
-  const generatePdf = async () => {
+  const generatePdf = (order_id: any, receipt_quotation: any, customer_name: any) => {
     setLoadingPDF(true)
-    const input = pdfRef.current
-    if (input) {
-      const canvas = await html2canvas(input)
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgProps = pdf.getImageProperties(imgData)
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(
-        `Quotation - ${order?.members?.full_name} - ${new Date(
-          order?.quotation[0]?.quotation_date
-        ).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })}.pdf`
-      )
-    }
-    setLoadingPDF(false)
+    axios
+      .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute(
+          'download',
+          `Quotation ${
+            receipt_quotation === null ? 'Belum Dibayar' : 'Sudah Dibayar'
+          } - ${customer_name} - Order ID ${order_id}.pdf`
+        )
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingPDF(false)
+      })
+      .catch((error: any) => {
+        setLoadingPDF(false)
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+      })
   }
 
   return (
     <section id='detail-order'>
       {['QUOTEOUT'].includes(order?.status?.category ?? '') && (
-        <Button
-          className='btn-dark-primary d-flex justify-content-center align-items-center mt-5 w-100 gap-3'
-          onClick={generatePdf}
-        >
-          {loadingPDF === false ? (
-            <>
-              <FontAwesomeIcon icon={faDownload} size='lg' />
-              Download PDF
-            </>
-          ) : (
-            'Generating PDF...'
-          )}
-        </Button>
+        <Row className='d-flex justify-content-end mb-3'>
+          <Button
+            className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3'
+            disabled={loadingPDF}
+            onClick={() =>
+              generatePdf(
+                order?.id,
+                order?.quotation[0]?.receipt_quotation,
+                order?.members?.full_name
+              )
+            }
+          >
+            {loadingPDF === false ? (
+              <>
+                <FontAwesomeIcon icon={faDownload} size='lg' />
+                Download PDF
+              </>
+            ) : (
+              'Generating PDF...'
+            )}
+          </Button>
+        </Row>
       )}
 
-      <Card ref={pdfRef}>
+      <Card>
         <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
@@ -786,7 +801,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                           <tr>
                             <td colSpan={3} className='text-end fw-bolder'>
-                              Promosi ( Free Survey )
+                              Promosi
                             </td>
                             <td className=' fw-bolder'>
                               {`Rp. ${parseInt(

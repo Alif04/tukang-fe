@@ -3,10 +3,18 @@ import {useNavigate} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import {List, Space, PaginationProps} from 'antd'
 import {Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPen, faBook, faClock, faFileExcel, faDatabase} from '@fortawesome/free-solid-svg-icons'
+import {
+  faPen,
+  faBook,
+  faClock,
+  faFileExcel,
+  faDatabase,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons'
 
 const ListFormatCSI: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -71,6 +79,66 @@ const ListFormatCSI: FC = () => {
       </div>
     </Space>
   )
+
+  const HandlerIcon = ({icon, text, csi_id}: {icon: any; text: string; csi_id: any}) => (
+    <Space>
+      <FontAwesomeIcon icon={icon} style={{color: 'red'}} />
+
+      <div className='text-link'>
+        <a className='fs-6 text-black' onClick={() => handleDelete(`${csi_id}`)}>
+          {text}
+        </a>
+      </div>
+    </Space>
+  )
+
+  const handleDelete = (csi_id: any) => {
+    Swal.fire({
+      title: `Apakah anda yakin akan menghapus formulir CSI ini ?`,
+      icon: 'warning',
+      showConfirmButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Ya',
+      confirmButtonColor: 'green',
+      denyButtonText: 'Cancel',
+    })
+      .then((willDelete) => {
+        if (willDelete.value) {
+          axios
+            .delete(`${apiUrl}/csi/${csi_id}`, {
+              headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                'Access-Control-Allow-Origin': '*',
+                'ngrok-skip-browser-warning': 'true',
+              },
+            })
+            .then((response) => {
+              Swal.fire({
+                title: 'Success',
+                text: 'Berhasil menghapus formulir CSI',
+                icon: 'success',
+              }).then(() => {
+                window.location.reload()
+              })
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
 
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -139,6 +207,8 @@ const ListFormatCSI: FC = () => {
                   link={`/csi/view-csi/${item.id}`}
                   openNewTab={false}
                 />,
+
+                <HandlerIcon icon={faTrash} text='Hapus Formulir CSI' csi_id={item.id} />,
               ]}
             >
               <List.Item.Meta
@@ -151,7 +221,16 @@ const ListFormatCSI: FC = () => {
 
               <Space>
                 <FontAwesomeIcon icon={faClock} />
-                <div className='fs-5'>Date Created : {formatDate(new Date(item.created_at))}</div>
+                <div className='fs-5'>
+                  Tanggal dibuat :{' '}
+                  {new Date(item.created_at).toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                  })}
+                </div>
               </Space>
             </List.Item>
           </Card>

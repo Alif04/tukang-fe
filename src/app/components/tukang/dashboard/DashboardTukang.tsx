@@ -249,12 +249,12 @@ const DashboardTukang: FC = () => {
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
-  const surveyed = sumTotal(chartDataOrder, 'totalSurveyStart')
-  const surveyEnd = sumTotal(chartDataOrder, 'totalSurveyEnd')
+  const surveyStart = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const surveyEnd = sumTotal(chartDataOrder, 'totalSurveyDone')
 
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
-  const workInProgress = sumTotal(chartDataOrder, 'totalWIP')
+  const workInProgress = sumTotal(chartDataOrder, 'totalWorkStart')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
@@ -322,7 +322,7 @@ const DashboardTukang: FC = () => {
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
                 {renderStat(waitingSurvey, 'Permintaan Survei')}
-                {renderStat(surveyed, 'Survei Dimulai')}
+                {renderStat(surveyStart, 'Survei Dimulai')}
                 {renderStat(surveyEnd, 'Survei Selesai')}
                 {renderStat(waitingQuotations, 'Menunggu Quotation')}
                 {renderStat(waitingWork, 'Permintaan Pengerjaan')}
