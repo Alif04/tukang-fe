@@ -5,6 +5,7 @@ import {DetailComplaintPage} from '../../../components'
 import {DetailComplaintHO} from '../../../components'
 import {DetailComplaintVendor} from '../../../components'
 import {DetailComplaintTukang} from '../../../components'
+import {UpdateComplaintVendor} from '../../../components'
 
 const DetailComplaint: FC = () => {
   const userRole = localStorage.getItem('userRole') as string
@@ -19,32 +20,17 @@ const DetailComplaint: FC = () => {
 
   return (
     <>
-      <PageTitle>{pageTitle}</PageTitle>
-      <DetailComplaintPage updatePageTitle={updatePageTitle} />
-
-      {/* {['Sales', 'Store CS'].includes(userRole) ? (
+      {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+        <>
+          <PageTitle>{pageTitle}</PageTitle>
+          <UpdateComplaintVendor updatePageTitle={updatePageTitle} />
+        </>
+      ) : (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <DetailComplaintPage updatePageTitle={updatePageTitle} />
         </>
-      ) : ['Admin HO', 'Super User'].includes(userRole) ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <DetailComplaintHO updatePageTitle={updatePageTitle} />
-        </>
-      ) : ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <DetailComplaintVendor updatePageTitle={updatePageTitle} />
-        </>
-      ) : userRole === 'Tukang' ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <DetailComplaintTukang updatePageTitle={updatePageTitle} />
-        </>
-      ) : (
-        <></>
-      )} */}
+      )}
     </>
   )
 }

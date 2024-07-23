@@ -54,7 +54,7 @@ const ViewCalendarHO: React.FC = () => {
       setIsLoadingPage(true)
 
       await axios
-        .get(`${apiUrl}/orders/calender?order_by=desc&take=0&date_from=${start}&date_to=${end}`, {
+        .get(`${apiUrl}/orders/calender?take=0&date_from=${start}&date_to=${end}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -93,34 +93,7 @@ const ViewCalendarHO: React.FC = () => {
                 : item?.request_survey
 
               const orderStatus = (() => {
-                if (item?.work_orders?.work_order_status?.length >= 0) {
-                  if (
-                    [
-                      'QUOTEIN',
-                      'QUOTEOUT',
-                      'CANCEL',
-                      'WARRANTYCLAIM',
-                      'INVESTIGATED',
-                      'COMPLAINTAPPROVEDBYHO',
-                      'COMPLAINTREJECTEDBYHO',
-                      'RESCHEDULE',
-                    ].includes(item?.status?.category)
-                  ) {
-                    return item?.status?.category
-                  } else if (
-                    ['WORKREQ'].includes(item?.status?.category) &&
-                    item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WORKEND'].includes(
-                      item?.work_orders?.work_order_status[0]?.status?.category
-                    )
-                  ) {
-                    return item?.status?.category
-                  } else {
-                    return item?.work_orders?.work_order_status[0]?.status?.category
-                  }
-                } else {
-                  return item?.status?.category
-                }
+                return item?.status?.category
               })()
 
               const contextualColor = (() => {
@@ -378,6 +351,7 @@ const ViewCalendarHO: React.FC = () => {
           eventDisplay=''
           weekends={true}
           events={order}
+          eventOrder={''}
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
         />

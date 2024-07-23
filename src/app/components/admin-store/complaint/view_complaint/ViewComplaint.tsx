@@ -361,7 +361,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           phone_number: phoneNumber,
           service_name: item.orders?.m_order_details[0]?.item_name ?? '-',
           order_status: item.orders?.status?.description,
-          work_status: item?.status?.description,
+          work_status: item?.orders?.work_orders?.work_order_status[0]?.status?.description,
           complaint_date: complaintDate,
           complaint_age: complaintAge,
           complaint_status: item?.status?.description,

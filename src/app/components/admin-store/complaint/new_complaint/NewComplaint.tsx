@@ -121,6 +121,8 @@ const NewComplaintForm: FC = () => {
               'INVESTIGATED',
               'COMPLAINTAPPROVEDBYHO',
               'COMPLAINTREJECTEDBYHO',
+              'SURVEYREQ',
+              'WORKREQ',
             ].includes(detail.status)
         )
 

@@ -194,14 +194,14 @@ const ReportComplaintPage: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
-  const acceptedComplaint = sumTotal(chartDataOrder, 'totalComplaintApprovedByHO')
-  const rejectComplaint = sumTotal(chartDataOrder, 'totalComplaintRejectedByHO')
+  const acceptedComplaint = sumTotal(chartDataOrder, 'totalComplaintApprovedByHo')
+  const rejectComplaint = sumTotal(chartDataOrder, 'totalComplaintRejectedByHo')
 
-  const resurvey = sumTotal(chartDataOrder, 'totalResurvey')
-  const rework = sumTotal(chartDataOrder, 'totalRework')
+  const resurvey = sumTotal(chartDataOrder, 'totalResurveyComplaint')
+  const rework = sumTotal(chartDataOrder, 'totalReworkComplaint')
 
-  const resurveyDone = sumTotal(chartDataOrder, 'totalResurveyDone')
-  const reworkDone = sumTotal(chartDataOrder, 'totalReworkDone')
+  const resurveyDone = sumTotal(chartDataOrder, 'totalResurveyComplaintDone')
+  const reworkDone = sumTotal(chartDataOrder, 'totalReworkComplaintDone')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <div className={`${label} ${className}`}>

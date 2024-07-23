@@ -66,11 +66,11 @@ function getChartOptions(chartComplaintData: any): ApexOptions {
     series: [
       {
         name: 'Pengerjaan Ulang',
-        data: chartComplaintData.map((item: any) => item?.totalRework),
+        data: chartComplaintData.map((item: any) => item?.totalReworkComplaint ?? 0),
       },
       {
         name: 'Pengerjaan Ulang Selesai',
-        data: chartComplaintData.map((item: any) => item?.totalReworkDone),
+        data: chartComplaintData.map((item: any) => item?.totalReworkComplaintDone ?? 0),
       },
     ],
     chart: {

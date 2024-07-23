@@ -714,7 +714,10 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     ]
 
     const requiredOrderDetailsFields = [
-      {key: 'item_id', fieldName: 'Jasa Pemasangan'},
+      {key: 'item_id', fieldName: 'Nama Pemasangan'},
+      {key: 'item_notes', fieldName: 'Nama Pemasangan'},
+      {key: 'item_code', fieldName: 'Item Code'},
+      {key: 'item_name', fieldName: 'Item Name'},
       {key: 'quantity', fieldName: 'Quantity'},
     ]
 
@@ -727,6 +730,30 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           if (value) {
             if (key === 'order_details') {
               orderForm.order_details.forEach((item: any, index: number) => {
+                requiredOrderDetailsFields.forEach((field) => {
+                  if (field.key === 'item_notes' && orderForm.payment_type === 'survey') {
+                    if (!item[field.key]) {
+                      errorBags.push({
+                        message: `Field "${field.fieldName}" cannot be empty`,
+                      })
+                    }
+                  } else if (field.key === 'item_id' && orderForm.payment_type !== 'survey') {
+                    if (!item[field.key]) {
+                      errorBags.push({
+                        message: `Field "${field.fieldName}" cannot be empty`,
+                      })
+                    }
+                  } else if (
+                    !item[field.key] &&
+                    field.key !== 'item_notes' &&
+                    field.key !== 'item_id'
+                  ) {
+                    errorBags.push({
+                      message: `Field "${field.fieldName}" cannot be empty`,
+                    })
+                  }
+                })
+
                 if (item) {
                   if (item.id) {
                     formData.append(`order_details[${index}][id]`, item.id)

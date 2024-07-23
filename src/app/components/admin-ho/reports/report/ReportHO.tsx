@@ -952,7 +952,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
-          url += `&status=1`
+          url += `&status=1,2`
         } else if (statusName === 'PAID') {
           url += `&status=3`
         }
@@ -1033,7 +1033,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
-          url += `&status=1`
+          url += `&status=1,2`
         } else if (statusName === 'PAID') {
           url += `&status=3`
         }
@@ -1537,7 +1537,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           setLoadingUploadExcel(false)
         }
 
-        window.location.reload()
+        // window.location.reload()
       })
       .catch((error) => {
         Swal.fire({
@@ -1751,7 +1751,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
                   {['sales-comission'].includes(endpoint) && statusName === 'UNPAID' && (
                     <>
-                      <button className='button-export' onClick={() => exportTemplate(1)}>
+                      <button className='button-export' onClick={() => exportTemplate(2)}>
                         <h3 className='fs-5 fw-semibold'>
                           {loadingTemplate ? 'Exporting..' : 'Export Excel'}
                         </h3>

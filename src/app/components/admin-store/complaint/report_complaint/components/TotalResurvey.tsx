@@ -64,11 +64,11 @@ function getChartOptions(chartComplaintData: any): ApexOptions {
     series: [
       {
         name: 'Survei Ulang',
-        data: chartComplaintData?.map((item: any) => item?.totalResurvey),
+        data: chartComplaintData?.map((item: any) => item?.totalResurveyComplaint ?? 0),
       },
       {
         name: 'Survei Ulang Selesai',
-        data: chartComplaintData?.map((item: any) => item?.totalResurveyDone),
+        data: chartComplaintData?.map((item: any) => item?.totalResurveyComplaintDone ?? 0),
       },
     ],
     chart: {

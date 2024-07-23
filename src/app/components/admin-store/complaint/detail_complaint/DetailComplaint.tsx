@@ -11,6 +11,17 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {Row, Col, Form, ListGroup, Modal, Button, Card} from 'react-bootstrap'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
+interface Complaint {
+  id: number | null
+  order_id: number | null
+  pic_name: string
+  description: string
+  complaint_channel: number | null
+  complaint_date: string
+  complaint_status: string
+  complaint_type: number
+}
+
 interface Remedial {
   complaint_id: number | null
   remedial_action: string
@@ -32,11 +43,22 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
+  const userRole = localStorage.getItem('userRole') as string
   const evidenceRef = useRef<HTMLInputElement>(null)
   const today = String(new Date().toISOString().split('T')[0])
 
   // Complaint Detail
   const [complaintDetail, setComplaintDetail] = useState<any>()
+  const [complaintForm, setComplaintForm] = useState<Complaint>({
+    id: null,
+    order_id: null,
+    pic_name: '',
+    description: '',
+    complaint_channel: null,
+    complaint_date: '',
+    complaint_status: '',
+    complaint_type: 1,
+  })
 
   // Remedial
   const [feedbackEvidence, setFeedbackEvidence] = useState<Array<File | null>>([])
@@ -53,6 +75,10 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   // Loading
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Complaint Approval
+  const [complaintStatusApprove, setComplaintStatusApprove] = useState<any>()
+  const [complaintStatusCancel, setComplaintStatusCancel] = useState<any>()
 
   // Complaint Evidence
   const [previewImage, setPreviewImage] = useState<any>()
@@ -92,6 +118,18 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
           setComplaintDetail(data)
           updatePageTitle(data)
 
+          setComplaintForm({
+            ...complaintForm,
+            id: data?.id,
+            order_id: data?.orders?.id,
+            pic_name: data?.pic_name,
+            description: data?.description,
+            complaint_channel: data?.complaint_channels?.id,
+            complaint_date: new Date(data?.complaint_date).toISOString().split('T')[0],
+            complaint_type: data?.type,
+            complaint_status: data?.complaint_status,
+          })
+
           setRemedialForm((prev) => ({
             ...prev,
             complaint_id: data?.id,
@@ -105,6 +143,96 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   useEffect(() => {
     fetchComplaintData()
   }, [])
+
+  // Complaint Status Approve
+  useEffect(() => {
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
+    const desiredStatusApprove = statusData.find(
+      (status: any) => status.category === 'COMPLAINTAPPROVEDBYHO'
+    )
+    const statusApproveId = desiredStatusApprove?.value
+
+    const desiredStatusCancel = statusData.find(
+      (status: any) => status.category === 'COMPLAINTREJECTEDBYHO'
+    )
+    const statusCancelId = desiredStatusCancel?.value
+
+    setComplaintStatusApprove(statusApproveId)
+    setComplaintStatusCancel(statusCancelId)
+  }, [complaintStatusApprove, complaintStatusCancel])
+
+  // Reason Rejected
+  const [showModal, setShowModal] = useState(false)
+  const [reasonRejected, setReasonRejected] = useState<string>('')
+
+  const handleShowModal = () => {
+    setShowModal(true)
+  }
+
+  const handleInputReasonReject = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedInputValue = event.target.value
+    setReasonRejected(updatedInputValue)
+  }
+
+  // Handle Approve & Cancel
+  const handleApprovalComplaint = async (status: number) => {
+    setIsLoading(true)
+
+    const formData = new FormData()
+
+    formData.append('order_id', String(complaintForm?.order_id))
+    formData.append('pic_name', complaintForm.pic_name)
+    formData.append('description', complaintForm.description)
+    formData.append('complaint_status', `${status}`)
+    formData.append('complaint_channel', String(complaintForm.complaint_channel))
+    formData.append('complaint_date', complaintForm.complaint_date)
+    formData.append('type', complaintForm.complaint_type.toString())
+
+    await axios
+      .post(`${apiUrl}/complaints/${complaintForm.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Update Complaint',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+
+          setIsLoading(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setIsLoading(false)
+        }
+
+        navigate('/complaint/view-complaint')
+      })
+      .catch((error) => {
+        console.error(error)
+        setIsLoading(false)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
 
   // Remedial Form Handler
   const remedialFormHandler = (e: any) => {
@@ -1317,6 +1445,30 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             )}
           </Skeleton>
 
+          {['Admin HO', 'Super User'].includes(userRole) && (
+            <div className='d-flex justify-content-end align-items-center'>
+              <Button
+                variant='dark-danger'
+                className='d-flex justify-content-center align-items-center'
+                type='submit'
+                disabled={isLoading}
+                onClick={handleShowModal}
+              >
+                {isLoading ? 'Rejected..' : 'Rejected'}
+              </Button>
+
+              <Button
+                variant='dark-primary'
+                className='d-flex justify-content-center align-items-center'
+                type='submit'
+                disabled={isLoading}
+                onClick={() => handleApprovalComplaint(complaintStatusApprove)}
+              >
+                {isLoading ? 'Accepted..' : 'Accepted'}
+              </Button>
+            </div>
+          )}
+
           <hr />
 
           <Card>
@@ -1648,6 +1800,30 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
           </div>
         </Card.Body>
       </Card>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton></Modal.Header>
+
+        <Modal.Body>
+          <Form.Label className='fs-5 fw-bolder'>Reason Rejected :</Form.Label>
+          <Form.Group>
+            <Form.Control as='textarea' rows={3} onChange={handleInputReasonReject} />
+          </Form.Group>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant='dark-danger' onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+
+          <Button
+            variant='dark-primary'
+            onClick={() => handleApprovalComplaint(complaintStatusCancel)}
+          >
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </section>
   )
 }

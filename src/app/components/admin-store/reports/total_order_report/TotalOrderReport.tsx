@@ -34,6 +34,7 @@ interface DataType {
   email: string
   address: string
   sales_name: string
+  complaint_date: Date
   order_status: string
   grand_total: number
 }
@@ -47,6 +48,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
   params,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
+
+  console.log('title', title)
 
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -88,7 +91,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
       width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
+      sorter: (a: DataType, b: DataType) => a.order_id - b.order_id,
     },
     {
       title: 'Tanggal Order',
@@ -96,7 +99,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'date_order',
       align: 'left',
       width: 110,
-      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+      sorter: (a: DataType, b: DataType) =>
+        new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'Nama Costumer',
@@ -104,8 +108,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'costumer_name',
       align: 'left',
       width: 140,
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+      onFilter: (value: string, record: DataType) => record.costumer_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.costumer_name.length - b.costumer_name.length,
     },
     {
       title: 'No Telp/WA',
@@ -113,7 +117,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'phone_number',
       align: 'left',
       width: 130,
-      sorter: (a, b) => a.phone_number - b.phone_number,
+      sorter: (a: DataType, b: DataType) => a.phone_number - b.phone_number,
     },
     {
       title: 'Email',
@@ -121,8 +125,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'email',
       align: 'left',
       width: 170,
-      onFilter: (value, record) => record.email.includes(String(value)),
-      sorter: (a, b) => a.email.length - b.email.length,
+      onFilter: (value: string, record: DataType) => record.email.includes(value),
+      sorter: (a: DataType, b: DataType) => a.email.length - b.email.length,
     },
     {
       title: 'Alamat',
@@ -130,8 +134,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'address',
       align: 'left',
       width: 150,
-      onFilter: (value, record) => record.address.includes(String(value)),
-      sorter: (a, b) => a.address.length - b.address.length,
+      onFilter: (value: string, record: DataType) => record.address.includes(value),
+      sorter: (a: DataType, b: DataType) => a.address.length - b.address.length,
     },
     {
       title: 'Nama Sales',
@@ -139,8 +143,17 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'sales_name',
       align: 'left',
       width: 150,
-      onFilter: (value, record) => record.sales_name.includes(String(value)),
-      sorter: (a, b) => a.sales_name.length - b.sales_name.length,
+      onFilter: (value: string, record: DataType) => record.sales_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.sales_name.length - b.sales_name.length,
+    },
+    title === 'LAPORAN SEDANG/PROSES PENGERJAAN' && {
+      title: 'Tanggal Komplain',
+      dataIndex: 'complaint_date',
+      key: 'complaint_date',
+      align: 'left',
+      width: 140,
+      sorter: (a: DataType, b: DataType) =>
+        new Date(a.complaint_date).getTime() - new Date(b.complaint_date).getTime(),
     },
     {
       title: 'Status Order',
@@ -148,8 +161,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'order_status',
       align: 'left',
       width: 150,
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      onFilter: (value: string, record: DataType) => record.order_status.includes(value),
+      sorter: (a: DataType, b: DataType) => a.order_status.length - b.order_status.length,
     },
     {
       title: 'Grand Total',
@@ -157,9 +170,9 @@ const TotalOrderReportStore: React.FC<Props> = ({
       key: 'grand_total',
       align: 'center',
       width: 135,
-      sorter: (a, b) => a.grand_total - b.grand_total,
+      sorter: (a: DataType, b: DataType) => a.grand_total - b.grand_total,
     },
-  ]
+  ].filter(Boolean) as ColumnsType<DataType>
 
   const fetchReportData = async (
     endpoint: string,
@@ -241,6 +254,10 @@ const TotalOrderReportStore: React.FC<Props> = ({
           orderData = apiData.map((item: any) => {
             let data
 
+            const phoneNumber = item?.project_number.startsWith('0')
+              ? item?.project_number
+              : `+62${item?.project_number}`
+
             const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
@@ -249,15 +266,26 @@ const TotalOrderReportStore: React.FC<Props> = ({
               minute: 'numeric',
             })
 
+            const complaintDate = item?.complaints?.length
+              ? new Date(item?.complaints[0]?.created_at).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                })
+              : ''
+
             data = {
               order_id: item.id,
               date_order: orderDate,
               costumer_name: item?.members?.full_name ?? '-',
-              phone_number: item?.project_number ?? '-',
+              phone_number: phoneNumber,
               email: item?.members?.email ?? '-',
               address: item?.project_address ?? '-',
               sales_name: item?.sales?.full_name,
               order_status: item?.status?.description,
+              complaint_date: complaintDate,
               grand_total: `Rp. ${Number(item?.grand_total).toLocaleString('id')}`,
             }
 
@@ -268,6 +296,10 @@ const TotalOrderReportStore: React.FC<Props> = ({
         case 'refund':
           refundData = apiData.map((item: any) => {
             let data
+
+            const phoneNumber = item?.order?.project_number.startsWith('0')
+              ? item?.order?.project_number
+              : `+62${item?.order?.project_number}`
 
             const orderDate = new Date(item?.orders?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
@@ -281,7 +313,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               order_id: item?.order_id,
               date_order: orderDate,
               costumer_name: item?.orders?.members?.full_name,
-              phone_number: item?.orders?.project_number,
+              phone_number: phoneNumber,
               email: item?.orders?.members?.email ?? '-',
               address: item?.orders?.project_address ?? '-',
               sales_name: item?.orders?.sales?.full_name,
@@ -297,6 +329,10 @@ const TotalOrderReportStore: React.FC<Props> = ({
           rescheduleData = apiData.map((item: any) => {
             let data
 
+            const phoneNumber = item?.order?.project_number.startsWith('0')
+              ? item?.order?.project_number
+              : `+62${item?.order?.project_number}`
+
             const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
@@ -309,7 +345,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               order_id: item?.order_id,
               date_order: orderDate,
               costumer_name: item?.order?.members?.full_name,
-              phone_number: item?.order?.project_number,
+              phone_number: phoneNumber,
               email: item?.order?.members?.email ?? '-',
               address: item?.order?.project_address ?? '-',
               sales_name: item?.order?.sales?.full_name,
@@ -325,6 +361,10 @@ const TotalOrderReportStore: React.FC<Props> = ({
           quotationData = apiData.map((item: any) => {
             let data
 
+            const phoneNumber = item?.order?.project_number.startsWith('0')
+              ? item?.order?.project_number
+              : `+62${item?.order?.project_number}`
+
             const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
@@ -337,7 +377,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               order_id: item?.order?.id,
               date_order: orderDate,
               costumer_name: item?.order?.members?.full_name,
-              phone_number: item?.order?.project_number,
+              phone_number: phoneNumber,
               email: item?.order?.members?.email ?? '-',
               address: item?.order?.project_address ?? '-',
               sales_name: item?.order?.sales?.full_name,

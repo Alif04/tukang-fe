@@ -180,12 +180,12 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN SEDANG/PROSES PENGERJAAN</PageTitle>
             <TotalOrderReportStore
-              title='LAPORAN SEDANG PENGERJAAN'
-              isWorkOrder={true}
+              title='LAPORAN SEDANG/PROSES PENGERJAAN'
+              isWorkOrder={false}
               endpoint='orders'
               className=''
               params=''
-              statusName={['WORKSTART', 'WORKEND']}
+              statusName={['WORKSTART', 'WORKEND', 'REWORKSTART', 'REWORKEND']}
             />
           </>
         }

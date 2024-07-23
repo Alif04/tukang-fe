@@ -78,7 +78,7 @@ const ViewCalendarCS: React.FC = () => {
 
   const fetchOrders = async (start: string, end: string, params: string) => {
     const response = await axios.get(
-      `${apiUrl}/orders/calender?take=0&order_by=desc&date_from=${start}&date_to=${end}${params}`,
+      `${apiUrl}/orders/calender?take=0&date_from=${start}&date_to=${end}${params}`,
       {
         headers: {
           Accept: 'application/json',
@@ -102,35 +102,39 @@ const ViewCalendarCS: React.FC = () => {
         ? item?.work_orders.work_end_date || item.work_orders.survey_date
         : item?.request_survey
 
+      // const orderStatus = (() => {
+      //   if (item?.work_orders?.work_order_status?.length >= 0) {
+      //     if (
+      //       [
+      //         'QUOTEIN',
+      //         'QUOTEOUT',
+      //         'CANCEL',
+      //         'WARRANTYCLAIM',
+      //         'INVESTIGATED',
+      //         'COMPLAINTAPPROVEDBYHO',
+      //         'COMPLAINTREJECTEDBYHO',
+      //         'RESCHEDULE',
+      //       ].includes(item?.status?.category)
+      //     ) {
+      //       return item?.status?.category
+      //     } else if (
+      //       ['WORKREQ'].includes(item?.status?.category) &&
+      //       item?.payment_type === 'survey' &&
+      //       !['WORKSTART', 'WORKEND'].includes(
+      //         item?.work_orders?.work_order_status[0]?.status?.category
+      //       )
+      //     ) {
+      //       return item?.status?.category
+      //     } else {
+      //       return item?.work_orders?.work_order_status[0]?.status?.category
+      //     }
+      //   } else {
+      //     return item?.status?.category
+      //   }
+      // })()
+
       const orderStatus = (() => {
-        if (item?.work_orders?.work_order_status?.length >= 0) {
-          if (
-            [
-              'QUOTEIN',
-              'QUOTEOUT',
-              'CANCEL',
-              'WARRANTYCLAIM',
-              'INVESTIGATED',
-              'COMPLAINTAPPROVEDBYHO',
-              'COMPLAINTREJECTEDBYHO',
-              'RESCHEDULE',
-            ].includes(item?.status?.category)
-          ) {
-            return item?.status?.category
-          } else if (
-            ['WORKREQ'].includes(item?.status?.category) &&
-            item?.payment_type === 'survey' &&
-            !['WORKSTART', 'WORKEND'].includes(
-              item?.work_orders?.work_order_status[0]?.status?.category
-            )
-          ) {
-            return item?.status?.category
-          } else {
-            return item?.work_orders?.work_order_status[0]?.status?.category
-          }
-        } else {
-          return item?.status?.category
-        }
+        return item?.status?.category
       })()
 
       const contextualColor = (() => {
@@ -417,6 +421,7 @@ const ViewCalendarCS: React.FC = () => {
           eventDisplay=''
           weekends={true}
           events={order}
+          eventOrder={''}
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
         />

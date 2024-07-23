@@ -62,11 +62,11 @@ function getChartOptions(chartComplaintData: any): ApexOptions {
       },
       {
         name: 'Diterima',
-        data: chartComplaintData.map((item: any) => item?.totalComplaintApprovedByHO),
+        data: chartComplaintData.map((item: any) => item?.totalComplaintApprovedByHo),
       },
       {
         name: 'Ditolak',
-        data: chartComplaintData.map((item: any) => item?.totalComplaintRejectedByHO),
+        data: chartComplaintData.map((item: any) => item?.totalComplaintRejectedByHo),
       },
     ],
     chart: {
