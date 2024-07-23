@@ -16,7 +16,6 @@ const TotalComplaint: React.FC<Props> = ({className, chartComplaintData}) => {
 
   useEffect(() => {
     const chart = refreshChart()
-
     return () => {
       if (chart) {
         chart.destroy()
@@ -28,14 +27,10 @@ const TotalComplaint: React.FC<Props> = ({className, chartComplaintData}) => {
     if (!chartRef.current) {
       return
     }
-
-    const height = parseInt(getCSS(chartRef.current, 'height'))
-
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartComplaintData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(chartComplaintData))
     if (chart) {
       chart.render()
     }
-
     return chart
   }
 
@@ -50,32 +45,34 @@ const TotalComplaint: React.FC<Props> = ({className, chartComplaintData}) => {
 
 export {TotalComplaint}
 
-function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
+function getChartOptions(chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-
   const baseColor = getCSSVariableValue('--kt-primary')
   const secondaryColor = getCSSVariableValue('--kt-info')
+  const isHour = chartComplaintData?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartComplaintData.length === 24
+  )
 
   return {
     series: [
       {
         name: 'Masuk',
-        data: chartComplaintData.map((item: any) => item?.totalComplaint ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalComplaint),
       },
       {
         name: 'Diterima',
-        data: chartComplaintData.map((item: any) => item?.totalComplaintApprovedByHO ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalComplaintApprovedByHO),
       },
       {
         name: 'Ditolak',
-        data: chartComplaintData.map((item: any) => item?.totalComplaintRejectedByHO ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalComplaintRejectedByHO),
       },
     ],
     chart: {
       fontFamily: 'inherit',
       type: 'bar',
-      height: height,
+      height: 350,
       toolbar: {
         show: false,
       },
@@ -100,7 +97,13 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartComplaintData.map((item: any) => item?.period),
+      categories: chartComplaintData?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },

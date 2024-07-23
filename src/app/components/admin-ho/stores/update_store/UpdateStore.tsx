@@ -229,51 +229,51 @@ const UpdateStores: FC = () => {
 
     if (!storeInfo.store_name) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Toko form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.address) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Alamat form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.phone_number_1) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Telpon form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.email) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Email form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.bank_name) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Bank form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.bank_account) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Akun form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.bank_number) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Pemilik Akun form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }

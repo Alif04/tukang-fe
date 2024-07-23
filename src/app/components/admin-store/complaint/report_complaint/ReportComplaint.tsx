@@ -25,7 +25,6 @@ const ReportComplaintPage: FC = () => {
   const [complaintList, setComplaintList] = useState<any>()
 
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
-  const [chartDataComplaint, setChartDataComplaint] = useState<any[]>([])
 
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
@@ -168,51 +167,6 @@ const ReportComplaintPage: FC = () => {
     }
   }
 
-  const getReportComplaint = async () => {
-    const url = (() => {
-      switch (userRole) {
-        case 'Store CS':
-          return `${apiUrl}/reports/complaints?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-        case 'Admin Vendor':
-        case 'Owner Vendor':
-          return `${apiUrl}/reports/complaints?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-        default:
-          return `${apiUrl}/reports/complaints?take=0&date_from=${dateFrom}&date_to=${dateTo}`
-      }
-    })()
-
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-
-      const chartDatas = response.data.monthlyComplaint
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setChartDataComplaint(slicedData)
-      return data
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const fetchData = async () => {
     const data = await ViewComplaint()
     setComplaintData(data)
@@ -221,7 +175,6 @@ const ReportComplaintPage: FC = () => {
   useEffect(() => {
     fetchComplaintList()
     getReportOrder()
-    getReportComplaint()
   }, [])
 
   useEffect(() => {
@@ -233,7 +186,6 @@ const ReportComplaintPage: FC = () => {
 
     await fetchComplaintList()
     await getReportOrder()
-    await getReportComplaint()
 
     setLoadingButton(false)
   }
@@ -319,7 +271,7 @@ const ReportComplaintPage: FC = () => {
         <div className='col-xl-4'>
           <Card className='mb-5'>
             <Card.Body style={{minHeight: '150px'}}>
-              <div className='fs-5 fw-normal mb-5'>Complaint bulan ini</div>
+              <div className='fs-5 fw-normal mb-5'>Komplain bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
                 {renderStat(totalComplaint, 'Masuk')}
@@ -333,7 +285,7 @@ const ReportComplaintPage: FC = () => {
         <div className='col-xl-4'>
           <Card className='mb-5'>
             <Card.Body style={{minHeight: '150px'}}>
-              <div className='fs-5 fw-normal mb-5'>Pekerjaan Complaint bulan ini</div>
+              <div className='fs-5 fw-normal mb-5'>Survei Komplain bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
                 {renderStat(resurvey, 'Survei Ulang')}
@@ -346,7 +298,7 @@ const ReportComplaintPage: FC = () => {
         <div className='col-xl-4'>
           <Card className='mb-5'>
             <Card.Body style={{minHeight: '150px'}}>
-              <div className='fs-5 fw-normal mb-5'>Result Complaint bulan ini</div>
+              <div className='fs-5 fw-normal mb-5'>Pekerjaan Komplain bulan ini</div>
 
               <div className='d-flex justify-content-between mb-5'>
                 {renderStat(rework, 'Pengerjaan Ulang')}
@@ -359,22 +311,27 @@ const ReportComplaintPage: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        <div className='col-xl-4'>
+      <Row className=' g-5 g-xl-8'>
+        <Col className='col-xl-12'>
           <TotalComplaint className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataOrder} />
-        </div>
+        </Col>
+      </Row>
 
-        <div className='col-xl-4'>
+      <Row className=' g-5 g-xl-8'>
+        <Col className='col-xl-12'>
           <TotalResurvey
             className='card-xl-stretch mb-5 mb-xl-8'
             chartComplaintData={chartDataOrder}
           />
-        </div>
+        </Col>
+      </Row>
 
-        <div className='col-xl-4'>
+      <Row className=' g-5 g-xl-8'>
+        <Col className='col-xl-12'>
           <TotalRework className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataOrder} />
-        </div>
-      </div>
+        </Col>
+      </Row>
+
       {/* end::Row */}
 
       {/* begin::Row */}

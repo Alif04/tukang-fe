@@ -201,58 +201,58 @@ const NewStore: FC = () => {
 
     if (!storeInfo.store_name) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Toko form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.address) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Alamat form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.phone_number_1) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Telpon form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.email) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Email form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.bank_name) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Bank form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.bank_account) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Akun form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.bank_number) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Nama Pemilik Akun form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!storeInfo.default_password) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill Password form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }
@@ -292,7 +292,7 @@ const NewStore: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Add New Store',
+            text: 'Berhasil menambahkan toko',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -316,8 +316,8 @@ const NewStore: FC = () => {
         setIsLoading(false)
 
         Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
+          title: 'Kesalahan pada server',
+          text: 'Mohon untuk menghubungi administrator',
           icon: 'error',
         })
       })

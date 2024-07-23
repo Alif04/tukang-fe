@@ -163,14 +163,6 @@ const NewReschedule: FC = () => {
     })
   }
 
-  // Reschedule Date
-  useEffect(() => {
-    setReschedule((prev) => ({
-      ...prev,
-      reschedule_date: today,
-    }))
-  }, [reschedule])
-
   // Upload File Reschedule
   const [rescheduleEvidence, setRescheduleEvidence] = useState<Array<File | null>>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
@@ -885,7 +877,7 @@ const NewReschedule: FC = () => {
                   name='reschedule_date'
                   type='date'
                   value={reschedule.reschedule_date}
-                  readOnly
+                  onChange={(e) => RescheduleFormHandler(e)}
                 />
               </Form.Group>
             </Col>

@@ -92,7 +92,7 @@ const UpdateCSIHO: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.status === 201) {
+        if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
             icon: 'success',

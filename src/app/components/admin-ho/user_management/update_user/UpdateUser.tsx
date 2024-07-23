@@ -267,7 +267,7 @@ const UpdateUserHO: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.status === 200) {
+        if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             icon: 'success',

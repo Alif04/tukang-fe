@@ -19,9 +19,7 @@ const TotalRework: React.FC<Props> = ({className, chartComplaintData}) => {
       return
     }
 
-    const height = parseInt(getCSS(chartRef.current, 'height'))
-
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartComplaintData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(chartComplaintData))
     if (chart) {
       chart.render()
     }
@@ -37,6 +35,7 @@ const TotalRework: React.FC<Props> = ({className, chartComplaintData}) => {
         chart.destroy()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartRef, mode, chartComplaintData])
 
   return (
@@ -50,7 +49,7 @@ const TotalRework: React.FC<Props> = ({className, chartComplaintData}) => {
 
 export {TotalRework}
 
-function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
+function getChartOptions(chartComplaintData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
 
@@ -59,15 +58,19 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
   const secondaryColor = getCSSVariableValue('--kt-info')
   const secondaryLightColor = getCSSVariableValue('--kt-info-light')
 
+  const isHour = chartComplaintData?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartComplaintData.length === 24
+  )
+
   return {
     series: [
       {
         name: 'Pengerjaan Ulang',
-        data: chartComplaintData.map((item: any) => item?.totalRework ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalRework),
       },
       {
         name: 'Pengerjaan Ulang Selesai',
-        data: chartComplaintData.map((item: any) => item?.totalReworkDone ?? 0),
+        data: chartComplaintData.map((item: any) => item?.totalReworkDone),
       },
     ],
     chart: {
@@ -94,7 +97,13 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
       curve: 'straight',
     },
     xaxis: {
-      categories: chartComplaintData.map((item: any) => item?.period),
+      categories: chartComplaintData?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
