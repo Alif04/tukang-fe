@@ -1537,7 +1537,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           setLoadingUploadExcel(false)
         }
 
-        // window.location.reload()
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
       })
       .catch((error) => {
         Swal.fire({

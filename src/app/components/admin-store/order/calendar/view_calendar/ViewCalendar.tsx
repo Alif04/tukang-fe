@@ -1115,9 +1115,7 @@ const ViewCalendarCS: React.FC = () => {
                   <p className='fs-5 fw-bold'>Pekerjaan dilakukan pada:</p>
 
                   <div className='detail-info mb-3'>
-                    {selectedOrder?.order_detail?.work_orders?.work_order_tukang?.filter(
-                      (x: any) => x.type === 2
-                    ).length ? (
+                    {selectedOrder?.order_detail?.work_orders?.work_order_status?.length ? (
                       <div>
                         <p className='fs-7'>
                           MULAI{' '}
