@@ -20,6 +20,7 @@ type Props = {
 
 interface DataType {
   key: React.Key
+  readiness: number
   quotation_id: number
   store_name: string
   order_id: number
@@ -205,17 +206,18 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {['Owner Vendor', 'Admin Vendor'].includes(userRole ?? '') && (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Edit Quotation')}
-              >
-                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
-                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
-            )}
+            {['Owner Vendor', 'Admin Vendor'].includes(userRole ?? '') &&
+              ![2, 4].includes(record.readiness) && (
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Edit Quotation')}
+                >
+                  <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                    <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+              )}
           </div>
         )
       },
@@ -283,6 +285,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
         data = {
           quotation_id: item?.id,
+          readiness: item?.readiness,
           store_name: item?.store.store_name,
           order_id: item?.order.id,
           date_order: orderDate,

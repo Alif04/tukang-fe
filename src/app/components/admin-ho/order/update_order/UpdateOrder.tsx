@@ -619,6 +619,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     setOrderForm({
       ...orderForm,
       is_overdistance: isOverdistance,
+      additional_fee: 25000,
     })
   }, [isOverdistance])
 
@@ -970,13 +971,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               formData.append(key, orderForm[key])
             }
           } else if (key === 'additional_fee' && isOverdistance === 1) {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
+            formData.append(key, orderForm[key].toString())
           } else if (key === 'is_overdistance') {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
+            formData.append(key, orderForm[key].toString())
           } else if (key === 'notes') {
             if (value) {
               formData.append(key, orderForm[key].toString())

@@ -483,6 +483,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     setOrderForm({
       ...orderForm,
       is_overdistance: isOverdistance,
+      additional_fee: 25000,
     })
   }, [isOverdistance])
 
@@ -688,7 +689,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   useEffect(() => {
     const calculatedGrandTotal = calculatedGrandTotalOrder()
     setGrandTotal(calculatedGrandTotal)
-  }, [orderForm.order_details, orderForm.additional_fee, paymentTypeValue, isOverdistance])
+  }, [orderForm, orderForm.additional_fee, paymentTypeValue, isOverdistance])
 
   // Submit Update Order
   const handleUpdateOrder = async () => {
@@ -782,13 +783,9 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               formData.append(key, orderForm[key])
             }
           } else if (key === 'additional_fee' && isOverdistance === 1) {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
+            formData.append(key, orderForm[key].toString())
           } else if (key === 'is_overdistance') {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
+            formData.append(key, orderForm[key].toString())
           } else if (key === 'notes') {
             if (value) {
               formData.append(key, orderForm[key].toString())
