@@ -651,7 +651,8 @@ const ViewCalendarTukang: React.FC = () => {
             {(() => {
               if (
                 selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' &&
-                selectedWorkOrder?.work_order_detail?.work_order_status.length === 1
+                selectedWorkOrder?.work_order_detail?.work_order_status[0]?.work_order_items
+                  .length === 0
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -687,7 +688,8 @@ const ViewCalendarTukang: React.FC = () => {
                   selectedWorkOrder?.work_order_detail?.work_order_status[0]?.status?.category
                 ) &&
                 selectedWorkOrder?.work_order_detail?.order?.payment_type === 'survey' &&
-                selectedWorkOrder?.work_order_detail?.work_order_status.length >= 1 &&
+                selectedWorkOrder?.work_order_detail?.work_order_status[0]?.work_order_items
+                  .length >= 1 &&
                 selectedWorkOrder?.work_order_detail?.order?.quotation?.length === 0
               ) {
                 return (

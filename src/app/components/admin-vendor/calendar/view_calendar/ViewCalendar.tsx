@@ -577,7 +577,8 @@ const ViewCalendarVendor: React.FC = () => {
               if (
                 (selectedOrder?.order_detail?.payment_type === 'survey' &&
                   selectedOrder?.order_detail?.work_orders === null) ||
-                (selectedOrder?.order_detail?.work_orders?.work_order_status.length === 1 &&
+                (selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.work_order_items
+                  .length === 0 &&
                   selectedOrder?.order_detail?.payment_type === 'survey')
               ) {
                 return (
@@ -821,7 +822,8 @@ const ViewCalendarVendor: React.FC = () => {
                   selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
                 selectedOrder?.order_detail?.payment_type === 'survey' &&
-                selectedOrder?.order_detail?.work_orders?.work_order_status.length >= 1
+                selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.work_order_items
+                  .length >= 1
               ) {
                 return (
                   <div className='table-warranty-content'>

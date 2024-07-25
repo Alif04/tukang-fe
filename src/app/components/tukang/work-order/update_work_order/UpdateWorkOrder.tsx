@@ -199,7 +199,10 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           // GLOBAL
-          if (data?.work_order_status.length >= 3 && data?.order?.payment_type === 'survey') {
+          if (
+            data?.work_order_status[0].work_order_items.length >= 1 &&
+            data?.order?.payment_type === 'survey'
+          ) {
             const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
               (item: any, index: number) => ({
                 id: item.id,
@@ -235,7 +238,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
             setWorkOrderItem(workOrderItem)
           } else if (
-            data?.work_order_status?.length >= 1 &&
+            data?.work_order_status[0].work_order_items.length === 0 &&
             data?.order?.payment_type === 'survey'
           ) {
             const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({

@@ -503,9 +503,12 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             <Skeleton active loading={isLoadingPage} paragraph={{rows: 4}}>
               {(() => {
                 if (
-                  (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
-                  (orderDetail?.work_orders?.work_order_status.length === 1 &&
-                    orderDetail?.payment_type === 'survey')
+                  (orderDetail?.payment_type === 'survey' &&
+                    orderDetail?.work_orders === null &&
+                    orderDetail?.quotation?.length === 0) ||
+                  (orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length === 0 &&
+                    orderDetail?.payment_type === 'survey' &&
+                    orderDetail?.quotation?.length === 0)
                 ) {
                   return (
                     <div className='table-warranty-content'>
@@ -586,7 +589,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     'RESURVEYDONE',
                   ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
                   orderDetail?.payment_type === 'survey' &&
-                  orderDetail?.work_orders?.work_order_status.length >= 1 &&
+                  orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length >= 1 &&
                   orderDetail?.quotation?.length === 0
                 ) {
                   return (
@@ -627,7 +630,6 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     </div>
                   )
                 } else if (
-                  orderDetail?.work_orders?.work_order_status.length >= 1 &&
                   orderDetail?.quotation?.length >= 1 &&
                   orderDetail?.payment_type === 'survey'
                 ) {

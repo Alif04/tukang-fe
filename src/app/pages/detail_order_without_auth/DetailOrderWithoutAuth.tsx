@@ -450,9 +450,12 @@ const DetailOrderWithoutAuth = () => {
                 {/* Newest */}
                 {(() => {
                   if (
-                    (order?.payment_type === 'survey' && order?.work_orders === null) ||
-                    (order?.work_orders?.work_order_status.length === 1 &&
-                      order?.payment_type === 'survey')
+                    (order?.payment_type === 'survey' &&
+                      order?.work_orders === null &&
+                      order?.quotation?.length === 0) ||
+                    (order?.work_orders?.work_order_status[0]?.work_order_items.length === 0 &&
+                      order?.payment_type === 'survey' &&
+                      order?.quotation?.length === 0)
                   ) {
                     return (
                       <div className='table-warranty-content'>
@@ -528,7 +531,7 @@ const DetailOrderWithoutAuth = () => {
                       order?.work_orders?.work_order_status[0]?.status?.category
                     ) &&
                     order?.payment_type === 'survey' &&
-                    order?.work_orders?.work_order_status.length >= 1 &&
+                    order?.work_orders?.work_order_status[0]?.work_order_items.length >= 1 &&
                     order?.quotation?.length === 0
                   ) {
                     return (
@@ -567,11 +570,7 @@ const DetailOrderWithoutAuth = () => {
                         </Table>
                       </div>
                     )
-                  } else if (
-                    order?.work_orders?.work_order_status.length >= 1 &&
-                    order?.quotation?.length >= 1 &&
-                    order?.payment_type === 'survey'
-                  ) {
+                  } else if (order?.quotation?.length >= 1 && order?.payment_type === 'survey') {
                     return (
                       <div className='table-warranty-content'>
                         <Table hover responsive='md'>

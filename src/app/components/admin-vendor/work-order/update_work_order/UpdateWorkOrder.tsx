@@ -478,6 +478,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       // {key: 'work_order_item', fieldName: 'Work Order Item'},
     ]
 
+    const requiredWorkOrderFields = [{key: 'tukang_id', fieldName: 'Tehnisi'}]
+
     for (const key in workOrder) {
       if (Object.prototype.hasOwnProperty.call(workOrder, key)) {
         const value = workOrder[key]
@@ -485,8 +487,18 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
         if (required) {
           if (value) {
-            if (key === 'tukang_id') {
+            if (key === 'tukang_id' && Array.isArray(workOrder.tukang_id)) {
               value.forEach((item: any, index: number) => {
+                requiredWorkOrderFields.forEach((field) => {
+                  if (!item[field.key]) {
+                    errorBags.push({
+                      message: `Field ${field.fieldName} in work order tukang ${
+                        index + 1
+                      } cannot be empty`,
+                    })
+                  }
+                })
+
                 if (item) {
                   if (item.tukang_id) {
                     formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
@@ -547,9 +559,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           setIsLoading(false)
         } else {
           Swal.fire({
-            title: 'Error',
+            title: 'Warning',
             text: response.data.message,
-            icon: 'error',
+            icon: 'warning',
           })
 
           setIsLoading(false)
@@ -560,9 +572,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         setIsLoading(false)
 
         Swal.fire({
-          title: 'Error',
+          title: 'Warning',
           text: error.response.data.message,
-          icon: 'error',
+          icon: 'warning',
         })
       })
   }
@@ -611,14 +623,22 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                 <Col>
                   <Form.Group as={Row}>
-                    <Form.Label column md='6' className='fs-4 fw-bold'>
+                    <Form.Label className='fs-4 fw-bold pt-0'>
                       {orderDetail?.work_orders === null
-                        ? 'New Work Status :'
-                        : 'Update Work Status :'}
+                        ? 'New Work Status : '
+                        : 'Update Work Status : '}
+                      <span className='fw-normal'>
+                        {workOrder.work_order_status
+                          ? `${
+                              workOrderStatus.find(
+                                (option) => option.value === Number(workOrder.work_order_status)
+                              )?.label
+                            }`
+                          : ''}
+                      </span>
                     </Form.Label>
 
-                    <Col md='6'>
-                      <Select
+                    {/* <Select
                         classNamePrefix='select'
                         placeholder='Select Status'
                         isSearchable={true}
@@ -638,8 +658,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             workOrderHandler(e.value, 'work_order_status')
                           }
                         }}
-                      />
-                    </Col>
+                      /> */}
                   </Form.Group>
                 </Col>
               </Col>
@@ -894,9 +913,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             {/* Newest */}
             {(() => {
               if (
-                (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
-                (orderDetail?.work_orders?.work_order_status.length === 1 &&
-                  orderDetail?.payment_type === 'survey')
+                (orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.work_orders === null &&
+                  orderDetail?.quotation?.length === 0) ||
+                (orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length === 0 &&
+                  orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.quotation?.length === 0)
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -977,7 +999,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   'RESURVEYDONE',
                 ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
                 orderDetail?.payment_type === 'survey' &&
-                orderDetail?.work_orders?.work_order_status.length >= 1 &&
+                orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length >= 1 &&
                 orderDetail?.quotation?.length === 0
               ) {
                 return (
@@ -1017,7 +1039,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </div>
                 )
               } else if (
-                orderDetail?.work_orders?.work_order_status.length >= 1 &&
                 orderDetail?.quotation?.length >= 1 &&
                 orderDetail?.payment_type === 'survey'
               ) {

@@ -92,17 +92,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
     },
+
     {
-      title: 'Nama Store',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      width: 120,
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-    },
-    {
-      title: 'Date Order',
+      title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
@@ -111,7 +103,16 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
-      title: 'Nomor Member',
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      width: 120,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'No Member',
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
@@ -121,7 +122,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_id - b.costumer_id,
     },
     {
-      title: 'Nama Konsumen',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
@@ -130,7 +131,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'Phone Number',
+      title: 'No. Telp/WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
@@ -139,7 +140,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     },
 
     {
-      title: 'Order Status',
+      title: 'Status Order',
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
@@ -175,10 +176,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
-        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
-      ],
       onFilter: (value, record) => record.order_status_label.includes(String(value)),
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
@@ -355,6 +352,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const paymentQuotation = (() => {

@@ -85,16 +85,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.work_order_id - b.work_order_id,
     },
     {
-      title: 'Nama Store',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      width: 120,
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-    },
-    {
-      title: 'Date Order',
+      title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
@@ -103,7 +94,16 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
-      title: 'Nomor Member',
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      width: 120,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'No Member',
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
@@ -113,7 +113,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_id - b.costumer_id,
     },
     {
-      title: 'Nama Konsumen',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
@@ -122,7 +122,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
     {
-      title: 'Phone Number',
+      title: 'No. Telp/WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
@@ -130,7 +130,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
-      title: 'Order Status',
+      title: 'Status Order',
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
@@ -166,10 +166,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'SURVEYSTART', value: 'SURVEYSTART'},
-        {text: 'SURVEYREQ', value: 'SURVEYREQ'},
-      ],
       onFilter: (value, record) => record.order_status_label.includes(String(value)),
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
@@ -330,7 +326,13 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
+
+        const phoneNumber = item?.order?.project_number.startsWith('0')
+          ? item?.order?.project_number
+          : `+62${item?.order?.project_number}`
 
         const orderStatus = (() => {
           if (item?.work_order_status?.length >= 0) {
@@ -396,7 +398,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           date_order: orderDate,
           costumer_id: item?.order?.members.member_number,
           costumer_name: item?.order?.members.full_name,
-          phone_number: item?.order?.project_number,
+          phone_number: phoneNumber,
           order_status: orderStatus,
           order_status_label: orderStatusLabel,
         }

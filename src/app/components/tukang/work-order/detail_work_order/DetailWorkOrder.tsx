@@ -469,7 +469,8 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
               {(() => {
                 if (
                   workOrderDetail?.order?.payment_type === 'survey' &&
-                  workOrderDetail?.work_order_status.length === 1
+                  workOrderDetail?.work_order_status[0]?.work_order_items.length === 0 &&
+                  workOrderDetail?.order?.quotation?.length === 0
                 ) {
                   return (
                     <div className='table-warranty-content'>
@@ -508,7 +509,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     'RESURVEYDONE',
                   ].includes(workOrderDetail?.work_order_status[0]?.status?.category) &&
                   workOrderDetail?.order?.payment_type === 'survey' &&
-                  workOrderDetail?.work_order_status.length >= 1 &&
+                  workOrderDetail?.work_order_status[0]?.work_order_items.length >= 1 &&
                   workOrderDetail?.order?.quotation?.length === 0
                 ) {
                   return (
@@ -548,7 +549,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     </div>
                   )
                 } else if (
-                  workOrderDetail?.work_order_status.length >= 1 &&
                   workOrderDetail?.order?.quotation?.length >= 1 &&
                   workOrderDetail?.order?.payment_type === 'survey'
                 ) {

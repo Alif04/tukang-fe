@@ -1914,9 +1914,9 @@ const ViewOrders: FC = () => {
 
                         <td className=' fw-bolder'>
                           {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
-                            ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
+                            ? `${orderDetail?.quotation[0]?.promotion?.promotion ?? 0} %`
                             : `Rp. ${parseInt(
-                                orderDetail?.quotation[0]?.promotion?.promotion
+                                orderDetail?.quotation[0]?.promotion?.promotion ?? 0
                               ).toLocaleString('id')}`}
                         </td>
                       </tr>
