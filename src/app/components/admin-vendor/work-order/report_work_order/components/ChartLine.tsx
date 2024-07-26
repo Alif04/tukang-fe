@@ -53,32 +53,44 @@ export {ChartLine}
 function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-
   const baseColor = getCSSVariableValue('--kt-primary')
   const baseLightColor = getCSSVariableValue('--kt-primary-light')
   const secondaryColor = getCSSVariableValue('--kt-info')
   const secondaryLightColor = getCSSVariableValue('--kt-info-light')
+  const isHour = chartWorkOrder?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartWorkOrder.length === 24
+  )
 
   return {
     series: [
       {
-        name: 'Order Survey',
-        data: chartWorkOrder.map((item: any) => item?.totalOrderSurvey),
+        name: 'Permintaan survei',
+        data: chartWorkOrder.map((item: any) => item?.totalWaitingSurvey),
       },
       {
-        name: 'Pengerjaan Selesai',
-        data: chartWorkOrder.map((item: any) => item?.totalOrderDone),
+        name: 'Survei dimulai',
+        data: chartWorkOrder.map((item: any) => item?.totalSurveyStart),
+      },
+      {
+        name: 'Survei selesai',
+        data: chartWorkOrder.map((item: any) => item?.totalSurveyDone),
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'area',
+      type: 'bar',
       height: 350,
       toolbar: {
         show: false,
       },
     },
-    plotOptions: {},
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '75%',
+        borderRadius: 0,
+      },
+    },
     legend: {
       show: true,
       position: bottom,
@@ -86,15 +98,19 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
     dataLabels: {
       enabled: false,
     },
-    fill: {
-      type: 'solid',
-      opacity: 0.4,
-    },
     stroke: {
-      curve: 'straight',
+      show: true,
+      width: 2,
+      colors: ['transparent'],
     },
     xaxis: {
-      categories: chartWorkOrder.map((item: any) => item?.month),
+      categories: chartWorkOrder?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
@@ -126,6 +142,9 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
         style: {
           colors: labelColor,
           fontSize: '12px',

@@ -8,10 +8,11 @@ import './MoreInformation.css'
 type Props = {
   className: string
   totalComplaint: number
-  totalReschedule: number
-  totalCancel: number
-  totalRefund: number
+  totalResurvey: number
   totalRework: number
+  totalReschedule: number
+  totalRefund: number
+  totalCancel: number
 }
 
 const renderStat = (value: number, label: string) => (
@@ -26,10 +27,11 @@ const renderStat = (value: number, label: string) => (
 const MoreInformation: React.FC<Props> = ({
   className,
   totalComplaint,
+  totalRework,
+  totalResurvey,
   totalReschedule,
   totalCancel,
   totalRefund,
-  totalRework,
 }) => {
   return (
     <section id='more-information-vendor'>
@@ -40,14 +42,14 @@ const MoreInformation: React.FC<Props> = ({
 
             <Row>
               {renderStat(totalComplaint, 'COMPLAINT')}
-              {renderStat(totalReschedule, 'RESCHEDULE')}
-              {renderStat(totalCancel, 'CANCEL')}
+              {renderStat(totalResurvey, 'RESURVEY')}
+              {renderStat(totalRework, 'REWORK')}
             </Row>
 
             <Row>
+              {renderStat(totalReschedule, 'RESCHEDULE')}
+              {renderStat(totalCancel, 'CANCEL')}
               {renderStat(totalRefund, 'REFUND')}
-              {renderStat(totalRework, 'REWORK')}
-              <Col className='hidden-column pt-5 pb-5'></Col>
             </Row>
           </Row>
         </Card.Body>

@@ -77,11 +77,20 @@ const ReportWorkVendor: FC = () => {
         }
       )
 
-      const data = response.data.data
-      const chartDatas = response.data.data.slice(1, 7)
-      setChartData(chartDatas)
+      const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
-      return data
+      const fromDate = new Date(dateFrom)
+      const toDate = new Date(dateTo)
+
+      const fromMonth = fromDate.getMonth()
+      const toMonth = toDate.getMonth()
+
+      const startIndex = fromMonth
+      const endIndex = toMonth + 1
+
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
+      setChartData(slicedData)
     } catch (error) {
       console.error(error)
     }
@@ -154,6 +163,30 @@ const ReportWorkVendor: FC = () => {
     setLoadingButton(false)
   }
 
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <Col className='mb-5'>
+      <div className='d-flex flex-column align-items-center gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p className={`fs-6 ${className}`}>{label}</p>
+      </div>
+    </Col>
+  )
+
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+  const totalOrders = sumTotal(chartData, 'totalOrder')
+  const paidQuotation = sumTotal(chartData, 'totalWaitingQuotationCustomer')
+  const totalCancel = sumTotal(chartData, 'totalCancel')
+
+  const waitingSurvey = sumTotal(chartData, 'totalWaitingSurvey')
+  const surveyOrder = sumTotal(chartData, 'totalSurveyStart')
+  const surveyOrderDone = sumTotal(chartData, 'totalSurveyDone')
+
+  const waitingWork = sumTotal(chartData, 'totalWaitingWork')
+  const workInProgress = sumTotal(chartData, 'totalWorkStart')
+  const orderDone = sumTotal(chartData, 'totalOrderDone')
+
   return (
     <>
       <Row className='mb-5'>
@@ -191,52 +224,73 @@ const ReportWorkVendor: FC = () => {
         </div>
       </Row>
 
-      {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
+      <Row className='g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <TotalOrder
-            className='card-xl-stretch mb-xl-8'
-            chartHeight='250px'
-            orderData={orderData}
-          />
+          <Card className='mb-5'>
+            <Card.Body style={{minHeight: '150px'}}>
+              <div className='fs-5 fw-normal mb-3'>Order</div>
+
+              <div className='d-flex justify-content-between'>
+                {renderStat(totalOrders, 'Masuk')}
+                {renderStat(paidQuotation, 'Dibayar')}
+                {renderStat(totalCancel, 'Dibatalkan')}
+              </div>
+            </Card.Body>
+          </Card>
         </div>
 
         <div className='col-xl-4'>
-          <TotalWork
-            className='card-xl-stretch mb-5 mb-xl-8'
-            chartHeight='250px'
-            chartOrder={chartData}
-          />
+          <Card className='mb-5'>
+            <Card.Body style={{minHeight: '150px'}}>
+              <div className='fs-5 fw-normal mb-3'>Survei bulan ini</div>
+
+              <div className='d-flex justify-content-between'>
+                {renderStat(waitingSurvey, 'Permintaan survei')}
+                {renderStat(surveyOrder, 'Survei dimulai')}
+                {renderStat(surveyOrderDone, 'Survei selesai')}
+              </div>
+            </Card.Body>
+          </Card>
         </div>
 
         <div className='col-xl-4'>
-          <TotalComplaint
-            className='card-xl-stretch mb-xl-8'
-            chartHeight='250px'
-            complaintData={complaintData}
-          />
+          <Card className='mb-5'>
+            <Card.Body style={{minHeight: '150px'}}>
+              <div className='fs-5 fw-normal mb-3'>Pengerjaan bulan ini</div>
+
+              <div className='d-flex justify-content-between'>
+                {renderStat(waitingWork, 'Permintaan pengerjaan')}
+                {renderStat(workInProgress, 'Pengerjaan dimulai')}
+                {renderStat(orderDone, 'Pengerjaan Selesai')}
+              </div>
+            </Card.Body>
+          </Card>
         </div>
-      </div>
+      </Row>
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        <div className='col-xl-4'>
+      <Row className='g-5 g-xl-8'>
+        <div className='col-xl-12'>
           <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartData} />
         </div>
+      </Row>
 
-        <div className='col-xl-4'>
+      <Row className='g-5 g-xl-8'>
+        <div className='col-xl-12'>
           <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartWorkOrder={chartData} />
         </div>
+      </Row>
 
-        <div className='col-xl-4'>
-          <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataComplaint} />
+      <Row className='g-5 g-xl-8'>
+        <div className='col-xl-12'>
+          <ChartLine2 className='card-xl-stretch mb-xl-8' chartWorkOrder={chartData} />
         </div>
-      </div>
+      </Row>
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
+      {/* <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
           <ChartDonut
             className='card-xl-stretch mb-xl-8'
@@ -252,7 +306,7 @@ const ReportWorkVendor: FC = () => {
             chartWorkOrder={chartWorkOrder}
           />
         </div>
-      </div>
+      </div> */}
       {/* end::Row */}
     </>
   )

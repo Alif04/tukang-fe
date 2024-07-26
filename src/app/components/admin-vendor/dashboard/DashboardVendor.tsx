@@ -260,19 +260,25 @@ const DashboardVendor: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
   const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyDone')
+
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
-  const unpaidOrder = sumTotal(chartDataOrder, 'totalUnpaidQuotation')
+  const unpaidQuotation = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
+
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWorkStart')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
 
   const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
-  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
-  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
-  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
   const totalRework = sumTotal(chartDataOrder, 'totalRework')
+  const totalResurvey = sumTotal(chartDataOrder, 'totalResurvey')
+
+  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
+  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
+  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-5'>
@@ -340,8 +346,9 @@ const DashboardVendor: FC = () => {
                 {renderStat(totalOrders, 'Total Order')}
                 {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(surveyOrderDone, 'Survei Selesai')}
                 {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
-                {renderStat(unpaidOrder, 'Menunggu Bayar Quotation', 'text-center')}
+                {renderStat(unpaidQuotation, 'Menunggu Bayar Quotation', 'text-center')}
                 {renderStat(waitingWork, 'Menunggu Pengerjaan')}
                 {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
                 {renderStat(orderDone, 'Order Selesai')}
@@ -351,23 +358,26 @@ const DashboardVendor: FC = () => {
         </Col>
       </Row>
 
-      <Row>
-        <Col lg={4} md={12} className='mb-5'>
+      <Row className='mb-5'>
+        <Col md={4}>
           <MoreInformation
             className='card-xl-stretch'
             totalComplaint={totalComplaint}
-            totalReschedule={totalReschedule}
-            totalCancel={totalCancel}
-            totalRefund={totalRefund}
+            totalResurvey={totalResurvey}
             totalRework={totalRework}
+            totalReschedule={totalReschedule}
+            totalRefund={totalRefund}
+            totalCancel={totalCancel}
           />
         </Col>
 
-        <Col lg={4} md={12} className='mb-5'>
+        <Col lg={8} md={12}>
           <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
+      </Row>
 
-        <Col lg={4} md={12} className='mb-5'>
+      <Row className='mb-5'>
+        <Col md={12}>
           <ChartBarOrder className='card-xl-stretch' orderData={chartDataOrder} />
         </Col>
       </Row>

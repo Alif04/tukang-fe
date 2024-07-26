@@ -53,19 +53,25 @@ export {ChartBar}
 function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-
   const baseColor = getCSSVariableValue('--kt-primary')
   const secondaryColor = getCSSVariableValue('--kt-info')
+  const isHour = chartOrderData?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartOrderData.length === 24
+  )
 
   return {
     series: [
       {
-        name: 'Order Selesai',
-        data: chartOrderData.map((item: any) => item?.totalOrderDone),
+        name: 'Masuk',
+        data: chartOrderData.map((item: any) => item?.totalOrder),
       },
       {
-        name: 'Order Masuk',
-        data: chartOrderData.map((item: any) => item?.totalOrder),
+        name: 'Dibayar',
+        data: chartOrderData.map((item: any) => item?.totalWaitingQuotationCustomer),
+      },
+      {
+        name: 'Dibatalkan',
+        data: chartOrderData.map((item: any) => item?.totalCancel),
       },
     ],
     chart: {
@@ -96,7 +102,13 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartOrderData.map((item: any) => item.month),
+      categories: chartOrderData?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
@@ -112,6 +124,9 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
         style: {
           colors: labelColor,
           fontSize: '12px',

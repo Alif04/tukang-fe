@@ -7,10 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  chartComplaintData: any[]
+  chartWorkOrder: any[]
 }
 
-const ChartLine2: React.FC<Props> = ({className, chartComplaintData}) => {
+const ChartLine2: React.FC<Props> = ({className, chartWorkOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +21,7 @@ const ChartLine2: React.FC<Props> = ({className, chartComplaintData}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartComplaintData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartWorkOrder))
     if (chart) {
       chart.render()
     }
@@ -37,7 +37,7 @@ const ChartLine2: React.FC<Props> = ({className, chartComplaintData}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, chartComplaintData])
+  }, [chartRef, mode, chartWorkOrder])
 
   return (
     <div className={`card ${className}`}>
@@ -50,35 +50,47 @@ const ChartLine2: React.FC<Props> = ({className, chartComplaintData}) => {
 
 export {ChartLine2}
 
-function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
+function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-
   const baseColor = getCSSVariableValue('--kt-primary')
   const baseLightColor = getCSSVariableValue('--kt-primary-light')
   const secondaryColor = getCSSVariableValue('--kt-info')
   const secondaryLightColor = getCSSVariableValue('--kt-info-light')
+  const isHour = chartWorkOrder?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartWorkOrder.length === 24
+  )
 
   return {
     series: [
       {
-        name: 'Komplain Masuk',
-        data: chartComplaintData.map((item: any) => item?.totalOrder),
+        name: 'Permintaan pengerjaan',
+        data: chartWorkOrder.map((item: any) => item?.totalWaitingWork),
       },
       {
-        name: 'Komplain Ditolak',
-        data: chartComplaintData.map((item: any) => item?.totalOrder),
+        name: 'Pengerjaan dimulai',
+        data: chartWorkOrder.map((item: any) => item?.totalWorkStart),
+      },
+      {
+        name: 'Pengerjaan selesai',
+        data: chartWorkOrder.map((item: any) => item?.totalOrderDone),
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'area',
+      type: 'bar',
       height: 350,
       toolbar: {
         show: false,
       },
     },
-    plotOptions: {},
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '75%',
+        borderRadius: 0,
+      },
+    },
     legend: {
       show: true,
       position: bottom,
@@ -86,15 +98,19 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     dataLabels: {
       enabled: false,
     },
-    fill: {
-      type: 'solid',
-      opacity: 0,
-    },
     stroke: {
-      curve: 'straight',
+      show: true,
+      width: 2,
+      colors: ['transparent'],
     },
     xaxis: {
-      categories: chartComplaintData.map((item: any) => item.month),
+      categories: chartWorkOrder?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
@@ -126,6 +142,9 @@ function getChartOptions(height: number, chartComplaintData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return val.toFixed(0)
+        },
         style: {
           colors: labelColor,
           fontSize: '12px',

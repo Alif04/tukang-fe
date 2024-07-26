@@ -1169,7 +1169,7 @@ const UpdateQuotationHO: FC = () => {
               Save
             </Button>
 
-            {quotationData?.readiness === 1 && (
+            {[1, 4].includes(quotationData?.readiness) && (
               <>
                 <Button
                   variant='dark-success'
