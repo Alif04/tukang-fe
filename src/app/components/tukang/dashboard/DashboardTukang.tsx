@@ -248,14 +248,25 @@ const DashboardTukang: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
-  const surveyStart = sumTotal(chartDataOrder, 'totalSurveyStart')
-  const surveyEnd = sumTotal(chartDataOrder, 'totalSurveyDone')
+  const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
+  const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyDone')
 
   const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
+  const unpaidQuotation = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
+
   const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
   const workInProgress = sumTotal(chartDataOrder, 'totalWorkStart')
   const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
+
+  const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
+  const totalRework = sumTotal(chartDataOrder, 'totalRework')
+  const totalResurvey = sumTotal(chartDataOrder, 'totalResurvey')
+
+  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
+  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
+  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-5'>
@@ -321,13 +332,14 @@ const DashboardTukang: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
-                {renderStat(waitingSurvey, 'Permintaan Survei')}
-                {renderStat(surveyStart, 'Survei Dimulai')}
-                {renderStat(surveyEnd, 'Survei Selesai')}
-                {renderStat(waitingQuotations, 'Menunggu Quotation')}
-                {renderStat(waitingWork, 'Permintaan Pengerjaan')}
-                {renderStat(workInProgress, 'Pengerjaan Dimulai')}
-                {renderStat(orderDone, 'Pengerjaan Selesai')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
+                {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(surveyOrderDone, 'Survei Selesai')}
+                {renderStat(waitingQuotations, 'Quotation Dikirim Vendor', 'text-center')}
+                {renderStat(unpaidQuotation, 'Menunggu Bayar Quotation', 'text-center')}
+                {renderStat(waitingWork, 'Menunggu Pengerjaan')}
+                {renderStat(workInProgress, 'Order sedang dalam pengerjaan')}
+                {renderStat(orderDone, 'Order Selesai')}
               </Row>
             </Card.Body>
           </Card>
@@ -336,7 +348,15 @@ const DashboardTukang: FC = () => {
 
       <Row>
         <Col lg={5} md={12} className='mb-3'>
-          <MoreInformation className='card-xl-stretch' orderData={orderData} />
+          <MoreInformation
+            className='card-xl-stretch'
+            totalComplaint={totalComplaint}
+            totalResurvey={totalResurvey}
+            totalRework={totalRework}
+            totalReschedule={totalReschedule}
+            totalRefund={totalRefund}
+            totalCancel={totalCancel}
+          />
         </Col>
 
         <Col lg={7} md={12} className='mb-3'>

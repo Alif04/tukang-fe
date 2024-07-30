@@ -127,7 +127,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               <div className='vendor-profile'>
                 <img
                   className='d-block m-auto mb-4'
-                  src={toAbsoluteUrl('/media/avatars/300-1.jpg')}
+                  src={toAbsoluteUrl('/media/avatars/blank.png')}
                   alt='Avatar'
                 />
               </div>

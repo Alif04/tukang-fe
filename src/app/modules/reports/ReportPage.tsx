@@ -397,13 +397,13 @@ const RefundPage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN RESCHEDULE ( OMSET )</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN RESCHEDULE</PageTitle>
 
             <ReportHO
               endpoint='reschedule'
               statusName=''
               headerColor='primary'
-              title='Laporan Reschedule ( Omset )'
+              title='Laporan Reschedule'
               params=''
             />
           </>
@@ -884,78 +884,6 @@ const RefundPage: React.FC = () => {
 
       {/* VENDOR REPORT */}
       <Route
-        path='vendor-report-expense-promosi'
-        element={
-          <>
-            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN EXPENSE PROMOSI</PageTitle>
-
-            <ReportVendor
-              endpoint='quotation'
-              statusName=''
-              headerColor='danger'
-              title='Laporan Expense Promosi '
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='vendor-report-other-income'
-        element={
-          <>
-            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN OTHER INCOME</PageTitle>
-
-            <ReportVendor
-              endpoint=''
-              statusName=''
-              headerColor='success'
-              title='Laporan Other Income'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='vendor-report-refund'
-        element={
-          <>
-            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENALTY ATAS REFUND</PageTitle>
-
-            <ReportVendor
-              endpoint='refund'
-              statusName=''
-              headerColor='success'
-              title='Laporan Penalty Atas Refund'
-            />
-          </>
-        }
-      />
-
-      <Route
         path='vendor-report-pending-payment'
         element={
           <>
@@ -970,10 +898,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENDING PAYMENT</PageTitle>
 
             <ReportVendor
-              endpoint='orders'
-              statusName='UNPAID'
+              endpoint='invoices'
+              statusName=''
               headerColor='danger'
-              title='Laporan Pending Payment '
+              title='Laporan Pending Payment ( Omset )'
+              params='&invoice_status=1'
             />
           </>
         }
@@ -994,10 +923,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN BULANAN</PageTitle>
 
             <ReportVendor
-              endpoint=''
+              endpoint='invoices'
               statusName=''
               headerColor='success'
               title='Laporan Tagihan Bulanan'
+              params=''
             />
           </>
         }
@@ -1018,10 +948,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN DIBAYAR</PageTitle>
 
             <ReportVendor
-              endpoint=''
+              endpoint='invoices'
               statusName=''
               headerColor='success'
               title='Laporan Tagihan Dibayar'
+              params='&invoice_status=6'
             />
           </>
         }
@@ -1042,10 +973,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN BELUM DIBAYAR</PageTitle>
 
             <ReportVendor
-              endpoint=''
+              endpoint='invoices'
               statusName=''
               headerColor='warning'
               title='Laporan Tagihan Belum Dibayar'
+              params='&invoice_status=5'
             />
           </>
         }
@@ -1070,6 +1002,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Quotation ( Omset )'
+              params=''
             />
           </>
         }
@@ -1094,54 +1027,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Survey ( Omset )'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='vendor-report-transaksi-all'
-        element={
-          <>
-            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TRANSAKSI ALL ( OMSET )</PageTitle>
-
-            <ReportVendor
-              endpoint='orders'
-              statusName=''
-              headerColor='success'
-              title='Laporan Transaksi All ( Omset )'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='vendor-report-pending-payment'
-        element={
-          <>
-            {userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENDING PAYMENT ( OMSET )</PageTitle>
-
-            <ReportVendor
-              endpoint='orders'
-              statusName='UNPAID'
-              headerColor='danger'
-              title='Laporan Pending Payment ( Omset )'
+              params=''
             />
           </>
         }
@@ -1164,8 +1050,9 @@ const RefundPage: React.FC = () => {
             <ReportVendor
               endpoint='refund'
               statusName=''
-              headerColor='primary'
-              title='Laporan Total Pinalti '
+              headerColor='danger'
+              title='Laporan Total Penalty'
+              params='&penalty_vendor=1'
             />
           </>
         }
@@ -1190,6 +1077,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='danger'
               title='Laporan Pengaduan '
+              params=''
             />
           </>
         }
@@ -1207,13 +1095,14 @@ const RefundPage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN ON PROGRESS ( OMSET )</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENGERJAAN ( OMSET )</PageTitle>
 
             <ReportVendor
               endpoint='orders'
               statusName='WORKSTART'
               headerColor='primary'
-              title='Laporan On Progress ( Omset )'
+              title='Laporan Pengerjaan'
+              params=''
             />
           </>
         }
@@ -1238,60 +1127,13 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='primary'
               title='Laporan Reschedule'
+              params=''
             />
           </>
         }
       />
 
       {/* TUKANG REPORT */}
-      <Route
-        path='tukang-report-expense-promosi'
-        element={
-          <>
-            {userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN EXPENSE PROMOSI</PageTitle>
-
-            <ReportTukang
-              endpoint=''
-              statusName=''
-              headerColor='danger'
-              title='Laporan Expense Promosi '
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-other-income'
-        element={
-          <>
-            {userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN OTHER INCOME</PageTitle>
-
-            <ReportTukang
-              endpoint=''
-              statusName=''
-              headerColor='success'
-              title='Laporan Other Income'
-            />
-          </>
-        }
-      />
-
       <Route
         path='tukang-report-refund'
         element={
@@ -1309,128 +1151,9 @@ const RefundPage: React.FC = () => {
             <ReportTukang
               endpoint='refund'
               statusName=''
-              headerColor='success'
-              title='Laporan Penalty Atas Refund'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-pending-payment'
-        element={
-          <>
-            {userRole === ' Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENDING PAYMENT</PageTitle>
-
-            <ReportTukang
-              endpoint='orders'
-              statusName='UNPAID'
               headerColor='danger'
-              title='Laporan Pending Payment '
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-tagihan-bulanan'
-        element={
-          <>
-            {userRole === ' Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN BULANAN</PageTitle>
-
-            <ReportTukang
-              endpoint=''
-              statusName=''
-              headerColor='success'
-              title='Laporan Tagihan Bulanan'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-paid'
-        element={
-          <>
-            {userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN DIBAYAR</PageTitle>
-
-            <ReportTukang
-              endpoint=''
-              statusName=''
-              headerColor='success'
-              title='Laporan Tagihan Dibayar'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-unpaid'
-        element={
-          <>
-            {userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN BELUM DIBAYAR</PageTitle>
-
-            <ReportTukang
-              endpoint=''
-              statusName=''
-              headerColor='warning'
-              title='Laporan Tagihan Belum Dibayar'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-quotation'
-        element={
-          <>
-            {userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN QUOTATION ( OMSET )</PageTitle>
-
-            <ReportTukang
-              endpoint='quotation'
-              statusName=''
-              headerColor='success'
-              title='Laporan Quotation ( Omset )'
+              title='Laporan Total Penalty'
+              params='&penalty_vendor=1'
             />
           </>
         }
@@ -1455,54 +1178,7 @@ const RefundPage: React.FC = () => {
               statusName='SURVEY'
               headerColor='success'
               title='Laporan Survey ( Omset )'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-transaksi-all'
-        element={
-          <>
-            {userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TRANSAKSI ALL ( OMSET )</PageTitle>
-
-            <ReportTukang
-              endpoint='orders'
-              statusName=''
-              headerColor='success'
-              title='Laporan Transaksi All ( Omset )'
-            />
-          </>
-        }
-      />
-
-      <Route
-        path='tukang-report-pending-payment'
-        element={
-          <>
-            {userRole === 'Tukang' ? (
-              <>
-                <HeaderWrapper className='bg-header-tukang' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENDING PAYMENT ( OMSET )</PageTitle>
-
-            <ReportTukang
-              endpoint='orders'
-              statusName='UNPAID'
-              headerColor='danger'
-              title='Laporan Pending Payment ( Omset )'
+              params=''
             />
           </>
         }
@@ -1523,10 +1199,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TOTAL PINALTI</PageTitle>
 
             <ReportTukang
-              endpoint='orders'
-              statusName='WARRANTYCLAIM'
-              headerColor='primary'
-              title='Laporan Total Pinalti'
+              endpoint='refund'
+              statusName=''
+              headerColor='danger'
+              title='Laporan Total Penalty'
+              params='&penalty_vendor=1'
             />
           </>
         }
@@ -1550,7 +1227,8 @@ const RefundPage: React.FC = () => {
               endpoint='complaints'
               statusName=''
               headerColor='danger'
-              title='Laporan Pengaduan '
+              title='Laporan Pengaduan'
+              params=''
             />
           </>
         }
@@ -1571,10 +1249,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENGERJAAN</PageTitle>
 
             <ReportTukang
-              endpoint='work-orders'
-              statusName=''
+              endpoint='orders'
+              statusName='WORKSTART'
               headerColor='primary'
               title='Laporan Pengerjaan'
+              params=''
             />
           </>
         }
@@ -1599,6 +1278,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='primary'
               title='Laporan Reschedule'
+              params=''
             />
           </>
         }

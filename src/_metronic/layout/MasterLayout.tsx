@@ -6,13 +6,7 @@ import {ScrollTop} from './components/ScrollTop'
 import {Content} from './components/Content'
 import {PageDataProvider} from './core'
 import {useLocation} from 'react-router-dom'
-import {
-  DrawerMessenger,
-  ActivityDrawer,
-  InviteUsers,
-  UpgradePlan,
-  ThemeModeProvider,
-} from '../partials'
+import {ThemeModeProvider} from '../partials'
 import {MenuComponent} from '../assets/ts/components'
 
 const MasterLayout = () => {
@@ -45,26 +39,9 @@ const MasterLayout = () => {
               <Content>
                 <Outlet />
               </Content>
-              {/* <Toolbar />
-              <div className='post d-flex flex-column-fluid' id='kt_post'>
-                <Content>
-                  <Outlet />
-                </Content>
-              </div> */}
             </div>
           </div>
         </div>
-
-        {/* begin:: Drawers */}
-        <ActivityDrawer />
-        {/* <RightToolbar /> */}
-        <DrawerMessenger />
-        {/* end:: Drawers */}
-
-        {/* begin:: Modals */}
-        <InviteUsers />
-        <UpgradePlan />
-        {/* end:: Modals */}
         <ScrollTop />
       </ThemeModeProvider>
     </PageDataProvider>

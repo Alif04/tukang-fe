@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
@@ -62,9 +63,17 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const today = new Date()
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -279,7 +288,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   ]
 
   const fetchWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&tukang_id=${tukangId}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&tukang_id=${tukangId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -442,14 +451,18 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
     const data = await ViewWorkOrder(1, 10, queryparams)
     setWorkOrderData(data)
 
     setLoadingButton(false)
+  }
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
   }
 
   // Modal Tukang Request Change
@@ -581,7 +594,16 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} sm={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-4'>
+            <Col
+              xs={12}
+              sm={12}
+              md={12}
+              lg={12}
+              xl={4}
+              xxl={4}
+              className='d-flex mb-4'
+              onKeyDown={handleKeyPress}
+            >
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-5 fw-normal'>Date</h3>
               </div>
@@ -589,6 +611,10 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -597,8 +623,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />

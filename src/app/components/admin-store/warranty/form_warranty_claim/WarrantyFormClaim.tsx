@@ -10,7 +10,7 @@ import {Form, Row, Col, Table, Button, Card} from 'react-bootstrap'
 
 interface Warranty {
   order_id: number | null
-  desription: string
+  description: string
   complaint_date: string
   complaint_channel: number | null
   complaint_status: string
@@ -93,7 +93,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
   // Warrany Form
   const [warrantyForm, setWarrantyForm] = useState<Warranty>({
     order_id: null,
-    desription: '',
+    description: '',
     complaint_date: new Date().toISOString().split('T')[0],
     complaint_channel: null,
     complaint_status: '',
@@ -136,7 +136,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
   const ClaimWarrantyValidation = () => {
     let valid = true
 
-    if (warrantyForm.desription === '') {
+    if (warrantyForm.description === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong Isi Alasan Claim Garansi',
@@ -154,7 +154,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
       const formData = new FormData()
 
       formData.append('order_id', String(warrantyForm.order_id))
-      formData.append('description', warrantyForm.desription)
+      formData.append('description', warrantyForm.description)
       formData.append('complaint_date', warrantyForm.complaint_date)
       formData.append('complaint_channel', warrantyForm.complaint_status)
       formData.append('complaint_status', warrantyForm.complaint_status)

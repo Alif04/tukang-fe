@@ -120,7 +120,7 @@ const ViewInvoiceVendor: FC = () => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Nama Store',
+      title: 'Nama Toko',
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
@@ -138,7 +138,7 @@ const ViewInvoiceVendor: FC = () => {
       sorter: (a, b) => a.invoice_date.length - b.invoice_date.length,
     },
     {
-      title: 'Invoice Status',
+      title: 'Status Invoice',
       dataIndex: 'invoice_status',
       key: 'invoice_status',
       align: 'center',
@@ -426,6 +426,8 @@ const ViewInvoiceVendor: FC = () => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const invoiceStatus = (status: number) => {
@@ -509,6 +511,12 @@ const ViewInvoiceVendor: FC = () => {
     setInvoiceData(data)
 
     setLoadingButton(false)
+  }
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
   }
 
   // Modal
@@ -770,7 +778,15 @@ const ViewInvoiceVendor: FC = () => {
       <div className='card'>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
+            <Col
+              xs={12}
+              md={12}
+              lg={12}
+              xl={4}
+              xxl={4}
+              className='d-flex mb-2'
+              onKeyDown={handleKeyPress}
+            >
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>

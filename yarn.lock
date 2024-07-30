@@ -1064,7 +1064,7 @@
     core-js-pure "^3.20.2"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.1", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.4", "@babel/runtime@^7.11.1", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.0", "@babel/runtime@^7.15.4", "@babel/runtime@^7.16.3", "@babel/runtime@^7.16.7", "@babel/runtime@^7.17.2", "@babel/runtime@^7.18.0", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.0", "@babel/runtime@^7.20.7", "@babel/runtime@^7.21.0", "@babel/runtime@^7.22.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.2", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.10.1", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.4", "@babel/runtime@^7.11.1", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.0", "@babel/runtime@^7.16.3", "@babel/runtime@^7.16.7", "@babel/runtime@^7.17.2", "@babel/runtime@^7.18.0", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.0", "@babel/runtime@^7.20.7", "@babel/runtime@^7.21.0", "@babel/runtime@^7.22.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.2", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.23.1"
   resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.23.1.tgz"
   integrity sha512-hC2v6p8ZSI/W0HUzh3V8C5g+NwSKzKPtJwSpTjwl0o297GP9+ZLQSkdvHz46CM3LqyoXxq+5G9komY+eSqSO0g==
@@ -1987,164 +1987,6 @@
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
 
-"@syncfusion/ej2-base@~23.1.36", "@syncfusion/ej2-base@~23.1.38":
-  version "23.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-base/-/ej2-base-23.1.38.tgz"
-  integrity sha512-48nRJLJ8uyfJi2ne/9Jwkwu78Cz1njDnt2jsq3n+6A9ebZFEqMlYC4pO177kTz/XTnd47CsJT3vsyKpt0haG5g==
-  dependencies:
-    "@syncfusion/ej2-icons" "~23.1.36"
-
-"@syncfusion/ej2-buttons@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-buttons/-/ej2-buttons-23.1.36.tgz"
-  integrity sha512-xh0hxNmkOE9H0UJ5VFOj0Vr+ewsNMWIjLr8BhIyUmdmMGzjbwU1o07XRVEvF+Y7eBUV1N2GBdwc2rkWMBGlJ+g==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-
-"@syncfusion/ej2-calendars@~23.1.38":
-  version "23.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-calendars/-/ej2-calendars-23.1.38.tgz"
-  integrity sha512-DFUHfQXUfwG/9U2vRq68/d5p1JbLFWz+2ZdQ0P0JnrHoKR6tMQ+S+JrUN6gViGvN7WsGmCl7StjtNZhJm3jwPg==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.38"
-    "@syncfusion/ej2-buttons" "~23.1.36"
-    "@syncfusion/ej2-inputs" "~23.1.38"
-    "@syncfusion/ej2-lists" "~23.1.36"
-    "@syncfusion/ej2-popups" "~23.1.38"
-
-"@syncfusion/ej2-compression@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-compression/-/ej2-compression-23.1.36.tgz"
-  integrity sha512-3hwsJGQctxhFVg6hVqBnq/f2rWm1J/GSE21PJh86/pK3j1hh7rlPdu/J9oeCpYXxyTmZeRbqJi8mQn8UQ0MxVA==
-  dependencies:
-    "@syncfusion/ej2-file-utils" "~23.1.36"
-
-"@syncfusion/ej2-data@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-data/-/ej2-data-23.1.36.tgz"
-  integrity sha512-9MUJQx48QV63r8TwmsK77OBljBH6D7crB8R0ihf45lzJNxD/Hea3zllCoy7vfG0j19lSwLmMqVHRbhGWCf8JNg==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-
-"@syncfusion/ej2-dropdowns@~23.1.38":
-  version "23.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-dropdowns/-/ej2-dropdowns-23.1.38.tgz"
-  integrity sha512-qqsjxl1s7YUxx2h8f9y5Lpxl2i9PNZpuxkbjh/xSokAaLNvcMHiGfgkbYZuub7KbLrWzhg+Ca3VoXXKPo/HTdA==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.38"
-    "@syncfusion/ej2-data" "~23.1.36"
-    "@syncfusion/ej2-inputs" "~23.1.38"
-    "@syncfusion/ej2-lists" "~23.1.36"
-    "@syncfusion/ej2-navigations" "~23.1.36"
-    "@syncfusion/ej2-notifications" "~23.1.36"
-    "@syncfusion/ej2-popups" "~23.1.38"
-
-"@syncfusion/ej2-excel-export@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-excel-export/-/ej2-excel-export-23.1.36.tgz"
-  integrity sha512-PHXE06PBX/NaDqG7wWiSbImx8XWwoK1Z/dtzriJ6MbXlCTg1r7hfEMGVIDCV7hxxh+hRtxaUmi7TAC8P/wGlRA==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-    "@syncfusion/ej2-compression" "~23.1.36"
-
-"@syncfusion/ej2-file-utils@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-file-utils/-/ej2-file-utils-23.1.36.tgz"
-  integrity sha512-RAKfQzKTmbd58OvLm6u+hydA5exRfXWQdta6IIVVMIsfwmt3TW8jajCoEiIxINEoVuC9fy9j2Z23gUYHnYdv8A==
-
-"@syncfusion/ej2-icons@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-icons/-/ej2-icons-23.1.36.tgz"
-  integrity sha512-Q7S50bOzXL9X46doNIGSGr61RCY/1RW9iz1U7yyARr2XBQhWnijk+t/FVBk1piR0nioRXbKQcPZOLiEo6zf1xw==
-
-"@syncfusion/ej2-inputs@~23.1.36", "@syncfusion/ej2-inputs@~23.1.38":
-  version "23.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-inputs/-/ej2-inputs-23.1.38.tgz"
-  integrity sha512-5pKXvHVBTuyP4VSR8Su5SQAECoj24UZfUmlmYf5jfGmby6h2fph1mZZR8fdGFG3z8O933sc8RRsjGdFuaecoEA==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.38"
-    "@syncfusion/ej2-buttons" "~23.1.36"
-    "@syncfusion/ej2-popups" "~23.1.38"
-    "@syncfusion/ej2-splitbuttons" "~23.1.36"
-
-"@syncfusion/ej2-lists@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-lists/-/ej2-lists-23.1.36.tgz"
-  integrity sha512-wPa5c1CZ4khBC47/rAHJVLL3r92CWHiQEFgCjHk7Pyn4ZP/XPCqEX7li652kgeCFzjAgHTVCGU1WIpoyroYcZg==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-    "@syncfusion/ej2-buttons" "~23.1.36"
-    "@syncfusion/ej2-data" "~23.1.36"
-
-"@syncfusion/ej2-navigations@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-navigations/-/ej2-navigations-23.1.36.tgz"
-  integrity sha512-Ci9WePBFffxDA2kI4ZctdCwnT3rlvh0vEbBsdMxISiF0Sw1aw9jFVPDvTXy4ngzPtuPxlgN9+FQO4urYbjOCiA==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-    "@syncfusion/ej2-buttons" "~23.1.36"
-    "@syncfusion/ej2-data" "~23.1.36"
-    "@syncfusion/ej2-inputs" "~23.1.36"
-    "@syncfusion/ej2-lists" "~23.1.36"
-    "@syncfusion/ej2-popups" "~23.1.36"
-
-"@syncfusion/ej2-notifications@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-notifications/-/ej2-notifications-23.1.36.tgz"
-  integrity sha512-aSTKSI9F+vUiQa6KMpUcFDqf1W1yREMsroNHYDHkss47COCctczOqXIGVGOcJiS5Pxj3UC2fkrQchRwUC/IBew==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-    "@syncfusion/ej2-buttons" "~23.1.36"
-    "@syncfusion/ej2-popups" "~23.1.36"
-
-"@syncfusion/ej2-popups@~23.1.36", "@syncfusion/ej2-popups@~23.1.38":
-  version "23.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-popups/-/ej2-popups-23.1.38.tgz"
-  integrity sha512-mnhJ1YLFYcJfetYJIdWbjy8CDbhxhLn9nUkWtld9388Xj7NPychVIyvvrFQQ+Nu839qG/VU08NOuVx+8Z9QU8g==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.38"
-    "@syncfusion/ej2-buttons" "~23.1.36"
-
-"@syncfusion/ej2-react-base@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-react-base/-/ej2-react-base-23.1.36.tgz"
-  integrity sha512-tjBondPukYCVnM9wqgkxdjeF/Le16OmGuzgJJMLEuMnXJE5SnSi+oqkfudXdn/4yBSm8kt11stwxHP9FE6NdIQ==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-
-"@syncfusion/ej2-react-schedule@^23.1.38":
-  version "23.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-react-schedule/-/ej2-react-schedule-23.1.38.tgz"
-  integrity sha512-DSQzN5b0NGynOvc8UjYMVORSRIxbt9Y9dB5ig1TqR+YWsP3IBdRWkSCfxnItPnaANLiiup0Z1q5v0cM8sIK28g==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.38"
-    "@syncfusion/ej2-react-base" "~23.1.36"
-    "@syncfusion/ej2-schedule" "23.1.38"
-
-"@syncfusion/ej2-schedule@23.1.38":
-  version "23.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-schedule/-/ej2-schedule-23.1.38.tgz"
-  integrity sha512-Vsx67DOnqBVPdnulpdrQuGY8Stls6r+ANDnQMLWt2zZYxVIffIFQqWyc50pjx4jf+n5xoGxCU66FTK7jNVrQ9Q==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.38"
-    "@syncfusion/ej2-buttons" "~23.1.36"
-    "@syncfusion/ej2-calendars" "~23.1.38"
-    "@syncfusion/ej2-data" "~23.1.36"
-    "@syncfusion/ej2-dropdowns" "~23.1.38"
-    "@syncfusion/ej2-excel-export" "~23.1.36"
-    "@syncfusion/ej2-inputs" "~23.1.38"
-    "@syncfusion/ej2-lists" "~23.1.36"
-    "@syncfusion/ej2-navigations" "~23.1.36"
-    "@syncfusion/ej2-popups" "~23.1.38"
-
-"@syncfusion/ej2-splitbuttons@~23.1.36":
-  version "23.1.36"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-splitbuttons/-/ej2-splitbuttons-23.1.36.tgz"
-  integrity sha512-vujsVUbndBeIguIhwcak+QucMHUD4UbBpij4JylcOUFCinF60uHwch3F1S4nlpd7x+PsdKiPU5JT7v8TSXIhKg==
-  dependencies:
-    "@syncfusion/ej2-base" "~23.1.36"
-    "@syncfusion/ej2-popups" "~23.1.36"
-
 "@testing-library/dom@^8.5.0", "@testing-library/dom@>=7.21.4":
   version "8.13.0"
   resolved "https://registry.npmjs.org/@testing-library/dom/-/dom-8.13.0.tgz"
@@ -2260,13 +2102,6 @@
   dependencies:
     "@popperjs/core" "^2.9.2"
     "@types/jquery" "*"
-
-"@types/chart.js@2.9.37":
-  version "2.9.37"
-  resolved "https://registry.npmjs.org/@types/chart.js/-/chart.js-2.9.37.tgz"
-  integrity sha512-9bosRfHhkXxKYfrw94EmyDQcdjMaQPkU1fH2tDxu8DWXxf1mjzWQAV4laJF51ZbC2ycYwNDvIm1rGez8Bug0vg==
-  dependencies:
-    moment "^2.10.2"
 
 "@types/connect-history-api-fallback@^1.3.5":
   version "1.3.5"
@@ -2399,18 +2234,6 @@
   resolved "https://registry.npmjs.org/@types/json5/-/json5-0.0.29.tgz"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
-"@types/lodash.memoize@^4.1.7":
-  version "4.1.7"
-  resolved "https://registry.npmjs.org/@types/lodash.memoize/-/lodash.memoize-4.1.7.tgz"
-  integrity sha512-lGN7WeO4vO6sICVpf041Q7BX/9k1Y24Zo3FY0aUezr1QlKznpjzsDk3T3wvH8ofYzoK0QupN9TWcFAFZlyPwQQ==
-  dependencies:
-    "@types/lodash" "*"
-
-"@types/lodash@*", "@types/lodash@^4.14.175":
-  version "4.14.182"
-  resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.182.tgz"
-  integrity sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==
-
 "@types/mime@^1":
   version "1.3.2"
   resolved "https://registry.npmjs.org/@types/mime/-/mime-1.3.2.tgz"
@@ -2461,13 +2284,6 @@
   resolved "https://registry.npmjs.org/@types/range-parser/-/range-parser-1.2.4.tgz"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
-"@types/react-copy-to-clipboard@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.npmjs.org/@types/react-copy-to-clipboard/-/react-copy-to-clipboard-5.0.2.tgz"
-  integrity sha512-O29AThfxrkUFRsZXjfSWR2yaWo0ppB1yLEnHA+Oh24oNetjBAwTDu1PmolIqdJKzsZiO4J1jn6R6TmO96uBvGg==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react-dom@^18.0.0", "@types/react-dom@18.0.2":
   version "18.0.2"
   resolved "https://registry.npmjs.org/@types/react-dom/-/react-dom-18.0.2.tgz"
@@ -2482,13 +2298,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-table@^7.7.9":
-  version "7.7.11"
-  resolved "https://registry.npmjs.org/@types/react-table/-/react-table-7.7.11.tgz"
-  integrity sha512-Ntfr4EMWgqf/m/CxfmiHww5HvE1nOfK3yEm3NJ3ZWv9IkdteqTOklG3rJtFCtICKAkr3q5pqajkm0y1+WnmdbA==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react-transition-group@^4.4.0", "@types/react-transition-group@^4.4.4":
   version "4.4.4"
   resolved "https://registry.npmjs.org/@types/react-transition-group/-/react-transition-group-4.4.4.tgz"
@@ -2496,7 +2305,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^16.8.0 || ^17.0.0 || ^18.0.0", "@types/react@>=16.14.8", "@types/react@>=16.9.11", "@types/react@16 || 17 || 18", "@types/react@18.0.6":
+"@types/react@*", "@types/react@>=16.14.8", "@types/react@>=16.9.11", "@types/react@16 || 17 || 18", "@types/react@18.0.6":
   version "18.0.6"
   resolved "https://registry.npmjs.org/@types/react/-/react-18.0.6.tgz"
   integrity sha512-bPqwzJRzKtfI0mVYr5R+1o9BOE8UEXefwc1LwcBtfnaAn6OoqMhLa/91VA8aeWfDPJt1kHvYKI8RHcQybZLHHA==
@@ -2797,11 +2606,6 @@
   dependencies:
     "@webassemblyjs/ast" "1.11.1"
     "@xtuc/long" "4.2.2"
-
-"@wojtekmaj/date-utils@^1.1.3":
-  version "1.5.0"
-  resolved "https://registry.npmjs.org/@wojtekmaj/date-utils/-/date-utils-1.5.0.tgz"
-  integrity sha512-0mq88lCND6QiffnSDWp+TbOxzJSwy2V/3XN+HwWZ7S2n19QAgR5dy5hRVhlECXvQIq2r+VcblBu+S9V+yMcxXw==
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
@@ -3698,11 +3502,6 @@ charcodes@^0.2.0:
   resolved "https://registry.npmjs.org/charcodes/-/charcodes-0.2.0.tgz"
   integrity sha512-Y4kiDb+AM4Ecy58YkuZrrSRJBDQdQ2L+NyS1vHHFtNtUjgutcZfx3yp1dAONI/oPaPmyGfCLx5CxL+zauIMyKQ==
 
-chart.js@3.7.1:
-  version "3.7.1"
-  resolved "https://registry.npmjs.org/chart.js/-/chart.js-3.7.1.tgz"
-  integrity sha512-8knRegQLFnPQAheZV8MjxIXc5gQEfDFD897BJgv/klO/vtIyFFmgMXrNfgrXpbTr/XbTturxRgxIXx/Y+ASJBA==
-
 check-types@^11.1.1:
   version "11.1.2"
   resolved "https://registry.npmjs.org/check-types/-/check-types-11.1.2.tgz"
@@ -3758,11 +3557,6 @@ cliui@^7.0.2:
     string-width "^4.2.0"
     strip-ansi "^6.0.0"
     wrap-ansi "^7.0.0"
-
-clsx@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/clsx/-/clsx-2.0.0.tgz"
-  integrity sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==
 
 clsx@1.1.1:
   version "1.1.1"
@@ -3933,7 +3727,7 @@ cookie@0.4.2:
   resolved "https://registry.npmjs.org/cookie/-/cookie-0.4.2.tgz"
   integrity sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==
 
-copy-to-clipboard@^3.2.0, copy-to-clipboard@^3.3.1:
+copy-to-clipboard@^3.2.0:
   version "3.3.1"
   resolved "https://registry.npmjs.org/copy-to-clipboard/-/copy-to-clipboard-3.3.1.tgz"
   integrity sha512-i13qo6kIHTTpCm8/Wup+0b1mVWETvu2kIMzKoK8FpkLkFxlt0znUAHcMzox+T8sPlqtZXq3CulEjQHsYiGFJUw==
@@ -4303,11 +4097,6 @@ deep-is@^0.1.3, deep-is@~0.1.3:
   version "0.1.4"
   resolved "https://registry.npmjs.org/deep-is/-/deep-is-0.1.4.tgz"
   integrity sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==
-
-deepmerge@^2.1.1:
-  version "2.2.1"
-  resolved "https://registry.npmjs.org/deepmerge/-/deepmerge-2.2.1.tgz"
-  integrity sha512-R9hc1Xa/NOBi9WRVUWg19rl1UB7Tt4kuPd+thNJgFZoxXsTz7ncaPaeIm+40oSGuP33DfMb4sZt1QIGiJzC4EA==
 
 deepmerge@^4.2.2:
   version "4.2.2"
@@ -5247,19 +5036,6 @@ form-data@^3.0.0:
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
-formik@2.2.9:
-  version "2.2.9"
-  resolved "https://registry.npmjs.org/formik/-/formik-2.2.9.tgz"
-  integrity sha512-LQLcISMmf1r5at4/gyJigGn0gOwFbeEAlji+N9InZF6LIMXnFNkO42sCI8Jt84YZggpD4cPWObAZaxpEFtSzNA==
-  dependencies:
-    deepmerge "^2.1.1"
-    hoist-non-react-statics "^3.3.0"
-    lodash "^4.17.21"
-    lodash-es "^4.17.21"
-    react-fast-compare "^2.0.1"
-    tiny-warning "^1.0.2"
-    tslib "^1.10.0"
-
 forwarded@0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/forwarded/-/forwarded-0.2.0.tgz"
@@ -5375,14 +5151,6 @@ get-symbol-description@^1.0.0:
   dependencies:
     call-bind "^1.0.2"
     get-intrinsic "^1.1.1"
-
-get-user-locale@^2.2.1:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/get-user-locale/-/get-user-locale-2.3.0.tgz"
-  integrity sha512-I3rQvAUwu2nauRD9YyQBSXVFJZixNouwA+eZld51Sn4Pn0N1qFbgcgOi/nPigJPQlNY519mT95fiSPRgflQiTA==
-  dependencies:
-    "@types/lodash.memoize" "^4.1.7"
-    lodash.memoize "^4.1.1"
 
 glob-parent@^5.1.2:
   version "5.1.2"
@@ -6757,17 +6525,12 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
-lodash-es@^4.17.21:
-  version "4.17.21"
-  resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.21.tgz"
-  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
-
 lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.npmjs.org/lodash.debounce/-/lodash.debounce-4.0.8.tgz"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
-lodash.memoize@^4.1.1, lodash.memoize@^4.1.2:
+lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.npmjs.org/lodash.memoize/-/lodash.memoize-4.1.2.tgz"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
@@ -6979,7 +6742,7 @@ mkdirp@^0.5.5, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.6"
 
-moment@^2.10.2, "moment@>= 2.x":
+"moment@>= 2.x":
   version "2.29.4"
   resolved "https://registry.npmjs.org/moment/-/moment-2.29.4.tgz"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
@@ -7013,11 +6776,6 @@ nano-time@1.0.0:
   integrity sha1-sFVPaa2J4i0JB/ehKwmTpdlhN+8=
   dependencies:
     big-integer "^1.6.16"
-
-nanoclone@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.npmjs.org/nanoclone/-/nanoclone-0.2.1.tgz"
-  integrity sha512-wynEP02LmIbLpcYw8uBKpcfF6dmg2vcpKqxeH5UcoKEYdExslsdUA4ugFauuaeYdTB76ez6gJW8XAZ6CgkXYxA==
 
 nanoid@^3.3.1:
   version "3.3.3"
@@ -8076,11 +7834,6 @@ prop-types@^15.5.7, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2, 
     object-assign "^4.1.1"
     react-is "^16.13.1"
 
-property-expr@^2.0.4:
-  version "2.0.5"
-  resolved "https://registry.npmjs.org/property-expr/-/property-expr-2.0.5.tgz"
-  integrity sha512-IJUkICM5dP5znhCckHSv30Q4b5/JA5enCtkRHYaOVOAocnH/1BQEYTC5NMfT3AVl/iXKdr3aqQbQn9DxyWknwA==
-
 proxy-addr@~2.0.7:
   version "2.0.7"
   resolved "https://registry.npmjs.org/proxy-addr/-/proxy-addr-2.0.7.tgz"
@@ -8557,25 +8310,6 @@ react-bootstrap@2.5.0-beta.1:
     uncontrollable "^7.2.1"
     warning "^4.0.3"
 
-react-calendar@^4.3.0:
-  version "4.6.0"
-  resolved "https://registry.npmjs.org/react-calendar/-/react-calendar-4.6.0.tgz"
-  integrity sha512-GJ6ZipKMQmlK666t+0hgmecu6WHydEnMWJjKdEkUxW6F471hiM5DkbWXkfr8wlAg9tc9feNCBhXw3SqsPOm01A==
-  dependencies:
-    "@wojtekmaj/date-utils" "^1.1.3"
-    clsx "^2.0.0"
-    get-user-locale "^2.2.1"
-    prop-types "^15.6.0"
-    tiny-warning "^1.0.0"
-
-react-copy-to-clipboard@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.npmjs.org/react-copy-to-clipboard/-/react-copy-to-clipboard-5.1.0.tgz"
-  integrity sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==
-  dependencies:
-    copy-to-clipboard "^3.3.1"
-    prop-types "^15.8.1"
-
 react-dev-utils@^12.0.1:
   version "12.0.1"
   resolved "https://registry.npmjs.org/react-dev-utils/-/react-dev-utils-12.0.1.tgz"
@@ -8618,11 +8352,6 @@ react-error-overlay@^6.0.11:
   version "6.0.11"
   resolved "https://registry.npmjs.org/react-error-overlay/-/react-error-overlay-6.0.11.tgz"
   integrity sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==
-
-react-fast-compare@^2.0.1:
-  version "2.0.4"
-  resolved "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-2.0.4.tgz"
-  integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
 
 react-fast-compare@^3.1.1:
   version "3.2.2"
@@ -8787,11 +8516,6 @@ react-side-effect@^2.1.0:
   resolved "https://registry.npmjs.org/react-side-effect/-/react-side-effect-2.1.2.tgz"
   integrity sha512-PVjOcvVOyIILrYoyGEpDN3vmYNLdy1CajSFNt4TDsVQC5KpTijDvWVoR+/7Rz2xT978D8/ZtFceXxzsPwZEDvw==
 
-react-table@^7.8.0:
-  version "7.8.0"
-  resolved "https://registry.npmjs.org/react-table/-/react-table-7.8.0.tgz"
-  integrity sha512-hNaz4ygkZO4bESeFfnfOft73iBUj8K5oKi1EcSHPAibEydfsX2MyU6Z8KCr3mv3C9Kqqh71U+DhZkFvibbnPbA==
-
 react-topbar-progress-indicator@4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/react-topbar-progress-indicator/-/react-topbar-progress-indicator-4.1.1.tgz"
@@ -8809,7 +8533,7 @@ react-transition-group@^4.3.0, react-transition-group@^4.4.2:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-react@*, "react@^15.3.0 || 16 || 17 || 18", "react@^16.3.0 || ^17.0.0 || ^18.0.0", "react@^16.3.0 || 17 || 18", "react@^16.7.0 || ^17 || ^18", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.0-rc.1 || ^18.0.0", "react@^16.8.3 || ^17.0.0-0 || ^18.0.0", react@^18.0.0, "react@>= 16", react@>=0.13, react@>=0.14.0, react@>=0.14.9, react@>=15.0.0, react@>=16.0.0, react@>=16.11.0, react@>=16.14.0, react@>=16.3, react@>=16.3.0, react@>=16.6.0, react@>=16.8, react@>=16.8.0, react@>=16.9.0, react@18.0.0:
+react@*, "react@^16.3.0 || ^17.0.0 || ^18.0.0", "react@^16.3.0 || 17 || 18", "react@^16.7.0 || ^17 || ^18", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.0-rc.1 || ^18.0.0", react@^18.0.0, "react@>= 16", react@>=0.13, react@>=0.14.0, react@>=0.14.9, react@>=15.0.0, react@>=16.0.0, react@>=16.11.0, react@>=16.14.0, react@>=16.3, react@>=16.3.0, react@>=16.6.0, react@>=16.8, react@>=16.8.0, react@>=16.9.0, react@18.0.0:
   version "18.0.0"
   resolved "https://registry.npmjs.org/react/-/react-18.0.0.tgz"
   integrity sha512-x+VL6wbT4JRVPm7EGxXhZ8w8LTROaxPXOqhlGyVSrv0sB1jkyFGgXxJ8LVoPRLvPR6/CIZGFmfzqUa2NYeMr2A==
@@ -9900,11 +9624,6 @@ thunky@^1.0.2:
   resolved "https://registry.npmjs.org/thunky/-/thunky-1.1.0.tgz"
   integrity sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==
 
-tiny-warning@^1.0.0, tiny-warning@^1.0.2:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/tiny-warning/-/tiny-warning-1.0.3.tgz"
-  integrity sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==
-
 tmpl@1.0.5:
   version "1.0.5"
   resolved "https://registry.npmjs.org/tmpl/-/tmpl-1.0.5.tgz"
@@ -9936,11 +9655,6 @@ topbar@^0.1.3:
   version "0.1.4"
   resolved "https://registry.npmjs.org/topbar/-/topbar-0.1.4.tgz"
   integrity sha512-P3n4WnN4GFd2mQXDo30rQmsAGe4V1bVkggtTreSbNyL50Fyc+eVkW5oatSLeGQmJoan2TLIgoXUZypN+6nw4MQ==
-
-toposort@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/toposort/-/toposort-2.0.2.tgz"
-  integrity sha1-riF2gXXRVZ1IvvNUILL0li8JwzA=
 
 tough-cookie@^4.0.0:
   version "4.0.0"
@@ -9979,11 +9693,6 @@ tsconfig-paths@^3.14.1:
     json5 "^1.0.1"
     minimist "^1.2.6"
     strip-bom "^3.0.0"
-
-tslib@^1.10.0:
-  version "1.14.1"
-  resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
-  integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
 tslib@^1.8.1:
   version "1.14.1"
@@ -10727,16 +10436,3 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
-
-yup@0.32.11:
-  version "0.32.11"
-  resolved "https://registry.npmjs.org/yup/-/yup-0.32.11.tgz"
-  integrity sha512-Z2Fe1bn+eLstG8DRR6FTavGD+MeAwyfmouhHsIUgaADz8jvFKbO/fXc2trJKZg+5EBjh4gGm3iU/t3onKlXHIg==
-  dependencies:
-    "@babel/runtime" "^7.15.4"
-    "@types/lodash" "^4.14.175"
-    lodash "^4.17.21"
-    lodash-es "^4.17.21"
-    nanoclone "^0.2.1"
-    property-expr "^2.0.4"
-    toposort "^2.0.2"

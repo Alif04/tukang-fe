@@ -1,5 +1,5 @@
 import React from 'react'
-import {useParams, Navigate, Route, Routes} from 'react-router-dom'
+import {Navigate, Route, Routes} from 'react-router-dom'
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 

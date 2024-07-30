@@ -18,15 +18,15 @@ const UpdateRescheduleOrder: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Admin HO' || userRole === 'Super User' ? (
+      {userRole === 'Admin HO' ||
+      userRole === 'Super User' ||
+      userRole === 'Admin Vendor' ||
+      userRole === 'Owner Vendor' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateRescheduleHO updatePageTitle={updatePageTitle} />
         </>
-      ) : userRole === 'Store CS' ||
-        userRole === 'Admin Vendor' ||
-        userRole === 'Owner Vendor' ||
-        userRole === 'Tukang' ? (
+      ) : userRole === 'Store CS' || userRole === 'Tukang' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateReschedule updatePageTitle={updatePageTitle} />

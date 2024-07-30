@@ -10,8 +10,10 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface Reschedule {
+  id: any
   order_id: any
   status_id: any
+  confirm_date: string
   reschedule_date: string
   reschedule_status_id: any
   description: string
@@ -35,8 +37,10 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   const [rescheduleDetail, setRescheduleDetail] = useState<any>()
 
   const [reschedule, setReschedule] = useState<Reschedule>({
+    id: null,
     order_id: null,
     status_id: null,
+    confirm_date: '',
     reschedule_date: '',
     reschedule_status_id: null,
     description: '',
@@ -66,12 +70,14 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
           if (data) {
             setReschedule({
+              id: data?.id ?? null,
               order_id: data?.order_id ?? null,
               status_id: data?.status_id ?? null,
               reschedule_date: new Date(data.reschedule_date).toISOString().split('T')[0],
               reschedule_status_id: data?.reschedule_status[0]?.status_id,
               description: data?.reschedule_status[0]?.description,
               reschedule_status_by: data?.reschedule_status[0]?.status_by,
+              confirm_date: new Date(data.reschedule_date).toISOString().split('T')[0],
             })
           }
 
@@ -187,13 +193,14 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     formData.append('status_id', reschedule.status_id)
     formData.append('reschedule_date', reschedule.reschedule_date)
 
+    formData.append('reschedule_status[id]', reschedule.id)
     formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
     formData.append('reschedule_status[description]', reschedule.description)
     formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
 
     if (rescheduleEvidence?.length) {
       rescheduleEvidence.forEach((item) => {
-        if (item) {
+        if (item instanceof Blob) {
           formData.append(`reschedule_evidences`, item, item?.name)
         }
       })
@@ -280,9 +287,10 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                 <Form.Label className='fs-4 fw-bold'>
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {rescheduleDetail?.order?.work_orders?.work_order_status.length > 0
-                      ? rescheduleDetail?.order?.work_orders?.work_order_status[0]?.status?.category
-                      : rescheduleDetail?.order?.status?.category}
+                    {rescheduleDetail?.order?.work_orders?.work_order_status?.length > 0
+                      ? rescheduleDetail?.order?.work_orders?.work_order_status[0]?.status
+                          ?.description
+                      : rescheduleDetail?.order?.status?.description}
                   </span>
                 </Form.Label>
               </Col>
@@ -421,7 +429,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
             {(() => {
               if (
                 rescheduleDetail?.order?.payment_type === 'survey' ||
-                rescheduleDetail?.order?.work_orders?.work_order_status.length === 1
+                rescheduleDetail?.order?.work_orders
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -734,6 +742,17 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   onChange={(e) => RescheduleFormHandler(e)}
                 />
               </Form.Group>
+
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
+                <Form.Control
+                  name='confirm_date'
+                  type='date'
+                  min={today}
+                  value={reschedule.confirm_date}
+                  onChange={(e) => RescheduleFormHandler(e)}
+                />
+              </Form.Group>
             </Col>
 
             <Col xxl={4} xl={4} md={4} sm={12}>
@@ -832,6 +851,8 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               variant='light-danger'
               className='d-flex justify-content-center align-items-center'
               type='submit'
+              disabled={isLoading}
+              onClick={handleUpdateReschedule}
             >
               Rejected
             </Button>
@@ -843,7 +864,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               disabled={isLoading}
               onClick={handleUpdateReschedule}
             >
-              {isLoading ? 'Updating..' : 'Update'}
+              {isLoading ? 'Updating..' : 'Approve'}
             </Button>
           </div>
         </Card.Body>

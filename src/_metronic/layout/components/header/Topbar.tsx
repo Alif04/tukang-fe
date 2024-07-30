@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import React, {FC} from 'react'
 import {KTSVG} from '../../../helpers'
-import {HeaderNotificationsMenu, QuickLinks} from '../../../partials'
+import {HeaderNotificationsMenu} from '../../../partials'
 import {useLayout} from '../../core'
 
 const toolbarButtonMarginClass = 'ms-1 ms-lg-3',
@@ -98,7 +98,7 @@ const Topbar: FC = () => {
           data-kt-menu-placement='bottom-end'
           data-kt-menu-flip='bottom'
         >
-          <img src={toAbsoluteUrl('/media/avatars/300-1.jpg')} alt='metronic' />
+          <img src={toAbsoluteUrl('/media/avatars/blank.png')} alt='metronic' />
         </div>
         <HeaderUserMenu />
       </div> */}

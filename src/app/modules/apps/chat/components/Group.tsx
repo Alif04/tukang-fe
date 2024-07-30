@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {FC} from 'react'
 import {KTSVG, toAbsoluteUrl} from '../../../../../_metronic/helpers'
-import {Dropdown1, ChatInner} from '../../../../../_metronic/partials'
+import {ChatInner} from '../../../../../_metronic/partials'
 
 const Group: FC = () => {
   return (
@@ -60,7 +60,7 @@ const Group: FC = () => {
               <div className='d-flex flex-stack py-4'>
                 <div className='d-flex align-items-center'>
                   <div className='symbol symbol-45px symbol-circle'>
-                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-1.jpg')} />
+                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                   </div>
 
                   <div className='ms-5'>
@@ -81,7 +81,7 @@ const Group: FC = () => {
               <div className='d-flex flex-stack py-4'>
                 <div className='d-flex align-items-center'>
                   <div className='symbol symbol-45px symbol-circle'>
-                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-5.jpg')} />
+                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                   </div>
 
                   <div className='ms-5'>
@@ -103,7 +103,7 @@ const Group: FC = () => {
               <div className='d-flex flex-stack py-4'>
                 <div className='d-flex align-items-center'>
                   <div className='symbol symbol-45px symbol-circle'>
-                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-25.jpg')} />
+                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                   </div>
 
                   <div className='ms-5'>
@@ -147,7 +147,7 @@ const Group: FC = () => {
               <div className='d-flex flex-stack py-4'>
                 <div className='d-flex align-items-center'>
                   <div className='symbol symbol-45px symbol-circle'>
-                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-9.jpg')} />
+                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                   </div>
 
                   <div className='ms-5'>
@@ -217,7 +217,7 @@ const Group: FC = () => {
               <div className='d-flex flex-stack py-4'>
                 <div className='d-flex align-items-center'>
                   <div className='symbol symbol-45px symbol-circle'>
-                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-23.jpg')} />
+                    <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                   </div>
 
                   <div className='ms-5'>
@@ -268,16 +268,16 @@ const Group: FC = () => {
             <div className='card-title'>
               <div className='symbol-group symbol-hover'>
                 <div className='symbol symbol-35px symbol-circle'>
-                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-5.jpg')} />
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                 </div>
                 <div className='symbol symbol-35px symbol-circle'>
-                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-25.jpg')} />
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                 </div>
                 <div className='symbol symbol-35px symbol-circle'>
                   <span className='symbol-label bg-light-warning text-warning 40px'>M</span>
                 </div>
                 <div className='symbol symbol-35px symbol-circle'>
-                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-9.jpg')} />
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                 </div>
                 <div className='symbol symbol-35px symbol-circle'>
                   <span className='symbol-label bg-light-danger text-danger 40px'>O</span>
@@ -286,7 +286,7 @@ const Group: FC = () => {
                   <span className='symbol-label bg-light-primary text-primary 40px'>N</span>
                 </div>
                 <div className='symbol symbol-35px symbol-circle'>
-                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/300-23.jpg')} />
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
                 </div>
                 <a
                   href='#'
@@ -316,7 +316,6 @@ const Group: FC = () => {
                 >
                   <i className='bi bi-three-dots fs-2'></i>
                 </button>
-                <Dropdown1 />
               </div>
             </div>
           </div>

@@ -41,26 +41,10 @@ const AsideDefault: FC = () => {
       ref={asideRef}
     >
       {/* begin::Brand */}
-      <div className='aside-logo d-flex justify-content-center flex-column' id='kt_aside_logo'>
-        {/* begin::Logo */}
-        {/* {aside.theme === 'dark' && (
-          <Link to='/dashboard'>
-            <img
-              alt='Logo'
-              className='h-25px logo'
-              src={toAbsoluteUrl('/media/logos/default-dark.svg')}
-            />
-          </Link>
-        )}
-        {aside.theme === 'light' && (
-          <Link to='/dashboard'>
-            <img
-              alt='Logo'
-              className='h-25px logo'
-              src={toAbsoluteUrl('/media/logos/default.svg')}
-            />
-          </Link>
-        )} */}
+      <div
+        className='aside-logo d-flex justify-content-center align-items-center flex-column'
+        id='kt_aside_logo'
+      >
         <Link to='/home'>
           <img
             alt='Logo'
@@ -121,25 +105,6 @@ const AsideDefault: FC = () => {
         <AsideMenu asideMenuCSSClasses={classes.asideMenu} />
       </div>
       {/* end::Aside menu */}
-
-      {/* begin::Footer */}
-      {/* <div className='aside-footer flex-column-auto pt-5 pb-7 px-5' id='kt_aside_footer'>
-        <a
-          target='_blank'
-          className='btn btn-custom btn-primary w-100'
-          href={process.env.REACT_APP_PREVIEW_DOCS_URL}
-          data-bs-toggle='tooltip'
-          data-bs-trigger='hover'
-          data-bs-dismiss-='click'
-          title='Check out the complete documentation with over 100 components'
-        >
-          <span className='btn-label'>Docs & Components</span>
-          <span className='svg-icon btn-icon svg-icon-2'>
-            <KTSVG path='/media/icons/duotune/general/gen005.svg' />
-          </span>
-        </a>
-      </div> */}
-      {/* end::Footer */}
     </div>
   )
 }

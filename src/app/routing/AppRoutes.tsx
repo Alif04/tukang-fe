@@ -13,11 +13,7 @@ import {Login} from '../modules/login/Login'
 import {ForgotPassword} from '../modules/forgot-password/forgot-password'
 import {ResetPassword} from '../modules/reset-password/reset-password'
 import {App} from '../App'
-
 import {DetailOrderWithoutAuth} from '../pages/detail_order_without_auth/DetailOrderWithoutAuth'
-
-import {MasterLayout} from '../../_metronic/layout/MasterLayout'
-import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
 
 /**
  * Base URL of the website.

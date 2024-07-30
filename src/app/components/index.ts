@@ -142,9 +142,6 @@ export * from './admin-ho/complaint/view_complaint/ViewComplaint'
 // Update Complaint
 export * from './admin-ho/complaint/update_complaint/UpdateComplaint'
 
-// Detail Complaint
-export * from './admin-ho/complaint/detail_complaint/DetailComplaint'
-
 // COSTUMER
 // View Costumers HO
 export * from './admin-ho/costumers/view_costumers/ViewCostumer'
@@ -391,9 +388,6 @@ export * from './admin-vendor/complaint/view_complaint/ViewComplaint'
 // Update Complaint
 export * from './admin-vendor/complaint/update_complaint/UpdateComplaint'
 
-// Detail Complaint
-export * from './admin-vendor/complaint/detail_complaint/DetailComplaint'
-
 // Report
 export * from './admin-vendor/reports/report/ReportVendor'
 
@@ -437,9 +431,6 @@ export * from './tukang/complaint/view_complaint/ViewComplaint'
 
 // Update Complaint
 export * from './tukang/complaint/update_complaint/UpdateComplaint'
-
-// Detail Complaint
-export * from './tukang/complaint/detail_complaint/DetailComplaint'
 
 // REPORT TUKANG
 // View Report

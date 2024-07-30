@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 import {KTSVG, toAbsoluteUrl} from '../../../../../../_metronic/helpers'
-import {Dropdown1} from '../../../../../../_metronic/partials/content/dropdown/Dropdown1'
 
 type Props = {
   className: string
@@ -24,7 +23,7 @@ const BestCostumers: React.FC<Props> = ({className, memberData, totalMember}) =>
             <div className='d-flex align-items-center'>
               <div className='symbol symbol-50px me-5'>
                 <img
-                  src={toAbsoluteUrl('/media/avatars/300-6.jpg')}
+                  src={toAbsoluteUrl('/media/avatars/blank.png')}
                   className='rounded-circle'
                   alt=''
                 />

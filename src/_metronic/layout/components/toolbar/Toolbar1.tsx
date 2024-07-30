@@ -2,7 +2,6 @@
 import clsx from 'clsx'
 import {useState} from 'react'
 import {KTSVG} from '../../../helpers'
-import {CreateAppModal} from '../../../partials'
 import {useLayout} from '../../core'
 import {DefaultTitle} from '../header/page-title/DefaultTitle'
 
@@ -60,7 +59,6 @@ const Toolbar1 = () => {
         </div>
         {/* end::Container */}
       </div>
-      <CreateAppModal show={showCreateAppModal} handleClose={() => setShowCreateAppModal(false)} />
     </>
   )
 }

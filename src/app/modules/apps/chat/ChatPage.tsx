@@ -2,19 +2,12 @@ import {Navigate, Route, Routes, Outlet} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../../_metronic/layout/core'
 import {Private} from './components/Private'
 import {Group} from './components/Group'
-import {Drawer} from './components/Drawer'
 
 const chatBreadCrumbs: Array<PageLink> = [
   {
     title: 'Chat',
     path: '/apps/chat/private-chat',
     isSeparator: false,
-    isActive: false,
-  },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
     isActive: false,
   },
 ]
@@ -38,15 +31,6 @@ const ChatPage = () => {
             <>
               <PageTitle breadcrumbs={chatBreadCrumbs}>Group chat</PageTitle>
               <Group />
-            </>
-          }
-        />
-        <Route
-          path='drawer-chat'
-          element={
-            <>
-              <PageTitle breadcrumbs={chatBreadCrumbs}>Drawer chat</PageTitle>
-              <Drawer />
             </>
           }
         />

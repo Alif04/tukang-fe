@@ -163,7 +163,7 @@ const ViewReportVendor = () => {
                         height={50}
                       />
 
-                      {newTabs('on-progress', 'Laporan On Progress')}
+                      {newTabs('on-progress', 'Laporan Pengerjaan')}
                     </Card.Body>
                   </Card>
                 </Link>

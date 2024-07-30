@@ -1674,130 +1674,134 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             </>
           )}
 
-          <hr />
+          {!['Tukang'].includes(userRole) && (
+            <>
+              <hr />
 
-          <Row>
-            <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
-              <Form.Label className='fs-3 fw-bold'>Feedback</Form.Label>
-              <Form.Control
-                style={{minHeight: '170px'}}
-                as='textarea'
-                placeholder='Isi feedback..'
-                name='remedial_action'
-                value={remedialForm.remedial_action}
-                onChange={(e) => remedialFormHandler(e)}
-              ></Form.Control>
-            </Col>
-
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
-              <Form.Group controlId='formFile'>
-                <Form.Label className='fs-3 fw-bold'>Upload Bukti</Form.Label>
-                <Form className='form-input-image' onClick={handleImageClick}>
+              <Row>
+                <Col xs={12} md={8} lg={8} xl={8} xxl={8} className='mb-3'>
+                  <Form.Label className='fs-3 fw-bold'>Feedback</Form.Label>
                   <Form.Control
-                    type='file'
-                    accept='image/*'
-                    className='input-field-image'
-                    multiple
-                    hidden
-                    id='file-input'
-                    ref={evidenceRef}
-                    onChange={handleFileChange}
-                  />
+                    style={{minHeight: '170px'}}
+                    as='textarea'
+                    placeholder='Isi feedback..'
+                    name='remedial_action'
+                    value={remedialForm.remedial_action}
+                    onChange={(e) => remedialFormHandler(e)}
+                  ></Form.Control>
+                </Col>
 
-                  <div className='input-image-text'>
-                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                    <p>Add File</p>
-                  </div>
-                </Form>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
+                  <Form.Group controlId='formFile'>
+                    <Form.Label className='fs-3 fw-bold'>Upload Bukti</Form.Label>
+                    <Form className='form-input-image' onClick={handleImageClick}>
+                      <Form.Control
+                        type='file'
+                        accept='image/*'
+                        className='input-field-image'
+                        multiple
+                        hidden
+                        id='file-input'
+                        ref={evidenceRef}
+                        onChange={handleFileChange}
+                      />
 
-                <ListGroup className='pt-3'>
-                  {feedbackEvidence.length ? (
-                    feedbackEvidence.map((item, index) => (
-                      <ListGroup.Item
-                        key={`${item?.name}-${index}-${item?.type}`}
-                        className='d-flex justify-content-between'
-                      >
-                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    </Form>
 
-                        <span className='upload-content'> {item?.name}</span>
+                    <ListGroup className='pt-3'>
+                      {feedbackEvidence.length ? (
+                        feedbackEvidence.map((item, index) => (
+                          <ListGroup.Item
+                            key={`${item?.name}-${index}-${item?.type}`}
+                            className='d-flex justify-content-between'
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          size='sm'
-                          color='#ed2b2a'
-                          style={{cursor: 'pointer'}}
-                          onClick={(e) => handleRemoveFile(index)}
-                        />
-                      </ListGroup.Item>
-                    ))
-                  ) : (
-                    <ListGroup.Item className='d-flex justify-content-center'>
-                      Tidak ada file yang dipilih
-                    </ListGroup.Item>
-                  )}
-                </ListGroup>
-              </Form.Group>
-            </Col>
-          </Row>
+                            <span className='upload-content'> {item?.name}</span>
 
-          <Row>
-            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Nama Pemberi Feedback</Form.Label>
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
+                  </Form.Group>
+                </Col>
+              </Row>
 
-                <Form.Control
-                  name='remedial_pic'
-                  type='text'
-                  placeholder='Isi Nama Pemberi Feedback'
-                  value={remedialForm.remedial_pic}
-                  onChange={(e) => remedialFormHandler(e)}
-                ></Form.Control>
-              </Form.Group>
-            </Col>
+              <Row>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                  <Form.Group>
+                    <Form.Label>Nama Pemberi Feedback</Form.Label>
 
-            <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-              <Form.Group>
-                <Form.Label>Jabatan</Form.Label>
-                <Select
-                  name='pic_position'
-                  id='pic_position'
-                  className='form-control p-0 form-item-name'
-                  classNamePrefix='select'
-                  placeholder='Jabatan'
-                  isSearchable={true}
-                  isClearable={true}
-                  options={picPositions}
-                  value={{
-                    value: selectedPosition?.value ?? '',
-                    label: selectedPosition?.label ?? '',
-                  }}
-                  onChange={(newValue) => setSelectedPosition(newValue)}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
+                    <Form.Control
+                      name='remedial_pic'
+                      type='text'
+                      placeholder='Isi Nama Pemberi Feedback'
+                      value={remedialForm.remedial_pic}
+                      onChange={(e) => remedialFormHandler(e)}
+                    ></Form.Control>
+                  </Form.Group>
+                </Col>
 
-          <div className='d-flex justify-content-center align-items-center mt-5'>
-            <Button
-              variant='dark-danger'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              onClick={handleCancel}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                  <Form.Group>
+                    <Form.Label>Jabatan</Form.Label>
+                    <Select
+                      name='pic_position'
+                      id='pic_position'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Jabatan'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={picPositions}
+                      value={{
+                        value: selectedPosition?.value ?? '',
+                        label: selectedPosition?.label ?? '',
+                      }}
+                      onChange={(newValue) => setSelectedPosition(newValue)}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
 
-            <Button
-              variant='dark-primary'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              disabled={isLoading}
-              onClick={handleSubmitNewFeedback}
-            >
-              {isLoading ? 'Submitting...' : 'Submit'}
-            </Button>
-          </div>
+              <div className='d-flex justify-content-center align-items-center mt-5'>
+                <Button
+                  variant='dark-danger'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  variant='dark-primary'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  disabled={isLoading}
+                  onClick={handleSubmitNewFeedback}
+                >
+                  {isLoading ? 'Submitting...' : 'Submit'}
+                </Button>
+              </div>
+            </>
+          )}
         </Card.Body>
       </Card>
 

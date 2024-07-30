@@ -42,7 +42,7 @@ const ChartBarSurvey: React.FC<Props> = ({className, orderData}) => {
   return (
     <div className={`card ${className}`}>
       <div className='card-body'>
-        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '350px'}} />
+        <div ref={chartRef} id='kt_charts_widget_1_chart' style={{height: '305px'}} />
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ViewQuotation.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
@@ -46,9 +47,17 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const today = new Date()
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -68,15 +77,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.quotation_id - b.quotation_id,
     },
     {
-      title: 'Nama Store',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      width: 130,
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-    },
-    {
       title: 'Order ID',
       dataIndex: 'order_id',
       key: 'order_id',
@@ -86,7 +86,16 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Order Date',
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'center',
+      width: 130,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
@@ -95,7 +104,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
-      title: 'Customer Name',
+      title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
@@ -103,30 +112,22 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
+    // {
+    //   title: 'Nama Pemasangan',
+    //   dataIndex: 'service_name',
+    //   key: 'service_name',
+    //   align: 'left',
+    //   width: 130,
+    //   onFilter: (value, record) => record.service_name.includes(String(value)),
+    //   sorter: (a, b) => a.service_name.length - b.service_name.length,
+    // },
+
     {
-      title: 'Nama Pekerjaan',
-      dataIndex: 'service_name',
-      key: 'service_name',
-      align: 'left',
-      width: 130,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
-    },
-    {
-      title: 'Payment Status',
-      dataIndex: 'payment_status',
-      key: 'payment_status',
-      align: 'left',
-      width: 120,
-      onFilter: (value, record) => record.payment_status.includes(String(value)),
-      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
-    },
-    {
-      title: 'Order Status',
+      title: 'Status Order',
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 120,
+      width: 140,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -143,9 +144,17 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [{text: 'QUOTEIN', value: 'QUOTEIN'}],
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
+    },
+    {
+      title: 'Status Pembayaran Quotation',
+      dataIndex: 'payment_status',
+      key: 'payment_status',
+      align: 'left',
+      width: 120,
+      onFilter: (value, record) => record.payment_status.includes(String(value)),
+      sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
     {
       title: 'Quotation Status',
@@ -171,10 +180,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      filters: [
-        {text: 'SURVEYDONE', value: 'SURVEYDONE'},
-        {text: 'QUOTEIN', value: 'QUOTEIN'},
-      ],
       onFilter: (value, record) => record.quotation_status.includes(String(value)),
       sorter: (a, b) => a.quotation_status.length - b.quotation_status.length,
     },
@@ -182,7 +187,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 50,
+      align: 'center',
+      width: 90,
       render: (record) => {
         const handleDetailId = () => {
           const id = record.quotation_id
@@ -225,7 +231,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   ]
 
   const getQuotationList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -265,6 +271,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const workOrderItems = item?.quotation_details
@@ -272,14 +280,10 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           .join(', ')
 
         const paymentStatus = (() => {
-          if (item?.order?.payment_type === 'survey') {
-            return item.order.receipt_number === null ? 'UNPAID' : 'PAID'
-          } else if (item?.order?.payment_type === 'gratis') {
-            return 'FREE'
-          } else if (item?.order?.payment_type === 'pemasangan_tanpa_survey') {
-            return item?.order.receipt_number === null ? 'UNPAID' : 'PAID'
+          if (item?.receipt_quotation === null) {
+            return 'UNPAID'
           } else {
-            return ''
+            return 'PAID'
           }
         })()
 
@@ -292,8 +296,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           costumer_name: item?.order.members.full_name,
           service_name: workOrderItems,
           payment_status: paymentStatus,
-          order_status: item?.status.description,
-          quotation_status: item?.status.description,
+          order_status: item?.status?.description,
+          quotation_status: item?.status?.description,
         }
 
         return data
@@ -335,8 +339,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
     const data = await ViewQuotation(1, 10, queryparams)
@@ -345,12 +347,26 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     setLoadingButton(false)
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   return (
     <section id='view-quotation'>
       <div className={`card ${className}`}>
         <div className='card-body'>
-          <Row className='table-head-wrapper'>
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12} className='d-flex mb-2'>
+          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
+            <Col
+              xxl={4}
+              xl={4}
+              lg={4}
+              md={4}
+              sm={12}
+              className='d-flex mb-2'
+              onKeyDown={handleKeyPress}
+            >
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>
               </div>
@@ -358,6 +374,10 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -366,8 +386,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
@@ -413,6 +433,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               dataSource={orderData}
               rowKey={(record) => record.quotation_id}
               pagination={false}
+              scroll={{x: 1500}}
             />
           </Spin>
 

@@ -32,7 +32,7 @@ const ClaimWarrantyForm: React.FC = () => {
       ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
-          <WarrantyFormClaimVendor updatePageTitle={updatePageTitle} />
+          <WarrantyFormClaim updatePageTitle={updatePageTitle} />
         </>
       ) : userRole === 'Tukang' ? (
         <>

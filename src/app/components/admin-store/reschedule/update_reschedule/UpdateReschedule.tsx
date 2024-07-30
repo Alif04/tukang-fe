@@ -10,6 +10,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
 interface Reschedule {
+  id: any
   order_id: any
   status_id: any
   reschedule_date: string
@@ -34,6 +35,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
 
   const userRole = localStorage.getItem('userRole')
   const [reschedule, setReschedule] = useState<Reschedule>({
+    id: null,
     order_id: null,
     status_id: null,
     reschedule_date: '',
@@ -65,6 +67,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
 
           if (data) {
             setReschedule({
+              id: data?.id ?? null,
               order_id: data?.order_id ?? null,
               status_id: data?.status_id ?? null,
               reschedule_date: new Date(data.reschedule_date).toISOString().split('T')[0],
@@ -213,13 +216,14 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
       formData.append('status_id', reschedule.status_id)
       formData.append('reschedule_date', reschedule.reschedule_date)
 
+      formData.append('reschedule_status[id]', reschedule.id)
       formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
       formData.append('reschedule_status[description]', reschedule.description)
       formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
 
       if (rescheduleEvidence?.length) {
         rescheduleEvidence.forEach((item) => {
-          if (item) {
+          if (item instanceof Blob) {
             formData.append(`reschedule_evidences`, item, item?.name)
           }
         })
@@ -447,7 +451,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
             {(() => {
               if (
                 rescheduleDetail?.order?.payment_type === 'survey' ||
-                rescheduleDetail?.order?.work_orders?.work_order_status.length === 1
+                rescheduleDetail?.order?.work_orders
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -472,7 +476,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                       </thead>
 
                       <tbody>
-                        {rescheduleDetail?.order?.m_order_details.map((item: any, index: any) => (
+                        {rescheduleDetail?.order?.m_order_details?.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>

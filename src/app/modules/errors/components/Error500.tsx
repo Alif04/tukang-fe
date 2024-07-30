@@ -43,29 +43,12 @@ const Error500: FC = () => {
           <div
             className='d-flex flex-row-auto bgi-no-repeat bgi-position-x-center bgi-size-contain bgi-position-y-bottom min-h-100px min-h-lg-350px'
             style={{
-              backgroundImage: `url('${toAbsoluteUrl('/media/illustrations/sketchy-1/17.png')}')`,
+              backgroundImage: `url('${toAbsoluteUrl('/media/auth/error-500.png')}')`,
             }}
           ></div>
           {/*end::Illustration*/}
         </div>
         {/*end::Content*/}
-        {/*begin::Footer*/}
-        <div className='d-flex flex-center flex-column-auto p-10'>
-          {/*begin::Links*/}
-          <div className='d-flex align-items-center fw-bold fs-6'>
-            <a href='https://keenthemes.com' className='text-muted text-hover-primary px-2'>
-              About
-            </a>
-            <a href='mailto:support@keenthemes.com' className='text-muted text-hover-primary px-2'>
-              Contact
-            </a>
-            <a href='https://1.envato.market/EA4JP' className='text-muted text-hover-primary px-2'>
-              Contact Us
-            </a>
-          </div>
-          {/*end::Links*/}
-        </div>
-        {/*end::Footer*/}
       </div>
       {/*end::Authentication - Error 500*/}
     </div>

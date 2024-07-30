@@ -508,6 +508,12 @@ const ViewTukangVendor: FC = () => {
     setLoadingButton(false)
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   return (
     <section id='view-tukang'>
       <Card>
@@ -518,7 +524,7 @@ const ViewTukangVendor: FC = () => {
             </button>
           </div>
 
-          <Row className='table-head-wrapper'>
+          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
             <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <Form.Group as={Row}>
                 <Form.Label className='fs-6' column sm='3'>

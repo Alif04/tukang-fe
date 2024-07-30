@@ -181,21 +181,19 @@ const ListUserHO: React.FC<Props> = ({className}) => {
                     <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
                   </Button>
                 </OverlayTrigger>
+
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Hapus User')}
+                >
+                  <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
+                    <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
               </>
             ) : (
               <></>
-            )}
-
-            {!['Owner Vendor', 'Super User'].includes(role) && (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Hapus User')}
-              >
-                <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
-                  <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
             )}
           </div>
         )
@@ -294,11 +292,17 @@ const ListUserHO: React.FC<Props> = ({className}) => {
     setLoadingButton(false)
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   return (
     <section id='view-item'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
-          <Row className='table-head-wrapper'>
+          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex mb-2'>
               <div className='d-flex align-items-center me-3'>
                 <h3 className='fs-3 fw-normal'>Date : </h3>

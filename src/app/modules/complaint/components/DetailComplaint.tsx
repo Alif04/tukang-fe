@@ -2,9 +2,6 @@ import React, {FC, useState} from 'react'
 
 import {PageTitle} from '../../../../_metronic/layout/core'
 import {DetailComplaintPage} from '../../../components'
-import {DetailComplaintHO} from '../../../components'
-import {DetailComplaintVendor} from '../../../components'
-import {DetailComplaintTukang} from '../../../components'
 import {UpdateComplaintVendor} from '../../../components'
 
 const DetailComplaint: FC = () => {
