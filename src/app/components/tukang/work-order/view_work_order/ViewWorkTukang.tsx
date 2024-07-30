@@ -235,7 +235,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               'INVESTIGATED',
               'COMPLAINTAPPROVEDBYHO',
               'COMPLAINTREJECTEDBYHO',
-              'RESCHEDULE',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'

@@ -376,6 +376,7 @@ const DashboardTukang: FC = () => {
                   columns={columns}
                   dataSource={orderList}
                   rowKey={(record) => record.order_id}
+                  scroll={{x: 1200}}
                   pagination={{
                     position: ['bottomRight'],
                     current: currentPage,
