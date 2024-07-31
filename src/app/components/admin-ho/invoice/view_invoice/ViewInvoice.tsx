@@ -395,12 +395,12 @@ const ViewInvoiceHO: FC = () => {
     setIsLoading(true)
     const formData = new FormData()
 
-    // invoices.invoice_id.forEach((invoice) => {
-    //   if (invoice.id !== null) {
-    //     formData.append('status', String(2))
-    //     formData.append(`invoice_id`, String(invoice.id))
-    //   }
-    // })
+    invoices.invoice_id.forEach((invoice) => {
+      if (invoice.id !== null) {
+        formData.append('status', String(2))
+        formData.append(`invoice_id`, String(invoice.id))
+      }
+    })
 
     Swal.fire({
       title: 'Apakah anda yakin akan menyetujui daftar invoice ini?',

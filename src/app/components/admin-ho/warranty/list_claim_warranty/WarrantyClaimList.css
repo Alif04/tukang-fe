@@ -61,9 +61,16 @@
   width: 370px;
 }
 
-#warranty-claim-list h3.date-text {
-  font-size: 16px;
-  font-weight: normal;
+#warranty-claim-list input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
+}
+
+#warranty-claim-list .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
 }
 
 @media screen and (max-width: 1400px) {

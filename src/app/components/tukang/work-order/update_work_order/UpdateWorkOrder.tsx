@@ -1348,12 +1348,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     <Form.Label className='fs-6'>Tanggal Survey</Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control
-                        type='datetime-local'
-                        disabled
-                        value={workOrder.survey_date_time}
-                        onChange={(e) => workOrderHandler(e.target.value, 'survey_date_time')}
-                      />
+                      <p className='fs-6'>
+                        {new Date(workOrderDetail?.survey_date).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}
+                      </p>
                     </Col>
                   </Form.Group>
 
@@ -1361,18 +1364,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     <Form.Label className='fs-6'>Tehnisi Survey</Form.Label>
 
                     <Col sm='8'>
-                      <Select
-                        classNamePrefix='select'
-                        closeMenuOnSelect={false}
-                        isClearable={false}
-                        menuIsOpen={false}
-                        isMulti
-                        components={animatedComponents}
-                        options={tukang}
-                        getOptionLabel={(option) => `${option.label}`}
-                        getOptionValue={(option) => `${option.value}`}
-                        value={workOrder.tukang_id.filter((x) => x.type === 1)}
-                      />
+                      <p>
+                        {Array.from(
+                          new Set(
+                            workOrderDetail?.work_order_tukang
+                              ?.filter((x: any) => x.type === 1)
+                              ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                          )
+                        ).join(', ')}
+                      </p>
                     </Col>
                   </Form.Group>
                 </Row>
@@ -1397,45 +1397,23 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     <Form.Label className='fs-6'>Tanggal Mulai dan Selesai Pekerjaan</Form.Label>
 
                     <Col sm='8'>
-                      <RangePicker
-                        disabled={[true, true]}
-                        allowClear={false}
-                        className='date-range w-100'
-                        format='DD-MM-YYYY'
-                        onChange={(values) => {
-                          if (values && values.length === 2) {
-                            const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
-                            const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
-
-                            setWorkOrder((prev) => ({
-                              ...prev,
-                              work_start_date: dateFromFormatted,
-                              work_end_date: dateToFormatted,
-                            }))
-                          } else {
-                            setWorkOrder({
-                              id: null,
-                              work_order_status: null,
-                              description: '',
-                              tukang_id: [],
-                              survey_date_time: '',
-                              work_date_time: '',
-                              work_start_date: '',
-                              work_end_date: '',
-                              work_order_before: [],
-                              work_order_after: [],
-                            })
-                          }
-                        }}
-                        value={
-                          (workOrder.work_start_date &&
-                            workOrder.work_end_date && [
-                              dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                              dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                            ]) ||
-                          undefined
-                        }
-                      />{' '}
+                      <p className='fs-6 fw-bold'>
+                        {new Date(workOrderDetail?.work_start_date).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}{' '}
+                        sampai{' '}
+                        {new Date(workOrderDetail?.work_start_date).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}
+                      </p>
                     </Col>
                   </Form.Group>
 
@@ -1443,19 +1421,15 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     <Form.Label className='fs-6'>Tehnisi Pengerjaan</Form.Label>
 
                     <Col sm='8'>
-                      <Select
-                        placeholder='Tukang belum diset oleh Vendor'
-                        classNamePrefix='select'
-                        closeMenuOnSelect={false}
-                        isClearable={false}
-                        menuIsOpen={false}
-                        isMulti
-                        components={animatedComponents}
-                        options={tukang}
-                        getOptionLabel={(option) => `${option.label}`}
-                        getOptionValue={(option) => `${option.value}`}
-                        value={workOrder.tukang_id.filter((x) => x.type === 2)}
-                      />
+                      <p className='fs-6 fw-bold'>
+                        {Array.from(
+                          new Set(
+                            workOrderDetail?.work_order_tukang
+                              ?.filter((x: any) => x.type === 2)
+                              ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                          )
+                        ).join(', ')}
+                      </p>
                     </Col>
                   </Form.Group>
                 </Row>

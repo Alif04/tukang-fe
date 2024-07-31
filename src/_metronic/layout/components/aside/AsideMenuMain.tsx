@@ -202,23 +202,30 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
 
+        <AsideMenuItem
+          to='/reschedule/view-reschedule'
+          title='List Reschedule'
+          role={['Admin Vendor', 'Owner Vendor']}
+          hasBullet={true}
+        />
+
         <AsideMenuItemWithSub
           to='/reschedule'
           title='Reschedule'
           hasBullet={true}
-          role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
+          role={['Store CS', 'Admin HO', 'Super User', 'Tukang']}
         >
           <AsideMenuItem
             to='/reschedule/new-reschedule'
             title='New Reschedule'
-            role={['Store CS', 'Admin HO', 'Super User']}
+            role={['Store CS', 'Admin HO', 'Super User', 'Tukang']}
             hasBullet={true}
           />
 
           <AsideMenuItem
             to='/reschedule/view-reschedule'
-            title='View Reschedule'
-            role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
+            title='List Reschedule'
+            role={['Store CS', 'Admin HO', 'Super User', 'Tukang']}
             hasBullet={true}
           />
         </AsideMenuItemWithSub>

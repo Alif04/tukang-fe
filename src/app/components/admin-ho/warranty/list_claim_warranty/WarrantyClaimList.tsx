@@ -1,17 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
 
 import './WarrantyClaimList.css'
 
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
-import {Table, Tag, PaginationProps} from 'antd'
+import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
-import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
+import {FormGroup, Row, Form, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTicket, faSearch} from '@fortawesome/free-solid-svg-icons'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -60,12 +61,23 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
 
   const [claimWarrantyData, setClaimWarrantyData] = useState<DataType[]>([])
+
+  const [loadData, setLoadData] = useState<boolean>(true)
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  const today = new Date()
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -224,7 +236,11 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
     const statuses = desiredStatus.map((x) => x.value)
 
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&work_order_status=${statuses}&page=${page}&take=${pageSize}${queryparams}${storeId}${vendorId}${tukangId}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&work_order_status=${statuses}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}${storeId}${vendorId}${tukangId}`
+
+    if (tukangId) {
+      apiUrlWithParams += `&is_active_warranty=1`
+    }
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -236,6 +252,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         },
       })
 
+      setLoadData(false)
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
 
@@ -395,8 +412,6 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     }
 
     valueCheck(`&search=`, searchFilter)
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
 
     const data = await ViewWorkOrder(1, 10, queryparams)
     setClaimWarrantyData(data)
@@ -408,14 +423,20 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     <section id='warranty-claim-list'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
-          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='date-text'>Date : </h3>
-              </div>
+          <Row className='table-head-wrapper'>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
+
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -424,64 +445,74 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
-              />{' '}
-            </Col>
+              />
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </div>
           </Row>
 
-          <Table
-            className='table-striped-rows'
-            bordered
-            columns={columns}
-            dataSource={claimWarrantyData}
-            rowKey={(record) => record.order_id}
-            scroll={{x: 1500}}
-            pagination={{
-              position: ['bottomRight'],
-              current: currentPage,
-              total: totalData,
-              showSizeChanger: true,
-              pageSizeOptions: [5, 10, 20, 50, 100],
-              onChange: (page, pageSize) => {
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+          >
+            <Table
+              className='table-striped-rows'
+              bordered
+              columns={columns}
+              dataSource={claimWarrantyData}
+              rowKey={(record) => record.order_id}
+              pagination={false}
+              scroll={{x: 1700}}
+            />
+          </Spin>
+
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalData)} of {totalData} Claim Garansi
+            </span>
+
+            <Pagination
+              className='pagination'
+              current={currentPage}
+              total={totalData}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100]}
+              itemRender={itemRender}
+              onShowSizeChange={(current, size) => {
+                setPageSize(size)
+              }}
+              onChange={(page, pageSize) => {
                 fetchData(page, pageSize, '')
-              },
-              itemRender: itemRender,
-              showTotal: (total, range) => (
-                <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Claim Garansi
-                </span>
-              ),
-            }}
-          />
+              }}
+            />
+          </div>
         </div>
       </div>
     </section>

@@ -5,10 +5,11 @@ import {useNavigate} from 'react-router-dom'
 import './ViewComplaint.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Form, FormGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -50,17 +51,26 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   const [complaintData, setComplaintData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(1)
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
+  }
+
+  const today = new Date()
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
@@ -253,7 +263,11 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
               overlay={renderTooltip('Detail Komplain')}
             >
               <Button variant='primary' className='button-detail' onClick={handleDetail}>
-                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                <FontAwesomeIcon
+                  className='text-white'
+                  icon={userRole === 'Tukang' ? faBook : faPen}
+                  fontSize={'13px'}
+                />
               </Button>
             </OverlayTrigger>
 
@@ -277,7 +291,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   ]
 
   const fetchComplaintList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&page=${page}&take=${pageSize}${storeId}${vendorId}${tukangId}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}${tukangId}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -412,8 +426,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
     const data = await ViewComplaint(1, 10, queryparams)
@@ -426,15 +438,20 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     <section id='view-complaint'>
       <div className={`card ${className}`}>
         <div className='card-body'>
-          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-5 fw-normal'>Date : </h3>
-              </div>
+          <Row className='table-head-wrapper'>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -443,38 +460,34 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </div>
           </Row>
 
           <Spin
@@ -494,23 +507,27 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
             />
           </Spin>
 
-          <Pagination
-            className='mt-5'
-            style={{textAlign: 'right', position: 'relative'}}
-            current={currentPage}
-            total={totalData}
-            showSizeChanger
-            pageSizeOptions={[5, 10, 20, 50, 100]}
-            itemRender={itemRender}
-            onChange={(page, pageSize) => {
-              fetchData(page, pageSize, '')
-            }}
-            showTotal={(total, range) => (
-              <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Pengaduan
-              </span>
-            )}
-          />
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalData)} of {totalData} Pengaduan
+            </span>
+
+            <Pagination
+              className='pagination'
+              current={currentPage}
+              total={totalData}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100]}
+              itemRender={itemRender}
+              onShowSizeChange={(current, size) => {
+                setPageSize(size)
+              }}
+              onChange={(page, pageSize) => {
+                fetchData(page, pageSize, '')
+              }}
+            />
+          </div>
         </div>
       </div>
     </section>

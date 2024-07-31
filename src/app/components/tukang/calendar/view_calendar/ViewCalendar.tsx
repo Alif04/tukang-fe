@@ -199,9 +199,9 @@ const ViewCalendarTukang: React.FC = () => {
               return {
                 id: item?.id.toString(),
                 order_id: item?.order_id.toString(),
-                title: `#${item?.order?.id} - ${item?.order?.members?.full_name ?? ''} - ${
-                  item?.order?.store?.store_name ?? ''
-                }`,
+                title: `#${item?.order?.id} - ${item?.order?.store?.store_name ?? ''} - ${
+                  item?.order?.members?.full_name ?? ''
+                } `,
                 work_order_status: item?.work_order_status[0]?.status.category,
                 service: workOrderItems ?? '',
                 tukang: workOrderTukang ?? '',

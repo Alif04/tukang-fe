@@ -83,7 +83,7 @@ const TableList: React.FC<Props> = ({className, complaintData}) => {
             columns={columns}
             dataSource={complaintData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 300, y: 165}}
+            scroll={{x: 1000}}
             pagination={{position: ['bottomRight']}}
           />
         </div>

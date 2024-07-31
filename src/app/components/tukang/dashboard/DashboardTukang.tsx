@@ -7,10 +7,10 @@ import {MoreInformation} from './components/MoreInformation'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import {DatePicker} from 'antd'
-import {Row, Col, Card, Button} from 'react-bootstrap'
-import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
+import {Row, Col, Card, Button} from 'react-bootstrap'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 
 const {RangePicker} = DatePicker
 
@@ -19,6 +19,7 @@ interface DataType {
   store_name: string
   costumer_name: string
   service_name: string
+  order_date: Date
   status: string
 }
 
@@ -56,6 +57,14 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.service_name.length - b.service_name.length,
   },
   {
+    title: 'Tanggal Order',
+    dataIndex: 'order_date',
+    key: 'order_date',
+    align: 'left',
+    sorter: (a: DataType, b: DataType) =>
+      new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
+  },
+  {
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
@@ -77,17 +86,23 @@ const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => 
 
 const DashboardTukang: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const tukangId = localStorage.getItem('tukang_id')
+  const userTukang = localStorage.getItem('tukang_id')
+  const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
 
-  const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [orderData, setOrderData] = useState<any>([])
+  const [loadingButton, setLoadingButton] = useState(false)
+
   const [orderList, setOrderList] = useState<any[]>([])
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
 
   const today = new Date()
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -95,11 +110,8 @@ const DashboardTukang: FC = () => {
     return `${day}-${month}-${year}`
   }
 
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
-  const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&tukang_id=${tukangId}&page${page}&take${pageSize}${queryparams}`
+  const getWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${tukangId}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -111,10 +123,10 @@ const DashboardTukang: FC = () => {
         },
       })
 
-      setOrderData(response.data.data)
       setOrderList(response.data.data)
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -125,7 +137,7 @@ const DashboardTukang: FC = () => {
   const getReportOrder = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/reports/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&tukang_id=${tukangId}`,
+        `${apiUrl}/reports/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${tukangId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -157,44 +169,15 @@ const DashboardTukang: FC = () => {
 
   const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchOrderList(page, pageSize, queryparams)
+      const apiData = await getWorkOrder(page, pageSize, queryparams)
 
       if (!apiData) {
-        console.error('No data received from fetchOrderList')
+        console.error('No data received from getWorkOrder')
         return []
       }
 
       const orderData = apiData.map((item: any) => {
         let data
-
-        const orderStatus = (() => {
-          if (item?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-              ].includes(item?.order?.status?.category)
-            ) {
-              return item?.order?.status?.description
-            } else if (
-              ['WORKREQ'].includes(item?.order?.status?.category) &&
-              item?.order?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
-            ) {
-              return item?.order?.status?.description
-            } else {
-              return item?.work_order_status[0]?.status?.description
-            }
-          } else {
-            return item?.order?.status?.description
-          }
-        })()
 
         data = {
           order_id: item?.order?.id,
@@ -206,7 +189,14 @@ const DashboardTukang: FC = () => {
               : item?.work_order_status[0]?.work_order_items
                   .map((item: any) => item?.name)
                   .join(', '),
-          status: orderStatus,
+          order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          }),
+          status: item?.order?.status?.description,
         }
 
         return data
@@ -289,7 +279,7 @@ const DashboardTukang: FC = () => {
             <Col xxl={5} xl={5} lg={5}>
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range w-100'
+                className='date-range w-100 mb-3'
                 defaultValue={[
                   dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
                   dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
@@ -311,7 +301,7 @@ const DashboardTukang: FC = () => {
 
             <Col xxl={4} xl={4} lg={4}>
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
@@ -371,30 +361,44 @@ const DashboardTukang: FC = () => {
               <div className='d-flex flex-column'>
                 <h1 className='fs-1 text-black mb-3'>List Order</h1>
 
-                <Table
-                  bordered
-                  columns={columns}
-                  dataSource={orderList}
-                  rowKey={(record) => record.order_id}
-                  scroll={{x: 1200}}
-                  pagination={{
-                    position: ['bottomRight'],
-                    current: currentPage,
-                    total: totalData,
-                    showSizeChanger: true,
-                    pageSizeOptions: [5, 10, 20, 50, 100],
-                    defaultPageSize: 5,
-                    onChange: (page, pageSize) => {
+                <Spin
+                  tip='Loading...'
+                  spinning={loadData}
+                  size='large'
+                  indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+                >
+                  <Table
+                    className='table-striped-rows'
+                    bordered
+                    columns={columns}
+                    dataSource={orderList}
+                    rowKey={(record) => record.order_id}
+                    pagination={false}
+                    scroll={{x: 1700}}
+                  />
+                </Spin>
+
+                <div className='pagination-container mt-5'>
+                  <span className='total-text'>
+                    Showing {(currentPage - 1) * pageSize + 1} -{' '}
+                    {Math.min(currentPage * pageSize, totalData)} of {totalData} Orders
+                  </span>
+
+                  <Pagination
+                    className='pagination'
+                    current={currentPage}
+                    total={totalData}
+                    showSizeChanger
+                    pageSizeOptions={[5, 10, 20, 50, 100]}
+                    itemRender={itemRender}
+                    onShowSizeChange={(current, size) => {
+                      setPageSize(size)
+                    }}
+                    onChange={(page, pageSize) => {
                       fetchData(page, pageSize, '')
-                    },
-                    itemRender: itemRender,
-                    showTotal: (total, range) => (
-                      <span style={{left: 0, position: 'absolute'}}>
-                        Showing {range[0]} - {range[1]} of {total} List Order
-                      </span>
-                    ),
-                  }}
-                />
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>

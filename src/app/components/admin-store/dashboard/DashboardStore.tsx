@@ -13,7 +13,7 @@ import {TotalReschedule} from './components/TotalReschedule'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import {DatePicker} from 'antd'
-import {Row, Col, Button, Card, Tab, Nav} from 'react-bootstrap'
+import {Row, Col, Button, Tab, Nav} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
 

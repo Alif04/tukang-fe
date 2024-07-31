@@ -73,17 +73,16 @@
   width: 370px;
 }
 
-#view-reschedule .table-head-wrapper .filter-search .input-group {
-  height: 45px;
+#view-reschedule input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
 }
 
-#view-reschedule .table-head-wrapper .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
-}
-
-#view-reschedule .table-head-wrapper .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
+#view-reschedule .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
 }
 
 @media screen and (max-width: 1200px) {

@@ -3,32 +3,114 @@ import React, {FC, useState, useEffect} from 'react'
 import {TotalComplaint} from './components/TotalComplaint'
 import {TotalResurvey} from './components/TotalResurvey'
 import {TotalRework} from './components/TotalRework'
-import {TableList} from './components/TableList'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import {DatePicker} from 'antd'
 import {Card, Row, Col, Button} from 'react-bootstrap'
+import type {ColumnsType} from 'antd/es/table'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 
 const {RangePicker} = DatePicker
+
+interface DataType {
+  order_id: number
+  complaint_date: Date
+  customer_name: string
+  complaint_age: string
+  status: string
+}
+
+const columns: ColumnsType<DataType> = [
+  {
+    title: 'Order ID',
+    dataIndex: 'order_id',
+    key: 'order_id',
+    align: 'center',
+    sorter: (a, b) => a.order_id - b.order_id,
+    width: 100,
+  },
+  {
+    title: 'Tanggal Komplain',
+    dataIndex: 'complaint_date',
+    key: 'complaint_date',
+    align: 'left',
+  },
+  {
+    title: 'Nama Customer',
+    dataIndex: 'customer_name',
+    key: 'customer_name',
+    align: 'left',
+  },
+  {
+    title: 'Umur Komplain',
+    dataIndex: 'complaint_age',
+    key: 'complaint_age',
+    align: 'left',
+  },
+  {
+    title: 'Status Komplain',
+    dataIndex: 'complaint_status',
+    key: 'complaint_status',
+    align: 'left',
+    width: 130,
+    render: (complaint_status) => {
+      const complaintStatus = complaint_status
+      let color = ''
+
+      switch (complaintStatus) {
+        case 'INVESTIGATED':
+          color = 'volcano'
+          break
+        case 'ACCEPTED':
+          color = 'green'
+          break
+        default:
+          color = 'blue'
+          break
+      }
+
+      return <Tag color={color}>{complaintStatus}</Tag>
+    },
+  },
+]
+
+const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+  if (type === 'prev') {
+    return <a>Prev</a>
+  }
+  if (type === 'next') {
+    return <a>Next</a>
+  }
+  return originalElement
+}
 
 const ReportComplaintPage: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
-  const vendorId = localStorage.getItem('vendor_id')
+  const userVendor = localStorage.getItem('vendor_id')
+  const userTukang = localStorage.getItem('tukang_id')
+
+  const storeId = userStore ? `&store_id=${userStore}` : ''
+  const vendorId = userVendor ? `&vendor_id=${userVendor}` : ''
+  const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
 
   const [loadingButton, setLoadingButton] = useState(false)
 
-  const [complaintData, setComplaintData] = useState<any[]>([])
-  const [complaintList, setComplaintList] = useState<any>()
+  const [loadData, setLoadData] = useState<boolean>(true)
+  const [pageSize, setPageSize] = useState<number>(10)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalData, setTotalData] = useState<number>(0)
 
+  const [complaintData, setComplaintData] = useState<any[]>([])
   const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
 
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -36,24 +118,8 @@ const ReportComplaintPage: FC = () => {
     return `${day}-${month}-${year}`
   }
 
-  const fetchComplaintList = async () => {
-    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-
-    const url = (() => {
-      switch (userRole) {
-        case 'Store CS':
-          apiUrlWithParams += `&store_id=${userStore}`
-          break
-        case 'Admin Vendor':
-        case 'Owner Vendor':
-          apiUrlWithParams += `&vendor_id=${vendorId}`
-          break
-        default:
-          break
-      }
-
-      return apiUrlWithParams
-    })()
+  const fetchComplaintList = async (page: number, pageSize: number, queryparams: any) => {
+    let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&page=${page}&take=${pageSize}&date_from=${dateFrom}&date_to=${dateTo}${storeId}${vendorId}${tukangId}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -65,19 +131,35 @@ const ReportComplaintPage: FC = () => {
         },
       })
 
-      const data = response.data.data
-      setComplaintList(data)
+      setCurrentPage(response.data.page)
+      setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
-      return data
+      return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const ViewComplaint = () => {
+  const ViewComplaint = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = complaintList.map((item: any) => {
+      const apiData = await fetchComplaintList(page, pageSize, queryparams)
+
+      if (!apiData) {
+        console.error('No data received from fetchOrderList')
+        return []
+      }
+
+      const complaintData = apiData.map((item: any) => {
         let data
+
+        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+        })
 
         const complaintDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
           day: 'numeric',
@@ -86,6 +168,10 @@ const ReportComplaintPage: FC = () => {
           hour: 'numeric',
           minute: 'numeric',
         })
+
+        const phoneNumber = item?.orders?.project_number.startsWith('0')
+          ? item?.orders?.project_number
+          : `+62${item?.orders?.project_number}`
 
         const currentDate = new Date()
         const complaintDates = new Date(item?.created_at)
@@ -108,9 +194,17 @@ const ReportComplaintPage: FC = () => {
         }
 
         data = {
+          complaint_id: item?.id,
+          assign_from: item?.orders.store?.store_name,
           order_id: item?.orders?.id,
-          complaint_date: complaintDate,
+          date_order: orderDate,
+          no_member: item?.orders?.members?.member_number,
           customer_name: item?.orders?.members?.full_name,
+          phone_number: phoneNumber,
+          service_name: item.orders?.m_order_details[0]?.item_name ?? '-',
+          order_status: item.orders?.status?.description,
+          work_status: item?.orders?.work_orders?.work_order_status[0]?.status?.description,
+          complaint_date: complaintDate,
           complaint_age: complaintAge,
           complaint_status: item?.status?.description,
         }
@@ -118,9 +212,9 @@ const ReportComplaintPage: FC = () => {
         return data
       })
 
-      return apiData
+      return complaintData
     } catch (error) {
-      console.error('Error getting complaint list data:', error)
+      console.error('Error getting order list data:', error)
       return []
     }
   }
@@ -167,24 +261,26 @@ const ReportComplaintPage: FC = () => {
     }
   }
 
-  const fetchData = async () => {
-    const data = await ViewComplaint()
+  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
+    const data = await ViewComplaint(page, pageSize, queryparams)
     setComplaintData(data)
   }
 
   useEffect(() => {
-    fetchComplaintList()
-    getReportOrder()
+    fetchData(1, 10, '')
   }, [])
 
   useEffect(() => {
-    fetchData()
-  }, [complaintList])
+    getReportOrder()
+  }, [])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
-    await fetchComplaintList()
+    let queryparams = ''
+    const data = await ViewComplaint(1, 10, queryparams)
+    setComplaintData(data)
+
     await getReportOrder()
 
     setLoadingButton(false)
@@ -311,36 +407,87 @@ const ReportComplaintPage: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      <Row className=' g-5 g-xl-8'>
-        <Col className='col-xl-12'>
-          <TotalComplaint className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataOrder} />
+      {!['Tukang'].includes(userRole) && (
+        <>
+          <Row className=' g-5 g-xl-8'>
+            <Col className='col-xl-12'>
+              <TotalComplaint
+                className='card-xl-stretch mb-xl-8'
+                chartComplaintData={chartDataOrder}
+              />
+            </Col>
+          </Row>
+
+          <Row className=' g-5 g-xl-8'>
+            <Col className='col-xl-12'>
+              <TotalResurvey
+                className='card-xl-stretch mb-5 mb-xl-8'
+                chartComplaintData={chartDataOrder}
+              />
+            </Col>
+          </Row>
+
+          <Row className=' g-5 g-xl-8'>
+            <Col className='col-xl-12'>
+              <TotalRework
+                className='card-xl-stretch mb-xl-8'
+                chartComplaintData={chartDataOrder}
+              />
+            </Col>
+          </Row>
+        </>
+      )}
+
+      <Row className='g-5 g-xl-8 mb-5'>
+        <Col md={12}>
+          <div className={`card`}>
+            <div className='card-body p-5'>
+              <div className='d-flex flex-column'>
+                <h1 className='fs-1 text-black mb-3'>List Pengaduan</h1>
+
+                <Spin
+                  tip='Loading...'
+                  spinning={loadData}
+                  size='large'
+                  indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+                >
+                  <Table
+                    className='table-striped-rows'
+                    bordered
+                    columns={columns}
+                    dataSource={complaintData}
+                    rowKey={(record) => record.order_id}
+                    pagination={false}
+                    scroll={{x: 1000}}
+                  />
+                </Spin>
+
+                <div className='pagination-container mt-5'>
+                  <span className='total-text'>
+                    Showing {(currentPage - 1) * pageSize + 1} -{' '}
+                    {Math.min(currentPage * pageSize, totalData)} of {totalData} Komplain
+                  </span>
+
+                  <Pagination
+                    className='pagination'
+                    current={currentPage}
+                    total={totalData}
+                    showSizeChanger
+                    pageSizeOptions={[5, 10, 20, 50, 100]}
+                    itemRender={itemRender}
+                    onShowSizeChange={(current, size) => {
+                      setPageSize(size)
+                    }}
+                    onChange={(page, pageSize) => {
+                      fetchData(page, pageSize, '')
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </Col>
       </Row>
-
-      <Row className=' g-5 g-xl-8'>
-        <Col className='col-xl-12'>
-          <TotalResurvey
-            className='card-xl-stretch mb-5 mb-xl-8'
-            chartComplaintData={chartDataOrder}
-          />
-        </Col>
-      </Row>
-
-      <Row className=' g-5 g-xl-8'>
-        <Col className='col-xl-12'>
-          <TotalRework className='card-xl-stretch mb-xl-8' chartComplaintData={chartDataOrder} />
-        </Col>
-      </Row>
-
-      {/* end::Row */}
-
-      {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        <div className='col-xl-12'>
-          <TableList className='card-xl-stretch mb-5 mb-xl-8' complaintData={complaintData} />
-        </div>
-      </div>
-      {/* end::Row */}
     </>
   )
 }

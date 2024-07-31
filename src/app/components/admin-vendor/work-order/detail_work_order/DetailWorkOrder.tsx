@@ -5,8 +5,6 @@ import {WorkOrder} from '../../../../interfaces/work-order'
 import './DetailWorkOrder.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import dayjs from 'dayjs'
 import {useParams} from 'react-router-dom'
 import {Image, Skeleton} from 'antd'
 import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
@@ -335,13 +333,18 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             <Form.Label>Tanggal Survey :</Form.Label>
 
                             {orderDetail?.work_orders !== null ? (
-                              <Form.Control
-                                type='date'
-                                readOnly
-                                value={formatDateValues(
-                                  new Date(orderDetail?.work_orders?.survey_date)
+                              <p>
+                                {new Date(orderDetail?.work_orders?.survey_date).toLocaleDateString(
+                                  'id-ID',
+                                  {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
+                                  }
                                 )}
-                              />
+                              </p>
                             ) : (
                               <p>Tanggal survey belum diset oleh vendor</p>
                             )}
@@ -351,16 +354,15 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
                             {orderDetail?.work_orders !== null ? (
-                              <Select
-                                classNamePrefix='select'
-                                closeMenuOnSelect={false}
-                                isClearable={false}
-                                isMulti
-                                menuIsOpen={false}
-                                getOptionLabel={(option) => `${option.tukang_name}`}
-                                getOptionValue={(option) => `${option.tukang_id}`}
-                                value={workOrder.tukang_id.filter((x) => x.type === 1)}
-                              />
+                              <p>
+                                {Array.from(
+                                  new Set(
+                                    orderDetail?.work_orders?.work_order_tukang
+                                      ?.filter((x: any) => x.type === 1)
+                                      ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                                  )
+                                ).join(', ')}
+                              </p>
                             ) : (
                               <p>Tukang belum diset oleh vendor</p>
                             )}
@@ -395,19 +397,27 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
 
                             {orderDetail?.work_orders !== null ? (
-                              <RangePicker
-                                className='date-range w-100'
-                                format='DD-MM-YYYY'
-                                value={
-                                  (workOrder.work_start_date &&
-                                    workOrder.work_end_date && [
-                                      dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                                      dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                                    ]) ||
-                                  undefined
-                                }
-                                disabled={[true, true]}
-                              />
+                              <p>
+                                {new Date(
+                                  orderDetail?.work_orders?.work_start_date
+                                ).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
+                                })}{' '}
+                                sampai{' '}
+                                {new Date(
+                                  orderDetail?.work_orders?.work_start_date
+                                ).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
+                                })}
+                              </p>
                             ) : (
                               <p>Tanggal Pengerjaan belum diset oleh vendor</p>
                             )}
@@ -417,17 +427,15 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
                             {orderDetail?.work_orders !== null ? (
-                              <Select
-                                placeholder='Tukang belum diset oleh Vendor'
-                                classNamePrefix='select'
-                                closeMenuOnSelect={false}
-                                isClearable={false}
-                                isMulti
-                                menuIsOpen={false}
-                                getOptionLabel={(option) => `${option.tukang_name}`}
-                                getOptionValue={(option) => `${option.tukang_id}`}
-                                value={workOrder.tukang_id.filter((x) => x.type === 2)}
-                              />
+                              <p>
+                                {Array.from(
+                                  new Set(
+                                    orderDetail?.work_orders?.work_order_tukang
+                                      ?.filter((x: any) => x.type === 2)
+                                      ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                                  )
+                                ).join(', ')}
+                              </p>
                             ) : (
                               <p>Tukang belum diset oleh vendor</p>
                             )}
