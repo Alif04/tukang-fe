@@ -5,8 +5,6 @@ import {Orders} from '../../../../interfaces/order'
 import './DetailOrder.css'
 
 import axios from 'axios'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 import Swal from 'sweetalert2'
 import {Image, Steps, Skeleton, Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'

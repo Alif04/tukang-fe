@@ -26,7 +26,7 @@ const UpdateProfile: FC = () => {
     const getProfileData = async () => {
       try {
         await axios
-          .get(`${apiUrl}/member/${userId}`, {
+          .get(`${apiUrl}/tukang/${userId}`, {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -35,7 +35,7 @@ const UpdateProfile: FC = () => {
             },
           })
           .then((response) => {
-            const data = response.data.data.data.member
+            const data = response.data.data
 
             if (data) {
               setUserInfo((prev) => ({

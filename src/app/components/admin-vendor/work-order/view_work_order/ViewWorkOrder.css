@@ -64,11 +64,24 @@
 
 /* Searchbar */
 
-#view-work-order-vendor .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
+#view-work-order-vendor .filter-search {
+  width: 370px;
 }
 
-#view-work-order-vendor .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
+#view-work-order-vendor input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
+}
+
+#view-work-order-vendor .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
+}
+
+@media screen and (max-width: 1200px) {
+  #view-work-order-vendor .filter-search {
+    width: 100%;
+  }
 }

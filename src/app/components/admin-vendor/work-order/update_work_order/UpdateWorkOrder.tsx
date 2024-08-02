@@ -137,9 +137,20 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             workOrderHandler(formatInputDate(new Date(data.request_survey)), 'request_work_time')
           }
 
+          // old without time
           if (data?.work_orders?.survey_date) {
             workOrderHandler(formatInputDate(new Date(data.work_orders.survey_date)), 'survey_date')
           }
+
+          // new with time
+          // if (data?.work_orders?.survey_date) {
+          //   setWorkOrder((prev) => {
+          //     return {
+          //       ...prev,
+          //       survey_date: data.work_orders.survey_date,
+          //     }
+          //   })
+          // }
 
           if (
             Array.isArray(data?.work_orders?.work_order_status) &&
@@ -748,6 +759,24 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             defaultValue={workOrder ? workOrder.survey_date : ''}
                             onChange={(e) => workOrderHandler(e.target.value, 'survey_date')}
                           />
+
+                          {/* <DatePicker
+                            showTime={{format: 'HH:mm'}}
+                            className='date-range w-100'
+                            format='DD-MM-YYYY HH:mm'
+                            value={
+                              workOrder.survey_date
+                                ? dayjs(workOrder.survey_date, 'YYYY-MM-DD HH:mm')
+                                : null
+                            }
+                            onChange={(value) => {
+                              const surveyDate = value ? value.format('YYYY-MM-DDTHH:mm') : ''
+                              setWorkOrder((prev) => ({
+                                ...prev,
+                                survey_date: surveyDate,
+                              }))
+                            }}
+                          /> */}
                         </Form.Group>
 
                         <Form.Group className='detail-info mb-3'>
@@ -944,14 +973,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                       <tbody>
                         {orderDetail?.order_details.map((item: any, index: any) => (
-                          <>
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item_notes}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                            </tr>
-                          </>
+                          <tr key={`${index} - order_detail`}>
+                            <td>{item?.item_code}</td>
+                            <td>{item?.item_name}</td>
+                            <td>{item?.item_notes}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                          </tr>
                         ))}
 
                         <tr>

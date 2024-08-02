@@ -4,16 +4,12 @@ import {WorkOrder} from '../../../../interfaces/work-order'
 import './UpdateWorkOrder.css'
 
 import axios from 'axios'
-import Select from 'react-select'
 import Swal from 'sweetalert2'
-import makeAnimated from 'react-select/animated'
-import dayjs from 'dayjs'
-import {Image, DatePicker} from 'antd'
+import {Image, Steps} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Card, Row, Col, ListGroup, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faFileArrowUp, faPlus} from '@fortawesome/free-solid-svg-icons'
-const {RangePicker} = DatePicker
+import {faTrash, faFileArrowUp} from '@fortawesome/free-solid-svg-icons'
 
 interface StatusStorage {
   value: number
@@ -52,14 +48,10 @@ interface WorkOrderItem {
   unit: string
 }
 
-interface WorkOrderHistory {
-  work_order_id: number
-  work_order_status: string
-  work_order_status_label: string
-  time_range: string
+interface OrderHistory {
+  order_id: number
+  status: string
   created_at: string
-  updated_at: string
-  work_date_time: string
   updated_by: string
 }
 
@@ -69,7 +61,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-  const animatedComponents = makeAnimated()
   const tukangId = localStorage.getItem('tukang_id')
   const tukangName = localStorage.getItem('tukangName') as string
 
@@ -79,7 +70,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const [workOrderDetail, setWorkOrderDetail] = useState<any>(null)
 
   // Work Order History
-  const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
+  const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
 
   // Work Order Tukang
   const [tukang, setTukang] = useState<Tukang[]>([])
@@ -299,98 +290,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             setWorkOrderItem(mergedWorkOrderItem)
           }
 
-          // TANPA SURVEY
-          // if (data?.work_order_status.length > 2) {
-          //   const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
-          //     (item: any, index: number) => ({
-          //       id: item.id,
-          //       index: (Date.now() + index).toString(),
-          //       item_name: item?.name,
-          //       tukang_id: item?.tukang_id ?? null,
-          //       tukang_name: item?.tukang_name ?? null,
-          //       unit: item?.unit,
-          //       is_user: item?.is_customer === true ? 1 : 0,
-          //       type: item?.type,
-          //       quantity: item?.quantity,
-          //     })
-          //   )
-
-          //   setWorkOrderItem(workOrderItem)
-          // } else if (data?.work_order_status?.length >= 1 || data?.work_order_status?.length <= 2) {
-          //   const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
-          //     id: item.id,
-          //     index: (Date.now() + index).toString(),
-          //     item_name: item.item_name ?? '',
-          //     unit: item?.unit ?? '',
-          //     is_user: item.is_customer ? 1 : 0,
-          //     type: 2,
-          //     quantity: item?.quantity ?? 0,
-          //   }))
-
-          //   const workOrderItemMaterial = [
-          //     {
-          //       id: null,
-          //       index: (Date.now() + workOrderItem.length).toString(),
-          //       item_name: '',
-          //       tukang_id: null,
-          //       tukang_name: '',
-          //       is_user: 0,
-          //       type: 1,
-          //       quantity: null,
-          //       unit: '',
-          //     },
-          //   ]
-
-          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
-          //   setWorkOrderItem(mergedWorkOrderItem)
-          // }
-
-          // SURVEY
-          // if (data?.work_order_status.length > 1) {
-          //   const workOrderItem = data?.work_order_status[0]?.work_order_items.map(
-          //     (item: any, index: number) => ({
-          //       id: item.id,
-          //       index: (Date.now() + index).toString(),
-          //       item_name: item?.name,
-          //       tukang_id: item?.tukang_id ?? null,
-          //       tukang_name: item?.tukang_name ?? null,
-          //       unit: item?.unit,
-          //       is_user: item?.is_customer === true ? 1 : 0,
-          //       type: item?.type,
-          //       quantity: item?.quantity,
-          //     })
-          //   )
-
-          //   setWorkOrderItem(workOrderItem)
-          // } else if (data?.work_order_status?.length === 1) {
-          //   const workOrderItem = data?.order?.m_order_details.map((item: any, index: number) => ({
-          //     id: item.id,
-          //     index: (Date.now() + index).toString(),
-          //     item_name: item.item_name ?? '',
-          //     unit: item?.unit ?? '',
-          //     is_user: item.is_customer ? 1 : 0,
-          //     type: 2,
-          //     quantity: item?.quantity ?? 0,
-          //   }))
-
-          //   const workOrderItemMaterial = [
-          //     {
-          //       id: null,
-          //       index: (Date.now() + workOrderItem.length).toString(),
-          //       item_name: '',
-          //       tukang_id: null,
-          //       tukang_name: '',
-          //       is_user: 0,
-          //       type: 1,
-          //       quantity: null,
-          //       unit: '',
-          //     },
-          //   ]
-
-          //   const mergedWorkOrderItem = workOrderItem.concat(workOrderItemMaterial)
-          //   setWorkOrderItem(mergedWorkOrderItem)
-          // }
-
           if (data?.work_order_status) {
             const workStartDate = new Date(data?.work_start_date).toLocaleDateString('id-ID', {
               day: 'numeric',
@@ -417,46 +316,13 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 })
               : 'Order ini tanpa survey'
 
-            const workOrderHistoryData = data.work_order_status.map(
+            const workOrderHistoryData = data?.order?.order_history.map(
               (item: any, index: number, array: any[]) => {
-                let workTime = '-'
-
-                if (index > 0) {
-                  const date_1 = new Date(array[index - 1].created_at).getTime()
-                  const date_2 = new Date(item.created_at).getTime()
-
-                  const timeDifferenceInMilliseconds = Math.abs(date_2 - date_1)
-
-                  const timeDifferenceInMinutes = Math.floor(
-                    timeDifferenceInMilliseconds / (1000 * 60)
-                  )
-
-                  const timeDifferenceInHours = Math.floor(
-                    timeDifferenceInMilliseconds / (1000 * 60 * 60)
-                  )
-
-                  const timeDifferenceInDays = Math.floor(
-                    timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
-                  )
-
-                  if (timeDifferenceInDays >= 1) {
-                    workTime = `${timeDifferenceInDays} Hari`
-                  } else if (timeDifferenceInHours >= 1) {
-                    workTime = `${timeDifferenceInHours} Jam`
-                  } else {
-                    workTime = `${timeDifferenceInMinutes} Menit`
-                  }
-                }
-
                 return {
-                  work_order_id: item?.work_order_id,
-                  work_order_status: item?.status?.category,
-                  work_order_status_label: item?.status?.description,
-                  // created_at: surveyDate,
-                  time_range: workTime,
-                  updated_at: item?.updated_at
-                    ? new Date(item?.updated_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
+                  status: item?.status?.description,
+                  created_at: item?.created_at
+                    ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                        day: '2-digit',
                         month: 'long',
                         year: 'numeric',
                         hour: 'numeric',
@@ -464,20 +330,19 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       })
                     : item?.created_at
                     ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
+                        day: '2-digit',
                         month: 'long',
                         year: 'numeric',
                         hour: 'numeric',
                         minute: 'numeric',
                       })
                     : '-',
-                  work_date_time: workDateTime,
-                  updated_by: item?.updated_by,
+                  updated_by: item?.created_by?.username,
                 }
               }
             )
 
-            setWorkOrderHistory(workOrderHistoryData)
+            setOrderHistory(workOrderHistoryData)
           }
 
           updatePageTitle(data)
@@ -1447,167 +1312,181 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             ) {
               return (
                 <>
-                  <Row>
-                    <Col>
-                      <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
+                  <div className='fs-5 text-dark fw-bold mb-2'>Jasa pemasangan</div>
+                  <div className='item-jasa'>
+                    {workOrderItem
+                      .filter((x) => x.type === 2)
+                      .map((element, index) => (
+                        <Card
+                          id={`${element.index}-service`}
+                          key={`${stringToHash(element.index)}-service`}
+                          className='mb-5'
+                        >
+                          <div className='d-flex border-rounded-3'>
+                            <Card.Body>
+                              <Row>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Jenis Jasa</Form.Label>
+                                    <Form.Control
+                                      id={`service-name-${index}`}
+                                      type='text'
+                                      className='mb-5'
+                                      value={element.item_name}
+                                      onChange={(e) =>
+                                        handleItemNameChange(index, e.target.value, 2)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                      <Table responsive>
-                        <thead className='table-item-head'>
-                          <tr>
-                            <th></th>
-                            <th className='content'>Jenis Jasa</th>
-                            <th className='content'>QTY</th>
-                            <th className='content'>Satuan</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>QTY</Form.Label>
+                                    <Form.Control
+                                      id={`quantity-${index}`}
+                                      type='number'
+                                      className='mb-5'
+                                      value={element.quantity?.toString()}
+                                      onChange={(e) =>
+                                        handleQuantityChange(element.index, e.target.value, 2)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                        <tbody>
-                          {workOrderItem
-                            .filter((x) => x.type === 2)
-                            .map((element, index) => (
-                              <tr
-                                key={`${stringToHash(element.index)}-service`}
-                                id={`${element.index}-service`}
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Satuan</Form.Label>
+                                    <Form.Control
+                                      id={`unit-${index}`}
+                                      className='mb-5'
+                                      value={element.unit?.toString()}
+                                      onChange={(e) =>
+                                        handleSatuanChange(element.index, e.target.value, 2)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
+                              </Row>
+                            </Card.Body>
+
+                            <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                              <Button
+                                variant='primary'
+                                className='button-transparent text-danger'
+                                onClick={() => handleRemoveForm(element.index)}
                               >
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='btn-jasa button-dark-primary'
-                                    onClick={() => handleAddForm(2)}
-                                  >
-                                    <FontAwesomeIcon icon={faPlus} />
-                                  </Button>
-                                </td>
+                                <FontAwesomeIcon icon={faTrash} />
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
 
-                                <td>
-                                  <Form.Control
-                                    id={`service-name-${index}`}
-                                    type='text'
-                                    value={element.item_name}
-                                    onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                                  />
-                                </td>
+                    <Button
+                      variant='btn-jasa button-dark-primary mb-3'
+                      onClick={() => handleAddForm(2)}
+                    >
+                      Tambah Jasa
+                    </Button>
+                  </div>
 
-                                <td>
-                                  <Form.Control
-                                    id={`quantity-${index}`}
-                                    type='number'
-                                    value={element.quantity?.toString()}
-                                    onChange={(e) =>
-                                      handleQuantityChange(element.index, e.target.value, 2)
-                                    }
-                                  />{' '}
-                                </td>
+                  <hr />
 
-                                <td>
-                                  <Form.Control
-                                    id={`unit-${index}`}
-                                    value={element.unit?.toString()}
-                                    onChange={(e) =>
-                                      handleSatuanChange(element.index, e.target.value, 2)
-                                    }
-                                  />
-                                </td>
+                  <div className='fs-5 text-dark fw-bold mb-2'>Material yang dibutuhkan</div>
+                  <div className='item-material'>
+                    {workOrderItem
+                      .filter((x) => x.type === 1)
+                      .map((element, index) => (
+                        <Card
+                          id={`${element.index}-material`}
+                          key={`${stringToHash(element.index)}-material`}
+                          className='mb-5'
+                        >
+                          <div className='d-flex border-rounded-3'>
+                            <div className='d-flex flex-column align-items-center justify-content-between border-end p-2'>
+                              <Form.Check
+                                id={`is-user-${index}`}
+                                type='checkbox'
+                                checked={element.is_user === 1}
+                                onChange={(e) =>
+                                  handleCheckboxChange(element.index, e.target.checked)
+                                }
+                              />
+                            </div>
 
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='danger'
-                                    onClick={() => handleRemoveForm(element.index)}
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </Table>
-                    </Col>
-                  </Row>
+                            <Card.Body>
+                              <Row>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Material yang dibutuhkan</Form.Label>
+                                    <Form.Control
+                                      id={`item-name-${index}`}
+                                      className='mb-5'
+                                      value={element.item_name}
+                                      onChange={(e) =>
+                                        handleItemNameChange(index, e.target.value, 1)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                  <Row>
-                    <Col>
-                      <Table responsive>
-                        <thead className='table-item-head'>
-                          <tr>
-                            <th></th>
-                            <th>Disediakan Customer</th>
-                            <th className='content'>Material Yang Dibutuhkan</th>
-                            <th className='content'>QTY</th>
-                            <th className='content'>Satuan</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>QTY</Form.Label>
+                                    <Form.Control
+                                      id={`quantity-${index}`}
+                                      className='mb-5'
+                                      value={element.quantity?.toString()}
+                                      onChange={(e) =>
+                                        handleQuantityChange(element.index, e.target.value, 1)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                        <tbody>
-                          {workOrderItem
-                            .filter((x) => x.type === 1)
-                            .map((element, index) => (
-                              <tr
-                                key={`${stringToHash(element.index)}-material`}
-                                id={`${element.index}-material`}
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Satuan</Form.Label>
+                                    <Form.Control
+                                      id={`unit-${index}`}
+                                      className='mb-5'
+                                      value={element.unit?.toString()}
+                                      onChange={(e) =>
+                                        handleSatuanChange(element.index, e.target.value, 1)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
+                              </Row>
+                            </Card.Body>
+
+                            <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                              <Button
+                                variant='primary'
+                                className='button-transparent text-danger'
+                                onClick={() => handleRemoveForm(element.index)}
                               >
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='btn-material button-dark-primary'
-                                    onClick={() => handleAddForm(1)}
-                                  >
-                                    <FontAwesomeIcon icon={faPlus} />
-                                  </Button>
-                                </td>
+                                <FontAwesomeIcon icon={faTrash} />
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
 
-                                <td align='center' style={{verticalAlign: 'middle'}}>
-                                  <Form.Check
-                                    id={`is-user-${index}`}
-                                    type='checkbox'
-                                    checked={element.is_user === 1}
-                                    onChange={(e) =>
-                                      handleCheckboxChange(element.index, e.target.checked)
-                                    }
-                                  />
-                                </td>
+                    <h4 className='fs-8 fw-normal text-danger mb-5'>
+                      *Jika <span className='fw-bolder text-decoration-underline'>Material</span>{' '}
+                      diceklis, maka material tersebut disediakan oleh customer
+                    </h4>
 
-                                <td>
-                                  <Form.Control
-                                    id={`item-name-${index}`}
-                                    value={element.item_name}
-                                    onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                                  />
-                                </td>
-
-                                <td>
-                                  <Form.Control
-                                    id={`quantity-${index}`}
-                                    value={element.quantity?.toString()}
-                                    onChange={(e) =>
-                                      handleQuantityChange(element.index, e.target.value, 1)
-                                    }
-                                  />
-                                </td>
-
-                                <td>
-                                  <Form.Control
-                                    id={`unit-${index}`}
-                                    value={element.unit?.toString()}
-                                    onChange={(e) =>
-                                      handleSatuanChange(element.index, e.target.value, 1)
-                                    }
-                                  />
-                                </td>
-
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='danger'
-                                    onClick={() => handleRemoveForm(element.index)}
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </Table>
-                    </Col>
-                  </Row>
+                    <Button
+                      variant='btn-material button-dark-primary mb-3'
+                      onClick={() => handleAddForm(1)}
+                    >
+                      Tambah Material
+                    </Button>
+                  </div>
                 </>
               )
             } else if (
@@ -1617,7 +1496,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               return (
                 <>
                   <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
-
                   <div className='table-warranty-content'>
                     <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
@@ -1875,9 +1753,9 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 </Button>
               </div>
             ) : (
-              <div className='d-flex justify-content-center align-items-center'>
+              <div className='d-flex justify-content-center align-items-center mt-5'>
                 <Button
-                  className='d-flex justify-content-center align-items-center'
+                  className='d-flex justify-content-center align-items-center m-0'
                   variant='dark-primary'
                   type='submit'
                   disabled={isLoading}
@@ -1891,37 +1769,23 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         </Card.Body>
       </Card>
 
-      {workOrderDetail?.work_order_status?.length && (
-        <Card className='mb-5'>
-          <Card.Body>
-            <div className='work-order-history'>
-              <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
+      <Card className='mb-5'>
+        <Card.Body>
+          <div className='work-order-history'>
+            <h1 className='title mb-5'>Order History</h1>
 
-              <Table responsive>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th className='content-history'>Work Order ID</th>
-                    <th className='content-history'>Work Order Status</th>
-                    <th className='content-history'>Terakhir Update Survey/Pengerjaan</th>
-                    <th className='content-history'>Tanggal Pengerjaan</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderHistory.map((item, index) => (
-                    <tr key={`${index}-history`} id={`${index}-history`}>
-                      <td>{item?.work_order_id}</td>
-                      <td>{item?.work_order_status_label}</td>
-                      <td>{item?.updated_at}</td>
-                      <td>{item?.work_date_time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </Card.Body>
-        </Card>
-      )}
+            <Steps
+              progressDot
+              current={OrderHistory.length - 1}
+              direction='vertical'
+              items={OrderHistory.map((item) => ({
+                title: item?.status,
+                description: `Terakhir update : ${item?.created_at} oleh ${item?.updated_by}`,
+              }))}
+            />
+          </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

@@ -183,12 +183,7 @@ const DashboardTukang: FC = () => {
           order_id: item?.order?.id,
           store_name: item?.order?.store?.store_name ?? '-',
           costumer_name: item?.order?.members?.full_name ?? '-',
-          service_name:
-            item?.order?.payment_type === 'survey'
-              ? item?.order?.m_order_details[0]?.item_notes
-              : item?.work_order_status[0]?.work_order_items
-                  .map((item: any) => item?.name)
-                  .join(', '),
+          status: item?.order?.status?.description,
           order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
             day: 'numeric',
             month: 'long',
@@ -196,7 +191,16 @@ const DashboardTukang: FC = () => {
             hour: 'numeric',
             minute: 'numeric',
           }),
-          status: item?.order?.status?.description,
+          service_name:
+            item?.order?.payment_type === 'survey' &&
+            item?.work_order_status[0]?.work_order_items.length === 0
+              ? item?.order?.m_order_details[0]?.item_notes
+              : item?.order?.payment_type === 'survey' &&
+                item?.work_order_status[0]?.work_order_items.length >= 1
+              ? item?.work_order_status[0]?.work_order_items
+                  .map((item: any) => item?.name)
+                  .join(', ')
+              : item?.order?.m_order_details?.map((item: any) => item?.item?.item_name).join(', '),
         }
 
         return data

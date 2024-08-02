@@ -1,28 +1,81 @@
-#view-report-tukang .title h1 {
-  width: fit-content;
+/* Table */
+#view-report-tukang .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #398318;
+}
+
+#view-work-order-tukang
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#view-work-order-tukang
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-report-tukang .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-report-tukang .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-report-tukang .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-report-tukang .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#view-report-tukang .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#view-report-tukang .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+#view-report-tukang .ant-table-thead > tr > th.col-work-status {
+  background-color: #a30014 !important;
+}
+
+#view-report-tukang .ant-table-thead > tr > th.col-complaint-date {
+  background-color: #a30014 !important;
+}
+
+#view-report-tukang .ant-table-thead > tr > th.col-complaint-status {
+  background-color: #a30014 !important;
+}
+
+/* Filter Search */
+
+#view-report-tukang .filter-search {
+  width: 370px;
+}
+
+#view-report-tukang input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
+}
+
+#view-report-tukang .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
   position: relative;
-  margin-top: -28px;
-  padding: 0 10px 10px 0px;
-  background-color: white;
-}
-
-#view-report-tukang .content-card.card {
-  margin: 0 0 20px 0;
-  background-color: #fff0f3 !important;
-}
-
-#view-report-tukang .content-card.border-green.card {
-  border: 3px solid #6f990d;
-}
-
-#view-report-tukang .content-card.border-red.card {
-  border: 3px solid #db0521 !important;
-}
-
-#view-report-tukang .content-card.border-blue.card {
-  border: 3px solid #383bb8 !important;
-}
-
-#view-report-tukang .content-card.border-yellow.card {
-  border: 3px solid #bbba18 !important;
 }

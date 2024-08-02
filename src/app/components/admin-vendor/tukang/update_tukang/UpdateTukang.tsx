@@ -8,7 +8,7 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import {Image} from 'antd'
-import {Form, Row, Col, Button, ListGroup, Card} from 'react-bootstrap'
+import {Form, Row, Col, Button, ListGroup, Card, FormCheck} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -44,6 +44,7 @@ const UpdateTukangVendor: FC = () => {
   const navigate = useNavigate()
   const animatedComponents = makeAnimated()
 
+  const userRole = localStorage.getItem('userRole') as string
   const vendorId = localStorage.getItem('vendor_id') as any
   const vendorName = localStorage.getItem('vendorName') as string
 
@@ -234,6 +235,14 @@ const UpdateTukangVendor: FC = () => {
     setTukang((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }))
+  }
+
+  // Switch Handler
+  const handleCheckboxChange = (isChecked: boolean) => {
+    setTukang((prev) => ({
+      ...prev,
+      is_active: isChecked ? 1 : 0,
     }))
   }
 
@@ -433,12 +442,14 @@ const UpdateTukangVendor: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Tukang',
+            text: `${
+              userRole === 'Tukang' ? 'Berhasil update biodata' : 'Berhasil update data tukang'
+            }`,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate('/tukang/view-tukang')
+            userRole === 'Tukang' ? window.location.reload() : navigate('/tukang/view-tukang')
           })
 
           setIsLoading(false)
@@ -475,12 +486,25 @@ const UpdateTukangVendor: FC = () => {
         </Card.Header>
 
         <Card.Body>
-          <Row className='mb-3'>
-            <Form.Label>
-              Nama Vendor{' '}
-              <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>{vendorName}</span>
-            </Form.Label>
-          </Row>
+          {['Tukang'].includes(userRole) && (
+            <Form.Check
+              id='switch-active'
+              type='switch'
+              label='Available'
+              className='mb-5'
+              checked={tukang.is_active === 1}
+              onChange={(e) => handleCheckboxChange(e.target.checked)}
+            />
+          )}
+
+          {!['Tukang'].includes(userRole) && (
+            <Row className='mb-3'>
+              <Form.Label>
+                Nama Vendor{' '}
+                <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>{vendorName}</span>
+              </Form.Label>
+            </Row>
+          )}
 
           <Row>
             <Col xxl={6} xl={6} lg={6} md={6} sm={12}>
@@ -789,15 +813,17 @@ const UpdateTukangVendor: FC = () => {
       </Card>
 
       <div className='d-flex justify-content-center'>
-        <Button
-          className='d-flex justify-content-center align-items-center'
-          variant='dark-danger'
-          type='submit'
-          disabled={isLoading}
-          onClick={handleCancelUpdateTukang}
-        >
-          Cancel
-        </Button>
+        {!['Tukang'].includes(userRole) && (
+          <Button
+            className='d-flex justify-content-center align-items-center'
+            variant='dark-danger'
+            type='submit'
+            disabled={isLoading}
+            onClick={handleCancelUpdateTukang}
+          >
+            Cancel
+          </Button>
+        )}
 
         <Button
           className='d-flex justify-content-center align-items-center'

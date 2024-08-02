@@ -132,4 +132,14 @@
   #update-work-order-tukang .table .table-item-head tr th.content {
     min-width: 300px;
   }
+
+  /* Button Action */
+
+  #update-work-order-tukang button.btn.btn-btn-jasa.button-dark-primary {
+    width: 100%;
+  }
+
+  #update-work-order-tukang button.btn.btn-btn-material.button-dark-primary {
+    width: 100%;
+  }
 }

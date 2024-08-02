@@ -7,6 +7,7 @@ import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
 
 const PrivateRoutes = () => {
+  const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const ChatPage = lazy(() => import('../modules/apps/chat/ChatPage'))
   const CalendarPage = lazy(() => import('../modules/calendar/CalendarPage'))
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
@@ -268,6 +269,15 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <PromotionQuotation />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='profile/*'
+          element={
+            <SuspensedView>
+              <ProfilePage />
             </SuspensedView>
           }
         />

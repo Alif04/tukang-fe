@@ -1,15 +1,60 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import {FC, useRef, useState} from 'react'
+import axios from 'axios'
+import {FC, useRef, useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import {useLayout} from '../../core'
 import {KTSVG, toAbsoluteUrl} from '../../../helpers'
 import {AsideMenu} from './AsideMenu'
 
+interface User {
+  user_id: number | null
+  username: string
+  full_name: string
+  roles: string
+}
+
 const AsideDefault: FC = () => {
   const {config, classes} = useLayout()
   const asideRef = useRef<HTMLDivElement | null>(null)
   const {aside} = config
+
+  const apiUrl = process.env.REACT_APP_API_URL
+  const [user, setUser] = useState<User>({
+    user_id: null,
+    username: '',
+    full_name: '',
+    roles: '',
+  })
+
+  const getUser = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/auth/find-user/${localStorage.getItem('user_id')}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setUser({
+            user_id: data.id,
+            username: data.username,
+            full_name: data?.tukang[0]?.full_name,
+            roles: data?.roles?.name,
+          })
+        })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    getUser()
+  }, [])
 
   const username = localStorage.getItem('username')
   const fullName = localStorage.getItem('employeeName')
@@ -70,7 +115,7 @@ const AsideDefault: FC = () => {
               : role === 'Admin HO' || role === 'Super User'
               ? username
               : role === 'Tukang'
-              ? tukangName
+              ? user.full_name
               : role === 'Store CS'
               ? storeName
               : fullName}

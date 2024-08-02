@@ -165,5 +165,30 @@ function getChartOptions(height: number, tukangData: any): ApexOptions {
         },
       },
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: '1200px',
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              columnWidth: '100%',
+              borderRadius: 0,
+            },
+          },
+          xaxis: {
+            labels: {
+              style: {
+                colors: labelColor,
+                fontSize: '12px',
+              },
+            },
+          },
+        },
+      },
+    ],
   }
 }

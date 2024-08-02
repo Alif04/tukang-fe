@@ -51,7 +51,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
   const [loadingButton, setLoadingButton] = useState(false)
 
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
   const userVendor = localStorage.getItem('vendor_id')
   const userTukang = localStorage.getItem('tukang_id')
@@ -198,7 +198,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       onFilter: (value: string, record: DataType) => record.warranty_status.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.warranty_status.length - b.warranty_status.length,
     },
-    userRole !== 'Tukang' && {
+    !['Tukang', 'Owner Vendor', 'Admin Vendor'].includes(userRole) && {
       title: 'Action',
       key: 'action',
       align: 'center',

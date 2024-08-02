@@ -9,15 +9,16 @@ import {MoreInformation} from './components/MoreInformation'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import {DatePicker} from 'antd'
-import {Row, Col, Card, Button} from 'react-bootstrap'
-import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
+import {Row, Col, Card, Button} from 'react-bootstrap'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 
 const {RangePicker} = DatePicker
 
 interface DataType {
   order_id: number
+  order_date: Date
   store_name: string
   costumer_name: string
   service_name: string
@@ -32,6 +33,14 @@ const columns: ColumnsType<DataType> = [
     key: 'order_id',
     align: 'center',
     sorter: (a, b) => a.order_id - b.order_id,
+  },
+  {
+    title: 'Tanggal Order',
+    dataIndex: 'order_date',
+    key: 'order_date',
+    align: 'left',
+    sorter: (a: DataType, b: DataType) =>
+      new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
   },
   {
     title: 'Nama Toko',
@@ -89,7 +98,10 @@ const DashboardVendor: FC = () => {
   const vendorId = localStorage.getItem('vendor_id')
 
   const [loadingButton, setLoadingButton] = useState(false)
+  const [loadData, setLoadData] = useState<boolean>(true)
+
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(0)
 
   const [orderList, setOrderList] = useState<any[]>([])
@@ -124,6 +136,7 @@ const DashboardVendor: FC = () => {
       setOrderList(response.data.data)
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
+      setLoadData(false)
 
       return response.data.data
     } catch (error) {
@@ -191,6 +204,13 @@ const DashboardVendor: FC = () => {
             item?.payment_type === 'survey'
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
+          order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          }),
           request_survey: new Date(item?.request_survey).toLocaleDateString('id-ID', {
             day: 'numeric',
             month: 'long',
@@ -301,7 +321,7 @@ const DashboardVendor: FC = () => {
             <Col xxl={8} xl={8} lg={8}>
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range w-100'
+                className='date-range w-100 mb-3'
                 defaultValue={[
                   dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
                   dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
@@ -325,7 +345,7 @@ const DashboardVendor: FC = () => {
 
         <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
           <Button
-            className='btn-dark-primary button-submit'
+            className='btn-dark-primary button-submit m-0'
             disabled={loadingButton}
             onClick={handleSubmitFilter}
           >
@@ -395,30 +415,44 @@ const DashboardVendor: FC = () => {
               <div className='d-flex flex-column'>
                 <h1 className='fs-1 text-black mb-3'>List Order</h1>
 
-                <Table
-                  bordered
-                  columns={columns}
-                  dataSource={orderList}
-                  rowKey={(record) => record.order_id}
-                  scroll={{x: 1200}}
-                  pagination={{
-                    position: ['bottomRight'],
-                    current: currentPage,
-                    total: totalData,
-                    showSizeChanger: true,
-                    pageSizeOptions: [5, 10, 20, 50, 100],
-                    defaultPageSize: 5,
-                    onChange: (page, pageSize) => {
+                <Spin
+                  tip='Loading...'
+                  spinning={loadData}
+                  size='large'
+                  indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+                >
+                  <Table
+                    className='table-striped-rows'
+                    bordered
+                    columns={columns}
+                    dataSource={orderList}
+                    rowKey={(record) => record.order_id}
+                    pagination={false}
+                    scroll={{x: 1700}}
+                  />
+                </Spin>
+
+                <div className='pagination-container mt-5'>
+                  <span className='total-text'>
+                    Showing {(currentPage - 1) * pageSize + 1} -{' '}
+                    {Math.min(currentPage * pageSize, totalData)} of {totalData} Orders
+                  </span>
+
+                  <Pagination
+                    className='pagination'
+                    current={currentPage}
+                    total={totalData}
+                    showSizeChanger
+                    pageSizeOptions={[5, 10, 20, 50, 100]}
+                    itemRender={itemRender}
+                    onShowSizeChange={(current, size) => {
+                      setPageSize(size)
+                    }}
+                    onChange={(page, pageSize) => {
                       fetchData(page, pageSize, '')
-                    },
-                    itemRender: itemRender,
-                    showTotal: (total, range) => (
-                      <span style={{left: 0, position: 'absolute'}}>
-                        Showing {range[0]} - {range[1]} of {total} List Order
-                      </span>
-                    ),
-                  }}
-                />
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -17,7 +17,7 @@ import {
   Row,
   Col,
   Form,
-  InputGroup,
+  FormGroup,
   Button,
   OverlayTrigger,
   Tooltip,
@@ -34,6 +34,7 @@ import {
   faTrash,
   faImage,
   faShuffle,
+  faPrint,
 } from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
@@ -68,6 +69,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
@@ -200,7 +202,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       key: 'action',
       align: 'center',
       fixed: 'right',
-      width: 130,
+      width: 90,
       render: (record) => {
         const id = record.order_id
 
@@ -267,6 +269,24 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               </OverlayTrigger>
             ) : (
               <></>
+            )}
+
+            {['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Cetak PDF Quotation')}
+              >
+                <Button
+                  className='button-request'
+                  variant='warning'
+                  onClick={() =>
+                    exportToPDF(record.order_id, record.payment_quotation, record.costumer_name)
+                  }
+                >
+                  <FontAwesomeIcon className='text-white' icon={faPrint} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
             )}
 
             {/* <OverlayTrigger
@@ -702,27 +722,48 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     }))
   }
 
+  // Export PDF Quotation
+  const exportToPDF = (order_id: number, receipt_quotation: string, customer_name: string) => {
+    axios
+      .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute(
+          'download',
+          `Quotation ${
+            receipt_quotation === 'UNPAID' ? 'Belum Dibayar' : 'Sudah Dibayar'
+          } - ${customer_name} - Order ID ${order_id}.pdf`
+        )
+        document.body.appendChild(link)
+        link.click()
+      })
+      .catch((error: any) => {
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+      })
+  }
+
   return (
     <section id='view-work-order-vendor'>
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper'>
-            <Col
-              xs={12}
-              md={12}
-              lg={12}
-              xl={4}
-              xxl={4}
-              className='d-flex mb-2'
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
               onKeyDown={handleKeyPress}
             >
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-3 fw-normal'>Date : </h3>
-              </div>
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range'
                 defaultValue={[
                   dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
                   dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
@@ -740,33 +781,29 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                   }
                 }}
               />
-            </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </div>
           </Row>
 
           <Spin
@@ -786,23 +823,27 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
             />
           </Spin>
 
-          <Pagination
-            className='mt-5'
-            style={{textAlign: 'right', position: 'relative'}}
-            current={currentPage}
-            total={totalData}
-            showSizeChanger
-            pageSizeOptions={[5, 10, 20, 50, 100]}
-            itemRender={itemRender}
-            onChange={(page, pageSize) => {
-              fetchData(page, pageSize, '')
-            }}
-            showTotal={(total, range) => (
-              <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Work Order
-              </span>
-            )}
-          />
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalData)} of {totalData} Order
+            </span>
+
+            <Pagination
+              className='pagination'
+              current={currentPage}
+              total={totalData}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100]}
+              itemRender={itemRender}
+              onShowSizeChange={(current, size) => {
+                setPageSize(size)
+              }}
+              onChange={(page, pageSize) => {
+                fetchData(page, pageSize, '')
+              }}
+            />
+          </div>
         </div>
       </div>
 

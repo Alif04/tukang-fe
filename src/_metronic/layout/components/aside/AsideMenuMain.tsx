@@ -8,6 +8,7 @@ import Swal from 'sweetalert2'
 
 export function AsideMenuMain() {
   const userRole = localStorage.getItem('userRole')
+  const userTukang = localStorage.getItem('tukang_id')
 
   const logoutHandler = () => {
     localStorage.clear()
@@ -442,7 +443,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/coding/cod009.svg'
         title={userRole === 'Store CS' ? 'Pengaturan' : 'Setting'}
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor']}
+        role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
       >
         <AsideMenuItemWithSub
           to='/bank'
@@ -538,6 +539,13 @@ export function AsideMenuMain() {
           to='/sales/new-sales'
           title='Register Sales'
           role={['Store CS']}
+          hasBullet={true}
+        />
+
+        <AsideMenuItem
+          to={`/profile/update-profile/${userTukang}`}
+          title='Profil Tukang'
+          role={['Tukang']}
           hasBullet={true}
         />
 

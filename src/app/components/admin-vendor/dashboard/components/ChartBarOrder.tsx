@@ -119,7 +119,7 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
     yaxis: {
       labels: {
         formatter: function (val) {
-          return val.toFixed(0)
+          return typeof val === 'number' ? val.toFixed(0) : val
         },
         show: true,
         style: {
@@ -172,5 +172,33 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
         },
       },
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: '1200px',
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              columnWidth: '100%',
+              borderRadius: 0,
+            },
+          },
+          xaxis: {
+            labels: {
+              formatter: function (val: any) {
+                return typeof val === 'number' ? val.toFixed(0) : val
+              },
+              style: {
+                colors: labelColor,
+                fontSize: '12px',
+              },
+            },
+          },
+        },
+      },
+    ],
   }
 }
