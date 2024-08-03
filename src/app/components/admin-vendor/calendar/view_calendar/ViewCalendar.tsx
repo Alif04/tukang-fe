@@ -201,7 +201,7 @@ const ViewCalendarVendor: React.FC = () => {
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
+  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [

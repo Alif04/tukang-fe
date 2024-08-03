@@ -151,7 +151,7 @@ function getChartOptions(height: number, tukangData: any): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return val + ''
+          return `Rp. ${val.toLocaleString('id')}`
         },
       },
     },

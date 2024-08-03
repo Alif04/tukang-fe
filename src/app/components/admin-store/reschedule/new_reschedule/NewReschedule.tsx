@@ -27,10 +27,13 @@ interface Status {
 
 const NewReschedule: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const userStore = localStorage.getItem('storeId')
   const navigate = useNavigate()
 
   const userRole = localStorage.getItem('userRole') as string
+  const userStore = localStorage.getItem('storeId')
+  const userTukang = localStorage.getItem('tukang_id')
+  const storeId = userStore ? `&store_id=${userStore}` : ''
+  const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -51,43 +54,36 @@ const NewReschedule: FC = () => {
     reschedule_status_by: userRole,
   })
 
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.filter((status: any) =>
+    ['SURVEYREQ', 'WORKREQ'].includes(status.category)
+  )
+  const statuses = desiredStatus.map((x) => x.value)
+
   const getOrder = async () => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData.filter((status: any) =>
-      ['SURVEYREQ', 'WORKREQ'].includes(status.category)
+    const response = await axios.get(
+      `${apiUrl}/orders?order_by=desc${storeId}&take=0&status=${statuses}${storeId}${tukangId}`,
+      {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      }
     )
 
-    if (desiredStatus) {
-      const statuses = desiredStatus.map((x) => x.value)
+    if (Array.isArray(response.data.data)) {
+      const tempOrder = response.data.data.map((item: any) => ({
+        value: item.id,
+        label: item.id,
+        status_id: item.status.id,
+      }))
 
-      const storeParam = userStore ? `&store_id=${userStore}` : ''
-
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc${storeParam}&take=0&status=${statuses}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      if (Array.isArray(response.data.data)) {
-        const tempOrder = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.id,
-          status_id: item.status.id,
-        }))
-
-        setOrder(tempOrder)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
+      setOrder(tempOrder)
     } else {
-      console.error('Desired status not found in statusData')
+      console.error('API response data is not an array:', response.data)
     }
   }
 

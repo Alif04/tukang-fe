@@ -66,8 +66,8 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
         data: chartOrderData.map((item: any) => item?.totalOrder),
       },
       {
-        name: 'Dibayar',
-        data: chartOrderData.map((item: any) => item?.totalWaitingQuotationCustomer),
+        name: 'Quotation sudah dibayar customer (Menunggu Perintah Kerja)',
+        data: chartOrderData.map((item: any) => item?.totalPaidQuotation),
       },
       {
         name: 'Dibatalkan',
@@ -125,8 +125,9 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     yaxis: {
       labels: {
         formatter: function (val) {
-          return val.toFixed(0)
+          return typeof val === 'number' ? val.toFixed(0) : val
         },
+        show: true,
         style: {
           colors: labelColor,
           fontSize: '12px',
@@ -177,5 +178,33 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
         },
       },
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: '1200px',
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              columnWidth: '100%',
+              borderRadius: 0,
+            },
+          },
+          xaxis: {
+            labels: {
+              formatter: function (val: any) {
+                return typeof val === 'number' ? val.toFixed(0) : val
+              },
+              style: {
+                colors: labelColor,
+                fontSize: '12px',
+              },
+            },
+          },
+        },
+      },
+    ],
   }
 }

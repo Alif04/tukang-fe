@@ -92,13 +92,13 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               order_status: item?.status?.description,
               created_at: item?.created_at,
               created_at_label: item?.created_at
-                ? new Date(item.created_at).toLocaleDateString('id-ID', {
+                ? `${new Date(item.created_at).toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
                     year: 'numeric',
                     hour: 'numeric',
                     minute: 'numeric',
-                  })
+                  })} ${item.created_by ? `oleh ${item?.created_by?.username}` : ''}`
                 : '-',
             }))
 
@@ -141,7 +141,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
+  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -642,7 +642,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     </div>
                   )
                 } else if (
-                  ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                  ['SURVEYREQ', 'TUKANGSURVEY', 'SURVEYSTART', 'SURVEYDONE'].includes(
                     order?.work_orders?.work_order_status[0]?.status?.category
                   ) &&
                   order?.payment_type === 'survey' &&

@@ -283,8 +283,6 @@ const ListUserHO: React.FC<Props> = ({className}) => {
     }
 
     valueCheck(`&search=`, searchFilter)
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
 
     const data = await ViewUser(1, 10, queryparams)
     setUserData(data)
@@ -303,31 +301,10 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       <div className={`card ${className}`}>
         <div className='card-body table-view-order'>
           <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex mb-2'>
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-3 fw-normal'>Date : </h3>
-              </div>
-
-              <RangePicker
-                format={'DD-MM-YYYY'}
-                className='date-range ms-3'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
-
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
-              />
-            </Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-              <div className='filter-search'>
+              <div className='filter-search mb-3'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
                     <FontAwesomeIcon icon={faSearch} size='sm' />
@@ -344,7 +321,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >

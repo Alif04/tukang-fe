@@ -58,21 +58,27 @@
 
 /* Searchbar */
 
-#new-invoice .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
+#new-invoice .filter-search {
+  width: 370px;
 }
 
-#new-invoice .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
+#new-invoice input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
 }
 
+#new-invoice .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
+}
 /* Button */
 
 #new-invoice .btn.btn-dark-success {
   width: fit-content;
   height: 40px;
-  margin: 0 10px 0 10px;
+  margin: 20px 10px 20px 10px;
   color: white !important;
   border-color: transparent !important;
   background-color: #6b9230 !important;
@@ -81,4 +87,10 @@
 
 #new-invoice .btn.btn-dark-success:hover:not(.btn-active) {
   background-color: #7cb920 !important;
+}
+
+@media screen and (max-width: 1200px) {
+  #new-invoice .filter-search {
+    width: 100%;
+  }
 }

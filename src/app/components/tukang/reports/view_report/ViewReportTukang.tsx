@@ -323,7 +323,7 @@ const ViewReportTukang = () => {
   const exportToExcel = () => {
     setLoadingExport(true)
 
-    let url = `${apiUrl}/tukang/export-excel-order`
+    let url = `${apiUrl}/tukang/export-excel-order?order_by=desc${tukangId}`
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -372,7 +372,7 @@ const ViewReportTukang = () => {
   const exportToPDF = () => {
     setLoadingExport(true)
 
-    let url = `${apiUrl}/tukang/export-excel-order`
+    let url = `${apiUrl}/tukang/export-pdf-order?order_by=desc${tukangId}`
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {

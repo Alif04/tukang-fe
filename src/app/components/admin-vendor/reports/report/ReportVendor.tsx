@@ -3,11 +3,12 @@ import React, {useState, useEffect} from 'react'
 import './ReportVendor.css'
 
 import axios from 'axios'
-import {Table, PaginationProps, Tag} from 'antd'
+import dayjs from 'dayjs'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {Card, Row, Col, Button} from 'react-bootstrap'
 
-import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -37,13 +38,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
   const [reportData, setReportData] = useState<any[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<any>()
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
+  const [loadData, setLoadData] = useState<boolean>(true)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const today = new Date()
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   let columns: ColumnsType<any> = []
 
@@ -59,6 +63,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           className: 'col_order_id',
           defaultSortOrder: 'descend',
           sorter: (a, b) => a.order_id - b.order_id,
+        },
+        {
+          title: 'Tanggal Order',
+          dataIndex: 'date_order',
+          key: 'date_order',
+          align: 'left',
+          width: 110,
+          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
         },
         {
           title: 'Nama Toko',
@@ -97,15 +109,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.phone_number.length - b.phone_number.length,
         },
         {
-          title: 'Nama Vendor',
-          dataIndex: 'vendor_name',
-          key: 'vendor_name',
-          align: 'left',
-          width: 150,
-          onFilter: (value, record) => record.vendor_name.includes(String(value)),
-          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-        },
-        {
           title: 'Grand Total',
           dataIndex: 'grand_total',
           key: 'grand_total',
@@ -114,12 +117,17 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.grand_total - b.grand_total,
         },
         {
-          title: 'Tanggal Order',
-          dataIndex: 'date_order',
-          key: 'date_order',
-          align: 'left',
-          width: 110,
-          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+          title: 'Status Order',
+          dataIndex: 'order_status',
+          key: 'order_status',
+          render: (order_status) => {
+            const orderStatus = order_status
+            return <Tag color='blue'>{orderStatus}</Tag>
+          },
+          onFilter: (value, record) => record.order_status.includes(String(value)),
+          sorter: (a, b) => a.order_status.length - b.order_status.length,
+          width: 150,
+          className: 'text-start',
         },
       ]
       break
@@ -146,16 +154,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Nama Toko',
-          dataIndex: 'assign_from',
-          key: 'assign_from',
-          align: 'center',
-          width: 120,
-          className: 'text-start',
-          onFilter: (value, record) => record.assign_from.includes(String(value)),
-          sorter: (a, b) => a.assign_from.length - b.assign_from.length,
-        },
-        {
           title: 'Tanggal Order',
           dataIndex: 'date_order',
           key: 'date_order',
@@ -164,6 +162,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           className: 'text-start',
           onFilter: (value, record) => record.date_order.includes(String(value)),
           sorter: (a, b) => a.date_order.length - b.date_order.length,
+        },
+        {
+          title: 'Nama Toko',
+          dataIndex: 'assign_from',
+          key: 'assign_from',
+          align: 'center',
+          width: 120,
+          className: 'text-start',
+          onFilter: (value, record) => record.assign_from.includes(String(value)),
+          sorter: (a, b) => a.assign_from.length - b.assign_from.length,
         },
         {
           title: 'No Member',
@@ -197,66 +205,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'order_status',
           render: (order_status) => {
             const orderStatus = order_status
-            let color = ''
-
-            switch (orderStatus) {
-              case 'UNPAID':
-                color = 'red'
-                break
-              case 'PAID':
-                color = 'green'
-                break
-              case 'PICKLIST':
-                color = 'green'
-                break
-              case 'BOOKED':
-                color = 'lime'
-                break
-              case 'SURVEYREQ':
-                color = 'blue'
-                break
-              case 'SURVEYSTART':
-                color = 'blue'
-                break
-              case 'SURVEYDONE':
-                color = 'blue'
-                break
-              case 'RESURVEYREQ':
-                color = 'blue'
-                break
-              case 'RESURVEYSTART':
-                color = 'blue'
-                break
-              case 'RESURVEYDONE':
-                color = 'blue'
-                break
-              case 'QUOTE IN':
-                color = 'blue'
-                break
-              case 'QUOTE OUT':
-                color = 'blue'
-                break
-              case 'WORKREQ':
-                color = 'blue'
-                break
-              case 'WORKSTART':
-                color = 'blue'
-                break
-              case 'WORKEND':
-                color = 'blue'
-                break
-              case 'INVOICED':
-                color = 'blue'
-                break
-              case 'CISOUT':
-                color = 'green'
-                break
-              default:
-                color = 'blue'
-                break
-            }
-
-            return <Tag color={color}>{orderStatus}</Tag>
+            return <Tag color='blue'>{orderStatus}</Tag>
           },
           onFilter: (value, record) => record.order_status.includes(String(value)),
           sorter: (a, b) => a.order_status.length - b.order_status.length,
@@ -359,15 +308,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Nama Toko',
-          dataIndex: 'store_name',
-          key: 'store_name',
-          align: 'center',
-          width: 130,
-          onFilter: (value, record) => record.store_name.includes(String(value)),
-          sorter: (a, b) => a.store_name.length - b.store_name.length,
-        },
-        {
           title: 'Tanggal Order',
           dataIndex: 'date_order',
           key: 'date_order',
@@ -375,6 +315,15 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           width: 110,
           onFilter: (value, record) => record.date_order.includes(String(value)),
           sorter: (a, b) => a.date_order.length - b.date_order.length,
+        },
+        {
+          title: 'Nama Toko',
+          dataIndex: 'store_name',
+          key: 'store_name',
+          align: 'center',
+          width: 130,
+          onFilter: (value, record) => record.store_name.includes(String(value)),
+          sorter: (a, b) => a.store_name.length - b.store_name.length,
         },
         {
           title: 'Nama Customer',
@@ -395,6 +344,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.service_name.length - b.service_name.length,
         },
         {
+          title: 'Grand Total Quotation',
+          dataIndex: 'grand_total_quotation',
+          key: 'grand_total_quotation',
+          align: 'left',
+          width: 130,
+          sorter: (a, b) => a.grand_total_quotation - b.grand_total_quotation,
+        },
+        {
           title: 'Payment Status',
           dataIndex: 'payment_status',
           key: 'payment_status',
@@ -402,6 +359,19 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           width: 120,
           onFilter: (value, record) => record.payment_status.includes(String(value)),
           sorter: (a, b) => a.payment_status.length - b.payment_status.length,
+        },
+        {
+          title: 'Status Order',
+          dataIndex: 'order_status',
+          key: 'order_status',
+          render: (order_status) => {
+            const orderStatus = order_status
+            return <Tag color='blue'>{orderStatus}</Tag>
+          },
+          onFilter: (value, record) => record.order_status.includes(String(value)),
+          sorter: (a, b) => a.order_status.length - b.order_status.length,
+          width: 150,
+          className: 'text-start',
         },
       ]
       break
@@ -419,7 +389,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Refund Id',
+          title: 'Tanggal Order',
+          dataIndex: 'date_order',
+          key: 'date_order',
+          align: 'center',
+          width: 110,
+          onFilter: (value, record) => record.date_order.includes(String(value)),
+          sorter: (a, b) => a.date_order.length - b.date_order.length,
+        },
+        {
+          title: 'Refund ID',
           dataIndex: 'refund_id',
           key: 'refund_id',
           align: 'center',
@@ -434,15 +413,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           width: 110,
           onFilter: (value, record) => record.store_name.includes(String(value)),
           sorter: (a, b) => a.store_name.length - b.store_name.length,
-        },
-        {
-          title: 'Tanggal Order',
-          dataIndex: 'date_order',
-          key: 'date_order',
-          align: 'center',
-          width: 110,
-          onFilter: (value, record) => record.date_order.includes(String(value)),
-          sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
         {
           title: 'Nomor Member',
@@ -546,7 +516,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Refund Id',
+          title: 'Tanggal Order',
+          dataIndex: 'date_order',
+          key: 'date_order',
+          align: 'center',
+          width: 110,
+          onFilter: (value, record) => record.date_order.includes(String(value)),
+          sorter: (a, b) => a.date_order.length - b.date_order.length,
+        },
+        {
+          title: 'Reschedule ID',
           dataIndex: 'refund_id',
           key: 'refund_id',
           align: 'center',
@@ -561,15 +540,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           width: 150,
           onFilter: (value, record) => record.store_name.includes(String(value)),
           sorter: (a, b) => a.store_name.length - b.store_name.length,
-        },
-        {
-          title: 'Tanggal Order',
-          dataIndex: 'date_order',
-          key: 'date_order',
-          align: 'center',
-          width: 110,
-          onFilter: (value, record) => record.date_order.includes(String(value)),
-          sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
         {
           title: 'Nomor Member',
@@ -659,15 +629,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           className: 'col_order_id',
           defaultSortOrder: 'descend',
           sorter: (a, b) => a.order_id - b.order_id,
-        },
-        {
-          title: 'Nama Vendor',
-          dataIndex: 'vendor_name',
-          key: 'vendor_name',
-          align: 'left',
-          width: 150,
-          onFilter: (value, record) => record.vendor_name.includes(String(value)),
-          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
         },
         {
           title: 'Grand Total',
@@ -769,7 +730,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
 
-      let url = `${urlBase}?order_by=desc&take=0${vendorId}`
+      let url = `${urlBase}?order_by=desc&take=0&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`
       // if (statuses && statuses.length) {
       //   url += `&status=${statuses}`
       // }
@@ -838,7 +799,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
 
-      let url = `${urlBase}?order_by=desc${vendorId}&page=${page}&take=${pageSize}${params}`
+      let url = `${urlBase}?order_by=desc${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${params}`
 
       // if (statuses.length) {
       //   url += `&status=${statuses}`
@@ -868,6 +829,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
         }
       }
 
+      setLoadData(false)
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -923,6 +885,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               vendor_name: item?.vendor?.company_name ?? '-',
               grand_total: `Rp. ${grandTotal.toLocaleString('id')}`,
               date_order: orderDate,
+              order_status: item?.status?.description,
             }
 
             return data
@@ -1022,8 +985,11 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               service_name: workOrderItems,
               vendor_name: item?.order?.vendor?.company_name ?? '-',
               payment_status: paymentStatus,
-              order_status: item?.status?.category ?? '',
-              quotation_status: item?.status?.category ?? '',
+              order_status: item?.status?.description ?? '',
+              quotation_status: item?.status?.description ?? '',
+              grand_total_quotation: `Rp. ${parseInt(item?.quotation_grand_total).toLocaleString(
+                'id'
+              )}`,
             }
 
             return data
@@ -1074,10 +1040,9 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               minute: 'numeric',
             })
 
-            let phoneNumber =
-              item.order.members.phone_number !== 'null'
-                ? item.order.members.phone_number
-                : item.order.members.whatsapp_number
+            const phoneNumber = item?.order?.project_number.startsWith('0')
+              ? item?.orders?.project_number
+              : `+62${item?.orders?.project_number}`
 
             let paymentStatus = item.order.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
 
@@ -1092,7 +1057,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               item_name: item?.order?.m_order_details[0]?.item?.item_name ?? '-',
               service_name: item?.order?.m_order_details[0]?.item?.service_name ?? '-',
               payment_status: paymentStatus,
-              order_status: item?.order?.status.category,
+              order_status: item?.order?.status?.description,
             }
 
             return data
@@ -1116,6 +1081,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               vendor_name: item?.vendor?.company_name ?? '-',
               grand_total: `Rp. ${parseInt(item?.total_amount).toLocaleString('id')}`,
               date_order: orderDate,
+              order_status: item?.status?.description ?? '',
             }
 
             return data
@@ -1222,10 +1188,10 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
+    const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
+    setReportGrandTotal(reportGrandTotal)
 
-    const data = await ViewReportData('orders', 1, 10, queryparams)
+    const data = await ViewReportData(endpoint, 1, 10, queryparams)
     setReportData(data)
 
     setLoadingButton(false)
@@ -1239,61 +1205,52 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
   return (
     <section id='view-report-vendor'>
-      <Row className='mb-5'>
-        <Col xxl={4} xl={4} lg={12}>
-          <Row>
-            <Col
-              xxl={4}
-              xl={4}
-              lg={4}
-              className='d-flex align-items-center'
-              onKeyDown={handleKeyPress}
-            >
-              <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
-            </Col>
+      <Row className='table-head-wrapper mb-5'>
+        <div
+          className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+          onKeyDown={handleKeyPress}
+        >
+          <h3 className='d-flex align-items-center fs-5 fw-normal'>Pilih rentang waktu</h3>
 
-            <Col xxl={8} xl={8} lg={8}>
-              <RangePicker
-                format={'DD-MM-YYYY'}
-                className='date-range w-100'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+          <RangePicker
+            format={'DD-MM-YYYY'}
+            className='date-range'
+            defaultValue={[
+              dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+              dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+            ]}
+            onChange={(values) => {
+              if (values && values.length === 2) {
+                const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
-              />
-            </Col>
-          </Row>
-        </Col>
+                setDateFrom(dateFromFormatted)
+                setDateTo(dateToFormatted)
+              } else {
+                setDateFrom(new Date().toISOString().split('T')[0])
+                setDateTo(new Date().toISOString().split('T')[0])
+              }
+            }}
+          />
 
-        <Col xxl={4} xl={4} lg={12}>
           <Button
-            className='btn-dark-primary button-submit'
+            className='btn-dark-primary button-submit m-0'
             disabled={loadingButton}
             onClick={handleSubmitFilter}
           >
             {loadingButton ? 'Filtering..' : 'Submit'}
           </Button>
-        </Col>
-
-        <Col xxl={4} xl={4} lg={12}></Col>
+        </div>
       </Row>
 
       <Row className='mb-5'>
         <Col>
           <Card className={`border-top border-${headerColor} border-5`}>
             <Card.Body>
-              <div className='d-flex justify-content-between align-items-center'>
+              <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-between gap-3'>
                 <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
 
-                <button className='button-export' onClick={exportToExcel}>
+                <button className='button-export mb-5' onClick={exportToExcel}>
                   <h3 className='fs-5 fw-semibold'>
                     {loadingExport ? 'Exporting..' : 'Export To Excel'}
                   </h3>
@@ -1340,29 +1297,70 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               }}
             />
           ) : (
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={reportData}
-              rowKey={(record) => record.order_id}
-              pagination={{
-                position: ['bottomRight'],
-                current: currentPage,
-                total: totalOrder,
-                showSizeChanger: true,
-                pageSizeOptions: [5, 10, 20, 50, 100],
-                onChange: (page, pageSize) => {
-                  fetchData(page, pageSize, '')
-                },
-                itemRender: itemRender,
-                showTotal: (total, range) => (
-                  <span style={{left: 0, position: 'absolute'}}>
-                    Showing {range[0]} - {range[1]} of {total} List
-                  </span>
-                ),
-              }}
-            />
+            <>
+              <Spin
+                tip='Loading...'
+                spinning={loadData}
+                size='large'
+                indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+              >
+                <Table
+                  className='table-striped-rows'
+                  bordered
+                  columns={columns}
+                  dataSource={reportData}
+                  rowKey={(record) => record.order_id}
+                  scroll={{x: 1700}}
+                  pagination={false}
+                />
+              </Spin>
+
+              <div className='pagination-container mt-5'>
+                <span className='total-text'>
+                  Showing {(currentPage - 1) * pageSize + 1} -{' '}
+                  {Math.min(currentPage * pageSize, totalOrder)} of {totalOrder} Work Order
+                </span>
+
+                <Pagination
+                  className='pagination'
+                  current={currentPage}
+                  total={totalOrder}
+                  showSizeChanger
+                  pageSizeOptions={[5, 10, 20, 50, 100]}
+                  itemRender={itemRender}
+                  onShowSizeChange={(current, size) => {
+                    setPageSize(size)
+                  }}
+                  onChange={(page, pageSize) => {
+                    fetchData(page, pageSize, '')
+                  }}
+                />
+              </div>
+            </>
+            // <Table
+            //   className='table-striped-rows'
+            //   bordered
+            //   columns={columns}
+            //   dataSource={reportData}
+            //   rowKey={(record) => record.order_id}
+            //   scroll={{x: 2000}}
+            //   pagination={{
+            //     position: ['bottomRight'],
+            //     current: currentPage,
+            //     total: totalOrder,
+            //     showSizeChanger: true,
+            //     pageSizeOptions: [5, 10, 20, 50, 100],
+            //     onChange: (page, pageSize) => {
+            //       fetchData(page, pageSize, '')
+            //     },
+            //     itemRender: itemRender,
+            //     showTotal: (total, range) => (
+            //       <span style={{left: 0, position: 'absolute'}}>
+            //         Showing {range[0]} - {range[1]} of {total} List
+            //       </span>
+            //     ),
+            //   }}
+            // />
           )}
         </Col>
       </Row>

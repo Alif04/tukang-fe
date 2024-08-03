@@ -58,8 +58,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
     statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)
 
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
-  const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
+  const surveyStatuses = getStatuses(['SURVEYREQ', 'TUKANGSURVEY', 'SURVEYSTART', 'SURVEYDONE'])
+
+  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -254,6 +255,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                 <Row>
                   {[
                     'SURVEYREQ',
+                    'TUKANGSURVEY',
                     'SURVEYSTART',
                     'SURVEYDONE',
                     'RESURVEYREQ',
@@ -326,8 +328,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                   )}
 
                   {[
-                    'WORKSTART',
                     'WORKREQ',
+                    'TUKANGWORK',
+                    'WORKSTART',
                     'WORKEND',
                     'REWORKREQ',
                     'REWORKSTART',
@@ -502,6 +505,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                 } else if (
                   [
                     'SURVEYREQ',
+                    'TUKANGSURVEY',
                     'SURVEYSTART',
                     'SURVEYDONE',
                     'RESURVEYREQ',

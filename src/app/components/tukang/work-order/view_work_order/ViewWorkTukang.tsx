@@ -359,7 +359,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             ) {
               return item?.order?.status?.category
             } else if (
-              ['WORKREQ'].includes(item?.order?.status?.category) &&
+              ['WORKREQ', 'TUKANGWORK'].includes(item?.order?.status?.category) &&
               item?.order?.payment_type === 'survey' &&
               !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
             ) {
@@ -388,7 +388,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             ) {
               return item?.order?.status?.description
             } else if (
-              ['WORKREQ'].includes(item?.order?.status?.category) &&
+              ['WORKREQ', 'TUKANGWORK'].includes(item?.order?.status?.category) &&
               item?.order?.payment_type === 'survey' &&
               !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
             ) {

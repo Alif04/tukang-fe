@@ -618,6 +618,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       switch (category) {
         case 'SURVEYREQ':
           return 'SURVEYSTART'
+        case 'TUKANGSURVEY':
+          return 'SURVEYSTART'
         case 'SURVEYSTART':
           return 'SURVEYDONE'
         case 'SURVEYDONE':
@@ -629,6 +631,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         case 'RESURVEYDONE':
           return 'RESURVEYDONE'
         case 'WORKREQ':
+          return 'WORKSTART'
+        case 'TUKANGWORK':
           return 'WORKSTART'
         case 'WORKSTART':
           return 'WORKEND'
@@ -1198,6 +1202,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
               {[
                 'SURVEYREQ',
+                'TUKANGSURVEY',
                 'SURVEYSTART',
                 'SURVEYDONE',
                 'RESURVEYREQ',
@@ -1245,6 +1250,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
               {[
                 'WORKREQ',
+                'TUKANGWORK',
                 'WORKSTART',
                 'WORKEND',
                 'REWORKREQ',
@@ -1271,7 +1277,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           minute: 'numeric',
                         })}{' '}
                         sampai{' '}
-                        {new Date(workOrderDetail?.work_start_date).toLocaleDateString('id-ID', {
+                        {new Date(workOrderDetail?.work_end_date).toLocaleDateString('id-ID', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric',
@@ -1780,7 +1786,9 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               direction='vertical'
               items={OrderHistory.map((item) => ({
                 title: item?.status,
-                description: `Terakhir update : ${item?.created_at} oleh ${item?.updated_by}`,
+                description: `Terakhir update : ${item?.created_at} ${
+                  item.updated_by ? `oleh ${item?.updated_by}` : ''
+                }`,
               }))}
             />
           </div>

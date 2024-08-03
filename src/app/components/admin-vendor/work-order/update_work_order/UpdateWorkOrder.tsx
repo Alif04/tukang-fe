@@ -8,7 +8,7 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import dayjs from 'dayjs'
-import {DatePicker} from 'antd'
+import {DatePicker, Steps} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Button, Row, Col, Card, Table} from 'react-bootstrap'
 const {RangePicker} = DatePicker
@@ -19,19 +19,10 @@ interface StatusStorage {
   description: string
 }
 
-interface StatusSelect {
-  category: string
-  value: any
-  label: string
-}
-
-interface WorkOrderHistory {
-  work_order_id: number
-  work_order_status: string
-  work_order_status_label: string
-  time_range: string
-  updated_at: string
-  work_date_time: string
+interface OrderHistory {
+  order_id: number
+  status: string
+  created_at: string
   updated_by: string
 }
 
@@ -49,8 +40,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   // Order Detail
   const [orderDetail, setOrderDetail] = useState<any>({})
 
-  // Work Order History
-  const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
+  // Order History
+  const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
+
+  console.log('order history', OrderHistory)
 
   // New Work Order
   const [workOrder, setWorkOrder] = useState<WorkOrder>({
@@ -91,9 +84,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   // Option Tukang
   const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
 
-  // Option Work Order Status
-  const [workOrderStatus, setWorkOrderStatus] = useState<StatusSelect[]>([])
-
   const fetchOrderData = async () => {
     try {
       await axios
@@ -116,6 +106,32 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
           if (data?.id) {
             workOrderHandler(data.id, 'order_id')
+
+            const orderHistory = data?.order_history.map((item: any) => {
+              return {
+                status: item?.status?.description,
+                created_at: item?.created_at
+                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })
+                  : item?.created_at
+                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })
+                  : '-',
+                updated_by: item?.created_by?.username,
+              }
+            })
+
+            setOrderHistory(orderHistory)
           }
 
           if (data?.vendor_id) {
@@ -138,19 +154,37 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           // old without time
-          if (data?.work_orders?.survey_date) {
-            workOrderHandler(formatInputDate(new Date(data.work_orders.survey_date)), 'survey_date')
-          }
+          // if (data?.work_orders?.survey_date) {
+          //   workOrderHandler(formatInputDate(new Date(data.work_orders.survey_date)), 'survey_date')
+          // }
 
           // new with time
-          // if (data?.work_orders?.survey_date) {
-          //   setWorkOrder((prev) => {
-          //     return {
-          //       ...prev,
-          //       survey_date: data.work_orders.survey_date,
-          //     }
-          //   })
-          // }
+          if (data?.work_orders?.survey_date) {
+            setWorkOrder((prev) => {
+              return {
+                ...prev,
+                survey_date: data.work_orders.survey_date,
+              }
+            })
+          }
+
+          if (data?.work_orders?.work_start_date) {
+            setWorkOrder((prev) => {
+              return {
+                ...prev,
+                work_start_date: data.work_orders.work_start_date,
+              }
+            })
+          }
+
+          if (data?.work_orders?.work_end_date) {
+            setWorkOrder((prev) => {
+              return {
+                ...prev,
+                work_end_date: data.work_orders.work_end_date,
+              }
+            })
+          }
 
           if (
             Array.isArray(data?.work_orders?.work_order_status) &&
@@ -171,135 +205,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             workOrderHandler(data?.status?.id, 'work_order_status')
           }
 
-          // if (data?.work_orders?.work_order_status) {
-          //   workOrderHandler(data.work_orders.work_order_status[0].status_id, 'work_order_status')
-          // } else {
-          //   workOrderHandler(data.status.id, 'work_order_status')
-          // }
-
-          // if (
-          //   ['WORKREQ'].includes(data?.status?.category) &&
-          //   data?.work_orders?.work_order_status[0]?.length > 1
-          // ) {
-          //   workOrderHandler(data.status.id, 'work_order_status')
-          // } else if (
-          //   data?.work_orders?.work_order_status?.length > 1 &&
-          //   data?.status?.category !== 'WORKREQ'
-          // ) {
-          //   workOrderHandler(data.work_orders.work_order_status[0].status_id, 'work_order_status')
-          // }
-
           if (data?.complaints[0]?.complaint_status) {
             workOrderHandler(data.complaints[0].complaint_status, 'complaint_status')
           }
-
-          if (data?.work_orders?.work_start_date) {
-            workOrderHandler(
-              formatInputDate(new Date(data.work_orders.work_start_date)),
-              'work_start_date'
-            )
-          }
-
-          if (data?.work_orders?.work_end_date) {
-            workOrderHandler(
-              formatInputDate(new Date(data.work_orders.work_end_date)),
-              'work_end_date'
-            )
-          }
-
-          if (data.work_orders) {
-            const workStartDate = new Date(data?.work_orders?.work_start_date).toLocaleDateString(
-              'id-ID',
-              {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              }
-            )
-
-            const workEndDate = new Date(data?.work_orders?.work_end_date).toLocaleDateString(
-              'id-ID',
-              {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              }
-            )
-
-            const workDateTime =
-              data?.work_orders?.work_end_date !== null
-                ? `${workStartDate} - ${workEndDate}`
-                : 'Belum dijadwalkan oleh vendor'
-
-            const surveyDate = data.work_orders.survey_date
-              ? new Date(data.work_orders.survey_date).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })
-              : 'Order ini tanpa survey'
-
-            const workOrderHistoryData = data.work_orders.work_order_status.map((item: any) => ({
-              work_order_id: item.work_order_id,
-              work_order_status: workOrderStatus.find((option) => option.value === item.status_id)
-                ?.value,
-              work_order_status_label: workOrderStatus.find(
-                (option) => option.value === item.status_id
-              )?.label,
-              created_at: surveyDate,
-              updated_at: item.created_at
-                ? new Date(item.created_at).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })
-                : '-',
-              work_date_time: workDateTime,
-              updated_by: item.updated_by,
-            }))
-
-            setWorkOrderHistory(workOrderHistoryData)
-          }
-
-          // if (data?.work_order.length === null) {
-          // const workOrderItem = data.quotation[0].quotation_details.map(
-          //   (item: any, index: number) => ({
-          //     id: item.id,
-          //     index: (Date.now() + index).toString(),
-          //     item_name: item?.name,
-          //     unit: item?.unit,
-          //     is_user: item?.is_customer === true ? 1 : 0,
-          //     type: item?.item_type,
-          //     quantity: item?.quantity,
-          //   })
-          // )
-          // setWorkOrder((prev) => ({
-          //   ...prev,
-          //   work_order_item: workOrderItem,
-          // }))
-          // }
-
-          // if (
-          //   data?.work_orders?.work_order_status?.length >= 1 &&
-          //   data?.work_orders?.work_order_status?.length < 3
-          // ) {
-          //   const workOrderItem = data?.order_details.map((item: any, index: number) => ({
-          //     id: item.id,
-          //     index: (Date.now() + index).toString(),
-          //     item_name: item?.item_name,
-          //     unit: item?.unit ?? '',
-          //     is_user: item?.is_customer === true ? 1 : 0,
-          //     type: 2,
-          //     quantity: item?.quantity ?? 0,
-          //   }))
-
-          //   setWorkOrder((prev) => ({
-          //     ...prev,
-          //     work_order_item: workOrderItem,
-          //   }))
-          // }
 
           if (data?.quotation) {
             const workOrderItem = data?.quotation[0]?.quotation_details.map(
@@ -370,68 +278,26 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   // Filter Work Order Status
   useEffect(() => {
-    const workOrderStatusOption = () => {
-      const storedStatus = sessionStorage.getItem('statusData')
-      const paymentTypeMap = new Map<string, string[]>([
-        [
-          'gratis',
-          [
-            'WORKREQ',
-            'WORKSTART',
-            'WORKEND',
-            'REWORKREQ',
-            'REWORKSTART',
-            'REWORKEND',
-            'RESCHEDULE',
-          ],
-        ],
-        [
-          'pemasangan_tanpa_survey',
-          [
-            'WORKREQ',
-            'WORKSTART',
-            'WORKEND',
-            'REWORKREQ',
-            'REWORKSTART',
-            'REWORKEND',
-            'RESCHEDULE',
-          ],
-        ],
-        [
-          'survey',
-          [
-            'SURVEYREQ',
-            'SURVEYSTART',
-            'SURVEYDONE',
-            'WORKREQ',
-            'WORKSTART',
-            'WORKEND',
-            'RESURVEYREQ',
-            'RESURVEYSTART',
-            'RESURVEYDONE',
-            'REWORKREQ',
-            'REWORKSTART',
-            'REWORKEND',
-            'RESCHEDULE',
-          ],
-        ],
-      ])
+    const storedStatus = sessionStorage.getItem('statusData')
+    const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
-      const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
-      const desiredStatus = statusData
-        .filter((status) =>
-          paymentTypeMap.get(orderDetail?.payment_type ?? 'survey')?.includes(status.category)
-        )
-        .map(({description, value, category}) => ({
-          label: description,
-          category,
-          value,
-        }))
-
-      setWorkOrderStatus(desiredStatus)
+    const getStatusNameByCategory = (category: string) => {
+      switch (category) {
+        case 'SURVEYREQ':
+          return 'TUKANGSURVEY'
+        case 'WORKREQ':
+          return 'TUKANGWORK'
+      }
     }
 
-    workOrderStatusOption()
+    const status = getStatusNameByCategory(orderDetail?.status?.category)
+    const desiredStatus =
+      statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
+
+    setWorkOrder({
+      ...workOrder,
+      work_order_status: desiredStatus === null ? orderDetail?.status?.id : desiredStatus,
+    })
   }, [orderDetail?.status])
 
   const workOrderHandler = (
@@ -639,37 +505,13 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         ? 'New Work Status : '
                         : 'Update Work Status : '}
                       <span className='fw-normal'>
-                        {workOrder.work_order_status
-                          ? `${
-                              workOrderStatus.find(
-                                (option) => option.value === Number(workOrder.work_order_status)
-                              )?.label
-                            }`
-                          : ''}
+                        {orderDetail?.status?.category === 'SURVEYREQ'
+                          ? 'Tukang ditugaskan untuk survei'
+                          : orderDetail?.status?.category === 'WORKREQ'
+                          ? 'Tukang ditugaskan untuk pengerjaan'
+                          : orderDetail?.status?.description}
                       </span>
                     </Form.Label>
-
-                    {/* <Select
-                        classNamePrefix='select'
-                        placeholder='Select Status'
-                        isSearchable={true}
-                        options={workOrderStatus}
-                        value={
-                          workOrder.work_order_status
-                            ? {
-                                value: workOrder.work_order_status,
-                                label: workOrderStatus.find(
-                                  (option) => option.value === workOrder.work_order_status
-                                )?.label,
-                              }
-                            : null
-                        }
-                        onChange={(e) => {
-                          if (e !== null) {
-                            workOrderHandler(e.value, 'work_order_status')
-                          }
-                        }}
-                      /> */}
                   </Form.Group>
                 </Col>
               </Col>
@@ -683,7 +525,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   <Col xxl={6} xl={6} lg={6} md={6} sm={12} xs={12}>
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='6'>
-                        No Member :
+                        No Member
                       </Form.Label>
                       <Col sm='6'>
                         <p className='fs-7'>{orderDetail?.members?.member_number ?? ''}</p>
@@ -692,7 +534,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='6'>
-                        Customer Name :
+                        Customer Name
                       </Form.Label>
                       <Col sm='6'>
                         <p className='fs-7'>{orderDetail?.members?.full_name ?? ''}</p>
@@ -737,15 +579,13 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 <Row>
                   {[
                     'SURVEYREQ',
+                    'TUKANGSURVEY',
                     'SURVEYSTART',
                     'SURVEYDONE',
                     'RESURVEYREQ',
                     'RESURVEYSTART',
                     'RESURVEYDONE',
-                  ].includes(
-                    workOrderStatus.find((option) => option.value === workOrder.work_order_status)
-                      ?.category || ''
-                  ) && (
+                  ].includes(orderDetail?.status?.category) && (
                     <Col>
                       <div className='survey mb-3'>
                         <div className='fs-4 fw-bold'>Survey</div>
@@ -753,30 +593,45 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         <Form.Group className='detail-info mb-3'>
                           <Form.Label>Tanggal Survey :</Form.Label>
 
-                          <Form.Control
+                          {/* <Form.Control
                             type='date'
                             min={today}
                             defaultValue={workOrder ? workOrder.survey_date : ''}
                             onChange={(e) => workOrderHandler(e.target.value, 'survey_date')}
-                          />
-
-                          {/* <DatePicker
-                            showTime={{format: 'HH:mm'}}
-                            className='date-range w-100'
-                            format='DD-MM-YYYY HH:mm'
-                            value={
-                              workOrder.survey_date
-                                ? dayjs(workOrder.survey_date, 'YYYY-MM-DD HH:mm')
-                                : null
-                            }
-                            onChange={(value) => {
-                              const surveyDate = value ? value.format('YYYY-MM-DDTHH:mm') : ''
-                              setWorkOrder((prev) => ({
-                                ...prev,
-                                survey_date: surveyDate,
-                              }))
-                            }}
                           /> */}
+
+                          {orderDetail?.status?.category !== 'SURVEYDONE' ? (
+                            <DatePicker
+                              showTime={{format: 'HH:mm'}}
+                              className='date-range w-100'
+                              format='DD-MM-YYYY HH:mm'
+                              value={
+                                workOrder.survey_date
+                                  ? dayjs(workOrder.survey_date, 'YYYY-MM-DD HH:mm')
+                                  : null
+                              }
+                              onChange={(value) => {
+                                const surveyDate = value ? value.format('YYYY-MM-DDTHH:mm') : ''
+                                setWorkOrder((prev) => ({
+                                  ...prev,
+                                  survey_date: surveyDate,
+                                }))
+                              }}
+                            />
+                          ) : (
+                            <p>
+                              {new Date(orderDetail?.work_orders?.survey_date).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
+                                }
+                              )}
+                            </p>
+                          )}
                         </Form.Group>
 
                         <Form.Group className='detail-info mb-3'>
@@ -801,6 +656,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                   {[
                     'WORKREQ',
+                    'TUKANGWORK',
                     'WORKSTART',
                     'WORKEND',
                     'REWORKREQ',
@@ -808,55 +664,80 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
-                  ].includes(
-                    workOrderStatus.find((option) => option.value === workOrder.work_order_status)
-                      ?.category || ''
-                  ) && (
+                  ].includes(orderDetail?.status?.category) && (
                     <Col>
                       <div className='work-date'>
                         <div className='fs-4 fw-bold'>Pengerjaan</div>
 
                         <Form.Group className='detail-info mb-3'>
                           <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
-                          <RangePicker
-                            allowClear={false}
-                            className='date-range w-100'
-                            format='DD-MM-YYYY'
-                            onChange={(values) => {
-                              if (values && values.length === 2) {
-                                const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
-                                const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                                setWorkOrder((prev) => ({
-                                  ...prev,
-                                  work_start_date: dateFromFormatted,
-                                  work_end_date: dateToFormatted,
-                                }))
-                              } else {
-                                setWorkOrder({
-                                  id: null,
-                                  order_id: null,
-                                  vendor_id: null,
-                                  tukang_id: [],
-                                  request_work_time: '',
-                                  survey_date: '',
-                                  work_order_status: null,
-                                  complaint_status: null,
-                                  work_start_date: '',
-                                  work_end_date: '',
-                                  work_order_item: [],
-                                })
+                          {orderDetail?.status?.category !== 'WORKEND' ? (
+                            <RangePicker
+                              showTime={{format: 'HH:mm'}}
+                              className='date-range w-100'
+                              format='DD-MM-YYYY HH:mm'
+                              value={
+                                (workOrder.work_start_date &&
+                                  workOrder.work_end_date && [
+                                    dayjs(workOrder.work_start_date, 'YYYY-MM-DD HH:mm'),
+                                    dayjs(workOrder.work_end_date, 'YYYY-MM-DD HH:mm'),
+                                  ]) ||
+                                undefined
                               }
-                            }}
-                            value={
-                              (workOrder.work_start_date &&
-                                workOrder.work_end_date && [
-                                  dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                                  dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                                ]) ||
-                              undefined
-                            }
-                          />{' '}
+                              onChange={(values) => {
+                                if (values && values.length === 2) {
+                                  const dateFromFormatted =
+                                    values[0]?.format('YYYY-MM-DDTHH:mm') || ''
+                                  const dateToFormatted =
+                                    values[1]?.format('YYYY-MM-DDTHH:mm') || ''
+
+                                  setWorkOrder((prev) => ({
+                                    ...prev,
+                                    work_start_date: dateFromFormatted,
+                                    work_end_date: dateToFormatted,
+                                  }))
+                                } else {
+                                  setWorkOrder({
+                                    id: null,
+                                    order_id: null,
+                                    vendor_id: null,
+                                    tukang_id: [],
+                                    request_work_time: '',
+                                    survey_date: '',
+                                    work_order_status: null,
+                                    complaint_status: null,
+                                    work_start_date: '',
+                                    work_end_date: '',
+                                    work_order_item: [],
+                                  })
+                                }
+                              }}
+                            />
+                          ) : (
+                            <p className='p-0'>
+                              {new Date(
+                                orderDetail?.work_orders?.work_start_date
+                              ).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                              })}{' '}
+                              sampai{' '}
+                              {new Date(orderDetail?.work_orders?.work_end_date).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
+                                }
+                              )}
+                            </p>
+                          )}
                         </Form.Group>
 
                         <Form.Group className='detail-info mb-3'>
@@ -1313,39 +1194,25 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         </div>
       </Card>
 
-      {orderDetail?.work_orders ? (
-        <Card className='mb-5'>
-          <Card.Body>
-            <div className='work-order-history'>
-              <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
+      <Card className='mb-5'>
+        <Card.Body>
+          <div className='work-order-history'>
+            <h1 className='title mb-5'>Order History</h1>
 
-              <Table responsive>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th className='content-history'>Work Order ID</th>
-                    <th className='content-history'>Work Order Status</th>
-                    <th className='content-history'>Terakhir Update Survey/Pengerjaan</th>
-                    <th className='content-history'>Tanggal Pengerjaan</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderHistory.map((item, index) => (
-                    <tr key={`${index}-history`} id={`${index}-history`}>
-                      <td>{item?.work_order_id}</td>
-                      <td>{item?.work_order_status_label}</td>
-                      <td>{item?.updated_at}</td>
-                      <td>{item?.work_date_time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </Card.Body>
-        </Card>
-      ) : (
-        ''
-      )}
+            <Steps
+              progressDot
+              current={OrderHistory.length - 1}
+              direction='vertical'
+              items={OrderHistory.map((item) => ({
+                title: item?.status,
+                description: `Terakhir update : ${item?.created_at} ${
+                  item.updated_by ? `oleh ${item?.updated_by}` : ''
+                }`,
+              }))}
+            />
+          </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

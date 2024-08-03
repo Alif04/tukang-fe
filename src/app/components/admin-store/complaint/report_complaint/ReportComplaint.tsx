@@ -223,10 +223,7 @@ const ReportComplaintPage: FC = () => {
     const url = (() => {
       switch (userRole) {
         case 'Store CS':
-          return `${apiUrl}/reports/orders?store_id=${userStore}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
-        case 'Admin Vendor':
-        case 'Owner Vendor':
-          return `${apiUrl}/reports/orders?vendor_id=${vendorId}&take=0&date_from=${dateFrom}&date_to=${dateTo}`
+          return `${apiUrl}/reports/orders?take=0&${storeId}&date_from=${dateFrom}&date_to=${dateTo}`
         default:
           return `${apiUrl}/reports/orders?take=0&date_from=${dateFrom}&date_to=${dateTo}`
       }
@@ -407,7 +404,7 @@ const ReportComplaintPage: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      {!['Tukang'].includes(userRole) && (
+      {!['Admin Vendor', 'Owner Vendor', 'Tukang'].includes(userRole) && (
         <>
           <Row className=' g-5 g-xl-8'>
             <Col className='col-xl-12'>

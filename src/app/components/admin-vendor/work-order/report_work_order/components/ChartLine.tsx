@@ -68,10 +68,6 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
         data: chartWorkOrder.map((item: any) => item?.totalWaitingSurvey),
       },
       {
-        name: 'Survei dimulai',
-        data: chartWorkOrder.map((item: any) => item?.totalSurveyStart),
-      },
-      {
         name: 'Survei selesai',
         data: chartWorkOrder.map((item: any) => item?.totalSurveyDone),
       },
@@ -143,7 +139,7 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
     yaxis: {
       labels: {
         formatter: function (val) {
-          return val.toFixed(0)
+          return typeof val === 'number' ? val.toFixed(0) : val
         },
         style: {
           colors: labelColor,
@@ -197,5 +193,33 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
       strokeColors: [baseLightColor, secondaryLightColor],
       strokeWidth: 3,
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: '1200px',
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              columnWidth: '100%',
+              borderRadius: 0,
+            },
+          },
+          xaxis: {
+            labels: {
+              formatter: function (val: any) {
+                return typeof val === 'number' ? val.toFixed(0) : val
+              },
+              style: {
+                colors: labelColor,
+                fontSize: '12px',
+              },
+            },
+          },
+        },
+      },
+    ],
   }
 }

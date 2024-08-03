@@ -1,19 +1,24 @@
-import React, {FC, useState, useEffect, SetStateAction} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 import {Orders} from '../../../../interfaces/order'
-import {WorkOrder} from '../../../../interfaces/work-order'
 
 import './DetailWorkOrder.css'
 
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Image, Skeleton} from 'antd'
-import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
-import {DatePicker, Steps} from 'antd'
-const {RangePicker} = DatePicker
+import {Row, Col, Form, ListGroup} from 'react-bootstrap'
+import {Steps} from 'antd'
 
 interface Status {
   value: number | null
   category: string
+}
+
+interface OrderHistory {
+  order_id: number
+  status: string
+  created_at: string
+  updated_by: string
 }
 
 const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
@@ -25,19 +30,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   const [visible, setVisible] = useState(false)
   const [isLoadingPage, setIsLoadingPage] = useState(true)
 
-  const [workOrder, setWorkOrder] = useState<WorkOrder>({
-    id: null,
-    order_id: null,
-    vendor_id: null,
-    tukang_id: [],
-    request_work_time: '',
-    survey_date: '',
-    work_order_status: null,
-    complaint_status: null,
-    work_start_date: '',
-    work_end_date: '',
-    work_order_item: [],
-  })
+  // Order History
+  const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
 
   const fetchOrderData = async () => {
     try {
@@ -57,23 +51,32 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
           updatePageTitle(data)
           setIsLoadingPage(false)
 
-          if (data?.work_orders?.work_order_tukang) {
-            const tukang = data.work_orders.work_order_tukang.map((item: any) => ({
-              id: item.id,
-              tukang_id: item.tukang_id,
-              tukang_name: item.tukang.full_name,
-              type: item.type,
-            }))
+          if (data?.order_history) {
+            const orderHistory = data?.order_history.map((item: any) => {
+              return {
+                status: item?.status?.description,
+                created_at: item?.created_at
+                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })
+                  : item?.created_at
+                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })
+                  : '-',
+                updated_by: item?.created_by?.username,
+              }
+            })
 
-            workOrderHandler(tukang, 'tukang_id')
-          }
-
-          if (data?.work_orders) {
-            setWorkOrder((prev) => ({
-              ...prev,
-              work_start_date: data?.work_orders.work_start_date,
-              work_end_date: data?.work_orders.work_end_date,
-            }))
+            setOrderHistory(orderHistory)
           }
         })
     } catch (error) {
@@ -85,28 +88,6 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     fetchOrderData()
   }, [])
 
-  const formatDateValues = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return ''
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${year}-${month}-${day}`
-  }
-
-  const workOrderHandler = (
-    value: number | string | Array<number | string | null> | any | null,
-    target: string,
-    setStateAction: SetStateAction<typeof setWorkOrder> = setWorkOrder
-  ) => {
-    setWorkOrder((prev) => {
-      const cache = {...prev, [target]: value}
-      return cache
-    })
-  }
-
   // Statuses for Order Timeline
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -115,8 +96,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)
 
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
-  const surveyStatuses = getStatuses(['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'])
-  const workStatuses = getStatuses(['WORKREQ', 'WORKSTART'])
+  const surveyStatuses = getStatuses(['SURVEYREQ', 'TUKANGSURVEY', 'SURVEYSTART', 'SURVEYDONE'])
+  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
   const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
 
   const orderHistory = [
@@ -224,7 +205,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             ) {
                               return orderDetail?.status?.description
                             } else if (
-                              ['WORKREQ'].includes(orderDetail?.status?.category) &&
+                              ['WORKREQ', 'TUKANGWORK'].includes(orderDetail?.status?.category) &&
                               orderDetail?.payment_type === 'survey' &&
                               !['WORKSTART', 'WORKEND'].includes(
                                 orderDetail?.work_orders?.work_order_status[0]?.status?.category
@@ -312,6 +293,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Row>
                   {[
                     'SURVEYREQ',
+                    'TUKANGSURVEY',
                     'SURVEYSTART',
                     'SURVEYDONE',
                     'RESURVEYREQ',
@@ -374,6 +356,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                   {[
                     'WORKREQ',
+                    'TUKANGWORK',
                     'WORKSTART',
                     'WORKEND',
                     'REWORKREQ',
@@ -409,7 +392,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                 })}{' '}
                                 sampai{' '}
                                 {new Date(
-                                  orderDetail?.work_orders?.work_start_date
+                                  orderDetail?.work_orders?.work_end_date
                                 ).toLocaleDateString('id-ID', {
                                   day: 'numeric',
                                   month: 'long',
@@ -590,6 +573,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 } else if (
                   [
                     'SURVEYREQ',
+                    'TUKANGSURVEY',
                     'SURVEYSTART',
                     'SURVEYDONE',
                     'RESURVEYREQ',
@@ -973,6 +957,28 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               </div>
             )}
           </Skeleton>
+        </div>
+
+        <div className='card'>
+          <div className='card-body'>
+            <Skeleton active loading={isLoadingPage}>
+              <div className='work-order-history'>
+                <h1 className='title mb-5'>Order History</h1>
+
+                <Steps
+                  progressDot
+                  current={OrderHistory.length - 1}
+                  direction='vertical'
+                  items={OrderHistory.map((item) => ({
+                    title: item?.status,
+                    description: `Terakhir update : ${item?.created_at} ${
+                      item.updated_by ? `oleh ${item?.updated_by}` : ''
+                    }`,
+                  }))}
+                />
+              </div>
+            </Skeleton>
+          </div>
         </div>
       </div>
     </section>
