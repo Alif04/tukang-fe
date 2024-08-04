@@ -63,7 +63,7 @@ const NewReschedule: FC = () => {
 
   const getOrder = async () => {
     const response = await axios.get(
-      `${apiUrl}/orders?order_by=desc${storeId}&take=0&status=${statuses}${storeId}${tukangId}`,
+      `${apiUrl}/orders?order_by=desc&take=0&status=${statuses}${storeId}${tukangId}`,
       {
         headers: {
           Accept: 'application/json',
