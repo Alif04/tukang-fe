@@ -73,6 +73,23 @@
   position: relative;
 }
 
+/* Layout Detail */
+#warranty-claim-list .card-info.card {
+  border-radius: 0px;
+}
+
+#warranty-claim-list .card-info .order-data span.label-text {
+  width: 110px;
+}
+
+#warranty-claim-list .card-info .customer-data span.label-text {
+  width: 120px;
+}
+
+#warranty-claim-list .card-info .warranty-data span.label-text {
+  width: 170px;
+}
+
 @media screen and (max-width: 1400px) {
   #warranty-claim-list h3.date-text {
     font-size: 14px;

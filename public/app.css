@@ -36,26 +36,32 @@ h6 {
 
 /* Flagging Color Calendar */
 .bg-calendar-order-booked {
+  font-weight: 600;
   background-color: #03aed2;
 }
 
 .bg-calendar-order-wip {
+  font-weight: 600;
   background-color: #da7297;
 }
 
 .bg-calendar-order-done {
+  font-weight: 600;
   background-color: #6b9230;
 }
 
 .bg-calendar-order-reschedule {
+  font-weight: 600;
   background-color: #ff9a00;
 }
 
 .bg-calendar-order-complaint {
+  font-weight: 600;
   background-color: #c80036;
 }
 
 .bg-calendar-order-cancel {
+  font-weight: 600;
   background-color: #373a40;
 }
 

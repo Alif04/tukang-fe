@@ -271,11 +271,41 @@ const DetailInvoiceVendor: FC = () => {
 
                 <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
+                    PPn
+                  </td>
+
+                  <td className='fw-bolder'>{`Rp. ${parseInt(
+                    invoiceDetail?.ppn_nominal ?? 0
+                  ).toLocaleString('id')}`}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={7} className='text-end fw-bolder'>
+                    PPh
+                  </td>
+
+                  <td className='fw-bolder'>{`Rp. ${parseInt(
+                    invoiceDetail?.pph_nominal ?? 0
+                  ).toLocaleString('id')}`}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={7} className='text-end fw-bolder'>
                     PKP ( 1, 11 %)
                   </td>
 
                   <td className='fw-bolder'>{`Rp. ${parseInt(
                     invoiceDetail?.pkp_nominal ?? 0
+                  ).toLocaleString('id')}`}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan={7} className='text-end fw-bolder'>
+                    Penalty
+                  </td>
+
+                  <td className='fw-bolder'>{`Rp. ${parseInt(
+                    invoiceDetail?.penalty_nominal ?? 0
                   ).toLocaleString('id')}`}</td>
                 </tr>
 

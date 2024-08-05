@@ -205,19 +205,43 @@ const ViewInvoiceHO: FC = () => {
             </OverlayTrigger>
 
             {[1].includes(record.status) ? (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Tolak Invoice')}
-              >
-                <Button
-                  className='button-cancel'
-                  variant='danger'
-                  onClick={() => handleShowModal(id, 1)}
+              <>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Tolak Invoice')}
                 >
-                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
+                  <Button
+                    className='button-cancel'
+                    variant='danger'
+                    onClick={() => handleShowModal(id, 1)}
+                  >
+                    <FontAwesomeIcon
+                      className='text-white'
+                      icon={faXmarkCircle}
+                      fontSize={'13px'}
+                    />
+                  </Button>
+                </OverlayTrigger>
+
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Approve Invoice')}
+                >
+                  <Button
+                    variant='primary'
+                    className='button-verif'
+                    onClick={() => handleUpdateInvoice(id, 2, 'Invoice disetujui')}
+                  >
+                    <FontAwesomeIcon
+                      className='text-white'
+                      icon={faCheckCircle}
+                      fontSize={'13px'}
+                    />
+                  </Button>
+                </OverlayTrigger>
+              </>
             ) : (
               <></>
             )}
@@ -381,7 +405,7 @@ const ViewInvoiceHO: FC = () => {
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
       setInvoices((prevInvoices) => ({
         ...prevInvoices,
-        invoice_id: selectedRowKeys.map((key) => Number(key)),
+        invoice_id: selectedRowKeys.map((key) => key),
       }))
 
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
@@ -395,10 +419,10 @@ const ViewInvoiceHO: FC = () => {
     setIsLoading(true)
     const formData = new FormData()
 
+    formData.append('status', String(2))
     invoices.invoice_id.forEach((invoice) => {
-      if (invoice.id !== null) {
-        formData.append('status', String(2))
-        formData.append(`invoice_id`, String(invoice.id))
+      if (invoice !== null) {
+        formData.append('invoice_id', invoice)
       }
     })
 
@@ -449,6 +473,8 @@ const ViewInvoiceHO: FC = () => {
             icon: 'error',
           })
         }
+      } else if (result.isDenied) {
+        setIsLoading(false)
       }
     })
   }
@@ -785,6 +811,8 @@ const ViewInvoiceHO: FC = () => {
             icon: 'error',
           })
         }
+      } else {
+        setIsLoading(false)
       }
     })
   }
@@ -869,8 +897,8 @@ const ViewInvoiceHO: FC = () => {
               bordered
               columns={columns}
               dataSource={invoiceData}
-              rowSelection={rowSelection}
-              rowKey={(record) => record.invoice_id}
+              // rowSelection={rowSelection}
+              // rowKey={(record) => record.invoice_id}
               pagination={false}
             />
           </Spin>
@@ -893,6 +921,7 @@ const ViewInvoiceHO: FC = () => {
             )}
           />
 
+          {/* 
           <div className='d-flex justify-content-center align-items-center mt-3'>
             <Button
               className='d-flex justify-content-center align-items-center'
@@ -904,6 +933,7 @@ const ViewInvoiceHO: FC = () => {
               {isLoading ? 'Approve..' : 'Approve'}
             </Button>
           </div>
+          */}
         </div>
       </div>
 

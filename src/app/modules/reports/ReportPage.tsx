@@ -898,11 +898,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN PENDING PAYMENT</PageTitle>
 
             <ReportVendor
-              endpoint='invoices'
+              endpoint='orders'
               statusName=''
               headerColor='danger'
               title='Laporan Pending Payment ( Omset )'
-              params='&invoice_status=1'
+              params=''
             />
           </>
         }
@@ -920,7 +920,7 @@ const RefundPage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN BULANAN</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN TAGIHAN</PageTitle>
 
             <ReportVendor
               endpoint='invoices'

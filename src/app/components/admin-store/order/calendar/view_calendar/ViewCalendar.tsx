@@ -5,6 +5,7 @@ import './ViewCalendar.css'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import listPlugin from '@fullcalendar/list'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -52,6 +53,9 @@ const ViewCalendarCS: React.FC = () => {
   ])
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [initialView, setInitialView] = useState(
+    window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth'
+  )
 
   // Fetch Data
   const getVendor = async () => {
@@ -410,13 +414,13 @@ const ViewCalendarCS: React.FC = () => {
         indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
       >
         <FullCalendar
-          plugins={[dayGridPlugin, interactionPlugin]}
+          plugins={[dayGridPlugin, listPlugin, interactionPlugin]}
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,dayGridWeek,dayGridDay',
+            right: 'dayGridMonth,dayGridWeek,dayGridDay,listMonth',
           }}
-          initialView='dayGridMonth'
+          initialView={initialView}
           displayEventTime={false}
           eventDisplay=''
           weekends={true}

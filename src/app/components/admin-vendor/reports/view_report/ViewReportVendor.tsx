@@ -57,14 +57,14 @@ const ViewReportVendor = () => {
                         height={50}
                       />
 
-                      {newTabs('tagihan-bulanan', 'Laporan Tagihan Bulanan')}
+                      {newTabs('tagihan-bulanan', 'Laporan Tagihan')}
                     </Card.Body>
                   </Card>
                 </Link>
               </Col>
 
               <Col md={4}>
-                <Link to={`/reports/vendor-report-paid`}>
+                {/* <Link to={`/reports/vendor-report-paid`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
                       <img
@@ -78,13 +78,13 @@ const ViewReportVendor = () => {
                       {newTabs('paid', 'Laporan Tagihan Dibayar')}
                     </Card.Body>
                   </Card>
-                </Link>
+                </Link> */}
               </Col>
             </Row>
 
             <Row>
               <Col md={4}>
-                <Link to={`/reports/vendor-report-unpaid`}>
+                {/* <Link to={`/reports/vendor-report-unpaid`}>
                   <Card className='content-card border-yellow' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
                       <img
@@ -98,7 +98,7 @@ const ViewReportVendor = () => {
                       {newTabs('unpaid', 'Laporan Tagihan Belum Dibayar')}
                     </Card.Body>
                   </Card>
-                </Link>
+                </Link> */}
               </Col>
 
               <Col md={4}></Col>

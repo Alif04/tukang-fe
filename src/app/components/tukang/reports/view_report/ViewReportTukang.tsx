@@ -370,7 +370,7 @@ const ViewReportTukang = () => {
 
   // Export PDF
   const exportToPDF = () => {
-    setLoadingExport(true)
+    setLoadingPdf(true)
 
     let url = `${apiUrl}/tukang/export-pdf-order?order_by=desc${tukangId}`
 
@@ -400,7 +400,7 @@ const ViewReportTukang = () => {
           document.body.appendChild(link)
           link.click()
 
-          setLoadingExport(false)
+          setLoadingPdf(false)
         } else {
           Swal.fire({
             title: 'Warning',
@@ -408,12 +408,12 @@ const ViewReportTukang = () => {
             icon: 'warning',
           })
 
-          setLoadingExport(false)
+          setLoadingPdf(false)
         }
       })
       .catch((error) => {
         console.log(error)
-        setLoadingExport(false)
+        setLoadingPdf(false)
       })
   }
 

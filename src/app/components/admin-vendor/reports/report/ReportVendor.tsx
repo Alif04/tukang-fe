@@ -457,6 +457,15 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.penalty_vendor - b.penalty_vendor,
         },
         {
+          title: 'Status Penalti',
+          dataIndex: 'status_penalty',
+          key: 'status_penalty',
+          align: 'center',
+          width: 110,
+          onFilter: (value, record) => record.status_penalty.includes(String(value)),
+          sorter: (a, b) => a.status_penalty.length - b.status_penalty.length,
+        },
+        {
           title: 'Order Status',
           dataIndex: 'order_status',
           key: 'order_status',
@@ -493,10 +502,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
             return <Tag color={color}>{orderStatus}</Tag>
           },
-          filters: [
-            {text: 'BOOK', value: 'BOOK'},
-            {text: 'BOOKED', value: 'BOOKED'},
-          ],
           onFilter: (value, record) => record.order_status.includes(String(value)),
           sorter: (a, b) => a.order_status.length - b.order_status.length,
         },
@@ -516,6 +521,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
+          title: 'Reschedule ID',
+          dataIndex: 'refund_id',
+          key: 'refund_id',
+          align: 'center',
+          width: 80,
+          sorter: (a, b) => a.refund_id - b.refund_id,
+        },
+        {
           title: 'Tanggal Order',
           dataIndex: 'date_order',
           key: 'date_order',
@@ -525,12 +538,22 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
         {
-          title: 'Reschedule ID',
-          dataIndex: 'refund_id',
-          key: 'refund_id',
+          title: 'Tanggal Pengajuan Reschedule',
+          dataIndex: 'reschedule_date',
+          key: 'reschedule_date',
           align: 'center',
-          width: 80,
-          sorter: (a, b) => a.refund_id - b.refund_id,
+          width: 110,
+          onFilter: (value, record) => record.reschedule_date.includes(String(value)),
+          sorter: (a, b) => a.reschedule_date.length - b.reschedule_date.length,
+        },
+        {
+          title: 'Tanggal Konfirmasi Vendor',
+          dataIndex: 'confirm_date',
+          key: 'confirm_date',
+          align: 'center',
+          width: 110,
+          onFilter: (value, record) => record.confirm_date.includes(String(value)),
+          sorter: (a, b) => a.confirm_date.length - b.confirm_date.length,
         },
         {
           title: 'Nama Toko',
@@ -622,6 +645,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
       columns = [
         {
           title: 'Invoice ID',
+          dataIndex: 'invoice_id',
+          key: 'invoice_id',
+          align: 'center',
+          width: 110,
+          className: 'col_order_id',
+          defaultSortOrder: 'descend',
+          sorter: (a, b) => a.invoice_id - b.invoice_id,
+        },
+        {
+          title: 'Order ID',
           dataIndex: 'order_id',
           key: 'order_id',
           align: 'center',
@@ -631,20 +664,29 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
+          title: 'Invoice Dibuat',
+          dataIndex: 'invoice_date',
+          key: 'invoice_date',
+          align: 'left',
+          width: 110,
+          sorter: (a, b) => new Date(a.invoice_date).getTime() - new Date(b.invoice_date).getTime(),
+        },
+        {
+          title: 'Status Invoice',
+          dataIndex: 'invoice_status',
+          key: 'invoice_status',
+          align: 'left',
+          width: 140,
+          onFilter: (value, record) => record.invoice_status.includes(String(value)),
+          sorter: (a, b) => a.invoice_status.length - b.invoice_status.length,
+        },
+        {
           title: 'Grand Total',
           dataIndex: 'grand_total',
           key: 'grand_total',
           align: 'center',
           width: 135,
           sorter: (a, b) => a.grand_total - b.grand_total,
-        },
-        {
-          title: 'Invoice Dibuat',
-          dataIndex: 'date_order',
-          key: 'date_order',
-          align: 'left',
-          width: 110,
-          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
         },
       ]
       break
@@ -1032,7 +1074,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           rescheduleData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -1040,17 +1082,24 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               minute: 'numeric',
             })
 
-            const phoneNumber = item?.order?.project_number.startsWith('0')
-              ? item?.orders?.project_number
-              : `+62${item?.orders?.project_number}`
+            const rescheduleDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
 
-            let paymentStatus = item.order.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
+            const phoneNumber = item?.order?.project_number.startsWith('0')
+              ? item?.order?.project_number
+              : `+62${item?.order?.project_number}`
+
+            let paymentStatus = item?.order?.receipt_number !== null ? 'PAID' : 'UNPAID'
 
             data = {
               refund_id: item?.id,
               order_id: item?.order_id,
               store_name: item?.order?.store.store_name,
               date_order: orderDate,
+              reschedule_date: rescheduleDate,
               member_id: item?.order?.members.member_number,
               member_name: item?.order?.members.full_name,
               phone_number: phoneNumber,
@@ -1068,7 +1117,11 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           invoicesData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+            const orderIds = item?.invoice_details
+              ?.map((item: any) => `#${item?.order_id}`)
+              .join(', ')
+
+            const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -1076,12 +1129,32 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               minute: 'numeric',
             })
 
+            const invoiceStatus = (status: number) => {
+              switch (status) {
+                case 1:
+                  return 'Pengecekan Invoice'
+                case 2:
+                  return 'Invoice Disetujui'
+                case 3:
+                  return 'Invoice Ditolak'
+                case 4:
+                  return 'Menunggu Dokumen Tagihan'
+                case 5:
+                  return 'Invoice Diberikan Kepada Finance'
+                case 6:
+                  return 'Invoice Sudah Dibayarkan'
+                default:
+                  return ''
+              }
+            }
+
             data = {
-              order_id: item.id,
-              vendor_name: item?.vendor?.company_name ?? '-',
+              invoice_id: item?.id,
+              order_id: orderIds,
+              invoice_date: invoiceDate,
+              invoice_status: invoiceStatus(item?.status),
               grand_total: `Rp. ${parseInt(item?.total_amount).toLocaleString('id')}`,
-              date_order: orderDate,
-              order_status: item?.status?.description ?? '',
+              status: item?.status,
             }
 
             return data

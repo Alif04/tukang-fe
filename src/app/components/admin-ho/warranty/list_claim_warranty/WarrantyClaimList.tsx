@@ -7,9 +7,9 @@ import './WarrantyClaimList.css'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
-import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, List} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {FormGroup, Row, Form, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Card, FormGroup, Row, Col, Form, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTicket, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -36,7 +36,10 @@ interface DataType {
   date_order: Date
   store_name: string
   no_member: number
+  receipt_number: string
   costumer_name: string
+  email_customer: string
+  project_address: string
   phone_number: number
   services_name: string
   status_order: string
@@ -44,6 +47,9 @@ interface DataType {
   countdown_to_expired: Date
   period_expired: Date
   warranty_status: string
+  payment_type: string
+  order_details: any[]
+  work_order_detail: any[]
 }
 
 const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
@@ -195,6 +201,11 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'warranty_status',
       align: 'left',
       width: 160,
+      filters: [
+        {text: 'Garansi Aktif', value: 'Garansi Aktif'},
+        {text: 'Garansi Terpakai', value: 'Garansi Terpakai'},
+        {text: 'Garansi Expired', value: 'Garansi Expired'},
+      ],
       onFilter: (value: string, record: DataType) => record.warranty_status.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.warranty_status.length - b.warranty_status.length,
     },
@@ -275,7 +286,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         let data
 
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
+          day: '2-digit',
           month: 'long',
           year: 'numeric',
           hour: 'numeric',
@@ -292,7 +303,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
         const workEndDate = createdAt
           ? createdAt.toLocaleDateString('id-ID', {
-              day: 'numeric',
+              day: '2-digit',
               month: 'long',
               year: 'numeric',
             })
@@ -304,7 +315,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
         if (createdAt) {
           const warrantyEnd = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
           warrantyEndDate = warrantyEnd.toLocaleDateString('id-ID', {
-            day: 'numeric',
+            day: '2-digit',
             month: 'long',
             year: 'numeric',
           })
@@ -356,14 +367,20 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
           order_id: item?.id,
           store_name: item?.store?.store_name ?? '-',
           date_order: orderDate,
+          payment_type: item?.payment_type,
+          receipt_number: item?.receipt_number,
           no_member: item?.members?.member_number ?? '-',
           costumer_name: item?.members?.full_name ?? '-',
+          project_address: item?.project_address ?? '-',
+          email_customer: item?.members?.email ?? '-',
           phone_number: phoneNumber,
           status_order: item?.status?.description ?? '-',
           period_active: workEndDate,
           period_expired: warrantyEndDate,
           countdown_to_expired: warrantyCountdownText,
           warranty_status: warrantyStatus,
+          order_detail: item?.order_details,
+          work_order_detail: item?.work_order_detail,
         }
 
         return data
@@ -490,6 +507,117 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
               pagination={false}
               scroll={{x: 1700}}
             />
+
+            {/* <List
+              dataSource={claimWarrantyData}
+              rowKey={(record) => record.order_id}
+              pagination={false}
+              renderItem={(item) => (
+                <Card className='mb-5'>
+                  <Card.Body>
+                    <div className='header-warranty d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-between mb-5'>
+                      <div className='header-title'>
+                        <div className='title fs-6 fw-bold'>ORDER ID #{item.order_id}</div>
+                        <div className='title fs-6 fw-bold'>
+                          Tanggal Order {item.date_order.toString()}
+                        </div>
+                      </div>
+
+                      <div className='header-status'>
+                        <Tag className='fs-6 fw-semibold' color='green'>
+                          {item.status_order}
+                        </Tag>
+                      </div>
+                    </div>
+
+                    <Row>
+                      <Col md={7} sm={12}>
+                        <Card className='card-info'>
+                          <Card.Header>
+                            <Card.Title className='fs-6 fw-semibold'>Informasi Order</Card.Title>
+                          </Card.Header>
+
+                          <Card.Body className='order-data'>
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Nama Toko</span>: {item.store_name}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Nomor Receipt</span>:{' '}
+                              {item.receipt_number}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Tipe Pembayaran</span>:{' '}
+                              {item.payment_type}
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+
+                      <Col md={5} sm={12}>
+                        <Card className='card-info mb-5'>
+                          <Card.Header>
+                            <Card.Title className='fs-6 fw-semibold'>Informasi Konsumen</Card.Title>
+                          </Card.Header>
+
+                          <Card.Body className='customer-data'>
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>No Member</span>: {item.no_member}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Nama Customer</span>:{' '}
+                              {item.costumer_name}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Email</span>: {item.email_customer}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>No. Telp</span>: {item.phone_number}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Alamat</span>: {item.project_address}
+                            </div>
+                          </Card.Body>
+                        </Card>
+
+                        <Card className='card-info'>
+                          <Card.Header>
+                            <Card.Title className='fs-6 fw-semibold'>Informasi Garansi</Card.Title>
+                          </Card.Header>
+
+                          <Card.Body className='warranty-data'>
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Tanggal Aktif Garansi</span>:{' '}
+                              {item.period_active.toString()}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Umur Masa Garansi</span>:{' '}
+                              {item.countdown_to_expired.toString()}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Tanggal Berakhir Garansi</span>:{' '}
+                              {item.period_expired.toString()}
+                            </div>
+
+                            <div className='d-flex fs-6'>
+                              <span className='label-text'>Status Garansi</span>:{' '}
+                              {item.warranty_status}
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              )}
+            /> */}
           </Spin>
 
           <div className='pagination-container mt-5'>
