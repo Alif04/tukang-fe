@@ -338,7 +338,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const disabledHoursSessionAfternoon = (): number[] =>
     range(0, 24).filter((hour) => hour < 12 || hour > 15)
   const disabledHoursSessionNight = (): number[] =>
-    range(0, 24).filter((hour) => hour < 15 || hour > 18)
+    range(0, 24).filter((hour) => hour < 15 || hour > 21)
 
   const getDisabledHours = (session: string): number[] => {
     switch (session) {
