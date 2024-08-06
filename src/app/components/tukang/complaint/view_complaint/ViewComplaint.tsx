@@ -508,7 +508,8 @@ const ViewComplaintTukang: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={complaintData}
             rowKey={(record) => record.complaint_id}
-            scroll={{x: 2000}}
+            tableLayout='auto'
+            scroll={{x: 'max-content'}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

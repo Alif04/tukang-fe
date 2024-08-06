@@ -732,6 +732,8 @@ const NewEmployee: FC = () => {
               columns={columns}
               dataSource={employeeData}
               rowKey={(record) => record.employee_id}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
               pagination={{
                 position: ['bottomRight'],
                 current: currentPage,

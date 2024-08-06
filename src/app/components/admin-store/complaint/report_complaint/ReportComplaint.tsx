@@ -455,7 +455,8 @@ const ReportComplaintPage: FC = () => {
                     dataSource={complaintData}
                     rowKey={(record) => record.order_id}
                     pagination={false}
-                    scroll={{x: 1000}}
+                    tableLayout='auto'
+                    scroll={{x: 'max-content'}}
                   />
                 </Spin>
 

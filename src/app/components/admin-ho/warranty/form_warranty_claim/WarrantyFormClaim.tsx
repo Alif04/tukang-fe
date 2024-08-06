@@ -92,14 +92,7 @@ const WarrantyFormClaimHO: FC<{updatePageTitle: (warranty: any) => void}> = ({up
   const ClaimWarrantyValidation = () => {
     let valid = true
 
-    if (!date) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill date form',
-        icon: 'error',
-      })
-      valid = false
-    } else if (!desc) {
+    if (!desc) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill warranty claim description form',

@@ -885,7 +885,15 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         },
       })
       .then((response) => {
-        navigate(`/order/printout-order-dipesan/${params.id}`)
+        if (['PICKLIST'].includes(orderDetail?.status?.category ?? '')) {
+          navigate(`/order/printout-order-picklist/${params.id}`)
+        } else if (
+          ['BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+            orderDetail?.status?.category ?? ''
+          )
+        ) {
+          navigate(`/order/printout-order-dipesan/${params.id}`)
+        }
       })
       .catch((error) => {
         console.error(error)
@@ -1604,11 +1612,16 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             </Row>
 
             <div className='button-submit d-flex justify-content-center align-items-center'>
-              {orderDetail?.print_counter >= 1 && (
-                <Button type='submit' onClick={handleReprintOrder} variant='warning'>
-                  Reprint Order
-                </Button>
-              )}
+              {orderDetail?.print_counter >= 1 &&
+                ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                  orderDetail?.status?.category ?? ''
+                ) && (
+                  <div className='d-flex justify-content-center align-items-center'>
+                    <Button type='submit' onClick={handleReprintOrder} variant='warning'>
+                      Reprint Order
+                    </Button>
+                  </div>
+                )}
 
               <Button
                 type='submit'

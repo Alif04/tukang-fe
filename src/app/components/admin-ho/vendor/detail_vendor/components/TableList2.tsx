@@ -160,7 +160,8 @@ const TableList2: FC = () => {
         columns={columns}
         dataSource={data}
         rowKey={(record) => record.key}
-        scroll={{x: 850, y: 375}}
+        tableLayout='auto'
+        scroll={{x: 'max-content'}}
         pagination={{position: ['bottomRight']}}
       />
     </div>

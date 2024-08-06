@@ -396,7 +396,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
               bordered
               columns={columns}
               dataSource={orderData}
-              scroll={{x: 950}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
               rowKey={(record) => record.order_id}
               pagination={{
                 position: ['bottomRight'],

@@ -310,6 +310,8 @@ const WarrantyClaimListVendor: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={claimWarrantyData}
             rowKey={(record) => record.order_id}
+            tableLayout='auto'
+            scroll={{x: 'max-content'}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

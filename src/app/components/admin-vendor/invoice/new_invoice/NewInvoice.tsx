@@ -489,7 +489,8 @@ const NewInvoiceVendor: FC = () => {
               }}
               rowKey={(record) => record.order_id}
               pagination={false}
-              scroll={{x: 1200}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

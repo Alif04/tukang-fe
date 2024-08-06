@@ -850,7 +850,8 @@ const ViewInvoiceVendor: FC = () => {
               dataSource={invoiceData}
               rowKey={(record) => record.invoice_id}
               pagination={false}
-              scroll={{x: 1400}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

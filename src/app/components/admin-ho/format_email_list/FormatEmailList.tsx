@@ -448,6 +448,8 @@ const FormatEmailList: FC = () => {
               dataSource={formatEmail}
               rowKey={(record) => record.id}
               pagination={false}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

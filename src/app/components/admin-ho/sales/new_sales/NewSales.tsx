@@ -1123,6 +1123,8 @@ const NewSales: FC = () => {
                 dataSource={salesData}
                 rowKey={(record) => record.sales_id}
                 pagination={false}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
               />
             </Spin>
 

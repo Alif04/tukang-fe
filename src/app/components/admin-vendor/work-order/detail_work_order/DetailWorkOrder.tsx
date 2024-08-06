@@ -6,7 +6,7 @@ import './DetailWorkOrder.css'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Image, Skeleton} from 'antd'
-import {Row, Col, Form, ListGroup} from 'react-bootstrap'
+import {Card, Row, Col, Form, ListGroup} from 'react-bootstrap'
 import {Steps} from 'antd'
 
 interface Status {
@@ -139,8 +139,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
   return (
     <section id='detail-work-order'>
-      <div className='card mb-5'>
-        <div className='card-body'>
+      <Card className='mb-5'>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -957,30 +957,30 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               </div>
             )}
           </Skeleton>
-        </div>
+        </Card.Body>
+      </Card>
 
-        <div className='card'>
-          <div className='card-body'>
-            <Skeleton active loading={isLoadingPage}>
-              <div className='work-order-history'>
-                <h1 className='title mb-5'>Order History</h1>
+      <Card>
+        <Card.Body>
+          <Skeleton active loading={isLoadingPage}>
+            <div className='work-order-history'>
+              <h1 className='title mb-5'>Order History</h1>
 
-                <Steps
-                  progressDot
-                  current={OrderHistory.length - 1}
-                  direction='vertical'
-                  items={OrderHistory.map((item) => ({
-                    title: item?.status,
-                    description: `Terakhir update : ${item?.created_at} ${
-                      item.updated_by ? `oleh ${item?.updated_by}` : ''
-                    }`,
-                  }))}
-                />
-              </div>
-            </Skeleton>
-          </div>
-        </div>
-      </div>
+              <Steps
+                progressDot
+                current={OrderHistory.length - 1}
+                direction='vertical'
+                items={OrderHistory.map((item) => ({
+                  title: item?.status,
+                  description: `Terakhir update : ${item?.created_at} ${
+                    item.updated_by ? `oleh ${item?.updated_by}` : ''
+                  }`,
+                }))}
+              />
+            </div>
+          </Skeleton>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

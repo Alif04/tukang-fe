@@ -1805,7 +1805,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               columns={columns}
               dataSource={reportData}
               rowKey={(record) => record.order_id}
-              scroll={{x: 2000}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
               pagination={{
                 position: ['bottomRight'],
                 current: currentPage,
@@ -1830,6 +1831,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               columns={columns}
               dataSource={reportData}
               rowKey={(record) => record.order_id}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
               pagination={{
                 position: ['bottomRight'],
                 current: currentPage,

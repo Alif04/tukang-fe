@@ -209,7 +209,6 @@ const ViewReportTukang = () => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 90,
       className: 'col_order_id',
       sorter: (a, b) => a.order_id - b.order_id,
     },
@@ -218,7 +217,6 @@ const ViewReportTukang = () => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
@@ -226,7 +224,6 @@ const ViewReportTukang = () => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 120,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -235,7 +232,6 @@ const ViewReportTukang = () => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
-      width: 110,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -244,7 +240,6 @@ const ViewReportTukang = () => {
       dataIndex: 'service_name',
       key: 'service_name',
       align: 'center',
-      width: 110,
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
@@ -253,7 +248,6 @@ const ViewReportTukang = () => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 130,
       render: (order_status) => {
         const orderStatus = order_status
         return <Tag color='blue'>{orderStatus}</Tag>
@@ -266,7 +260,6 @@ const ViewReportTukang = () => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-      width: 80,
       render: (record) => {
         const id = record.work_order_id
 
@@ -547,7 +540,8 @@ const ViewReportTukang = () => {
               columns={columns}
               dataSource={workOrderData}
               rowKey={(record) => record.order_id}
-              scroll={{x: 1200}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
               pagination={false}
             />
           </Spin>

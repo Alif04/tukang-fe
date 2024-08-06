@@ -19,11 +19,13 @@ const {RangePicker} = DatePicker
 interface DataType {
   order_id: number
   order_date: Date
+  request_survey: Date
+  work_order_date: string
   store_name: string
   costumer_name: string
   service_name: string
-  request_survey: Date
-  total: string
+  total: number
+  order_status: string
 }
 
 const columns: ColumnsType<DataType> = [
@@ -41,6 +43,22 @@ const columns: ColumnsType<DataType> = [
     align: 'left',
     sorter: (a: DataType, b: DataType) =>
       new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
+  },
+  {
+    title: 'Tanggal Request Survey',
+    dataIndex: 'request_survey',
+    key: 'request_survey',
+    align: 'left',
+    sorter: (a: DataType, b: DataType) =>
+      new Date(a.request_survey).getTime() - new Date(b.request_survey).getTime(),
+  },
+  {
+    title: 'Tanggal Survei/Pemasangan',
+    dataIndex: 'work_order_date',
+    key: 'work_order_date',
+    align: 'left',
+    onFilter: (value, record) => record.work_order_date.includes(String(value)),
+    sorter: (a, b) => a.work_order_date.length - b.work_order_date.length,
   },
   {
     title: 'Nama Toko',
@@ -68,18 +86,19 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.service_name.length - b.service_name.length,
   },
   {
-    title: 'Tanggal Request Survey',
-    dataIndex: 'request_survey',
-    key: 'request_survey',
-    align: 'left',
-    sorter: (a: DataType, b: DataType) =>
-      new Date(a.request_survey).getTime() - new Date(b.request_survey).getTime(),
-  },
-  {
     title: 'Grand Total',
     dataIndex: 'total',
     key: 'total',
     align: 'center',
+    sorter: (a, b) => a.total - b.total,
+  },
+  {
+    title: 'Status Order',
+    dataIndex: 'order_status',
+    key: 'order_status',
+    align: 'left',
+    onFilter: (value, record) => record.order_status.includes(String(value)),
+    sorter: (a, b) => a.order_status.length - b.order_status.length,
   },
 ]
 
@@ -205,18 +224,47 @@ const DashboardVendor: FC = () => {
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
           order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
-            day: 'numeric',
+            day: '2-digit',
             month: 'long',
             year: 'numeric',
             hour: 'numeric',
             minute: 'numeric',
           }),
           request_survey: new Date(item?.request_survey).toLocaleDateString('id-ID', {
-            day: 'numeric',
+            day: '2-digit',
             month: 'long',
             year: 'numeric',
           }),
+          work_order_date: item?.work_orders
+            ? item?.work_orders?.work_start_date && item?.work_orders?.work_end_date
+              ? `${new Date(item.work_start_date).toLocaleDateString('id-ID', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                })} sampai ${new Date(item?.work_orders?.work_end_date).toLocaleDateString(
+                  'id-ID',
+                  {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                  }
+                )}`
+              : item?.work_orders?.survey_date
+              ? new Date(item?.work_orders?.survey_date).toLocaleDateString('id-ID', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                })
+              : 'Tukang belum ditugaskan'
+            : 'Tukang belum ditugaskan',
           total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
+          order_status: item?.status?.description,
         }
 
         return data
@@ -379,7 +427,7 @@ const DashboardVendor: FC = () => {
       </Row>
 
       <Row className='mb-5'>
-        <Col md={4}>
+        <Col md={4} className='mb-5'>
           <MoreInformation
             className='card-xl-stretch'
             totalComplaint={totalComplaint}
@@ -428,7 +476,8 @@ const DashboardVendor: FC = () => {
                     dataSource={orderList}
                     rowKey={(record) => record.order_id}
                     pagination={false}
-                    scroll={{x: 1700}}
+                    tableLayout='auto'
+                    scroll={{x: 'max-content'}}
                   />
                 </Spin>
 

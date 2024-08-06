@@ -667,7 +667,7 @@ const ViewOrders: FC = () => {
           : `+62${item.project_number}`
 
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
+          day: '2-digit',
           month: 'long',
           year: 'numeric',
           hour: 'numeric',
@@ -688,7 +688,10 @@ const ViewOrders: FC = () => {
 
         const paymentQuotation = (() => {
           if (item?.quotation?.length) {
-            if (item?.quotation[0]?.receipt_quotation !== null) {
+            if (
+              item?.quotation[0]?.receipt_quotation !== null &&
+              item?.quotation[0]?.quotation_files.length
+            ) {
               return 'PAID'
             } else {
               return 'UNPAID'
@@ -896,7 +899,41 @@ const ViewOrders: FC = () => {
     }
   }
 
+  // Quotation Validation
+  const QuotationValidation = () => {
+    let valid = true
+
+    if (quotation.receipt_quotation === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill receipt quotation form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (receiptQuotation.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi bukti receipt quotation',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (quotationFiles.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi bukti transfer quotation',
+        icon: 'warning',
+      })
+      valid = false
+    }
+    return valid
+  }
+
   const handleUpdateQuotation = async () => {
+    if (!QuotationValidation()) {
+      setLoadingUpdate(false)
+      return false
+    }
+
     setLoadingUpdate(true)
     const formData = new FormData()
     const appendIfNotDefault = (formData: any, key: any, value: any) => {
@@ -2662,7 +2699,6 @@ const ViewOrders: FC = () => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 100,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -2672,7 +2708,6 @@ const ViewOrders: FC = () => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'left',
-      width: 120,
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
@@ -2680,7 +2715,6 @@ const ViewOrders: FC = () => {
       dataIndex: 'assign_from',
       key: 'assign_from',
       align: 'center',
-      width: 110,
       className: 'col_order_id',
       onFilter: (value, record) => record.assign_from.includes(String(value)),
       sorter: (a, b) => a.assign_from.length - b.assign_from.length,
@@ -2690,7 +2724,6 @@ const ViewOrders: FC = () => {
       dataIndex: 'vendor_name',
       key: 'vendor_name',
       align: 'center',
-      width: 120,
       className: 'col_order_id',
       onFilter: (value, record) => record.vendor_name.includes(String(value)),
       sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
@@ -2700,7 +2733,6 @@ const ViewOrders: FC = () => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      width: 130,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -2709,14 +2741,12 @@ const ViewOrders: FC = () => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
-      width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
       title: 'Status Pembayaran Receipt',
       dataIndex: 'payment_receipt',
       key: 'payment_receipt',
-      width: 150,
       align: 'left',
       onFilter: (value, record) => record.payment_receipt.includes(String(value)),
       sorter: (a, b) => a.payment_receipt.length - b.payment_receipt.length,
@@ -2731,7 +2761,6 @@ const ViewOrders: FC = () => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
-      width: 200,
       filters: statusFilters,
       render: (order_status_label) => {
         const orderStatus = order_status_label
@@ -2758,7 +2787,7 @@ const ViewOrders: FC = () => {
       title: 'Status Pembayaran Quotation',
       dataIndex: 'payment_quotation',
       key: 'payment_quotation',
-      width: 150,
+
       align: 'left',
       onFilter: (value, record) => record.payment_quotation.includes(String(value)),
       sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
@@ -2771,7 +2800,7 @@ const ViewOrders: FC = () => {
       title: 'Action',
       key: 'action',
       align: 'center',
-      width: 160,
+
       fixed: 'right',
       render: (record) => {
         const id = record.order_id
@@ -3063,7 +3092,8 @@ const ViewOrders: FC = () => {
               dataSource={orderData}
               rowKey={(record) => record.order_id}
               pagination={false}
-              scroll={{x: 1700}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

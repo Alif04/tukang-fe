@@ -7,7 +7,7 @@ import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import dayjs from 'dayjs'
-import {Image, DatePicker} from 'antd'
+import {Image, DatePicker, Steps} from 'antd'
 import {useNavigate} from 'react-router-dom'
 import {Form, Button, Card, Row, Col, ListGroup, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -56,21 +56,16 @@ interface WorkOrderItem {
   unit: string
 }
 
-interface WorkOrderHistory {
-  work_order_id: number
-  work_order_status: string
-  work_order_status_label: string
-  time_range: string
+interface OrderHistory {
+  order_id: number
+  status: string
   created_at: string
-  updated_at: string
-  work_date_time: string
   updated_by: string
 }
 
 const NewMaterialVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const animatedComponents = makeAnimated()
 
   const userVendor = localStorage.getItem('vendor_id')
   const vendorId = userVendor ? `&vendor_id=${userVendor}` : null
@@ -83,10 +78,8 @@ const NewMaterialVendor: FC = () => {
   const [tukangId, setTukangId] = useState<any>()
   const [tukangName, setTukangName] = useState<string>('')
 
-  console.log('tukang id', tukangId)
-
   // Work Order History
-  const [workOrderHistory, setWorkOrderHistory] = useState<WorkOrderHistory[]>([])
+  const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
   const [workOrderDetail, setWorkOrderDetail] = useState<any>(null)
 
   // Work Order
@@ -363,59 +356,33 @@ const NewMaterialVendor: FC = () => {
                 })
               : 'Order ini tanpa survey'
 
-            const workOrderHistoryData = data.work_order_status.map(
+            const workOrderHistoryData = data?.order?.order_history.map(
               (item: any, index: number, array: any[]) => {
-                let workTime = '-'
-
-                if (index > 0) {
-                  const date_1 = new Date(array[index - 1].created_at).getTime()
-                  const date_2 = new Date(item.created_at).getTime()
-
-                  const timeDifferenceInMilliseconds = Math.abs(date_2 - date_1)
-
-                  const timeDifferenceInMinutes = Math.floor(
-                    timeDifferenceInMilliseconds / (1000 * 60)
-                  )
-
-                  const timeDifferenceInHours = Math.floor(
-                    timeDifferenceInMilliseconds / (1000 * 60 * 60)
-                  )
-
-                  const timeDifferenceInDays = Math.floor(
-                    timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
-                  )
-
-                  if (timeDifferenceInDays >= 1) {
-                    workTime = `${timeDifferenceInDays} Hari`
-                  } else if (timeDifferenceInHours >= 1) {
-                    workTime = `${timeDifferenceInHours} Jam`
-                  } else {
-                    workTime = `${timeDifferenceInMinutes} Menit`
-                  }
-                }
-
                 return {
-                  work_order_id: item?.work_order_id,
-                  work_order_status: item?.status?.category,
-                  work_order_status_label: item?.status?.description,
-                  // created_at: surveyDate,
-                  time_range: workTime,
-                  updated_at: item?.created_at
+                  status: item?.status?.description,
+                  created_at: item?.created_at
                     ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      })
+                    : item?.created_at
+                    ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                        day: '2-digit',
                         month: 'long',
                         year: 'numeric',
                         hour: 'numeric',
                         minute: 'numeric',
                       })
                     : '-',
-                  work_date_time: workDateTime,
-                  updated_by: item?.updated_by,
+                  updated_by: item?.created_by?.username,
                 }
               }
             )
 
-            setWorkOrderHistory(workOrderHistoryData)
+            setOrderHistory(workOrderHistoryData)
           }
         })
     } catch (error) {
@@ -474,14 +441,30 @@ const NewMaterialVendor: FC = () => {
       switch (category) {
         case 'SURVEYREQ':
           return 'SURVEYSTART'
+        case 'TUKANGSURVEY':
+          return 'SURVEYSTART'
         case 'SURVEYSTART':
           return 'SURVEYDONE'
         case 'SURVEYDONE':
           return 'SURVEYDONE'
+        case 'RESURVEYREQ':
+          return 'RESURVEYSTART'
+        case 'RESURVEYSTART':
+          return 'RESURVEYDONE'
+        case 'RESURVEYDONE':
+          return 'RESURVEYDONE'
         case 'WORKREQ':
+          return 'WORKSTART'
+        case 'TUKANGWORK':
           return 'WORKSTART'
         case 'WORKSTART':
           return 'WORKEND'
+        case 'REWORKREQ':
+          return 'REWORKSTART'
+        case 'REWORKSTART':
+          return 'REWORKEND'
+        case 'REWORKEND':
+          return 'REWORKEND'
         default:
           return null
       }
@@ -736,7 +719,6 @@ const NewMaterialVendor: FC = () => {
         'WORKSTART',
         'WORKEND',
         'REWORKSTART',
-        'RIP',
         'REWORKEND',
         'WORKDONE',
         'DONE',
@@ -997,9 +979,15 @@ const NewMaterialVendor: FC = () => {
 
                     <Col md={8} className='mt-5'>
                       <div className='detail-info'>
-                        {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                          workOrderDetail?.work_order_status[0]?.status?.category
-                        ) && (
+                        {[
+                          'SURVEYREQ',
+                          'TUKANGSURVEY',
+                          'SURVEYSTART',
+                          'SURVEYDONE',
+                          'RESURVEYREQ',
+                          'RESURVEYSTART',
+                          'RESURVEYDONE',
+                        ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                           <>
                             {workOrderDetail?.order?.m_order_details?.map(
                               (item: any, index: number) => (
@@ -1013,10 +1001,10 @@ const NewMaterialVendor: FC = () => {
 
                         {[
                           'WORKREQ',
+                          'TUKANGWORK',
                           'WORKSTART',
                           'WORKEND',
                           'REWORKSTART',
-                          'RIP',
                           'REWORKEND',
                           'WORKDONE',
                           'DONE',
@@ -1265,9 +1253,15 @@ const NewMaterialVendor: FC = () => {
                 </Form.Label>
               </Form.Group>
 
-              {['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                workOrderDetail?.work_order_status[0]?.status?.category
-              ) && (
+              {[
+                'SURVEYREQ',
+                'TUKANGSURVEY',
+                'SURVEYSTART',
+                'SURVEYDONE',
+                'RESURVEYREQ',
+                'RESURVEYSTART',
+                'RESURVEYDONE',
+              ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                 <Row className='detail-info'>
                   <div className='title'>
                     <h1 className='fs-6'>Survey</h1>
@@ -1277,12 +1271,15 @@ const NewMaterialVendor: FC = () => {
                     <Form.Label className='fs-6'>Tanggal Survey</Form.Label>
 
                     <Col sm='8'>
-                      <Form.Control
-                        type='datetime-local'
-                        disabled
-                        value={workOrder.survey_date_time}
-                        onChange={(e) => workOrderHandler(e.target.value, 'survey_date_time')}
-                      />
+                      <p className='fs-6'>
+                        {new Date(workOrderDetail?.survey_date).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}
+                      </p>
                     </Col>
                   </Form.Group>
 
@@ -1290,18 +1287,15 @@ const NewMaterialVendor: FC = () => {
                     <Form.Label className='fs-6'>Tehnisi Survey</Form.Label>
 
                     <Col sm='8'>
-                      <Select
-                        classNamePrefix='select'
-                        closeMenuOnSelect={false}
-                        isClearable={false}
-                        menuIsOpen={false}
-                        isMulti
-                        components={animatedComponents}
-                        options={tukang}
-                        getOptionLabel={(option) => `${option.label}`}
-                        getOptionValue={(option) => `${option.value}`}
-                        value={workOrder?.tukang_id?.filter((x) => x.type === 1)}
-                      />
+                      <p>
+                        {Array.from(
+                          new Set(
+                            workOrderDetail?.work_order_tukang
+                              ?.filter((x: any) => x.type === 1)
+                              ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                          )
+                        ).join(', ')}
+                      </p>
                     </Col>
                   </Form.Group>
                 </Row>
@@ -1309,11 +1303,11 @@ const NewMaterialVendor: FC = () => {
 
               {[
                 'WORKREQ',
+                'TUKANGWORK',
                 'WORKSTART',
                 'WORKEND',
-                'REWORK',
+                'REWORKREQ',
                 'REWORKSTART',
-                'RIP',
                 'REWORKEND',
                 'RESCHEDULE',
                 'DONE',
@@ -1327,45 +1321,23 @@ const NewMaterialVendor: FC = () => {
                     <Form.Label className='fs-6'>Tanggal Mulai dan Selesai Pekerjaan</Form.Label>
 
                     <Col sm='8'>
-                      <RangePicker
-                        disabled={[true, true]}
-                        allowClear={false}
-                        className='date-range w-100'
-                        format='DD-MM-YYYY'
-                        onChange={(values) => {
-                          if (values && values.length === 2) {
-                            const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
-                            const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
-
-                            setWorkOrder((prev) => ({
-                              ...prev,
-                              work_start_date: dateFromFormatted,
-                              work_end_date: dateToFormatted,
-                            }))
-                          } else {
-                            setWorkOrder({
-                              id: null,
-                              work_order_status: null,
-                              description: '',
-                              tukang_id: [],
-                              survey_date_time: '',
-                              work_date_time: '',
-                              work_start_date: '',
-                              work_end_date: '',
-                              work_order_before: [],
-                              work_order_after: [],
-                            })
-                          }
-                        }}
-                        value={
-                          (workOrder.work_start_date &&
-                            workOrder.work_end_date && [
-                              dayjs(workOrder.work_start_date, 'YYYY-MM-DD'),
-                              dayjs(workOrder.work_end_date, 'YYYY-MM-DD'),
-                            ]) ||
-                          undefined
-                        }
-                      />{' '}
+                      <p className='fs-6 fw-bold'>
+                        {new Date(workOrderDetail?.work_start_date).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}{' '}
+                        sampai{' '}
+                        {new Date(workOrderDetail?.work_end_date).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}
+                      </p>
                     </Col>
                   </Form.Group>
 
@@ -1373,19 +1345,15 @@ const NewMaterialVendor: FC = () => {
                     <Form.Label className='fs-6'>Tehnisi Pengerjaan</Form.Label>
 
                     <Col sm='8'>
-                      <Select
-                        placeholder='Tukang belum diset oleh Vendor'
-                        classNamePrefix='select'
-                        closeMenuOnSelect={false}
-                        isClearable={false}
-                        menuIsOpen={false}
-                        isMulti
-                        components={animatedComponents}
-                        options={tukang}
-                        getOptionLabel={(option) => `${option.label}`}
-                        getOptionValue={(option) => `${option.value}`}
-                        value={workOrder.tukang_id.filter((x) => x.type === 2)}
-                      />
+                      <p className='fs-6 fw-bold'>
+                        {Array.from(
+                          new Set(
+                            workOrderDetail?.work_order_tukang
+                              ?.filter((x: any) => x.type === 2)
+                              ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                          )
+                        ).join(', ')}
+                      </p>
                     </Col>
                   </Form.Group>
                 </Row>
@@ -1397,173 +1365,187 @@ const NewMaterialVendor: FC = () => {
             if (
               workOrderDetail?.order?.payment_type === 'survey' &&
               workOrderDetail?.order?.quotation?.length === 0 &&
-              ['SURVEYSTART', 'SURVEYDONE'].includes(
+              ['SURVEYSTART', 'SURVEYDONE', 'RESURVEYSTART', 'RESURVEYDONE'].includes(
                 workOrderDetail?.work_order_status[0]?.status?.category
               )
             ) {
               return (
                 <>
-                  <Row>
-                    <Col>
-                      <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
+                  <div className='fs-5 text-dark fw-bold mb-2'>Jasa pemasangan</div>
+                  <div className='item-jasa'>
+                    {workOrderItem
+                      .filter((x) => x.type === 2)
+                      .map((element, index) => (
+                        <Card
+                          id={`${element.index}-service`}
+                          key={`${stringToHash(element.index)}-service`}
+                          className='mb-5'
+                        >
+                          <div className='d-flex border-rounded-3'>
+                            <Card.Body>
+                              <Row>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Jenis Jasa</Form.Label>
+                                    <Form.Control
+                                      id={`service-name-${index}`}
+                                      type='text'
+                                      className='mb-5'
+                                      value={element.item_name}
+                                      onChange={(e) =>
+                                        handleItemNameChange(index, e.target.value, 2)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                      <Table responsive>
-                        <thead className='table-item-head'>
-                          <tr>
-                            <th></th>
-                            <th className='content'>Jenis Jasa</th>
-                            <th className='content'>QTY</th>
-                            <th className='content'>Satuan</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>QTY</Form.Label>
+                                    <Form.Control
+                                      id={`quantity-${index}`}
+                                      type='number'
+                                      className='mb-5'
+                                      value={element.quantity?.toString()}
+                                      onChange={(e) =>
+                                        handleQuantityChange(element.index, e.target.value, 2)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                        <tbody>
-                          {workOrderItem
-                            .filter((x) => x.type === 2)
-                            .map((element, index) => (
-                              <tr
-                                key={`${stringToHash(element.index)}-service`}
-                                id={`${element.index}-service`}
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Satuan</Form.Label>
+                                    <Form.Control
+                                      id={`unit-${index}`}
+                                      className='mb-5'
+                                      value={element.unit?.toString()}
+                                      onChange={(e) =>
+                                        handleSatuanChange(element.index, e.target.value, 2)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
+                              </Row>
+                            </Card.Body>
+
+                            <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                              <Button
+                                variant='primary'
+                                className='button-transparent text-danger'
+                                onClick={() => handleRemoveForm(element.index)}
                               >
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='btn-jasa button-dark-primary'
-                                    onClick={() => handleAddForm(2)}
-                                  >
-                                    <FontAwesomeIcon icon={faPlus} />
-                                  </Button>
-                                </td>
+                                <FontAwesomeIcon icon={faTrash} />
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
 
-                                <td>
-                                  <Form.Control
-                                    id={`service-name-${index}`}
-                                    type='text'
-                                    value={element.item_name}
-                                    onChange={(e) => handleItemNameChange(index, e.target.value, 2)}
-                                  />
-                                </td>
+                    <Button
+                      variant='btn-jasa button-dark-primary mb-3'
+                      onClick={() => handleAddForm(2)}
+                    >
+                      Tambah Jasa
+                    </Button>
+                  </div>
 
-                                <td>
-                                  <Form.Control
-                                    id={`quantity-${index}`}
-                                    type='number'
-                                    value={element.quantity?.toString()}
-                                    onChange={(e) =>
-                                      handleQuantityChange(element.index, e.target.value, 2)
-                                    }
-                                  />{' '}
-                                </td>
+                  <hr />
 
-                                <td>
-                                  <Form.Control
-                                    id={`unit-${index}`}
-                                    value={element.unit?.toString()}
-                                    onChange={(e) =>
-                                      handleSatuanChange(element.index, e.target.value, 2)
-                                    }
-                                  />
-                                </td>
+                  <div className='fs-5 text-dark fw-bold mb-2'>Material yang dibutuhkan</div>
+                  <div className='item-material'>
+                    {workOrderItem
+                      .filter((x) => x.type === 1)
+                      .map((element, index) => (
+                        <Card
+                          id={`${element.index}-material`}
+                          key={`${stringToHash(element.index)}-material`}
+                          className='mb-5'
+                        >
+                          <div className='d-flex border-rounded-3'>
+                            <div className='d-flex flex-column align-items-center justify-content-between border-end p-2'>
+                              <Form.Check
+                                id={`is-user-${index}`}
+                                type='checkbox'
+                                checked={element.is_user === 1}
+                                onChange={(e) =>
+                                  handleCheckboxChange(element.index, e.target.checked)
+                                }
+                              />
+                            </div>
 
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='danger'
-                                    onClick={() => handleRemoveForm(element.index)}
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </Table>
-                    </Col>
-                  </Row>
+                            <Card.Body>
+                              <Row>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Material yang dibutuhkan</Form.Label>
+                                    <Form.Control
+                                      id={`item-name-${index}`}
+                                      className='mb-5'
+                                      value={element.item_name}
+                                      onChange={(e) =>
+                                        handleItemNameChange(index, e.target.value, 1)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                  <Row>
-                    <Col>
-                      <Table responsive>
-                        <thead className='table-item-head'>
-                          <tr>
-                            <th></th>
-                            <th>Disediakan Customer</th>
-                            <th className='content'>Material Yang Dibutuhkan</th>
-                            <th className='content'>QTY</th>
-                            <th className='content'>Satuan</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>QTY</Form.Label>
+                                    <Form.Control
+                                      id={`quantity-${index}`}
+                                      className='mb-5'
+                                      value={element.quantity?.toString()}
+                                      onChange={(e) =>
+                                        handleQuantityChange(element.index, e.target.value, 1)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
 
-                        <tbody>
-                          {workOrderItem
-                            .filter((x) => x.type === 1)
-                            .map((element, index) => (
-                              <tr
-                                key={`${stringToHash(element.index)}-material`}
-                                id={`${element.index}-material`}
+                                <Col xxl={4} xl={4} lg={4} md={12} sm={12}>
+                                  <Form.Group>
+                                    <Form.Label>Satuan</Form.Label>
+                                    <Form.Control
+                                      id={`unit-${index}`}
+                                      className='mb-5'
+                                      value={element.unit?.toString()}
+                                      onChange={(e) =>
+                                        handleSatuanChange(element.index, e.target.value, 1)
+                                      }
+                                    />
+                                  </Form.Group>
+                                </Col>
+                              </Row>
+                            </Card.Body>
+
+                            <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                              <Button
+                                variant='primary'
+                                className='button-transparent text-danger'
+                                onClick={() => handleRemoveForm(element.index)}
                               >
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='btn-material button-dark-primary'
-                                    onClick={() => handleAddForm(1)}
-                                  >
-                                    <FontAwesomeIcon icon={faPlus} />
-                                  </Button>
-                                </td>
+                                <FontAwesomeIcon icon={faTrash} />
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
 
-                                <td align='center' style={{verticalAlign: 'middle'}}>
-                                  <Form.Check
-                                    id={`is-user-${index}`}
-                                    type='checkbox'
-                                    checked={element.is_user === 1}
-                                    onChange={(e) =>
-                                      handleCheckboxChange(element.index, e.target.checked)
-                                    }
-                                  />
-                                </td>
+                    <h4 className='fs-8 fw-normal text-danger mb-5'>
+                      *Jika <span className='fw-bolder text-decoration-underline'>Material</span>{' '}
+                      diceklis, maka material tersebut disediakan oleh customer
+                    </h4>
 
-                                <td>
-                                  <Form.Control
-                                    id={`item-name-${index}`}
-                                    value={element.item_name}
-                                    onChange={(e) => handleItemNameChange(index, e.target.value, 1)}
-                                  />
-                                </td>
-
-                                <td>
-                                  <Form.Control
-                                    id={`quantity-${index}`}
-                                    value={element.quantity?.toString()}
-                                    onChange={(e) =>
-                                      handleQuantityChange(element.index, e.target.value, 1)
-                                    }
-                                  />
-                                </td>
-
-                                <td>
-                                  <Form.Control
-                                    id={`unit-${index}`}
-                                    value={element.unit?.toString()}
-                                    onChange={(e) =>
-                                      handleSatuanChange(element.index, e.target.value, 1)
-                                    }
-                                  />
-                                </td>
-
-                                <td align='center' width={70}>
-                                  <Button
-                                    variant='danger'
-                                    onClick={() => handleRemoveForm(element.index)}
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </Table>
-                    </Col>
-                  </Row>
+                    <Button
+                      variant='btn-material button-dark-primary mb-3'
+                      onClick={() => handleAddForm(1)}
+                    >
+                      Tambah Material
+                    </Button>
+                  </div>
                 </>
               )
             } else if (
@@ -1573,7 +1555,6 @@ const NewMaterialVendor: FC = () => {
               return (
                 <>
                   <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
-
                   <div className='table-warranty-content'>
                     <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
@@ -1648,9 +1629,15 @@ const NewMaterialVendor: FC = () => {
                 </>
               )
             } else if (
-              ['WORKREQ', 'WORKSTART', 'WORKEND', 'DONE'].includes(
-                workOrderDetail?.work_order_status[0]?.status?.category
-              ) &&
+              [
+                'WORKREQ',
+                'WORKSTART',
+                'WORKEND',
+                'DONE',
+                'REWORKREQ',
+                'REWORKSTART',
+                'REWORKEND',
+              ].includes(workOrderDetail?.work_order_status[0]?.status?.category) &&
               workOrderDetail?.work_order_status.length >= 2 &&
               workOrderDetail?.order?.payment_type === 'survey'
             ) {
@@ -1841,37 +1828,25 @@ const NewMaterialVendor: FC = () => {
         </Card.Body>
       </Card>
 
-      {workOrderDetail?.work_order_status?.length && (
-        <Card className='mb-5'>
-          <Card.Body>
-            <div className='work-order-history'>
-              <h1 className='title text-decoration-underline mb-5'>Work Order History</h1>
+      <Card className='mb-5'>
+        <Card.Body>
+          <div className='work-order-history'>
+            <h1 className='title mb-5'>Order History</h1>
 
-              <Table responsive>
-                <thead className='table-item-head'>
-                  <tr>
-                    <th className='content-history'>Work Order ID</th>
-                    <th className='content-history'>Work Order Status</th>
-                    <th className='content-history'>Terakhir Update Survey/Pengerjaan</th>
-                    <th className='content-history'>Tanggal Pengerjaan</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {workOrderHistory.map((item, index) => (
-                    <tr key={`${index}-history`} id={`${index}-history`}>
-                      <td>{item?.work_order_id}</td>
-                      <td>{item?.work_order_status_label}</td>
-                      <td>{item?.updated_at}</td>
-                      <td>{item?.work_date_time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </Card.Body>
-        </Card>
-      )}
+            <Steps
+              progressDot
+              current={OrderHistory.length - 1}
+              direction='vertical'
+              items={OrderHistory.map((item) => ({
+                title: item?.status,
+                description: `Terakhir update : ${item?.created_at} ${
+                  item.updated_by ? `oleh ${item?.updated_by}` : ''
+                }`,
+              }))}
+            />
+          </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

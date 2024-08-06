@@ -283,7 +283,8 @@ const ListCSIHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={csiData}
             rowKey={(record) => record.id}
-            // scroll={{x: 500}}
+            tableLayout='auto'
+            scroll={{x: 'max-content'}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

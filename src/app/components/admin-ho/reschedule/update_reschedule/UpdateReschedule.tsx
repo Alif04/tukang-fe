@@ -388,7 +388,14 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   </Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>
-                      {formatDate(new Date(rescheduleDetail?.order?.request_survey))}
+                      {new Date(rescheduleDetail?.order?.request_survey).toLocaleDateString(
+                        'id-ID',
+                        {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        }
+                      )}
                     </p>
                   </Col>
                 </Form.Group>
@@ -427,10 +434,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
             {/* New */}
             {(() => {
-              if (
-                rescheduleDetail?.order?.payment_type === 'survey' ||
-                rescheduleDetail?.order?.work_orders
-              ) {
+              if (rescheduleDetail?.order?.payment_type === 'survey') {
                 return (
                   <div className='table-warranty-content'>
                     {rescheduleDetail?.order?.is_overdistance === 1 && (
@@ -501,121 +505,6 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(rescheduleDetail?.order?.status?.category ?? '') &&
-                rescheduleDetail?.order?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    {rescheduleDetail?.order?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari{' '}
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center'>Jenis Jasa</th>
-                          <th className='text-center'>QTY</th>
-                          <th className='text-center'>Satuan</th>
-                          <th className='text-center'>Price</th>
-                          <th className='text-center'>Total</th>
-                          <th className='text-center'>Keterangan</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {rescheduleDetail?.order?.quotation[0]?.quotation_details.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>{item?.name ?? '-'}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price || 0).toLocaleString('id')}`}</td>
-                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
-                                'id'
-                              )}`}</td>
-                              <td>{item?.description ? '' : '-'}</td>
-                            </tr>
-                          )
-                        )}
-
-                        <tr>
-                          <td colSpan={6} className='text-end fw-bolder'>
-                            Promosi ( Free Survey )
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              rescheduleDetail?.order?.quotation[0]?.quotation_disc ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-
-                        {rescheduleDetail?.order?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                rescheduleDetail?.order?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td colSpan={5} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              rescheduleDetail?.order?.quotation[0]?.quotation_grand_total ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
-                  rescheduleDetail?.order?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
-                rescheduleDetail?.order?.work_orders?.work_order_status.length > 1 &&
-                rescheduleDetail?.order?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th>Item / Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                          <th>Satuan</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {rescheduleDetail?.order?.work_orders?.work_order_status[0]?.work_order_items.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index}-work_order_detail`}>
-                              <td>{item?.name ?? '-'}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit ?? ''}</td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
                 rescheduleDetail?.order?.payment_type === 'gratis' ||
                 rescheduleDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
               ) {
@@ -651,7 +540,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.item_name}</td>
                               <td>{item?.item?.service_name}</td>
                               <td>{item?.quantity ?? 0}</td>
                               {!(rescheduleDetail?.order?.payment_type === 'gratis') && (
@@ -725,22 +614,71 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Tanggal Request Survey/Pekerjaan :</Form.Label>
 
-                <p className='fs-3'>
+                <p className='fs-6'>
                   {rescheduleDetail?.order?.request_survey
-                    ? formatDate(new Date(rescheduleDetail?.order?.request_survey))
-                    : 'DD-MM-YYYY'}
+                    ? `${new Date(rescheduleDetail?.order?.request_survey).toLocaleDateString(
+                        'id-ID',
+                        {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        }
+                      )}`
+                    : 'Tanggal belum ditentukan vendor'}
                 </p>
               </Form.Group>
 
               <Form.Group className='detail-info mb-3'>
-                <Form.Label>Tanggal Reschedule :</Form.Label>
-                <Form.Control
-                  name='reschedule_date'
-                  type='date'
-                  min={today}
-                  value={reschedule.reschedule_date}
-                  onChange={(e) => RescheduleFormHandler(e)}
-                />
+                <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+                <p className='fs-6'>
+                  {rescheduleDetail?.order?.work_orders
+                    ? rescheduleDetail.order.work_orders.work_start_date &&
+                      rescheduleDetail.order.work_orders.work_end_date
+                      ? `${new Date(
+                          rescheduleDetail.order.work_orders.work_start_date
+                        ).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })} sampai ${new Date(
+                          rescheduleDetail.order.work_orders.work_end_date
+                        ).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}`
+                      : rescheduleDetail.order.work_orders.survey_date
+                      ? new Date(rescheduleDetail.order.work_orders.survey_date).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                          }
+                        )
+                      : 'Tanggal belum dikonfirmasi vendor'
+                    : 'Tanggal belum dikonfirmasi vendor'}
+                </p>
+              </Form.Group>
+
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
+
+                <p className='fs-6'>
+                  {rescheduleDetail?.order?.request_survey
+                    ? `${new Date(rescheduleDetail?.reschedule_date).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}`
+                    : 'Tanggal belum ditentukan vendor'}
+                </p>
               </Form.Group>
 
               <Form.Group className='detail-info mb-3'>
@@ -799,7 +737,11 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                         >
                           <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                          <span className='upload-content' onClick={() => handleFileClick(index)}>
+                          <span
+                            className='upload-content'
+                            style={{cursor: 'pointer'}}
+                            onClick={() => handleFileClick(index)}
+                          >
                             {item?.name}
                           </span>
 

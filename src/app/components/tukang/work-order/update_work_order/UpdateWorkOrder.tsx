@@ -929,6 +929,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       <div className='detail-info'>
                         {[
                           'SURVEYREQ',
+                          'TUKANGSURVEY',
                           'SURVEYSTART',
                           'SURVEYDONE',
                           'RESURVEYREQ',
@@ -948,6 +949,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                         {[
                           'WORKREQ',
+                          'TUKANGWORK',
                           'WORKSTART',
                           'WORKEND',
                           'REWORKSTART',

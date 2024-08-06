@@ -3,8 +3,6 @@ import React, {useState} from 'react'
 
 import {PageTitle} from '../../../../_metronic/layout/core'
 import {WarrantyFormClaim} from '../../../components'
-import {WarrantyFormClaimHO} from '../../../components'
-import {WarrantyFormClaimVendor} from '../../../components'
 
 const ClaimWarrantyForm: React.FC = () => {
   const userRole = localStorage.getItem('userRole')
@@ -19,29 +17,8 @@ const ClaimWarrantyForm: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Store CS' ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <WarrantyFormClaim updatePageTitle={updatePageTitle} />
-        </>
-      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <WarrantyFormClaimHO updatePageTitle={updatePageTitle} />
-        </>
-      ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <WarrantyFormClaim updatePageTitle={updatePageTitle} />
-        </>
-      ) : userRole === 'Tukang' ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <WarrantyFormClaim updatePageTitle={updatePageTitle} />
-        </>
-      ) : (
-        <></>
-      )}
+      <PageTitle>{pageTitle}</PageTitle>
+      <WarrantyFormClaim updatePageTitle={updatePageTitle} />
     </>
   )
 }

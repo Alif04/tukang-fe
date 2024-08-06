@@ -20,8 +20,8 @@ interface Status {
 interface OrderHistory {
   order_id: number
   order_status: string
-  created_at: Date
-  created_at_label: string
+  created_at: string
+  updated_by: string
 }
 
 const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
@@ -90,8 +90,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             const orderHistory = data?.order_history.map((item: any) => ({
               order_id: item.order_id,
               order_status: item?.status?.description,
-              created_at: item?.created_at,
-              created_at_label: item?.created_at
+              updated_by: item?.created_at?.username,
+              created_at: item?.created_at
                 ? `${new Date(item.created_at).toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
@@ -1376,13 +1376,16 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           <div className='work-order-history'>
             <h1 className='title fw-bold mb-5'>Order History</h1>
 
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={orderHistorical}
-              rowKey={(record) => record.order_id}
-              pagination={false}
+            <Steps
+              progressDot
+              current={orderHistorical.length - 1}
+              direction='vertical'
+              items={orderHistorical.map((item) => ({
+                title: item?.order_status,
+                description: `Terakhir update : ${item?.created_at} ${
+                  item.updated_by ? `oleh ${item?.updated_by}` : ''
+                }`,
+              }))}
             />
           </div>
         </Card.Body>

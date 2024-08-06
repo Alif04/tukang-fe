@@ -68,7 +68,7 @@ function getChartOptions(height: number, tukangData: any): ApexOptions {
       },
       {
         name: 'Total Quotation',
-        data: tukangData.map((item: any) => item.totalQuotation),
+        data: tukangData.map((item: any) => item.totalQuotations),
       },
     ],
     chart: {
@@ -82,7 +82,7 @@ function getChartOptions(height: number, tukangData: any): ApexOptions {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: '75%',
+        columnWidth: '25%',
         borderRadius: 0,
       },
     },

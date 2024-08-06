@@ -252,6 +252,12 @@ export function AsideMenuMain() {
           role={['Admin Vendor', 'Owner Vendor']}
           hasBullet={true}
         />
+        <AsideMenuItem
+          to='/material/new-material'
+          title='Update Pekerjaan Tukang'
+          role={['Admin Vendor', 'Owner Vendor']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
       {/* Halaman Vendor */}
@@ -623,26 +629,6 @@ export function AsideMenuMain() {
             to='/user/view-user'
             title={userRole === 'Super User' ? 'Daftar User' : 'Daftar Admin'}
             role={['Super User', 'Owner Vendor']}
-            hasBullet={true}
-          />
-        </AsideMenuItemWithSub>
-
-        <AsideMenuItemWithSub
-          to='/material'
-          title='Material'
-          hasBullet={true}
-          role={['Admin Vendor', 'Owner Vendor']}
-        >
-          {/* <AsideMenuItem
-            to='/material/view-material'
-            title='List Material'
-            role={['Admin Vendor']}
-            hasBullet={true}
-          /> */}
-          <AsideMenuItem
-            to='/material/new-material'
-            title='New Material'
-            role={['Admin Vendor', 'Owner Vendor']}
             hasBullet={true}
           />
         </AsideMenuItemWithSub>

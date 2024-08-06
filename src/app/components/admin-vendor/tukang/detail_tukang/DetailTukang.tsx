@@ -594,7 +594,8 @@ const DetailTukangVendor: FC = () => {
                   columns={columnsOrder}
                   dataSource={workOrderData}
                   rowKey={(record) => record.work_order_id}
-                  scroll={{x: 800}}
+                  tableLayout='auto'
+                  scroll={{x: 'max-content'}}
                   pagination={false}
                 />
               </Spin>

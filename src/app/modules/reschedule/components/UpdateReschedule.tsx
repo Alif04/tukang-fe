@@ -6,7 +6,7 @@ import {UpdateReschedule} from '../../../components'
 import {UpdateRescheduleHO} from '../../../components'
 
 const UpdateRescheduleOrder: React.FC = () => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const [pageTitle, setPageTitle] = useState<string>('')
 
   const updatePageTitle = (reschedule: any) => {
@@ -18,22 +18,17 @@ const UpdateRescheduleOrder: React.FC = () => {
 
   return (
     <>
-      {userRole === 'Admin HO' ||
-      userRole === 'Super User' ||
-      userRole === 'Admin Vendor' ||
-      userRole === 'Owner Vendor' ? (
-        <>
-          <PageTitle>{pageTitle}</PageTitle>
-          <UpdateRescheduleHO updatePageTitle={updatePageTitle} />
-        </>
-      ) : userRole === 'Store CS' || userRole === 'Tukang' ? (
+      {['Store CS', 'Tukang', 'Admin HO', 'Super User'].includes(userRole) ? (
         <>
           <PageTitle>{pageTitle}</PageTitle>
           <UpdateReschedule updatePageTitle={updatePageTitle} />
         </>
-      ) : (
-        <></>
-      )}
+      ) : ['Admin Vendor', 'Owner Vendor'].includes(userRole) ? (
+        <>
+          <PageTitle>{pageTitle}</PageTitle>
+          <UpdateRescheduleHO updatePageTitle={updatePageTitle} />
+        </>
+      ) : null}
     </>
   )
 }

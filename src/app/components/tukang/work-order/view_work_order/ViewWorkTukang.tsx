@@ -40,6 +40,7 @@ type Props = {
 }
 
 interface DataType {
+  order_id: number
   work_order_id: number
   store_name: string
   date_order: string
@@ -85,21 +86,21 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'Work Order ID',
-      dataIndex: 'work_order_id',
-      key: 'work_order_id',
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
       align: 'center',
-      width: 90,
+
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.work_order_id - b.work_order_id,
+      sorter: (a, b) => a.order_id - b.order_id,
     },
     {
       title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
+
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -108,7 +109,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 120,
+
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -117,7 +118,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
-      width: 110,
+
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.costumer_id - b.costumer_id,
@@ -127,7 +128,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
-      width: 110,
+
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -136,7 +137,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 120,
+
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -144,7 +145,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
-      width: 130,
+
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -184,7 +185,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-      width: 80,
+
       render: (record) => {
         const id = record.work_order_id
 
@@ -334,7 +335,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
         let data
 
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
+          day: '2-digit',
           month: 'long',
           year: 'numeric',
           hour: 'numeric',
@@ -345,73 +346,16 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           ? item?.order?.project_number
           : `+62${item?.order?.project_number}`
 
-        const orderStatus = (() => {
-          if (item?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-              ].includes(item?.order?.status?.category)
-            ) {
-              return item?.order?.status?.category
-            } else if (
-              ['WORKREQ', 'TUKANGWORK'].includes(item?.order?.status?.category) &&
-              item?.order?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
-            ) {
-              return item?.order?.status?.category
-            } else {
-              return item?.work_order_status[0]?.status?.category
-            }
-          } else {
-            return item?.order?.status?.category
-          }
-        })()
-
-        const orderStatusLabel = (() => {
-          if (item?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-              ].includes(item?.order?.status?.category)
-            ) {
-              return item?.order?.status?.description
-            } else if (
-              ['WORKREQ', 'TUKANGWORK'].includes(item?.order?.status?.category) &&
-              item?.order?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
-            ) {
-              return item?.order?.status?.description
-            } else {
-              return item?.work_order_status[0]?.status?.description
-            }
-          } else {
-            return item?.order?.status?.description
-          }
-        })()
-
         data = {
+          order_id: item?.order.id,
           work_order_id: item.id,
           store_name: item?.order?.store?.store_name ?? '-',
           date_order: orderDate,
           costumer_id: item?.order?.members.member_number,
           costumer_name: item?.order?.members.full_name,
           phone_number: phoneNumber,
-          order_status: orderStatus,
-          order_status_label: orderStatusLabel,
+          order_status: item?.order?.status?.category,
+          order_status_label: item?.order?.status?.description,
         }
 
         return data
@@ -659,7 +603,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               columns={columns}
               dataSource={workOrderData}
               rowKey={(record) => record.work_order_id}
-              scroll={{x: 1200}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
               pagination={false}
             />
           </Spin>

@@ -29,7 +29,16 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_id',
     key: 'order_id',
     align: 'center',
+    width: 'fit-content',
     sorter: (a, b) => a.order_id - b.order_id,
+  },
+  {
+    title: 'Tanggal Order',
+    dataIndex: 'order_date',
+    key: 'order_date',
+    align: 'left',
+    sorter: (a: DataType, b: DataType) =>
+      new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
   },
   {
     title: 'Nama Toko',
@@ -57,15 +66,7 @@ const columns: ColumnsType<DataType> = [
     sorter: (a, b) => a.service_name.length - b.service_name.length,
   },
   {
-    title: 'Tanggal Order',
-    dataIndex: 'order_date',
-    key: 'order_date',
-    align: 'left',
-    sorter: (a: DataType, b: DataType) =>
-      new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
-  },
-  {
-    title: 'Status',
+    title: 'Status Order',
     dataIndex: 'status',
     key: 'status',
     align: 'left',
@@ -185,7 +186,7 @@ const DashboardTukang: FC = () => {
           costumer_name: item?.order?.members?.full_name ?? '-',
           status: item?.order?.status?.description,
           order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
-            day: 'numeric',
+            day: '2-digit',
             month: 'long',
             year: 'numeric',
             hour: 'numeric',
@@ -378,7 +379,8 @@ const DashboardTukang: FC = () => {
                     dataSource={orderList}
                     rowKey={(record) => record.order_id}
                     pagination={false}
-                    scroll={{x: 1700}}
+                    tableLayout='auto'
+                    scroll={{x: 'max-content'}}
                   />
                 </Spin>
 

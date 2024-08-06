@@ -77,7 +77,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'reschedule_id',
       key: 'reschedule_id',
       align: 'center',
-      width: 100,
       sorter: (a, b) => a.reschedule_id - b.reschedule_id,
     },
     {
@@ -85,7 +84,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 80,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
@@ -95,7 +93,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 150,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -104,7 +101,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -113,7 +109,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'member_id',
       key: 'member_id',
       align: 'center',
-      width: 110,
       sorter: (a, b) => a.member_id - b.member_id,
     },
     {
@@ -121,7 +116,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'member_name',
       key: 'member_name',
       align: 'left',
-      width: 110,
       onFilter: (value, record) => record.member_name.includes(String(value)),
       sorter: (a, b) => a.member_name.length - b.member_name.length,
     },
@@ -130,7 +124,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 110,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -138,7 +131,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      width: 140,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
@@ -147,7 +139,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 140,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -186,7 +177,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 90,
       render: (record) => {
         const handleEdit = () => {
           const id = record.reschedule_id
@@ -403,7 +393,8 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
               dataSource={rescheduleData}
               rowKey={(record) => record.reschedule_id}
               pagination={false}
-              scroll={{x: 1800}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

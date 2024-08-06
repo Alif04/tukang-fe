@@ -330,6 +330,44 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     })
   }
 
+  // Session
+  const range = (start: number, end: number): number[] =>
+    Array.from({length: end - start}, (_, i) => start + i)
+  const disabledHoursSessionMorning = (): number[] =>
+    range(0, 24).filter((hour) => hour < 8 || hour > 11)
+  const disabledHoursSessionAfternoon = (): number[] =>
+    range(0, 24).filter((hour) => hour < 12 || hour > 15)
+  const disabledHoursSessionNight = (): number[] =>
+    range(0, 24).filter((hour) => hour < 15 || hour > 18)
+
+  const getDisabledHours = (session: string): number[] => {
+    switch (session) {
+      case 'pagi':
+        return disabledHoursSessionMorning()
+      case 'siang':
+        return disabledHoursSessionAfternoon()
+      case 'sore':
+        return disabledHoursSessionNight()
+      default:
+        return []
+    }
+  }
+
+  const getSession = (): string => {
+    const currentHour = new Date().getHours()
+
+    if (currentHour >= 8 && currentHour < 12) {
+      return 'pagi'
+    } else if (currentHour >= 12 && currentHour < 15) {
+      return 'siang'
+    } else if (currentHour >= 15 && currentHour < 18) {
+      return 'sore'
+    }
+    return 'none'
+  }
+
+  const session = getSession()
+
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
     // TODO: Fix conditional url
@@ -585,6 +623,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     'RESURVEYREQ',
                     'RESURVEYSTART',
                     'RESURVEYDONE',
+                    'RESCHEDULE',
                   ].includes(orderDetail?.status?.category) && (
                     <Col>
                       <div className='survey mb-3'>
@@ -602,7 +641,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                           {orderDetail?.status?.category !== 'SURVEYDONE' ? (
                             <DatePicker
-                              showTime={{format: 'HH:mm'}}
+                              showTime={{
+                                format: 'HH:mm',
+                                hideDisabledOptions: true,
+                                disabledHours: () => getDisabledHours(session),
+                              }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
                               value={
@@ -674,7 +717,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                           {orderDetail?.status?.category !== 'WORKEND' ? (
                             <RangePicker
-                              showTime={{format: 'HH:mm'}}
+                              showTime={{
+                                format: 'HH:mm',
+                                hideDisabledOptions: true,
+                                disabledHours: () => getDisabledHours(session),
+                              }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
                               value={

@@ -304,7 +304,8 @@ const ViewCostumerStore: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={data}
             rowKey={(record) => record.key}
-            scroll={{x: 1700}}
+            tableLayout='auto'
+            scroll={{x: 'max-content'}}
             pagination={{position: ['bottomCenter']}}
           />
         </div>

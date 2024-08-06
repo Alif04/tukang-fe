@@ -830,7 +830,7 @@ const UpdateTukangVendor: FC = () => {
         )}
 
         <Button
-          className='d-flex justify-content-center align-items-center'
+          className='d-flex justify-content-center align-items-center m-0'
           variant='dark-primary'
           type='submit'
           disabled={isLoading}

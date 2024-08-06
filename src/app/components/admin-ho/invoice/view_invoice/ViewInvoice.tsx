@@ -900,6 +900,8 @@ const ViewInvoiceHO: FC = () => {
               // rowSelection={rowSelection}
               // rowKey={(record) => record.invoice_id}
               pagination={false}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

@@ -115,7 +115,8 @@ const TableList: FC = () => {
         bordered
         columns={columns}
         dataSource={data}
-        scroll={{y: 110}}
+        tableLayout='auto'
+        scroll={{x: 'max-content'}}
         rowKey={(record) => record.key}
         pagination={{position: ['bottomRight']}}
       />

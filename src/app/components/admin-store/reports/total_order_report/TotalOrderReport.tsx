@@ -571,6 +571,8 @@ const TotalOrderReportStore: React.FC<Props> = ({
               dataSource={reportData}
               rowKey={(record) => record.order_id}
               pagination={false}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

@@ -379,7 +379,8 @@ const ViewRefundHO: React.FC<Props> = ({className}) => {
             columns={columns}
             dataSource={refundData}
             rowKey={(record) => record.order_id}
-            scroll={{x: 2000}}
+            tableLayout='auto'
+            scroll={{x: 'max-content'}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

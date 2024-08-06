@@ -162,7 +162,6 @@ const ViewTukangVendor: FC = () => {
       key: 'no',
       align: 'center',
       sorter: (a, b) => a.no - b.no,
-      width: 90,
     },
     {
       title: 'Nama Tukang',
@@ -171,7 +170,6 @@ const ViewTukangVendor: FC = () => {
       align: 'left',
       onFilter: (value, record) => record.full_name.includes(String(value)),
       sorter: (a, b) => a.full_name.length - b.full_name.length,
-      width: 120,
     },
     {
       title: 'Email',
@@ -180,7 +178,6 @@ const ViewTukangVendor: FC = () => {
       align: 'left',
       onFilter: (value, record) => record.email.includes(String(value)),
       sorter: (a, b) => a.email.length - b.email.length,
-      width: 120,
     },
     {
       title: 'No. Handphone',
@@ -188,35 +185,32 @@ const ViewTukangVendor: FC = () => {
       key: 'phone_number',
       align: 'left',
       sorter: (a, b) => a.phone_number - b.phone_number,
-      width: 120,
     },
     {
       title: 'Keahlian',
       dataIndex: 'keahlian',
       key: 'keahlian',
       align: 'left',
-      width: 120,
+      width: 150,
     },
     {
       title: 'Area',
       dataIndex: 'area',
       key: 'area',
       align: 'left',
-      width: 120,
+      width: 150,
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       align: 'left',
-      width: 120,
     },
     {
       title: 'Action',
       key: 'action',
       fixed: 'right',
       align: 'center',
-      width: 120,
       render: (record) => {
         const id = record.tukang_id
         const isActive = record.is_active
@@ -592,7 +586,8 @@ const ViewTukangVendor: FC = () => {
               dataSource={tukangData}
               rowKey={(record) => record.tukang_id}
               pagination={false}
-              scroll={{x: 900}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

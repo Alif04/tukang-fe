@@ -429,7 +429,8 @@ const ViewItemHO: React.FC = () => {
               dataSource={itemData}
               rowKey={(record) => record.material_id}
               pagination={false}
-              scroll={{x: 1000}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

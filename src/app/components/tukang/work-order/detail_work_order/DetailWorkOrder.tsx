@@ -5,12 +5,19 @@ import './DetailWorkOrder.css'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Image, Skeleton} from 'antd'
-import {Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
+import {Card, Row, Col, Form, ListGroup, Table} from 'react-bootstrap'
 import {Steps} from 'antd'
 
 interface Status {
   value: number | null
   category: string
+}
+
+interface OrderHistory {
+  order_id: number
+  status: string
+  created_at: string
+  updated_by: string
 }
 
 const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePageTitle}) => {
@@ -22,6 +29,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
   const [isLoadingPage, setIsLoadingPage] = useState(true)
+
+  // Order History
+  const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
 
   const getWorkOrderData = async () => {
     try {
@@ -40,6 +50,34 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
           setWorkOrderDetail(data)
           updatePageTitle(data)
           setIsLoadingPage(false)
+
+          if (data?.order?.order_history) {
+            const orderHistory = data?.order?.order_history.map((item: any) => {
+              return {
+                status: item?.status?.description,
+                created_at: item?.created_at
+                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })
+                  : item?.created_at
+                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })
+                  : '-',
+                updated_by: item?.created_by?.username,
+              }
+            })
+
+            setOrderHistory(orderHistory)
+          }
         })
     } catch (error) {
       console.error(error)
@@ -102,8 +140,8 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
   return (
     <section id='detail-work-order'>
-      <div className='card mb-5'>
-        <div className='card-body'>
+      <Card className='mb-5'>
+        <Card.Body className='card-body'>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -786,8 +824,30 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
               </div>
             )}
           </Skeleton>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
+
+      <Card>
+        <Card.Body>
+          <Skeleton active loading={isLoadingPage}>
+            <div className='work-order-history'>
+              <h1 className='title mb-5'>Order History</h1>
+
+              <Steps
+                progressDot
+                current={OrderHistory.length - 1}
+                direction='vertical'
+                items={OrderHistory.map((item) => ({
+                  title: item?.status,
+                  description: `Terakhir update : ${item?.created_at} ${
+                    item.updated_by ? `oleh ${item?.updated_by}` : ''
+                  }`,
+                }))}
+              />
+            </div>
+          </Skeleton>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

@@ -364,6 +364,8 @@ const ListStoreHO: React.FC = () => {
               dataSource={storeData}
               rowKey={(record) => record.store_id}
               pagination={false}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

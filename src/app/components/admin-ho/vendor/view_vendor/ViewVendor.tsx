@@ -488,7 +488,8 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
               dataSource={vendorData}
               rowKey={(record) => record.vendor_id}
               pagination={false}
-              scroll={{x: 1800}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

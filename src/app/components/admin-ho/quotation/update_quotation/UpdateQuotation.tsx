@@ -416,7 +416,7 @@ const UpdateQuotationHO: FC = () => {
   // }, [grandTotalBeforePromotion])
 
   useEffect(() => {
-    if (quotationData?.readiness === 1) {
+    if ([1, 4].includes(quotationData?.readiness)) {
       let totalQuotation = grandTotalBeforePromotion
       let totalPromotion = 0
       let promotionId = null
@@ -512,7 +512,8 @@ const UpdateQuotationHO: FC = () => {
   // Handle Submit Quotation
   const handleUpdateQuotation = async (readiness: number) => {
     if (!QuotationValidation()) {
-      return
+      setIsLoading(false)
+      return false
     }
 
     setIsLoading(true)

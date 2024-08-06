@@ -271,7 +271,8 @@ const ViewMaterialVendor: React.FC = () => {
             columns={columns}
             dataSource={materialData}
             rowKey={(record) => record.material_id}
-            // scroll={{x: 1800}}
+            tableLayout='auto'
+            scroll={{x: 'max-content'}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

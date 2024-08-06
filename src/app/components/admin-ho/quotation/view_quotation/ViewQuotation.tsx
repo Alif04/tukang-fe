@@ -287,10 +287,10 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         })
 
         const paymentStatus = (() => {
-          if (item?.receipt_quotation === null) {
-            return 'UNPAID'
-          } else {
+          if (item?.receipt_quotation !== null && item?.quotation_files.length) {
             return 'PAID'
+          } else {
+            return 'UNPAID'
           }
         })()
 
@@ -468,6 +468,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               dataSource={quotationData}
               rowKey={(record) => record.quotation_id}
               pagination={false}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

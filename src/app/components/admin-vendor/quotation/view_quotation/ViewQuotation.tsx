@@ -72,7 +72,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'quotation_id',
       key: 'quotation_id',
       align: 'center',
-      width: 110,
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.quotation_id - b.quotation_id,
     },
@@ -81,7 +80,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 90,
       className: 'col_order_id',
       sorter: (a, b) => a.order_id - b.order_id,
     },
@@ -90,7 +88,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 130,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -99,7 +96,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 110,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -108,7 +104,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      width: 130,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -127,7 +122,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
-      width: 140,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -152,7 +146,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
-      width: 120,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
@@ -161,7 +154,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'quotation_status',
       key: 'quotation_status',
       align: 'left',
-      width: 140,
       render: (quotation_status) => {
         const orderStatus = quotation_status
         let color = ''
@@ -188,7 +180,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-      width: 90,
       render: (record) => {
         const handleDetailId = () => {
           const id = record.quotation_id
@@ -268,7 +259,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
         let data
 
         const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
+          day: '2-digit',
           month: 'long',
           year: 'numeric',
           hour: 'numeric',
@@ -280,10 +271,10 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           .join(', ')
 
         const paymentStatus = (() => {
-          if (item?.receipt_quotation === null) {
-            return 'UNPAID'
-          } else {
+          if (item?.receipt_quotation !== null && item?.quotation_files.length) {
             return 'PAID'
+          } else {
+            return 'UNPAID'
           }
         })()
 
@@ -433,7 +424,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               dataSource={orderData}
               rowKey={(record) => record.quotation_id}
               pagination={false}
-              scroll={{x: 1500}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

@@ -81,7 +81,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'complaint_id',
       key: 'complaint_id',
       align: 'center',
-      width: 120,
       className: 'text-start',
       sorter: (a, b) => a.complaint_id - b.complaint_id,
     },
@@ -90,7 +89,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 110,
       className: 'text-start',
       sorter: (a, b) => a.order_id - b.order_id,
     },
@@ -99,7 +97,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'assign_from',
       key: 'assign_from',
       align: 'center',
-      width: 120,
       className: 'text-start',
       onFilter: (value, record) => record.assign_from.includes(String(value)),
       sorter: (a, b) => a.assign_from.length - b.assign_from.length,
@@ -109,24 +106,13 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 120,
       className: 'text-start',
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
-    },
-    {
-      title: 'No Member',
-      dataIndex: 'no_member',
-      key: 'no_member',
-      align: 'center',
-      width: 140,
-      className: 'text-start',
-      sorter: (a, b) => a.no_member - b.no_member,
     },
     {
       title: 'Nama Customer',
       dataIndex: 'costumer_name',
       key: 'costumer_name',
-      width: 150,
       className: 'text-start',
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
@@ -135,7 +121,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       title: 'No. Telp/WA',
       dataIndex: 'phone_number',
       key: 'phone_number',
-      width: 160,
       className: 'text-start',
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
@@ -143,7 +128,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       title: 'Nama Jasa Pemasangan',
       dataIndex: 'service_name',
       key: 'service_name',
-      width: 180,
       className: 'text-start',
     },
     {
@@ -167,7 +151,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       },
       onFilter: (value, record) => record.order_status.includes(String(value)),
       sorter: (a, b) => a.order_status.length - b.order_status.length,
-      width: 150,
       className: 'text-start',
     },
     {
@@ -175,7 +158,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'work_status',
       key: 'work_status',
       className: 'col-complaint-date text-start',
-      width: 180,
       onFilter: (value, record) => record.work_status.includes(String(value)),
       sorter: (a, b) => a.work_status.length - b.work_status.length,
       render: (complaint_status) => {
@@ -202,7 +184,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'complaint_date',
       key: 'complaint_date',
       className: 'col-complaint-date text-start',
-      width: 150,
       sorter: (a, b) => new Date(a.complaint_date).getTime() - new Date(b.complaint_date).getTime(),
     },
     {
@@ -210,7 +191,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'complaint_age',
       key: 'complaint_age',
       className: 'col-complaint-date text-start',
-      width: 150,
       onFilter: (value, record) => record.complaint_age.includes(String(value)),
       sorter: (a, b) => a.complaint_age.length - b.complaint_age.length,
     },
@@ -219,7 +199,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'complaint_status',
       key: 'complaint_status',
       className: 'col-complaint-status text-start',
-      width: 180,
       render: (complaint_status) => {
         const complaintStatus = complaint_status
         let color = ''
@@ -503,7 +482,8 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
               dataSource={complaintData}
               rowKey={(record) => record.complaint_id}
               pagination={false}
-              scroll={{x: 2000}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

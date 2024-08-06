@@ -386,7 +386,8 @@ const ViewEmployees: React.FC = () => {
             columns={columns}
             dataSource={salesData}
             rowKey={(record) => record.sales_id}
-            scroll={{x: 1500}}
+            tableLayout='auto'
+            scroll={{x: 'max-content'}}
             pagination={{
               position: ['bottomRight'],
               current: currentPage,

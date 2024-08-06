@@ -1351,7 +1351,8 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               columns={columns}
               dataSource={reportData}
               rowKey={(record) => record.order_id}
-              scroll={{x: 2000}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
               pagination={{
                 position: ['bottomRight'],
                 current: currentPage,
@@ -1383,7 +1384,8 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
                   columns={columns}
                   dataSource={reportData}
                   rowKey={(record) => record.order_id}
-                  scroll={{x: 1700}}
+                  tableLayout='auto'
+                  scroll={{x: 'max-content'}}
                   pagination={false}
                 />
               </Spin>

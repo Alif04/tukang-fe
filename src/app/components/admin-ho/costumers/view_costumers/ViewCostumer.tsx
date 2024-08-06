@@ -390,6 +390,8 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
               dataSource={memberData}
               rowKey={(record) => record.costumer_id}
               pagination={false}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 

@@ -300,7 +300,8 @@ const ListBankHO: React.FC = () => {
               dataSource={bankData}
               rowKey={(record) => record.bank_id}
               pagination={false}
-              scroll={{x: 1000}}
+              tableLayout='auto'
+              scroll={{x: 'max-content'}}
             />
           </Spin>
 
