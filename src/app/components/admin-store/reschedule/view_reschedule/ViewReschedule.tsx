@@ -11,7 +11,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -29,6 +29,9 @@ interface DataType {
   phone_number: number
   payment_status: string
   order_status: string
+  reschedule_status: string
+  order_status_label: string
+  reschedule_status_label: string
 }
 
 const ViewRescheduleCS: React.FC<Props> = ({className}) => {
@@ -105,13 +108,6 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
     {
-      title: 'Nomor Member',
-      dataIndex: 'member_id',
-      key: 'member_id',
-      align: 'center',
-      sorter: (a, b) => a.member_id - b.member_id,
-    },
-    {
       title: 'Nama Customer',
       dataIndex: 'member_name',
       key: 'member_name',
@@ -135,9 +131,9 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
     {
-      title: 'Order Status',
-      dataIndex: 'order_status',
-      key: 'order_status',
+      title: 'Status Order',
+      dataIndex: 'order_status_label',
+      key: 'order_status_label',
       align: 'left',
       render: (order_status) => {
         const orderStatus = order_status
@@ -170,8 +166,38 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      onFilter: (value, record) => record.order_status_label.includes(String(value)),
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
+    },
+    {
+      title: 'Status Reschedule',
+      dataIndex: 'reschedule_status_label',
+      key: 'reschedule_status_label',
+      align: 'left',
+      render: (reschedule_status) => {
+        const rescheduleStatus = reschedule_status
+        let color = ''
+
+        switch (rescheduleStatus) {
+          case 'RESCHEDULEAPPROVEDBYVENDOR':
+            color = 'green'
+            break
+          case 'RESCHEDULEAPPROVEDBYHO':
+            color = 'lime'
+            break
+          case 'RESCHEDULEREJECTEDBYVENDOR':
+          case 'RESCHEDULEREJECTEDBYHO':
+            color = 'red'
+            break
+          default:
+            color = 'blue'
+            break
+        }
+
+        return <Tag color={color}>{rescheduleStatus}</Tag>
+      },
+      onFilter: (value, record) => record.reschedule_status_label.includes(String(value)),
+      sorter: (a, b) => a.reschedule_status_label.length - b.reschedule_status_label.length,
     },
     {
       title: 'Action',
@@ -191,7 +217,11 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
               overlay={renderTooltip('Update Reschedule')}
             >
               <Button variant='primary' className='button-edit' onClick={handleEdit}>
-                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                <FontAwesomeIcon
+                  className='text-white'
+                  icon={['Store CS', 'Tukang'].includes(userRole) ? faBook : faPen}
+                  fontSize={'13px'}
+                />
               </Button>
             </OverlayTrigger>
           </div>
@@ -268,7 +298,10 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
           member_name: item?.order?.members.full_name,
           phone_number: phoneNumber,
           payment_status: paymentStatus,
-          order_status: item?.order?.status?.description,
+          order_status: item?.order?.status?.category,
+          reschedule_status: item?.reschedule_status[0]?.status?.category,
+          order_status_label: item?.order?.status?.description,
+          reschedule_status_label: item?.reschedule_status[0]?.status?.description,
         }
 
         return data

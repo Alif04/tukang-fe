@@ -1,45 +1,45 @@
 /* Informasi Pemasangan */
 
-#new-refund .title h1 {
+#update-reschedule .title h1 {
   font-size: 22.5px;
   padding: 0 0 20px 0;
 }
 
-#new-reschedule .form-wrapper {
+#update-reschedule .form-wrapper {
   margin-bottom: 30px;
 }
 
-#new-reschedule .form-wrapper .form-header {
+#update-reschedule .form-wrapper .form-header {
   margin-bottom: 30px;
 }
 
-#new-reschedule p {
+#update-reschedule p {
   padding: 3px 9.75px;
 }
 
-#new-reschedule .detail-info.row label.form-label {
+#update-reschedule .detail-info.row label.form-label {
   padding: 3px 9.75px;
 }
 
-#new-reschedule textarea.desc-notes.form-control {
+#update-reschedule textarea.desc-notes.form-control {
   min-height: 135px !important;
 }
 
-#new-reschedule .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-reschedule .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 60%;
 }
 
-#new-reschedule .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+#update-reschedule .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
   width: 40%;
 }
 
-#new-reschedule .reason {
-  min-height: 170px;
+#update-reschedule .reason {
+  min-height: 225px;
 }
 
 /* Button */
 
-#new-reschedule .btn.btn-dark-primary {
+#update-reschedule .btn.btn-dark-primary {
   width: 180px;
   height: 50px;
   margin: 0 10px 0 10px;
@@ -49,11 +49,11 @@
   transition: 0.3s ease-in-out;
 }
 
-#new-reschedule .btn.btn-dark-primary:hover:not(.btn-active) {
+#update-reschedule .btn.btn-dark-primary:hover:not(.btn-active) {
   background-color: #0300b5 !important;
 }
 
-#new-reschedule .btn.btn-dark-success {
+#update-reschedule .btn.btn-dark-success {
   width: 100px;
   height: 35px;
   margin: 0 10px 0 10px;
@@ -63,11 +63,11 @@
   transition: 0.3s ease-in-out;
 }
 
-#new-reschedule .btn.btn-dark-success:hover:not(.btn-active) {
+#update-reschedule .btn.btn-dark-success:hover:not(.btn-active) {
   background-color: #7cb920 !important;
 }
 
-#new-reschedule .btn.btn-light-danger {
+#update-reschedule .btn.btn-light-danger {
   width: 100px;
   height: 35px;
   margin: 0 10px 0 10px;
@@ -77,16 +77,16 @@
   transition: 0.3s ease-in-out;
 }
 
-#new-reschedule .btn.btn-light-danger:hover:not(.btn-active) {
+#update-reschedule .btn.btn-light-danger:hover:not(.btn-active) {
   background-color: #d80019 !important;
 }
 
 @media screen and (max-width: 1200px) {
-  #new-reschedule .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-reschedule .costumer-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 
-  #new-reschedule .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+  #update-reschedule .sales-info.col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
     width: 100%;
   }
 }

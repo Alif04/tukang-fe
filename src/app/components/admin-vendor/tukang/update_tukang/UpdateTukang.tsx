@@ -24,6 +24,7 @@ interface TukangServiceSelect {
 
 interface Tukang {
   is_active: number
+  is_delete: number
   tukang_id: string
   vendor_id: number | null
   full_name: string
@@ -53,6 +54,7 @@ const UpdateTukangVendor: FC = () => {
   // Tukang
   const [tukang, setTukang] = useState<Tukang>({
     is_active: 1,
+    is_delete: 0,
     tukang_id: '',
     vendor_id: Number.parseInt(vendorId),
     full_name: '',
@@ -127,6 +129,7 @@ const UpdateTukangVendor: FC = () => {
             setTukang((prev) => ({
               ...prev,
               is_active: data?.is_active === true ? 1 : 0,
+              is_delete: data?.deleted_at === null ? 0 : 1,
               tukang_id: data?.id,
               vendor_id: data?.vendor?.id,
               full_name: data?.full_name,
@@ -395,7 +398,7 @@ const UpdateTukangVendor: FC = () => {
     const formData = new FormData()
 
     formData.append('is_active', String(tukang.is_active))
-    formData.append('vendor_id', vendorId)
+    formData.append('is_delete', String(tukang.is_delete))
     formData.append('full_name', tukang.full_name)
     formData.append('email', tukang.email)
     formData.append('ktp_number', tukang.ktp_number)
@@ -404,6 +407,10 @@ const UpdateTukangVendor: FC = () => {
     formData.append('password', tukang.password)
     formData.append('address', tukang.address)
     formData.append('phone_number', tukang.phone_number)
+
+    if (vendorId !== null) {
+      formData.append('vendor_id', vendorId)
+    }
 
     if (tukang.service_type_id?.length) {
       tukang.service_type_id.forEach((item: any, index: number) => {

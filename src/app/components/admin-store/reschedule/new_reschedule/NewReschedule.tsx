@@ -57,7 +57,7 @@ const NewReschedule: FC = () => {
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) =>
-    ['SURVEYREQ', 'WORKREQ'].includes(status.category)
+    ['SURVEYREQ', 'TUKANGSURVEY', 'TUKANGWORK', 'WORKREQ'].includes(status.category)
   )
   const statuses = desiredStatus.map((x) => x.value)
 
@@ -366,9 +366,7 @@ const NewReschedule: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {orderDetail?.work_orders?.work_order_status.length > 0
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.description
-                      : orderDetail?.status?.description}
+                    {orderDetail?.status?.description}
                   </span>
                 </Form.Label>
               </Col>
@@ -499,11 +497,7 @@ const NewReschedule: FC = () => {
 
             {/* New */}
             {(() => {
-              if (
-                (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
-                (orderDetail?.work_orders?.work_order_status.length === 1 &&
-                  orderDetail?.payment_type === 'survey')
-              ) {
+              if (orderDetail?.payment_type === 'survey') {
                 return (
                   <div className='table-warranty-content'>
                     {orderDetail?.is_overdistance === 1 && (
@@ -568,192 +562,6 @@ const NewReschedule: FC = () => {
                               ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
-                orderDetail?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    {orderDetail?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
-                    )}
-
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Jenis Jasa
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 2)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Total
-                          </td>
-
-                          <td className='fw-bolder'>
-                            {`Rp. ${orderDetail?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 2)
-                              .map((item: any) => parseInt(item?.price ?? 0))
-                              .reduce((total: number, price: number) => total + price, 0)
-                              .toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </Table>
-
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th className='text-center' style={{width: '355px'}}>
-                            Material Yang Dibutuhkan
-                          </th>
-
-                          <th className='text-center' style={{width: '100px'}}>
-                            QTY
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Satuan
-                          </th>
-
-                          <th className='text-center' style={{width: '250px'}}>
-                            Price
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 1)
-                          .map((item: any, index: any) => (
-                            <tr key={`${index}-quotation`}>
-                              <td>
-                                {item?.name ?? '-'}{' '}
-                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                              </td>
-                              <td>{item?.quantity ?? 0}</td>
-                              <td>{item?.unit}</td>
-                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            </tr>
-                          ))}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Promosi ( Free Survey )
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_disc ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-
-                        {orderDetail?.is_overdistance === 1 && (
-                          <>
-                            <tr>
-                              <td colSpan={3} className='text-end fw-bolder align-middle'>
-                                Biaya Tambahan
-                              </td>
-
-                              <td className=' fw-bolder'>{`Rp. ${Number(
-                                orderDetail?.additional_fee
-                              ).toLocaleString('id')}.`}</td>
-                            </tr>
-                          </>
-                        )}
-
-                        <tr>
-                          <td colSpan={3} className='text-end fw-bolder'>
-                            Grand Total
-                          </td>
-                          <td className=' fw-bolder'>
-                            {`Rp. ${parseInt(
-                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
-                            ).toLocaleString('id')}`}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                )
-              } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
-                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
-                orderDetail?.work_orders?.work_order_status.length >= 1 &&
-                orderDetail?.payment_type === 'survey'
-              ) {
-                return (
-                  <div className='table-warranty-content'>
-                    <Table hover responsive='md'>
-                      <thead className='table-warranty-head'>
-                        <tr>
-                          <th>Nama Pemasangan</th>
-                          <th>QTY Pemasangan</th>
-                          <th>Satuan</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length ? (
-                          orderDetail.work_orders.work_order_status[0].work_order_items.map(
-                            (item: any, index: any) => (
-                              <tr key={`${index}-work_order_detail`}>
-                                <td>
-                                  {item.name ?? ''}{' '}
-                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item.quantity ?? 0}</td>
-                                <td>{item.unit ?? ''}</td>
-                              </tr>
-                            )
-                          )
-                        ) : (
-                          <tr>
-                            <td>Item belum diset oleh Tukang/Vendor</td>
-                            <td>Quantity belum diset oleh Tukang/Vendor</td>
-                            <td>Satuan belum diset oleh Tukang/Vendor</td>
-                          </tr>
                         )}
                       </tbody>
                     </Table>
@@ -860,10 +668,51 @@ const NewReschedule: FC = () => {
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Tanggal Request Survey/Pekerjaan :</Form.Label>
 
-                <p className='fs-3'>
+                <p className='fs-6'>
                   {orderDetail?.request_survey
-                    ? formatDate(new Date(orderDetail?.request_survey))
-                    : 'DD-MM-YYYY'}
+                    ? `${new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                      })}`
+                    : 'Tanggal belum ditentukan toko'}
+                </p>
+              </Form.Group>
+
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+                <p className='fs-6'>
+                  {orderDetail?.work_orders
+                    ? orderDetail.work_orders.work_start_date &&
+                      orderDetail.work_orders.work_end_date
+                      ? `${new Date(orderDetail.work_orders.work_start_date).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                          }
+                        )} sampai ${new Date(
+                          orderDetail.work_orders.work_end_date
+                        ).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}`
+                      : orderDetail.work_orders.survey_date
+                      ? new Date(orderDetail.work_orders.survey_date).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })
+                      : 'Tanggal belum dikonfirmasi vendor'
+                    : 'Tanggal belum dikonfirmasi vendor'}
                 </p>
               </Form.Group>
 

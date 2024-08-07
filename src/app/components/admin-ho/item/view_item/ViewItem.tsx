@@ -214,7 +214,7 @@ const ViewItemHO: React.FC = () => {
   ]
 
   const getItemList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/items?order_by=desc${queryparams}&page=${page}&take=${pageSize}`
+    let apiUrlWithParams = `${apiUrl}/items?order_by=desc&is_promotion=1&${queryparams}&page=${page}&take=${pageSize}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {

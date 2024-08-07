@@ -32,6 +32,8 @@ interface DataType {
   area: string
   status: string
   is_active: boolean
+  is_active_label: string
+  deleted_at: string
 }
 
 const ViewTukangVendor: FC = () => {
@@ -130,8 +132,10 @@ const ViewTukangVendor: FC = () => {
           ktp: item?.ktp_number ?? '-',
           keahlian: tukangService,
           area: tukangArea,
-          status: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
-          is_active: item.is_active,
+          status: item.deleted_at === null ? 'ACTIVE' : 'NON ACTIVE',
+          is_active: item.is_acive === true ? 1 : 0,
+          is_active_label: item.is_active === true ? 'AVAILABLE' : 'NON AVAILABLE',
+          deleted_at: item.deleted_at,
         }
 
         return data
@@ -201,6 +205,12 @@ const ViewTukangVendor: FC = () => {
       width: 150,
     },
     {
+      title: 'Availbility',
+      dataIndex: 'is_active_label',
+      key: 'is_active_label',
+      align: 'left',
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
@@ -213,7 +223,8 @@ const ViewTukangVendor: FC = () => {
       align: 'center',
       render: (record) => {
         const id = record.tukang_id
-        const isActive = record.is_active
+        const isAvailable = record.is_active
+        const isActive = record.deleted_at
 
         const handleDetailId = () => {
           navigate(`/tukang/detail-tukang/${id}`)
@@ -234,7 +245,9 @@ const ViewTukangVendor: FC = () => {
           })
             .then((willActive) => {
               const formData = new FormData()
-              formData.append('is_active', String(1))
+
+              formData.append('is_delete', String(0))
+              formData.append('is_active', isAvailable)
 
               if (willActive.value) {
                 axios
@@ -249,8 +262,9 @@ const ViewTukangVendor: FC = () => {
                   .then((response) => {
                     Swal.fire({
                       title: 'Success',
-                      text: response.data.message,
+                      text: 'Berhasil mengaktifkan tukang',
                       icon: 'success',
+                      showConfirmButton: false,
                     }).then(() => {
                       window.location.reload()
                     })
@@ -284,7 +298,9 @@ const ViewTukangVendor: FC = () => {
           })
             .then((willNonActive) => {
               const formData = new FormData()
-              formData.append('is_active', String(0))
+
+              formData.append('is_delete', String(1))
+              formData.append('is_active', isAvailable)
 
               if (willNonActive.value) {
                 axios
@@ -299,8 +315,9 @@ const ViewTukangVendor: FC = () => {
                   .then((response) => {
                     Swal.fire({
                       title: 'Success',
-                      text: response.data.message,
+                      text: 'Berhasil menonaktifkan tukang',
                       icon: 'success',
+                      showConfirmButton: false,
                     }).then(() => {
                       window.location.reload()
                     })
@@ -346,10 +363,11 @@ const ViewTukangVendor: FC = () => {
                   .then((response) => {
                     Swal.fire({
                       title: 'Success',
-                      text: response.data.message,
+                      text: 'Berhasil menghapus data tukang',
                       icon: 'success',
+                      showConfirmButton: false,
                     }).then(() => {
-                      ViewTukang(1, 10, '')
+                      window.location.reload()
                     })
                   })
                   .catch((error) => {
@@ -400,7 +418,7 @@ const ViewTukangVendor: FC = () => {
                   </Button>
                 </OverlayTrigger>
 
-                {isActive === false && (
+                {isActive !== null && (
                   <OverlayTrigger
                     placement='bottom'
                     delay={{show: 250, hide: 400}}
@@ -416,7 +434,7 @@ const ViewTukangVendor: FC = () => {
                   </OverlayTrigger>
                 )}
 
-                {isActive === true && (
+                {isActive === null && (
                   <OverlayTrigger
                     placement='bottom'
                     delay={{show: 250, hide: 400}}

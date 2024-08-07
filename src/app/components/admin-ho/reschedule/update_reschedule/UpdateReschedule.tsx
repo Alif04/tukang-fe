@@ -1,11 +1,13 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
+import './UpdateReschedule.css'
+
 import axios from 'axios'
-import Select from 'react-select'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import {Table, Form, Button, Row, Col, Card, ListGroup} from 'react-bootstrap'
-import {Image} from 'antd'
+import {Image, DatePicker} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -20,11 +22,6 @@ interface Reschedule {
   reschedule_status_by: string
 }
 
-interface Status {
-  value: number
-  category: string
-}
-
 const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   updatePageTitle,
 }) => {
@@ -33,9 +30,8 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const [orderId, setOrderId] = useState<any>()
+  const userRole = localStorage.getItem('userRole') as string
   const [rescheduleDetail, setRescheduleDetail] = useState<any>()
-
   const [reschedule, setReschedule] = useState<Reschedule>({
     id: null,
     order_id: null,
@@ -45,6 +41,10 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     reschedule_status_id: null,
     description: '',
     reschedule_status_by: '',
+  })
+  const [rescheduleApproval, setRescheduleApproval] = useState<any>({
+    approve: null,
+    rejected: null,
   })
 
   const getRescheduleDetail = async () => {
@@ -64,10 +64,6 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
           setRescheduleDetail(data)
           updatePageTitle(data)
 
-          if (data?.order_id) {
-            setOrderId(data.order_id)
-          }
-
           if (data) {
             setReschedule({
               id: data?.id ?? null,
@@ -77,7 +73,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               reschedule_status_id: data?.reschedule_status[0]?.status_id,
               description: data?.reschedule_status[0]?.description,
               reschedule_status_by: data?.reschedule_status[0]?.status_by,
-              confirm_date: new Date(data.reschedule_date).toISOString().split('T')[0],
+              confirm_date: data?.confirm_date,
             })
           }
 
@@ -100,29 +96,23 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     getRescheduleDetail()
   }, [])
 
-  // Format Date
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
-
   // Reschedule Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
+    const getStatus = (category: string) => {
+      const status = statusData.find((status: any) => status.category === category)
+      return status ? status.value : null
+    }
 
-    const desiredStatus = statusData.find(
-      (status: any) => status.category === 'RESCHEDULEAPROVEDBYHO'
-    )
-    const statusId = desiredStatus?.value
+    const statusApproveId = getStatus('RESCHEDULEAPPROVEDBYVENDOR')
+    const statusRejectId = getStatus('RESCHEDULEREJECTEDBYVENDOR')
 
-    setReschedule((prevRescheduleValues) => ({
-      ...prevRescheduleValues,
-      reschedule_status_id: statusId,
-    }))
-  }, [reschedule])
+    setRescheduleApproval({
+      approve: statusApproveId,
+      rejected: statusRejectId,
+    })
+  }, [rescheduleApproval])
 
   // Reschedule Handler Form
   const today = new Date().toISOString().split('T')[0]
@@ -183,20 +173,87 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     }
   }
 
+  // Session
+  const range = (start: number, end: number): number[] =>
+    Array.from({length: end - start}, (_, i) => start + i)
+  const disabledHoursSessionMorning = (): number[] =>
+    range(0, 24).filter((hour) => hour < 8 || hour > 11)
+  const disabledHoursSessionAfternoon = (): number[] =>
+    range(0, 24).filter((hour) => hour < 12 || hour > 15)
+  const disabledHoursSessionNight = (): number[] =>
+    range(0, 24).filter((hour) => hour < 15 || hour > 21)
+
+  const getDisabledHours = (session: string): number[] => {
+    switch (session) {
+      case 'pagi':
+        return disabledHoursSessionMorning()
+      case 'siang':
+        return disabledHoursSessionAfternoon()
+      case 'sore':
+        return disabledHoursSessionNight()
+      default:
+        return []
+    }
+  }
+
+  const getSession = (): string => {
+    const currentHour = new Date().getHours()
+
+    if (currentHour >= 8 && currentHour < 12) {
+      return 'pagi'
+    } else if (currentHour >= 12 && currentHour < 15) {
+      return 'siang'
+    } else if (currentHour >= 15 && currentHour < 18) {
+      return 'sore'
+    }
+    return 'none'
+  }
+
+  const session = getSession()
+
+  // Validasi Reschedule
+  const RescheduleValidation = () => {
+    let valid = true
+
+    if (!reschedule.confirm_date) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi tanggal konfirmasi vendor',
+        icon: 'warning',
+      })
+      valid = false
+    }
+    return valid
+  }
+
   // Handle Update Reschedule
-  const handleUpdateReschedule = async () => {
+  const handleUpdateReschedule = async (status: number) => {
+    if (!RescheduleValidation()) {
+      setIsLoading(false)
+      return false
+    }
+
     setIsLoading(true)
-
     const formData = new FormData()
-
     formData.append('order_id', reschedule.order_id)
     formData.append('status_id', reschedule.status_id)
     formData.append('reschedule_date', reschedule.reschedule_date)
+    formData.append('confirm_date', reschedule.confirm_date)
 
     formData.append('reschedule_status[id]', reschedule.id)
-    formData.append('reschedule_status[status_id]', reschedule.reschedule_status_id)
     formData.append('reschedule_status[description]', reschedule.description)
     formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
+
+    switch (status) {
+      case 1:
+        formData.append('reschedule_status[status_id]', rescheduleApproval.approve)
+        break
+      case 2:
+        formData.append('reschedule_status[status_id]', rescheduleApproval.rejected)
+        break
+      default:
+        break
+    }
 
     if (rescheduleEvidence?.length) {
       rescheduleEvidence.forEach((item) => {
@@ -236,7 +293,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
           setIsLoading(false)
         }
 
-        navigate('/complaint/report-complaint')
+        navigate('/reschedule/view-reschedule')
       })
       .catch((error) => {
         console.error(error)
@@ -251,7 +308,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   }
 
   return (
-    <section id='new-reschedule'>
+    <section id='update-reschedule'>
       <Card className='mb=5'>
         <Card.Body>
           <div className='form-wrapper'>
@@ -619,12 +676,12 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                     ? `${new Date(rescheduleDetail?.order?.request_survey).toLocaleDateString(
                         'id-ID',
                         {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                         }
                       )}`
-                    : 'Tanggal belum ditentukan vendor'}
+                    : 'Tanggal belum ditentukan toko'}
                 </p>
               </Form.Group>
 
@@ -671,9 +728,9 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                 <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
 
                 <p className='fs-6'>
-                  {rescheduleDetail?.order?.request_survey
+                  {rescheduleDetail?.reschedule_date
                     ? `${new Date(rescheduleDetail?.reschedule_date).toLocaleDateString('id-ID', {
-                        day: 'numeric',
+                        day: '2-digit',
                         month: 'long',
                         year: 'numeric',
                       })}`
@@ -683,12 +740,26 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
-                <Form.Control
-                  name='confirm_date'
-                  type='date'
-                  min={today}
-                  value={reschedule.confirm_date}
-                  onChange={(e) => RescheduleFormHandler(e)}
+                <DatePicker
+                  showTime={{
+                    format: 'HH:mm',
+                    hideDisabledOptions: true,
+                    disabledHours: () => getDisabledHours(session),
+                  }}
+                  className='date-range w-100'
+                  format='DD-MM-YYYY HH:mm'
+                  value={
+                    reschedule.confirm_date
+                      ? dayjs(reschedule.confirm_date, 'YYYY-MM-DD HH:mm')
+                      : null
+                  }
+                  onChange={(value) => {
+                    const surveyDate = value ? value.format('YYYY-MM-DDTHH:mm') : ''
+                    setReschedule((prev) => ({
+                      ...prev,
+                      confirm_date: surveyDate,
+                    }))
+                  }}
                 />
               </Form.Group>
             </Col>
@@ -700,6 +771,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   as='textarea'
                   className='reason'
                   name='description'
+                  readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole) ? true : false}
                   value={reschedule.description}
                   onChange={(e) => RescheduleFormHandler(e)}
                 />
@@ -794,9 +866,9 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               className='d-flex justify-content-center align-items-center'
               type='submit'
               disabled={isLoading}
-              onClick={handleUpdateReschedule}
+              onClick={() => handleUpdateReschedule(2)}
             >
-              Rejected
+              {isLoading ? 'Updating..' : 'Rejected'}
             </Button>
 
             <Button
@@ -804,7 +876,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               className='d-flex justify-content-center align-items-center'
               type='submit'
               disabled={isLoading}
-              onClick={handleUpdateReschedule}
+              onClick={() => handleUpdateReschedule(1)}
             >
               {isLoading ? 'Updating..' : 'Approve'}
             </Button>

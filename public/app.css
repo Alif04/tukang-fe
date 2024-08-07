@@ -361,35 +361,6 @@ iframe.csi-frame {
   font-weight: 600;
 }
 
-/* Button Submit On Date Range */
-
-/* .ant-picker-time-panel {
-  display: none !important;
-}
-
-.ant-btn-primary {
-  font-size: 0 !important;
-}
-
-.ant-btn-primary:after {
-  content: 'Submit' !important;
-  font-size: 12px;
-} */
-
-/* .form-check-input {
-  width: 1.1rem !important;
-  height: 1.1rem !important;
-}
-
-.form-check .form-check-input {
-  margin-left: -1.5rem !important;
-}
-
-.form-check-input[type='radio'] {
-  margin-top: 0.1rem;
-  border-radius: 50%;
-} */
-
 /* Modal */
 
 .modal-dialog {
@@ -828,6 +799,67 @@ span.anticon.anticon-filter svg {
 .pagination {
   display: flex;
   justify-content: end;
+}
+
+/* Input File */
+
+form.form-input-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed #858585;
+  width: 100%;
+  min-height: 130px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.input-image-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px;
+}
+
+.input-image-text p {
+  margin: 10px 10px;
+  padding: 5px 10px !important;
+  border: 1px solid;
+  border-radius: 5px;
+  color: #858585;
+}
+
+.uploaded-row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 5px;
+  background-color: #f4f7fe;
+}
+
+.upload-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+svg.svg-inline--fa.fa-file-image.fa-sm {
+  margin: 0 10px 0 0;
+}
+
+svg.svg-inline--fa.fa-trash.fa-sm {
+  margin: 0 0 0 10px;
 }
 
 @media screen and (max-width: 1200px) {

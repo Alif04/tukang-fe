@@ -43,8 +43,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   // Order History
   const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
 
-  console.log('order history', OrderHistory)
-
   // New Work Order
   const [workOrder, setWorkOrder] = useState<WorkOrder>({
     id: null,
@@ -79,10 +77,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     ],
   })
 
-  console.log('work order', workOrder)
-
   // Option Tukang
   const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
+  const [searchTukang, setSearchTukang] = useState('')
 
   const fetchOrderData = async () => {
     try {
@@ -236,8 +233,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   }
 
   const getTukang = async () => {
+    const search = searchTukang ? `&search=${searchTukang}` : ''
+
     try {
-      const response = await axios.get(`${apiUrl}/tukang?vendor_id=${vendorId}&take=0`, {
+      const response = await axios.get(`${apiUrl}/tukang?vendor_id=${vendorId}${search}&take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -248,11 +247,19 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
       if (Array.isArray(response.data.data)) {
         const tempTukang = response.data.data.map((item: any) => ({
-          tukang_id: item.id ?? 0,
+          tukang_id: item.id,
           tukang_name: item.full_name,
           is_active: item.is_active,
+          deleted_at: item.deleted_at,
+          work_order:
+            item?.work_order_tukang[0]?.work_orders?.work_order_status[0]?.status?.category ?? null,
         }))
-        const filteredTukang = tempTukang.filter((x: any) => x.is_active !== false)
+        const filteredTukang = tempTukang.filter(
+          (x: any) =>
+            x.is_active === true &&
+            x.deleted_at === null &&
+            (['WORKEND', 'SURVEYDONE'].includes(x.work_order) || x.work_order === null)
+        )
         setTukang(filteredTukang)
       } else {
         console.error('API response data is not an array:', response.data)
@@ -264,8 +271,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   useEffect(() => {
     fetchOrderData()
-    getTukang()
   }, [workOrder.id])
+
+  useEffect(() => {
+    getTukang()
+  }, [searchTukang])
 
   // Format Date
   const today = new Date().toISOString().split('T')[0]
@@ -284,6 +294,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     const getStatusNameByCategory = (category: string) => {
       switch (category) {
         case 'SURVEYREQ':
+          return 'TUKANGSURVEY'
+        case 'RESCHEDULE':
           return 'TUKANGSURVEY'
         case 'WORKREQ':
           return 'TUKANGWORK'
@@ -691,6 +703,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             getOptionValue={(option) => `${option.tukang_id}`}
                             value={workOrder.tukang_id.filter((x) => x.type === 1)}
                             onChange={(e) => tukangHandler(e, 'survey_tukang_id')}
+                            onInputChange={(newValue) => setSearchTukang(newValue)}
                           />
                         </Form.Group>
                       </div>
@@ -801,6 +814,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             getOptionValue={(option) => `${option.tukang_id}`}
                             value={workOrder.tukang_id.filter((x) => x.type === 2)}
                             onChange={(e) => tukangHandler(e, 'work_tukang_id')}
+                            onInputChange={(newValue) => setSearchTukang(newValue)}
                           />
                         </Form.Group>
                       </div>
@@ -818,15 +832,16 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>
-                      {orderDetail?.payment_type !== 'survey'
-                        ? 'Tanggal request pemasangan'
-                        : 'Tanggal request survey'}
+                      {orderDetail?.payment_type === 'survey' &&
+                      orderDetail?.quotation?.length === 0
+                        ? 'Tanggal request survey'
+                        : 'Tanggal request pemasangan'}
                     </Form.Label>
 
                     <Col>
                       <p className='fs-7 p-0'>
                         {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                         })}

@@ -7,6 +7,8 @@ import './WarrantyClaimList.css'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
+import {FilterValue} from 'antd/es/table/interface'
+import {TableProps} from 'antd/es/table'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, List} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Card, FormGroup, Row, Col, Form, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
@@ -76,6 +78,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const [filters, setFilters] = useState<Record<string, FilterValue | null>>({})
 
   const today = new Date()
   const formatDate = (date: any) => {
@@ -85,20 +88,35 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
     return `${day}-${month}-${year}`
   }
 
+  // Filters
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
   }
+  const handleFilterChange = (
+    pagination: TableProps<DataType>['pagination'],
+    filters: Record<string, FilterValue | null>
+  ) => {
+    setFilters(filters)
+  }
+
+  console.log('filters', filters)
+
+  // Status
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
+  const desiredStatus = statusData.filter((status: any) =>
+    ['WORKEND', 'DONE'].includes(status.category)
+  )
+  const statuses = desiredStatus.map((x) => x.value)
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'Order ID',
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a: DataType, b: DataType) => a.order_id - b.order_id,
@@ -108,7 +126,6 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      onFilter: (value: string, record: DataType) => record.store_name.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.store_name.length - b.store_name.length,
     },
     {
@@ -131,7 +148,6 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
-      onFilter: (value: string, record: DataType) => record.costumer_name.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.costumer_name.length - b.costumer_name.length,
     },
     {
@@ -192,12 +208,10 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       key: 'warranty_status',
       align: 'left',
       filters: [
-        {text: 'Garansi Aktif', value: 'Garansi Aktif'},
-        {text: 'Garansi Terpakai', value: 'Garansi Terpakai'},
-        {text: 'Garansi Expired', value: 'Garansi Expired'},
+        {text: 'Garansi Aktif', value: 'is_active_warranty=1'},
+        {text: 'Garansi Terpakai', value: 'is_used_warranty=1'},
+        {text: 'Garansi Expired', value: 'is_expired_warranty=1'},
       ],
-      onFilter: (value: string, record: DataType) => record.warranty_status.includes(String(value)),
-      sorter: (a: DataType, b: DataType) => a.warranty_status.length - b.warranty_status.length,
     },
     !['Tukang', 'Owner Vendor', 'Admin Vendor'].includes(userRole) && {
       title: 'Action',
@@ -228,14 +242,6 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   ].filter(Boolean) as ColumnsType<DataType>
 
   const fetchWorkOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-    const desiredStatus = statusData.filter((status: any) =>
-      ['WORKEND', 'DONE'].includes(status.category)
-    )
-
-    const statuses = desiredStatus.map((x) => x.value)
-
     let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&work_order_status=${statuses}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}${storeId}${vendorId}${tukangId}`
 
     if (tukangId) {
@@ -419,6 +425,10 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
 
     valueCheck(`&search=`, searchFilter)
 
+    if (filters.warranty_status) {
+      queryparams += filters.warranty_status.map((filter) => `&${filter}`).join('')
+    }
+
     const data = await ViewWorkOrder(1, 10, queryparams)
     setClaimWarrantyData(data)
 
@@ -496,6 +506,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
               pagination={false}
               tableLayout='auto'
               scroll={{x: 'max-content'}}
+              onChange={handleFilterChange}
             />
 
             {/* <List

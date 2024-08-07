@@ -410,7 +410,12 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                   </Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>
-                      {formatDate(new Date(rescheduleDetail?.order?.request_survey))}
+                      {rescheduleDetail?.order?.request_date
+                        ? new Date(rescheduleDetail?.order?.request_date).toLocaleDateString(
+                            'id-ID',
+                            {day: '2-digit', month: 'long', year: 'numeric'}
+                          )
+                        : '-'}
                     </p>
                   </Col>
                 </Form.Group>
@@ -747,22 +752,71 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Tanggal Request Survey/Pekerjaan :</Form.Label>
 
-                <p className='fs-3'>
+                <p className='fs-6'>
                   {rescheduleDetail?.order?.request_survey
-                    ? formatDate(new Date(rescheduleDetail?.order?.request_survey))
-                    : 'DD-MM-YYYY'}
+                    ? `${new Date(rescheduleDetail?.order?.request_survey).toLocaleDateString(
+                        'id-ID',
+                        {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                        }
+                      )}`
+                    : 'Tanggal belum ditentukan toko'}
+                </p>
+              </Form.Group>
+
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+                <p className='fs-6'>
+                  {rescheduleDetail?.order?.work_orders
+                    ? rescheduleDetail.order.work_orders.work_start_date &&
+                      rescheduleDetail.order.work_orders.work_end_date
+                      ? `${new Date(
+                          rescheduleDetail.order.work_orders.work_start_date
+                        ).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })} sampai ${new Date(
+                          rescheduleDetail.order.work_orders.work_end_date
+                        ).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}`
+                      : rescheduleDetail.order.work_orders.survey_date
+                      ? new Date(rescheduleDetail.order.work_orders.survey_date).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                          }
+                        )
+                      : 'Tanggal belum dikonfirmasi vendor'
+                    : 'Tanggal belum dikonfirmasi vendor'}
                 </p>
               </Form.Group>
 
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
-                <Form.Control
-                  name='reschedule_date'
-                  type='date'
-                  readOnly
-                  disabled={userRole === 'Tukang'}
-                  value={reschedule.reschedule_date}
-                />
+
+                <p className='fs-6'>
+                  {rescheduleDetail?.reschedule_date
+                    ? `${new Date(rescheduleDetail?.reschedule_date).toLocaleDateString('id-ID', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                      })}`
+                    : 'Tanggal belum ditentukan vendor'}
+                </p>
               </Form.Group>
             </Col>
 

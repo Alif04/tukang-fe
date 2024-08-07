@@ -22,6 +22,7 @@ interface TukangServiceSelect {
 
 interface Tukang {
   is_active: number
+  is_delete: number
   tukang_id: string
   vendor_id: number | null
   full_name: string
@@ -49,6 +50,7 @@ const NewTukangVendor: FC = () => {
   // Tukang
   const [tukang, setTukang] = useState<Tukang>({
     is_active: 1,
+    is_delete: 0,
     tukang_id: '',
     vendor_id: Number.parseInt(vendorId),
     full_name: '',
@@ -336,6 +338,7 @@ const NewTukangVendor: FC = () => {
     const formData = new FormData()
 
     formData.append('is_active', String(tukang.is_active))
+    formData.append('is_delete', String(tukang.is_delete))
     formData.append('vendor_id', vendorId)
     formData.append('full_name', tukang.full_name)
     formData.append('email', tukang.email)
