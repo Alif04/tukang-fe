@@ -120,8 +120,9 @@ const ListUserHO: React.FC<Props> = ({className}) => {
                   .then((response) => {
                     Swal.fire({
                       title: 'Success',
-                      text: response.data.message,
+                      text: 'Berhasil menghapus akun user',
                       icon: 'success',
+                      showConfirmButton: false,
                     }).then(() => {
                       window.location.reload()
                     })
