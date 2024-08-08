@@ -368,7 +368,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           : `+62${item.project_number}`
 
         const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
+          day: '2-digit',
           month: 'long',
           year: 'numeric',
           hour: 'numeric',

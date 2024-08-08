@@ -342,44 +342,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     })
   }
 
-  // Session
-  const range = (start: number, end: number): number[] =>
-    Array.from({length: end - start}, (_, i) => start + i)
-  const disabledHoursSessionMorning = (): number[] =>
-    range(0, 24).filter((hour) => hour < 8 || hour > 11)
-  const disabledHoursSessionAfternoon = (): number[] =>
-    range(0, 24).filter((hour) => hour < 12 || hour > 15)
-  const disabledHoursSessionNight = (): number[] =>
-    range(0, 24).filter((hour) => hour < 15 || hour > 21)
-
-  const getDisabledHours = (session: string): number[] => {
-    switch (session) {
-      case 'pagi':
-        return disabledHoursSessionMorning()
-      case 'siang':
-        return disabledHoursSessionAfternoon()
-      case 'sore':
-        return disabledHoursSessionNight()
-      default:
-        return []
-    }
-  }
-
-  const getSession = (): string => {
-    const currentHour = new Date().getHours()
-
-    if (currentHour >= 8 && currentHour < 12) {
-      return 'pagi'
-    } else if (currentHour >= 12 && currentHour < 15) {
-      return 'siang'
-    } else if (currentHour >= 15 && currentHour < 18) {
-      return 'sore'
-    }
-    return 'none'
-  }
-
-  const session = getSession()
-
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
     // TODO: Fix conditional url
@@ -396,16 +358,20 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     const requiredFields = [
       {key: 'order_id', fieldName: 'Order'},
       {key: 'vendor_id', fieldName: 'Vendor'},
-      {key: 'tukang_id', fieldName: 'Tehnisi'},
       {key: 'request_work_time', fieldName: 'Tanggal Request Survey'},
-      {key: 'survey_date', fieldName: 'Tanggal survey'},
       {key: 'work_order_status', fieldName: 'Update Work Order Status'},
-      {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
-      {key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan'},
+      {key: 'tukang_id', fieldName: 'Tehnisi'},
       // {key: 'work_order_item', fieldName: 'Work Order Item'},
     ]
 
-    const requiredWorkOrderFields = [{key: 'tukang_id', fieldName: 'Tehnisi'}]
+    if (orderDetail?.payment_type === 'survey') {
+      requiredFields.push({key: 'survey_date', fieldName: 'Tanggal survey'})
+    } else {
+      requiredFields.push(
+        {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
+        {key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan'}
+      )
+    }
 
     for (const key in workOrder) {
       if (Object.prototype.hasOwnProperty.call(workOrder, key)) {
@@ -414,18 +380,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
         if (required) {
           if (value) {
-            if (key === 'tukang_id' && Array.isArray(workOrder.tukang_id)) {
+            if (key === 'tukang_id') {
               value.forEach((item: any, index: number) => {
-                requiredWorkOrderFields.forEach((field) => {
-                  if (!item[field.key]) {
-                    errorBags.push({
-                      message: `Field ${field.fieldName} in work order tukang ${
-                        index + 1
-                      } cannot be empty`,
-                    })
-                  }
-                })
-
                 if (item) {
                   if (item.tukang_id) {
                     formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
@@ -434,13 +390,13 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   if (item.type) {
                     formData.append(`work_order_tukang[${index}][type]`, item.type)
                   }
+                } else {
+                  errorBags.push({
+                    message: `Work Order Tukang cannot be empty`,
+                  })
                 }
               })
             } else {
-              formData.append(key, workOrder[key])
-            }
-          } else if (['survey_date', 'work_start_date', 'work_end_date'].includes(key)) {
-            if (value) {
               formData.append(key, workOrder[key])
             }
           } else {
@@ -655,8 +611,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             <DatePicker
                               showTime={{
                                 format: 'HH:mm',
-                                hideDisabledOptions: true,
-                                disabledHours: () => getDisabledHours(session),
                               }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
@@ -678,7 +632,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               {new Date(orderDetail?.work_orders?.survey_date).toLocaleDateString(
                                 'id-ID',
                                 {
-                                  day: 'numeric',
+                                  day: '2-digit',
                                   month: 'long',
                                   year: 'numeric',
                                   hour: 'numeric',
@@ -732,8 +686,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             <RangePicker
                               showTime={{
                                 format: 'HH:mm',
-                                hideDisabledOptions: true,
-                                disabledHours: () => getDisabledHours(session),
                               }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
@@ -779,7 +731,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               {new Date(
                                 orderDetail?.work_orders?.work_start_date
                               ).toLocaleDateString('id-ID', {
-                                day: 'numeric',
+                                day: '2-digit',
                                 month: 'long',
                                 year: 'numeric',
                                 hour: 'numeric',
@@ -789,7 +741,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               {new Date(orderDetail?.work_orders?.work_end_date).toLocaleDateString(
                                 'id-ID',
                                 {
-                                  day: 'numeric',
+                                  day: '2-digit',
                                   month: 'long',
                                   year: 'numeric',
                                   hour: 'numeric',

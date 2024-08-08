@@ -1185,7 +1185,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
   const exportToExcel = () => {
     setLoadingExport(true)
 
-    let url = `${apiUrl}/${endpoint}/export-excel?take=0`
+    let url = `${apiUrl}/${endpoint}/export-excel?take=0${vendorId}`
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {

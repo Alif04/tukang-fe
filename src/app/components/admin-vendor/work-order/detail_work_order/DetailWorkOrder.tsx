@@ -319,7 +319,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                 {new Date(orderDetail?.work_orders?.survey_date).toLocaleDateString(
                                   'id-ID',
                                   {
-                                    day: 'numeric',
+                                    day: '2-digit',
                                     month: 'long',
                                     year: 'numeric',
                                     hour: 'numeric',
@@ -384,7 +384,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                 {new Date(
                                   orderDetail?.work_orders?.work_start_date
                                 ).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
+                                  day: '2-digit',
                                   month: 'long',
                                   year: 'numeric',
                                   hour: 'numeric',
@@ -394,7 +394,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                 {new Date(
                                   orderDetail?.work_orders?.work_end_date
                                 ).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
+                                  day: '2-digit',
                                   month: 'long',
                                   year: 'numeric',
                                   hour: 'numeric',
@@ -450,7 +450,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     <Col>
                       <p className='fs-7 p-0'>
                         {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                         })}
