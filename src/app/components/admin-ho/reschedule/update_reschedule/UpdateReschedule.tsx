@@ -173,44 +173,6 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     }
   }
 
-  // Session
-  const range = (start: number, end: number): number[] =>
-    Array.from({length: end - start}, (_, i) => start + i)
-  const disabledHoursSessionMorning = (): number[] =>
-    range(0, 24).filter((hour) => hour < 8 || hour > 11)
-  const disabledHoursSessionAfternoon = (): number[] =>
-    range(0, 24).filter((hour) => hour < 12 || hour > 15)
-  const disabledHoursSessionNight = (): number[] =>
-    range(0, 24).filter((hour) => hour < 15 || hour > 21)
-
-  const getDisabledHours = (session: string): number[] => {
-    switch (session) {
-      case 'pagi':
-        return disabledHoursSessionMorning()
-      case 'siang':
-        return disabledHoursSessionAfternoon()
-      case 'sore':
-        return disabledHoursSessionNight()
-      default:
-        return []
-    }
-  }
-
-  const getSession = (): string => {
-    const currentHour = new Date().getHours()
-
-    if (currentHour >= 8 && currentHour < 12) {
-      return 'pagi'
-    } else if (currentHour >= 12 && currentHour < 15) {
-      return 'siang'
-    } else if (currentHour >= 15 && currentHour < 18) {
-      return 'sore'
-    }
-    return 'none'
-  }
-
-  const session = getSession()
-
   // Validasi Reschedule
   const RescheduleValidation = () => {
     let valid = true
@@ -743,8 +705,6 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                 <DatePicker
                   showTime={{
                     format: 'HH:mm',
-                    hideDisabledOptions: true,
-                    disabledHours: () => getDisabledHours(session),
                   }}
                   className='date-range w-100'
                   format='DD-MM-YYYY HH:mm'

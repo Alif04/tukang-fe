@@ -787,28 +787,9 @@ const NewOrderStoreStaff: FC = () => {
   const vendorAvailbility = (data: any) => {
     const requestSurvey = orderForm.request_survey
     const maxOrder = data.max_order
-    const tukangActiveAvailbility = data.tukang.filter((x: any) => x.is_active === true).length
-
-    // Detect Survey Date and Work Date
-    const workOrderVendor = data.work_orders.filter((x: any) => {
-      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
-
-      const workStartDate = x.work_start_date
-        ? new Date(x.work_start_date).toISOString().split('T')[0]
-        : null
-
-      const workEndDate = x.work_end_date
-        ? new Date(x.work_end_date).toISOString().split('T')[0]
-        : null
-
-      if (surveyDate && !workStartDate && !workEndDate) {
-        return surveyDate === requestSurvey
-      } else if (surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
-      } else {
-        return surveyDate === requestSurvey
-      }
-    })
+    const tukangActiveAvailbility = data.tukang.filter(
+      (x: any) => x.is_active === true && x.is_deleted === null
+    ).length
 
     // Detect Request Survey Date Only
     const orderVendor = data.orders.filter((x: any) => {
@@ -819,7 +800,10 @@ const NewOrderStoreStaff: FC = () => {
     // Vendor Availbility Based On Tukang Active
     if (tukangActiveAvailbility === 0) {
       return <p className='text-danger'>UNAVAILABLE</p>
-    } else if (tukangActiveAvailbility >= 1 && orderVendor.length >= tukangActiveAvailbility) {
+    } else if (
+      orderVendor.length >= maxOrder ||
+      (tukangActiveAvailbility >= 1 && orderVendor.length >= tukangActiveAvailbility)
+    ) {
       return <p className='text-danger'>FULL BOOKED</p>
     } else {
       return <p className='text-black'>AVAILABLE</p>

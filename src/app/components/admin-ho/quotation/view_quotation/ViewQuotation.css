@@ -89,13 +89,20 @@
 
 /* Searchbar */
 
-#view-quotation .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
+#view-quotation .filter-search {
+  width: 370px;
 }
 
-#view-quotation .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
+#view-quotation input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
+}
+
+#view-quotation .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
 }
 
 /* Select Filter */

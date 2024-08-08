@@ -147,14 +147,15 @@ const ViewOrders: FC = () => {
   const [queryParams, setQueryParams] = useState('')
 
   const today = new Date()
-  // const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
-  // const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
   const [dateFrom, setDateFrom] = useState<any>(
-    ['Super User', 'Admin HO'].includes(userRole) ? '' : new Date().toISOString().split('T')[0]
+    ['Super User', 'Admin HO'].includes(userRole)
+      ? new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0]
   )
   const [dateTo, setDateTo] = useState<any>(
-    ['Super User', 'Admin HO'].includes(userRole) ? '' : new Date().toISOString().split('T')[0]
+    ['Super User', 'Admin HO'].includes(userRole)
+      ? new Date().toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0]
   )
 
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -1172,7 +1173,7 @@ const ViewOrders: FC = () => {
                           <td>{item?.emailMessages?.title}</td>
                           <td>
                             {new Date(item?.createdAt).toLocaleDateString('id-ID', {
-                              day: 'numeric',
+                              day: '2-digit',
                               month: 'long',
                               year: 'numeric',
                               hour: 'numeric',
@@ -3009,7 +3010,7 @@ const ViewOrders: FC = () => {
                 className='date-range'
                 defaultValue={
                   ['Super User', 'Admin HO'].includes(userRole)
-                    ? null
+                    ? [dayjs().subtract(14, 'day'), dayjs()]
                     : [
                         dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
                         dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),

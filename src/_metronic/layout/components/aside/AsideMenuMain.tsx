@@ -305,7 +305,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/costumers/new-costumers'
           title='Register Customers'
-          role={['Admin HO', 'Super User', 'Store CS']}
+          role={['Store CS']}
           hasBullet={true}
         />
         <AsideMenuItem

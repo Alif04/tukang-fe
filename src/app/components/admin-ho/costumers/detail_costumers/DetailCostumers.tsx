@@ -241,7 +241,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly value={memberDetail?.whatsapp_number} />
+                  <p className='fs-6'>{memberDetail?.whatsapp_number} </p>
                 </Col>
               </Form.Group>
 
@@ -251,7 +251,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly value={memberDetail?.phone_number} />
+                  <p className='fs-6'>{memberDetail?.phone_number} </p>
                 </Col>
               </Form.Group>
 
@@ -261,7 +261,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly value={memberDetail?.email} />
+                  <p className='fs-6'>{memberDetail?.email} </p>
                 </Col>
               </Form.Group>
 
@@ -271,7 +271,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly as='textarea' value={memberDetail?.address_1} />
+                  <p className='fs-6'>{memberDetail?.address_1} </p>
                 </Col>
               </Form.Group>
             </div>
@@ -294,20 +294,15 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    type='text'
-                    value={
-                      memberDetail
-                        ? new Date(memberDetail?.join_date).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })
-                        : ''
-                    }
-                  />
+                  <p className='fs-6'>
+                    {memberDetail
+                      ? new Date(memberDetail?.join_date).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })
+                      : ''}
+                  </p>
                 </Col>
               </Form.Group>
 
@@ -317,7 +312,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control plaintext readOnly value={memberDetail?.order.length ?? 0} />
+                  <p className='fs-6'>{memberDetail?.order.length ?? 0}</p>
                 </Col>
               </Form.Group>
             </div>

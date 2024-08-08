@@ -46,7 +46,6 @@ const ListBankHO: React.FC = () => {
       dataIndex: 'bank_id',
       key: 'bank_id',
       align: 'center',
-      width: 50,
       sorter: (a, b) => a.bank_id - b.bank_id,
       render: (text: any, record: any, index: number) => {
         return (currentPage - 1) * pageSize + index + 1
@@ -60,22 +59,19 @@ const ListBankHO: React.FC = () => {
       className: 'text-start',
       onFilter: (value, record) => record.bank_name.includes(String(value)),
       sorter: (a, b) => a.bank_name.length - b.bank_name.length,
-      width: 120,
     },
     {
-      title: 'Join Date',
+      title: 'Tanggal dibuat',
       dataIndex: 'join_date',
       key: 'join_date',
       align: 'center',
       onFilter: (value, record) => record.join_date.includes(String(value)),
       sorter: (a, b) => a.join_date.length - b.join_date.length,
-      width: 120,
     },
     {
       title: 'Action',
       key: 'action',
       align: 'center',
-      width: 40,
       fixed: 'right',
       render: (record) => {
         const handleUpdate = () => {
@@ -195,9 +191,11 @@ const ListBankHO: React.FC = () => {
         let data
 
         const joinDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
+          day: '2-digit',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         data = {
@@ -235,6 +233,12 @@ const ListBankHO: React.FC = () => {
     return originalElement
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -257,7 +261,7 @@ const ListBankHO: React.FC = () => {
     <section id='view-item'>
       <div className='card'>
         <div className='card-body'>
-          <Row className='table-head-wrapper'>
+          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>

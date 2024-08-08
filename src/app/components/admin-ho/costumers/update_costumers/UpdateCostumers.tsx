@@ -29,10 +29,6 @@ const UpdateCostumerHO: FC = () => {
   const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const userRole = localStorage.getItem('userRole') as string
-  const userStoreId = localStorage.getItem('storeId') as any
-  const userStoreName = localStorage.getItem('storeName') as string
-
   // Fetch API Data
   useEffect(() => {
     const getMemberData = async () => {
@@ -62,12 +58,7 @@ const UpdateCostumerHO: FC = () => {
             }
 
             if (data?.join_location_store) {
-              setSelectedStore((prev) => ({
-                ...prev,
-                value: data.join_location_store.id,
-                label: data.join_location_store.store_name,
-              }))
-
+              setSelectedStore(data.join_location_store.store_name)
               setMemberInfo((prev) => ({
                 ...prev,
                 join_location: data.join_location,
@@ -79,42 +70,11 @@ const UpdateCostumerHO: FC = () => {
       }
     }
 
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     getMemberData()
-    getStore()
   }, [])
 
   // Store
-  const [store, setStore] = useState<Store[]>([])
-  const [selectedStore, setSelectedStore] = useState<SingleValue<Store>>({
-    value: null,
-    label: 'All Store',
-  })
+  const [selectedStore, setSelectedStore] = useState<string>('')
 
   // Member
   const [memberInfo, setMemberInfo] = useState<Member>({
@@ -137,14 +97,6 @@ const UpdateCostumerHO: FC = () => {
     }))
   }
 
-  // Change Select Store
-  useEffect(() => {
-    setMemberInfo((prev) => ({
-      ...prev,
-      join_location: selectedStore?.value ?? null,
-    }))
-  }, [selectedStore])
-
   const handleUpdateMember = async () => {
     setIsLoading(true)
 
@@ -161,7 +113,7 @@ const UpdateCostumerHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Customers Data',
+            text: 'Berhasil Update Data Konsumen',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -205,27 +157,9 @@ const UpdateCostumerHO: FC = () => {
               <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                 <Form.Group>
                   <Form.Label>Nama Toko :</Form.Label>
-
-                  {userRole === 'Admin HO' ? (
-                    <Select
-                      name='store_id'
-                      className='form-control p-0'
-                      classNamePrefix='select'
-                      placeholder='Pilih Toko'
-                      isSearchable={true}
-                      isClearable={true}
-                      options={store}
-                      onChange={(newValue) => setSelectedStore(newValue)}
-                      value={{
-                        value: selectedStore?.value ?? null,
-                        label: selectedStore?.label ?? '',
-                      }}
-                    />
-                  ) : (
-                    <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
-                      {userStoreName}
-                    </span>
-                  )}
+                  <span className='fs-6 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
+                    {selectedStore}
+                  </span>
                 </Form.Group>
               </Col>
 

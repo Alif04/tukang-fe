@@ -548,7 +548,7 @@ const UpdateItemHO: FC = () => {
 
                 <Form.Group as={Row} className='mb-4'>
                   <Form.Label className='fs-5 fw-bold' column sm='4'>
-                    Harga :
+                    Harga Normal :
                   </Form.Label>
 
                   <Col sm='8'>
@@ -625,7 +625,7 @@ const UpdateItemHO: FC = () => {
               variant='dark-primary'
               onClick={() => handleAddForm()}
             >
-              Tambah Minimal Order
+              Tambah Periode Order
             </Button>
           </div>
 

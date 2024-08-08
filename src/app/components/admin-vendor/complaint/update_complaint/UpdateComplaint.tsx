@@ -966,7 +966,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
           <hr />
 
-          <Card>
+          <Card className='mb-5'>
             <Card.Body>
               <Row className='complaint-info'>
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -1280,9 +1280,9 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
                       <Form.Select onChange={handleChangeSelectRemedialStatus}>
                         <option selected>Select Status</option>
-                        <option value='4'>INVESTIGATED</option>
-                        <option value='1009'>ACCEPTED</option>
-                        <option value='1011'>REJECTED</option>
+                        <option value='4'>Ditindaklanjuti</option>
+                        <option value='1009'>Diterima </option>
+                        <option value='1011'>Ditolak</option>
                       </Form.Select>
                     </Form.Group>
 
