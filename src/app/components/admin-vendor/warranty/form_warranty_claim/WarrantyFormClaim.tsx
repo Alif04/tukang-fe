@@ -26,6 +26,7 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
     id: null,
     order_id: null,
     vendor_id: null,
+    session: null,
     tukang_id: [],
     request_work_time: '',
     survey_date: '',

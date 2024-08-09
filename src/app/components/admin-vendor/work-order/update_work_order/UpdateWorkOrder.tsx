@@ -34,6 +34,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const params = useParams()
   const animatedComponents = makeAnimated()
   const vendorId = localStorage.getItem('vendor_id')
+  const maxOrder = localStorage.getItem('max_order') || 0
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -51,6 +52,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     tukang_id: [],
     request_work_time: '',
     survey_date: '',
+    session: null,
     work_order_status: null,
     complaint_status: null,
     work_start_date: '',
@@ -99,6 +101,18 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
           if (data?.work_orders?.id) {
             workOrderHandler(data.work_orders.id, 'id')
+            setWorkOrder((prev) => {
+              return {
+                ...prev,
+                session: data.work_orders.session,
+              }
+            })
+            setSelectedSession((prev: any) => ({
+              ...prev,
+              value: data?.session,
+              label: sessionOptions.find((option) => option.value === data?.work_orders?.session)
+                ?.label,
+            }))
           }
 
           if (data?.id) {
@@ -251,14 +265,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           tukang_name: item.full_name,
           is_active: item.is_active,
           deleted_at: item.deleted_at,
-          work_order:
-            item?.work_order_tukang[0]?.work_orders?.work_order_status[0]?.status?.category ?? null,
+          slot_order: item.slot_order,
         }))
         const filteredTukang = tempTukang.filter(
-          (x: any) =>
-            x.is_active === true &&
-            x.deleted_at === null &&
-            (['WORKEND', 'SURVEYDONE'].includes(x.work_order) || x.work_order === null)
+          (x: any) => x.is_active === true && x.deleted_at === null && x.slot_order < maxOrder
         )
         setTukang(filteredTukang)
       } else {
@@ -276,6 +286,17 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   useEffect(() => {
     getTukang()
   }, [searchTukang])
+
+  // Option Session
+  const sessionOptions = [
+    {value: 1, label: 'Sesi Pagi'},
+    {value: 2, label: 'Sesi Siang'},
+    {value: 3, label: 'Sesi Sore'},
+  ]
+  const [selectedSession, setSelectedSession] = useState<any>({
+    value: null,
+    label: 'Pilih sesi',
+  })
 
   // Format Date
   const today = new Date().toISOString().split('T')[0]
@@ -342,6 +363,14 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     })
   }
 
+  // Change Select Session
+  useEffect(() => {
+    setWorkOrder((prev) => ({
+      ...prev,
+      session: selectedSession?.value ?? null,
+    }))
+  }, [selectedSession])
+
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
     // TODO: Fix conditional url
@@ -360,12 +389,20 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       {key: 'vendor_id', fieldName: 'Vendor'},
       {key: 'request_work_time', fieldName: 'Tanggal Request Survey'},
       {key: 'work_order_status', fieldName: 'Update Work Order Status'},
+      {key: 'session', fieldName: 'Sesi'},
       {key: 'tukang_id', fieldName: 'Tehnisi'},
       // {key: 'work_order_item', fieldName: 'Work Order Item'},
     ]
 
     if (orderDetail?.payment_type === 'survey') {
-      requiredFields.push({key: 'survey_date', fieldName: 'Tanggal survey'})
+      if (orderDetail?.quotation?.length === 0) {
+        requiredFields.push({key: 'survey_date', fieldName: 'Tanggal survey'})
+      } else {
+        requiredFields.push(
+          {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
+          {key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan'}
+        )
+      }
     } else {
       requiredFields.push(
         {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
@@ -660,6 +697,24 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             onInputChange={(newValue) => setSearchTukang(newValue)}
                           />
                         </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Sesi :</Form.Label>
+
+                          <Select
+                            name='session_id'
+                            className='form-control p-0'
+                            classNamePrefix='select'
+                            placeholder='Pilih Sesi'
+                            isSearchable={true}
+                            options={sessionOptions}
+                            value={{
+                              value: selectedSession?.value ?? null,
+                              label: selectedSession?.label ?? 'Pilih Sesi',
+                            }}
+                            onChange={(newValue) => setSelectedSession(newValue)}
+                          />
+                        </Form.Group>
                       </div>
                     </Col>
                   )}
@@ -714,6 +769,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                                     id: null,
                                     order_id: null,
                                     vendor_id: null,
+                                    session: null,
                                     tukang_id: [],
                                     request_work_time: '',
                                     survey_date: '',
@@ -769,6 +825,24 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             onInputChange={(newValue) => setSearchTukang(newValue)}
                           />
                         </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Sesi :</Form.Label>
+
+                          <Select
+                            name='session_id'
+                            className='form-control p-0'
+                            classNamePrefix='select'
+                            placeholder='Pilih Sesi'
+                            isSearchable={true}
+                            options={sessionOptions}
+                            value={{
+                              value: selectedSession?.value ?? null,
+                              label: selectedSession?.label ?? '',
+                            }}
+                            onChange={(newValue) => setSelectedSession(newValue)}
+                          />
+                        </Form.Group>
                       </div>
                     </Col>
                   )}
@@ -777,7 +851,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             </Row>
           </div>
 
-          <Row className='table-warranty d-flex align-items-center mb-5'>
+          <Row className='table-warranty d-flex align-items-center mb-3'>
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
               <Row>
@@ -1174,6 +1248,15 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 )
               }
             })()}
+          </Row>
+
+          <Row className='table-warranty d-flex align-items-center mb-2'>
+            <div className='table-title-warranty'>
+              <div className='fs-3 fw-bold mb-2'>Catatan Toko</div>
+              <p className='fs-7 p-0'>
+                {orderDetail?.notes ? orderDetail?.notes : 'Toko tidak memberikan catatan tambahan'}
+              </p>
+            </div>
           </Row>
 
           {orderDetail?.work_orders?.work_order_status.length > 1 &&

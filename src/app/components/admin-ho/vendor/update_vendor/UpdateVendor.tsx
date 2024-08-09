@@ -1568,7 +1568,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
               <Row className='form-body'>
                 <Form.Group>
-                  <Form.Label>Maksimal Order</Form.Label>
+                  <Form.Label>Maksimal Order Tukang</Form.Label>
 
                   <Form.Control
                     min={3}

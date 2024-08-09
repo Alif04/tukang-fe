@@ -96,19 +96,12 @@ export function AsideMenuMain() {
           role={['Sales', 'Store Staff', 'Sales', 'Store CS', 'Admin HO', 'Super User']}
           hasBullet={true}
         />
-        <AsideMenuItemWithSub
-          to='/refund'
-          title='Cancel dan Refund'
-          hasBullet={true}
+        <AsideMenuItem
+          to='/refund/view-refund'
+          title='List Cancel dan Refund'
           role={['Store CS', 'Admin HO', 'Super User']}
-        >
-          <AsideMenuItem
-            to='/refund/view-refund'
-            title='View Cancel dan Refund'
-            role={['Store CS', 'Admin HO', 'Super User']}
-            hasBullet={true}
-          />
-        </AsideMenuItemWithSub>
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
       {/* Halaman Work Order */}

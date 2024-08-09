@@ -6,6 +6,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
+import {MoreLinkContentArg} from '@fullcalendar/core'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -203,8 +204,11 @@ const ViewCalendarHO: React.FC = () => {
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATE'])
-  const investigationProcessStatuses = getStatuses(['INVESTIGATED', 'APPROVED', 'ACCEPTED'])
+  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const investigationProcessStatuses = getStatuses([
+    'COMPLAINTAPPROVEDBYHO',
+    'COMPLAINTREJECTEDBYHO',
+  ])
   const remedialProgressStatuses = getStatuses([
     'RESURVEYREQ',
     'RESURVEYSTART',
@@ -212,25 +216,28 @@ const ViewCalendarHO: React.FC = () => {
     'REWORKSTART',
   ])
   const complaintDoneStatuses = getStatuses(['RESURVEYDONE', 'REWORKEND'])
-
   const complaintHistory = [
     {
-      title: 'Complaint Received',
+      title: 'Diselidiki',
       value: complaintReceivedStatuses,
     },
     {
-      title: 'Investigation Proccess',
+      title: 'Disetujui atau Ditolak',
       value: investigationProcessStatuses,
     },
     {
-      title: 'Remedial Progress',
+      title: 'Survei/Pengerjaan Ulang',
       value: remedialProgressStatuses,
     },
     {
-      title: 'Complaint Done',
+      title: 'Komplain Selesai',
       value: complaintDoneStatuses,
     },
   ]
+
+  const renderMoreLink = (arg: MoreLinkContentArg) => {
+    return <a>Read more +{arg.num} Order</a>
+  }
 
   return (
     <section id='view-calendar'>
@@ -353,11 +360,13 @@ const ViewCalendarHO: React.FC = () => {
           initialView='dayGridMonth'
           displayEventTime={false}
           eventDisplay=''
+          dayMaxEvents={3}
           weekends={true}
           events={order}
           eventOrder={''}
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
+          moreLinkContent={renderMoreLink}
         />
       </Spin>
 

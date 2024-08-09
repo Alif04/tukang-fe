@@ -145,6 +145,7 @@ const ViewOrders: FC = () => {
   const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(0)
   const [queryParams, setQueryParams] = useState('')
+  const [activeKey, setActiveKey] = useState<number>(1)
 
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(
@@ -189,7 +190,7 @@ const ViewOrders: FC = () => {
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData = storedStatus ? JSON.parse(storedStatus) : []
   const cancelOrder = statusData.find((status: any) => status.category === 'CANCEL')
-  const verificationStatus = statusData.find((status: any) => status.category === 'QUOTEOUT')
+  const verificationStatus = statusData.find((status: any) => status.category === 'QUOTATIONPAID')
   const statusFilters = statusData.map((item: any) => ({
     text: item.description,
     value: item.description,
@@ -450,7 +451,7 @@ const ViewOrders: FC = () => {
   const [csiData, setCsiData] = useState<CSI[]>([])
   const [selectedCSI, setSelectedCSI] = useState<SingleValue<CSI>>({
     value: null,
-    label: '',
+    label: 'Pilih Format CSI',
   })
 
   // Quotation Detail
@@ -702,69 +703,69 @@ const ViewOrders: FC = () => {
           }
         })()
 
-        const orderStatus = (() => {
-          if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-                'RESURVEYREQ',
-                'REWORKREQ',
-              ].includes(item?.status?.category)
-            ) {
-              return item?.status?.category
-            } else if (
-              ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(
-                item?.work_orders?.work_order_status[0]?.status?.category
-              )
-            ) {
-              return item?.status?.category
-            } else {
-              return item?.work_orders?.work_order_status[0]?.status?.category
-            }
-          } else {
-            return item?.status?.category
-          }
-        })()
+        // const orderStatus = (() => {
+        //   if (item?.work_orders?.work_order_status?.length >= 0) {
+        //     if (
+        //       [
+        //         'QUOTEIN',
+        //         'QUOTEOUT',
+        //         'CANCEL',
+        //         'WARRANTYCLAIM',
+        //         'INVESTIGATED',
+        //         'COMPLAINTAPPROVEDBYHO',
+        //         'COMPLAINTREJECTEDBYHO',
+        //         'RESCHEDULE',
+        //         'RESURVEYREQ',
+        //         'REWORKREQ',
+        //       ].includes(item?.status?.category)
+        //     ) {
+        //       return item?.status?.category
+        //     } else if (
+        //       ['WORKREQ'].includes(item?.status?.category) &&
+        //       item?.payment_type === 'survey' &&
+        //       !['WORKSTART', 'WORKEND'].includes(
+        //         item?.work_orders?.work_order_status[0]?.status?.category
+        //       )
+        //     ) {
+        //       return item?.status?.category
+        //     } else {
+        //       return item?.work_orders?.work_order_status[0]?.status?.category
+        //     }
+        //   } else {
+        //     return item?.status?.category
+        //   }
+        // })()
 
-        const orderStatusLabel = (() => {
-          if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'RESCHEDULE',
-                'RESURVEYREQ',
-                'REWORKREQ',
-              ].includes(item?.status?.category)
-            ) {
-              return item?.status?.description
-            } else if (
-              ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(
-                item?.work_orders?.work_order_status[0]?.status?.category
-              )
-            ) {
-              return item?.status?.description
-            } else {
-              return item?.work_orders?.work_order_status[0]?.status?.description
-            }
-          } else {
-            return item?.status?.description
-          }
-        })()
+        // const orderStatusLabel = (() => {
+        //   if (item?.work_orders?.work_order_status?.length >= 0) {
+        //     if (
+        //       [
+        //         'QUOTEIN',
+        //         'QUOTEOUT',
+        //         'CANCEL',
+        //         'WARRANTYCLAIM',
+        //         'INVESTIGATED',
+        //         'RESCHEDULE',
+        //         'RESURVEYREQ',
+        //         'REWORKREQ',
+        //       ].includes(item?.status?.category)
+        //     ) {
+        //       return item?.status?.description
+        //     } else if (
+        //       ['WORKREQ'].includes(item?.status?.category) &&
+        //       item?.payment_type === 'survey' &&
+        //       !['WORKSTART', 'WORKEND'].includes(
+        //         item?.work_orders?.work_order_status[0]?.status?.category
+        //       )
+        //     ) {
+        //       return item?.status?.description
+        //     } else {
+        //       return item?.work_orders?.work_order_status[0]?.status?.description
+        //     }
+        //   } else {
+        //     return item?.status?.description
+        //   }
+        // })()
 
         data = {
           order_id: item.id,
@@ -776,8 +777,8 @@ const ViewOrders: FC = () => {
           phone_number: phoneNumber,
           payment_receipt: paymentReceipt,
           payment_quotation: paymentQuotation,
-          order_status: orderStatus,
-          order_status_label: orderStatusLabel,
+          order_status: item?.status?.category,
+          order_status_label: item?.status?.description,
           print_counter: item?.print_counter ?? 0,
         }
 
@@ -1134,19 +1135,15 @@ const ViewOrders: FC = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <Tab.Container defaultActiveKey={1}>
+          <Tab.Container activeKey={activeKey} onSelect={(key) => setActiveKey(Number(key))}>
             <Nav fill variant='tabs' className='mt-2 mb-5'>
               <Nav.Item style={{cursor: 'pointer'}}>
-                <Nav.Link key={1} eventKey={1}>
-                  Log Aktivitas Email
-                </Nav.Link>
+                <Nav.Link eventKey={1}>Log Aktivitas Email</Nav.Link>
               </Nav.Item>
 
               {!['Sales', 'Store CS'].includes(userRole) && (
                 <Nav.Item style={{cursor: 'pointer'}}>
-                  <Nav.Link key={2} eventKey={2}>
-                    Kirim Email CSI
-                  </Nav.Link>
+                  <Nav.Link eventKey={2}>Kirim Email CSI</Nav.Link>
                 </Nav.Item>
               )}
             </Nav>
@@ -1659,12 +1656,14 @@ const ViewOrders: FC = () => {
                     <Form.Group className='header-template mb-4'>
                       <Form.Label className='fs-5'>Pilih Format Formulir CSI :</Form.Label>
                       <Select
-                        name='template_option'
                         className='form-control p-0'
-                        classNamePrefix='select'
                         isSearchable={true}
                         placeholder='Pilih Judul Format'
                         options={csiData}
+                        value={{
+                          label: selectedCSI?.label ?? '',
+                          value: selectedCSI?.value ?? null,
+                        }}
                         onChange={(newValue) => setSelectedCSI(newValue)}
                       />
                     </Form.Group>
@@ -2924,7 +2923,7 @@ const ViewOrders: FC = () => {
               </>
             )}
 
-            {['WORKREQ', 'SURVEYREQ', 'QUOTEOUT'].includes(record.order_status) &&
+            {['WORKREQ', 'SURVEYREQ', 'QUOTEOUT', 'QUOTATIONPAID'].includes(record.order_status) &&
             ['Super User', 'Admin HO'].includes(userRole) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -2947,7 +2946,14 @@ const ViewOrders: FC = () => {
               <Button
                 variant='success'
                 className='button-email'
-                onClick={() => handleShowModal(id, 1)}
+                onClick={() => {
+                  handleShowModal(id, 1)
+                  setActiveKey(1)
+                  setSelectedCSI({
+                    value: null,
+                    label: 'Pilih Format CSI',
+                  })
+                }}
               >
                 <FontAwesomeIcon className='text-white' icon={faEnvelope} fontSize={'13px'} />
               </Button>
@@ -2971,7 +2977,9 @@ const ViewOrders: FC = () => {
               <></>
             )}
 
-            {['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) && (
+            {['QUOTEIN', 'UNPAID', 'PAID', 'QUOTEOUT', 'QUOTATIONPAID'].includes(
+              record.order_status
+            ) && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}

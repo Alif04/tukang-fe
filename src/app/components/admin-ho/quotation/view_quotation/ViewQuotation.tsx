@@ -42,6 +42,7 @@ interface DataType {
   payment_status: string
   receipt_quotation: string
   order_status: string
+  order_status_label: string
   quotation_status: string
   period_active: Date
   countdown_to_expired: Date
@@ -179,11 +180,11 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     },
     {
       title: 'Status Order',
-      dataIndex: 'order_status',
-      key: 'order_status',
+      dataIndex: 'order_status_label',
+      key: 'order_status_label',
       align: 'left',
-      render: (order_status) => {
-        const orderStatus = order_status
+      render: (order_status_label) => {
+        const orderStatus = order_status_label
         let color = ''
 
         switch (orderStatus) {
@@ -191,6 +192,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             color = 'green'
             break
           case 'QUOTEOUT':
+            color = 'lime'
+            break
           default:
             color = 'blue'
             break
@@ -198,8 +201,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      onFilter: (value, record) => record.order_status_label.includes(String(value)),
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Status',
@@ -235,15 +238,19 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Edit Quotation')}
-            >
-              <Button variant='primary' className='button-edit' onClick={handleEdit}>
-                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
+            {['QUOTEIN', 'UNPAID', 'PAID', 'QUOTEOUT', 'QUOTATIONPAID'].includes(
+              record.order_status
+            ) && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Edit Quotation')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleEdit}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            )}
 
             <OverlayTrigger
               placement='bottom'
@@ -386,7 +393,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           costumer_name: item?.order?.members?.full_name ?? '',
           vendor_name: item?.order?.vendor?.company_name ?? '-',
           payment_status: paymentStatus,
-          order_status: item?.order?.status?.description ?? '',
+          order_status: item?.order?.status?.category,
+          order_status_label: item?.order?.status?.description ?? '',
           period_active: quotationCreatedAt,
           period_expired: quotationEndDate,
           countdown_to_expired: quotationCountdownText,

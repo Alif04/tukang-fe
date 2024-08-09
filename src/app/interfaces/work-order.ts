@@ -26,6 +26,7 @@ export interface WorkOrder {
 
   request_work_time: string
   survey_date: string
+  session: number | null
 
   work_order_status: number | null
   complaint_status: number | null

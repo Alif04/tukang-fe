@@ -270,7 +270,7 @@ const ViewInvoiceVendor: FC = () => {
               </Button>
             </OverlayTrigger>
 
-            {![1, 2, 4, 5, 6].includes(record.status) ? (
+            {/* {![1, 2, 4, 5, 6].includes(record.status) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -282,7 +282,7 @@ const ViewInvoiceVendor: FC = () => {
               </OverlayTrigger>
             ) : (
               <></>
-            )}
+            )} */}
 
             {[2].includes(record.status) ? (
               <OverlayTrigger

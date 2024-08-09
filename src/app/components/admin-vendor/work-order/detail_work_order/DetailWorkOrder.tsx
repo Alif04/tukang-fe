@@ -108,8 +108,11 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATE'])
-  const investigationProcessStatuses = getStatuses(['INVESTIGATED', 'APPROVED', 'ACCEPTED'])
+  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const investigationProcessStatuses = getStatuses([
+    'COMPLAINTAPPROVEDBYHO',
+    'COMPLAINTREJECTEDBYHO',
+  ])
   const remedialProgressStatuses = getStatuses([
     'RESURVEYREQ',
     'RESURVEYSTART',
@@ -117,22 +120,21 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     'REWORKSTART',
   ])
   const complaintDoneStatuses = getStatuses(['RESURVEYDONE', 'REWORKEND'])
-
   const complaintHistory = [
     {
-      title: 'Complaint Received',
+      title: 'Diselidiki',
       value: complaintReceivedStatuses,
     },
     {
-      title: 'Investigation Proccess',
+      title: 'Disetujui atau Ditolak',
       value: investigationProcessStatuses,
     },
     {
-      title: 'Remedial Progress',
+      title: 'Survei/Pengerjaan Ulang',
       value: remedialProgressStatuses,
     },
     {
-      title: 'Complaint Done',
+      title: 'Komplain Selesai',
       value: complaintDoneStatuses,
     },
   ]
@@ -299,11 +301,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     'RESURVEYREQ',
                     'RESURVEYSTART',
                     'RESURVEYDONE',
-                  ].includes(
-                    orderDetail?.work_orders !== null
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                      : orderDetail?.status?.category
-                  ) && (
+                  ].includes(orderDetail?.status?.category) && (
                     <Col>
                       <div className='survey mb-3'>
                         <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
@@ -314,7 +312,8 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <Form.Group className='detail-info mb-3'>
                             <Form.Label>Tanggal Survey :</Form.Label>
 
-                            {orderDetail?.work_orders !== null ? (
+                            {orderDetail?.work_orders !== null &&
+                            orderDetail?.work_orders?.survey_date !== null ? (
                               <p>
                                 {new Date(orderDetail?.work_orders?.survey_date).toLocaleDateString(
                                   'id-ID',
@@ -349,6 +348,24 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                               <p>Tukang belum diset oleh vendor</p>
                             )}
                           </Form.Group>
+
+                          <Form.Group className='detail-info mb-3'>
+                            <Form.Label>Sesi :</Form.Label>
+
+                            {orderDetail?.work_orders !== null ? (
+                              <p>
+                                {orderDetail?.work_orders?.session === 1
+                                  ? 'Sesi Pagi'
+                                  : orderDetail?.work_orders?.session === 2
+                                  ? 'Sesi Siang'
+                                  : orderDetail?.work_orders?.session === 3
+                                  ? 'Sesi Sore'
+                                  : 'Sesi belum ditentukan oleh vendor'}
+                              </p>
+                            ) : (
+                              <p>Sesi belum ditentukan oleh vendor</p>
+                            )}
+                          </Form.Group>
                         </Skeleton>
                       </div>
                     </Col>
@@ -364,11 +381,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
-                  ].includes(
-                    orderDetail?.work_orders !== null
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                      : orderDetail?.status?.category
-                  ) && (
+                  ].includes(orderDetail?.status?.category) && (
                     <Col>
                       <div className='work-date'>
                         <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
@@ -379,7 +392,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <Form.Group className='detail-info mb-3'>
                             <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
 
-                            {orderDetail?.work_orders !== null ? (
+                            {orderDetail?.work_orders !== null &&
+                            orderDetail?.work_orders?.work_start_date !== null &&
+                            orderDetail?.work_orders?.work_end_date !== null ? (
                               <p>
                                 {new Date(
                                   orderDetail?.work_orders?.work_start_date
@@ -409,7 +424,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                           <Form.Group className='detail-info mb-3'>
                             <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
-                            {orderDetail?.work_orders !== null ? (
+                            {orderDetail?.work_orders?.work_order_tukang?.filter(
+                              (x: any) => x.type === 2
+                            ).length ? (
                               <p>
                                 {Array.from(
                                   new Set(
@@ -423,6 +440,24 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                               <p>Tukang belum diset oleh vendor</p>
                             )}
                           </Form.Group>
+
+                          <Form.Group className='detail-info mb-3'>
+                            <Form.Label>Sesi :</Form.Label>
+
+                            {orderDetail?.work_orders !== null ? (
+                              <p>
+                                {orderDetail?.work_orders?.session === 1
+                                  ? 'Sesi Pagi'
+                                  : orderDetail?.work_orders?.session === 2
+                                  ? 'Sesi Siang'
+                                  : orderDetail?.work_orders?.session === 3
+                                  ? 'Sesi Sore'
+                                  : 'Sesi belum ditentukan oleh vendor'}
+                              </p>
+                            ) : (
+                              <p>Sesi belum ditentukan oleh vendor</p>
+                            )}
+                          </Form.Group>
                         </Skeleton>
                       </div>
                     </Col>
@@ -432,7 +467,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             </Row>
           </div>
 
-          <Row className='table-warranty d-flex align-items-center mb-5'>
+          <Row className='table-warranty d-flex align-items-center mb-3'>
             <div className='table-title-warranty'>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
                 <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
@@ -838,6 +873,22 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 }
               })()}
             </Skeleton>
+          </Row>
+
+          <Row className='table-warranty d-flex align-items-center mb-3'>
+            <div className='table-title-warranty'>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                <div className='fs-3 fw-bold mb-2'>Catatan Toko</div>
+              </Skeleton>
+
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                <p className='fs-7 p-0'>
+                  {orderDetail?.notes
+                    ? orderDetail?.notes
+                    : 'Toko tidak memberikan catatan tambahan'}
+                </p>
+              </Skeleton>
+            </div>
           </Row>
 
           <Skeleton active loading={isLoadingPage}>

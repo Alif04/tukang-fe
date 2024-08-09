@@ -933,7 +933,7 @@ const NewMaterialVendor: FC = () => {
                   <Row className='detail-info'>
                     <Col md={4}>
                       <div className='title'>
-                        <h1 className='fs-6'>Costumer Info</h1>
+                        <h1 className='fs-6'>Customer Info</h1>
                       </div>
                     </Col>
 
@@ -945,6 +945,22 @@ const NewMaterialVendor: FC = () => {
                         <p className='fs-7'> {workOrderDetail?.order?.project_number ?? ''}</p>
                         <p className='fs-7'>{workOrderDetail?.order?.members?.email ?? ''}</p>
                         <p className='fs-7'>{workOrderDetail?.order?.project_address ?? ''}</p>
+                      </div>
+                    </Col>
+                  </Row>
+
+                  <Row className='detail-info'>
+                    <Col md={4}>
+                      <div className='title'>
+                        <h1 className='fs-6'>Catatan Toko</h1>
+                      </div>
+                    </Col>
+
+                    <Col md={8} className='mt-5'>
+                      <div className='detail-info'>
+                        <p className='fs-7 fw-normal '>
+                          {workOrderDetail?.notes ?? 'Toko tidak memberikan catatan'}
+                        </p>
                       </div>
                     </Col>
                   </Row>
@@ -1273,7 +1289,7 @@ const NewMaterialVendor: FC = () => {
                     <Col sm='8'>
                       <p className='fs-6'>
                         {new Date(workOrderDetail?.survey_date).toLocaleDateString('id-ID', {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                           hour: 'numeric',
@@ -1297,6 +1313,24 @@ const NewMaterialVendor: FC = () => {
                         ).join(', ')}
                       </p>
                     </Col>
+                  </Form.Group>
+
+                  <Form.Group className='detail-info'>
+                    <Form.Label>Sesi :</Form.Label>
+
+                    {workOrderDetail?.session !== null ? (
+                      <p>
+                        {workOrderDetail?.session === 1
+                          ? 'Sesi Pagi'
+                          : workOrderDetail?.session === 2
+                          ? 'Sesi Siang'
+                          : workOrderDetail?.session === 3
+                          ? 'Sesi Sore'
+                          : 'Sesi belum ditentukan oleh vendor'}
+                      </p>
+                    ) : (
+                      <p>Sesi belum diset oleh vendor</p>
+                    )}
                   </Form.Group>
                 </Row>
               )}
@@ -1323,7 +1357,7 @@ const NewMaterialVendor: FC = () => {
                     <Col sm='8'>
                       <p className='fs-6 fw-bold'>
                         {new Date(workOrderDetail?.work_start_date).toLocaleDateString('id-ID', {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                           hour: 'numeric',
@@ -1331,7 +1365,7 @@ const NewMaterialVendor: FC = () => {
                         })}{' '}
                         sampai{' '}
                         {new Date(workOrderDetail?.work_end_date).toLocaleDateString('id-ID', {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                           hour: 'numeric',
@@ -1355,6 +1389,24 @@ const NewMaterialVendor: FC = () => {
                         ).join(', ')}
                       </p>
                     </Col>
+                  </Form.Group>
+
+                  <Form.Group className='detail-info'>
+                    <Form.Label>Sesi :</Form.Label>
+
+                    {workOrderDetail?.session !== null ? (
+                      <p>
+                        {workOrderDetail?.session === 1
+                          ? 'Sesi Pagi'
+                          : workOrderDetail?.session === 2
+                          ? 'Sesi Siang'
+                          : workOrderDetail?.session === 3
+                          ? 'Sesi Sore'
+                          : 'Sesi belum ditentukan oleh vendor'}
+                      </p>
+                    ) : (
+                      <p>Sesi belum diset oleh vendor</p>
+                    )}
                   </Form.Group>
                 </Row>
               )}

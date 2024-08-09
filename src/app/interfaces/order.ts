@@ -73,6 +73,7 @@ export interface Orders {
   tukang_id: number | null
   tukang?: Tukang | null
 
+  notes: string
   project_address: string
   project_number: string
   receipt_number: string

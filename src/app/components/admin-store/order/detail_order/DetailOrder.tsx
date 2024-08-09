@@ -41,6 +41,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     request_survey: '',
     vendor_id: null,
     tukang_id: null,
+    notes: '',
     project_address: '',
     project_number: '',
     receipt_number: '',
@@ -152,8 +153,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATE'])
-  const investigationProcessStatuses = getStatuses(['INVESTIGATED', 'APPROVED', 'ACCEPTED'])
+  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const investigationProcessStatuses = getStatuses([
+    'COMPLAINTAPPROVEDBYHO',
+    'COMPLAINTREJECTEDBYHO',
+  ])
   const remedialProgressStatuses = getStatuses([
     'RESURVEYREQ',
     'RESURVEYSTART',
@@ -161,22 +165,21 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'REWORKSTART',
   ])
   const complaintDoneStatuses = getStatuses(['RESURVEYDONE', 'REWORKEND'])
-
   const complaintHistory = [
     {
-      title: 'Complaint Received',
+      title: 'Diselidiki',
       value: complaintReceivedStatuses,
     },
     {
-      title: 'Investigation Proccess',
+      title: 'Disetujui atau Ditolak',
       value: investigationProcessStatuses,
     },
     {
-      title: 'Remedial Progress',
+      title: 'Survei/Pengerjaan Ulang',
       value: remedialProgressStatuses,
     },
     {
-      title: 'Complaint Done',
+      title: 'Komplain Selesai',
       value: complaintDoneStatuses,
     },
   ]
@@ -238,33 +241,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
       })
   }
-
-  // Order History
-  const columns: ColumnsType<OrderHistory> = [
-    {
-      title: 'ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
-      align: 'center',
-      width: 100,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'order_status',
-      key: 'order_status',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
-    },
-    {
-      title: 'Terakhir Update Order',
-      dataIndex: 'created_at_label',
-      key: 'created_at_label',
-      align: 'center',
-      width: 110,
-    },
-  ]
 
   const generatePdf = (order_id: any, receipt_quotation: any, customer_name: any) => {
     setLoadingPDF(true)
@@ -370,38 +346,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <Form.Label className='fs-4 fw-bold'>
                       Order Status :
                       <span className='fs-4 ms-2 fw-bold text-success'>
-                        {(() => {
-                          if (order?.work_orders?.work_order_status?.length >= 0) {
-                            if (
-                              [
-                                'QUOTEIN',
-                                'QUOTEOUT',
-                                'CANCEL',
-                                'WARRANTYCLAIM',
-                                'INVESTIGATED',
-                                'COMPLAINTAPPROVEDBYHO',
-                                'COMPLAINTREJECTEDBYHO',
-                                'RESCHEDULE',
-                                'RESURVEYREQ',
-                                'REWORKREQ',
-                              ].includes(order?.status?.category ?? '')
-                            ) {
-                              return order?.status?.description
-                            } else if (
-                              ['WORKREQ'].includes(order?.status?.category ?? '') &&
-                              order?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WORKEND'].includes(
-                                order?.work_orders?.work_order_status[0]?.status?.category ?? ''
-                              )
-                            ) {
-                              return order?.status?.description
-                            } else {
-                              return order?.work_orders?.work_order_status[0]?.status?.description
-                            }
-                          } else {
-                            return order?.status?.description
-                          }
-                        })()}
+                        {order?.status?.description}
                       </span>
                     </Form.Label>
                   </Skeleton>
@@ -525,7 +470,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <Col>
                       <p className='fs-7 p-0'>
                         {new Date(order?.request_survey).toLocaleDateString('id-ID', {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                         })}
@@ -934,6 +879,26 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             <Col>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
                 <Row className='information-detail'>
+                  <div className='fs-3 fw-bold'>Catatan Toko</div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-7 p-0'>
+                      {order?.notes !== '' ? (
+                        <p className='fs-7'>{order?.notes}</p>
+                      ) : (
+                        <p className='fs-7'>Toko tidak memberikan catatan</p>
+                      )}
+                    </p>
+                  </div>
+                </Row>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                <Row className='information-detail'>
                   <div className='fs-3 fw-bold'>Informasi Survei Yang Dilakukan Oleh Vendor</div>
 
                   <div className='survey'>
@@ -949,9 +914,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                                 {new Date(order?.work_orders?.survey_date).toLocaleDateString(
                                   'id-ID',
                                   {
-                                    day: 'numeric',
+                                    day: '2-digit',
                                     month: 'long',
                                     year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
                                   }
                                 )}
                               </p>
@@ -985,6 +952,30 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         <p className='fs-7'>Order ini tanpa survey</p>
                       )}
                     </div>
+
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Sesi:</p>
+
+                      {order?.payment_type === 'survey' ? (
+                        <>
+                          {order?.work_orders?.work_order_status.length ? (
+                            <p className='fs-7'>
+                              {order?.work_orders?.session === 1
+                                ? 'Sesi Pagi'
+                                : order?.work_orders?.session === 2
+                                ? 'Sesi Siang'
+                                : order?.work_orders?.session === 3
+                                ? 'Sesi Sore'
+                                : 'Sesi belum ditentukan oleh vendor'}
+                            </p>
+                          ) : (
+                            <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
+                          )}
+                        </>
+                      ) : (
+                        <p className='fs-7'>Order ini tanpa survey</p>
+                      )}
+                    </div>
                   </div>
                 </Row>
               </Skeleton>
@@ -1010,9 +1001,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               {new Date(order?.work_orders?.work_start_date).toLocaleDateString(
                                 'id-ID',
                                 {
-                                  day: 'numeric',
+                                  day: '2-digit',
                                   month: 'long',
                                   year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
                                 }
                               )}
                             </span>
@@ -1024,9 +1017,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               {new Date(order?.work_orders?.work_end_date).toLocaleDateString(
                                 'id-ID',
                                 {
-                                  day: 'numeric',
+                                  day: '2-digit',
                                   month: 'long',
                                   year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
                                 }
                               )}
                             </span>
@@ -1050,6 +1045,30 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </p>
                       ) : (
                         <p className='fs-7'>Tukang belum diset oleh vendor</p>
+                      )}
+                    </div>
+
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Sesi:</p>
+
+                      {order?.payment_type === 'survey' ? (
+                        <>
+                          {order?.work_orders?.work_order_status.length ? (
+                            <p className='fs-7'>
+                              {order?.work_orders?.session === 1
+                                ? 'Sesi Pagi'
+                                : order?.work_orders?.session === 2
+                                ? 'Sesi Siang'
+                                : order?.work_orders?.session === 3
+                                ? 'Sesi Sore'
+                                : 'Sesi belum ditentukan oleh vendor'}
+                            </p>
+                          ) : (
+                            <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
+                          )}
+                        </>
+                      ) : (
+                        <p className='fs-7'>Order ini tanpa survey</p>
                       )}
                     </div>
                   </div>
@@ -1343,6 +1362,91 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               />
             </div>
 
+            {order?.print_counter >= 1 &&
+              ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
+                order?.status?.category ?? ''
+              ) && (
+                <div className='d-flex justify-content-center align-items-center'>
+                  <Button type='submit' onClick={handleReprintOrderCS} variant='warning'>
+                    Reprint Order
+                  </Button>
+                </div>
+              )}
+          </Skeleton>
+        </Card.Body>
+      </Card>
+
+      <Card className='mt-5'>
+        <Card.Header>
+          <Card.Title>Complaint History</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+            <Form.Label className='mt-3'>Bukti Komplain :</Form.Label>
+            <ListGroup>
+              {order?.complaints?.[0]?.complaint_histories[0]?.complaint_evidence?.map(
+                (item: any) => (
+                  <ListGroup.Item
+                    key={item.id}
+                    action
+                    style={{cursor: 'pointer'}}
+                    onClick={() => {
+                      setPreviewImage(item.evidence_location)
+                      setVisible(true)
+                    }}
+                  >
+                    {item.evidence_location}
+                  </ListGroup.Item>
+                )
+              )}
+            </ListGroup>
+
+            {previewImage && (
+              <div>
+                {previewImage.endsWith('.pdf') ? (
+                  <>
+                    <Modal
+                      dialogClassName='modal-show-pdf'
+                      centered
+                      show={visible}
+                      onHide={handleClose}
+                    >
+                      <Modal.Header closeButton>
+                        <Modal.Title>File - {previewImage}</Modal.Title>
+                      </Modal.Header>
+
+                      <Modal.Body>
+                        <iframe
+                          key={previewImage}
+                          width='100%'
+                          height='100%'
+                          src={`${apiUrl}/public/complaints/${previewImage}`}
+                          style={{border: 'none'}}
+                        />
+                      </Modal.Body>
+                    </Modal>
+                  </>
+                ) : (
+                  <Image
+                    key={previewImage}
+                    width={200}
+                    style={{display: 'none'}}
+                    src={`${apiUrl}/public/complaints/${previewImage}`}
+                    preview={{
+                      visible,
+                      src: `${apiUrl}/public/complaints/${previewImage}`,
+                      onVisibleChange: (value) => {
+                        setVisible(value)
+                      },
+                    }}
+                  />
+                )}
+              </div>
+            )}
+          </Skeleton>
+
+          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
             {order?.complaints && order?.complaints?.length >= 1 && (
               <div className='complaint-history  mt-3 mb-3'>
                 <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
@@ -1356,17 +1460,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 />
               </div>
             )}
-
-            {order?.print_counter >= 1 &&
-              ['PICKLIST', 'BOOK', 'BOOKED', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                order?.status?.category ?? ''
-              ) && (
-                <div className='d-flex justify-content-center align-items-center'>
-                  <Button type='submit' onClick={handleReprintOrderCS} variant='warning'>
-                    Reprint Order
-                  </Button>
-                </div>
-              )}
           </Skeleton>
         </Card.Body>
       </Card>

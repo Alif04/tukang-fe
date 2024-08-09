@@ -761,7 +761,7 @@ const NewVendorHO: FC = () => {
       formData.append('bank_id', bankId)
 
       if (username) {
-        formData.append('username', username)
+        formData.append('default_username', username)
       }
 
       if (password) {
@@ -1351,7 +1351,7 @@ const NewVendorHO: FC = () => {
 
               <Row className='form-body'>
                 <Form.Group>
-                  <Form.Label>Maksimal Order</Form.Label>
+                  <Form.Label>Maksimal Order Tukang</Form.Label>
 
                   <Form.Control
                     min={3}

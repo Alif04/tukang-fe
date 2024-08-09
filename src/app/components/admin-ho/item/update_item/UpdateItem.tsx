@@ -600,22 +600,20 @@ const UpdateItemHO: FC = () => {
                 </Col>
               </Form.Group>
 
-              {item.item_type === 1 && (
-                <Form.Group as={Row} className='mb-4'>
-                  <Form.Label className='fs-5 fw-bold' column sm='4'>
-                    Harga Kepada Vendor:
-                  </Form.Label>
+              <Form.Group as={Row} className='mb-4'>
+                <Form.Label className='fs-5 fw-bold' column sm='4'>
+                  Harga Kepada Vendor:
+                </Form.Label>
 
-                  <Col sm='8'>
-                    <Form.Control
-                      name='invoice_nominal'
-                      type='number'
-                      value={item.invoice_nominal}
-                      onChange={(e) => itemFormHandler(e)}
-                    />
-                  </Col>
-                </Form.Group>
-              )}
+                <Col sm='8'>
+                  <Form.Control
+                    name='invoice_nominal'
+                    type='number'
+                    value={item.invoice_nominal}
+                    onChange={(e) => itemFormHandler(e)}
+                  />
+                </Col>
+              </Form.Group>
             </Col>
           </Row>
 

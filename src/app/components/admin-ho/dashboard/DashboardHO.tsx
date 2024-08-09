@@ -266,9 +266,21 @@ const DashboardHO: FC = () => {
   useEffect(() => {
     const getStore = async () => {
       try {
-        const url = !selectedZone.value
-          ? `${apiUrl}/stores?take=0`
-          : `${apiUrl}/stores?area_id=${selectedZone.value}`
+        let url = `${apiUrl}/stores?take=0`
+
+        if (selectedZone.label === 'Jawa') {
+          const jawaAreas = area.filter(
+            (item) =>
+              item.label === 'Jawa Barat' ||
+              item.label === 'Jawa Timur' ||
+              item.label === 'Jawa Tengah'
+          )
+
+          const areaIds = jawaAreas.map((item) => item.value).join(',')
+          url = `${apiUrl}/stores?area_id=${areaIds}`
+        } else if (selectedZone.value) {
+          url = `${apiUrl}/stores?area_id=${selectedZone.value}`
+        }
 
         const response = await axios.get(url, {
           headers: {
@@ -341,6 +353,7 @@ const DashboardHO: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const picklistOrder = sumTotal(chartDataOrder, 'totalPicklist')
   const newOrder = sumTotal(chartDataOrder, 'totalNewOrder')
 
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
@@ -471,6 +484,7 @@ const DashboardHO: FC = () => {
 
               <Row className='justify-content-md-center'>
                 {renderStat(totalOrders, 'Total Order')}
+                {renderStat(picklistOrder, 'Picklist')}
                 {renderStat(newOrder, 'Order Baru')}
                 {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}

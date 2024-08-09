@@ -39,6 +39,7 @@ const DetailOrderWithoutAuth = () => {
     store_id: null,
     project_status_id: null,
     request_survey: '',
+    notes: '',
     vendor_id: null,
     tukang_id: null,
     project_address: '',
@@ -176,8 +177,11 @@ const DetailOrderWithoutAuth = () => {
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATE'])
-  const investigationProcessStatuses = getStatuses(['INVESTIGATED', 'APPROVED', 'ACCEPTED'])
+  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const investigationProcessStatuses = getStatuses([
+    'COMPLAINTAPPROVEDBYHO',
+    'COMPLAINTREJECTEDBYHO',
+  ])
   const remedialProgressStatuses = getStatuses([
     'RESURVEYREQ',
     'RESURVEYSTART',
@@ -185,22 +189,21 @@ const DetailOrderWithoutAuth = () => {
     'REWORKSTART',
   ])
   const complaintDoneStatuses = getStatuses(['RESURVEYDONE', 'REWORKEND'])
-
   const complaintHistory = [
     {
-      title: 'Complaint Received',
+      title: 'Diselidiki',
       value: complaintReceivedStatuses,
     },
     {
-      title: 'Investigation Proccess',
+      title: 'Disetujui atau Ditolak',
       value: investigationProcessStatuses,
     },
     {
-      title: 'Remedial Progress',
+      title: 'Survei/Pengerjaan Ulang',
       value: remedialProgressStatuses,
     },
     {
-      title: 'Complaint Done',
+      title: 'Komplain Selesai',
       value: complaintDoneStatuses,
     },
   ]

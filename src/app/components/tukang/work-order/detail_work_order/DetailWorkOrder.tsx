@@ -109,8 +109,11 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATE'])
-  const investigationProcessStatuses = getStatuses(['INVESTIGATED', 'APPROVED', 'ACCEPTED'])
+  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const investigationProcessStatuses = getStatuses([
+    'COMPLAINTAPPROVEDBYHO',
+    'COMPLAINTREJECTEDBYHO',
+  ])
   const remedialProgressStatuses = getStatuses([
     'RESURVEYREQ',
     'RESURVEYSTART',
@@ -118,22 +121,21 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
     'REWORKSTART',
   ])
   const complaintDoneStatuses = getStatuses(['RESURVEYDONE', 'REWORKEND'])
-
   const complaintHistory = [
     {
-      title: 'Complaint Received',
+      title: 'Diselidiki',
       value: complaintReceivedStatuses,
     },
     {
-      title: 'Investigation Proccess',
+      title: 'Disetujui atau Ditolak',
       value: investigationProcessStatuses,
     },
     {
-      title: 'Remedial Progress',
+      title: 'Survei/Pengerjaan Ulang',
       value: remedialProgressStatuses,
     },
     {
-      title: 'Complaint Done',
+      title: 'Komplain Selesai',
       value: complaintDoneStatuses,
     },
   ]
@@ -361,6 +363,25 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                             )}
                           </Skeleton>
                         </div>
+
+                        <div className='detail-info mb-3'>
+                          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                            <p className='fs-5 fw-bold'>Sesi :</p>
+                            {workOrderDetail?.session !== null ? (
+                              <p>
+                                {workOrderDetail?.session === 1
+                                  ? 'Sesi Pagi'
+                                  : workOrderDetail?.session === 2
+                                  ? 'Sesi Siang'
+                                  : workOrderDetail?.session === 3
+                                  ? 'Sesi Sore'
+                                  : 'Sesi belum ditentukan oleh vendor'}
+                              </p>
+                            ) : (
+                              <p>Sesi belum diset oleh vendor</p>
+                            )}
+                          </Skeleton>
+                        </div>
                       </div>
                     </Col>
                   )}
@@ -437,6 +458,25 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                                 .join(', ')}
                             </p>
                           </div>
+                        </Skeleton>
+                      </div>
+
+                      <div className='detail-info mb-3'>
+                        <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                          <p className='fs-5 fw-bold'>Sesi :</p>
+                          {workOrderDetail?.session !== null ? (
+                            <p>
+                              {workOrderDetail?.session === 1
+                                ? 'Sesi Pagi'
+                                : workOrderDetail?.session === 2
+                                ? 'Sesi Siang'
+                                : workOrderDetail?.session === 3
+                                ? 'Sesi Sore'
+                                : 'Sesi belum ditentukan oleh vendor'}
+                            </p>
+                          ) : (
+                            <p>Sesi belum diset oleh vendor</p>
+                          )}
                         </Skeleton>
                       </div>
                     </Col>
@@ -705,6 +745,22 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                 }
               })()}
             </Skeleton>
+          </Row>
+
+          <Row className='table-warranty d-flex align-items-center mb-3'>
+            <div className='table-title-warranty'>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                <div className='fs-3 fw-bold mb-2'>Catatan Toko</div>
+              </Skeleton>
+
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                <p className='fs-7 p-0'>
+                  {workOrderDetail?.order?.notes
+                    ? workOrderDetail?.order?.notes
+                    : 'Toko tidak memberikan catatan tambahan'}
+                </p>
+              </Skeleton>
+            </div>
           </Row>
 
           <Skeleton active loading={isLoadingPage}>

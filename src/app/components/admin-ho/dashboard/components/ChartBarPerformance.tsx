@@ -125,7 +125,7 @@ function getChartOptions(height: number, orderData: any): ApexOptions {
     yaxis: {
       labels: {
         formatter: function (val) {
-          return val.toFixed(0)
+          return isFinite(val) ? val.toFixed(0) : ''
         },
         show: true,
         style: {

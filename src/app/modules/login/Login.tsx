@@ -121,6 +121,7 @@ export function Login() {
             localStorage.setItem('areaId', user?.employee?.store?.area?.id)
           } else if (isVendor) {
             localStorage.setItem('vendor_id', user?.pic_vendor[0]?.vendor_id)
+            localStorage.setItem('max_order', user?.pic_vendor[0]?.vendor?.max_order)
             localStorage.setItem('vendorName', user?.pic_vendor[0]?.vendor?.company_name)
           } else if (isTukang) {
             localStorage.setItem('tukang_id', user?.tukang[0]?.id)

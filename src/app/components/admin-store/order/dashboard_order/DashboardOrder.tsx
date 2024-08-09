@@ -243,6 +243,7 @@ const DashboardOrderStore: FC = () => {
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
   const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
+  const picklistOrder = sumTotal(chartDataOrder, 'totalPicklist')
   const newOrder = sumTotal(chartDataOrder, 'totalNewOrder')
 
   const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
@@ -323,6 +324,7 @@ const DashboardOrderStore: FC = () => {
             <Card.Body>
               <Row className='justify-content-md-center mt-2'>
                 {renderStat(totalOrders, 'Total Order')}
+                {renderStat(picklistOrder, 'Picklist')}
                 {renderStat(newOrder, 'Order Baru')}
                 {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
                 {renderStat(surveyOrder, 'Order sedang dalam survey')}

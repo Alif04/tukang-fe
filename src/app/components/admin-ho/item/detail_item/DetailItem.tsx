@@ -79,14 +79,12 @@ const DetailItemHO: FC = () => {
                 <span className='ms-1 fw-normal'>{itemDetail?.item_name || '-'}</span>
               </h3>
 
-              {itemDetail?.type === 1 && (
-                <h3 className='pt-2 pb-2 fw-semibold'>
-                  Nominal Kepada Vendor :
-                  <span className='ms-1 fw-normal'>{`Rp. ${parseInt(
-                    itemDetail?.invoice_nominal ?? 0
-                  ).toLocaleString('id')}`}</span>
-                </h3>
-              )}
+              <h3 className='pt-2 pb-2 fw-semibold'>
+                Nominal Kepada Vendor :
+                <span className='ms-1 fw-normal'>{`Rp. ${parseInt(
+                  itemDetail?.invoice_nominal ?? 0
+                ).toLocaleString('id')}`}</span>
+              </h3>
             </Col>
 
             <Col>
