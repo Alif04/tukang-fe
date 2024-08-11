@@ -677,6 +677,15 @@ input.filter-ltr.form-control:focus {
 }
 
 /* Table Styling */
+.table-custom-wrapper {
+  height: calc(110vh - 200px) !important;
+  overflow: auto;
+}
+
+.ant-table-header.ant-table-sticky-holder {
+  border-radius: 0px !important;
+}
+
 .ant-table-wrapper .ant-table-column-title {
   font-size: 11px;
 }

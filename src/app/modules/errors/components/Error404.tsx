@@ -1,28 +1,30 @@
 import {FC} from 'react'
-import {Link} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../_metronic/helpers'
+import {Button} from 'react-bootstrap'
 
 const Error404: FC = () => {
+  const handleClick = () => {
+    window.open('https://instalasi.mitra10.com', '_blank')
+  }
+
   return (
     <div className='d-flex flex-column flex-root bg-white'>
       <div className='d-flex flex-column flex-center flex-column-fluid p-10'>
-        {/* begin::Illustration */}
         <img
-          src={toAbsoluteUrl('/media/auth/404-error_w.png')}
-          alt=''
-          className='mw-100 mb-10 h-lg-140px'
+          src={toAbsoluteUrl('/media/tukangin/vector-mitra10.png')}
+          alt='Mitra110 Vector'
+          className='mw-100 mb-10 h-lg-150px'
         />
-        {/* end::Illustration */}
-        {/* begin::Message */}
-        <h1 className='fw-bold mb-10' style={{color: '#A3A3C7'}}>
-          Seems there is nothing here
+
+        <h1 className='fs-1 fw-bold mb-5'>Maaf, Halaman Tidak Tersedia</h1>
+        <h1 className='fs-5 fw-normal mb-10'>
+          Halaman yang Anda cari telah pindah ke link yang baru. Klik tombol dibawah ini untuk
+          menuju ke halaman yang benar.
         </h1>
-        {/* end::Message */}
-        {/* begin::Link */}
-        <Link to='/login' className='btn btn-primary'>
-          Return Home
-        </Link>
-        {/* end::Link */}
+
+        <Button onClick={() => handleClick()} variant='primary' className='btn btn-primary'>
+          Silahkan klik link disini
+        </Button>
       </div>
     </div>
   )

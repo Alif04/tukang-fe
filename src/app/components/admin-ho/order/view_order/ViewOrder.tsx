@@ -2701,6 +2701,7 @@ const ViewOrders: FC = () => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
+      width: 100,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -2733,6 +2734,7 @@ const ViewOrders: FC = () => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
+      width: 140,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -2741,6 +2743,7 @@ const ViewOrders: FC = () => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
+      width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -2748,6 +2751,7 @@ const ViewOrders: FC = () => {
       dataIndex: 'payment_receipt',
       key: 'payment_receipt',
       align: 'left',
+      width: 200,
       onFilter: (value, record) => record.payment_receipt.includes(String(value)),
       sorter: (a, b) => a.payment_receipt.length - b.payment_receipt.length,
       filters: [
@@ -2787,8 +2791,8 @@ const ViewOrders: FC = () => {
       title: 'Status Pembayaran Quotation',
       dataIndex: 'payment_quotation',
       key: 'payment_quotation',
-
       align: 'left',
+      width: 230,
       onFilter: (value, record) => record.payment_quotation.includes(String(value)),
       sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
       filters: [
@@ -2800,7 +2804,6 @@ const ViewOrders: FC = () => {
       title: 'Action',
       key: 'action',
       align: 'center',
-
       fixed: 'right',
       render: (record) => {
         const id = record.order_id
@@ -3094,16 +3097,19 @@ const ViewOrders: FC = () => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={orderData}
-              rowKey={(record) => record.order_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={orderData}
+                rowKey={(record) => record.order_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <div className='pagination-container mt-5'>

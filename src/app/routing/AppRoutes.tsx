@@ -39,7 +39,7 @@ const AppRoutes: FC = () => {
               <Route path='login' element={<Login />} />
               <Route path='forgot-password' element={<ForgotPassword />} />
               <Route path='reset-password' element={<ResetPassword />} />
-              <Route path='*' element={<Navigate to='/login' />} />
+              <Route path='*' element={<Navigate to='/error/404' />} />
             </>
           ) : (
             <>
