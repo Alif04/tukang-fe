@@ -1,24 +1,15 @@
-import React, {FC, useState, useEffect, useRef} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Vendor} from '../../../../interfaces/vendor'
 
 import './DetailVendor.css'
 
-import {ChartPie} from './components/ChartPie'
-import {TableList} from './components/TableList'
-import {TableList2} from './components/TableList2'
-
 import axios from 'axios'
-import {Rate} from 'antd'
-import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Row, Col, Button, ListGroup} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {Form, Row, Col} from 'react-bootstrap'
 
 const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const navigate = useNavigate()
   const params = useParams()
 
   const [vendorDetail, setVendorDetail] = useState<any>()
@@ -178,8 +169,6 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       </p>
                     </Col>
                   </Form.Group>
-
-                  <Rate className='d-flex justify-content-center' />
 
                   <Form.Group as={Row} className='detail-info'>
                     <Form.Label column sm='6'>
@@ -394,7 +383,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Form.Label>
                     <Col sm='10'>
                       <Form.Label className='fw-normal mt-3'>
-                        {vendorDetail?.vendor_bank[0]?.bank?.bank_name}
+                        {vendorDetail?.bank?.bank_name}
                       </Form.Label>
                     </Col>
                   </Form.Group>
@@ -405,7 +394,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Form.Label>
                     <Col sm='10'>
                       <Form.Label className='fw-normal mt-3'>
-                        {vendorDetail?.vendor_bank[0]?.account_number}
+                        {vendorDetail?.account_number}
                       </Form.Label>
                     </Col>
                   </Form.Group>
@@ -416,17 +405,8 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Form.Label>
                     <Col sm='10'>
                       <Form.Label className='fw-normal mt-3'>
-                        {vendorDetail?.vendor_bank[0]?.account_name}
+                        {vendorDetail?.account_name}
                       </Form.Label>
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='2' className='fw-semibold'>
-                      PTKP :
-                    </Form.Label>
-                    <Col sm='10'>
-                      <Form.Label className='fw-normal mt-3'>{vendorDetail?.ktp_number}</Form.Label>
                     </Col>
                   </Form.Group>
                 </div>

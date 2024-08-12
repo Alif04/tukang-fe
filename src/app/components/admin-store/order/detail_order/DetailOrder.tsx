@@ -120,6 +120,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const [visible, setVisible] = useState(false)
   const handleClose = () => setVisible(false)
 
+  // Complaint Receipt
+  const [visibleComplaintReceipt, setVisibleComplaintReceipt] = useState(false)
+
   // Work Before & Work After
   const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
   const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
@@ -1376,93 +1379,95 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         </Card.Body>
       </Card>
 
-      <Card className='mt-5'>
-        <Card.Header>
-          <Card.Title>Complaint History</Card.Title>
-        </Card.Header>
+      {order?.complaints && order?.complaints?.length > 0 && (
+        <Card className='mt-5'>
+          <Card.Header>
+            <Card.Title>Complaint History</Card.Title>
+          </Card.Header>
 
-        <Card.Body>
-          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-            <Form.Label className='mt-3'>Bukti Komplain :</Form.Label>
-            <ListGroup>
-              {order?.complaints?.[0]?.complaint_histories[0]?.complaint_evidence?.map(
-                (item: any) => (
-                  <ListGroup.Item
-                    key={item.id}
-                    action
-                    style={{cursor: 'pointer'}}
-                    onClick={() => {
-                      setPreviewImage(item.evidence_location)
-                      setVisible(true)
-                    }}
-                  >
-                    {item.evidence_location}
-                  </ListGroup.Item>
-                )
-              )}
-            </ListGroup>
-
-            {previewImage && (
-              <div>
-                {previewImage.endsWith('.pdf') ? (
-                  <>
-                    <Modal
-                      dialogClassName='modal-show-pdf'
-                      centered
-                      show={visible}
-                      onHide={handleClose}
+          <Card.Body>
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              <Form.Label className='mt-3'>Bukti Komplain :</Form.Label>
+              <ListGroup>
+                {order?.complaints?.[0]?.complaint_histories[0]?.complaint_evidence?.map(
+                  (item: any) => (
+                    <ListGroup.Item
+                      key={item.id}
+                      action
+                      style={{cursor: 'pointer'}}
+                      onClick={() => {
+                        setPreviewImage(item.evidence_location)
+                        setVisibleComplaintReceipt(true)
+                      }}
                     >
-                      <Modal.Header closeButton>
-                        <Modal.Title>File - {previewImage}</Modal.Title>
-                      </Modal.Header>
-
-                      <Modal.Body>
-                        <iframe
-                          key={previewImage}
-                          width='100%'
-                          height='100%'
-                          src={`${apiUrl}/public/complaints/${previewImage}`}
-                          style={{border: 'none'}}
-                        />
-                      </Modal.Body>
-                    </Modal>
-                  </>
-                ) : (
-                  <Image
-                    key={previewImage}
-                    width={200}
-                    style={{display: 'none'}}
-                    src={`${apiUrl}/public/complaints/${previewImage}`}
-                    preview={{
-                      visible,
-                      src: `${apiUrl}/public/complaints/${previewImage}`,
-                      onVisibleChange: (value) => {
-                        setVisible(value)
-                      },
-                    }}
-                  />
+                      {item.evidence_location}
+                    </ListGroup.Item>
+                  )
                 )}
-              </div>
-            )}
-          </Skeleton>
+              </ListGroup>
 
-          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-            {order?.complaints && order?.complaints?.length >= 1 && (
-              <div className='complaint-history  mt-3 mb-3'>
-                <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
-                <Steps
-                  className='complaint-history-timeline'
-                  current={complaintHistory.findIndex((step) =>
-                    step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+              {previewImage && (
+                <div>
+                  {previewImage.endsWith('.pdf') ? (
+                    <>
+                      <Modal
+                        dialogClassName='modal-show-pdf'
+                        centered
+                        show={visible}
+                        onHide={handleClose}
+                      >
+                        <Modal.Header closeButton>
+                          <Modal.Title>File - {previewImage}</Modal.Title>
+                        </Modal.Header>
+
+                        <Modal.Body>
+                          <iframe
+                            key={previewImage}
+                            width='100%'
+                            height='100%'
+                            src={`${apiUrl}/public/complaints/${previewImage}`}
+                            style={{border: 'none'}}
+                          />
+                        </Modal.Body>
+                      </Modal>
+                    </>
+                  ) : (
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/complaints/${previewImage}`}
+                      preview={{
+                        visible: visibleComplaintReceipt,
+                        src: `${apiUrl}/public/complaints/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisibleComplaintReceipt(value)
+                        },
+                      }}
+                    />
                   )}
-                  labelPlacement='vertical'
-                  items={complaintHistory}
-                />
-              </div>
-            )}
-          </Skeleton>
-        </Card.Body>
-      </Card>
+                </div>
+              )}
+            </Skeleton>
+
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              {order?.complaints && order?.complaints?.length >= 1 && (
+                <div className='complaint-history  mt-3 mb-3'>
+                  <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
+                  <Steps
+                    className='complaint-history-timeline'
+                    current={complaintHistory.findIndex((step) =>
+                      step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+                    )}
+                    labelPlacement='vertical'
+                    items={complaintHistory}
+                  />
+                </div>
+              )}
+            </Skeleton>
+          </Card.Body>
+        </Card>
+      )}
 
       <Card className='mt-5'>
         <Card.Body>
