@@ -103,13 +103,6 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
     fetchRemedialStatus()
   }, [])
 
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   // Add Remedial Action
   const [picRemedialId, setPicRemedialId] = useState<any>()
   const [picFeedback, setPicFeedback] = useState<string>(username)
@@ -227,13 +220,6 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
         icon: 'error',
       })
       valid = false
-    } else if (!remedialStartDate) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill remedial start date form',
-        icon: 'error',
-      })
-      valid = false
     } else if (!optionRemedialStatus) {
       Swal.fire({
         title: 'Error',
@@ -323,7 +309,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
   }
 
   return (
-    <section id='update-complaint'>
+    <section id='detail-complaint'>
       <div className='card'>
         <div className='card-body'>
           <div className='form-wrapper'>
@@ -1169,197 +1155,138 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
             </>
           )}
 
-          <hr />
+          {!['COMPLAINTREJECTEDBYHO'].includes(complaintDetail?.status?.category) && (
+            <>
+              <hr />
 
-          <Row>
-            {complaintDetail?.status.category === 'REJECT' ? (
-              <Col xs={12} md={12} lg={12} xl={12} xxl={12}>
-                <div className='fs-3 fw-bold text-success'>
-                  REMEDIAL ACTION
-                  <span className='ms-3 fs-5 fw-semibold text-danger'>
-                    ( *Complaint is not approved yet )
-                  </span>
-                </div>
+              <Row>
+                <Col xs={12} md={12} lg={12} xl={12} xxl={12}>
+                  <div className='fs-3 fw-bold text-success'>REMEDIAL ACTION</div>
 
-                <Row>
-                  <Col>
-                    <Form.Group>
-                      <Form.Label className='mt-3'>Start Date :</Form.Label>
-                      <Form.Control disabled type='date' />
-                    </Form.Group>
-
-                    <Form.Group>
-                      <Form.Label className='mt-3'>Change Status :</Form.Label>
-
-                      <Form.Select disabled>
-                        <option selected>Select Status</option>
-                      </Form.Select>
-                    </Form.Group>
-
-                    <Form.Group>
-                      <Form.Label className='mt-5'>Notes :</Form.Label>
-                      <Form.Control
-                        disabled
-                        style={{minHeight: '200px'}}
-                        as='textarea'
-                      ></Form.Control>
-                    </Form.Group>
-                  </Col>
-
-                  <Col>
-                    <Form.Group>
-                      <Form.Label className='mt-3'>End Date :</Form.Label>
-                      <Form.Control disabled type='date' />
-                    </Form.Group>
-
-                    <Form.Group controlId='formFile' className='mt-3'>
-                      <Form.Label>Upload Bukti</Form.Label>
-
-                      <ListGroup>
-                        <ListGroup.Item className='list-group-not-approve d-flex justify-content-center'>
-                          Tidak dapat memilih file
-                        </ListGroup.Item>
-                      </ListGroup>
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Col>
-            ) : (
-              <Col xs={12} md={12} lg={12} xl={12} xxl={12}>
-                <div className='fs-3 fw-bold text-success'>REMEDIAL ACTION</div>
-
-                <Row>
-                  <Col>
-                    <Form.Group>
-                      <Form.Label className='mt-3'>PIC Feedback :</Form.Label>
-                      <Form.Control
-                        placeholder='Isi Nama Pemberi Feedback'
-                        type='text'
-                        value={picFeedback}
-                        onChange={handlePicFeedbackChange}
-                      />
-                    </Form.Group>
-
-                    <Form.Group>
-                      <Form.Label className='mt-3'>Jabatan :</Form.Label>
-                      <Select
-                        name='pic_position'
-                        id='pic_position'
-                        className='form-control p-0 form-item-name'
-                        classNamePrefix='select'
-                        placeholder='Jabatan'
-                        isSearchable={true}
-                        isClearable={true}
-                        options={picPositions}
-                        onChange={(element) => handlePicPositonChange(element)}
-                      />
-                    </Form.Group>
-
-                    <Form.Group>
-                      <Form.Label className='mt-5'>Feedback ke Store :</Form.Label>
-                      <Form.Control
-                        style={{minHeight: '180px'}}
-                        as='textarea'
-                        onChange={handleInputRemedialDesc}
-                      ></Form.Control>
-                    </Form.Group>
-                  </Col>
-
-                  <Col>
-                    {/* <Form.Group>
-                      <Form.Label className='mt-3'>Tanggal :</Form.Label>
-                      <Form.Control
-                        type='date'
-                        min={today}
-                        onChange={handleChangeremedialStartDate}
-                      />
-                    </Form.Group> */}
-
-                    <Form.Group>
-                      <Form.Label className='mt-3'>Change Status :</Form.Label>
-
-                      <Form.Select onChange={handleChangeSelectRemedialStatus}>
-                        <option selected>Select Status</option>
-                        <option value='4'>Ditindaklanjuti</option>
-                        <option value='1009'>Diterima </option>
-                        <option value='1011'>Ditolak</option>
-                      </Form.Select>
-                    </Form.Group>
-
-                    <Form.Group controlId='formFile' className='mt-3'>
-                      <Form.Label>Upload Bukti</Form.Label>
-                      <Form className='form-input-image' onClick={handleImageClick}>
+                  <Row>
+                    <Col>
+                      <Form.Group>
+                        <Form.Label className='mt-3'>PIC Feedback :</Form.Label>
                         <Form.Control
-                          type='file'
-                          accept='image/*'
-                          className='input-field-image'
-                          multiple
-                          hidden
-                          id='file-input'
-                          ref={evidenceRef}
-                          onChange={handleFileChange}
+                          placeholder='Isi Nama Pemberi Feedback'
+                          type='text'
+                          value={picFeedback}
+                          onChange={handlePicFeedbackChange}
                         />
+                      </Form.Group>
 
-                        <div className='input-image-text'>
-                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                          <p>Add File</p>
-                        </div>
-                      </Form>
+                      <Form.Group>
+                        <Form.Label className='mt-3'>Jabatan :</Form.Label>
+                        <Select
+                          name='pic_position'
+                          id='pic_position'
+                          className='form-control p-0 form-item-name'
+                          classNamePrefix='select'
+                          placeholder='Jabatan'
+                          isSearchable={true}
+                          isClearable={true}
+                          options={picPositions}
+                          onChange={(element) => handlePicPositonChange(element)}
+                        />
+                      </Form.Group>
 
-                      <ListGroup className='pt-3'>
-                        {remedialEvidence.length ? (
-                          remedialEvidence.map((item, index) => (
-                            <ListGroup.Item
-                              key={`${item?.name}-${index}-${item?.type}`}
-                              className='d-flex justify-content-between'
-                            >
-                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <Form.Group>
+                        <Form.Label className='mt-5'>Feedback ke Store :</Form.Label>
+                        <Form.Control
+                          style={{minHeight: '180px'}}
+                          as='textarea'
+                          onChange={handleInputRemedialDesc}
+                        ></Form.Control>
+                      </Form.Group>
+                    </Col>
 
-                              <span className='upload-content'> {item?.name}</span>
+                    <Col>
+                      <Form.Group>
+                        <Form.Label className='mt-3'>Change Status :</Form.Label>
 
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                size='sm'
-                                color='#ed2b2a'
-                                style={{cursor: 'pointer'}}
-                                onClick={(e) => handleRemoveFile(index)}
-                              />
+                        <Form.Select onChange={handleChangeSelectRemedialStatus}>
+                          <option selected>Select Status</option>
+                          <option value='4'>Ditindaklanjuti</option>
+                          <option value='1009'>Diterima </option>
+                          <option value='1011'>Ditolak</option>
+                        </Form.Select>
+                      </Form.Group>
+
+                      <Form.Group controlId='formFile' className='mt-3'>
+                        <Form.Label>Upload Bukti</Form.Label>
+                        <Form className='form-input-image' onClick={handleImageClick}>
+                          <Form.Control
+                            type='file'
+                            accept='image/*'
+                            className='input-field-image'
+                            multiple
+                            hidden
+                            id='file-input'
+                            ref={evidenceRef}
+                            onChange={handleFileChange}
+                          />
+
+                          <div className='input-image-text'>
+                            <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                            <p>Add File</p>
+                          </div>
+                        </Form>
+
+                        <ListGroup className='pt-3'>
+                          {remedialEvidence.length ? (
+                            remedialEvidence.map((item, index) => (
+                              <ListGroup.Item
+                                key={`${item?.name}-${index}-${item?.type}`}
+                                className='d-flex justify-content-between'
+                              >
+                                <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                                <span className='upload-content'> {item?.name}</span>
+
+                                <FontAwesomeIcon
+                                  icon={faTrash}
+                                  size='sm'
+                                  color='#ed2b2a'
+                                  style={{cursor: 'pointer'}}
+                                  onClick={(e) => handleRemoveFile(index)}
+                                />
+                              </ListGroup.Item>
+                            ))
+                          ) : (
+                            <ListGroup.Item className='d-flex justify-content-center'>
+                              Tidak ada file yang dipilih
                             </ListGroup.Item>
-                          ))
-                        ) : (
-                          <ListGroup.Item className='d-flex justify-content-center'>
-                            Tidak ada file yang dipilih
-                          </ListGroup.Item>
-                        )}
-                      </ListGroup>
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Col>
-            )}
-          </Row>
+                          )}
+                        </ListGroup>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
 
-          <div className='d-flex justify-content-center align-items-center mt-5'>
-            <Button
-              variant='dark-danger'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              disabled={isLoading}
-              onClick={handleCancelRemedial}
-            >
-              Cancel
-            </Button>
+              <div className='d-flex justify-content-center align-items-center mt-5'>
+                <Button
+                  variant='dark-danger'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  disabled={isLoading}
+                  onClick={handleCancelRemedial}
+                >
+                  Cancel
+                </Button>
 
-            <Button
-              variant='dark-primary'
-              className='d-flex justify-content-center align-items-center'
-              type='submit'
-              disabled={isLoading}
-              onClick={handleSubmitRemedialAction}
-            >
-              {isLoading ? 'Submitting..' : 'Submit'}
-            </Button>
-          </div>
+                <Button
+                  variant='dark-primary'
+                  className='d-flex justify-content-center align-items-center'
+                  type='submit'
+                  disabled={isLoading}
+                  onClick={handleSubmitRemedialAction}
+                >
+                  {isLoading ? 'Submitting..' : 'Submit'}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>
