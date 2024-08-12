@@ -843,6 +843,18 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               minute: 'numeric',
             })
 
+            const invoiceDate = item.invoice_details.length
+              ? new Date(
+                  item?.invoice_details?.[0]?.invoices?.invoice_logs[0]?.created_at
+                ).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                })
+              : 'Order ini belum ada invoice'
+
             const grandTotal =
               item?.payment_type === 'survey'
                 ? Number(item?.grand_total ?? 0) +
@@ -851,6 +863,10 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
 
             data = {
               order_id: item.id,
+              invoice_id: item.invoice_details.length
+                ? item?.invoice_details?.[0]?.invoices?.id
+                : 'Order ini belum ada invoice',
+              date_invoice: invoiceDate,
               store_name: item?.store?.store_name,
               member_number: item?.members?.whatsapp_number,
               costumer_name: item?.members?.full_name,
@@ -859,6 +875,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               grand_total: `Rp. ${grandTotal.toLocaleString('id')}`,
               date_order: orderDate,
               order_status: item?.status?.description,
+              service_name:
+                item?.payment_type === 'survey' &&
+                item?.work_orders?.work_order_status[0]?.work_order_items.length === 0
+                  ? item?.m_order_details[0]?.item_notes
+                  : item?.payment_type === 'survey' &&
+                    item?.work_orders?.work_order_status[0]?.work_order_items.length >= 1
+                  ? item?.work_orders?.work_order_status[0]?.work_order_items
+                      .map((item: any) => item?.name)
+                      .join(', ')
+                  : item?.m_order_details?.map((item: any) => item?.item?.item_name).join(', '),
             }
 
             return data

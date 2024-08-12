@@ -121,7 +121,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const handleClose = () => setVisible(false)
 
   // Complaint Receipt
-  const [visibleComplaintReceipt, setVisibleComplaintReceipt] = useState(false)
+  const [visibleComplaint, setVisibleComplaint] = useState(false)
+
+  // Reschedule
+  const [visibleReschedule, setVisibleReschedule] = useState(false)
 
   // Work Before & Work After
   const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
@@ -1397,7 +1400,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       style={{cursor: 'pointer'}}
                       onClick={() => {
                         setPreviewImage(item.evidence_location)
-                        setVisibleComplaintReceipt(true)
+                        setVisibleComplaint(true)
                       }}
                     >
                       {item.evidence_location}
@@ -1438,10 +1441,10 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       style={{display: 'none'}}
                       src={`${apiUrl}/public/complaints/${previewImage}`}
                       preview={{
-                        visible: visibleComplaintReceipt,
+                        visible: visibleComplaint,
                         src: `${apiUrl}/public/complaints/${previewImage}`,
                         onVisibleChange: (value) => {
-                          setVisibleComplaintReceipt(value)
+                          setVisibleComplaint(value)
                         },
                       }}
                     />
@@ -1464,6 +1467,167 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   />
                 </div>
               )}
+            </Skeleton>
+          </Card.Body>
+        </Card>
+      )}
+
+      {order?.reschedule && order?.reschedule?.length > 0 && (
+        <Card className='mt-5'>
+          <Card.Header>
+            <Card.Title>Reschedule History</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+
+                    <p className='fs-6'>
+                      {order?.work_orders
+                        ? order.work_orders.work_start_date && order.work_orders.work_end_date
+                          ? `${new Date(order.work_orders.work_start_date).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                              }
+                            )} sampai ${new Date(
+                              order.work_orders.work_end_date
+                            ).toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            })}`
+                          : order.work_orders.survey_date
+                          ? new Date(order.work_orders.survey_date).toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            })
+                          : 'Tanggal belum dikonfirmasi vendor'
+                        : 'Tanggal belum dikonfirmasi vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
+
+                    <p className='fs-6'>
+                      {order?.reschedule[0]?.reschedule_date
+                        ? `${new Date(order?.reschedule[0]?.reschedule_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            }
+                          )}`
+                        : 'Tanggal belum ditentukan vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
+
+                    <p className='fs-6'>
+                      {order?.reschedule[0]?.confirm_date
+                        ? `${new Date(order?.reschedule[0]?.confirm_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            }
+                          )}`
+                        : 'Tanggal belum ditentukan vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Skeleton>
+
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Label className='mt-3'>Bukti File :</Form.Label>
+                  <ListGroup>
+                    {order?.reschedule?.[0]?.reschedule_evidences?.map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisibleReschedule(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+
+                  {previewImage && (
+                    <div>
+                      {previewImage.endsWith('.pdf') ? (
+                        <>
+                          <Modal
+                            dialogClassName='modal-show-pdf'
+                            centered
+                            show={visible}
+                            onHide={handleClose}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>File - {previewImage}</Modal.Title>
+                            </Modal.Header>
+
+                            <Modal.Body>
+                              <iframe
+                                key={previewImage}
+                                width='100%'
+                                height='100%'
+                                src={`${apiUrl}/public/reschedule/${previewImage}`}
+                                style={{border: 'none'}}
+                              />
+                            </Modal.Body>
+                          </Modal>
+                        </>
+                      ) : (
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/reschedule/${previewImage}`}
+                          preview={{
+                            visible: visibleReschedule,
+                            src: `${apiUrl}/public/reschedule/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisibleReschedule(value)
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </Col>
+              </Row>
             </Skeleton>
           </Card.Body>
         </Card>
