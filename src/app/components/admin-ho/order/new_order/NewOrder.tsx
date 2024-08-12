@@ -532,7 +532,7 @@ const NewOrderHO: FC = () => {
       ...orderForm,
       project_status_id: statusId,
     })
-  }, [orderForm.project_status_id])
+  }, [orderForm.payment_type])
 
   // Calculate each details
   const calcEachDetails = () => {

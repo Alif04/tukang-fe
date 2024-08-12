@@ -47,6 +47,7 @@ interface DataType {
   period_active: Date
   countdown_to_expired: Date
   period_expired: Date
+  grand_total: string
 }
 
 interface VendorItem {
@@ -143,6 +144,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
+      width: 100,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
@@ -179,6 +181,13 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         new Date(a.period_expired).getTime() - new Date(b.period_expired).getTime(),
     },
     {
+      title: 'Status',
+      dataIndex: 'quotation_status',
+      key: 'quotation_status',
+      align: 'left',
+      sorter: (a, b) => a.quotation_status.length - b.quotation_status.length,
+    },
+    {
       title: 'Status Order',
       dataIndex: 'order_status_label',
       key: 'order_status_label',
@@ -205,11 +214,12 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
     {
-      title: 'Status',
-      dataIndex: 'quotation_status',
-      key: 'quotation_status',
+      title: 'Grand Total Quotation',
+      dataIndex: 'grand_total',
+      key: 'grand_total',
       align: 'left',
-      sorter: (a, b) => a.quotation_status.length - b.quotation_status.length,
+      onFilter: (value, record) => record.grand_total.includes(String(value)),
+      sorter: (a, b) => a.grand_total.length - b.grand_total.length,
     },
     {
       title: 'Action',
@@ -238,7 +248,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {['QUOTEIN', 'UNPAID', 'PAID', 'QUOTEOUT', 'QUOTATIONPAID'].includes(
+            {['QUOTEIN', 'UNPAID', 'PAID', 'QUOTEOUT', 'QUOTATIONPAID', 'APPROVED'].includes(
               record.order_status
             ) && (
               <OverlayTrigger
@@ -399,6 +409,9 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           period_expired: quotationEndDate,
           countdown_to_expired: quotationCountdownText,
           quotation_status: quotationStatus,
+          grand_total: `Rp. ${
+            [parseInt(item?.quotation_grand_total).toLocaleString('id-ID')] ?? 0
+          }`,
           receipt_quotation: item.receipt_quotation
             ? item.receipt_quotation
             : 'Quotation belum dibayar',
