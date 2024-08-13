@@ -1164,6 +1164,15 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                             classNamePrefix='select'
                             placeholder='Pilih/Ketik Nama Pemasangan'
                             isSearchable={true}
+                            isClearable={true}
+                            styles={{
+                              singleValue: (base) => ({
+                                ...base,
+                                overflow: 'auto',
+                                whiteSpace: 'normal',
+                                textOverflow: '',
+                              }),
+                            }}
                             options={item}
                             name={`item_id`}
                             value={{

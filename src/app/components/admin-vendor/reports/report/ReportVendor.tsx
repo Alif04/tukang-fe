@@ -1374,16 +1374,19 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
                 size='large'
                 indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
               >
-                <Table
-                  className='table-striped-rows'
-                  bordered
-                  columns={columns}
-                  dataSource={reportData}
-                  rowKey={(record) => record.order_id}
-                  tableLayout='auto'
-                  scroll={{x: 'max-content'}}
-                  pagination={false}
-                />
+                <div className='table-custom-wrapper'>
+                  <Table
+                    className='table-striped-rows'
+                    bordered
+                    columns={columns}
+                    dataSource={reportData}
+                    rowKey={(record) => record.order_id}
+                    tableLayout='auto'
+                    scroll={{x: 'max-content'}}
+                    pagination={false}
+                    sticky={true}
+                  />
+                </div>
               </Spin>
 
               <div className='pagination-container mt-5'>

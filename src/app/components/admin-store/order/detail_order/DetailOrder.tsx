@@ -6,8 +6,7 @@ import './DetailOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {Image, Steps, Skeleton, Table} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
+import {Image, Steps, Skeleton} from 'antd'
 import {Row, Col, Form, ListGroup, Button, Card, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
@@ -28,7 +27,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-  const pdfRef = useRef<HTMLDivElement>(null)
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [loadingPDF, setLoadingPDF] = useState(false)
@@ -159,7 +157,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const complaintReceivedStatuses = getStatuses(['WARRANTYCLAIM', 'INVESTIGATED'])
   const investigationProcessStatuses = getStatuses([
     'COMPLAINTAPPROVEDBYHO',
     'COMPLAINTREJECTEDBYHO',
@@ -1532,8 +1530,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               day: '2-digit',
                               month: 'long',
                               year: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
                             }
                           )}`
                         : 'Tanggal belum ditentukan vendor'}

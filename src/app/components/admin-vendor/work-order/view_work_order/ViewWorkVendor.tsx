@@ -29,11 +29,9 @@ import {
   faBook,
   faPen,
   faSearch,
-  faPeopleArrowsLeftRight,
   faFileImage,
   faTrash,
   faImage,
-  faShuffle,
   faPrint,
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -72,17 +70,11 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
-
-  const today = new Date()
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -760,10 +752,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={[
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                ]}
+                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -808,16 +797,19 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={orderData}
-              rowKey={(record) => record.order_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={orderData}
+                rowKey={(record) => record.order_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <div className='pagination-container mt-5'>

@@ -422,16 +422,19 @@ const ViewItemHO: React.FC = () => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={itemData}
-              rowKey={(record) => record.material_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={itemData}
+                rowKey={(record) => record.material_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <Pagination

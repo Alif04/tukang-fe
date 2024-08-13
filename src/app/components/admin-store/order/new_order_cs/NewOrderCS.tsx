@@ -1431,6 +1431,14 @@ const NewOrderStoreCS: FC = () => {
                             isClearable={true}
                             options={item}
                             name={`item_id`}
+                            styles={{
+                              singleValue: (base) => ({
+                                ...base,
+                                overflow: 'auto',
+                                whiteSpace: 'normal',
+                                textOverflow: '',
+                              }),
+                            }}
                             value={orderForm.order_details[index]?.item ?? null}
                             onInputChange={(newValue) => setSearchItem(newValue)}
                             onChange={(newValue) => {

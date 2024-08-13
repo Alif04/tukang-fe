@@ -678,7 +678,7 @@ input.filter-ltr.form-control:focus {
 
 /* Table Styling */
 .table-custom-wrapper {
-  height: calc(110vh - 200px) !important;
+  max-height: 60vh !important;
   overflow: auto;
 }
 
