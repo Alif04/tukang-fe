@@ -292,6 +292,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     {value: 1, label: 'Sesi Pagi'},
     {value: 2, label: 'Sesi Siang'},
     {value: 3, label: 'Sesi Sore'},
+    {value: 4, label: 'Sesi Malam'},
   ]
   const [selectedSession, setSelectedSession] = useState<any>({
     value: null,
@@ -305,6 +306,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear()
     return `${year}-${month}-${day}`
+  }
+  const disabledDate = (current: dayjs.Dayjs) => {
+    const today = dayjs().startOf('day')
+    return current.isBefore(today, 'day')
   }
 
   // Filter Work Order Status
@@ -370,6 +375,37 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       session: selectedSession?.value ?? null,
     }))
   }, [selectedSession])
+
+  // Session
+  const range = (start: number, end: number): number[] =>
+    Array.from({length: end - start}, (_, i) => start + i)
+  const disabledHoursSessionMorning = (): number[] =>
+    range(0, 24).filter((hour) => hour < 8 || hour > 11)
+  const disabledHoursSessionAfternoon = (): number[] =>
+    range(0, 24).filter((hour) => hour < 12 || hour > 15)
+  const disabledHoursSessionNight = (): number[] =>
+    range(0, 24).filter((hour) => hour < 15 || hour > 21)
+  const disabledHoursSessionLateNight = (): number[] =>
+    range(0, 24).filter((hour) => hour < 21 || hour > 23)
+
+  const getDisabledHours = (session: string): number[] => {
+    switch (session) {
+      case 'Sesi Pagi':
+        return disabledHoursSessionMorning()
+      case 'Sesi Siang':
+        return disabledHoursSessionAfternoon()
+      case 'Sesi Sore':
+        return disabledHoursSessionNight()
+      case 'Sesi Malam':
+        return disabledHoursSessionLateNight()
+      default:
+        return []
+    }
+  }
+  const getSession = (): string => {
+    return selectedSession?.label || 'none'
+  }
+  const session = getSession()
 
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
@@ -635,22 +671,36 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         <div className='fs-4 fw-bold'>Survey</div>
 
                         <Form.Group className='detail-info mb-3'>
-                          <Form.Label>Tanggal Survey :</Form.Label>
+                          <Form.Label>Sesi :</Form.Label>
 
-                          {/* <Form.Control
-                            type='date'
-                            min={today}
-                            defaultValue={workOrder ? workOrder.survey_date : ''}
-                            onChange={(e) => workOrderHandler(e.target.value, 'survey_date')}
-                          /> */}
+                          <Select
+                            name='session_id'
+                            className='form-control p-0'
+                            classNamePrefix='select'
+                            placeholder='Pilih Sesi'
+                            isSearchable={true}
+                            options={sessionOptions}
+                            value={{
+                              value: selectedSession?.value ?? null,
+                              label: selectedSession?.label ?? 'Pilih Sesi',
+                            }}
+                            onChange={(newValue) => setSelectedSession(newValue)}
+                          />
+                        </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Tanggal Survey :</Form.Label>
 
                           {orderDetail?.status?.category !== 'SURVEYDONE' ? (
                             <DatePicker
                               showTime={{
                                 format: 'HH:mm',
+                                hideDisabledOptions: true,
+                                disabledHours: () => getDisabledHours(session),
                               }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
+                              disabledDate={disabledDate}
                               value={
                                 workOrder.survey_date
                                   ? dayjs(workOrder.survey_date, 'YYYY-MM-DD HH:mm')
@@ -697,24 +747,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             onInputChange={(newValue) => setSearchTukang(newValue)}
                           />
                         </Form.Group>
-
-                        <Form.Group className='detail-info mb-3'>
-                          <Form.Label>Sesi :</Form.Label>
-
-                          <Select
-                            name='session_id'
-                            className='form-control p-0'
-                            classNamePrefix='select'
-                            placeholder='Pilih Sesi'
-                            isSearchable={true}
-                            options={sessionOptions}
-                            value={{
-                              value: selectedSession?.value ?? null,
-                              label: selectedSession?.label ?? 'Pilih Sesi',
-                            }}
-                            onChange={(newValue) => setSelectedSession(newValue)}
-                          />
-                        </Form.Group>
                       </div>
                     </Col>
                   )}
@@ -735,15 +767,36 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         <div className='fs-4 fw-bold'>Pengerjaan</div>
 
                         <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Sesi :</Form.Label>
+
+                          <Select
+                            name='session_id'
+                            className='form-control p-0'
+                            classNamePrefix='select'
+                            placeholder='Pilih Sesi'
+                            isSearchable={true}
+                            options={sessionOptions}
+                            value={{
+                              value: selectedSession?.value ?? null,
+                              label: selectedSession?.label ?? '',
+                            }}
+                            onChange={(newValue) => setSelectedSession(newValue)}
+                          />
+                        </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
                           <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
 
                           {orderDetail?.status?.category !== 'WORKEND' ? (
                             <RangePicker
                               showTime={{
                                 format: 'HH:mm',
+                                hideDisabledOptions: true,
+                                disabledHours: () => getDisabledHours(session),
                               }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
+                              disabledDate={disabledDate}
                               value={
                                 (workOrder.work_start_date &&
                                   workOrder.work_end_date && [
@@ -823,24 +876,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             value={workOrder.tukang_id.filter((x) => x.type === 2)}
                             onChange={(e) => tukangHandler(e, 'work_tukang_id')}
                             onInputChange={(newValue) => setSearchTukang(newValue)}
-                          />
-                        </Form.Group>
-
-                        <Form.Group className='detail-info mb-3'>
-                          <Form.Label>Sesi :</Form.Label>
-
-                          <Select
-                            name='session_id'
-                            className='form-control p-0'
-                            classNamePrefix='select'
-                            placeholder='Pilih Sesi'
-                            isSearchable={true}
-                            options={sessionOptions}
-                            value={{
-                              value: selectedSession?.value ?? null,
-                              label: selectedSession?.label ?? '',
-                            }}
-                            onChange={(newValue) => setSelectedSession(newValue)}
                           />
                         </Form.Group>
                       </div>

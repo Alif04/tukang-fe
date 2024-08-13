@@ -1998,8 +1998,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                     classNamePrefix='select'
                                     placeholder='Pilih/Ketik Nama Pemasangan'
                                     isSearchable={true}
+                                    isClearable={true}
                                     options={item}
                                     name={`item_id`}
+                                    styles={{
+                                      singleValue: (base) => ({
+                                        ...base,
+                                        overflow: 'auto',
+                                        whiteSpace: 'normal',
+                                        textOverflow: '',
+                                      }),
+                                    }}
                                     value={{
                                       value: orderForm.order_details[index]?.item_id ?? null,
                                       label: orderForm.order_details[index]?.item?.label ?? '',

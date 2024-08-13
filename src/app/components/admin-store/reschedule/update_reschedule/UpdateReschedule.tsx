@@ -815,7 +815,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                         month: 'long',
                         year: 'numeric',
                       })}`
-                    : 'Tanggal belum ditentukan vendor'}
+                    : 'Tanggal belum ditentukan user'}
                 </p>
               </Form.Group>
             </Col>

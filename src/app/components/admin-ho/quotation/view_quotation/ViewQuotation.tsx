@@ -98,10 +98,11 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       key: 'quotation_id',
       align: 'center',
       defaultSortOrder: 'descend',
+      width: 100,
       sorter: (a, b) => a.quotation_id - b.quotation_id,
     },
     {
-      title: 'Nama Store',
+      title: 'Nama Toko',
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
@@ -114,6 +115,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       key: 'order_id',
       align: 'center',
       className: 'col_order_id',
+      width: 100,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -601,16 +603,19 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={quotationData}
-              rowKey={(record) => record.quotation_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={quotationData}
+                rowKey={(record) => record.quotation_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <Pagination

@@ -119,6 +119,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
+      width: 100,
       sorter: (a: DataType, b: DataType) => a.order_id - b.order_id,
     },
     {
@@ -217,6 +218,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       align: 'center',
+      width: 100,
       render: (record: DataType) => {
         const handleDetailId = () => {
           const id = record.order_id
@@ -497,17 +499,20 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={claimWarrantyData}
-              rowKey={(record) => record.order_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-              onChange={handleFilterChange}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={claimWarrantyData}
+                rowKey={(record) => record.order_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+                onChange={handleFilterChange}
+              />
+            </div>
 
             {/* <List
               dataSource={claimWarrantyData}

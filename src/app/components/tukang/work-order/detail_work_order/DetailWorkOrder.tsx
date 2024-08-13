@@ -702,9 +702,6 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                                   </td>
                                   <td>{item?.quantity ?? 0}</td>
                                   <td>{item?.unit ?? '-'}</td>
-                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
                                 </tr>
                               ))}
                           </tbody>

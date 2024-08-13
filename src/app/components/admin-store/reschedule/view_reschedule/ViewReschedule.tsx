@@ -80,6 +80,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'reschedule_id',
       key: 'reschedule_id',
       align: 'center',
+      width: 100,
       sorter: (a, b) => a.reschedule_id - b.reschedule_id,
     },
     {
@@ -89,6 +90,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
+      width: 90,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -127,6 +129,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
+      width: 120,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
@@ -135,6 +138,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
+      width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -174,6 +178,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'reschedule_status_label',
       key: 'reschedule_status_label',
       align: 'left',
+      width: 120,
       render: (reschedule_status) => {
         const rescheduleStatus = reschedule_status
         let color = ''
@@ -203,6 +208,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
+      width: 100,
       render: (record) => {
         const handleEdit = () => {
           const id = record.reschedule_id
@@ -419,16 +425,19 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={rescheduleData}
-              rowKey={(record) => record.reschedule_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={rescheduleData}
+                rowKey={(record) => record.reschedule_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <div className='pagination-container mt-5'>

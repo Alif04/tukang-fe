@@ -204,7 +204,7 @@ const ViewCalendarHO: React.FC = () => {
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const complaintReceivedStatuses = getStatuses(['WARRANTYCLAIM', 'INVESTIGATED'])
   const investigationProcessStatuses = getStatuses([
     'COMPLAINTAPPROVEDBYHO',
     'COMPLAINTREJECTEDBYHO',
@@ -360,7 +360,7 @@ const ViewCalendarHO: React.FC = () => {
           initialView='dayGridMonth'
           displayEventTime={false}
           eventDisplay=''
-          dayMaxEvents={3}
+          dayMaxEvents={7}
           weekends={true}
           events={order}
           eventOrder={''}
