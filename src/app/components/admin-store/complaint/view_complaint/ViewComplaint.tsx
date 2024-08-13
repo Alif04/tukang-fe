@@ -82,6 +82,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'complaint_id',
       align: 'center',
       className: 'text-start',
+      width: 100,
       sorter: (a, b) => a.complaint_id - b.complaint_id,
     },
     {
@@ -90,6 +91,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'order_id',
       align: 'center',
       className: 'text-start',
+      width: 100,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -191,6 +193,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'complaint_age',
       key: 'complaint_age',
       className: 'col-complaint-date text-start',
+      width: 120,
       onFilter: (value, record) => record.complaint_age.includes(String(value)),
       sorter: (a, b) => a.complaint_age.length - b.complaint_age.length,
     },
@@ -475,16 +478,19 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={complaintData}
-              rowKey={(record) => record.complaint_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={complaintData}
+                rowKey={(record) => record.complaint_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <div className='pagination-container mt-5'>

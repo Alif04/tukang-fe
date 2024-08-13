@@ -534,16 +534,19 @@ const ViewReportTukang = () => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={workOrderData}
-              rowKey={(record) => record.order_id}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-              pagination={false}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={workOrderData}
+                rowKey={(record) => record.order_id}
+                tableLayout='auto'
+                sticky={true}
+                scroll={{x: 'max-content'}}
+                pagination={false}
+              />
+            </div>
           </Spin>
 
           <div className='pagination-container mt-5'>

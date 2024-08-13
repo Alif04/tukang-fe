@@ -147,11 +147,10 @@ const ViewOrders: FC = () => {
   const [queryParams, setQueryParams] = useState('')
   const [activeKey, setActiveKey] = useState<number>(1)
 
-  const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(
     ['Super User', 'Admin HO'].includes(userRole)
       ? new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0]
+      : new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
   )
   const [dateTo, setDateTo] = useState<any>(
     ['Super User', 'Admin HO'].includes(userRole)
@@ -160,12 +159,6 @@ const ViewOrders: FC = () => {
   )
 
   const [searchFilter, setSearchFilter] = useState<string>('')
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
 
   const [store, setStore] = useState<StoreItem[]>([])
   const storeOptions = [{value: null, label: 'All Store'}, ...store]
@@ -2702,23 +2695,25 @@ const ViewOrders: FC = () => {
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       width: 100,
-      sorter: (a, b) => a.order_id - b.order_id,
+      sorter: (a: DataType, b: DataType) => a.order_id - b.order_id,
     },
     {
       title: 'Tanggal Order',
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'left',
-      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+      sorter: (a: DataType, b: DataType) =>
+        new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
-    {
+    !['Store Staff', 'Store CS'].includes(userRole) && {
       title: 'Nama Toko',
       dataIndex: 'assign_from',
       key: 'assign_from',
-      align: 'center',
+      align: 'left',
       className: 'col_order_id',
-      onFilter: (value, record) => record.assign_from.includes(String(value)),
-      sorter: (a, b) => a.assign_from.length - b.assign_from.length,
+      width: 120,
+      onFilter: (value: DataType, record: DataType) => record.assign_from.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.assign_from.length - b.assign_from.length,
     },
     {
       title: 'Nama Vendor',
@@ -2726,8 +2721,8 @@ const ViewOrders: FC = () => {
       key: 'vendor_name',
       align: 'center',
       className: 'col_order_id',
-      onFilter: (value, record) => record.vendor_name.includes(String(value)),
-      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+      onFilter: (value: DataType, record: DataType) => record.vendor_name.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.vendor_name.length - b.vendor_name.length,
     },
     {
       title: 'Nama Customer',
@@ -2735,8 +2730,8 @@ const ViewOrders: FC = () => {
       key: 'costumer_name',
       align: 'left',
       width: 140,
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+      onFilter: (value: DataType, record: DataType) => record.costumer_name.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.costumer_name.length - b.costumer_name.length,
     },
     {
       title: 'No. Telp / WA',
@@ -2744,7 +2739,7 @@ const ViewOrders: FC = () => {
       key: 'phone_number',
       align: 'left',
       width: 120,
-      sorter: (a, b) => a.phone_number - b.phone_number,
+      sorter: (a: DataType, b: DataType) => a.phone_number - b.phone_number,
     },
     {
       title: 'Status Pembayaran Receipt',
@@ -2752,8 +2747,9 @@ const ViewOrders: FC = () => {
       key: 'payment_receipt',
       align: 'left',
       width: 200,
-      onFilter: (value, record) => record.payment_receipt.includes(String(value)),
-      sorter: (a, b) => a.payment_receipt.length - b.payment_receipt.length,
+      onFilter: (value: DataType, record: DataType) =>
+        record.payment_receipt.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.payment_receipt.length - b.payment_receipt.length,
       filters: [
         {text: 'FREE', value: 'FREE'},
         {text: 'UNPAID', value: 'UNPAID'},
@@ -2766,7 +2762,7 @@ const ViewOrders: FC = () => {
       key: 'order_status_label',
       align: 'left',
       filters: statusFilters,
-      render: (order_status_label) => {
+      render: (order_status_label: any) => {
         const orderStatus = order_status_label
         let color = ''
 
@@ -2784,8 +2780,10 @@ const ViewOrders: FC = () => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      onFilter: (value, record) => record.order_status_label.includes(String(value)),
-      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
+      onFilter: (value: DataType, record: DataType) =>
+        record.order_status_label.includes(String(value)),
+      sorter: (a: DataType, b: DataType) =>
+        a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Status Pembayaran Quotation',
@@ -2793,8 +2791,9 @@ const ViewOrders: FC = () => {
       key: 'payment_quotation',
       align: 'left',
       width: 230,
-      onFilter: (value, record) => record.payment_quotation.includes(String(value)),
-      sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
+      onFilter: (value: DataType, record: DataType) =>
+        record.payment_quotation.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.payment_quotation.length - b.payment_quotation.length,
       filters: [
         {text: 'UNPAID', value: 'UNPAID'},
         {text: 'PAID', value: 'PAID'},
@@ -2805,7 +2804,7 @@ const ViewOrders: FC = () => {
       key: 'action',
       align: 'center',
       fixed: 'right',
-      render: (record) => {
+      render: (record: any) => {
         const id = record.order_id
         const handlePrintout = (status: string) => {
           if (['PICKLIST'].includes(status)) {
@@ -3003,7 +3002,7 @@ const ViewOrders: FC = () => {
         )
       },
     },
-  ]
+  ].filter(Boolean) as ColumnsType<DataType>
 
   return (
     <section id='view-order'>
@@ -3022,10 +3021,7 @@ const ViewOrders: FC = () => {
                 defaultValue={
                   ['Super User', 'Admin HO'].includes(userRole)
                     ? [dayjs().subtract(14, 'day'), dayjs()]
-                    : [
-                        dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                        dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                      ]
+                    : [dayjs().subtract(7, 'day'), dayjs()]
                 }
                 onChange={(values) => {
                   if (values && values.length === 2) {

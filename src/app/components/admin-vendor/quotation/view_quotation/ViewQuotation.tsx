@@ -417,16 +417,19 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={orderData}
-              rowKey={(record) => record.quotation_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={orderData}
+                rowKey={(record) => record.quotation_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <Pagination

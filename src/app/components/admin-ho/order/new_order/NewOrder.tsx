@@ -532,7 +532,7 @@ const NewOrderHO: FC = () => {
       ...orderForm,
       project_status_id: statusId,
     })
-  }, [orderForm.project_status_id])
+  }, [orderForm.payment_type])
 
   // Calculate each details
   const calcEachDetails = () => {
@@ -1574,6 +1574,14 @@ const NewOrderHO: FC = () => {
                             placeholder='Pilih/Ketik Nama Pemasangan'
                             isSearchable={true}
                             isClearable={true}
+                            styles={{
+                              singleValue: (base) => ({
+                                ...base,
+                                overflow: 'auto',
+                                whiteSpace: 'normal',
+                                textOverflow: '',
+                              }),
+                            }}
                             options={item}
                             name={`item_id`}
                             value={orderForm.order_details[index]?.item ?? null}

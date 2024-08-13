@@ -6,8 +6,7 @@ import './DetailOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {Image, Steps, Skeleton, Table} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
+import {Image, Steps, Skeleton} from 'antd'
 import {Row, Col, Form, ListGroup, Button, Card, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
@@ -28,7 +27,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-  const pdfRef = useRef<HTMLDivElement>(null)
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [loadingPDF, setLoadingPDF] = useState(false)
@@ -120,6 +118,12 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const [visible, setVisible] = useState(false)
   const handleClose = () => setVisible(false)
 
+  // Complaint Receipt
+  const [visibleComplaint, setVisibleComplaint] = useState(false)
+
+  // Reschedule
+  const [visibleReschedule, setVisibleReschedule] = useState(false)
+
   // Work Before & Work After
   const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
   const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
@@ -153,7 +157,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   ]
 
   // Statuses for Complaint Timeline
-  const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
+  const complaintReceivedStatuses = getStatuses(['WARRANTYCLAIM', 'INVESTIGATED'])
   const investigationProcessStatuses = getStatuses([
     'COMPLAINTAPPROVEDBYHO',
     'COMPLAINTREJECTEDBYHO',
@@ -1376,93 +1380,254 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         </Card.Body>
       </Card>
 
-      <Card className='mt-5'>
-        <Card.Header>
-          <Card.Title>Complaint History</Card.Title>
-        </Card.Header>
+      {order?.complaints && order?.complaints?.length > 0 && (
+        <Card className='mt-5'>
+          <Card.Header>
+            <Card.Title>Complaint History</Card.Title>
+          </Card.Header>
 
-        <Card.Body>
-          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-            <Form.Label className='mt-3'>Bukti Komplain :</Form.Label>
-            <ListGroup>
-              {order?.complaints?.[0]?.complaint_histories[0]?.complaint_evidence?.map(
-                (item: any) => (
-                  <ListGroup.Item
-                    key={item.id}
-                    action
-                    style={{cursor: 'pointer'}}
-                    onClick={() => {
-                      setPreviewImage(item.evidence_location)
-                      setVisible(true)
-                    }}
-                  >
-                    {item.evidence_location}
-                  </ListGroup.Item>
-                )
-              )}
-            </ListGroup>
-
-            {previewImage && (
-              <div>
-                {previewImage.endsWith('.pdf') ? (
-                  <>
-                    <Modal
-                      dialogClassName='modal-show-pdf'
-                      centered
-                      show={visible}
-                      onHide={handleClose}
+          <Card.Body>
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              <Form.Label className='mt-3'>Bukti Komplain :</Form.Label>
+              <ListGroup>
+                {order?.complaints?.[0]?.complaint_histories[0]?.complaint_evidence?.map(
+                  (item: any) => (
+                    <ListGroup.Item
+                      key={item.id}
+                      action
+                      style={{cursor: 'pointer'}}
+                      onClick={() => {
+                        setPreviewImage(item.evidence_location)
+                        setVisibleComplaint(true)
+                      }}
                     >
-                      <Modal.Header closeButton>
-                        <Modal.Title>File - {previewImage}</Modal.Title>
-                      </Modal.Header>
-
-                      <Modal.Body>
-                        <iframe
-                          key={previewImage}
-                          width='100%'
-                          height='100%'
-                          src={`${apiUrl}/public/complaints/${previewImage}`}
-                          style={{border: 'none'}}
-                        />
-                      </Modal.Body>
-                    </Modal>
-                  </>
-                ) : (
-                  <Image
-                    key={previewImage}
-                    width={200}
-                    style={{display: 'none'}}
-                    src={`${apiUrl}/public/complaints/${previewImage}`}
-                    preview={{
-                      visible,
-                      src: `${apiUrl}/public/complaints/${previewImage}`,
-                      onVisibleChange: (value) => {
-                        setVisible(value)
-                      },
-                    }}
-                  />
+                      {item.evidence_location}
+                    </ListGroup.Item>
+                  )
                 )}
-              </div>
-            )}
-          </Skeleton>
+              </ListGroup>
 
-          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-            {order?.complaints && order?.complaints?.length >= 1 && (
-              <div className='complaint-history  mt-3 mb-3'>
-                <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
-                <Steps
-                  className='complaint-history-timeline'
-                  current={complaintHistory.findIndex((step) =>
-                    step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+              {previewImage && (
+                <div>
+                  {previewImage.endsWith('.pdf') ? (
+                    <>
+                      <Modal
+                        dialogClassName='modal-show-pdf'
+                        centered
+                        show={visible}
+                        onHide={handleClose}
+                      >
+                        <Modal.Header closeButton>
+                          <Modal.Title>File - {previewImage}</Modal.Title>
+                        </Modal.Header>
+
+                        <Modal.Body>
+                          <iframe
+                            key={previewImage}
+                            width='100%'
+                            height='100%'
+                            src={`${apiUrl}/public/complaints/${previewImage}`}
+                            style={{border: 'none'}}
+                          />
+                        </Modal.Body>
+                      </Modal>
+                    </>
+                  ) : (
+                    <Image
+                      key={previewImage}
+                      width={200}
+                      style={{display: 'none'}}
+                      src={`${apiUrl}/public/complaints/${previewImage}`}
+                      preview={{
+                        visible: visibleComplaint,
+                        src: `${apiUrl}/public/complaints/${previewImage}`,
+                        onVisibleChange: (value) => {
+                          setVisibleComplaint(value)
+                        },
+                      }}
+                    />
                   )}
-                  labelPlacement='vertical'
-                  items={complaintHistory}
-                />
-              </div>
-            )}
-          </Skeleton>
-        </Card.Body>
-      </Card>
+                </div>
+              )}
+            </Skeleton>
+
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              {order?.complaints && order?.complaints?.length >= 1 && (
+                <div className='complaint-history  mt-3 mb-3'>
+                  <div className='fs-3 fw-bold text-danger mb-4'>Complaint History</div>
+                  <Steps
+                    className='complaint-history-timeline'
+                    current={complaintHistory.findIndex((step) =>
+                      step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+                    )}
+                    labelPlacement='vertical'
+                    items={complaintHistory}
+                  />
+                </div>
+              )}
+            </Skeleton>
+          </Card.Body>
+        </Card>
+      )}
+
+      {order?.reschedule && order?.reschedule?.length > 0 && (
+        <Card className='mt-5'>
+          <Card.Header>
+            <Card.Title>Reschedule History</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+
+                    <p className='fs-6'>
+                      {order?.work_orders
+                        ? order.work_orders.work_start_date && order.work_orders.work_end_date
+                          ? `${new Date(order.work_orders.work_start_date).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                              }
+                            )} sampai ${new Date(
+                              order.work_orders.work_end_date
+                            ).toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            })}`
+                          : order.work_orders.survey_date
+                          ? new Date(order.work_orders.survey_date).toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            })
+                          : 'Tanggal belum dikonfirmasi vendor'
+                        : 'Tanggal belum dikonfirmasi vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
+
+                    <p className='fs-6'>
+                      {order?.reschedule[0]?.reschedule_date
+                        ? `${new Date(order?.reschedule[0]?.reschedule_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                            }
+                          )}`
+                        : 'Tanggal belum ditentukan vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
+
+                    <p className='fs-6'>
+                      {order?.reschedule[0]?.confirm_date
+                        ? `${new Date(order?.reschedule[0]?.confirm_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            }
+                          )}`
+                        : 'Tanggal belum ditentukan vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Skeleton>
+
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Label className='mt-3'>Bukti File :</Form.Label>
+                  <ListGroup>
+                    {order?.reschedule?.[0]?.reschedule_evidences?.map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisibleReschedule(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+
+                  {previewImage && (
+                    <div>
+                      {previewImage.endsWith('.pdf') ? (
+                        <>
+                          <Modal
+                            dialogClassName='modal-show-pdf'
+                            centered
+                            show={visible}
+                            onHide={handleClose}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>File - {previewImage}</Modal.Title>
+                            </Modal.Header>
+
+                            <Modal.Body>
+                              <iframe
+                                key={previewImage}
+                                width='100%'
+                                height='100%'
+                                src={`${apiUrl}/public/reschedule/${previewImage}`}
+                                style={{border: 'none'}}
+                              />
+                            </Modal.Body>
+                          </Modal>
+                        </>
+                      ) : (
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/reschedule/${previewImage}`}
+                          preview={{
+                            visible: visibleReschedule,
+                            src: `${apiUrl}/public/reschedule/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisibleReschedule(value)
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </Col>
+              </Row>
+            </Skeleton>
+          </Card.Body>
+        </Card>
+      )}
 
       <Card className='mt-5'>
         <Card.Body>

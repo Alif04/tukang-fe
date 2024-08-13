@@ -155,7 +155,7 @@ const DetailQuotationVendor: FC = () => {
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
-                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Profit</th>
                   <th className='text-center'>Total</th>
                 </tr>
               </thead>
@@ -190,7 +190,7 @@ const DetailQuotationVendor: FC = () => {
                   <th className='text-center'>QTY</th>
                   <th className='text-center'>Satuan</th>
                   <th className='text-center'>Price</th>
-                  <th className='text-center'>Margin</th>
+                  <th className='text-center'>Profit</th>
                   <th className='text-center'>Total</th>
                 </tr>
               </thead>
@@ -204,6 +204,8 @@ const DetailQuotationVendor: FC = () => {
                           {item?.name ?? '-'}{' '}
                           {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
                         </td>
+                        <td>{item?.quantity}</td>
+                        <td>{item?.unit}</td>
                         <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
                         <td>
                           {item.margin_type === 1
@@ -248,39 +250,6 @@ const DetailQuotationVendor: FC = () => {
               </tbody>
             </Table>
           </Row>
-
-          {/* <Row className='payment-information mb-2'>
-            <div className='payment-method'>
-              <div className='fs-3 fw-semibold mb-2'>
-                Silahkan melakukan pembayaran di account di bawah ini :
-              </div>
-
-              <div className='fs-4 fw-normal'>{quotationDetail?.vendor?.bank_account}</div>
-              <div className='fs-4 fw-normal'>{quotationDetail?.vendor?.bank_name}</div>
-              <div className='fs-4 fw-normal'>{quotationDetail?.vendor?.bank_number}</div>
-            </div>
-
-            <div className='payment-evidence'>
-              <div className='fs-3 fw-semibold mb-2'>Silahkan kirim bukti bayar anda melalui:</div>
-
-              <div className='fs-4 fw-normal'>
-                {`Telp : ${
-                  quotationDetail?.vendor?.phone_number_1 ??
-                  quotationDetail?.vendor?.phone_number_2 ??
-                  'Nomor telepon belum tersedia'
-                }`}
-              </div>
-
-              <div className='fs-4 fw-normal'>
-                {' '}
-                {`Email : ${
-                  quotationDetail?.vendor?.email ??
-                  quotationDetail?.vendor?.email ??
-                  'Email belum tersedia'
-                }`}
-              </div>
-            </div>
-          </Row> */}
         </Card.Body>
       </Card>
 

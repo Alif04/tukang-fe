@@ -30,7 +30,6 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Detail
-  const [orderId, setOrderId] = useState<string>('')
   const [orderDetail, setOrderDetail] = useState<any>()
 
   const getOrderDetail = async () => {
@@ -51,7 +50,10 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
           updatePageTitle(data)
 
           if (data?.id) {
-            setOrderId(data.id)
+            setWarrantyForm((prev) => ({
+              ...prev,
+              order_id: data.id,
+            }))
           }
         })
     } catch (error) {
@@ -117,6 +119,14 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
     })
   }
 
+  // Complaint Channel
+  useEffect(() => {
+    setWarrantyForm((prev) => ({
+      ...prev,
+      complaint_channel: selectedComplaintChannel?.value ?? null,
+    }))
+  }, [selectedComplaintChannel])
+
   // Warranty Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
@@ -156,7 +166,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
       formData.append('order_id', String(warrantyForm.order_id))
       formData.append('description', warrantyForm.description)
       formData.append('complaint_date', warrantyForm.complaint_date)
-      formData.append('complaint_channel', warrantyForm.complaint_status)
+      formData.append('complaint_channel', String(warrantyForm.complaint_channel))
       formData.append('complaint_status', warrantyForm.complaint_status)
       formData.append('type', String(warrantyForm.type))
 
@@ -173,8 +183,9 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Add Claim Warranty',
+              text: 'Berhasil membuat klaim garansi',
               icon: 'success',
+              showConfirmButton: false,
             })
 
             setIsLoading(false)
@@ -183,6 +194,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
               title: 'Error',
               text: response.data.message,
               icon: 'error',
+              showConfirmButton: false,
             })
 
             setIsLoading(false)
@@ -625,7 +637,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                                   {item.is_customer ? '( Disediakan oleh customer )' : ''}
                                 </td>
                                 <td>{item.quantity ?? 0}</td>
-                                <td>{item.unit ?? ''}</td>
+                                <td>{item.unit ?? '-'}</td>
                               </tr>
                             )
                           )

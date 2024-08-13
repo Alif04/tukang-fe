@@ -67,6 +67,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       key: 'number',
       align: 'center',
       sorter: (a, b) => a.number - b.number,
+      width: 110,
     },
     {
       title: 'Nama Toko',
@@ -112,7 +113,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.email_address.length - b.email_address.length,
     },
     {
-      title: 'Join Date',
+      title: 'Tanggal Join',
       dataIndex: 'customer_since',
       key: 'customer_since',
       align: 'center',
@@ -123,12 +124,14 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       dataIndex: 'total_order',
       key: 'total_order',
       align: 'center',
+      width: 120,
       sorter: (a, b) => a.total_order - b.total_order,
     },
     {
       title: 'Action',
       key: 'action',
       fixed: 'right',
+      width: 100,
       render: (record) => {
         const handleDetail = () => {
           const id = record.costumer_id
@@ -383,16 +386,19 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={memberData}
-              rowKey={(record) => record.costumer_id}
-              pagination={false}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={memberData}
+                rowKey={(record) => record.costumer_id}
+                pagination={false}
+                sticky={true}
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+              />
+            </div>
           </Spin>
 
           <Pagination

@@ -29,8 +29,6 @@ import {
   faImage,
   faFileImage,
   faTrash,
-  faUserXmark,
-  faPeopleArrowsLeftRight,
 } from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
@@ -65,7 +63,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
@@ -185,7 +185,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-
       render: (record) => {
         const id = record.work_order_id
 
@@ -551,10 +550,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={[
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                ]}
+                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -599,16 +595,19 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={workOrderData}
-              rowKey={(record) => record.work_order_id}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-              pagination={false}
-            />
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={workOrderData}
+                rowKey={(record) => record.work_order_id}
+                tableLayout='auto'
+                sticky={true}
+                scroll={{x: 'max-content'}}
+                pagination={false}
+              />
+            </div>
           </Spin>
 
           <div className='pagination-container mt-5'>

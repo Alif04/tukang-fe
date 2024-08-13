@@ -588,16 +588,19 @@ const DetailTukangVendor: FC = () => {
                 size='large'
                 indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
               >
-                <Table
-                  className='table-striped-rows'
-                  bordered
-                  columns={columnsOrder}
-                  dataSource={workOrderData}
-                  rowKey={(record) => record.work_order_id}
-                  tableLayout='auto'
-                  scroll={{x: 'max-content'}}
-                  pagination={false}
-                />
+                <div className='table-custom-wrapper'>
+                  <Table
+                    className='table-striped-rows'
+                    bordered
+                    columns={columnsOrder}
+                    dataSource={workOrderData}
+                    rowKey={(record) => record.work_order_id}
+                    tableLayout='auto'
+                    scroll={{x: 'max-content'}}
+                    pagination={false}
+                    sticky={true}
+                  />
+                </div>
               </Spin>
 
               <Pagination
