@@ -11,13 +11,8 @@ import {Card, Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
-interface OptionRemedialStatus {
-  value: any
-  label: string
-}
-
-interface Position {
-  value: string
+interface RemedialStatus {
+  value: number | null
   label: string
 }
 
@@ -31,8 +26,8 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const userId = localStorage.getItem('user_id') as any
   const username = localStorage.getItem('username') as string
+  const userRole = localStorage.getItem('userRole') as string
 
   // Complaint Detail
   const [complaintId, setComplaintId] = useState<any>()
@@ -104,30 +99,17 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
   }, [])
 
   // Add Remedial Action
-  const [picRemedialId, setPicRemedialId] = useState<any>()
   const [picFeedback, setPicFeedback] = useState<string>(username)
-  const [picPosition, setPicPosition] = useState<string>('')
-  const picPositions = [
-    {value: 'Owner Vendor', label: 'Owner Vendor'},
-    {value: 'Admin Vendor', label: 'Admin Vendor'},
-  ]
-
+  const [picPosition, setPicPosition] = useState<string>(userRole)
   const [remedialDesc, setRemedialDesc] = useState<any>('')
   const [remedialStartDate, setremedialStartDate] = useState<string>('')
-  const [remedialEndDate, setremedialEndDate] = useState<string>('')
   const [remedialEvidence, setRemedialEvidence] = useState<Array<File | null>>([])
 
   const evidenceRef = useRef<HTMLInputElement>(null)
 
   // Remedial Status
-  const [optionRemedialStatus, setOptionRemedialStatus] = useState<OptionRemedialStatus[]>([])
+  const [optionRemedialStatus, setOptionRemedialStatus] = useState<RemedialStatus[]>([])
   const [optionRemedialStatusId, setOptionRemedialStatusId] = useState<string>('')
-
-  // PIC Remedial
-  useEffect(() => {
-    const updatedPicRemedial = userId.toString()
-    setPicRemedialId(updatedPicRemedial)
-  }, [userId])
 
   // Handle Input Change
   const handleInputRemedialDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,28 +121,6 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
   const handleChangeSelectRemedialStatus = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const updatedOptionRemedialStatusId = event.target.value
     setOptionRemedialStatusId(updatedOptionRemedialStatusId)
-  }
-
-  // Handle Complaint Date Change
-  const today = new Date().toISOString().split('T')[0]
-
-  const handlePicFeedbackChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setPicFeedback(updatedInputValue)
-  }
-
-  const handlePicPositonChange = (element: Position | null) => {
-    const picPosition: Position = {
-      value: element?.value ?? '',
-      label: element?.label ?? '',
-    }
-
-    setPicPosition(picPosition.value)
-  }
-
-  const handleChangeremedialStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedremedialStartDate = event.target.value
-    setremedialStartDate(updatedremedialStartDate)
   }
 
   // Handle Change Upload File
@@ -272,7 +232,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Add Feedback',
+              text: 'Berhasil menambahkan feedback',
               icon: 'success',
               showConfirmButton: false,
               timer: 1500,
@@ -1161,39 +1121,14 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
               <Row>
                 <Col xs={12} md={12} lg={12} xl={12} xxl={12}>
-                  <div className='fs-3 fw-bold text-success'>REMEDIAL ACTION</div>
+                  <div className='fs-3 fw-bold text-success mb-3'>REMEDIAL ACTION</div>
 
                   <Row>
                     <Col>
                       <Form.Group>
-                        <Form.Label className='mt-3'>PIC Feedback :</Form.Label>
+                        <Form.Label>Feedback ke Store :</Form.Label>
                         <Form.Control
-                          placeholder='Isi Nama Pemberi Feedback'
-                          type='text'
-                          value={picFeedback}
-                          onChange={handlePicFeedbackChange}
-                        />
-                      </Form.Group>
-
-                      <Form.Group>
-                        <Form.Label className='mt-3'>Jabatan :</Form.Label>
-                        <Select
-                          name='pic_position'
-                          id='pic_position'
-                          className='form-control p-0 form-item-name'
-                          classNamePrefix='select'
-                          placeholder='Jabatan'
-                          isSearchable={true}
-                          isClearable={true}
-                          options={picPositions}
-                          onChange={(element) => handlePicPositonChange(element)}
-                        />
-                      </Form.Group>
-
-                      <Form.Group>
-                        <Form.Label className='mt-5'>Feedback ke Store :</Form.Label>
-                        <Form.Control
-                          style={{minHeight: '180px'}}
+                          style={{minHeight: '255px'}}
                           as='textarea'
                           onChange={handleInputRemedialDesc}
                         ></Form.Control>
@@ -1201,8 +1136,8 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                     </Col>
 
                     <Col>
-                      <Form.Group>
-                        <Form.Label className='mt-3'>Change Status :</Form.Label>
+                      <Form.Group className='mb-3'>
+                        <Form.Label>Change Status :</Form.Label>
 
                         <Form.Select onChange={handleChangeSelectRemedialStatus}>
                           <option selected>Select Status</option>
@@ -1212,7 +1147,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                         </Form.Select>
                       </Form.Group>
 
-                      <Form.Group controlId='formFile' className='mt-3'>
+                      <Form.Group controlId='formFile'>
                         <Form.Label>Upload Bukti</Form.Label>
                         <Form className='form-input-image' onClick={handleImageClick}>
                           <Form.Control
