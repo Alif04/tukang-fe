@@ -197,13 +197,15 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
         const statusIncentive = (status: number) => {
           switch (status) {
             case 1:
-              return 'Draft'
+              return 'Potensial Insentif'
             case 2:
-              return 'Menunggu pembayaran'
+              return 'Pengajuan Insentif'
             case 3:
-              return 'Sudah dibayarkan'
+              return 'Insentif dibayarkan'
             case 4:
               return 'Ditolak'
+            case 5:
+              return 'Lost Insentif'
             default:
               return ''
           }

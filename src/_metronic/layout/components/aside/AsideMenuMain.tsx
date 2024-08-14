@@ -25,14 +25,6 @@ export function AsideMenuMain() {
     })
   }
 
-  // Delete Local Storage after 1 day
-  const deleteLocalStorage = () => {
-    localStorage.clear()
-    window.location.reload()
-  }
-
-  setTimeout(deleteLocalStorage, 24 * 60 * 60 * 1000)
-
   return (
     <>
       {/* Halaman Home */}

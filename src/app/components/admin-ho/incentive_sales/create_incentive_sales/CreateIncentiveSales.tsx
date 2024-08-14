@@ -17,6 +17,7 @@ interface StoreSelect {
 interface IncentiveSales {
   name: string
   min_order: number
+  max_order: number
   incentive: number
   type: number
   stores: any[]
@@ -96,12 +97,11 @@ const CreateIncentiveSales: FC = () => {
   const [incentive, setIncentive] = useState<IncentiveSales>({
     name: '',
     min_order: 0,
+    max_order: 0,
     incentive: 0,
     type: 1,
     stores: [],
   })
-
-  console.log('incentive', incentive)
 
   // Incentive Form Handler
   const incentiveFormHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -208,6 +208,13 @@ const CreateIncentiveSales: FC = () => {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Min Order form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!incentive.max_order) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Max Order form',
         icon: 'warning',
       })
       valid = false
@@ -340,6 +347,19 @@ const CreateIncentiveSales: FC = () => {
 
               <Form.Control
                 name='min_order'
+                type='number'
+                defaultValue={0}
+                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Maksimal Order ( Rupiah ) :</Form.Label>
+
+              <Form.Control
+                name='max_order'
                 type='number'
                 defaultValue={0}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}

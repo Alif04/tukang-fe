@@ -1,16 +1,17 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import {FC, useRef, useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import {useLayout} from '../../core'
 import {KTSVG, toAbsoluteUrl} from '../../../helpers'
 import {AsideMenu} from './AsideMenu'
+import axiosInstance from '../../core/axiosInterceptor'
 
 interface User {
   user_id: number | null
   username: string
-  full_name: string
   roles: string
 }
 
@@ -20,35 +21,26 @@ const AsideDefault: FC = () => {
   const {aside} = config
 
   const apiUrl = process.env.REACT_APP_API_URL
+  const userId = localStorage.getItem('user_id')
+
   const [user, setUser] = useState<User>({
     user_id: null,
     username: '',
-    full_name: '',
     roles: '',
   })
 
   const getUser = async () => {
     try {
-      await axios
-        .get(`${apiUrl}/auth/find-user/${localStorage.getItem('user_id')}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
+      await axiosInstance.get(`${apiUrl}/auth/find-user/${userId}`).then((response) => {
+        const data = response.data.data
+        setUser({
+          user_id: data.id,
+          username: data.username,
+          roles: data?.roles?.name,
         })
-        .then((response) => {
-          const data = response.data.data
-          setUser({
-            user_id: data.id,
-            username: data.username,
-            full_name: data?.tukang[0]?.full_name,
-            roles: data?.roles?.name,
-          })
-        })
-    } catch (error) {
-      console.error('Error fetching data:', error)
+      })
+    } catch (error: any) {
+      console.log('error when fetching data', error)
     }
   }
 
@@ -115,7 +107,7 @@ const AsideDefault: FC = () => {
               : role === 'Admin HO' || role === 'Super User'
               ? username
               : role === 'Tukang'
-              ? user.full_name
+              ? user.username
               : role === 'Store CS'
               ? storeName
               : fullName}

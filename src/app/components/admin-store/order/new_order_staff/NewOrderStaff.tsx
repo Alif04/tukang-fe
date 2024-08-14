@@ -1,4 +1,5 @@
 import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './NewOrder.css'
@@ -244,14 +245,17 @@ const NewOrderStoreStaff: FC = () => {
     const search = searchSales ? `&search=${searchSales}` : ''
 
     try {
-      const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axiosInstance.get(
+        `${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const tempSales = response.data.data.map((item: any) => ({
@@ -265,22 +269,13 @@ const NewOrderStoreStaff: FC = () => {
         console.error('API response data is not an array:', response.data)
       }
     } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        Swal.fire({
-          title: 'Sesi Anda Telah Berakhir',
-          text: 'Silahkan Logout dan Login Ulang Kembali',
-          icon: 'warning',
-          confirmButtonText: 'Ok',
-        })
-      } else {
-        console.log('error when fetching data', error)
-      }
+      console.log('error when fetching data', error)
     }
   }
 
   const getVendor = async () => {
     await axios
-      .get(`${apiUrl}/vendor?store_id=${staffStoreId}`, {
+      .get(`${apiUrl}/vendor?store_id=${staffStoreId}&take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewQuotation.css'
@@ -225,7 +226,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const response = await axiosInstance.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

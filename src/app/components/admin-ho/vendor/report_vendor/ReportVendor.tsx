@@ -1,16 +1,15 @@
 import React, {useState, useEffect, FC} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 
 import {ChartBar} from './components/ChartBar'
 import {ChartLine} from './components/ChartLine'
 import {ChartLine2} from './components/ChartLine2'
-import {ChartDonut} from './components/ChartDonut'
-import {ChartDonut2} from './components/ChartDonut2'
 import {TopVendorWidget} from './components/TopVendor'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Select from 'react-select'
-import {Card, Row, Col, Button} from 'react-bootstrap'
+import {Card, Row, Col, Button, Tab, Nav} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -26,6 +25,7 @@ const ReportVendorHO: FC = () => {
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -35,14 +35,8 @@ const ReportVendorHO: FC = () => {
 
   const [loadingButton, setLoadingButton] = useState(false)
 
-  const [orderData, setOrderData] = useState<any[]>([])
-  const [workOrderData, setWorkOrderData] = useState<any[]>([])
-  const [invoiceData, setInvoiceData] = useState<any[]>([])
-  const [complaintData, setComplaintData] = useState<any[]>([])
-
-  const [chartOrder, setChartOrder] = useState<any[]>([])
+  const [chartData, setChartData] = useState<any[]>([])
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
-  const [chartComplaint, setChartComplaint] = useState<any[]>([])
 
   const [vendor, setVendor] = useState<VendorItem[]>([])
   const [vendorOption, setVendorOption] = useState<VendorItem[]>([])
@@ -56,7 +50,7 @@ const ReportVendorHO: FC = () => {
 
   const getVendor = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/vendor?take=0&top_best=1`, {
+      const response = await axiosInstance.get(`${apiUrl}/vendor?take=0&top_best=1`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -81,29 +75,6 @@ const ReportVendorHO: FC = () => {
     }
   }
 
-  const getOrder = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/orders?order_by=desc&take=0&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      const data = response.data.data
-
-      setOrderData(data)
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
   const getReportOrder = async () => {
     try {
       const response = await axios.get(
@@ -119,6 +90,7 @@ const ReportVendorHO: FC = () => {
       )
 
       const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -129,17 +101,17 @@ const ReportVendorHO: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-      setChartOrder(slicedData)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
+      setChartData(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
-  const getWorkOrder = async () => {
+  const getReportWorkOrder = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/reports/work-orders?take=0&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
+        `${apiUrl}/reports/work-orders?date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -150,9 +122,8 @@ const ReportVendorHO: FC = () => {
         }
       )
 
-      const data = response.data.data
-
-      const chartDatas = response.data.monthlyWorkOrders
+      const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -163,92 +134,24 @@ const ReportVendorHO: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setWorkOrderData(data)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
       setChartWorkOrder(slicedData)
-      return data
     } catch (error) {
       console.error(error)
     }
   }
 
-  const getComplaint = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/reports/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      const data = response.data.data
-
-      const chartDatas = response.data.monthlyComplaint
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setComplaintData(data)
-      setChartComplaint(slicedData)
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const getInvoices = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/invoices?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      const data = response.data.data
-
-      setInvoiceData(data)
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
   useEffect(() => {
     getVendor()
-    getOrder()
     getReportOrder()
-    getWorkOrder()
-    getComplaint()
-    getInvoices()
+    getReportWorkOrder()
   }, [])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
-    await getOrder()
     await getReportOrder()
-    await getWorkOrder()
-    await getComplaint()
+    await getReportWorkOrder()
 
     setLoadingButton(false)
   }
@@ -256,19 +159,17 @@ const ReportVendorHO: FC = () => {
   const sumTotal = (data: any, key: string) =>
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
 
-  const totalOrder = sumTotal(chartOrder, 'totalOrder')
-  const surveyOrder = sumTotal(chartOrder, 'orderSurvey')
-  const workOrder = sumTotal(chartOrder, 'totalWork')
-  const orderDone = sumTotal(chartOrder, 'totalOrderDone')
+  const totalOrders = sumTotal(chartWorkOrder, 'totalOrder')
+  const paidQuotation = sumTotal(chartWorkOrder, 'totalPaidQuotation')
+  const totalCancel = sumTotal(chartWorkOrder, 'totalCancel')
 
-  const totalInvoices = sumTotal(chartComplaint, 'totalInvoice')
-  const totalPaidInvoices = sumTotal(chartComplaint, 'totalPaidInvoices')
-  const totalUnpaidInvoices = sumTotal(chartComplaint, 'totalUnpaidInvoices')
+  const waitingSurvey = sumTotal(chartWorkOrder, 'totalWaitingSurvey')
+  const surveyOrder = sumTotal(chartWorkOrder, 'totalSurveyStart')
+  const surveyOrderDone = sumTotal(chartWorkOrder, 'totalSurveyDone')
 
-  const totalComplaint = sumTotal(chartOrder, 'totalComplaint')
-  const totalApprovedComplaint = sumTotal(chartComplaint, 'totalApprovedByHO')
-  const totalRejectedComplaint = sumTotal(chartComplaint, 'totalRejectByHo')
-  const totalResolveComplaint = sumTotal(chartComplaint, 'totalResolve')
+  const waitingWork = sumTotal(chartWorkOrder, 'totalWaitingWork')
+  const workInProgress = sumTotal(chartWorkOrder, 'totalWorkStart')
+  const orderDone = sumTotal(chartWorkOrder, 'totalOrderDone')
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-2'>
@@ -280,7 +181,7 @@ const ReportVendorHO: FC = () => {
   )
 
   return (
-    <>
+    <section id='report-work-order'>
       {/* begin::Row */}
       <div className='row g-5 g-xl-8 mb-5'>
         <div className='col-md-4'>
@@ -350,17 +251,16 @@ const ReportVendorHO: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
+      <Row className='g-5 g-xl-8'>
         <div className='col-xl-4'>
           <Card className='mb-5'>
-            <Card.Body>
-              <div className='fs-5 fw-normal mb-5'>Pekerjaan bulan ini</div>
+            <Card.Body style={{minHeight: '170px'}}>
+              <div className='fs-5 fw-normal mb-5'>Order</div>
 
-              <div className='d-flex justify-content-between mb-5'>
-                {renderStat(totalOrder, 'Total Order')}
-                {renderStat(surveyOrder, 'Survei')}
-                {renderStat(workOrder, 'Pengerjaan')}
-                {renderStat(orderDone, 'Selesai')}
+              <div className='d-flex justify-content-between'>
+                {renderStat(totalOrders, 'Masuk')}
+                {renderStat(paidQuotation, 'Quotation dibayar Customer')}
+                {renderStat(totalCancel, 'Dibatalkan')}
               </div>
             </Card.Body>
           </Card>
@@ -368,13 +268,13 @@ const ReportVendorHO: FC = () => {
 
         <div className='col-xl-4'>
           <Card className='mb-5'>
-            <Card.Body>
-              <div className='fs-5 fw-normal mb-5'>Invoice bulan ini</div>
+            <Card.Body style={{minHeight: '170px'}}>
+              <div className='fs-5 fw-normal mb-5'>Survei bulan ini</div>
 
-              <div className='d-flex justify-content-between mb-5'>
-                {renderStat(totalInvoices, 'Tagihan')}
-                {renderStat(totalPaidInvoices, 'Dibayar')}
-                {renderStat(totalUnpaidInvoices, 'Belum Dibayar')}
+              <div className='d-flex justify-content-between'>
+                {renderStat(waitingSurvey, 'Permintaan survei')}
+                {renderStat(surveyOrder, 'Survei dimulai')}
+                {renderStat(surveyOrderDone, 'Survei selesai')}
               </div>
             </Card.Body>
           </Card>
@@ -382,35 +282,63 @@ const ReportVendorHO: FC = () => {
 
         <div className='col-xl-4'>
           <Card className='mb-5'>
-            <Card.Body>
-              <div className='fs-5 fw-normal mb-5'>Complaint bulan ini</div>
+            <Card.Body style={{minHeight: '170px'}}>
+              <div className='fs-5 fw-normal mb-5'>Pengerjaan bulan ini</div>
 
-              <div className='d-flex justify-content-between mb-5'>
-                {renderStat(totalComplaint, 'Masuk')}
-                {renderStat(totalApprovedComplaint, 'Diterima')}
-                {renderStat(totalRejectedComplaint, 'Ditolak')}
-                {renderStat(totalResolveComplaint, 'Selesai')}
+              <div className='d-flex justify-content-between'>
+                {renderStat(waitingWork, 'Permintaan pengerjaan')}
+                {renderStat(workInProgress, 'Pengerjaan dimulai')}
+                {renderStat(orderDone, 'Pengerjaan Selesai')}
               </div>
             </Card.Body>
           </Card>
         </div>
-      </div>
+      </Row>
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartOrder} />
-        </div>
+      <Row className='g-5 g-xl-8'>
+        <Col>
+          <Tab.Container defaultActiveKey={1}>
+            <Nav fill variant='tabs'>
+              <Nav.Item>
+                <Nav.Link key={1} eventKey={1} style={{cursor: 'pointer'}}>
+                  Total Order
+                </Nav.Link>
+              </Nav.Item>
 
-        <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartOrderData={chartOrder} />
-        </div>
+              <Nav.Item>
+                <Nav.Link key={2} eventKey={2} style={{cursor: 'pointer'}}>
+                  Survei bulan ini
+                </Nav.Link>
+              </Nav.Item>
 
-        <div className='col-xl-4'>
-          <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartComplaint} />
-        </div>
-      </div>
+              <Nav.Item>
+                <Nav.Link key={3} eventKey={3} style={{cursor: 'pointer'}}>
+                  Pengerjaan bulan ini
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
+
+            <Tab.Content>
+              <Tab.Pane eventKey={1}>
+                <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartData} />
+              </Tab.Pane>
+
+              <Tab.Pane eventKey={2}>
+                <ChartLine
+                  className='card-xl-stretch mb-5 mb-xl-8'
+                  chartWorkOrder={chartWorkOrder}
+                />
+              </Tab.Pane>
+
+              <Tab.Pane eventKey={3}>
+                <ChartLine2 className='card-xl-stretch mb-xl-8' chartWorkOrder={chartWorkOrder} />
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
+        </Col>
+      </Row>
       {/* end::Row */}
 
       {/* begin::Row */}
@@ -436,7 +364,7 @@ const ReportVendorHO: FC = () => {
         </div>
       </div>
       {/* end::Row */}
-    </>
+    </section>
   )
 }
 

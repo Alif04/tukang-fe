@@ -25,7 +25,7 @@ const NewBank: FC = () => {
 
   // Fetch API Data
   useEffect(() => {
-    const getStoreId = async () => {
+    const getBankId = async () => {
       try {
         const response = await axios.get(`${apiUrl}/bank/next-code`, {
           headers: {
@@ -50,7 +50,7 @@ const NewBank: FC = () => {
       }
     }
 
-    getStoreId()
+    getBankId()
   }, [])
 
   // Bank Form Handler

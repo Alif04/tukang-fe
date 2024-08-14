@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {FC, useEffect, useState, useRef} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewOrder.css'
@@ -141,10 +142,12 @@ const ViewOrders: FC = () => {
   const [mailLogs, setMailLogs] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
   const [orderData, setOrderData] = useState<DataType[]>([])
+
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const [pageSize, setPageSize] = useState<number>(50)
   const [totalData, setTotalData] = useState<number>(0)
   const [queryParams, setQueryParams] = useState('')
+
   const [activeKey, setActiveKey] = useState<number>(1)
 
   const [dateFrom, setDateFrom] = useState<any>(
@@ -617,7 +620,7 @@ const ViewOrders: FC = () => {
     }
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const response = await axiosInstance.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -632,16 +635,7 @@ const ViewOrders: FC = () => {
 
       return response.data.data
     } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        Swal.fire({
-          title: 'Sesi Anda Telah Berakhir',
-          text: 'Silahkan Logout dan Login Ulang Kembali',
-          icon: 'warning',
-          confirmButtonText: 'Ok',
-        })
-      } else {
-        console.log('error when fetching data', error)
-      }
+      console.log('error when fetching data', error)
     }
   }
 
@@ -801,7 +795,7 @@ const ViewOrders: FC = () => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, queryParams)
+    fetchData(currentPage, pageSize, queryParams)
   }, [queryParams])
 
   const handleSubmitFilter = async () => {
@@ -819,7 +813,7 @@ const ViewOrders: FC = () => {
     valueCheck(`&vendor_id=`, selectedVendor?.value)
 
     setQueryParams(queryparams)
-    const data = await ViewOrder(1, 10, queryparams)
+    const data = await ViewOrder(currentPage, pageSize, queryparams)
     setOrderData(data)
 
     setLoadingButton(false)
@@ -3121,10 +3115,12 @@ const ViewOrders: FC = () => {
               showSizeChanger
               pageSizeOptions={[5, 10, 20, 50, 100]}
               itemRender={itemRender}
+              defaultPageSize={pageSize}
               onShowSizeChange={(current, size) => {
                 setPageSize(size)
               }}
               onChange={(page, pageSize) => {
+                setCurrentPage(page)
                 fetchData(page, pageSize, queryParams)
               }}
             />

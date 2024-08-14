@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './NewComplaint.css'
@@ -94,7 +95,7 @@ const NewComplaintForm: FC = () => {
         }
       })()
 
-      const response = await axios.get(url, {
+      const response = await axiosInstance.get(url, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

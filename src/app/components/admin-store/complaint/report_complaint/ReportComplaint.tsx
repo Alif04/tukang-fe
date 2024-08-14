@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 
 import {TotalComplaint} from './components/TotalComplaint'
 import {TotalResurvey} from './components/TotalResurvey'
@@ -122,7 +123,7 @@ const ReportComplaintPage: FC = () => {
     let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&page=${page}&take=${pageSize}&date_from=${dateFrom}&date_to=${dateTo}${storeId}${vendorId}${tukangId}${queryparams}`
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const response = await axiosInstance.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
