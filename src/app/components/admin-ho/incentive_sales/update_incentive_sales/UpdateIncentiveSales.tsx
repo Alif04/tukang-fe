@@ -17,6 +17,7 @@ interface StoreSelect {
 interface IncentiveSales {
   name: string
   min_order: number
+  max_order: number
   incentive: number
   type: number
   stores: any[]
@@ -52,6 +53,7 @@ const UpdateIncentiveSales: FC = () => {
               ...prev,
               name: data?.name,
               min_order: data?.min_order,
+              max_order: data?.max_order,
               incentive: parseInt(data?.incentive),
               type: data?.type,
               stores: promotionStores,
@@ -130,12 +132,11 @@ const UpdateIncentiveSales: FC = () => {
   const [incentive, setIncentive] = useState<IncentiveSales>({
     name: '',
     min_order: 0,
+    max_order: 0,
     incentive: 0,
     type: 1,
     stores: [],
   })
-
-  console.log('incentive', incentive)
 
   // Incentive Form Handler
   const incentiveFormHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -246,6 +247,13 @@ const UpdateIncentiveSales: FC = () => {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Min Order form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (!incentive.max_order) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Max Order form',
         icon: 'warning',
       })
       valid = false
@@ -382,6 +390,19 @@ const UpdateIncentiveSales: FC = () => {
                 name='min_order'
                 type='number'
                 value={incentive.min_order}
+                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Maksimal Order ( Rupiah ) :</Form.Label>
+
+              <Form.Control
+                name='max_order'
+                type='number'
+                value={incentive.max_order}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>

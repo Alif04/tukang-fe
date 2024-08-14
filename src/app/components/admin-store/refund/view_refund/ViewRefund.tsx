@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewRefund.css'
@@ -208,7 +209,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     let apiUrlWithParams = `${apiUrl}/refund?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}`
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const response = await axiosInstance.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateReschedule.css'
@@ -49,7 +50,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
   const getRescheduleDetail = async () => {
     try {
-      await axios
+      await axiosInstance
         .get(`${apiUrl}/reschedule/${params.id}`, {
           headers: {
             Accept: 'application/json',

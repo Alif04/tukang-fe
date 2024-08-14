@@ -9,14 +9,26 @@ import Swal from 'sweetalert2'
 import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+
+interface Bank {
+  id: number | null
+  bank_name: string
+}
+
+interface DataType {
+  bank_id: number
+  bank_name: string
+  join_date: string
+}
 
 const ListBankHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
@@ -32,20 +44,126 @@ const ListBankHO: React.FC = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  interface DataType {
-    bank_id: number
-    bank_name: string
-    join_date: string
+  // Bank
+  const [bankInfo, setBankInfo] = useState<Bank>({
+    id: null,
+    bank_name: '',
+  })
+
+  // Fetch API Data
+  useEffect(() => {
+    const getBankId = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/bank/next-code`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        console.log(response.data.data.code)
+
+        if (response.status === 200) {
+          const {data} = response
+          setBankInfo((prev) => ({
+            ...prev,
+            id: data.data.code,
+          }))
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getBankId()
+  }, [])
+
+  // Bank Form Handler
+  const bankInfoFormHandler = (e: any) => {
+    setBankInfo((prevStoreInfo) => ({
+      ...prevStoreInfo,
+      [e.target.name]: e.target.value,
+    }))
   }
 
-  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+  // Bank Validation
+  const bankValidation = () => {
+    let valid = true
 
+    if (!bankInfo.bank_name) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please fill Nama Bank form',
+        icon: 'error',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  // Handle Submit Bank
+  const handleSubmitNewBank = async () => {
+    if (!bankValidation()) {
+      return false
+    }
+
+    setIsLoading(true)
+
+    await axios
+      .post(`${apiUrl}/bank`, bankInfo, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil menambahkan bank',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            window.location.reload()
+          })
+
+          setIsLoading(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setIsLoading(false)
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        setIsLoading(false)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  // Kolom Tabel
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
   const columns: ColumnsType<DataType> = [
     {
       title: 'No.',
       dataIndex: 'bank_id',
       key: 'bank_id',
-      align: 'center',
+      align: 'left',
+      width: 80,
       sorter: (a, b) => a.bank_id - b.bank_id,
       render: (text: any, record: any, index: number) => {
         return (currentPage - 1) * pageSize + index + 1
@@ -55,8 +173,9 @@ const ListBankHO: React.FC = () => {
       title: 'Nama Bank',
       dataIndex: 'bank_name',
       key: 'bank_name',
-      align: 'center',
+      align: 'left',
       className: 'text-start',
+      width: 150,
       onFilter: (value, record) => record.bank_name.includes(String(value)),
       sorter: (a, b) => a.bank_name.length - b.bank_name.length,
     },
@@ -64,7 +183,7 @@ const ListBankHO: React.FC = () => {
       title: 'Tanggal dibuat',
       dataIndex: 'join_date',
       key: 'join_date',
-      align: 'center',
+      align: 'left',
       onFilter: (value, record) => record.join_date.includes(String(value)),
       sorter: (a, b) => a.join_date.length - b.join_date.length,
     },
@@ -73,6 +192,7 @@ const ListBankHO: React.FC = () => {
       key: 'action',
       align: 'center',
       fixed: 'right',
+      width: 90,
       render: (record) => {
         const handleUpdate = () => {
           const id = record.bank_id
@@ -257,12 +377,21 @@ const ListBankHO: React.FC = () => {
     setLoadingButton(false)
   }
 
+  // Modal
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const handleShowModal = () => setShowModal(true)
+  const handleCloseModal = () => setShowModal(false)
+
   return (
     <section id='view-item'>
       <div className='card'>
         <div className='card-body'>
           <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}></Col>
+            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
+              <Button variant='primary' onClick={handleShowModal}>
+                Tambah Bank
+              </Button>
+            </Col>
 
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search mb-3'>
@@ -331,6 +460,50 @@ const ListBankHO: React.FC = () => {
             )}
           />
         </div>
+
+        {/* Modal */}
+        <Modal show={showModal} onHide={handleCloseModal} dialogClassName='modal-dialog-centered'>
+          <Modal.Header closeButton>
+            <Modal.Title>Formulir Tambah Bank</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            <Form.Group className='mb-5'>
+              <Form.Label>Bank ID</Form.Label>
+
+              <Form.Control
+                name='bank_id'
+                type='number'
+                readOnly
+                value={bankInfo.id?.toString()}
+                onChange={(e) => bankInfoFormHandler(e)}
+              />
+            </Form.Group>
+
+            <Form.Group className='mb-5'>
+              <Form.Label>Nama Bank</Form.Label>
+
+              <Form.Control
+                name='bank_name'
+                type='text'
+                placeholder='Silahkan isi nama bank'
+                value={bankInfo.bank_name}
+                onChange={(e) => bankInfoFormHandler(e)}
+              />
+            </Form.Group>
+
+            <div className='d-flex justify-content-center align-items-center'>
+              <Button
+                className='d-flex justify-content-center align-items-center'
+                variant='dark-primary'
+                disabled={isLoading}
+                onClick={handleSubmitNewBank}
+              >
+                {isLoading ? 'Saving..' : 'Save'}
+              </Button>
+            </div>
+          </Modal.Body>
+        </Modal>
       </div>
     </section>
   )

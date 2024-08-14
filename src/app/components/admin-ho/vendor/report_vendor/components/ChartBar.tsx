@@ -53,16 +53,25 @@ export {ChartBar}
 function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
+  const baseColor = getCSSVariableValue('--kt-primary')
+  const secondaryColor = getCSSVariableValue('--kt-info')
+  const isHour = chartOrderData?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartOrderData.length === 24
+  )
 
   return {
     series: [
       {
-        name: 'Order Masuk',
-        data: chartOrderData?.map((item: any) => item?.totalOrder),
+        name: 'Masuk',
+        data: chartOrderData.map((item: any) => item?.totalOrder),
       },
       {
-        name: 'Order Selesai',
-        data: chartOrderData?.map((item: any) => item?.totalOrderDone),
+        name: 'Quotation sudah dibayar customer (Menunggu Perintah Kerja)',
+        data: chartOrderData.map((item: any) => item?.totalPaidQuotation),
+      },
+      {
+        name: 'Dibatalkan',
+        data: chartOrderData.map((item: any) => item?.totalCancel),
       },
     ],
     chart: {
@@ -93,7 +102,13 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: chartOrderData?.map((item: any) => item?.month),
+      categories: chartOrderData?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
@@ -109,6 +124,10 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return typeof val === 'number' ? val.toFixed(0) : val
+        },
+        show: true,
         style: {
           colors: labelColor,
           fontSize: '12px',
@@ -145,11 +164,11 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return val + ' Order'
+          return val + ''
         },
       },
     },
-    colors: ['#009DFF', '#22E4FF'],
+    colors: [baseColor, secondaryColor],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,
@@ -159,5 +178,33 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
         },
       },
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: '1200px',
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              columnWidth: '100%',
+              borderRadius: 0,
+            },
+          },
+          xaxis: {
+            labels: {
+              formatter: function (val: any) {
+                return typeof val === 'number' ? val.toFixed(0) : val
+              },
+              style: {
+                colors: labelColor,
+                fontSize: '12px',
+              },
+            },
+          },
+        },
+      },
+    ],
   }
 }

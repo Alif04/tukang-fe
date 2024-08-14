@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 
 import './TotalOrderReport.css'
 
@@ -48,8 +49,6 @@ const TotalOrderReportStore: React.FC<Props> = ({
   params,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
-
-  console.log('title', title)
 
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
@@ -187,7 +186,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
     }
 
     try {
-      const response = await axios.get(url, {
+      const response = await axiosInstance.get(url, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

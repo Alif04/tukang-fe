@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './ViewComplaint.css'
@@ -276,7 +277,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     let apiUrlWithParams = `${apiUrl}/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${storeId}${vendorId}${tukangId}${queryparams}`
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const response = await axiosInstance.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

@@ -7,10 +7,10 @@ import {bottom} from '@popperjs/core'
 
 type Props = {
   className: string
-  chartOrderData: any[]
+  chartWorkOrder: any[]
 }
 
-const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
+const ChartLine: React.FC<Props> = ({className, chartWorkOrder}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
 
@@ -21,7 +21,7 @@ const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
 
     const height = parseInt(getCSS(chartRef.current, 'height'))
 
-    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartOrderData))
+    const chart = new ApexCharts(chartRef.current, getChartOptions(height, chartWorkOrder))
     if (chart) {
       chart.render()
     }
@@ -37,7 +37,7 @@ const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
         chart.destroy()
       }
     }
-  }, [chartRef, mode, chartOrderData])
+  }, [chartRef, mode, chartWorkOrder])
 
   return (
     <div className={`card ${className}`}>
@@ -50,30 +50,43 @@ const ChartLine: React.FC<Props> = ({className, chartOrderData}) => {
 
 export {ChartLine}
 
-function getChartOptions(height: number, chartOrderData: any): ApexOptions {
+function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
+  const baseColor = getCSSVariableValue('--kt-primary')
+  const baseLightColor = getCSSVariableValue('--kt-primary-light')
+  const secondaryColor = getCSSVariableValue('--kt-info')
+  const secondaryLightColor = getCSSVariableValue('--kt-info-light')
+  const isHour = chartWorkOrder?.every(
+    (item: any) => /^\d+$/.test(item.period) && chartWorkOrder.length === 24
+  )
 
   return {
     series: [
       {
-        name: 'Survei',
-        data: chartOrderData?.map((item: any) => item?.orderSurvey ?? 0),
+        name: 'Permintaan survei',
+        data: chartWorkOrder.map((item: any) => item?.totalWaitingSurvey),
       },
       {
-        name: 'Pekerjaan',
-        data: chartOrderData?.map((item: any) => item?.orderWork ?? 0),
+        name: 'Survei selesai',
+        data: chartWorkOrder.map((item: any) => item?.totalSurveyDone),
       },
     ],
     chart: {
       fontFamily: 'inherit',
-      type: 'area',
+      type: 'bar',
       height: 350,
       toolbar: {
         show: false,
       },
     },
-    plotOptions: {},
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '75%',
+        borderRadius: 0,
+      },
+    },
     legend: {
       show: true,
       position: bottom,
@@ -81,16 +94,19 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     dataLabels: {
       enabled: false,
     },
-    fill: {
-      type: 'solid',
-      opacity: 0.4,
-    },
     stroke: {
-      curve: 'straight',
+      show: true,
+      width: 2,
+      colors: ['transparent'],
     },
     xaxis: {
-      categories: chartOrderData?.map((item: any) => item.month),
-
+      categories: chartWorkOrder?.map((item: any) => {
+        if (/^\d+$/.test(item.period)) {
+          return isHour ? `${item.period}:00` : `${item.period}`
+        } else {
+          return `${item.period}`
+        }
+      }),
       axisBorder: {
         show: false,
       },
@@ -122,6 +138,9 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
     },
     yaxis: {
       labels: {
+        formatter: function (val) {
+          return typeof val === 'number' ? val.toFixed(0) : val
+        },
         style: {
           colors: labelColor,
           fontSize: '12px',
@@ -155,11 +174,11 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       },
       y: {
         formatter: function (val) {
-          return '' + val
+          return val + ' Order'
         },
       },
     },
-    colors: ['#009DFF', '#22E4FF'],
+    colors: [baseColor, secondaryColor],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,
@@ -170,8 +189,37 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
       },
     },
     markers: {
-      colors: ['#009DFF'],
-      size: 5,
+      colors: [baseLightColor, secondaryLightColor],
+      strokeColors: [baseLightColor, secondaryLightColor],
+      strokeWidth: 3,
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: '1200px',
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              columnWidth: '100%',
+              borderRadius: 0,
+            },
+          },
+          xaxis: {
+            labels: {
+              formatter: function (val: any) {
+                return typeof val === 'number' ? val.toFixed(0) : val
+              },
+              style: {
+                colors: labelColor,
+                fontSize: '12px',
+              },
+            },
+          },
+        },
+      },
+    ],
   }
 }

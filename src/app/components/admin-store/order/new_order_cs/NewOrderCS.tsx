@@ -1,4 +1,5 @@
 import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './NewOrder.css'
@@ -255,14 +256,17 @@ const NewOrderStoreCS: FC = () => {
     const search = searchSales ? `&search=${searchSales}` : ''
 
     try {
-      const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axiosInstance.get(
+        `${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const tempSales = response.data.data.map((item: any) => ({
@@ -276,22 +280,13 @@ const NewOrderStoreCS: FC = () => {
         console.error('API response data is not an array:', response.data)
       }
     } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        Swal.fire({
-          title: 'Sesi Anda Telah Berakhir',
-          text: 'Silahkan Logout dan Login Ulang Kembali',
-          icon: 'warning',
-          confirmButtonText: 'Ok',
-        })
-      } else {
-        console.log('error when fetching data', error)
-      }
+      console.log('error when fetching data', error)
     }
   }
 
   const getVendor = async () => {
     await axios
-      .get(`${apiUrl}/vendor?store_id=${staffStoreId}`, {
+      .get(`${apiUrl}/vendor?store_id=${staffStoreId}&take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -867,6 +862,8 @@ const NewOrderStoreCS: FC = () => {
         return surveyDate === requestSurvey
       } else if (surveyDate && workStartDate && workEndDate) {
         return workStartDate <= requestSurvey && requestSurvey <= workEndDate
+      } else if (!surveyDate && workStartDate && workEndDate) {
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
       } else {
         return surveyDate === requestSurvey
       }
@@ -884,14 +881,14 @@ const NewOrderStoreCS: FC = () => {
         x.is_active === true &&
         x.deleted_at === null &&
         maxOrder > x.slot_order &&
-        x.slot_order < orderVendor.length
+        x.slot_order < workOrderVendor.length
       return isAvailable
     }).length
 
     // Vendor Availbility Based On Tukang Active
-    if (tukangActive === 0 && orderVendor.length >= 0) {
+    if (tukangActive === 0 && workOrderVendor.length >= 0) {
       return <p className='text-danger'>UNAVAILABLE</p>
-    } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
+    } else if (tukangActiveAvailability === 0 && workOrderVendor.length > 0) {
       return <p className='text-danger'>FULL BOOKED</p>
     } else {
       return <p className='text-black'>AVAILABLE</p>

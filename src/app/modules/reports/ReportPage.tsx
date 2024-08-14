@@ -304,7 +304,7 @@ const RefundPage: React.FC = () => {
               statusName='SURVEY'
               headerColor='success'
               title='Laporan Survey ( Omset )'
-              params=''
+              params='&is_receipt=1&payment_type=survey'
             />
           </>
         }

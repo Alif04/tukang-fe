@@ -101,15 +101,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.store_name.length - b.store_name.length,
         },
         {
-          title: 'Nomor Member',
-          dataIndex: 'member_number',
-          key: 'member_number',
-          align: 'left',
-          width: 140,
-          onFilter: (value, record) => record.member_number.includes(String(value)),
-          sorter: (a, b) => a.member_number.length - b.member_number.length,
-        },
-        {
           title: 'Nama Costumer',
           dataIndex: 'costumer_name',
           key: 'costumer_name',
@@ -195,15 +186,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           className: 'text-start',
           onFilter: (value, record) => record.date_order.includes(String(value)),
           sorter: (a, b) => a.date_order.length - b.date_order.length,
-        },
-        {
-          title: 'No Member',
-          dataIndex: 'no_member',
-          key: 'no_member',
-          align: 'center',
-          width: 140,
-          className: 'text-start',
-          sorter: (a, b) => a.no_member - b.no_member,
         },
         {
           title: 'Nama Customer',
@@ -450,7 +432,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
-          title: 'Refund Id',
+          title: 'Refund ID',
           dataIndex: 'refund_id',
           key: 'refund_id',
           align: 'center',
@@ -476,12 +458,13 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
         {
-          title: 'Nomor Member',
-          dataIndex: 'member_id',
-          key: 'member_id',
+          title: 'Nama Vendor',
+          dataIndex: 'vendor_name',
+          key: 'vendor_name',
           align: 'left',
           width: 110,
-          sorter: (a, b) => a.member_id - b.member_id,
+          onFilter: (value, record) => record.vendor_name.includes(String(value)),
+          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
         },
         {
           title: 'Nama Costumer',
@@ -516,6 +499,15 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           align: 'center',
           width: 110,
           sorter: (a, b) => a.penalty_vendor - b.penalty_vendor,
+        },
+        {
+          title: 'Nama Pemasangan',
+          dataIndex: 'service_name',
+          key: 'service_name',
+          align: 'left',
+          width: 110,
+          onFilter: (value, record) => record.service_name.includes(String(value)),
+          sorter: (a, b) => a.service_name.length - b.service_name.length,
         },
         {
           title: 'Order Status',
@@ -1227,6 +1219,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               day: 'numeric',
               month: 'long',
               year: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
             })
 
             let paymentStatus = item.orders.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
@@ -1239,6 +1233,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               member_id: item?.orders?.members?.id,
               member_name: item?.orders?.members?.full_name,
               phone_number: item?.orders?.project_number,
+              vendor_name: item?.orders?.vendor?.company_name ?? '-',
+              service_name:
+                item?.orders?.payment_type === 'survey'
+                  ? item?.orders?.m_order_details[0]?.item_notes ?? '-'
+                  : item?.orders?.m_order_details[0]?.item?.service_name ?? '-',
               voucher: item?.voucher ?? '-',
               penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal).toLocaleString('id')}` ?? 0,
               payment_status: paymentStatus,
@@ -1556,7 +1555,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   const exportToExcel = () => {
     setLoadingExport(true)
 
-    let url = `${apiUrl}/${endpoint}/export-excel?take=0`
+    let url = `${apiUrl}/${endpoint}/export-excel?take=0${params}`
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -1731,7 +1730,13 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           <Card className={`border-top border-${headerColor} border-5`}>
             <Card.Body>
               <div className='d-flex justify-content-between align-items-center'>
-                <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
+                {['Laporan Refund'].includes(title) ? (
+                  <h1 className='fs-3 fw-semibold text-uppercase mb-3'>
+                    Total Laporan Refund : {totalOrder}
+                  </h1>
+                ) : (
+                  <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
+                )}
 
                 <div className='d-flex justify-content-between gap-3'>
                   {['sales-comission'].includes(endpoint) && statusName === 'PAID' && (

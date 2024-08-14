@@ -1,13 +1,15 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './NewReschedule.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {Table, Form, Button, Row, Col, Card, ListGroup} from 'react-bootstrap'
-import {Image} from 'antd'
+import {Image, DatePicker} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 
@@ -62,7 +64,7 @@ const NewReschedule: FC = () => {
   const statuses = desiredStatus.map((x) => x.value)
 
   const getOrder = async () => {
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${apiUrl}/orders?order_by=desc&take=0&status=${statuses}${storeId}${tukangId}`,
       {
         headers: {
@@ -718,11 +720,26 @@ const NewReschedule: FC = () => {
 
               <Form.Group className='detail-info mb-3'>
                 <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
-                <Form.Control
+
+                <DatePicker
                   name='reschedule_date'
-                  type='date'
-                  value={reschedule.reschedule_date}
-                  onChange={(e) => RescheduleFormHandler(e)}
+                  showTime={{
+                    format: 'HH:mm',
+                  }}
+                  className='date-range w-100'
+                  format='DD-MM-YYYY HH:mm'
+                  value={
+                    reschedule.reschedule_date
+                      ? dayjs(reschedule.reschedule_date, 'YYYY-MM-DD HH:mm')
+                      : null
+                  }
+                  onChange={(value) => {
+                    const rescheduleDate = value ? value.format('YYYY-MM-DDTHH:mm') : ''
+                    setReschedule((prev) => ({
+                      ...prev,
+                      reschedule_date: rescheduleDate,
+                    }))
+                  }}
                 />
               </Form.Group>
             </Col>

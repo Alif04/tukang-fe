@@ -1,4 +1,5 @@
 import React, {FC, useEffect, useState} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useParams, Link} from 'react-router-dom'
 
 import './DetailCostumers.css'
@@ -21,7 +22,7 @@ const DetailCostumerHO: FC = () => {
 
   const fetchMemberDetail = async () => {
     try {
-      await axios
+      await axiosInstance
         .get(`${apiUrl}/member/${params.id}`, {
           headers: {
             Accept: 'application/json',

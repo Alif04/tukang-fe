@@ -34,6 +34,7 @@ interface Item {
   invoice_nominal: number
   prices: Array<{
     id: number | null
+    is_active: number
     price_store: Array<{
       store_id: number | null
     }>
@@ -60,6 +61,7 @@ const NewItemHO: FC = () => {
     prices: [
       {
         id: null,
+        is_active: 1,
         price_store: [],
         periodic_start: '',
         periodic_end: '',
@@ -169,6 +171,7 @@ const NewItemHO: FC = () => {
   const handleAddForm = () => {
     const newItemDetail = {
       id: null,
+      is_active: 1,
       price_store: [],
       periodic_start: '',
       periodic_end: '',
@@ -213,6 +216,18 @@ const NewItemHO: FC = () => {
       cache.prices[index] = {
         ...cache.prices[index],
         [e.target.name]: e.target.value,
+      }
+
+      return cache
+    })
+  }
+
+  const activeHandler = (index: number, isChecked: boolean) => {
+    setItem((prev) => {
+      const cache = {...prev}
+      cache.prices[index] = {
+        ...cache.prices[index],
+        is_active: isChecked ? 1 : 0,
       }
 
       return cache
@@ -542,6 +557,7 @@ const NewItemHO: FC = () => {
             <Table hover>
               <thead>
                 <tr>
+                  <th className='text-center'>Aktif</th>
                   <th className='text-center'>Periode</th>
                   <th className='text-center'>Assign To Store</th>
                   <th className='text-center'>Minimum Order</th>
@@ -552,6 +568,18 @@ const NewItemHO: FC = () => {
               <tbody>
                 {item.prices.map((element, index) => (
                   <tr key={`${index}-item_details`}>
+                    <td align='center' style={{maxWidth: '100px'}}>
+                      <Form.Check
+                        id={`is-active-${index}`}
+                        name={`is_active`}
+                        type='checkbox'
+                        checked={element.is_active === 1}
+                        onChange={(e) => {
+                          activeHandler(index, e.target.checked)
+                        }}
+                      />
+                    </td>
+
                     <td style={{maxWidth: '300px'}}>
                       <RangePicker
                         id={`date-range-${index}`}
