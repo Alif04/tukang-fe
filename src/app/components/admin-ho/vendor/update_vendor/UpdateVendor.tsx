@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {Vendor} from '../../../../interfaces/vendor'
 
 import './UpdateVendor.css'
@@ -61,7 +62,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   // Fetch API
   const fetchVendorData = async () => {
     try {
-      await axios
+      await axiosInstance
         .get(`${apiUrl}/vendor/${params.id}`, {
           headers: {
             Accept: 'application/json',

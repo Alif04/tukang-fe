@@ -21,6 +21,7 @@ interface DataType {
   id: number
   name: string
   min_order: string
+  max_order: string
   incentive: string
   type: string
   stores: string
@@ -87,6 +88,15 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
       width: 110,
       onFilter: (value, record) => record.min_order.includes(String(value)),
       sorter: (a, b) => a.min_order.length - b.min_order.length,
+    },
+    {
+      title: 'Maksimal Belanja',
+      dataIndex: 'max_order',
+      key: 'max_order',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.max_order.includes(String(value)),
+      sorter: (a, b) => a.max_order.length - b.max_order.length,
     },
     {
       title: 'Insentif Sales',
@@ -231,7 +241,8 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
           index: index + 1,
           id: item.id,
           name: item.name,
-          min_order: formattedPrice(parseInt(item.min_order)),
+          min_order: formattedPrice(parseInt(item?.min_order ?? 0)),
+          max_order: formattedPrice(parseInt(item?.max_order ?? 0)),
           incentive:
             item.type === 1 ? `${item.incentive} %` : `${formattedPrice(parseInt(item.incentive))}`,
           type: item.type === 1 ? 'Persen' : 'Nominal',

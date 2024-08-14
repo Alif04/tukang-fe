@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Vendor} from '../../../../interfaces/vendor'
 
@@ -17,7 +18,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   // Fetch API
   const fetchVendorData = async () => {
     try {
-      await axios
+      await axiosInstance
         .get(`${apiUrl}/vendor/${params.id}`, {
           headers: {
             Accept: 'application/json',
@@ -232,26 +233,34 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
                     <Col sm='6'>
                       {vendorDetail?.vendor_service.length ? (
-                        <p className='fs-7'>
-                          {vendorDetail?.vendor_service
-                            .map((item: any) => item?.service_type.service_type)
-                            .join(', ')}
+                        <p className='fw-normal mt-3'>
+                          {Array.from(
+                            new Set(
+                              vendorDetail?.vendor_service.map(
+                                (item: any) => item?.service_type?.service_type ?? '-'
+                              )
+                            )
+                          ).join(', ')}
                         </p>
                       ) : (
-                        <p className='fs-7'>Service type belum diset</p>
+                        <p className='fw-normal mt-3'>Service type belum diset</p>
                       )}
                     </Col>
                   </Form.Group>
 
                   <Form.Group as={Row} className='detail-info'>
                     <Form.Label column sm='6'>
-                      Service Area :
+                      Area Toko :
                     </Form.Label>
                     <Col sm='6'>
-                      <p className='fs-7'>
-                        {vendorDetail?.vendor_area
-                          .map((item: any) => item?.city?.city_name)
-                          .join(', ')}
+                      <p className='fw-normal mt-3'>
+                        {Array.from(
+                          new Set(
+                            vendorDetail?.vendor_store.map(
+                              (item: any) => item?.store?.store_name ?? '-'
+                            )
+                          )
+                        ).join(', ')}
                       </p>
                     </Col>
                   </Form.Group>
@@ -261,7 +270,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       Jumlah Teknisi :
                     </Form.Label>
                     <Col sm='6'>
-                      <p className='fs-1 fw-semibold'>{vendorDetail?.tukang?.length}</p>
+                      <p className='fs-1 fw-semibold mt-2'>{vendorDetail?.tukang?.length}</p>
                     </Col>
                   </Form.Group>
                 </Col>

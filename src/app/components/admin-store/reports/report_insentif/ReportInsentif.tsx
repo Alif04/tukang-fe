@@ -1,14 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 
 import './ReportInsentif.css'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
-import {Table, PaginationProps, Spin} from 'antd'
+import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
+import {Row, Form, InputGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -20,6 +21,7 @@ type Props = {
 }
 
 interface DataType {
+  id: number
   order_id: number
   date_order: Date
   costumer_name: string
@@ -44,7 +46,9 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [orderData, setOrderData] = useState<DataType[]>([])
+  const [queryParams, setQueryParams] = useState('')
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [totalOrder, setTotalOrder] = useState<number>(0)
   const [totalInsentive, setTotalInsentive] = useState<any>()
 
@@ -69,6 +73,16 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   }
 
   const columns: ColumnsType<DataType> = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      align: 'center',
+      width: 110,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a: DataType, b: DataType) => a.id - b.id,
+    },
     {
       title: 'Order ID',
       dataIndex: 'order_id',
@@ -149,7 +163,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     }
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const response = await axiosInstance.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -194,19 +208,22 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
         const statusIncentive = (status: number) => {
           switch (status) {
             case 1:
-              return 'Draft'
+              return 'Potensial Insentif'
             case 2:
-              return 'Menunggu Pembayaran'
+              return 'Pengajuan Insentif'
             case 3:
               return 'Sudah dibayarkan'
             case 4:
               return 'Ditolak'
+            case 5:
+              return 'Lost Insentif'
             default:
               return ''
           }
         }
 
         data = {
+          id: item?.id,
           order_id: item?.quotation?.order_id,
           date_order: orderDate,
           costumer_name: item?.quotation?.order?.members?.full_name,
@@ -240,8 +257,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
-  }, [])
+    fetchData(1, 10, queryParams)
+  }, [queryParams])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -305,6 +322,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
 
     valueCheck(`&search=`, searchFilter)
 
+    setQueryParams(queryparams)
     const data = await ViewOrder(1, 10, queryparams)
     setOrderData(data)
 
@@ -391,32 +409,42 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
             size='large'
             indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
           >
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={orderData}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-              rowKey={(record) => record.order_id}
-              pagination={{
-                position: ['bottomRight'],
-                current: currentPage,
-                total: totalOrder,
-                showSizeChanger: true,
-                pageSizeOptions: [5, 10, 20, 50, 100],
-                onChange: (page, pageSize) => {
-                  fetchData(page, pageSize, '')
-                },
-                itemRender: itemRender,
-                showTotal: (total, range) => (
-                  <span style={{left: 0, position: 'absolute'}}>
-                    Showing {range[0]} - {range[1]} of {total} Order
-                  </span>
-                ),
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={orderData}
+                pagination={false}
+                tableLayout='auto'
+                sticky={true}
+                scroll={{x: 'max-content'}}
+                rowKey={(record) => record.id}
+              />
+            </div>
+          </Spin>
+
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalOrder)} of {totalOrder} Orders
+            </span>
+
+            <Pagination
+              className='pagination'
+              current={currentPage}
+              total={totalOrder}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100]}
+              itemRender={itemRender}
+              onShowSizeChange={(current, size) => {
+                setPageSize(size)
+              }}
+              onChange={(page, pageSize) => {
+                fetchData(page, pageSize, queryParams)
               }}
             />
-          </Spin>
+          </div>
         </div>
       </div>
     </section>

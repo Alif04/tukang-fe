@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
+import axiosInstance from '../../../../../../_metronic/layout/core/axiosInterceptor'
 
 import './ViewCalendar.css'
 import FullCalendar from '@fullcalendar/react'
@@ -81,7 +82,7 @@ const ViewCalendarCS: React.FC = () => {
   }
 
   const fetchOrders = async (start: string, end: string, params: string) => {
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${apiUrl}/orders/calender?take=0&date_from=${start}&date_to=${end}${params}`,
       {
         headers: {

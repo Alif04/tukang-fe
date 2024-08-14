@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import './UpdateCostumers.css'
@@ -33,7 +34,7 @@ const UpdateCostumerHO: FC = () => {
   useEffect(() => {
     const getMemberData = async () => {
       try {
-        await axios
+        await axiosInstance
           .get(`${apiUrl}/member/${params.id}`, {
             headers: {
               Accept: 'application/json',

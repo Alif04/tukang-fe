@@ -28,7 +28,23 @@ const ViewReportHO = () => {
 
             <Row>
               <Col md={4}>
-                <Link to={`/reports/ho-report-claim-voucher`}>
+                <Link to={`/reports/ho-report-expense-promosi`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('expense-promosi', 'Laporan Expense Promosi')}
+                    </Card.Body>
+                  </Card>
+                </Link>
+
+                {/* <Link to={`/reports/ho-report-claim-voucher`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
                       <img
@@ -42,13 +58,13 @@ const ViewReportHO = () => {
                       {newTabs('claim-voucher', 'Laporan Claim Voucher')}
                     </Card.Body>
                   </Card>
-                </Link>
+                </Link> */}
               </Col>
 
               <Col md={4}>
-                <Link to={`/reports/ho-report-expense-promosi`}>
-                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex  justify-content-left align-items-center'>
+                <Link to={`/reports/ho-report-refund`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
                       <img
                         className='m-2'
                         alt=''
@@ -57,7 +73,7 @@ const ViewReportHO = () => {
                         height={50}
                       />
 
-                      {newTabs('expense-promosi', 'Laporan Expense Promosi')}
+                      {newTabs('refund', 'Laporan Refund')}
                     </Card.Body>
                   </Card>
                 </Link>
@@ -80,8 +96,8 @@ const ViewReportHO = () => {
                   </Card>
                 </Link> */}
 
-                <Link to={`/reports/ho-report-refund`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                <Link to={`/reports/ho-report-total-penalty`}>
+                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
                       <img
                         className='m-2'
@@ -91,7 +107,7 @@ const ViewReportHO = () => {
                         height={50}
                       />
 
-                      {newTabs('refund', 'Laporan Refund')}
+                      {newTabs('total-penalty', 'Laporan Total Penalty')}
                     </Card.Body>
                   </Card>
                 </Link>
@@ -115,22 +131,6 @@ const ViewReportHO = () => {
                     </Card.Body>
                   </Card>
                 </Link> */}
-
-                <Link to={`/reports/ho-report-total-penalty`}>
-                  <Card className='content-card border-red' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('total-penalty', 'Laporan Total Penalty')}
-                    </Card.Body>
-                  </Card>
-                </Link>
               </Col>
 
               <Col md={4}>
@@ -155,7 +155,7 @@ const ViewReportHO = () => {
             </Row>
           </div>
 
-          <div className='csi-reports mb-5'>
+          {/* <div className='csi-reports mb-5'>
             <div className='title'>
               <hr />
 
@@ -163,7 +163,7 @@ const ViewReportHO = () => {
             </div>
 
             <Row>
-              {/* <Col md={4}>
+              <Col md={4}>
                 <Link to={`/reports/ho-report-csi-unrespon`}>
                   <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
@@ -179,7 +179,7 @@ const ViewReportHO = () => {
                     </Card.Body>
                   </Card>
                 </Link>
-              </Col> */}
+              </Col>
 
               <Col md={4}>
                 <Link to={`/reports/ho-report-unsent-csi`}>
@@ -216,7 +216,7 @@ const ViewReportHO = () => {
                   </Card>
                 </Link>
               </Col>
-              {/* 
+              
               <Col md={4}>
                 <Link to={`/reports/ho-report-csi-responded`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
@@ -233,12 +233,12 @@ const ViewReportHO = () => {
                     </Card.Body>
                   </Card>
                 </Link>
-              </Col> */}
+              </Col>
             </Row>
 
             <Row>
               <Col md={4}>
-                {/* <Link to={`/reports/ho-report-csi`}>
+                <Link to={`/reports/ho-report-csi`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex  justify-content-left align-items-center'>
                       <img
@@ -252,14 +252,14 @@ const ViewReportHO = () => {
                       {newTabs('csi', 'Laporan CSI terkirim')}
                     </Card.Body>
                   </Card>
-                </Link> */}
+                </Link>
               </Col>
 
               <Col md={4}></Col>
 
               <Col md={4}></Col>
             </Row>
-          </div>
+          </div> */}
 
           <div className='insentive-reports mb-5'>
             <div className='title'>

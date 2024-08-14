@@ -107,58 +107,15 @@ const UpdateRefundHO: FC = () => {
     voucher: '',
     penalty_nominal: '',
     approval_number: '',
-    // refund_voucher: [],
   })
 
   // Refund Status
-  useEffect(() => {
+  const getStatusId = (category: string) => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
-
-    const desiredStatus = statusData.find((status: any) => status.category === 'REFUND')
-    const statusId = desiredStatus?.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      refund_status: statusId,
-    }))
-  }, [refundValues])
-
-  // Select Order
-  const handleChangeSelectOrder = (element: any) => {
-    const selectedOrder = element.value
-
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      store_id: selectedOrder,
-    }))
-
-    setOrderId(selectedOrder)
+    const status = statusData.find((status: any) => status.category === category)
+    return status?.value
   }
-
-  // Createable Multi Value
-  const [inputValue, setInputValue] = React.useState('')
-  const [value, setValue] = React.useState<readonly Option[]>([])
-
-  // const handleKeyDown: KeyboardEventHandler = (event) => {
-  //   if (!inputValue) return
-
-  //   switch (event.key) {
-  //     case 'Enter':
-  //     case 'Tab':
-  //       const newVoucher = inputVoucher(inputValue)
-
-  //       setValue((prev) => [...prev, newVoucher])
-  //       setInputValue('')
-
-  //       setRefundValues((prevValues) => ({
-  //         ...prevValues,
-  //         refund_voucher: [...prevValues.refund_voucher, newVoucher],
-  //       }))
-
-  //       event.preventDefault()
-  //   }
-  // }
 
   // Handle Change Refund Voucher
   const handleChangeRefundVoucher = (element: any) => {
@@ -234,9 +191,12 @@ const UpdateRefundHO: FC = () => {
   }
 
   // Handle Submit New Refund
-  const handleUpdateRefund = async () => {
+  const handleApprove = async () => {
+    const approvedStatusId = getStatusId('REFUNDAPPROVEDBYHO')
+    const updatedRefundValues = {...refundValues, refund_status: approvedStatusId}
+
     await axios
-      .post(`${apiUrl}/refund`, refundValues, {
+      .post(`${apiUrl}/refund/${params.id}`, updatedRefundValues, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -248,7 +208,51 @@ const UpdateRefundHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Refund',
+            text: 'Refund Approved Successfully',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+
+        navigate('/refund/view-refund')
+      })
+      .catch((error) => {
+        console.error(error)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  // Handle Reject Refund
+  const handleReject = async () => {
+    const rejectedStatusId = getStatusId('REFUNDREJECTEDBYHO')
+    const updatedRefundValues = {...refundValues, refund_status: rejectedStatusId}
+
+    await axios
+      .post(`${apiUrl}/refund/${params.id}`, updatedRefundValues, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Refund Rejected Successfully',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -778,7 +782,7 @@ const UpdateRefundHO: FC = () => {
                 </div>
 
                 <div className='complaint-information'>
-                  <h4>Nomor Approval : </h4>
+                  <h4>Nomor Receipt Refund : </h4>
                   <Form.Control
                     type='number'
                     className='w-75'
@@ -812,22 +816,6 @@ const UpdateRefundHO: FC = () => {
                         value={refundValues.voucher}
                       />
                     </Form.Group>
-
-                    {/* <CreatableSelect
-                      className='mt-5 mb-5'
-                      components={components}
-                      inputValue={inputValue}
-                      isClearable
-                      isMulti
-                      menuIsOpen={false}
-                      onChange={(newValue) => setValue(newValue)}
-                      onInputChange={(newValue) => setInputValue(newValue)}
-                      onKeyDown={handleKeyDown}
-                      placeholder='Input Kode Voucher dan Pencet Enter'
-                      value={value}
-                    /> */}
-
-                    {/* <Button variant='primary'>Voucher</Button> */}
                   </div>
 
                   <div className='col-xxl-6'>
@@ -840,8 +828,6 @@ const UpdateRefundHO: FC = () => {
                         value={refundValues.penalty_nominal}
                       />
                     </Form.Group>
-
-                    {/* <Button variant='danger'>Penalty</Button> */}
                   </div>
                 </div>
               </div>
@@ -849,8 +835,8 @@ const UpdateRefundHO: FC = () => {
           </div>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateRefund}>
-              Cancel
+            <Button variant='dark-danger' disabled={isLoading} type='submit' onClick={handleReject}>
+              {isLoading ? 'Updating..' : 'Reject'}
             </Button>
 
             <Button
@@ -858,9 +844,9 @@ const UpdateRefundHO: FC = () => {
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
-              onClick={handleUpdateRefund}
+              onClick={handleApprove}
             >
-              {isLoading ? 'Updating..' : 'Update Refund'}
+              {isLoading ? 'Updating..' : 'Approve'}
             </Button>
           </div>
         </div>

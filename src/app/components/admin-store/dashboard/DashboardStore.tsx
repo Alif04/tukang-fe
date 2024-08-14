@@ -1,4 +1,5 @@
 import React, {useState, useEffect, FC} from 'react'
+import axiosInstance from '../../../../_metronic/layout/core/axiosInterceptor'
 
 import {OrderValueWidget} from './components/OrderValueWidget'
 import {SalesReportWidget} from './components/SalesReportWidget'
@@ -43,7 +44,7 @@ const DashboardStore: FC = () => {
     let apiUrlWithParams = `${apiUrl}/orders?order_by=desc${queryparams}&date_from=${dateFrom}&date_to=${dateTo}&take=0${salesId}${storeId}`
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const response = await axiosInstance.get(apiUrlWithParams, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import axios from 'axios'
@@ -46,7 +47,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
 
   const getRescheduleDetail = async () => {
     try {
-      await axios
+      await axiosInstance
         .get(`${apiUrl}/reschedule/${params.id}`, {
           headers: {
             Accept: 'application/json',
@@ -814,6 +815,8 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                         day: '2-digit',
                         month: 'long',
                         year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
                       })}`
                     : 'Tanggal belum ditentukan user'}
                 </p>

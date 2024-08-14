@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
+import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
 
 import './NewCostumers.css'
@@ -73,7 +74,7 @@ const NewCostumerHO: FC = () => {
   // Fetch Store Data
   const getStore = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+      const response = await axiosInstance.get(`${apiUrl}/stores?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
