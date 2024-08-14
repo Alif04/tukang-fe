@@ -43,9 +43,12 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
-  const userRole = localStorage.getItem('userRole') as string
+
   const evidenceRef = useRef<HTMLInputElement>(null)
   const today = String(new Date().toISOString().split('T')[0])
+
+  const userRole = localStorage.getItem('userRole') as string
+  const username = localStorage.getItem('username') as string
 
   // Complaint Detail
   const [complaintDetail, setComplaintDetail] = useState<any>()
@@ -66,11 +69,13 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     complaint_id: null,
     remedial_action: '',
     ra_date_start: '',
-    remedial_pic: '',
+    remedial_pic: ['Super User', 'Admin HO'].includes(userRole) ? username : '',
     remedial_pic_position: '',
     complaint_date: '',
     remedial_status: 31,
   })
+
+  console.log('remedial form', remedialForm)
 
   // Loading
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
@@ -203,7 +208,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Complaint',
+            text: 'Berhasil update pengaduan',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -259,9 +264,11 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     setRemedialForm((prev) => ({
       ...prev,
       ra_date_start: today,
-      remedial_pic_position: selectedPosition?.value ?? '',
+      remedial_pic_position: ['Super User', 'Admin HO'].includes(userRole)
+        ? userRole
+        : selectedPosition?.value ?? '',
     }))
-  }, [selectedPosition])
+  }, [userRole, selectedPosition])
 
   // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1131,6 +1138,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                                 day: 'numeric',
                                 month: 'long',
                                 year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
                               })}
                             </span>
                           </p>
@@ -1144,6 +1153,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                                 day: 'numeric',
                                 month: 'long',
                                 year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
                               })}
                             </span>
                           </p>
@@ -1748,42 +1759,44 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                     </Col>
                   </Row>
 
-                  <Row>
-                    <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                      <Form.Group>
-                        <Form.Label>Nama Pemberi Feedback</Form.Label>
+                  {['Store Staff', 'Store CS'].includes(userRole) && (
+                    <Row>
+                      <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                        <Form.Group>
+                          <Form.Label>Nama Pemberi Feedback</Form.Label>
 
-                        <Form.Control
-                          name='remedial_pic'
-                          type='text'
-                          placeholder='Isi Nama Pemberi Feedback'
-                          value={remedialForm.remedial_pic}
-                          onChange={(e) => remedialFormHandler(e)}
-                        ></Form.Control>
-                      </Form.Group>
-                    </Col>
+                          <Form.Control
+                            name='remedial_pic'
+                            type='text'
+                            placeholder='Isi Nama Pemberi Feedback'
+                            value={remedialForm.remedial_pic}
+                            onChange={(e) => remedialFormHandler(e)}
+                          ></Form.Control>
+                        </Form.Group>
+                      </Col>
 
-                    <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
-                      <Form.Group>
-                        <Form.Label>Jabatan</Form.Label>
-                        <Select
-                          name='pic_position'
-                          id='pic_position'
-                          className='form-control p-0 form-item-name'
-                          classNamePrefix='select'
-                          placeholder='Jabatan'
-                          isSearchable={true}
-                          isClearable={true}
-                          options={picPositions}
-                          value={{
-                            value: selectedPosition?.value ?? '',
-                            label: selectedPosition?.label ?? '',
-                          }}
-                          onChange={(newValue) => setSelectedPosition(newValue)}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
+                      <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
+                        <Form.Group>
+                          <Form.Label>Jabatan</Form.Label>
+                          <Select
+                            name='pic_position'
+                            id='pic_position'
+                            className='form-control p-0 form-item-name'
+                            classNamePrefix='select'
+                            placeholder='Jabatan'
+                            isSearchable={true}
+                            isClearable={true}
+                            options={picPositions}
+                            value={{
+                              value: selectedPosition?.value ?? '',
+                              label: selectedPosition?.label ?? '',
+                            }}
+                            onChange={(newValue) => setSelectedPosition(newValue)}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  )}
 
                   <div className='d-flex justify-content-center align-items-center mt-5'>
                     <Button
