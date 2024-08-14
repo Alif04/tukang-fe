@@ -36,9 +36,9 @@ const AppRoutes: FC = () => {
 
           {!username || !userRole || !accessToken ? (
             <>
-              <Route path='login' element={<Login />} />
+              {/* <Route path='login' element={<Login />} />
               <Route path='forgot-password' element={<ForgotPassword />} />
-              <Route path='reset-password' element={<ResetPassword />} />
+              <Route path='reset-password' element={<ResetPassword />} /> */}
 
               {/* Redirect to Error Page */}
               <Route path='*' element={<Navigate to='/error/404' />} />
