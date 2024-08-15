@@ -189,7 +189,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
             </OverlayTrigger>
 
             {['Owner Vendor', 'Admin Vendor'].includes(userRole ?? '') &&
-              ![1, 2, 4].includes(record.readiness) && (
+              ![4].includes(record.readiness) && (
                 <OverlayTrigger
                   placement='bottom'
                   delay={{show: 250, hide: 400}}
