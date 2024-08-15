@@ -278,6 +278,29 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       })
   }
 
+  // Payment Stage
+  const [paymentStages, setPaymentStages] = useState([
+    {stage: 'Tahap 1', percentage: '25%', amount: 0},
+    {stage: 'Tahap 2', percentage: '50%', amount: 0},
+    {stage: 'Tahap 3', percentage: '25%', amount: 0},
+  ])
+
+  const calculatePaymentStages = (grandTotal: number) => {
+    const stage1 = grandTotal * 0.25
+    const stage2 = grandTotal * 0.5
+    const stage3 = grandTotal * 0.25
+
+    setPaymentStages([
+      {stage: 'Tahap 1', percentage: '25%', amount: stage1},
+      {stage: 'Tahap 2', percentage: '50%', amount: stage2},
+      {stage: 'Tahap 3', percentage: '25%', amount: stage3},
+    ])
+  }
+
+  useEffect(() => {
+    calculatePaymentStages(order?.quotation?.[0]?.quotation_grand_total)
+  }, [order?.quotation?.[0]?.quotation_grand_total])
+
   return (
     <section id='detail-order'>
       {['QUOTEOUT'].includes(order?.status?.category ?? '') && (
@@ -637,45 +660,183 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 } else if (order?.quotation?.length >= 1 && order?.payment_type === 'survey') {
                   return (
                     <div className='table-warranty-content'>
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center' style={{width: '355px'}}>
-                              Jenis Jasa
-                            </th>
+                      {order?.quotation?.[0]?.quotation_special === 0 ? (
+                        <table className='table hover responsive'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th className='text-center' style={{width: '355px'}}>
+                                Jenis Jasa
+                              </th>
 
-                            <th className='text-center' style={{width: '100px'}}>
-                              QTY
-                            </th>
+                              <th className='text-center' style={{width: '100px'}}>
+                                QTY
+                              </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
-                              Satuan
-                            </th>
+                              <th className='text-center' style={{width: '250px'}}>
+                                Satuan
+                              </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
-                              Final Price
-                            </th>
-                          </tr>
-                        </thead>
+                              <th className='text-center' style={{width: '250px'}}>
+                                Final Price
+                              </th>
+                            </tr>
+                          </thead>
 
-                        <tbody>
-                          {order?.quotation[0]?.quotation_details
-                            .filter((x: any) => x.item_type === 2)
-                            .map((item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>
-                                  {item?.name ?? '-'}{' '}
-                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
-                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                                  'id'
-                                )}`}</td>
+                          <tbody>
+                            {order?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2)
+                              .map((item: any, index: any) => (
+                                <tr key={`${index}-quotation`}>
+                                  <td>
+                                    {item?.name ?? '-'}{' '}
+                                    {item?.is_customer === true
+                                      ? '( Disediakan oleh customer )'
+                                      : ''}
+                                  </td>
+                                  <td>{item?.quantity ?? 0}</td>
+                                  <td>{item?.unit}</td>
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <>
+                          <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Final Price
+                                </th>
                               </tr>
-                            ))}
-                        </tbody>
-                      </table>
+                            </thead>
+
+                            <tbody>
+                              {order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2 && x.work_step === 1)
+                                .map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                    <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Final Price
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2 && x.work_step === 2)
+                                .map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                    <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Final Price
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2 && x.work_step === 3)
+                                .map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                    <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </>
+                      )}
 
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
@@ -878,6 +1039,40 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               })()}
             </Skeleton>
           </Row>
+
+          {order?.quotation?.[0]?.quotation_special === 1 && (
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+              <Row className='information-detail mb-3'>
+                <Col>
+                  <div className='fs-3 fw-bold'>Preview Pembayaran</div>
+
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th>Tahap Pembayaran</th>
+                        <th>Persentase</th>
+                        <th>Nominal Pembayaran</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {paymentStages.map((stage, index) => (
+                        <tr key={index}>
+                          <td>{stage.stage}</td>
+                          <td>{stage.percentage}</td>
+                          <td>{`${stage.amount.toLocaleString('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0,
+                          })}`}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+            </Skeleton>
+          )}
 
           <Row>
             <Col>

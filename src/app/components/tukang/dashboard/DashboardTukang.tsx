@@ -370,7 +370,7 @@ const DashboardTukang: FC = () => {
                   tip='Loading...'
                   spinning={loadData}
                   size='large'
-                  indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+                  indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
                 >
                   <div className='table-custom-wrapper'>
                     <Table

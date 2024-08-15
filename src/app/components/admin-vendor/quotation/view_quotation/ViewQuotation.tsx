@@ -48,17 +48,11 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
-
-  const today = new Date()
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -108,16 +102,6 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
-    // {
-    //   title: 'Nama Pemasangan',
-    //   dataIndex: 'service_name',
-    //   key: 'service_name',
-    //   align: 'left',
-    //   width: 130,
-    //   onFilter: (value, record) => record.service_name.includes(String(value)),
-    //   sorter: (a, b) => a.service_name.length - b.service_name.length,
-    // },
-
     {
       title: 'Status Order',
       dataIndex: 'order_status',
@@ -205,7 +189,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
             </OverlayTrigger>
 
             {['Owner Vendor', 'Admin Vendor'].includes(userRole ?? '') &&
-              ![2, 4].includes(record.readiness) && (
+              ![1, 2, 4].includes(record.readiness) && (
                 <OverlayTrigger
                   placement='bottom'
                   delay={{show: 250, hide: 400}}
@@ -366,10 +350,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
-                defaultValue={[
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                ]}
+                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -416,7 +397,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

@@ -136,11 +136,13 @@ const DetailQuotationHO: FC = () => {
               <div className='fs-4 fw-semibold'>
                 Quotation Valid Until :
                 <span className='ms-1 fw-normal'>
-                  {new Date(quotationDetail?.quotation_validity).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  {quotationDetail?.quotation_validity
+                    ? new Date(quotationDetail?.quotation_validity).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : '-'}
                 </span>
               </div>
 

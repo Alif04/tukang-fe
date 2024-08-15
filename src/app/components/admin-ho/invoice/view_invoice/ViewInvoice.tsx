@@ -890,7 +890,7 @@ const ViewInvoiceHO: FC = () => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table
@@ -964,7 +964,7 @@ const ViewInvoiceHO: FC = () => {
             onRemove={handleFileRemove}
           >
             <p className='ant-upload-drag-icon'>
-              <InboxOutlined style={{fontSize: 32}} rev />
+              <InboxOutlined style={{fontSize: 32}} />
             </p>
 
             <p className='ant-upload-text'>Klik atau seret file ke area ini untuk mengunggah</p>

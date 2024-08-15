@@ -64,8 +64,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [quotationData, setQuotationData] = useState<DataType[]>([])
-  const [quotationStatusFilter, setQuotationStatusFilter] = useState<any>()
-
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -337,20 +335,24 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           }
         })()
 
-        const createdAt = item?.created_at ? new Date(item.created_at) : null
-        const quotationCreatedAt = createdAt
-          ? createdAt.toLocaleDateString('id-ID', {
+        const createdAt = item?.quotation_validity ? new Date(item.quotation_validity) : null
+        const createdAtMinus = createdAt
+          ? new Date(createdAt.getTime() - 6 * 24 * 60 * 60 * 1000)
+          : null
+
+        const quotationCreatedAt = createdAtMinus
+          ? createdAtMinus.toLocaleDateString('id-ID', {
               day: '2-digit',
               month: 'long',
               year: 'numeric',
             })
-          : '-'
+          : 'Quotation belum aktif'
 
         let quotationEndDate = '-'
         let cooldownQuotation = 0
 
-        if (createdAt) {
-          const quotationEnd = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+        if (createdAtMinus) {
+          const quotationEnd = new Date(createdAtMinus.getTime() + 7 * 24 * 60 * 60 * 1000)
           quotationEndDate = quotationEnd.toLocaleDateString('id-ID', {
             day: '2-digit',
             month: 'long',
@@ -385,16 +387,20 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
         const quotationCountdown = calculateTimeLeft(cooldownQuotation)
         const quotationCountdownText =
-          quotationCountdown.days === 0 &&
-          quotationCountdown.hours === 0 &&
-          quotationCountdown.minutes === 0
+          item?.quotation_validity === null
+            ? 'Quotation Belum Aktif'
+            : quotationCountdown.days === 0 &&
+              quotationCountdown.hours === 0 &&
+              quotationCountdown.minutes === 0
             ? 'Quotation Expired'
             : `${quotationCountdown.days} Hari ${quotationCountdown.hours} Jam ${quotationCountdown.minutes} Menit`
 
         const quotationStatus =
-          quotationCountdown.days === 0 &&
-          quotationCountdown.hours === 0 &&
-          quotationCountdown.minutes === 0
+          item?.quotation_validity === null
+            ? 'Quotation Belum Aktif'
+            : quotationCountdown.days === 0 &&
+              quotationCountdown.hours === 0 &&
+              quotationCountdown.minutes === 0
             ? 'Quotation Expired'
             : 'Quotation Aktif'
 
@@ -602,7 +608,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

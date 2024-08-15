@@ -499,20 +499,27 @@ const NewReschedule: FC = () => {
 
             {/* New */}
             {(() => {
-              if (orderDetail?.payment_type === 'survey') {
+              if (
+                (orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.work_orders === null &&
+                  orderDetail?.quotation?.length === 0) ||
+                (orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length === 0 &&
+                  orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.quotation?.length === 0)
+              ) {
                 return (
                   <div className='table-warranty-content'>
                     {orderDetail?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari
-                          <span className='fw-bolder text-decoration-underline'> 10 KM</span> dari
+                          *Order ini lebih dari{' '}
+                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
                           toko sehingga dikenakan biaya tambahan
                         </Form.Text>
                       </>
                     )}
 
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -523,7 +530,7 @@ const NewReschedule: FC = () => {
                       </thead>
 
                       <tbody>
-                        {orderDetail?.order_details?.map((item: any, index: any) => (
+                        {orderDetail?.order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
@@ -566,7 +573,319 @@ const NewReschedule: FC = () => {
                           </>
                         )}
                       </tbody>
-                    </Table>
+                    </table>
+                  </div>
+                )
+              } else if (
+                [
+                  'SURVEYREQ',
+                  'TUKANGSURVEY',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'RESURVEYREQ',
+                  'RESURVEYSTART',
+                  'RESURVEYDONE',
+                ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
+                orderDetail?.payment_type === 'survey' &&
+                orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length >= 1 &&
+                orderDetail?.quotation?.length === 0
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th>Nama Pemasangan</th>
+                          <th>QTY Pemasangan</th>
+                          <th>Satuan</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                          orderDetail.work_orders.work_order_status[0].work_order_items.map(
+                            (item: any, index: any) => (
+                              <tr key={`${index}-work_order_detail`}>
+                                <td>
+                                  {item.name ?? ''}{' '}
+                                  {item.is_customer ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item.quantity ?? 0}</td>
+                                <td>{item.unit ?? ''}</td>
+                              </tr>
+                            )
+                          )
+                        ) : (
+                          <tr>
+                            <td>Item belum diset oleh Tukang/Vendor</td>
+                            <td>Quantity belum diset oleh Tukang/Vendor</td>
+                            <td>Satuan belum diset oleh Tukang/Vendor</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              } else if (
+                orderDetail?.quotation?.length >= 1 &&
+                orderDetail?.payment_type === 'survey'
+              ) {
+                return (
+                  <div className='table-warranty-content'>
+                    {orderDetail?.quotation?.[0]?.quotation_special === 0 ? (
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Jenis Jasa
+                            </th>
+
+                            <th className='text-center' style={{width: '100px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 2)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <>
+                        <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+
+                        <table className='table hover responsive'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th className='text-center' style={{width: '355px'}}>
+                                Jenis Jasa
+                              </th>
+
+                              <th className='text-center' style={{width: '100px'}}>
+                                QTY
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Satuan
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Final Price
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2 && x.work_step === 1)
+                              .map((item: any, index: any) => (
+                                <tr key={`${index}-quotation`}>
+                                  <td>
+                                    {item?.name ?? '-'}{' '}
+                                    {item?.is_customer === true
+                                      ? '( Disediakan oleh customer )'
+                                      : ''}
+                                  </td>
+                                  <td>{item?.quantity ?? 0}</td>
+                                  <td>{item?.unit}</td>
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+
+                        <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+
+                        <table className='table hover responsive'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th className='text-center' style={{width: '355px'}}>
+                                Jenis Jasa
+                              </th>
+
+                              <th className='text-center' style={{width: '100px'}}>
+                                QTY
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Satuan
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Final Price
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2 && x.work_step === 2)
+                              .map((item: any, index: any) => (
+                                <tr key={`${index}-quotation`}>
+                                  <td>
+                                    {item?.name ?? '-'}{' '}
+                                    {item?.is_customer === true
+                                      ? '( Disediakan oleh customer )'
+                                      : ''}
+                                  </td>
+                                  <td>{item?.quantity ?? 0}</td>
+                                  <td>{item?.unit}</td>
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+
+                        <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+
+                        <table className='table hover responsive'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th className='text-center' style={{width: '355px'}}>
+                                Jenis Jasa
+                              </th>
+
+                              <th className='text-center' style={{width: '100px'}}>
+                                QTY
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Satuan
+                              </th>
+
+                              <th className='text-center' style={{width: '250px'}}>
+                                Final Price
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2 && x.work_step === 3)
+                              .map((item: any, index: any) => (
+                                <tr key={`${index}-quotation`}>
+                                  <td>
+                                    {item?.name ?? '-'}{' '}
+                                    {item?.is_customer === true
+                                      ? '( Disediakan oleh customer )'
+                                      : ''}
+                                  </td>
+                                  <td>{item?.quantity ?? 0}</td>
+                                  <td>{item?.unit}</td>
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </>
+                    )}
+
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Material Yang Dibutuhkan
+                          </th>
+
+                          <th className='text-center' style={{width: '100px'}}>
+                            QTY
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Satuan
+                          </th>
+
+                          <th className='text-center' style={{width: '250px'}}>
+                            Final Price
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {orderDetail?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 1)
+                          .map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit ?? '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ))}
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total Jasa
+                          </td>
+                          <td className='fw-bolder'>{`Rp. ${parseInt(
+                            orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2)
+                              .reduce(
+                                (total: any, item: any) => total + parseInt(item.final_price || 0),
+                                0
+                              )
+                          ).toLocaleString('id')}`}</td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Total Material
+                          </td>
+                          <td className='fw-bolder'>{`Rp. ${parseInt(
+                            orderDetail?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 1)
+                              .reduce(
+                                (total: any, item: any) => total + parseInt(item.final_price || 0),
+                                0
+                              )
+                          ).toLocaleString('id')}`}</td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Grand Total
+                          </td>
+                          <td className=' fw-bolder'>
+                            {`Rp. ${parseInt(
+                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
+                            ).toLocaleString('id')}`}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 )
               } else if (
@@ -585,7 +904,7 @@ const NewReschedule: FC = () => {
                       </>
                     )}
 
-                    <Table hover responsive='md'>
+                    <table className='table hover responsive'>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -601,12 +920,12 @@ const NewReschedule: FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orderDetail?.order_details?.map((item: any, index: any) => (
+                        {orderDetail?.order_details.map((item: any, index: any) => (
                           <>
                             <tr key={`${index} - order_detail`}>
                               <td>{item?.item_code}</td>
-                              <td>{item?.item?.item_name}</td>
-                              <td>{item?.item?.service_name ?? '-'}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
                               <td>{item?.quantity ?? 0}</td>
                               {!(orderDetail?.payment_type === 'gratis') && (
                                 <>
@@ -652,7 +971,7 @@ const NewReschedule: FC = () => {
                           ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
-                    </Table>
+                    </table>
                   </div>
                 )
               }

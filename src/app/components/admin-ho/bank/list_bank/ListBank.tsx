@@ -163,7 +163,7 @@ const ListBankHO: React.FC = () => {
       dataIndex: 'bank_id',
       key: 'bank_id',
       align: 'left',
-      width: 80,
+      // width: 80,
       sorter: (a, b) => a.bank_id - b.bank_id,
       render: (text: any, record: any, index: number) => {
         return (currentPage - 1) * pageSize + index + 1
@@ -175,7 +175,7 @@ const ListBankHO: React.FC = () => {
       key: 'bank_name',
       align: 'left',
       className: 'text-start',
-      width: 150,
+      // width: 150,
       onFilter: (value, record) => record.bank_name.includes(String(value)),
       sorter: (a, b) => a.bank_name.length - b.bank_name.length,
     },
@@ -424,7 +424,7 @@ const ListBankHO: React.FC = () => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

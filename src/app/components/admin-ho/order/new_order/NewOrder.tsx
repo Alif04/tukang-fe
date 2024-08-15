@@ -1019,7 +1019,7 @@ const NewOrderHO: FC = () => {
         spinning={isLoadingPage}
         size='large'
         tip='Loading..'
-        indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+        indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
       >
         <Card className='mb-5'>
           <Card.Body>
