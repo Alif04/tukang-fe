@@ -37,6 +37,7 @@ interface Item {
   invoice_nominal: number
   prices: Array<{
     id: number | null
+    is_active: number
     item_id: number | null
     price_store: Array<{
       store_id: number
@@ -54,6 +55,8 @@ const UpdateItemHO: FC = () => {
   const navigate = useNavigate()
   const params = useParams()
 
+  const [isLoading, setIsLoading] = useState(false)
+
   // Item
   const [item, setItem] = useState<Item>({
     item_code: '',
@@ -66,6 +69,7 @@ const UpdateItemHO: FC = () => {
     prices: [
       {
         id: null,
+        is_active: 1,
         item_id: null,
         price_store: [],
         periodic_start: null,
@@ -106,6 +110,7 @@ const UpdateItemHO: FC = () => {
             const pricesItem = data?.prices.map((item: any) => ({
               id: item?.id,
               item_id: item?.item_id,
+              is_active: item?.is_active === true ? 1 : 0,
               periodic_start: dayjs(item?.periodic_start).toISOString(),
               periodic_end: dayjs(item?.periodic_end).toISOString(),
               min_order: item?.min_order,
@@ -235,6 +240,7 @@ const UpdateItemHO: FC = () => {
   const handleAddForm = () => {
     const newItemDetail = {
       id: null,
+      is_active: 1,
       item_id: null,
       price_store: [],
       periodic_start: dayjs(new Date()).format('YYYY-MM-DD'),
@@ -264,6 +270,18 @@ const UpdateItemHO: FC = () => {
     setItem({
       ...item,
       [e.target.name]: e.target.value,
+    })
+  }
+
+  const activeHandler = (index: number, isChecked: boolean) => {
+    setItem((prev) => {
+      const cache = {...prev}
+      cache.prices[index] = {
+        ...cache.prices[index],
+        is_active: isChecked ? 1 : 0,
+      }
+
+      return cache
     })
   }
 
@@ -438,6 +456,7 @@ const UpdateItemHO: FC = () => {
   // Handle Submit New Item
   const handleUpdateItem = async () => {
     if (!ItemValidation()) {
+      setIsLoading(false)
       return false
     }
 
@@ -454,6 +473,8 @@ const UpdateItemHO: FC = () => {
       ...item,
       prices: updatedPrices,
     }
+
+    setIsLoading(true)
 
     await axios
       .post(`${apiUrl}/items/${params.id}`, newItemDetail, {
@@ -473,19 +494,21 @@ const UpdateItemHO: FC = () => {
             showConfirmButton: false,
             timer: 1500,
           })
+          setIsLoading(false)
         } else {
           Swal.fire({
             title: 'Error',
             text: response.data.message,
             icon: 'error',
           })
+          setIsLoading(false)
         }
 
         navigate('/item/view-item')
       })
       .catch((error) => {
         console.error(error)
-
+        setIsLoading(false)
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -631,16 +654,29 @@ const UpdateItemHO: FC = () => {
             <Table hover>
               <thead>
                 <tr>
+                  <th className='text-center'>Aktif</th>
                   <th className='text-center'>Periode</th>
                   <th className='text-center'>Assign To Store</th>
                   <th className='text-center'>Minimum Order</th>
                   <th className='text-center'>Price</th>
-                  <th className='text-center'>Action</th>
+                  {/* <th className='text-center'>Action</th> */}
                 </tr>
               </thead>
               <tbody>
                 {item.prices.map((element, index) => (
                   <tr key={`${index}-item_details`}>
+                    <td align='center' style={{maxWidth: '100px'}}>
+                      <Form.Check
+                        id={`is-active-${index}`}
+                        name={`is_active`}
+                        type='checkbox'
+                        checked={element.is_active === 1}
+                        onChange={(e) => {
+                          activeHandler(index, e.target.checked)
+                        }}
+                      />
+                    </td>
+
                     <td style={{maxWidth: '300px'}}>
                       <RangePicker
                         id={`date-range-${index}`}
@@ -697,12 +733,12 @@ const UpdateItemHO: FC = () => {
                         onChange={(e) => itemDetailsFormHandler(e, index)}
                       />
                     </td>
-
+                    {/* 
                     <td>
                       <Button variant='danger' onClick={() => handleRemoveForm(index)}>
                         <FontAwesomeIcon icon={faTrash} />
                       </Button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
@@ -817,8 +853,9 @@ const UpdateItemHO: FC = () => {
               className='btn-submit d-flex justify-content-center align-items-center'
               variant='dark-primary'
               onClick={() => handleUpdateItem()}
+              disabled={isLoading}
             >
-              Save
+              {isLoading ? 'Saving..' : 'Update Item'}
             </Button>
           </div>
         </div>
