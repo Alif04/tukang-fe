@@ -8,6 +8,7 @@ import Swal from 'sweetalert2'
 
 export function AsideMenuMain() {
   const userRole = localStorage.getItem('userRole')
+  const userVendor = localStorage.getItem('vendor_id')
   const userTukang = localStorage.getItem('tukang_id')
 
   const logoutHandler = () => {
@@ -448,12 +449,6 @@ export function AsideMenuMain() {
             role={['Admin HO', 'Super User']}
             hasBullet={true}
           />
-          <AsideMenuItem
-            to='/bank/new-bank'
-            title='Register Bank'
-            role={['Admin HO', 'Super User']}
-            hasBullet={true}
-          />
         </AsideMenuItemWithSub>
 
         <AsideMenuItemWithSub
@@ -534,9 +529,9 @@ export function AsideMenuMain() {
         />
 
         <AsideMenuItem
-          to={`/profile/update-profile/${userTukang}`}
-          title='Profil Tukang'
-          role={['Tukang']}
+          to={`/profile/update-profile/${userVendor !== null ? userVendor : userTukang}`}
+          title={userRole === 'Owner Vendor' ? 'Profile Vendor' : 'Profile Tukang'}
+          role={['Owner Vendor', 'Tukang']}
           hasBullet={true}
         />
 

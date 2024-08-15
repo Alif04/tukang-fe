@@ -1,19 +1,11 @@
 import React, {FC, useState, useEffect} from 'react'
 
-import {ChartPie} from './components/ChartPie'
-import {ChartPie2} from './components/ChartPie2'
-import {ChartPie3} from './components/ChartPie3'
-import {ChartBar} from './components/ChartBar'
-import {ChartLine} from './components/ChartLine'
-import {ChartLine2} from './components/ChartLine2'
-import {ChartDonut} from './components/ChartDonut'
-import {ChartDonut2} from './components/ChartDonut2'
 import {BestCostumers} from './components/BestCostumers'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Select from 'react-select'
-import {Row, Col, Button} from 'react-bootstrap'
+import {Card, Row, Col, Button} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -42,18 +34,19 @@ const ReportCostumerHO: FC = () => {
 
   const [member, setMember] = useState<any[]>([])
   const [totalMember, setTotalMember] = useState(0)
-  const [memberOption, setMemberOption] = useState<any[]>([])
-  const memberOptions = [{value: null, label: 'All Member'}, ...memberOption]
-  const [selectedMember, setSelectedMember] = useState<any>({
+
+  const [storeOption, setStoreOption] = useState<any[]>([])
+  const storeOptions = [{value: null, label: 'All Toko'}, ...storeOption]
+  const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
-    label: 'All Member',
+    label: 'All Toko',
   })
 
-  const memberId = selectedMember.value ? `&member_id=${selectedMember.value}` : ''
+  const storeId = selectedStore.value ? `&store_id=${selectedStore.value}` : ''
 
-  const getMember = async () => {
+  const getStore = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/member?take=0`, {
+      const response = await axios.get(`${apiUrl}/stores?take=0`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -62,14 +55,33 @@ const ReportCostumerHO: FC = () => {
         },
       })
       if (Array.isArray(response.data.data)) {
-        const tempMember = response.data.data.map((item: any) => ({
+        const tempStore = response.data.data.map((item: any) => ({
           value: item.id,
-          label: item.full_name,
+          label: item.store_name,
         }))
 
+        setStoreOption(tempStore)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getMember = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/member?take=0&top_best=1${storeId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      if (Array.isArray(response.data.data)) {
         setMember(response.data.data)
         setTotalMember(response.data.total)
-        setMemberOption(tempMember)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -81,7 +93,7 @@ const ReportCostumerHO: FC = () => {
   const getReportOrder = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
+        `${apiUrl}/reports/orders?date_from=${dateFrom}&date_to=${dateTo}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -110,46 +122,10 @@ const ReportCostumerHO: FC = () => {
     }
   }
 
-  const getWorkOrder = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/reports/work-orders?take=0&date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      const data = response.data.data
-      const chartDatas = response.data.monthlyWorkOrders
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setWorkOrderData(data)
-      setChartWorkOrder(slicedData)
-      return data
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const getComplaint = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/reports/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${memberId}`,
+        `${apiUrl}/reports/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${storeId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -182,43 +158,64 @@ const ReportCostumerHO: FC = () => {
     }
   }
 
-  const getCSI = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/csi?take=0${memberId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      const data = response.data.data
-
-      setCsiData(data)
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
   useEffect(() => {
+    getStore()
     getMember()
     getReportOrder()
-    getWorkOrder()
     getComplaint()
-    getCSI()
   }, [])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
+    await getMember()
     await getReportOrder()
-    await getWorkOrder()
     await getComplaint()
 
     setLoadingButton(false)
   }
+
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <Col className='mb-5'>
+      <div className='d-flex flex-column align-items-center gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p className={`fs-7 ${className}`}>{label}</p>
+      </div>
+    </Col>
+  )
+
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+
+  const singleOrder = member.filter((member: any) => member?.order?.length === 1).length
+  const multiOrder = member.filter((member: any) => member?.order?.length > 1).length
+
+  const countOrdersByStatus = (members: any[], statuses: string[]): number => {
+    return members.reduce((count, member) => {
+      const orderCount =
+        member?.order?.filter((order: any) => statuses.includes(order?.status?.category))?.length ||
+        0
+      return count + orderCount
+    }, 0)
+  }
+
+  const complaintStatuses = ['INVESTIGATED', 'COMPLAINTAPPROVEDBYHO', 'COMPLAINTREJECTEDBYHO']
+  const complaintsCount = countOrdersByStatus(member, complaintStatuses)
+
+  const resurveyStatuses = ['RESURVEYREQ', 'RESURVEYSTART', 'RESURVEYDONE']
+  const resurveyCount = countOrdersByStatus(member, resurveyStatuses)
+
+  const reworkStatuses = ['REWORKREQ', 'REWORKSTART', 'REWORKEND']
+  const reworkCount = countOrdersByStatus(member, reworkStatuses)
+
+  const cancelOrderStatuses = ['CANCEL']
+  const cancelOrderCount = countOrdersByStatus(member, cancelOrderStatuses)
+
+  const refundOrderStatuses = ['REFUND']
+  const refundOrderCount = countOrdersByStatus(member, refundOrderStatuses)
+
+  const rescheduleOrderStatuses = ['RESCHEDULE']
+  const rescheduleOrderCount = countOrdersByStatus(member, rescheduleOrderStatuses)
 
   return (
     <>
@@ -236,11 +233,11 @@ const ReportCostumerHO: FC = () => {
                   name='store_id'
                   className='form-control p-0'
                   classNamePrefix='select'
-                  placeholder='Pilih Member'
+                  placeholder='Pilih Toko'
                   isSearchable={true}
-                  options={memberOptions}
-                  value={selectedMember}
-                  onChange={(newValue) => setSelectedMember(newValue)}
+                  options={storeOptions}
+                  value={selectedStore}
+                  onChange={(newValue) => setSelectedStore(newValue)}
                 />
               </div>
             </Col>
@@ -291,69 +288,59 @@ const ReportCostumerHO: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
+      <Row className='g-5 g-xl-8'>
         <div className='col-xl-4'>
-          <ChartPie
-            className='card-xl-stretch mb-5'
-            chartHeight='240px'
-            totalMember={totalMember}
-            memberData={member}
-          />
+          <Card className='mb-5'>
+            <Card.Body style={{minHeight: '170px'}}>
+              <div className='fs-5 fw-normal mb-5'>Order</div>
+
+              <div className='d-flex justify-content-between'>
+                {renderStat(singleOrder, 'Order Satu')}
+                {renderStat(multiOrder, 'Order Banyak')}
+              </div>
+            </Card.Body>
+          </Card>
         </div>
 
         <div className='col-xl-4'>
-          <ChartPie2 className='card-xl-stretch mb-5' chartHeight='200px' csiData={chartOrder} />
+          <Card className='mb-5'>
+            <Card.Body style={{minHeight: '170px'}}>
+              <div className='fs-5 fw-normal mb-5'>Komplain</div>
+
+              <div className='d-flex justify-content-between'>
+                {renderStat(complaintsCount, 'Komplain masuk')}
+                {renderStat(resurveyCount, 'Survei Ulang')}
+                {renderStat(reworkCount, 'Pengerjaan Ulang')}
+              </div>
+            </Card.Body>
+          </Card>
         </div>
 
         <div className='col-xl-4'>
-          <ChartPie3
-            className='card-xl-stretch mb-5'
-            chartHeight='230px'
-            complaintData={complaintData}
-          />
+          <Card className='mb-5'>
+            <Card.Body style={{minHeight: '170px'}}>
+              <div className='fs-5 fw-normal mb-5'>Informasi Lainnya</div>
+
+              <div className='d-flex justify-content-between'>
+                {renderStat(cancelOrderCount, 'Cancel')}
+                {renderStat(refundOrderCount, 'Refund')}
+                {renderStat(rescheduleOrderCount, 'Reschedule')}
+              </div>
+            </Card.Body>
+          </Card>
         </div>
-      </div>
+      </Row>
       {/* end::Row */}
 
       {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
-        <div className='col-xl-4'>
-          <ChartBar className='card-xl-stretch mb-xl-8' chartOrderData={chartOrder} />
-        </div>
-
-        <div className='col-xl-4'>
-          <ChartLine className='card-xl-stretch mb-5 mb-xl-8' chartOrderData={chartOrder} />
-        </div>
-
-        <div className='col-xl-4'>
-          <ChartLine2 className='card-xl-stretch mb-xl-8' chartComplaintData={chartComplaint} />
-        </div>
-      </div>
-      {/* end::Row */}
-
-      {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        {/* <div className='col-xl-4'>
-          <ChartDonut
-            className='card-xl-stretch mb-xl-8'
-            chartHeight='300px'
-            complaintData={complaintData}
-          />
-        </div>
-
-        <div className='col-xl-4'>
-          <ChartDonut2
-            className='card-xl-stretch mb-5 mb-xl-8'
-            chartHeight='300px'
-            workOrderData={workOrderData}
-          />
-        </div> */}
-
         <div className='col-xl-12'>
           <BestCostumers
             className='card-xl-stretch mb-5 mb-xl-8'
             memberData={member}
             totalMember={totalMember}
+            storeId={selectedStore?.value ?? null}
+            storeName={selectedStore?.label ?? 'All Store'}
           />
         </div>
       </div>

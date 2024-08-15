@@ -7,6 +7,7 @@ import './UpdateVendor.css'
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
+import {Spin} from 'antd'
 import makeAnimated from 'react-select/animated'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Row, Col, Button, ListGroup, Card} from 'react-bootstrap'
@@ -55,8 +56,10 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-  const animatedComponents = makeAnimated()
 
+  const userRole = localStorage.getItem('userRole') as string
+  const animatedComponents = makeAnimated()
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch API
@@ -74,6 +77,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         .then((response) => {
           const data = response.data.data
 
+          setIsLoadingPage(false)
           updatePageTitle(data)
 
           if (data?.id) {
@@ -1072,7 +1076,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setIsLoading(false)
           }
 
-          navigate('/vendor/view-vendor')
+          if (['Admin HO', 'Super User'].includes(userRole)) {
+            navigate('/vendor/view-vendor')
+          } else {
+            window.location.reload()
+          }
         })
         .catch((error) => {
           console.error(error)
@@ -1089,512 +1097,543 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   return (
     <section id='update-vendor'>
-      <Card className='mb-5'>
-        <Card.Header>
-          <Card.Title>Informasi Vendor</Card.Title>
-        </Card.Header>
+      <Spin spinning={isLoadingPage} size='large' tip='Loading..'>
+        <Card className='mb-5'>
+          <Card.Header>
+            <Card.Title>Informasi Vendor</Card.Title>
+          </Card.Header>
 
-        <Card.Body>
-          <Row>
-            <Col xxl={6} xl={6} lg={12} md={12}>
-              <Row className='header-body'>
-                <Col>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
-                      Vendor ID
-                    </Form.Label>
+          <Card.Body>
+            <Row>
+              <Col xxl={6} xl={6} lg={12} md={12}>
+                <Row className='header-body'>
+                  <Col>
+                    <Form.Group as={Row}>
+                      <Form.Label column sm='4'>
+                        Vendor ID
+                      </Form.Label>
 
-                    <Col sm='8'>
-                      <Form.Control readOnly value={vendorId} />
-                    </Col>
+                      <Col sm='8'>
+                        <Form.Control readOnly value={vendorId} />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+
+                  <Col>
+                    <Form.Group as={Row}>
+                      <Form.Label column sm='4'>
+                        Join Date
+                      </Form.Label>
+
+                      <Col sm='8'>
+                        <Form.Control
+                          type='date'
+                          onChange={handleChangeJoinDate}
+                          min={today}
+                          value={joinDate}
+                        />
+                      </Col>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className='form-body'>
+                  <Form.Group>
+                    <Form.Label>Nama Perusahaan</Form.Label>
+
+                    <Form.Control
+                      type='text'
+                      onChange={handleChangeVendorName}
+                      value={vendorName}
+                    />
                   </Form.Group>
-                </Col>
+                </Row>
 
-                <Col>
-                  <Form.Group as={Row}>
-                    <Form.Label column sm='4'>
-                      Join Date
-                    </Form.Label>
+                <Row className='form-body'>
+                  <Col>
+                    <Form.Group>
+                      <Form.Label>Nama PIC</Form.Label>
 
-                    <Col sm='8'>
                       <Form.Control
-                        type='date'
-                        onChange={handleChangeJoinDate}
-                        min={today}
-                        value={joinDate}
+                        type='text'
+                        value={picName}
+                        onChange={handleChangeVendorPicName}
                       />
-                    </Col>
-                  </Form.Group>
-                </Col>
-              </Row>
+                    </Form.Group>
+                  </Col>
 
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Nama Perusahaan</Form.Label>
+                  <Col>
+                    <Form.Group>
+                      <Form.Label>Nomor HP / WA</Form.Label>
 
-                  <Form.Control type='text' onChange={handleChangeVendorName} value={vendorName} />
-                </Form.Group>
-              </Row>
+                      <Form.Control
+                        type='text'
+                        onChange={handleChangeVendorPhoneNumber}
+                        value={phoneNumberVendor}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-              <Row className='form-body'>
-                <Col>
+                <Row className='form-body'>
                   <Form.Group>
-                    <Form.Label>Nama PIC</Form.Label>
+                    <Form.Label>Email</Form.Label>
 
                     <Form.Control
-                      type='text'
-                      value={picName}
-                      onChange={handleChangeVendorPicName}
+                      type='email'
+                      onChange={handleChangeVendorEmail}
+                      value={emailVendor}
                     />
                   </Form.Group>
-                </Col>
+                </Row>
 
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Nomor HP / WA</Form.Label>
+                {!['Owner Vendor', 'Admin Vendor'].includes(userRole) && (
+                  <>
+                    <Row className='form-body'>
+                      <Col>
+                        <Form.Group>
+                          <Form.Label>Service Area</Form.Label>
 
-                    <Form.Control
-                      type='text'
-                      onChange={handleChangeVendorPhoneNumber}
-                      value={phoneNumberVendor}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Email</Form.Label>
-
-                  <Form.Control
-                    type='email'
-                    onChange={handleChangeVendorEmail}
-                    value={emailVendor}
-                  />
-                </Form.Group>
-              </Row>
-
-              <Row className='form-body'>
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Service Area</Form.Label>
-
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Service Area'
-                      isSearchable={true}
-                      isMulti
-                      closeMenuOnSelect={false}
-                      components={animatedComponents}
-                      options={serviceArea}
-                      onChange={(element) => handleChangeServiceArea(element)}
-                      value={serviceAreaValues}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Service Type</Form.Label>
-
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Service Type'
-                      closeMenuOnSelect={false}
-                      components={animatedComponents}
-                      isMulti
-                      options={serviceType}
-                      onChange={(element) => handleChangeServiceType(element)}
-                      value={serviceTypeValues}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className='form-body'>
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Assign To Store</Form.Label>
-
-                    <Select
-                      classNamePrefix='select'
-                      placeholder='Pilih Toko'
-                      isSearchable={true}
-                      isMulti
-                      closeMenuOnSelect={false}
-                      components={animatedComponents}
-                      options={store}
-                      value={storeValues}
-                      onChange={(element) => handleChangeStoreId(element)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Address</Form.Label>
-                  <Form.Control
-                    as='textarea'
-                    className='address-form'
-                    onChange={handleChangeVendorAddress}
-                    value={vendorAddress}
-                  />
-                </Form.Group>
-              </Row>
-            </Col>
-
-            <Col xxl={3} xl={3} lg={12} md={12}>
-              <Row className='header-body'></Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <div className='d-flex justify-content-between' onClick={handleUploadKTP}>
-                    <Form.Control
-                      id='input-ktp-file'
-                      type='file'
-                      // accept='image/*'
-                      accept='.jpg, .jpeg, .png'
-                      hidden
-                      className='input-field-image'
-                      onChange={handleFileChangeKTP}
-                    />
-
-                    <Form.Label className='me-2'>KTP</Form.Label>
-
-                    <div className='d-flex'>
-                      <Form.Label className='me-2 text-decoration-underline text-primary'>
-                        {imageKTP.fileName ? imageKTP.fileName : ''}
-                      </Form.Label>
-
-                      <FontAwesomeIcon icon={faUpload} size='lg' />
-                    </div>
-                  </div>
-
-                  <Form.Control type='number' onChange={handleChangeKTPNumber} value={ktpNumber} />
-                </Form.Group>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <div className='d-flex justify-content-between' onClick={handleUploadNPWP}>
-                    <Form.Control
-                      id='input-npwp-file'
-                      type='file'
-                      // accept='image/*'
-                      accept='.jpg, .jpeg, .png'
-                      hidden
-                      className='input-field-image'
-                      onChange={handleFileChangeNPWP}
-                    />
-
-                    <Form.Label className='me-2'>NPWP</Form.Label>
-
-                    <div className='d-flex'>
-                      <Form.Label className='me-2 text-decoration-underline text-primary'>
-                        {imageNPWP.fileName ? imageNPWP.fileName : ''}
-                      </Form.Label>
-
-                      <FontAwesomeIcon icon={faUpload} size='lg' />
-                    </div>
-                  </div>
-
-                  <Form.Control
-                    type='number'
-                    onChange={handleChangeNPWPNumber}
-                    value={npwpNumber}
-                  />
-                </Form.Group>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
-                  <Form.Control
-                    id='input-compro-file'
-                    type='file'
-                    // accept='image/*'
-                    accept='.jpg, .jpeg, .png'
-                    hidden
-                    className='input-field-image'
-                    onChange={handleFileChangeCompro}
-                  />
-
-                  <div className='upload d-flex align-items-center'>
-                    <Form.Check
-                      checked={isActive.compro}
-                      onChange={() => handleFormCheckbox('compro')}
-                    />
-
-                    <Form.Label className='ms-2'>COMPRO</Form.Label>
-                  </div>
-
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
-                    {imageCompro.fileName ? imageCompro.fileName : ''}
-                  </Form.Label>
-
-                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadCompro} />
-                </Form.Group>
-
-                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
-                  <Form.Control
-                    id='input-surat_permohonan-file'
-                    type='file'
-                    // accept='image/*'
-                    accept='.jpg, .jpeg, .png'
-                    hidden
-                    className='input-field-image'
-                    onChange={handleFileChangeSuratPermohonan}
-                  />
-
-                  <div className='upload d-flex align-items-center'>
-                    <Form.Check
-                      checked={isActive.suratPermohonan}
-                      onChange={() => handleFormCheckbox('suratPermohonan')}
-                    />
-
-                    <Form.Label className='ms-2'>Surat Pemohonan</Form.Label>
-                  </div>
-
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
-                    {imageSuratPermohonan.fileName ? imageSuratPermohonan.fileName : ''}
-                  </Form.Label>
-
-                  <FontAwesomeIcon
-                    icon={faUpload}
-                    size='lg'
-                    onClick={handleUploadSuratPermohonan}
-                  />
-                </Form.Group>
-
-                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
-                  <Form.Control
-                    id='input-pks-file'
-                    type='file'
-                    // accept='image/*'
-                    accept='.jpg, .jpeg, .png'
-                    hidden
-                    className='input-field-image'
-                    onChange={handleFileChangePksEvidence}
-                  />
-
-                  <div className='upload d-flex align-items-center'>
-                    <Form.Check checked={isActive.pks} onChange={() => handleFormCheckbox('pks')} />
-                    <Form.Label className='ms-2'>PKS</Form.Label>
-                  </div>
-
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
-                    {imagePksEvidence.fileName ? imagePksEvidence.fileName : ''}
-                  </Form.Label>
-
-                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadPksEvidence} />
-                </Form.Group>
-
-                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
-                  <Form.Control
-                    id='input-suip-file'
-                    type='file'
-                    // accept='image/*'
-                    accept='.jpg, .jpeg, .png'
-                    hidden
-                    className='input-field-image'
-                    onChange={handleFileChangeSuipEvidence}
-                  />
-
-                  <div className='upload d-flex align-items-center'>
-                    <Form.Check
-                      checked={isActive.suip}
-                      onChange={() => handleFormCheckbox('suip')}
-                    />
-                    <Form.Label className='ms-2'>SIUP</Form.Label>
-                  </div>
-
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
-                    {imageSuipEvidence.fileName ? imageSuipEvidence.fileName : ''}
-                  </Form.Label>
-
-                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadSuipEvidence} />
-                </Form.Group>
-
-                <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
-                  <Form.Control
-                    id='input-ptkp-file'
-                    type='file'
-                    // accept='image/*'
-                    accept='.jpg, .jpeg, .png'
-                    hidden
-                    className='input-field-image'
-                    onChange={handleFileChangePtkpEvidence}
-                  />
-
-                  <div className='upload d-flex align-items-center'>
-                    <Form.Check
-                      checked={isActive.ptkp}
-                      onChange={() => handleFormCheckbox('ptkp')}
-                    />
-                    <Form.Label className='ms-2'>PKP</Form.Label>
-                  </div>
-
-                  <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
-                    {imagePtkpEvidence.blob ? imagePtkpEvidence.fileName : ''}
-                  </Form.Label>
-
-                  <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadPtkpEvidence} />
-                </Form.Group>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Upload other docs</Form.Label>
-                  <Form className='form-input-image' onClick={handleImageClick}>
-                    <Form.Control
-                      id='file-input'
-                      type='file'
-                      // accept='image/*'
-                      accept='.jpg, .jpeg, .png'
-                      multiple
-                      hidden
-                      ref={evidenceRef}
-                      onChange={handleFileChange}
-                    />
-
-                    <div className='input-image-text'>
-                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                      <p>Add File</p>
-                    </div>
-                  </Form>
-
-                  <ListGroup className='pt-3'>
-                    {uploadFiles.length ? (
-                      uploadFiles.map((item, index) => (
-                        <ListGroup.Item
-                          key={`${item?.name}-${index}-${item?.type}`}
-                          className='d-flex justify-content-between'
-                        >
-                          <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                          <span className='upload-content'>{item?.name}</span>
-
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            size='sm'
-                            color='#ed2b2a'
-                            style={{cursor: 'pointer'}}
-                            onClick={(e) => handleRemoveFile(index)}
+                          <Select
+                            classNamePrefix='select'
+                            placeholder='Pilih Service Area'
+                            isSearchable={true}
+                            isMulti
+                            closeMenuOnSelect={false}
+                            components={animatedComponents}
+                            options={serviceArea}
+                            onChange={(element) => handleChangeServiceArea(element)}
+                            value={serviceAreaValues}
                           />
-                        </ListGroup.Item>
-                      ))
-                    ) : (
-                      <ListGroup.Item className='d-flex justify-content-center'>
-                        Tidak ada file yang dipilih
-                      </ListGroup.Item>
-                    )}
-                  </ListGroup>
-                </Form.Group>
-              </Row>
-            </Col>
+                        </Form.Group>
+                      </Col>
 
-            <Col xxl={3} xl={3} lg={12} md={12}>
-              <Row className='header-body'></Row>
+                      <Col>
+                        <Form.Group>
+                          <Form.Label>Service Type</Form.Label>
 
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Nama Bank</Form.Label>
+                          <Select
+                            classNamePrefix='select'
+                            placeholder='Pilih Service Type'
+                            closeMenuOnSelect={false}
+                            components={animatedComponents}
+                            isMulti
+                            options={serviceType}
+                            onChange={(element) => handleChangeServiceType(element)}
+                            value={serviceTypeValues}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-                  <Select
-                    classNamePrefix='select'
-                    placeholder='Pilih Nama Bank'
-                    isSearchable={true}
-                    options={bank}
-                    onChange={(element) => handleChangeSelectBank(element)}
-                    value={{
-                      value: bankId,
-                      label: bankName,
-                    }}
-                  />
-                </Form.Group>
-              </Row>
+                    <Row className='form-body'>
+                      <Col>
+                        <Form.Group>
+                          <Form.Label>Assign To Store</Form.Label>
 
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Nomor Account</Form.Label>
+                          <Select
+                            classNamePrefix='select'
+                            placeholder='Pilih Toko'
+                            isSearchable={true}
+                            isMulti
+                            closeMenuOnSelect={false}
+                            components={animatedComponents}
+                            options={store}
+                            value={storeValues}
+                            onChange={(element) => handleChangeStoreId(element)}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
+                )}
 
-                  <Form.Control
-                    type='number'
-                    onChange={handleChangeAccountNumber}
-                    value={accountNumber}
-                  />
-                </Form.Group>
-              </Row>
+                <Row className='form-body'>
+                  <Form.Group>
+                    <Form.Label>Address</Form.Label>
+                    <Form.Control
+                      as='textarea'
+                      className='address-form'
+                      onChange={handleChangeVendorAddress}
+                      value={vendorAddress}
+                    />
+                  </Form.Group>
+                </Row>
+              </Col>
 
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Nama Pemilik Account</Form.Label>
+              <Col xxl={3} xl={3} lg={12} md={12}>
+                <Row className='header-body'></Row>
 
-                  <Form.Control
-                    type='text'
-                    onChange={handleChangeAccountName}
-                    value={accountName}
-                  />
-                </Form.Group>
-              </Row>
-
-              <Row className='form-body'>
-                <Form.Group>
-                  <div className='d-flex justify-content-between'>
-                    <Form.Label>Margin Vendor</Form.Label>
-
-                    <div className='form-check-request'>
-                      <Form.Check
-                        inline
-                        label='Rp'
-                        name='margin_type'
-                        type='radio'
-                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                <Row className='form-body'>
+                  <Form.Group>
+                    <div className='d-flex justify-content-between' onClick={handleUploadKTP}>
+                      <Form.Control
+                        id='input-ktp-file'
+                        type='file'
+                        // accept='image/*'
+                        accept='.jpg, .jpeg, .png'
+                        hidden
+                        className='input-field-image'
+                        onChange={handleFileChangeKTP}
                       />
 
-                      <Form.Check
-                        inline
-                        label='%'
-                        name='margin_type'
-                        type='radio'
-                        checked={marginType === 1}
-                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
-                      />
+                      <Form.Label className='me-2'>KTP</Form.Label>
+
+                      <div className='d-flex'>
+                        <Form.Label className='me-2 text-decoration-underline text-primary'>
+                          {imageKTP.fileName ? imageKTP.fileName : ''}
+                        </Form.Label>
+
+                        <FontAwesomeIcon icon={faUpload} size='lg' />
+                      </div>
                     </div>
-                  </div>
 
-                  <Form.Control type='number' onChange={handleChangeMargin} value={marginNominal} />
-                </Form.Group>
-              </Row>
+                    <Form.Control
+                      type='number'
+                      onChange={handleChangeKTPNumber}
+                      value={ktpNumber}
+                    />
+                  </Form.Group>
+                </Row>
 
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Maksimal Order Tukang</Form.Label>
+                <Row className='form-body'>
+                  <Form.Group>
+                    <div className='d-flex justify-content-between' onClick={handleUploadNPWP}>
+                      <Form.Control
+                        id='input-npwp-file'
+                        type='file'
+                        // accept='image/*'
+                        accept='.jpg, .jpeg, .png'
+                        hidden
+                        className='input-field-image'
+                        onChange={handleFileChangeNPWP}
+                      />
 
-                  <Form.Control
-                    min={3}
-                    type='number'
-                    onChange={handleChangeMaxOrder}
-                    value={maxOrder}
-                  />
-                </Form.Group>
-              </Row>
+                      <Form.Label className='me-2'>NPWP</Form.Label>
 
-              <Row className='form-body'>
-                <Form.Group>
-                  <Form.Label>Nominal Survey</Form.Label>
+                      <div className='d-flex'>
+                        <Form.Label className='me-2 text-decoration-underline text-primary'>
+                          {imageNPWP.fileName ? imageNPWP.fileName : ''}
+                        </Form.Label>
 
-                  <Form.Control
-                    type='number'
-                    onChange={handleChangeNominalSurvey}
-                    value={nominalSurvey}
-                  />
-                </Form.Group>
-              </Row>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+                        <FontAwesomeIcon icon={faUpload} size='lg' />
+                      </div>
+                    </div>
+
+                    <Form.Control
+                      type='number'
+                      onChange={handleChangeNPWPNumber}
+                      value={npwpNumber}
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className='form-body'>
+                  <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
+                    <Form.Control
+                      id='input-compro-file'
+                      type='file'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
+                      hidden
+                      className='input-field-image'
+                      onChange={handleFileChangeCompro}
+                    />
+
+                    <div className='upload d-flex align-items-center'>
+                      <Form.Check
+                        checked={isActive.compro}
+                        onChange={() => handleFormCheckbox('compro')}
+                      />
+
+                      <Form.Label className='ms-2'>COMPRO</Form.Label>
+                    </div>
+
+                    <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
+                      {imageCompro.fileName ? imageCompro.fileName : ''}
+                    </Form.Label>
+
+                    <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadCompro} />
+                  </Form.Group>
+
+                  <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
+                    <Form.Control
+                      id='input-surat_permohonan-file'
+                      type='file'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
+                      hidden
+                      className='input-field-image'
+                      onChange={handleFileChangeSuratPermohonan}
+                    />
+
+                    <div className='upload d-flex align-items-center'>
+                      <Form.Check
+                        checked={isActive.suratPermohonan}
+                        onChange={() => handleFormCheckbox('suratPermohonan')}
+                      />
+
+                      <Form.Label className='ms-2'>Surat Pemohonan</Form.Label>
+                    </div>
+
+                    <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
+                      {imageSuratPermohonan.fileName ? imageSuratPermohonan.fileName : ''}
+                    </Form.Label>
+
+                    <FontAwesomeIcon
+                      icon={faUpload}
+                      size='lg'
+                      onClick={handleUploadSuratPermohonan}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
+                    <Form.Control
+                      id='input-pks-file'
+                      type='file'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
+                      hidden
+                      className='input-field-image'
+                      onChange={handleFileChangePksEvidence}
+                    />
+
+                    <div className='upload d-flex align-items-center'>
+                      <Form.Check
+                        checked={isActive.pks}
+                        onChange={() => handleFormCheckbox('pks')}
+                      />
+                      <Form.Label className='ms-2'>PKS</Form.Label>
+                    </div>
+
+                    <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
+                      {imagePksEvidence.fileName ? imagePksEvidence.fileName : ''}
+                    </Form.Label>
+
+                    <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadPksEvidence} />
+                  </Form.Group>
+
+                  <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
+                    <Form.Control
+                      id='input-suip-file'
+                      type='file'
+                      // accept='image/*'
+                      accept='.jpg, .jpeg, .png'
+                      hidden
+                      className='input-field-image'
+                      onChange={handleFileChangeSuipEvidence}
+                    />
+
+                    <div className='upload d-flex align-items-center'>
+                      <Form.Check
+                        checked={isActive.suip}
+                        onChange={() => handleFormCheckbox('suip')}
+                      />
+                      <Form.Label className='ms-2'>SIUP</Form.Label>
+                    </div>
+
+                    <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
+                      {imageSuipEvidence.fileName ? imageSuipEvidence.fileName : ''}
+                    </Form.Label>
+
+                    <FontAwesomeIcon icon={faUpload} size='lg' onClick={handleUploadSuipEvidence} />
+                  </Form.Group>
+
+                  {!['Owner Vendor', 'Admin Vendor'].includes(userRole) && (
+                    <Form.Group className='d-flex justify-content-between align-items-center mb-2'>
+                      <Form.Control
+                        id='input-ptkp-file'
+                        type='file'
+                        // accept='image/*'
+                        accept='.jpg, .jpeg, .png'
+                        hidden
+                        className='input-field-image'
+                        onChange={handleFileChangePtkpEvidence}
+                      />
+
+                      <div className='upload d-flex align-items-center'>
+                        <Form.Check
+                          checked={isActive.ptkp}
+                          onChange={() => handleFormCheckbox('ptkp')}
+                        />
+                        <Form.Label className='ms-2'>PKP</Form.Label>
+                      </div>
+
+                      <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
+                        {imagePtkpEvidence.blob ? imagePtkpEvidence.fileName : ''}
+                      </Form.Label>
+
+                      <FontAwesomeIcon
+                        icon={faUpload}
+                        size='lg'
+                        onClick={handleUploadPtkpEvidence}
+                      />
+                    </Form.Group>
+                  )}
+                </Row>
+
+                <Row className='form-body'>
+                  <Form.Group>
+                    <Form.Label>Upload other docs</Form.Label>
+                    <Form className='form-input-image' onClick={handleImageClick}>
+                      <Form.Control
+                        id='file-input'
+                        type='file'
+                        // accept='image/*'
+                        accept='.jpg, .jpeg, .png'
+                        multiple
+                        hidden
+                        ref={evidenceRef}
+                        onChange={handleFileChange}
+                      />
+
+                      <div className='input-image-text'>
+                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                        <p>Add File</p>
+                      </div>
+                    </Form>
+
+                    <ListGroup className='pt-3'>
+                      {uploadFiles.length ? (
+                        uploadFiles.map((item, index) => (
+                          <ListGroup.Item
+                            key={`${item?.name}-${index}-${item?.type}`}
+                            className='d-flex justify-content-between'
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                            <span className='upload-content'>{item?.name}</span>
+
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+                        ))
+                      ) : (
+                        <ListGroup.Item className='d-flex justify-content-center'>
+                          Tidak ada file yang dipilih
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
+                  </Form.Group>
+                </Row>
+              </Col>
+
+              <Col xxl={3} xl={3} lg={12} md={12}>
+                <Row className='header-body'></Row>
+
+                <Row className='form-body'>
+                  <Form.Group>
+                    <Form.Label>Nama Bank</Form.Label>
+
+                    <Select
+                      classNamePrefix='select'
+                      placeholder='Pilih Nama Bank'
+                      isSearchable={true}
+                      options={bank}
+                      onChange={(element) => handleChangeSelectBank(element)}
+                      value={{
+                        value: bankId,
+                        label: bankName,
+                      }}
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className='form-body'>
+                  <Form.Group>
+                    <Form.Label>Nomor Account</Form.Label>
+
+                    <Form.Control
+                      type='number'
+                      onChange={handleChangeAccountNumber}
+                      value={accountNumber}
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className='form-body'>
+                  <Form.Group>
+                    <Form.Label>Nama Pemilik Account</Form.Label>
+
+                    <Form.Control
+                      type='text'
+                      onChange={handleChangeAccountName}
+                      value={accountName}
+                    />
+                  </Form.Group>
+                </Row>
+
+                {!['Owner Vendor', 'Admin Vendor'].includes(userRole) && (
+                  <>
+                    <Row className='form-body'>
+                      <Form.Group>
+                        <div className='d-flex justify-content-between'>
+                          <Form.Label>Margin Vendor</Form.Label>
+
+                          <div className='form-check-request'>
+                            <Form.Check
+                              inline
+                              label='Rp'
+                              name='margin_type'
+                              type='radio'
+                              onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                            />
+
+                            <Form.Check
+                              inline
+                              label='%'
+                              name='margin_type'
+                              type='radio'
+                              checked={marginType === 1}
+                              onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                            />
+                          </div>
+                        </div>
+
+                        <Form.Control
+                          type='number'
+                          onChange={handleChangeMargin}
+                          value={marginNominal}
+                        />
+                      </Form.Group>
+                    </Row>
+
+                    <Row className='form-body'>
+                      <Form.Group>
+                        <Form.Label>Maksimal Order Tukang</Form.Label>
+
+                        <Form.Control
+                          min={3}
+                          type='number'
+                          onChange={handleChangeMaxOrder}
+                          value={maxOrder}
+                        />
+                      </Form.Group>
+                    </Row>
+
+                    <Row className='form-body'>
+                      <Form.Group>
+                        <Form.Label>Nominal Survey</Form.Label>
+
+                        <Form.Control
+                          type='number'
+                          onChange={handleChangeNominalSurvey}
+                          value={nominalSurvey}
+                        />
+                      </Form.Group>
+                    </Row>
+                  </>
+                )}
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      </Spin>
 
       <hr />
 
@@ -1634,20 +1673,20 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
               </Form.Group>
             </Col>
           </Row>
-
-          <div className='d-flex justify-content-center mt-5'>
-            <Button
-              className='d-flex justify-content-center align-items-center'
-              variant='dark-primary'
-              type='submit'
-              disabled={isLoading}
-              onClick={handleUpdateVendor}
-            >
-              {isLoading ? 'Saving..' : 'Save'}
-            </Button>
-          </div>
         </Card.Body>
       </Card>
+
+      <div className='d-flex justify-content-center mt-5'>
+        <Button
+          className='d-flex justify-content-center align-items-center'
+          variant='dark-primary'
+          type='submit'
+          disabled={isLoading}
+          onClick={handleUpdateVendor}
+        >
+          {isLoading ? 'Saving..' : 'Save'}
+        </Button>
+      </div>
     </section>
   )
 }

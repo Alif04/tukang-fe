@@ -1239,7 +1239,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
                   ? item?.orders?.m_order_details[0]?.item_notes ?? '-'
                   : item?.orders?.m_order_details[0]?.item?.service_name ?? '-',
               voucher: item?.voucher ?? '-',
-              penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal).toLocaleString('id')}` ?? 0,
+              penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal ?? 0).toLocaleString('id')}`,
               payment_status: paymentStatus,
               order_status: item?.status?.description,
             }
@@ -1881,7 +1881,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
             onRemove={handleFileRemove}
           >
             <p className='ant-upload-drag-icon'>
-              <InboxOutlined style={{fontSize: 32}} rev />
+              <InboxOutlined style={{fontSize: 32}} />
             </p>
 
             <p className='ant-upload-text'>Klik atau seret file ke area ini untuk mengunggah</p>

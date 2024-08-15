@@ -56,6 +56,20 @@
   text-align: center;
 }
 
+/* Table Bordered */
+
+#update-quotation table.table.table-bordered th {
+  border: 1px solid black !important;
+}
+
+#update-quotation table.table.table-bordered tr {
+  border: 1px solid black !important;
+}
+
+#update-quotation table.table.table-bordered td {
+  border: 1px solid black !important;
+}
+
 /* Button Add Quotation */
 
 #update-quotation .button-new-quotation {

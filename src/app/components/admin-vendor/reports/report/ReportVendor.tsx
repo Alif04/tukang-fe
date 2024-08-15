@@ -428,6 +428,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           sorter: (a, b) => a.status_penalty.length - b.status_penalty.length,
         },
         {
+          title: 'Status Pembayaran Pinalti',
+          dataIndex: 'payment_status_penalty',
+          key: 'payment_status_penalty',
+          align: 'center',
+          onFilter: (value, record) => record.payment_status_penalty.includes(String(value)),
+          sorter: (a, b) => a.payment_status_penalty.length - b.payment_status_penalty.length,
+        },
+        {
           title: 'Order Status',
           dataIndex: 'order_status',
           key: 'order_status',
@@ -1020,6 +1028,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               voucher: item?.voucher ?? '-',
               penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal).toLocaleString('id')}` ?? 0,
               payment_status: paymentStatus,
+              payment_status_penalty: paymentStatus,
               order_status: item?.status?.description,
             }
 
@@ -1372,7 +1381,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
                 tip='Loading...'
                 spinning={loadData}
                 size='large'
-                indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+                indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
               >
                 <div className='table-custom-wrapper'>
                   <Table

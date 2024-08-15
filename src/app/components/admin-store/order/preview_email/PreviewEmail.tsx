@@ -285,7 +285,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
 
                   <li className='fw-normal'>
                     Semua jasa pemasangan wajib dilakukan survey. Biaya survey akan dikembalikan
-                    apabila biaya jasa instalasi/service minimal Rp 500.000.
+                    apabila biaya jasa instalasi/service minimal Rp 800.000.
                   </li>
 
                   <li className='fw-normal'>

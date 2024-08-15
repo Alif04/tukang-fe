@@ -18,12 +18,6 @@ interface StatusStorage {
   description: string
 }
 
-interface Tukang {
-  value: number | null
-  label: string
-  type: number
-}
-
 interface WorkOrders {
   id: number | null
   work_order_status: number | null
@@ -73,9 +67,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   // Work Order History
   const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
-
-  // Work Order Tukang
-  const [tukang, setTukang] = useState<Tukang[]>([])
 
   // Update Work Order
   const [workOrder, setWorkOrder] = useState<WorkOrders>({
@@ -355,35 +346,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     }
   }
 
-  const getTukang = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/tukang`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempTukang = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.full_name,
-        }))
-
-        setTukang(tempTukang)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   useEffect(() => {
     getWorkOrderData()
-    getTukang()
   }, [])
 
   // Format Date
@@ -1582,38 +1546,154 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   <>
                     <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
                     <div className='table-warranty-content'>
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center' style={{width: '355px'}}>
-                              Jenis Jasa
-                            </th>
+                      {workOrderDetail?.order?.quotation[0]?.quotation_special === 0 ? (
+                        <>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
 
-                            <th className='text-center' style={{width: '100px'}}>
-                              QTY
-                            </th>
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
-                              Satuan
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {workOrderDetail?.order?.quotation[0]?.quotation_details
-                            ?.filter((x: any) => x.item_type === 2)
-                            ?.map((item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>
-                                  {item?.name ?? '-'}{' '}
-                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
                               </tr>
-                            ))}
-                        </tbody>
-                      </table>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </>
+                      ) : (
+                        <>
+                          <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2 && x.work_step === 1)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2 && x.work_step === 2)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2 && x.work_step === 3)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </>
+                      )}
 
                       {workOrderDetail?.order?.quotation[0]?.quotation_details?.filter(
                         (x: any) => x.item_type === 1

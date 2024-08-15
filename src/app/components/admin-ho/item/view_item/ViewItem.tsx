@@ -66,6 +66,7 @@ const ViewItemHO: React.FC = () => {
       title: 'No. ',
       dataIndex: 'no',
       key: 'no',
+      width: 90,
       align: 'center',
       sorter: (a, b) => a.no - b.no,
       render: (text: any, record: any, index: number) => {
@@ -73,10 +74,11 @@ const ViewItemHO: React.FC = () => {
       },
     },
     {
-      title: 'Product Name',
+      title: 'Nama Item',
       dataIndex: 'product_name',
       key: 'product_name',
-      align: 'center',
+      align: 'left',
+      width: 150,
       onFilter: (value, record) => record.product_name.includes(String(value)),
       sorter: (a, b) => a.product_name.length - b.product_name.length,
     },
@@ -84,7 +86,8 @@ const ViewItemHO: React.FC = () => {
       title: 'Nama Jasa Pemasangan',
       dataIndex: 'service_name',
       key: 'service_name',
-      align: 'center',
+      align: 'left',
+      width: 170,
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
@@ -92,7 +95,8 @@ const ViewItemHO: React.FC = () => {
       title: 'Assign To Store',
       dataIndex: 'store_name',
       key: 'store_name',
-      align: 'center',
+      align: 'left',
+      width: 100,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -101,6 +105,7 @@ const ViewItemHO: React.FC = () => {
       dataIndex: 'default_price',
       key: 'default_price',
       align: 'center',
+      width: 150,
       sorter: (a, b) => a.default_price - b.default_price,
     },
     {
@@ -108,6 +113,7 @@ const ViewItemHO: React.FC = () => {
       dataIndex: 'min_order',
       key: 'min_order',
       align: 'center',
+      width: 100,
       sorter: (a, b) => a.min_order - b.min_order,
     },
     {
@@ -115,7 +121,7 @@ const ViewItemHO: React.FC = () => {
       key: 'action',
       align: 'center',
       fixed: 'right',
-      width: 120,
+      width: 100,
       render: (record) => {
         const handleUpdate = () => {
           const id = record.material_id
@@ -420,7 +426,7 @@ const ViewItemHO: React.FC = () => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

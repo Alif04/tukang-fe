@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect, useRef} from 'react'
+import React, {FC, useState, useEffect, ChangeEvent} from 'react'
 
 import './NewQuotation.css'
 
@@ -6,7 +6,7 @@ import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {useNavigate} from 'react-router-dom'
-import {Form, Table, Button, Row, Col, Card} from 'react-bootstrap'
+import {Form, Button, Row, Col, Card, Table} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -15,24 +15,40 @@ interface Status {
   category: string
 }
 
-interface QuotationDetail {
+interface Quotation {
   id: number | null
-  index: string
-  item_id: number | null
-  work_order_item_id: number | null
-  category_id: number | null
-  category_name: string
-  type: number
-  item_name: string
-  unit_price: number
-  unit: string
+  order_id: number | null
+  store_id: number | null
+  quotation_special: number
+  quotation_status: number | null
   description: string
-  total: number
-  final_price: number
-  margin: number
-  margin_type: number
-  quantity: number
-  is_user: number
+  quotation_number: string
+  quotation_date: string
+  quotation_validity: string
+  quotation_disc: number
+  quotation_promotion: number | null
+  quotation_grand_total: number
+  readiness: number
+  receipt_quotation: string
+  quotation_details: Array<{
+    id: number | null
+    index: number
+    work_step?: number
+    item_id: number | null
+    work_order_item_id: number | null
+    category_id: number | null
+    type: number
+    item_name: string
+    unit_price: number
+    unit: string
+    description: string
+    total: number
+    final_price: number
+    margin: number
+    margin_type: number
+    quantity: number
+    is_user: number
+  }>
 }
 
 const NewQuotationVendor: FC = () => {
@@ -40,6 +56,7 @@ const NewQuotationVendor: FC = () => {
   const vendorId = localStorage.getItem('vendor_id')
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const today = new Date().toISOString().split('T')[0]
 
   // Fetch Data Work Order
   const [workOrder, setWorkOrder] = useState<any>()
@@ -47,66 +64,73 @@ const NewQuotationVendor: FC = () => {
   const [workOrderDetail, setWorkOrderDetail] = useState<any>()
 
   // Add Quotation
-  const [quotationStatus, setQuotationStatus] = useState<any>()
-  const [quotationNumber, setQuotationNumber] = useState<string | number>('NaN')
-  const [quotationDescription, setQuotationDescription] = useState<string>('')
-  const [quotationDate, setQuotationDate] = useState<string>('')
-  const [quotationValidity, setQuotationValidity] = useState<any>()
+  const [quotation, setQuotation] = useState<Quotation>({
+    id: null,
+    order_id: null,
+    store_id: null,
+    quotation_special: 0,
+    quotation_status: null,
+    description: '',
+    quotation_number: '',
+    quotation_date: '',
+    quotation_validity: '',
+    quotation_disc: 0,
+    quotation_promotion: null,
+    quotation_grand_total: 0,
+    readiness: 1,
+    receipt_quotation: '',
+    quotation_details: [
+      {
+        id: null,
+        index: Number(Date.now() + 1),
+        item_id: null,
+        work_order_item_id: null,
+        category_id: null,
+        type: 1,
+        item_name: '',
+        unit: '',
+        description: '',
+        unit_price: 0,
+        total: 0,
+        final_price: 0,
+        margin: 0,
+        margin_type: 1,
+        quantity: 0,
+        is_user: 0,
+      },
+      {
+        id: null,
+        index: Number(Date.now() + 2),
+        item_id: null,
+        category_id: null,
+        work_order_item_id: null,
+        type: 2,
+        item_name: '',
+        unit: '',
+        description: '',
+        unit_price: 0,
+        total: 0,
+        final_price: 0,
+        margin: 0,
+        margin_type: 1,
+        quantity: 0,
+        is_user: 0,
+      },
+    ],
+  })
 
-  const [totalJasa, setTotalJasa] = useState<number>(0)
+  console.log('quotation', quotation)
+
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
-  const [grandTotal, setGrandTotal] = useState<any>(0)
   const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)
   const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
-
-  // Quotation Detail
-  const [quotationDetail, setQuotationDetail] = useState<QuotationDetail[]>([
-    {
-      id: null,
-      index: (Date.now() + 1).toString(),
-      item_id: null,
-      work_order_item_id: null,
-      category_id: null,
-      category_name: '',
-      type: 1,
-      item_name: '',
-      unit: '',
-      description: '',
-      unit_price: 0,
-      total: 0,
-      final_price: 0,
-      margin: 0,
-      margin_type: 1,
-      quantity: 0,
-      is_user: 0,
-    },
-    {
-      id: null,
-      index: (Date.now() + 2).toString(),
-      item_id: null,
-      category_id: null,
-      category_name: '',
-      work_order_item_id: null,
-      type: 2,
-      item_name: '',
-      unit: '',
-      description: '',
-      unit_price: 0,
-      total: 0,
-      final_price: 0,
-      margin: 0,
-      margin_type: 1,
-      quantity: 0,
-      is_user: 0,
-    },
-  ])
 
   const getWorkOrder = async () => {
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
-      ['SURVEYDONE'].includes(status?.category)
+      ['SURVEYDONE', 'RESURVEYDONE'].includes(status?.category)
     )
 
     if (desiredStatus) {
@@ -130,9 +154,7 @@ const NewQuotationVendor: FC = () => {
           label: item.order_id,
           quotation: item?.order?.quotation,
         }))
-
         const filteredWorkOrder = tempWorkOrder.filter((x: any) => x.quotation.length === 0)
-
         setWorkOrder(filteredWorkOrder)
       } else {
         console.error('API response data is not an array:', response.data)
@@ -159,7 +181,7 @@ const NewQuotationVendor: FC = () => {
           setWorkOrderDetail(data)
 
           if (data?.work_order_status) {
-            const workOrderItem = data.work_order_status[0].work_order_items.map(
+            const quotationDetails = data.work_order_status[0].work_order_items.map(
               (item: any, index: number) => ({
                 id: item?.id,
                 index: Math.abs(stringToHash(`${Date.now() + index}-indexes`)),
@@ -175,10 +197,16 @@ const NewQuotationVendor: FC = () => {
                 final_price: 0,
                 margin: 0,
                 margin_type: 1,
+                ...(item?.type === 2 && quotation.quotation_special === 1
+                  ? {work_step: 1}
+                  : {work_step: 0}),
               })
             )
 
-            setQuotationDetail(workOrderItem)
+            setQuotation((prev) => ({
+              ...prev,
+              quotation_details: quotationDetails,
+            }))
           }
         })
     } catch (err) {
@@ -199,7 +227,10 @@ const NewQuotationVendor: FC = () => {
 
       if (response.status === 200) {
         const {data} = response
-        setQuotationNumber(data.data.code)
+        setQuotation((prev) => ({
+          ...prev,
+          id: data.data.code,
+        }))
       }
     } catch (err) {
       console.error(err)
@@ -215,19 +246,7 @@ const NewQuotationVendor: FC = () => {
     if (workOrderId) {
       getWorkOrderDetail()
     }
-  }, [workOrderId])
-
-  // Format Date
-  const formatDate = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return '--/--/----'
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+  }, [workOrderId, quotation.quotation_special])
 
   const formatForFormData = (date: any) => {
     if (isNaN(date.getTime())) {
@@ -270,35 +289,46 @@ const NewQuotationVendor: FC = () => {
     const desiredStatus = statusData.find((status: any) => status.category === 'QUOTEIN')
     const statusId = desiredStatus?.value
 
-    setQuotationStatus(statusId)
-  }, [quotationStatus])
+    setQuotation((prev) => ({
+      ...prev,
+      quotation_status: statusId,
+    }))
+  }, [quotation.quotation_status])
 
-  // Handle Change Quotation Description
-  const handleInputQuotationDesc = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedInputValue = event.target.value
-    setQuotationDescription(updatedInputValue)
+  // Handler Change
+  const handleChangeQuotation = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = e.target
+
+    if (name === 'quotation_date') {
+      const quotationDate = new Date(value)
+      const daysToAdd = 7
+      const validityDate = new Date(quotationDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000)
+
+      setQuotation((prev) => ({
+        ...prev,
+        [name]: value,
+        quotation_validity: validityDate.toISOString().split('T')[0],
+      }))
+    } else {
+      setQuotation((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
   }
 
-  // Handle Change Quotation Date
-  const today = new Date().toISOString().split('T')[0]
-
-  const handleChangeQuotationDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedQuotationDate = event.target.value
-    const quotationDateObject = new Date(updatedQuotationDate)
-
-    const days = 7
-    const nextDays = new Date(quotationDateObject.getTime() + days * 24 * 60 * 60 * 1000)
-    const parsedNextDays = new Date(nextDays)
-
-    setQuotationDate(updatedQuotationDate)
-    setQuotationValidity(parsedNextDays)
+  const handleChangeQuotationType = (isChecked: boolean) => {
+    setQuotation((prev) => ({
+      ...prev,
+      quotation_special: isChecked ? 1 : 0,
+    }))
   }
 
-  // Quotation Detail Form Handler
-  let handleAddForm = (type: number) => {
-    const newForm = {
+  // Handle Quotation Detail
+  const addQuotationDetail = (type: number, work_step?: number) => {
+    const newDetail = {
       id: null,
-      index: Date.now().toString(),
+      index: Number(Date.now()),
       item_id: null,
       work_order_item_id: null,
       category_id: null,
@@ -314,115 +344,120 @@ const NewQuotationVendor: FC = () => {
       margin_type: 1,
       quantity: 0,
       is_user: 0,
+      work_step: work_step !== undefined ? work_step : 0,
     }
 
-    setQuotationDetail((prev) => [...prev, newForm])
-  }
-
-  let handleRemoveForm = (index: any) => {
-    setQuotationDetail((prev) => {
-      const updatedValues = [...prev]
-      const typeIndex = updatedValues.findIndex((item) => item.index === index)
-
-      if (typeIndex !== -1) {
-        updatedValues.splice(typeIndex, 1)
-      }
-
-      return updatedValues
+    setQuotation((prev) => {
+      const cache = {...prev}
+      cache.quotation_details.push(newDetail)
+      return cache
     })
   }
 
-  // Handle Checkbox Change
-  let handleCheckboxChange = (index: any, isChecked: boolean) => {
-    const updatedDetailValues = [...quotationDetail]
-    const elementIndex = updatedDetailValues.findIndex((item) => item.index === index)
-
-    if (elementIndex !== -1) {
-      updatedDetailValues[elementIndex].is_user = isChecked ? 1 : 0
-    }
-
-    setQuotationDetail(updatedDetailValues)
+  const handleRemoveQuotationDetailForm = (index: number) => {
+    setQuotation((prev) => {
+      const cache = {...prev}
+      const typeIndex = cache.quotation_details.findIndex((item) => item.index === index)
+      if (typeIndex !== -1) {
+        cache.quotation_details.splice(typeIndex, 1)
+      }
+      return cache
+    })
   }
 
-  // Handle Margin Type Change
-  let handleMarginTypeChange = (index: any, isChecked: boolean) => {
-    const updatedDetailValues = [...quotationDetail]
-    const elementIndex = updatedDetailValues.findIndex((item) => item.index === index)
+  const handleIsUser = (index: number, isChecked: boolean) => {
+    setQuotation((prev) => {
+      const updatedDetails = [...prev.quotation_details]
+      const elementIndex = updatedDetails.findIndex((item) => item.index === index)
 
-    if (elementIndex !== -1) {
-      updatedDetailValues[elementIndex].margin_type = isChecked ? 1 : 2
-    }
+      if (elementIndex !== -1) {
+        updatedDetails[elementIndex].is_user = isChecked ? 1 : 0
 
-    setQuotationDetail(updatedDetailValues)
-  }
-
-  // Handle Change Quotation Detail
-  let handleChangeQuotationDetail = (e: any, index: any, value: any, type: number) => {
-    const updatedQuotationDetail = [...quotationDetail]
-    const filteredDetailValues = updatedQuotationDetail.filter((x) => x.type === type)
-
-    if (filteredDetailValues[index]) {
-      let quantity = 0
-      let unit_price = 0
-      let margin = 0
-
-      if (filteredDetailValues[index].is_user === 1) {
-        quantity = 0
-        unit_price = 0
-        margin = 0
-      } else {
-        filteredDetailValues[index] = {
-          ...filteredDetailValues[index],
-          [e.target.name]: value,
+        if (isChecked) {
+          updatedDetails[elementIndex].quantity = 0
+          updatedDetails[elementIndex].margin = 0
+          updatedDetails[elementIndex].unit_price = 0
         }
       }
 
-      setQuotationDetail((prev) =>
-        prev.map((element) => (element.type === type ? filteredDetailValues.shift()! : element))
-      )
-    }
+      return {
+        ...prev,
+        quotation_details: updatedDetails,
+      }
+    })
   }
 
-  // Calculate Detail
-  const calcEachDetails = (isNominal: number, index: any) => {
-    setQuotationDetail((prev) =>
-      prev.map((detail) => {
-        if (detail.index === index) {
-          let {quantity, unit_price, margin, is_user} = detail
+  const handleMarginType = (index: number, isChecked: boolean) => {
+    setQuotation((prev) => {
+      const updatedDetails = [...prev.quotation_details]
+      const elementIndex = updatedDetails.findIndex((item) => item.index === index)
+      if (elementIndex !== -1) {
+        updatedDetails[elementIndex].margin_type = isChecked ? 1 : 2
+      }
+      return {
+        ...prev,
+        quotation_details: updatedDetails,
+      }
+    })
+  }
 
-          let total = Number(quantity) * Number(unit_price)
-
-          let final_price =
-            is_user === 1
-              ? 0
-              : isNominal === 1
-              ? Number(quantity) * Number(unit_price) + total * (Number(margin) / 100)
-              : total + Number(margin)
-
+  const handleChangeQuotationDetails = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number,
+    item_type: number,
+    work_step?: number
+  ) => {
+    setQuotation((prev) => {
+      const updatedDetails = prev.quotation_details.map((detail) => {
+        if (detail.index === index && detail.type === item_type) {
           return {
             ...detail,
-            total: total,
-            final_price: final_price,
+            [e.target.name]: e.target.value,
+            ...(work_step ? {work_step} : {}),
           }
         }
         return detail
       })
-    )
+
+      return {
+        ...prev,
+        quotation_details: updatedDetails,
+      }
+    })
   }
 
-  // Total Jasa
-  const calculateTotalJasa = () => {
-    const serviceDetails = quotationDetail.filter((detail) => detail.type === 2)
-    const total = serviceDetails.reduce(
-      (accumulator, detail) => accumulator + detail.final_price,
-      0
-    )
-    setTotalJasa(total)
+  const calculateEachDetail = (isNominal: number, index: number) => {
+    setQuotation((prev) => {
+      const updatedDetails = prev.quotation_details.map((detail) => {
+        if (detail.index === index) {
+          const {quantity, unit_price, margin, is_user} = detail
+
+          const total = Number(quantity) * Number(unit_price)
+          const final_price =
+            is_user === 1
+              ? 0
+              : isNominal === 1
+              ? total + total * (Number(margin) / 100)
+              : total + Number(margin)
+
+          return {
+            ...detail,
+            total,
+            final_price,
+          }
+        }
+        return detail
+      })
+
+      return {
+        ...prev,
+        quotation_details: updatedDetails,
+      }
+    })
   }
 
-  // Total Material
-  const calculateTotalMaterial = () => {
-    const materialDetails = quotationDetail.filter((detail) => detail.type === 1)
+  const calculateTotalMaterials = () => {
+    const materialDetails = quotation.quotation_details.filter((detail) => detail.type === 1)
     const total = materialDetails.reduce(
       (accumulator, detail) => accumulator + detail.final_price,
       0
@@ -430,19 +465,36 @@ const NewQuotationVendor: FC = () => {
     setTotalMaterial(total)
   }
 
-  // Total Material & Jasa
-  const calculateTotalJasaMaterial = () => {
-    let total = 0
-    for (const detail of quotationDetail) {
+  const calculateTotalDetails = () => {
+    const total = quotation.quotation_details.reduce((accumulator, detail) => {
       if (detail.type === 1 || detail.type === 2) {
-        total += detail.final_price
+        return accumulator + detail.final_price
       }
-    }
+      return accumulator
+    }, 0)
     setTotalJasaMaterial(total)
   }
 
-  // Grand Total
-  const calculatedGrandTotal = () => {
+  // Payment Stage
+  const [paymentStages, setPaymentStages] = useState([
+    {stage: 'Tahap 1', percentage: '25%', amount: 0},
+    {stage: 'Tahap 2', percentage: '50%', amount: 0},
+    {stage: 'Tahap 3', percentage: '25%', amount: 0},
+  ])
+
+  const calculatePaymentStages = (grandTotal: number) => {
+    const stage1 = grandTotal * 0.25
+    const stage2 = grandTotal * 0.5
+    const stage3 = grandTotal * 0.25
+
+    setPaymentStages([
+      {stage: 'Tahap 1', percentage: '25%', amount: stage1},
+      {stage: 'Tahap 2', percentage: '50%', amount: stage2},
+      {stage: 'Tahap 3', percentage: '25%', amount: stage3},
+    ])
+  }
+
+  const calculatedGrandTotalQuotation = () => {
     const grandTotal = Number(totalJasaMaterial)
     const roundedValue = Math.ceil(grandTotal / 100) * 100
     const formatter = new Intl.NumberFormat('id-ID', {
@@ -451,33 +503,43 @@ const NewQuotationVendor: FC = () => {
       minimumFractionDigits: 0,
     })
 
-    setGrandTotal(grandTotal)
+    setQuotation((prev) => ({
+      ...prev,
+      quotation_grand_total: grandTotal,
+    }))
     setGrandTotalRounded(formatter.format(roundedValue))
     setGrandTotalDiff(roundedValue - grandTotal)
+    calculatePaymentStages(grandTotal)
   }
 
   useEffect(() => {
-    calculateTotalJasa()
-    calculateTotalMaterial()
-    calculateTotalJasaMaterial()
-    calculatedGrandTotal()
-  }, [quotationDetail, totalJasaMaterial])
+    calculateTotalMaterials()
+    calculateTotalDetails()
+    calculatedGrandTotalQuotation()
+  }, [quotation.quotation_details, quotation.quotation_details.length, totalJasaMaterial])
 
   // Quotation Validation
   const QuotationValidation = () => {
     let valid = true
 
-    if (!workOrderDetail.order.id) {
+    if (!workOrderDetail) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please select order Id',
+        text: 'Tolong pilih Order ID',
         icon: 'warning',
       })
       valid = false
-    } else if (!quotationDate) {
+    } else if (!quotation.quotation_date) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill tanggal form',
+        text: 'Tolong isi tanggal quotation',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (quotation.quotation_grand_total >= 20000000 && quotation.quotation_special === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong gunakan tipe quotation spesial',
         icon: 'warning',
       })
       valid = false
@@ -493,11 +555,15 @@ const NewQuotationVendor: FC = () => {
 
       formData.append('order_id', workOrderDetail?.order?.id)
       formData.append('store_id', workOrderDetail?.order?.store?.id)
-      formData.append('quotation_status', quotationStatus)
-      formData.append('description', quotationDescription)
-      formData.append('quotation_number', quotationNumber.toString())
-      formData.append('quotation_date', quotationDate)
-      formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
+      formData.append('quotation_number', quotation.id?.toString() ?? '')
+      formData.append('quotation_status', quotation.quotation_status?.toString() ?? '')
+      formData.append('quotation_special', quotation.quotation_special?.toString() ?? '')
+      formData.append('description', quotation.description)
+      formData.append('quotation_date', quotation.quotation_date)
+      formData.append(
+        'quotation_validity',
+        formatForFormData(new Date(quotation.quotation_validity))
+      )
 
       const appendIfNotDefault = (formData: any, key: any, value: any) => {
         if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -505,7 +571,7 @@ const NewQuotationVendor: FC = () => {
         }
       }
 
-      quotationDetail.forEach((quotation, index) => {
+      quotation.quotation_details.forEach((quotation, index) => {
         appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)
         appendIfNotDefault(
           formData,
@@ -518,6 +584,7 @@ const NewQuotationVendor: FC = () => {
         appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
         appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
         appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+        appendIfNotDefault(formData, `quotation_details[${index}][work_step]`, quotation.work_step)
 
         if (quotation.item_name !== '') {
           appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
@@ -539,7 +606,7 @@ const NewQuotationVendor: FC = () => {
           if (response.data.status === 200 || response.data.status === 201) {
             Swal.fire({
               title: 'Success',
-              text: 'Success Add Quotation',
+              text: 'Berhasil menambahkan quotation',
               icon: 'success',
               showConfirmButton: false,
               timer: 1500,
@@ -645,7 +712,12 @@ const NewQuotationVendor: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='date' min={today} onChange={handleChangeQuotationDate} />
+                  <Form.Control
+                    name='quotation_date'
+                    type='date'
+                    min={today}
+                    onChange={(e) => handleChangeQuotation(e as ChangeEvent<HTMLInputElement>)}
+                  />
                 </Col>
               </Form.Group>
 
@@ -672,7 +744,7 @@ const NewQuotationVendor: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <Form.Control type='number' value={quotationNumber} readOnly />
+                  <Form.Control type='number' value={quotation.id ? quotation.id : ''} readOnly />
                 </Col>
               </Form.Group>
 
@@ -690,7 +762,7 @@ const NewQuotationVendor: FC = () => {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} className='mb-4'>
+              {/* <Form.Group as={Row} className='mb-4'>
                 <Form.Label className='fs-5 fw-bold' column sm='4'>
                   Quotation Valid Until :
                 </Form.Label>
@@ -699,12 +771,12 @@ const NewQuotationVendor: FC = () => {
                   <Form.Control
                     type='text'
                     min={today}
-                    value={formatDate(new Date(quotationValidity))}
+                    value={formatDate(new Date(quotation.quotation_validity))}
                     plaintext
                     readOnly
                   />
                 </Col>
-              </Form.Group>
+              </Form.Group> */}
             </Col>
           </Row>
 
@@ -734,7 +806,8 @@ const NewQuotationVendor: FC = () => {
                   <Form.Control
                     style={{minHeight: '140px'}}
                     as='textarea'
-                    onChange={handleInputQuotationDesc}
+                    name='description'
+                    onChange={(e) => handleChangeQuotation(e as ChangeEvent<HTMLInputElement>)}
                   />
                 </Form.Group>
               </div>
@@ -743,168 +816,769 @@ const NewQuotationVendor: FC = () => {
 
           <hr />
 
-          <div className='item-jasa'>
-            <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan</h4>
+          <Row>
+            <Col>
+              <Form.Check
+                id='quotation-type'
+                type='checkbox'
+                label='Tipe Quotation Spesial'
+                className='mb-5'
+                checked={quotation.quotation_special === 1}
+                onChange={(e) => handleChangeQuotationType(e.target.checked)}
+              />
+              <Form.Text className='fs-7 text-black'>Keterangan : </Form.Text>
+              <br></br>
+              <Form.Text className='fs-7 text-black'>
+                *Quotation spesial merupakan quotation yang nominalnya diatas 20.000.000
+              </Form.Text>
+              <br></br>
+              <Form.Text className='fs-7 text-danger'>
+                *Ceklis checkbox diatas untuk mengaktifkan quotation spesial
+              </Form.Text>
+            </Col>
+          </Row>
 
-            {quotationDetail
-              .filter((x) => x.type === 2)
-              .map((element, index) => (
-                <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
-                  <div className='d-flex border-rounded-3'>
-                    <Card.Body>
-                      <Row>
-                        <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
-                            <Form.Control
-                              id={`item-name-${index}`}
-                              name='item_name'
-                              type='text'
-                              value={element.item_name}
-                              onChange={(e) =>
-                                handleChangeQuotationDetail(e, index, e.target.value, 2)
-                              }
-                            />
-                          </Form.Group>
-                        </Col>
+          {quotation.quotation_special === 0 && (
+            <>
+              <hr />
 
-                        <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
-                            <Form.Control
-                              id={`quantity-${index}`}
-                              name='quantity'
-                              type='number'
-                              value={element.quantity}
-                              onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 2)
-                                calcEachDetails(element.margin_type, element.index)
-                              }}
-                            />
-                          </Form.Group>
-                        </Col>
+              <div className='item-jasa'>
+                <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan</h4>
 
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
-                            <Form.Control
-                              id={`unit-price-${index}`}
-                              type='number'
-                              name='unit_price'
-                              value={element.unit_price}
-                              onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 2)
-                                calcEachDetails(element.margin_type, element.index)
-                              }}
-                            />
-                          </Form.Group>
-                        </Col>
+                {quotation.quotation_details
+                  .filter((x) => x.type === 2)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control
+                                  id={`item-name-${index}`}
+                                  name='item_name'
+                                  type='text'
+                                  value={element.item_name}
+                                  onChange={(e) =>
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2
+                                    )
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
 
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
-                            <Form.Control
-                              readOnly
-                              plaintext
-                              value={`Rp. ${(
-                                Number(element.quantity) * Number(element.unit_price)
-                              ).toLocaleString()}`}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-
-                      <Row>
-                        <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
-
-                            <Form.Control
-                              id={`satuan-${index}`}
-                              name='unit'
-                              value={element.unit}
-                              onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 2)
-                              }}
-                            />
-                          </Form.Group>
-                        </Col>
-
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
-
-                            <Form.Control
-                              id={`margin-${index}`}
-                              type='number'
-                              name='margin'
-                              value={element.margin}
-                              onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 2)
-                                calcEachDetails(element.margin_type, element.index)
-                              }}
-                            />
-
-                            <div className='d-flex flex-inline mt-2'>
-                              <div className='me-1'>
-                                <Form.Check
-                                  id={`margin-type-${index}`}
-                                  type='checkbox'
-                                  checked={element.margin_type === 1}
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control
+                                  id={`quantity-${index}`}
+                                  name='quantity'
+                                  type='number'
+                                  value={element.quantity}
                                   onChange={(e) => {
-                                    handleMarginTypeChange(element.index, e.target.checked)
-                                    calcEachDetails(element.margin_type, element.index)
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
                                   }}
                                 />
-                              </div>
+                              </Form.Group>
+                            </Col>
 
-                              <div className='ms-1'>Persen</div>
-                            </div>
-                          </Form.Group>
-                        </Col>
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
+                                <Form.Control
+                                  id={`unit-price-${index}`}
+                                  type='number'
+                                  name='unit_price'
+                                  value={element.unit_price}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
 
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${(
+                                    Number(element.quantity) * Number(element.unit_price)
+                                  ).toLocaleString()}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
 
-                            <Form.Control
-                              readOnly
-                              plaintext
-                              value={`Rp. ${element.final_price.toLocaleString('id')}`}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </Card.Body>
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
 
-                    <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
-                      <Button
-                        className='button-transparent text-danger'
-                        variant='primary'
-                        onClick={() => handleRemoveForm(element.index)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+                                <Form.Control
+                                  id={`satuan-${index}`}
+                                  name='unit'
+                                  value={element.unit}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2
+                                    )
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
 
-            <Button
-              className='add-jasa'
-              variant='button-dark-success'
-              onClick={() => handleAddForm(2)}
-            >
-              Tambah Jasa
-            </Button>
-          </div>
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+
+                                <Form.Control
+                                  id={`margin-${index}`}
+                                  type='number'
+                                  name='margin'
+                                  value={element.margin}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+
+                                <div className='d-flex flex-inline mt-2'>
+                                  <div className='me-1'>
+                                    <Form.Check
+                                      id={`margin-type-${index}`}
+                                      type='checkbox'
+                                      checked={element.margin_type === 1}
+                                      onChange={(e) => {
+                                        handleMarginType(element.index, e.target.checked)
+                                        calculateEachDetail(element.margin_type, element.index)
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className='ms-1'>Persen</div>
+                                </div>
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+
+                        <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                          <Button
+                            className='button-transparent text-danger'
+                            variant='primary'
+                            onClick={() => handleRemoveQuotationDetailForm(element.index)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+
+                <Button
+                  className='add-jasa'
+                  variant='button-dark-success'
+                  onClick={() => addQuotationDetail(2)}
+                >
+                  Tambah Jasa
+                </Button>
+              </div>
+            </>
+          )}
+
+          {quotation.quotation_special === 1 && (
+            <>
+              <hr />
+
+              <div className='item-jasa'>
+                <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan Tahap 1</h4>
+
+                {quotation.quotation_details
+                  .filter((x) => x.type === 2 && x.work_step === 1)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control
+                                  id={`item-name-${index}`}
+                                  name='item_name'
+                                  type='text'
+                                  value={element.item_name}
+                                  onChange={(e) =>
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      1
+                                    )
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control
+                                  id={`quantity-${index}`}
+                                  name='quantity'
+                                  type='number'
+                                  value={element.quantity}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      1
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
+                                <Form.Control
+                                  id={`unit-price-${index}`}
+                                  type='number'
+                                  name='unit_price'
+                                  value={element.unit_price}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      1
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${(
+                                    Number(element.quantity) * Number(element.unit_price)
+                                  ).toLocaleString()}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+
+                                <Form.Control
+                                  id={`satuan-${index}`}
+                                  name='unit'
+                                  value={element.unit}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      1
+                                    )
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+
+                                <Form.Control
+                                  id={`margin-${index}`}
+                                  type='number'
+                                  name='margin'
+                                  value={element.margin}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      1
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+
+                                <div className='d-flex flex-inline mt-2'>
+                                  <div className='me-1'>
+                                    <Form.Check
+                                      id={`margin-type-${index}`}
+                                      type='checkbox'
+                                      checked={element.margin_type === 1}
+                                      onChange={(e) => {
+                                        handleMarginType(element.index, e.target.checked)
+                                        calculateEachDetail(element.margin_type, element.index)
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className='ms-1'>Persen</div>
+                                </div>
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+
+                        <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                          <Button
+                            className='button-transparent text-danger'
+                            variant='primary'
+                            onClick={() => handleRemoveQuotationDetailForm(element.index)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+
+                <Button
+                  className='add-jasa'
+                  variant='button-dark-success'
+                  onClick={() => addQuotationDetail(2, 1)}
+                >
+                  Tambah Jasa
+                </Button>
+              </div>
+
+              <hr />
+
+              <div className='item-jasa'>
+                <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan Tahap 2</h4>
+
+                {quotation.quotation_details
+                  .filter((x) => x.type === 2 && x.work_step === 2)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control
+                                  id={`item-name-${index}`}
+                                  name='item_name'
+                                  type='text'
+                                  value={element.item_name}
+                                  onChange={(e) =>
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      2
+                                    )
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control
+                                  id={`quantity-${index}`}
+                                  name='quantity'
+                                  type='number'
+                                  value={element.quantity}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      2
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
+                                <Form.Control
+                                  id={`unit-price-${index}`}
+                                  type='number'
+                                  name='unit_price'
+                                  value={element.unit_price}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      2
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${(
+                                    Number(element.quantity) * Number(element.unit_price)
+                                  ).toLocaleString()}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+
+                                <Form.Control
+                                  id={`satuan-${index}`}
+                                  name='unit'
+                                  value={element.unit}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      2
+                                    )
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+
+                                <Form.Control
+                                  id={`margin-${index}`}
+                                  type='number'
+                                  name='margin'
+                                  value={element.margin}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      2
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+
+                                <div className='d-flex flex-inline mt-2'>
+                                  <div className='me-1'>
+                                    <Form.Check
+                                      id={`margin-type-${index}`}
+                                      type='checkbox'
+                                      checked={element.margin_type === 1}
+                                      onChange={(e) => {
+                                        handleMarginType(element.index, e.target.checked)
+                                        calculateEachDetail(element.margin_type, element.index)
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className='ms-1'>Persen</div>
+                                </div>
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+
+                        <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                          <Button
+                            className='button-transparent text-danger'
+                            variant='primary'
+                            onClick={() => handleRemoveQuotationDetailForm(element.index)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+
+                <Button
+                  className='add-jasa'
+                  variant='button-dark-success'
+                  onClick={() => addQuotationDetail(2, 2)}
+                >
+                  Tambah Jasa
+                </Button>
+              </div>
+
+              <hr />
+
+              <div className='item-jasa'>
+                <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan Tahap 3</h4>
+
+                {quotation.quotation_details
+                  .filter((x) => x.type === 2 && x.work_step === 3)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control
+                                  id={`item-name-${index}`}
+                                  name='item_name'
+                                  type='text'
+                                  value={element.item_name}
+                                  onChange={(e) =>
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      3
+                                    )
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control
+                                  id={`quantity-${index}`}
+                                  name='quantity'
+                                  type='number'
+                                  value={element.quantity}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      3
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Price</Form.Label>
+                                <Form.Control
+                                  id={`unit-price-${index}`}
+                                  type='number'
+                                  name='unit_price'
+                                  value={element.unit_price}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      3
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${(
+                                    Number(element.quantity) * Number(element.unit_price)
+                                  ).toLocaleString()}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+
+                                <Form.Control
+                                  id={`satuan-${index}`}
+                                  name='unit'
+                                  value={element.unit}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      3
+                                    )
+                                  }}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+
+                                <Form.Control
+                                  id={`margin-${index}`}
+                                  type='number'
+                                  name='margin'
+                                  value={element.margin}
+                                  onChange={(e) => {
+                                    handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      3
+                                    )
+                                    calculateEachDetail(element.margin_type, element.index)
+                                  }}
+                                />
+
+                                <div className='d-flex flex-inline mt-2'>
+                                  <div className='me-1'>
+                                    <Form.Check
+                                      id={`margin-type-${index}`}
+                                      type='checkbox'
+                                      checked={element.margin_type === 1}
+                                      onChange={(e) => {
+                                        handleMarginType(element.index, e.target.checked)
+                                        calculateEachDetail(element.margin_type, element.index)
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className='ms-1'>Persen</div>
+                                </div>
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  plaintext
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+
+                        <div className='d-flex flex-column align-items-center justify-content-between border-start p-2'>
+                          <Button
+                            className='button-transparent text-danger'
+                            variant='primary'
+                            onClick={() => handleRemoveQuotationDetailForm(element.index)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+
+                <Button
+                  className='add-jasa'
+                  variant='button-dark-success'
+                  onClick={() => addQuotationDetail(2, 3)}
+                >
+                  Tambah Jasa
+                </Button>
+              </div>
+            </>
+          )}
 
           <hr />
 
           <div className='item-material'>
             <h4 className='fs-4 fw-semibold mb-5'>Item Material</h4>
 
-            {quotationDetail
+            {quotation.quotation_details
               .filter((x) => x.type === 1)
               .map((element, index) => (
                 <Card key={`${element.index}-material`} className='card-item-material mb-5'>
@@ -915,7 +1589,7 @@ const NewQuotationVendor: FC = () => {
                         type='checkbox'
                         className='mt-2'
                         checked={element.is_user === 1}
-                        onChange={(e) => handleCheckboxChange(element.index, e.target.checked)}
+                        onChange={(e) => handleIsUser(element.index, e.target.checked)}
                       />
                     </div>
 
@@ -932,9 +1606,13 @@ const NewQuotationVendor: FC = () => {
                               name='item_name'
                               value={element.item_name}
                               disabled={element.is_user === 1 ? true : false}
-                              onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 1)
-                              }}
+                              onChange={(e) =>
+                                handleChangeQuotationDetails(
+                                  e as ChangeEvent<HTMLInputElement>,
+                                  element.index,
+                                  1
+                                )
+                              }
                             />
                           </Form.Group>
                         </Col>
@@ -948,8 +1626,12 @@ const NewQuotationVendor: FC = () => {
                               value={element.quantity}
                               disabled={element.is_user === 1 ? true : false}
                               onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 1)
-                                calcEachDetails(element.margin_type, element.index)
+                                handleChangeQuotationDetails(
+                                  e as ChangeEvent<HTMLInputElement>,
+                                  element.index,
+                                  1
+                                )
+                                calculateEachDetail(element.margin_type, element.index)
                               }}
                             />
                           </Form.Group>
@@ -965,8 +1647,12 @@ const NewQuotationVendor: FC = () => {
                               value={element.unit_price}
                               disabled={element.is_user === 1 ? true : false}
                               onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 1)
-                                calcEachDetails(element.margin_type, element.index)
+                                handleChangeQuotationDetails(
+                                  e as ChangeEvent<HTMLInputElement>,
+                                  element.index,
+                                  1
+                                )
+                                calculateEachDetail(element.margin_type, element.index)
                               }}
                             />
                           </Form.Group>
@@ -996,9 +1682,13 @@ const NewQuotationVendor: FC = () => {
                               name='unit'
                               value={element.unit}
                               disabled={element.is_user === 1 ? true : false}
-                              onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 1)
-                              }}
+                              onChange={(e) =>
+                                handleChangeQuotationDetails(
+                                  e as ChangeEvent<HTMLInputElement>,
+                                  element.index,
+                                  1
+                                )
+                              }
                             />
                           </Form.Group>
                         </Col>
@@ -1014,8 +1704,12 @@ const NewQuotationVendor: FC = () => {
                               value={element.margin}
                               disabled={element.is_user === 1 ? true : false}
                               onChange={(e) => {
-                                handleChangeQuotationDetail(e, index, e.target.value, 1)
-                                calcEachDetails(element.margin_type, element.index)
+                                handleChangeQuotationDetails(
+                                  e as ChangeEvent<HTMLInputElement>,
+                                  element.index,
+                                  1
+                                )
+                                calculateEachDetail(element.margin_type, element.index)
                               }}
                             />
 
@@ -1027,8 +1721,8 @@ const NewQuotationVendor: FC = () => {
                                   checked={element.margin_type === 1}
                                   disabled={element.is_user === 1 ? true : false}
                                   onChange={(e) => {
-                                    handleMarginTypeChange(element.index, e.target.checked)
-                                    calcEachDetails(element.margin_type, element.index)
+                                    handleMarginType(element.index, e.target.checked)
+                                    calculateEachDetail(element.margin_type, element.index)
                                   }}
                                 />
                               </div>
@@ -1056,7 +1750,7 @@ const NewQuotationVendor: FC = () => {
                       <Button
                         className='button-transparent text-danger'
                         variant='primary'
-                        onClick={() => handleRemoveForm(element.index)}
+                        onClick={() => handleRemoveQuotationDetailForm(element.index)}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </Button>
@@ -1073,11 +1767,43 @@ const NewQuotationVendor: FC = () => {
             <Button
               className='add-material'
               variant='button-warning'
-              onClick={() => handleAddForm(1)}
+              onClick={() => addQuotationDetail(1)}
             >
               Tambah Material
             </Button>
           </div>
+
+          {quotation.quotation_special === 1 && (
+            <>
+              <hr />
+
+              <div className='title fs-6 mb-2'>Preview Pembayaran</div>
+
+              <Table bordered responsive>
+                <thead>
+                  <tr>
+                    <th>Tahap Pembayaran</th>
+                    <th>Persentase</th>
+                    <th>Nominal Pembayaran</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {paymentStages.map((stage, index) => (
+                    <tr key={index}>
+                      <td>{stage.stage}</td>
+                      <td>{stage.percentage}</td>
+                      <td>{`${stage.amount.toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                      })}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </>
+          )}
 
           <hr />
 
@@ -1113,7 +1839,9 @@ const NewQuotationVendor: FC = () => {
                 </td>
 
                 <td className='total-content'>
-                  <div className='fs-6 fw-semibold'>{`Rp. ${grandTotal.toLocaleString('id')}`}</div>
+                  <div className='fs-6 fw-semibold'>{`Rp. ${quotation.quotation_grand_total.toLocaleString(
+                    'id'
+                  )}`}</div>
                 </td>
               </tr>
 

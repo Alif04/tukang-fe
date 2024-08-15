@@ -351,7 +351,7 @@ const ViewCalendarTukang: React.FC = () => {
         spinning={isLoadingPage}
         size='large'
         tip='Loading...'
-        indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+        indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
       >
         <FullCalendar
           plugins={[dayGridPlugin, listPlugin, interactionPlugin]}

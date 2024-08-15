@@ -69,8 +69,6 @@ const UpdateTukangVendor: FC = () => {
     area_id: [],
   })
 
-  console.log('tukang ', tukang)
-
   // Tukang Services
   const [tukangServices, setTukangServices] = useState<TukangServiceSelect[]>([])
 

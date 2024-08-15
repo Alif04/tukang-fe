@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
+import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {useParams} from 'react-router-dom'
 
 import './DetailQuotation.css'
@@ -14,6 +15,7 @@ const DetailQuotationVendor: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const pdfRef = useRef<HTMLDivElement>(null)
+  const userRole = localStorage.getItem('userRole') as string
 
   const [loadingPDF, setLoadingPDF] = useState(false)
   const [quotationDetail, setQuotationDetail] = useState<any>()
@@ -68,6 +70,29 @@ const DetailQuotationVendor: FC = () => {
     setLoadingPDF(false)
   }
 
+  // Payment Stage
+  const [paymentStages, setPaymentStages] = useState([
+    {stage: 'Tahap 1', percentage: '25%', amount: 0},
+    {stage: 'Tahap 2', percentage: '50%', amount: 0},
+    {stage: 'Tahap 3', percentage: '25%', amount: 0},
+  ])
+
+  const calculatePaymentStages = (grandTotal: number) => {
+    const stage1 = grandTotal * 0.25
+    const stage2 = grandTotal * 0.5
+    const stage3 = grandTotal * 0.25
+
+    setPaymentStages([
+      {stage: 'Tahap 1', percentage: '25%', amount: stage1},
+      {stage: 'Tahap 2', percentage: '50%', amount: stage2},
+      {stage: 'Tahap 3', percentage: '25%', amount: stage3},
+    ])
+  }
+
+  useEffect(() => {
+    calculatePaymentStages(quotationDetail?.quotation_grand_total)
+  }, [quotationDetail?.quotation_grand_total])
+
   return (
     <section id='detail-quotation'>
       <Card ref={pdfRef}>
@@ -75,6 +100,14 @@ const DetailQuotationVendor: FC = () => {
           <Row className='quotation-detail mb-4'>
             <Col xxl={6} xl={6} md={6} sm={12} className='vendor-information'>
               <div className='vendor-detail'>
+                {['Super User', 'Admin HO'].includes(userRole) && (
+                  <img
+                    alt='Logo'
+                    className='h-50px logo mb-3'
+                    src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+                  />
+                )}
+
                 <div className='address'>
                   <div className='fs-3 fw-semibold mb-2'>
                     {quotationDetail?.store?.store_name ?? ''}
@@ -130,11 +163,13 @@ const DetailQuotationVendor: FC = () => {
               <div className='fs-4 fw-semibold'>
                 Quotation Valid Until :
                 <span className='ms-1 fw-normal'>
-                  {new Date(quotationDetail?.quotation_validity).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  {quotationDetail?.quotation_validity
+                    ? new Date(quotationDetail?.quotation_validity).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : '-'}
                 </span>
               </div>
 
@@ -148,38 +183,178 @@ const DetailQuotationVendor: FC = () => {
           </Row>
 
           <Row className='detail-table mb-2'>
-            <Table hover className='table-jasa'>
-              <thead>
-                <tr>
-                  <th className='text-center'>Jenis Jasa</th>
-                  <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Profit</th>
-                  <th className='text-center'>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quotationDetail?.quotation_details
-                  .filter((x: any) => x.item_type === 2)
-                  .map((item: any) => (
-                    <>
-                      <tr>
-                        <td>{item?.name ?? '-'}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{item?.unit}</td>
-                        <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                        <td>
-                          {item.margin_type === 1
-                            ? `${item?.margin ?? 0}%`
-                            : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
-                        </td>
-                        <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString('id')}`}</td>
-                      </tr>
-                    </>
-                  ))}
-              </tbody>
-            </Table>
+            {quotationDetail?.quotation_special === 0 && (
+              <Table hover className='table-jasa'>
+                <thead>
+                  <tr>
+                    <th className='text-center'>Jenis Jasa</th>
+                    <th className='text-center'>QTY</th>
+                    <th className='text-center'>Satuan</th>
+                    <th className='text-center'>Price</th>
+                    <th className='text-center'>Profit</th>
+                    <th className='text-center'>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {quotationDetail?.quotation_details
+                    .filter((x: any) => x.item_type === 2)
+                    .map((item: any) => (
+                      <>
+                        <tr>
+                          <td>{item?.name ?? '-'}</td>
+                          <td>{item?.quantity}</td>
+                          <td>{item?.unit}</td>
+                          <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                          <td>
+                            {item.margin_type === 1
+                              ? `${item?.margin ?? 0}%`
+                              : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                          </td>
+                          <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString('id')}`}</td>
+                        </tr>
+                      </>
+                    ))}
+                </tbody>
+              </Table>
+            )}
+
+            {quotationDetail?.quotation_special === 1 && (
+              <>
+                <hr />
+
+                <div className='p-0'>
+                  <p className='fs-7 text-black'>Keterangan : </p>
+                  <p className='fs-7 fw-semibold text-black'>
+                    *Quotation ini menggunakan quotation tipe spesial
+                  </p>
+                  <p className='fs-7 fw-semibold text-black'>
+                    *Quotation spesial merupakan quotation yang nominalnya diatas 20.000.000
+                  </p>
+                </div>
+
+                <hr />
+
+                <div className='fs-6 fw-semibold p-0'>Jasa Pemasangan Tahap 1</div>
+
+                <Table hover className='table-jasa'>
+                  <thead>
+                    <tr>
+                      <th className='text-center'>Jenis Jasa</th>
+                      <th className='text-center'>QTY</th>
+                      <th className='text-center'>Satuan</th>
+                      <th className='text-center'>Price</th>
+                      <th className='text-center'>Profit</th>
+                      <th className='text-center'>Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {quotationDetail?.quotation_details
+                      .filter((x: any) => x.item_type === 2 && x.work_step === 1)
+                      .map((item: any) => (
+                        <>
+                          <tr>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity}</td>
+                            <td>{item?.unit}</td>
+                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                            <td>
+                              {item.margin_type === 1
+                                ? `${item?.margin ?? 0}%`
+                                : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                            </td>
+                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                          </tr>
+                        </>
+                      ))}
+                  </tbody>
+                </Table>
+
+                <hr />
+
+                <div className='fs-6 fw-semibold p-0'>Jasa Pemasangan Tahap 2</div>
+
+                <Table hover className='table-jasa'>
+                  <thead>
+                    <tr>
+                      <th className='text-center'>Jenis Jasa</th>
+                      <th className='text-center'>QTY</th>
+                      <th className='text-center'>Satuan</th>
+                      <th className='text-center'>Price</th>
+                      <th className='text-center'>Profit</th>
+                      <th className='text-center'>Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {quotationDetail?.quotation_details
+                      .filter((x: any) => x.item_type === 2 && x.work_step === 2)
+                      .map((item: any) => (
+                        <>
+                          <tr>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity}</td>
+                            <td>{item?.unit}</td>
+                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                            <td>
+                              {item.margin_type === 1
+                                ? `${item?.margin ?? 0}%`
+                                : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                            </td>
+                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                          </tr>
+                        </>
+                      ))}
+                  </tbody>
+                </Table>
+
+                <hr />
+
+                <div className='fs-6 fw-semibold p-0'>Jasa Pemasangan Tahap 3</div>
+
+                <Table hover className='table-jasa'>
+                  <thead>
+                    <tr>
+                      <th className='text-center'>Jenis Jasa</th>
+                      <th className='text-center'>QTY</th>
+                      <th className='text-center'>Satuan</th>
+                      <th className='text-center'>Price</th>
+                      <th className='text-center'>Profit</th>
+                      <th className='text-center'>Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {quotationDetail?.quotation_details
+                      .filter((x: any) => x.item_type === 2 && x.work_step === 3)
+                      .map((item: any) => (
+                        <>
+                          <tr>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity}</td>
+                            <td>{item?.unit}</td>
+                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                            <td>
+                              {item.margin_type === 1
+                                ? `${item?.margin ?? 0}%`
+                                : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                            </td>
+                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                          </tr>
+                        </>
+                      ))}
+                  </tbody>
+                </Table>
+
+                <hr />
+              </>
+            )}
 
             <Table hover className='table-material'>
               <thead>
@@ -250,6 +425,80 @@ const DetailQuotationVendor: FC = () => {
               </tbody>
             </Table>
           </Row>
+
+          {quotationDetail?.quotation_special === 1 && (
+            <>
+              <hr />
+
+              <div className='fs-6 fw-semibold p-0 mb-2'>Preview Pembayaran</div>
+
+              <Table bordered responsive>
+                <thead>
+                  <tr>
+                    <th>Tahap Pembayaran</th>
+                    <th>Persentase</th>
+                    <th>Nominal Pembayaran</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {paymentStages.map((stage, index) => (
+                    <tr key={index}>
+                      <td>{stage.stage}</td>
+                      <td>{stage.percentage}</td>
+                      <td>{`${stage.amount.toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                      })}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </>
+          )}
+
+          {['Super User', 'Admin HO'].includes(userRole) && (
+            <Row className='payment-information mb-2'>
+              <div className='payment-method'>
+                <div className='fs-3 fw-semibold mb-2'>
+                  Silahkan melakukan pembayaran di account di bawah ini :
+                </div>
+
+                <div className='fs-4 fw-normal'>{quotationDetail?.store?.bank_account}</div>
+                <div className='fs-4 fw-normal'>{quotationDetail?.store?.bank_name}</div>
+                <div className='fs-4 fw-normal'>{quotationDetail?.store?.bank_number}</div>
+              </div>
+
+              <div className='payment-evidence'>
+                <div className='fs-3 fw-semibold mb-2'>
+                  Silahkan kirim bukti bayar anda melalui:
+                </div>
+
+                <div className='fs-4 fw-normal'>
+                  {`Telp : ${
+                    quotationDetail?.store?.phone_number_1 ??
+                    quotationDetail?.store?.phone_number_2 ??
+                    'Nomor telepon belum tersedia'
+                  }`}
+                </div>
+
+                <div className='fs-4 fw-normal'>
+                  {' '}
+                  {`Email : ${
+                    quotationDetail?.store?.email ??
+                    quotationDetail?.store?.email ??
+                    'Email belum tersedia'
+                  }`}
+                </div>
+
+                <div className='fs-4 fw-semibold mt-2'>
+                  Terima kasih telah melakukan bisnis dengan Mitra10. Kami harap kedatangan anda
+                  kembali.
+                </div>
+              </div>
+            </Row>
+          )}
         </Card.Body>
       </Card>
 

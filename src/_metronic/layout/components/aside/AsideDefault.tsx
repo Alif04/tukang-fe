@@ -1,7 +1,5 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import axios from 'axios'
-import Swal from 'sweetalert2'
 import {FC, useRef, useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import {useLayout} from '../../core'
@@ -12,6 +10,7 @@ import axiosInstance from '../../core/axiosInterceptor'
 interface User {
   user_id: number | null
   username: string
+  full_name: string
   roles: string
 }
 
@@ -26,6 +25,7 @@ const AsideDefault: FC = () => {
   const [user, setUser] = useState<User>({
     user_id: null,
     username: '',
+    full_name: '',
     roles: '',
   })
 
@@ -33,11 +33,62 @@ const AsideDefault: FC = () => {
     try {
       await axiosInstance.get(`${apiUrl}/auth/find-user/${userId}`).then((response) => {
         const data = response.data.data
-        setUser({
-          user_id: data.id,
-          username: data.username,
-          roles: data?.roles?.name,
-        })
+        const role = data?.roles?.name
+
+        switch (role) {
+          case 'Sales':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: data?.sales[0]?.full_name ?? '',
+              roles: role,
+            })
+            break
+          case 'Store Staff':
+          case 'Store CS':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: data?.employee?.full_name ?? '',
+              roles: role,
+            })
+            break
+          case 'Super User':
+          case 'Admin HO':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: '',
+              roles: role,
+            })
+            break
+          case 'Owner Vendor':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: data?.pic_vendor[0]?.vendor?.company_name ?? '',
+              roles: role,
+            })
+            break
+          case 'Admin Vendor':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: data?.pic_vendor[0]?.pic_name ?? '',
+              roles: role,
+            })
+            break
+          case 'Tukang':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: data?.tukang[0]?.full_name ?? '',
+              roles: role,
+            })
+            break
+          default:
+            console.log('user not found!:')
+        }
       })
     } catch (error: any) {
       console.log('error when fetching data', error)
@@ -47,14 +98,6 @@ const AsideDefault: FC = () => {
   useEffect(() => {
     getUser()
   }, [])
-
-  const username = localStorage.getItem('username')
-  const fullName = localStorage.getItem('employeeName')
-  const vendorName = localStorage.getItem('vendorName')
-  const tukangName = localStorage.getItem('tukangName')
-  const salesName = localStorage.getItem('salesName')
-  const storeName = localStorage.getItem('storeName')
-  const role = localStorage.getItem('userRole')
 
   const minimize = () => {
     asideRef.current?.classList.add('animating')
@@ -98,20 +141,8 @@ const AsideDefault: FC = () => {
           />
 
           <h6 className='text-center text-secondary-emphasis'>
-            {role === 'Owner Vendor'
-              ? vendorName
-              : role === 'Admin Vendor'
-              ? username
-              : role === 'Sales'
-              ? salesName
-              : role === 'Admin HO' || role === 'Super User'
-              ? username
-              : role === 'Tukang'
-              ? user.username
-              : role === 'Store CS'
-              ? storeName
-              : fullName}
-            <br />({role}){' '}
+            {['Super User', 'Admin HO'].includes(user.roles) ? user.username : user.full_name}
+            <br />({user.roles}){' '}
           </h6>
         </div>
         {/* end::Logo */}

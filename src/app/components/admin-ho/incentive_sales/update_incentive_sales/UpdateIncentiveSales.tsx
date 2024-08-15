@@ -3,8 +3,6 @@ import {useNavigate, useParams} from 'react-router-dom'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
-import makeAnimated from 'react-select/animated'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 
 interface StoreSelect {
@@ -27,7 +25,6 @@ const UpdateIncentiveSales: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
-  const animatedComponents = makeAnimated()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -54,7 +51,7 @@ const UpdateIncentiveSales: FC = () => {
               name: data?.name,
               min_order: data?.min_order,
               max_order: data?.max_order,
-              incentive: parseInt(data?.incentive),
+              incentive: parseFloat(data?.incentive),
               type: data?.type,
               stores: promotionStores,
             }))
@@ -144,7 +141,8 @@ const UpdateIncentiveSales: FC = () => {
 
     setIncentive((prevIncentive) => ({
       ...prevIncentive,
-      [name]: name === 'min_order' || name === 'incentive' ? parseInt(value) : value,
+      [name]:
+        name === 'min_order' ? parseInt(value) : name === 'incentive' ? parseFloat(value) : value,
     }))
   }
 
@@ -313,7 +311,7 @@ const UpdateIncentiveSales: FC = () => {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: 'Success Update Incentive Sales',
+            text: 'Berhasil Update Incentive Sales',
             showConfirmButton: false,
             timer: 1500,
           })
