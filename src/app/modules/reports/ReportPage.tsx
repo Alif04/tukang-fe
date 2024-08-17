@@ -475,11 +475,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN EXPENSE PROMOSI</PageTitle>
 
             <ReportHO
-              endpoint='quotation'
-              statusName=''
+              endpoint='orders'
+              statusName='WORKEND'
               headerColor='danger'
               title='Laporan Expense Promosi '
-              params=''
+              params='&payment_type=gratis&promotion=1'
             />
           </>
         }

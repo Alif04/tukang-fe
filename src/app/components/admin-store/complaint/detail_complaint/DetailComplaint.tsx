@@ -1605,7 +1605,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
                           <Form.Group as={Row} className='detail-info'>
                             <Form.Label column sm='5'>
-                              Jabatan :
+                              Jabatan
                             </Form.Label>
 
                             <Col sm='7'>
@@ -1631,6 +1631,20 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                               </p>
                             </Col>
                           </Form.Group>
+
+                          {['Owner Vendor', 'Admin Vendor'].includes(
+                            item?.remedial_pic_positon
+                          ) && (
+                            <Form.Group as={Row} className='detail-info'>
+                              <Form.Label column sm='5'>
+                                Status Vendor
+                              </Form.Label>
+
+                              <Col sm='7'>
+                                <p className='fs-7'>: {item?.status?.description ?? '-'}</p>
+                              </Col>
+                            </Form.Group>
+                          )}
                         </Skeleton>
                       </Col>
 

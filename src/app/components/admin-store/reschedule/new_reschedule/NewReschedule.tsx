@@ -674,7 +674,7 @@ const NewReschedule: FC = () => {
                       </table>
                     ) : (
                       <>
-                        <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+                        <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>
@@ -718,7 +718,7 @@ const NewReschedule: FC = () => {
                           </tbody>
                         </table>
 
-                        <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+                        <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>
@@ -762,7 +762,7 @@ const NewReschedule: FC = () => {
                           </tbody>
                         </table>
 
-                        <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+                        <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>

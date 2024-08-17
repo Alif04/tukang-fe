@@ -416,6 +416,15 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           onFilter: (value, record) => record.payment_status.includes(String(value)),
           sorter: (a, b) => a.payment_status.length - b.payment_status.length,
         },
+        {
+          title: 'Status Order',
+          dataIndex: 'order_status',
+          key: 'order_status',
+          align: 'left',
+          width: 120,
+          onFilter: (value, record) => record.order_status.includes(String(value)),
+          sorter: (a, b) => a.order_status.length - b.order_status.length,
+        },
       ]
       break
 
@@ -559,6 +568,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
     case 'reschedule':
       columns = [
         {
+          title: 'Reschedule ID',
+          dataIndex: 'reschedule_id',
+          key: 'reschedule_id',
+          align: 'center',
+          width: 80,
+          sorter: (a, b) => a.reschedule_id - b.reschedule_id,
+        },
+        {
           title: 'Order ID',
           dataIndex: 'order_id',
           key: 'order_id',
@@ -567,14 +584,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           className: 'col_order_id',
           defaultSortOrder: 'descend',
           sorter: (a, b) => a.order_id - b.order_id,
-        },
-        {
-          title: 'Refund Id',
-          dataIndex: 'refund_id',
-          key: 'refund_id',
-          align: 'center',
-          width: 80,
-          sorter: (a, b) => a.refund_id - b.refund_id,
         },
         {
           title: 'Nama Toko',
@@ -936,7 +945,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
 
-      let url = `${urlBase}?order_by=desc&take=0`
+      let url = `${urlBase}?order_by=desc&take=0${params}`
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
@@ -1203,7 +1212,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               service_name: workOrderItems,
               vendor_name: item?.order?.vendor?.company_name ?? '-',
               payment_status: paymentStatus,
-              order_status: item?.status?.category ?? '',
+              order_status: item?.status?.description ?? '',
               quotation_status: item?.status?.category ?? '',
             }
 
@@ -1266,7 +1275,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
             let paymentStatus = item.order.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
 
             data = {
-              refund_id: item?.id,
+              reschedule_id: item?.id,
               order_id: item?.order_id,
               store_name: item?.order?.store.store_name,
               date_order: orderDate,
@@ -1276,7 +1285,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               item_name: item?.order?.m_order_details[0]?.item?.item_name ?? '-',
               service_name: item?.order?.m_order_details[0]?.item?.service_name ?? '-',
               payment_status: paymentStatus,
-              order_status: item?.order?.status.category,
+              order_status: item?.order?.status.description,
             }
 
             return data
@@ -1311,6 +1320,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
             })
 
             data = {
+              sales_comission_id: item?.id,
               order_id: item?.quotation?.order_id,
               date_order: orderDate,
               store_name: item?.sales?.store?.store_name ?? '-',
@@ -1809,7 +1819,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               bordered
               columns={columns}
               dataSource={reportData}
-              rowKey={(record) => record.order_id}
+              rowKey={(record) => record.complaint_id}
               tableLayout='auto'
               scroll={{x: 'max-content'}}
               pagination={{
@@ -1835,7 +1845,21 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               bordered
               columns={columns}
               dataSource={reportData}
-              rowKey={(record) => record.order_id}
+              rowKey={(record) =>
+                endpoint === 'orders'
+                  ? record.order_id
+                  : endpoint === 'refund'
+                  ? record.refund_id
+                  : endpoint === 'reschedule'
+                  ? record.reschedule_id
+                  : endpoint === 'quotation'
+                  ? record.quotation_id
+                  : endpoint === 'invoices'
+                  ? record.invoice_id
+                  : endpoint === 'sales-comission'
+                  ? record.sales_comission_id
+                  : record.order_id
+              }
               tableLayout='auto'
               scroll={{x: 'max-content'}}
               pagination={{
