@@ -1025,7 +1025,7 @@ const NewQuotationVendor: FC = () => {
               <hr />
 
               <div className='item-jasa'>
-                <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan Tahap 1</h4>
+                <h4 className='fs-4 fw-bold mb-5'>Item Jasa Pemasangan Tahap 1</h4>
 
                 {quotation.quotation_details
                   .filter((x) => x.type === 2 && x.work_step === 1)
@@ -1208,7 +1208,7 @@ const NewQuotationVendor: FC = () => {
               <hr />
 
               <div className='item-jasa'>
-                <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan Tahap 2</h4>
+                <h4 className='fs-4 fw-bold mb-5'>Item Jasa Pemasangan Tahap 2</h4>
 
                 {quotation.quotation_details
                   .filter((x) => x.type === 2 && x.work_step === 2)
@@ -1391,7 +1391,7 @@ const NewQuotationVendor: FC = () => {
               <hr />
 
               <div className='item-jasa'>
-                <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan Tahap 3</h4>
+                <h4 className='fs-4 fw-bold mb-5'>Item Jasa Pemasangan Tahap 3</h4>
 
                 {quotation.quotation_details
                   .filter((x) => x.type === 2 && x.work_step === 3)

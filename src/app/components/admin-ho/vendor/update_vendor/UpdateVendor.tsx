@@ -1131,6 +1131,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                           onChange={handleChangeJoinDate}
                           min={today}
                           value={joinDate}
+                          readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                         />
                       </Col>
                     </Form.Group>
@@ -1145,6 +1146,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       type='text'
                       onChange={handleChangeVendorName}
                       value={vendorName}
+                      readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                     />
                   </Form.Group>
                 </Row>
@@ -1158,6 +1160,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                         type='text'
                         value={picName}
                         onChange={handleChangeVendorPicName}
+                        readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                       />
                     </Form.Group>
                   </Col>
@@ -1170,6 +1173,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                         type='text'
                         onChange={handleChangeVendorPhoneNumber}
                         value={phoneNumberVendor}
+                        readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                       />
                     </Form.Group>
                   </Col>
@@ -1183,6 +1187,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       type='email'
                       onChange={handleChangeVendorEmail}
                       value={emailVendor}
+                      readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                     />
                   </Form.Group>
                 </Row>
@@ -1256,6 +1261,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       className='address-form'
                       onChange={handleChangeVendorAddress}
                       value={vendorAddress}
+                      readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                     />
                   </Form.Group>
                 </Row>
@@ -1292,6 +1298,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       type='number'
                       onChange={handleChangeKTPNumber}
                       value={ktpNumber}
+                      readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                     />
                   </Form.Group>
                 </Row>
@@ -1324,6 +1331,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       type='number'
                       onChange={handleChangeNPWPNumber}
                       value={npwpNumber}
+                      readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole)}
                     />
                   </Form.Group>
                 </Row>
@@ -1472,55 +1480,57 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                   )}
                 </Row>
 
-                <Row className='form-body'>
-                  <Form.Group>
-                    <Form.Label>Upload other docs</Form.Label>
-                    <Form className='form-input-image' onClick={handleImageClick}>
-                      <Form.Control
-                        id='file-input'
-                        type='file'
-                        // accept='image/*'
-                        accept='.jpg, .jpeg, .png'
-                        multiple
-                        hidden
-                        ref={evidenceRef}
-                        onChange={handleFileChange}
-                      />
+                {!['Owner Vendor', 'Admin Vendor'].includes(userRole) && (
+                  <Row className='form-body'>
+                    <Form.Group>
+                      <Form.Label>Upload other docs</Form.Label>
+                      <Form className='form-input-image' onClick={handleImageClick}>
+                        <Form.Control
+                          id='file-input'
+                          type='file'
+                          // accept='image/*'
+                          accept='.jpg, .jpeg, .png'
+                          multiple
+                          hidden
+                          ref={evidenceRef}
+                          onChange={handleFileChange}
+                        />
 
-                      <div className='input-image-text'>
-                        <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                        <p>Add File</p>
-                      </div>
-                    </Form>
+                        <div className='input-image-text'>
+                          <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                          <p>Add File</p>
+                        </div>
+                      </Form>
 
-                    <ListGroup className='pt-3'>
-                      {uploadFiles.length ? (
-                        uploadFiles.map((item, index) => (
-                          <ListGroup.Item
-                            key={`${item?.name}-${index}-${item?.type}`}
-                            className='d-flex justify-content-between'
-                          >
-                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+                      <ListGroup className='pt-3'>
+                        {uploadFiles.length ? (
+                          uploadFiles.map((item, index) => (
+                            <ListGroup.Item
+                              key={`${item?.name}-${index}-${item?.type}`}
+                              className='d-flex justify-content-between'
+                            >
+                              <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                            <span className='upload-content'>{item?.name}</span>
+                              <span className='upload-content'>{item?.name}</span>
 
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              size='sm'
-                              color='#ed2b2a'
-                              style={{cursor: 'pointer'}}
-                              onClick={(e) => handleRemoveFile(index)}
-                            />
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size='sm'
+                                color='#ed2b2a'
+                                style={{cursor: 'pointer'}}
+                                onClick={(e) => handleRemoveFile(index)}
+                              />
+                            </ListGroup.Item>
+                          ))
+                        ) : (
+                          <ListGroup.Item className='d-flex justify-content-center'>
+                            Tidak ada file yang dipilih
                           </ListGroup.Item>
-                        ))
-                      ) : (
-                        <ListGroup.Item className='d-flex justify-content-center'>
-                          Tidak ada file yang dipilih
-                        </ListGroup.Item>
-                      )}
-                    </ListGroup>
-                  </Form.Group>
-                </Row>
+                        )}
+                      </ListGroup>
+                    </Form.Group>
+                  </Row>
+                )}
               </Col>
 
               <Col xxl={3} xl={3} lg={12} md={12}>
@@ -1635,46 +1645,50 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         </Card>
       </Spin>
 
-      <hr />
+      {!['Owner Vendor', 'Admin Vendor'].includes(userRole) && (
+        <>
+          <hr />
 
-      <Card className='mb-5'>
-        <Card.Header>
-          <Card.Title>Profile</Card.Title>
-        </Card.Header>
+          <Card className='mb-5'>
+            <Card.Header>
+              <Card.Title>Profile</Card.Title>
+            </Card.Header>
 
-        <Card.Body>
-          <Row>
-            <Col xxl={6}>
-              <Form.Group className='tukang-info'>
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  type='text'
-                  name='username'
-                  onChange={handleChangeUsernameVendor}
-                  value={username}
-                />
+            <Card.Body>
+              <Row>
+                <Col xxl={6}>
+                  <Form.Group className='tukang-info'>
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control
+                      type='text'
+                      name='username'
+                      onChange={handleChangeUsernameVendor}
+                      value={username}
+                    />
 
-                <Form.Text className='fs-8 fs-l text-dark-danger'>
-                  *Jika username kosong, maka sistem akan menghasilkan username secara otomatis dari
-                  alamat email
-                </Form.Text>
-              </Form.Group>
-            </Col>
+                    <Form.Text className='fs-8 fs-l text-dark-danger'>
+                      *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
+                      dari alamat email
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
 
-            <Col xxl={6}>
-              <Form.Group className='tukang-info'>
-                <Form.Label>Reset Password</Form.Label>
-                <Form.Control
-                  type='text'
-                  name='password'
-                  onChange={handleChangePasswordVendor}
-                  value={password}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+                <Col xxl={6}>
+                  <Form.Group className='tukang-info'>
+                    <Form.Label>Reset Password</Form.Label>
+                    <Form.Control
+                      type='text'
+                      name='password'
+                      onChange={handleChangePasswordVendor}
+                      value={password}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        </>
+      )}
 
       <div className='d-flex justify-content-center mt-5'>
         <Button

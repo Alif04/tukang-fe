@@ -186,32 +186,56 @@ const DetailQuotationVendor: FC = () => {
             {quotationDetail?.quotation_special === 0 && (
               <Table hover className='table-jasa'>
                 <thead>
-                  <tr>
-                    <th className='text-center'>Jenis Jasa</th>
-                    <th className='text-center'>QTY</th>
-                    <th className='text-center'>Satuan</th>
-                    <th className='text-center'>Price</th>
-                    <th className='text-center'>Profit</th>
-                    <th className='text-center'>Total</th>
-                  </tr>
+                  {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                    <tr>
+                      <th className='text-center'>Jenis Jasa</th>
+                      <th className='text-center'>QTY</th>
+                      <th className='text-center'>Satuan</th>
+                      <th className='text-center'>Price</th>
+                      <th className='text-center'>Profit</th>
+                      <th className='text-center'>Total</th>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <th className='text-center' style={{minWidth: '233px'}}>
+                        Jenis Jasa
+                      </th>
+                      <th className='text-center'>QTY</th>
+                      <th className='text-center'>Satuan</th>
+                      <th className='text-center'>Final Price</th>
+                    </tr>
+                  )}
                 </thead>
                 <tbody>
                   {quotationDetail?.quotation_details
                     .filter((x: any) => x.item_type === 2)
                     .map((item: any) => (
                       <>
-                        <tr>
-                          <td>{item?.name ?? '-'}</td>
-                          <td>{item?.quantity}</td>
-                          <td>{item?.unit}</td>
-                          <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                          <td>
-                            {item.margin_type === 1
-                              ? `${item?.margin ?? 0}%`
-                              : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
-                          </td>
-                          <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString('id')}`}</td>
-                        </tr>
+                        {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                          <tr>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity}</td>
+                            <td>{item?.unit}</td>
+                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                            <td>
+                              {item.margin_type === 1
+                                ? `${item?.margin ?? 0}%`
+                                : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                            </td>
+                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                          </tr>
+                        ) : (
+                          <tr>
+                            <td>{item?.name ?? '-'}</td>
+                            <td>{item?.quantity}</td>
+                            <td>{item?.unit ?? '-'}</td>
+                            <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                              'id'
+                            )}`}</td>
+                          </tr>
+                        )}
                       </>
                     ))}
                 </tbody>
@@ -234,18 +258,29 @@ const DetailQuotationVendor: FC = () => {
 
                 <hr />
 
-                <div className='fs-6 fw-semibold p-0'>Jasa Pemasangan Tahap 1</div>
+                <div className='fs-6 fw-bold p-0'>Jasa Pemasangan Tahap 1</div>
 
                 <Table hover className='table-jasa'>
                   <thead>
-                    <tr>
-                      <th className='text-center'>Jenis Jasa</th>
-                      <th className='text-center'>QTY</th>
-                      <th className='text-center'>Satuan</th>
-                      <th className='text-center'>Price</th>
-                      <th className='text-center'>Profit</th>
-                      <th className='text-center'>Total</th>
-                    </tr>
+                    {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                      <tr>
+                        <th className='text-center'>Jenis Jasa</th>
+                        <th className='text-center'>QTY</th>
+                        <th className='text-center'>Satuan</th>
+                        <th className='text-center'>Price</th>
+                        <th className='text-center'>Profit</th>
+                        <th className='text-center'>Total</th>
+                      </tr>
+                    ) : (
+                      <tr>
+                        <th className='text-center' style={{minWidth: '233px'}}>
+                          Jenis Jasa
+                        </th>
+                        <th className='text-center'>QTY</th>
+                        <th className='text-center'>Satuan</th>
+                        <th className='text-center'>Final Price</th>
+                      </tr>
+                    )}
                   </thead>
 
                   <tbody>
@@ -253,20 +288,31 @@ const DetailQuotationVendor: FC = () => {
                       .filter((x: any) => x.item_type === 2 && x.work_step === 1)
                       .map((item: any) => (
                         <>
-                          <tr>
-                            <td>{item?.name ?? '-'}</td>
-                            <td>{item?.quantity}</td>
-                            <td>{item?.unit}</td>
-                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            <td>
-                              {item.margin_type === 1
-                                ? `${item?.margin ?? 0}%`
-                                : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
-                            </td>
-                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                              'id'
-                            )}`}</td>
-                          </tr>
+                          {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                            <tr>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              <td>
+                                {item.margin_type === 1
+                                  ? `${item?.margin ?? 0}%`
+                                  : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                              </td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ) : (
+                            <tr>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity}</td>
+                              <td>{item?.unit ?? '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          )}
                         </>
                       ))}
                   </tbody>
@@ -274,18 +320,29 @@ const DetailQuotationVendor: FC = () => {
 
                 <hr />
 
-                <div className='fs-6 fw-semibold p-0'>Jasa Pemasangan Tahap 2</div>
+                <div className='fs-6 fw-bold p-0'>Jasa Pemasangan Tahap 2</div>
 
                 <Table hover className='table-jasa'>
                   <thead>
-                    <tr>
-                      <th className='text-center'>Jenis Jasa</th>
-                      <th className='text-center'>QTY</th>
-                      <th className='text-center'>Satuan</th>
-                      <th className='text-center'>Price</th>
-                      <th className='text-center'>Profit</th>
-                      <th className='text-center'>Total</th>
-                    </tr>
+                    {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                      <tr>
+                        <th className='text-center'>Jenis Jasa</th>
+                        <th className='text-center'>QTY</th>
+                        <th className='text-center'>Satuan</th>
+                        <th className='text-center'>Price</th>
+                        <th className='text-center'>Profit</th>
+                        <th className='text-center'>Total</th>
+                      </tr>
+                    ) : (
+                      <tr>
+                        <th className='text-center' style={{minWidth: '233px'}}>
+                          Jenis Jasa
+                        </th>
+                        <th className='text-center'>QTY</th>
+                        <th className='text-center'>Satuan</th>
+                        <th className='text-center'>Final Price</th>
+                      </tr>
+                    )}
                   </thead>
 
                   <tbody>
@@ -293,20 +350,31 @@ const DetailQuotationVendor: FC = () => {
                       .filter((x: any) => x.item_type === 2 && x.work_step === 2)
                       .map((item: any) => (
                         <>
-                          <tr>
-                            <td>{item?.name ?? '-'}</td>
-                            <td>{item?.quantity}</td>
-                            <td>{item?.unit}</td>
-                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            <td>
-                              {item.margin_type === 1
-                                ? `${item?.margin ?? 0}%`
-                                : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
-                            </td>
-                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                              'id'
-                            )}`}</td>
-                          </tr>
+                          {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                            <tr>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              <td>
+                                {item.margin_type === 1
+                                  ? `${item?.margin ?? 0}%`
+                                  : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                              </td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ) : (
+                            <tr>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity}</td>
+                              <td>{item?.unit ?? '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          )}
                         </>
                       ))}
                   </tbody>
@@ -314,18 +382,29 @@ const DetailQuotationVendor: FC = () => {
 
                 <hr />
 
-                <div className='fs-6 fw-semibold p-0'>Jasa Pemasangan Tahap 3</div>
+                <div className='fs-6 fw-bold p-0'>Jasa Pemasangan Tahap 3</div>
 
                 <Table hover className='table-jasa'>
                   <thead>
-                    <tr>
-                      <th className='text-center'>Jenis Jasa</th>
-                      <th className='text-center'>QTY</th>
-                      <th className='text-center'>Satuan</th>
-                      <th className='text-center'>Price</th>
-                      <th className='text-center'>Profit</th>
-                      <th className='text-center'>Total</th>
-                    </tr>
+                    {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                      <tr>
+                        <th className='text-center'>Jenis Jasa</th>
+                        <th className='text-center'>QTY</th>
+                        <th className='text-center'>Satuan</th>
+                        <th className='text-center'>Price</th>
+                        <th className='text-center'>Profit</th>
+                        <th className='text-center'>Total</th>
+                      </tr>
+                    ) : (
+                      <tr>
+                        <th className='text-center' style={{minWidth: '233px'}}>
+                          Jenis Jasa
+                        </th>
+                        <th className='text-center'>QTY</th>
+                        <th className='text-center'>Satuan</th>
+                        <th className='text-center'>Final Price</th>
+                      </tr>
+                    )}
                   </thead>
 
                   <tbody>
@@ -333,20 +412,31 @@ const DetailQuotationVendor: FC = () => {
                       .filter((x: any) => x.item_type === 2 && x.work_step === 3)
                       .map((item: any) => (
                         <>
-                          <tr>
-                            <td>{item?.name ?? '-'}</td>
-                            <td>{item?.quantity}</td>
-                            <td>{item?.unit}</td>
-                            <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                            <td>
-                              {item.margin_type === 1
-                                ? `${item?.margin ?? 0}%`
-                                : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
-                            </td>
-                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                              'id'
-                            )}`}</td>
-                          </tr>
+                          {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                            <tr>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                              <td>
+                                {item.margin_type === 1
+                                  ? `${item?.margin ?? 0}%`
+                                  : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                              </td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ) : (
+                            <tr>
+                              <td>{item?.name ?? '-'}</td>
+                              <td>{item?.quantity}</td>
+                              <td>{item?.unit ?? '-'}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          )}
                         </>
                       ))}
                   </tbody>
@@ -358,42 +448,69 @@ const DetailQuotationVendor: FC = () => {
 
             <Table hover className='table-material'>
               <thead>
-                <tr>
-                  <th className='text-center' style={{minWidth: '200px'}}>
-                    Material yang dibutuhkan
-                  </th>
-                  <th className='text-center'>QTY</th>
-                  <th className='text-center'>Satuan</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Profit</th>
-                  <th className='text-center'>Total</th>
-                </tr>
+                {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                  <tr>
+                    <th className='text-center' style={{minWidth: '200px'}}>
+                      Material yang dibutuhkan
+                    </th>
+                    <th className='text-center'>QTY</th>
+                    <th className='text-center'>Satuan</th>
+                    <th className='text-center'>Price</th>
+                    <th className='text-center'>Profit</th>
+                    <th className='text-center'>Total</th>
+                  </tr>
+                ) : (
+                  <tr>
+                    <th className='text-center' style={{minWidth: '200px'}}>
+                      Material yang dibutuhkan
+                    </th>
+                    <th className='text-center'>QTY</th>
+                    <th className='text-center'>Satuan</th>
+                    <th className='text-center'>Final Price</th>
+                  </tr>
+                )}
               </thead>
+
               <tbody>
                 {quotationDetail?.quotation_details
                   .filter((x: any) => x.item_type === 1)
                   .map((item: any) => (
                     <>
-                      <tr>
-                        <td>
-                          {item?.name ?? '-'}{' '}
-                          {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                        </td>
-                        <td>{item?.quantity}</td>
-                        <td>{item?.unit}</td>
-                        <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
-                        <td>
-                          {item.margin_type === 1
-                            ? `${item?.margin ?? 0}%`
-                            : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
-                        </td>
-                        <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString('id')}`}</td>
-                      </tr>
+                      {['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
+                        <tr>
+                          <td>
+                            {item?.name ?? '-'}{' '}
+                            {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                          </td>
+                          <td>{item?.quantity}</td>
+                          <td>{item?.unit}</td>
+                          <td>{`Rp. ${parseInt(item?.price ?? 0).toLocaleString('id')}`}</td>
+                          <td>
+                            {item.margin_type === 1
+                              ? `${item?.margin ?? 0}%`
+                              : `Rp. ${parseInt(item?.margin ?? 0).toLocaleString('id')}`}
+                          </td>
+                          <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString('id')}`}</td>
+                        </tr>
+                      ) : (
+                        <tr>
+                          <td>
+                            {item?.name ?? '-'}{' '}
+                            {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                          </td>
+                          <td>{item?.quantity}</td>
+                          <td>{item?.unit ?? '-'}</td>
+                          <td>{`Rp. ${parseInt(item?.final_price || 0).toLocaleString('id')}`}</td>
+                        </tr>
+                      )}
                     </>
                   ))}
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td
+                    colSpan={['Owner Vendor', 'Admin Vendor'].includes(userRole) ? 5 : 3}
+                    className='text-end fw-bolder'
+                  >
                     Total Jasa
                   </td>
                   <td className='fw-bolder'>{`Rp. ${parseInt(
@@ -404,7 +521,10 @@ const DetailQuotationVendor: FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td
+                    colSpan={['Owner Vendor', 'Admin Vendor'].includes(userRole) ? 5 : 3}
+                    className='text-end fw-bolder'
+                  >
                     Total Material
                   </td>
                   <td className='fw-bolder'>{`Rp. ${parseInt(
@@ -414,8 +534,41 @@ const DetailQuotationVendor: FC = () => {
                   ).toLocaleString('id')}`}</td>
                 </tr>
 
+                {['Super User', 'Admin HO'].includes(userRole) && (
+                  <>
+                    <tr>
+                      <td colSpan={3} className='text-end fw-bolder'>
+                        Promosi
+                      </td>
+                      <td className=' fw-bolder'>{`Rp. ${parseInt(
+                        quotationDetail?.quotation_disc
+                      ).toLocaleString('id')}`}</td>
+                    </tr>
+
+                    <tr>
+                      <td colSpan={3} className='text-end fw-bolder'>
+                        {`${
+                          quotationDetail?.promotion
+                            ? `Additional Promotion (${quotationDetail?.promotion?.name})`
+                            : `Additional Promotion`
+                        }`}
+                      </td>
+                      <td className=' fw-bolder'>
+                        {quotationDetail?.promotion?.promotion_type === 1
+                          ? `${quotationDetail?.promotion?.promotion} %`
+                          : `Rp. ${parseInt(
+                              quotationDetail?.promotion?.promotion ?? 0
+                            ).toLocaleString('id')}`}
+                      </td>
+                    </tr>
+                  </>
+                )}
+
                 <tr>
-                  <td colSpan={5} className='text-end fw-bolder'>
+                  <td
+                    colSpan={['Owner Vendor', 'Admin Vendor'].includes(userRole) ? 5 : 3}
+                    className='text-end fw-bolder'
+                  >
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>

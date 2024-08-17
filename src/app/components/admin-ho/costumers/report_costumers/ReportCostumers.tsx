@@ -105,6 +105,7 @@ const ReportCostumerHO: FC = () => {
       )
 
       const chartDatas = response.data.data
+      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
 
       const fromDate = new Date(dateFrom)
       const toDate = new Date(dateTo)
@@ -115,13 +116,12 @@ const ReportCostumerHO: FC = () => {
       const startIndex = fromMonth
       const endIndex = toMonth + 1
 
-      const slicedData = chartDatas.slice(startIndex, endIndex)
+      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
       setChartOrder(slicedData)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
-
   const getComplaint = async () => {
     try {
       const response = await axios.get(
@@ -190,32 +190,13 @@ const ReportCostumerHO: FC = () => {
   const singleOrder = member.filter((member: any) => member?.order?.length === 1).length
   const multiOrder = member.filter((member: any) => member?.order?.length > 1).length
 
-  const countOrdersByStatus = (members: any[], statuses: string[]): number => {
-    return members.reduce((count, member) => {
-      const orderCount =
-        member?.order?.filter((order: any) => statuses.includes(order?.status?.category))?.length ||
-        0
-      return count + orderCount
-    }, 0)
-  }
+  const totalComplaint = sumTotal(chartOrder, 'totalComplaint')
+  const totalRework = sumTotal(chartOrder, 'totalRework')
+  const totalResurvey = sumTotal(chartOrder, 'totalResurvey')
 
-  const complaintStatuses = ['INVESTIGATED', 'COMPLAINTAPPROVEDBYHO', 'COMPLAINTREJECTEDBYHO']
-  const complaintsCount = countOrdersByStatus(member, complaintStatuses)
-
-  const resurveyStatuses = ['RESURVEYREQ', 'RESURVEYSTART', 'RESURVEYDONE']
-  const resurveyCount = countOrdersByStatus(member, resurveyStatuses)
-
-  const reworkStatuses = ['REWORKREQ', 'REWORKSTART', 'REWORKEND']
-  const reworkCount = countOrdersByStatus(member, reworkStatuses)
-
-  const cancelOrderStatuses = ['CANCEL']
-  const cancelOrderCount = countOrdersByStatus(member, cancelOrderStatuses)
-
-  const refundOrderStatuses = ['REFUND']
-  const refundOrderCount = countOrdersByStatus(member, refundOrderStatuses)
-
-  const rescheduleOrderStatuses = ['RESCHEDULE']
-  const rescheduleOrderCount = countOrdersByStatus(member, rescheduleOrderStatuses)
+  const totalReschedule = sumTotal(chartOrder, 'totalReschedule')
+  const totalCancel = sumTotal(chartOrder, 'totalCancel')
+  const totalRefund = sumTotal(chartOrder, 'totalRefund')
 
   return (
     <>
@@ -308,9 +289,9 @@ const ReportCostumerHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Komplain</div>
 
               <div className='d-flex justify-content-between'>
-                {renderStat(complaintsCount, 'Komplain masuk')}
-                {renderStat(resurveyCount, 'Survei Ulang')}
-                {renderStat(reworkCount, 'Pengerjaan Ulang')}
+                {renderStat(totalComplaint, 'Komplain masuk')}
+                {renderStat(totalResurvey, 'Survei Ulang')}
+                {renderStat(totalRework, 'Pengerjaan Ulang')}
               </div>
             </Card.Body>
           </Card>
@@ -322,9 +303,9 @@ const ReportCostumerHO: FC = () => {
               <div className='fs-5 fw-normal mb-5'>Informasi Lainnya</div>
 
               <div className='d-flex justify-content-between'>
-                {renderStat(cancelOrderCount, 'Cancel')}
-                {renderStat(refundOrderCount, 'Refund')}
-                {renderStat(rescheduleOrderCount, 'Reschedule')}
+                {renderStat(totalCancel, 'Cancel')}
+                {renderStat(totalRefund, 'Refund')}
+                {renderStat(totalReschedule, 'Reschedule')}
               </div>
             </Card.Body>
           </Card>
